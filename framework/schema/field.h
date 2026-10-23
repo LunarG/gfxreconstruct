@@ -98,7 +98,7 @@ GFXRECON_END_NAMESPACE(field_shape)
 //   is_return         A command's Return Field only, always true. Absent means false; schema.h's return predicate
 //                     reads it that way so that no other API element has to state it.
 //   pointer_count     Pointer, Array and PointerArray. The declared star count, one or two.
-//   field_count       Array, PointerArray or StaticArray whose registry length an Action can evaluate: a StoreValue
+//   length       Array, PointerArray or StaticArray whose registry length an Action can evaluate: a StoreValue
 //                     expression over the owner's storage. FieldValue<Sibling> for a length that is exactly one
 //                     sibling member, or a sibling and the constant 1 for a PointerArray; FieldValue<Sibling, Member>
 //                     for a length read through a pointer sibling, `sibling->member`; Sum, Product and Quotient over
@@ -144,7 +144,7 @@ using FieldEncodeType = format::EncodeTypeFor<FieldCategory<Field>>;
 // The count expression for an Array, PointerArray or StaticArray Field, if any: a FieldValue whose Get reads the
 // array's length from the owner's storage.
 template <typename Field>
-using FieldCount = typename Field::field_count;
+using FieldLength = typename Field::length;
 
 // The sibling Field whose value names a generic handle's object type.
 template <typename Field>
@@ -195,9 +195,9 @@ template <typename Storage, typename Field>
 concept HasSelectorField = HasMember<Storage, FieldSelectorField<Field>>;
 
 template <typename Storage, typename Field>
-concept HasFieldCount = requires(const Storage& storage)
+concept HasFieldLength = requires(const Storage& storage)
 {
-    FieldCount<Field>::Get(storage);
+    FieldLength<Field>::Get(storage);
 };
 
 template <typename Storage, typename Field>
@@ -332,7 +332,7 @@ template <typename Field>
 concept VoidReturnField = std::same_as<typename Field::shape, field_shape::VoidReturn>;
 
 // Store values. A store value is a type with a static Get(store) that yields a value; an API element names one as its
-// field_count, and an Action evaluates it. The base marks the types that are one, so an operator can require it of
+// length, and an Action evaluates it. The base marks the types that are one, so an operator can require it of
 // its operands and an API element member can be constrained on it.
 struct StoreValueBase
 {};
@@ -343,7 +343,7 @@ concept StoreValue = std::derived_from<T, StoreValueBase>;
 // What a count operand may yield: an integer, or a C enum standing for one, as rasterizationSamples does. bool is an
 // integer to the language and not a count.
 template <typename T>
-concept CountValue = (std::integral<T> && !std::same_as<T, bool>) || std::is_enum_v<T>;
+concept LengthValue = (std::integral<T> && !std::same_as<T, bool>) || std::is_enum_v<T>;
 
 template <typename Operand, typename Store>
 using OperandValue = decltype(Operand::Get(std::declval<const Store&>()));
@@ -395,7 +395,7 @@ template <StoreValue Left, StoreValue Right>
 struct Sum : StoreValueBase
 {
     template <typename Store>
-    requires CountValue<OperandValue<Left, Store>> && CountValue<OperandValue<Right, Store>>
+    requires LengthValue<OperandValue<Left, Store>> && LengthValue<OperandValue<Right, Store>>
     [[nodiscard]] static constexpr auto Get(const Store& store) { return Left::Get(store) + Right::Get(store); }
 };
 
@@ -403,7 +403,7 @@ template <StoreValue Left, StoreValue Right>
 struct Product : StoreValueBase
 {
     template <typename Store>
-    requires CountValue<OperandValue<Left, Store>> && CountValue<OperandValue<Right, Store>>
+    requires LengthValue<OperandValue<Left, Store>> && LengthValue<OperandValue<Right, Store>>
     [[nodiscard]] static constexpr auto Get(const Store& store) { return Left::Get(store) * Right::Get(store); }
 };
 
@@ -411,7 +411,7 @@ template <StoreValue Left, StoreValue Right>
 struct Quotient : StoreValueBase
 {
     template <typename Store>
-    requires CountValue<OperandValue<Left, Store>> && CountValue<OperandValue<Right, Store>>
+    requires LengthValue<OperandValue<Left, Store>> && LengthValue<OperandValue<Right, Store>>
     [[nodiscard]] static constexpr auto Get(const Store& store) { return Left::Get(store) / Right::Get(store); }
 };
 

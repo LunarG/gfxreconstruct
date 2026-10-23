@@ -160,7 +160,7 @@ struct frame_crop_right_offset { using api_element = api_elements::UInt32; using
 struct frame_crop_top_offset { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "frame_crop_top_offset"; };
 struct frame_crop_bottom_offset { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "frame_crop_bottom_offset"; };
 struct reserved2 { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "reserved2"; };
-struct pOffsetForRefFrame { using api_element = api_elements::Int32; using shape = field_shape::Array; using field_count = FieldValue<num_ref_frames_in_pic_order_cnt_cycle>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pOffsetForRefFrame"; };
+struct pOffsetForRefFrame { using api_element = api_elements::Int32; using shape = field_shape::Array; using length = FieldValue<num_ref_frames_in_pic_order_cnt_cycle>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pOffsetForRefFrame"; };
 struct pScalingLists { using api_element = api_elements::StdVideoH264ScalingLists; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pScalingLists"; };
 struct pSequenceParameterSetVui { using api_element = api_elements::StdVideoH264SequenceParameterSetVui; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSequenceParameterSetVui"; };
 GFXRECON_END_NAMESPACE(StdVideoH264SequenceParameterSet)
@@ -295,9 +295,9 @@ struct refList0ModOpCount { using api_element = api_elements::UInt8; using shape
 struct refList1ModOpCount { using api_element = api_elements::UInt8; using shape = field_shape::Value; static constexpr std::string_view field_name = "refList1ModOpCount"; };
 struct refPicMarkingOpCount { using api_element = api_elements::UInt8; using shape = field_shape::Value; static constexpr std::string_view field_name = "refPicMarkingOpCount"; };
 struct reserved1 { using api_element = api_elements::UInt8; using shape = field_shape::StaticArray; static constexpr std::string_view length_expression = "7"; static constexpr size_t extents[] = {7}; static constexpr std::string_view field_name = "reserved1"; };
-struct pRefList0ModOperations { using api_element = api_elements::StdVideoEncodeH264RefListModEntry; using shape = field_shape::Array; using field_count = FieldValue<refList0ModOpCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRefList0ModOperations"; };
-struct pRefList1ModOperations { using api_element = api_elements::StdVideoEncodeH264RefListModEntry; using shape = field_shape::Array; using field_count = FieldValue<refList1ModOpCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRefList1ModOperations"; };
-struct pRefPicMarkingOperations { using api_element = api_elements::StdVideoEncodeH264RefPicMarkingEntry; using shape = field_shape::Array; using field_count = FieldValue<refPicMarkingOpCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRefPicMarkingOperations"; };
+struct pRefList0ModOperations { using api_element = api_elements::StdVideoEncodeH264RefListModEntry; using shape = field_shape::Array; using length = FieldValue<refList0ModOpCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRefList0ModOperations"; };
+struct pRefList1ModOperations { using api_element = api_elements::StdVideoEncodeH264RefListModEntry; using shape = field_shape::Array; using length = FieldValue<refList1ModOpCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRefList1ModOperations"; };
+struct pRefPicMarkingOperations { using api_element = api_elements::StdVideoEncodeH264RefPicMarkingEntry; using shape = field_shape::Array; using length = FieldValue<refPicMarkingOpCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRefPicMarkingOperations"; };
 GFXRECON_END_NAMESPACE(StdVideoEncodeH264ReferenceListsInfo)
 
 GFXRECON_BEGIN_NAMESPACE(StdVideoEncodeH264PictureInfo)
@@ -539,10 +539,10 @@ struct TileRows { using api_element = api_elements::UInt8; using shape = field_s
 struct context_update_tile_id { using api_element = api_elements::UInt16; using shape = field_shape::Value; static constexpr std::string_view field_name = "context_update_tile_id"; };
 struct tile_size_bytes_minus_1 { using api_element = api_elements::UInt8; using shape = field_shape::Value; static constexpr std::string_view field_name = "tile_size_bytes_minus_1"; };
 struct reserved1 { using api_element = api_elements::UInt8; using shape = field_shape::StaticArray; static constexpr std::string_view length_expression = "7"; static constexpr size_t extents[] = {7}; static constexpr std::string_view field_name = "reserved1"; };
-struct pMiColStarts { using api_element = api_elements::UInt16; using shape = field_shape::Array; using field_count = FieldValue<TileCols>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMiColStarts"; };
-struct pMiRowStarts { using api_element = api_elements::UInt16; using shape = field_shape::Array; using field_count = FieldValue<TileRows>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMiRowStarts"; };
-struct pWidthInSbsMinus1 { using api_element = api_elements::UInt16; using shape = field_shape::Array; using field_count = FieldValue<TileCols>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pWidthInSbsMinus1"; };
-struct pHeightInSbsMinus1 { using api_element = api_elements::UInt16; using shape = field_shape::Array; using field_count = FieldValue<TileRows>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pHeightInSbsMinus1"; };
+struct pMiColStarts { using api_element = api_elements::UInt16; using shape = field_shape::Array; using length = FieldValue<TileCols>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMiColStarts"; };
+struct pMiRowStarts { using api_element = api_elements::UInt16; using shape = field_shape::Array; using length = FieldValue<TileRows>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMiRowStarts"; };
+struct pWidthInSbsMinus1 { using api_element = api_elements::UInt16; using shape = field_shape::Array; using length = FieldValue<TileCols>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pWidthInSbsMinus1"; };
+struct pHeightInSbsMinus1 { using api_element = api_elements::UInt16; using shape = field_shape::Array; using length = FieldValue<TileRows>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pHeightInSbsMinus1"; };
 GFXRECON_END_NAMESPACE(StdVideoAV1TileInfo)
 
 GFXRECON_BEGIN_NAMESPACE(StdVideoAV1CDEF)
@@ -858,9 +858,9 @@ struct pNext { using api_element = api_elements::Void; using shape = field_shape
 struct flags { using api_element = api_elements::VkInstanceCreateFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct pApplicationInfo { using api_element = api_elements::VkApplicationInfo; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pApplicationInfo"; };
 struct enabledLayerCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "enabledLayerCount"; };
-struct ppEnabledLayerNames { using api_element = api_elements::Char; using shape = field_shape::PointerArray; using field_count = FieldValue<enabledLayerCount>; static constexpr size_t pointer_count = 2; static constexpr std::string_view field_name = "ppEnabledLayerNames"; };
+struct ppEnabledLayerNames { using api_element = api_elements::Char; using shape = field_shape::PointerArray; using length = FieldValue<enabledLayerCount>; static constexpr size_t pointer_count = 2; static constexpr std::string_view field_name = "ppEnabledLayerNames"; };
 struct enabledExtensionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "enabledExtensionCount"; };
-struct ppEnabledExtensionNames { using api_element = api_elements::Char; using shape = field_shape::PointerArray; using field_count = FieldValue<enabledExtensionCount>; static constexpr size_t pointer_count = 2; static constexpr std::string_view field_name = "ppEnabledExtensionNames"; };
+struct ppEnabledExtensionNames { using api_element = api_elements::Char; using shape = field_shape::PointerArray; using length = FieldValue<enabledExtensionCount>; static constexpr size_t pointer_count = 2; static constexpr std::string_view field_name = "ppEnabledExtensionNames"; };
 GFXRECON_END_NAMESPACE(VkInstanceCreateInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkMemoryHeap)
@@ -1042,9 +1042,9 @@ GFXRECON_END_NAMESPACE(VkPhysicalDeviceLimits)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceMemoryProperties)
 struct memoryTypeCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "memoryTypeCount"; };
-struct memoryTypes { using api_element = api_elements::VkMemoryType; using shape = field_shape::StaticArray; using field_count = FieldValue<memoryTypeCount>; static constexpr size_t extents[] = {VK_MAX_MEMORY_TYPES}; static constexpr std::string_view field_name = "memoryTypes"; };
+struct memoryTypes { using api_element = api_elements::VkMemoryType; using shape = field_shape::StaticArray; using length = FieldValue<memoryTypeCount>; static constexpr size_t extents[] = {VK_MAX_MEMORY_TYPES}; static constexpr std::string_view field_name = "memoryTypes"; };
 struct memoryHeapCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "memoryHeapCount"; };
-struct memoryHeaps { using api_element = api_elements::VkMemoryHeap; using shape = field_shape::StaticArray; using field_count = FieldValue<memoryHeapCount>; static constexpr size_t extents[] = {VK_MAX_MEMORY_HEAPS}; static constexpr std::string_view field_name = "memoryHeaps"; };
+struct memoryHeaps { using api_element = api_elements::VkMemoryHeap; using shape = field_shape::StaticArray; using length = FieldValue<memoryHeapCount>; static constexpr size_t extents[] = {VK_MAX_MEMORY_HEAPS}; static constexpr std::string_view field_name = "memoryHeaps"; };
 GFXRECON_END_NAMESPACE(VkPhysicalDeviceMemoryProperties)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceSparseProperties)
@@ -1080,7 +1080,7 @@ struct pNext { using api_element = api_elements::Void; using shape = field_shape
 struct flags { using api_element = api_elements::VkDeviceQueueCreateFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct queueFamilyIndex { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "queueFamilyIndex"; };
 struct queueCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "queueCount"; };
-struct pQueuePriorities { using api_element = api_elements::Float; using shape = field_shape::Array; using field_count = FieldValue<queueCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueuePriorities"; };
+struct pQueuePriorities { using api_element = api_elements::Float; using shape = field_shape::Array; using length = FieldValue<queueCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueuePriorities"; };
 GFXRECON_END_NAMESPACE(VkDeviceQueueCreateInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkDeviceCreateInfo)
@@ -1088,11 +1088,11 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct flags { using api_element = api_elements::VkDeviceCreateFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct queueCreateInfoCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "queueCreateInfoCount"; };
-struct pQueueCreateInfos { using api_element = api_elements::VkDeviceQueueCreateInfo; using shape = field_shape::Array; using field_count = FieldValue<queueCreateInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueueCreateInfos"; };
+struct pQueueCreateInfos { using api_element = api_elements::VkDeviceQueueCreateInfo; using shape = field_shape::Array; using length = FieldValue<queueCreateInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueueCreateInfos"; };
 struct enabledLayerCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "enabledLayerCount"; };
-struct ppEnabledLayerNames { using api_element = api_elements::Char; using shape = field_shape::PointerArray; using field_count = FieldValue<enabledLayerCount>; static constexpr size_t pointer_count = 2; static constexpr std::string_view field_name = "ppEnabledLayerNames"; };
+struct ppEnabledLayerNames { using api_element = api_elements::Char; using shape = field_shape::PointerArray; using length = FieldValue<enabledLayerCount>; static constexpr size_t pointer_count = 2; static constexpr std::string_view field_name = "ppEnabledLayerNames"; };
 struct enabledExtensionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "enabledExtensionCount"; };
-struct ppEnabledExtensionNames { using api_element = api_elements::Char; using shape = field_shape::PointerArray; using field_count = FieldValue<enabledExtensionCount>; static constexpr size_t pointer_count = 2; static constexpr std::string_view field_name = "ppEnabledExtensionNames"; };
+struct ppEnabledExtensionNames { using api_element = api_elements::Char; using shape = field_shape::PointerArray; using length = FieldValue<enabledExtensionCount>; static constexpr size_t pointer_count = 2; static constexpr std::string_view field_name = "ppEnabledExtensionNames"; };
 struct pEnabledFeatures { using api_element = api_elements::VkPhysicalDeviceFeatures; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pEnabledFeatures"; };
 GFXRECON_END_NAMESPACE(VkDeviceCreateInfo)
 
@@ -1112,12 +1112,12 @@ GFXRECON_BEGIN_NAMESPACE(VkSubmitInfo)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct waitSemaphoreCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "waitSemaphoreCount"; };
-struct pWaitSemaphores { using api_element = api_elements::VkSemaphore; using shape = field_shape::Array; using field_count = FieldValue<waitSemaphoreCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pWaitSemaphores"; };
-struct pWaitDstStageMask { using api_element = api_elements::VkPipelineStageFlags; using shape = field_shape::Array; using field_count = FieldValue<waitSemaphoreCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pWaitDstStageMask"; };
+struct pWaitSemaphores { using api_element = api_elements::VkSemaphore; using shape = field_shape::Array; using length = FieldValue<waitSemaphoreCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pWaitSemaphores"; };
+struct pWaitDstStageMask { using api_element = api_elements::VkPipelineStageFlags; using shape = field_shape::Array; using length = FieldValue<waitSemaphoreCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pWaitDstStageMask"; };
 struct commandBufferCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBufferCount"; };
-struct pCommandBuffers { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Array; using field_count = FieldValue<commandBufferCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCommandBuffers"; };
+struct pCommandBuffers { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Array; using length = FieldValue<commandBufferCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCommandBuffers"; };
 struct signalSemaphoreCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "signalSemaphoreCount"; };
-struct pSignalSemaphores { using api_element = api_elements::VkSemaphore; using shape = field_shape::Array; using field_count = FieldValue<signalSemaphoreCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSignalSemaphores"; };
+struct pSignalSemaphores { using api_element = api_elements::VkSemaphore; using shape = field_shape::Array; using length = FieldValue<signalSemaphoreCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSignalSemaphores"; };
 GFXRECON_END_NAMESPACE(VkSubmitInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkMappedMemoryRange)
@@ -1165,7 +1165,7 @@ GFXRECON_END_NAMESPACE(VkSparseImageMemoryBind)
 GFXRECON_BEGIN_NAMESPACE(VkSparseImageMemoryBindInfo)
 struct image { using api_element = api_elements::VkImage; using shape = field_shape::Value; static constexpr std::string_view field_name = "image"; };
 struct bindCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "bindCount"; };
-struct pBinds { using api_element = api_elements::VkSparseImageMemoryBind; using shape = field_shape::Array; using field_count = FieldValue<bindCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBinds"; };
+struct pBinds { using api_element = api_elements::VkSparseImageMemoryBind; using shape = field_shape::Array; using length = FieldValue<bindCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBinds"; };
 GFXRECON_END_NAMESPACE(VkSparseImageMemoryBindInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkSparseImageMemoryRequirements)
@@ -1187,28 +1187,28 @@ GFXRECON_END_NAMESPACE(VkSparseMemoryBind)
 GFXRECON_BEGIN_NAMESPACE(VkSparseBufferMemoryBindInfo)
 struct buffer { using api_element = api_elements::VkBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "buffer"; };
 struct bindCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "bindCount"; };
-struct pBinds { using api_element = api_elements::VkSparseMemoryBind; using shape = field_shape::Array; using field_count = FieldValue<bindCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBinds"; };
+struct pBinds { using api_element = api_elements::VkSparseMemoryBind; using shape = field_shape::Array; using length = FieldValue<bindCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBinds"; };
 GFXRECON_END_NAMESPACE(VkSparseBufferMemoryBindInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkSparseImageOpaqueMemoryBindInfo)
 struct image { using api_element = api_elements::VkImage; using shape = field_shape::Value; static constexpr std::string_view field_name = "image"; };
 struct bindCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "bindCount"; };
-struct pBinds { using api_element = api_elements::VkSparseMemoryBind; using shape = field_shape::Array; using field_count = FieldValue<bindCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBinds"; };
+struct pBinds { using api_element = api_elements::VkSparseMemoryBind; using shape = field_shape::Array; using length = FieldValue<bindCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBinds"; };
 GFXRECON_END_NAMESPACE(VkSparseImageOpaqueMemoryBindInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkBindSparseInfo)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct waitSemaphoreCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "waitSemaphoreCount"; };
-struct pWaitSemaphores { using api_element = api_elements::VkSemaphore; using shape = field_shape::Array; using field_count = FieldValue<waitSemaphoreCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pWaitSemaphores"; };
+struct pWaitSemaphores { using api_element = api_elements::VkSemaphore; using shape = field_shape::Array; using length = FieldValue<waitSemaphoreCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pWaitSemaphores"; };
 struct bufferBindCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "bufferBindCount"; };
-struct pBufferBinds { using api_element = api_elements::VkSparseBufferMemoryBindInfo; using shape = field_shape::Array; using field_count = FieldValue<bufferBindCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBufferBinds"; };
+struct pBufferBinds { using api_element = api_elements::VkSparseBufferMemoryBindInfo; using shape = field_shape::Array; using length = FieldValue<bufferBindCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBufferBinds"; };
 struct imageOpaqueBindCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "imageOpaqueBindCount"; };
-struct pImageOpaqueBinds { using api_element = api_elements::VkSparseImageOpaqueMemoryBindInfo; using shape = field_shape::Array; using field_count = FieldValue<imageOpaqueBindCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pImageOpaqueBinds"; };
+struct pImageOpaqueBinds { using api_element = api_elements::VkSparseImageOpaqueMemoryBindInfo; using shape = field_shape::Array; using length = FieldValue<imageOpaqueBindCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pImageOpaqueBinds"; };
 struct imageBindCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "imageBindCount"; };
-struct pImageBinds { using api_element = api_elements::VkSparseImageMemoryBindInfo; using shape = field_shape::Array; using field_count = FieldValue<imageBindCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pImageBinds"; };
+struct pImageBinds { using api_element = api_elements::VkSparseImageMemoryBindInfo; using shape = field_shape::Array; using length = FieldValue<imageBindCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pImageBinds"; };
 struct signalSemaphoreCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "signalSemaphoreCount"; };
-struct pSignalSemaphores { using api_element = api_elements::VkSemaphore; using shape = field_shape::Array; using field_count = FieldValue<signalSemaphoreCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSignalSemaphores"; };
+struct pSignalSemaphores { using api_element = api_elements::VkSemaphore; using shape = field_shape::Array; using length = FieldValue<signalSemaphoreCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSignalSemaphores"; };
 GFXRECON_END_NAMESPACE(VkBindSparseInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkFenceCreateInfo)
@@ -1240,7 +1240,7 @@ struct size { using api_element = api_elements::VkDeviceSize; using shape = fiel
 struct usage { using api_element = api_elements::VkBufferUsageFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "usage"; };
 struct sharingMode { using api_element = api_elements::VkSharingMode; using shape = field_shape::Value; static constexpr std::string_view field_name = "sharingMode"; };
 struct queueFamilyIndexCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "queueFamilyIndexCount"; };
-struct pQueueFamilyIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<queueFamilyIndexCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueueFamilyIndices"; };
+struct pQueueFamilyIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<queueFamilyIndexCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueueFamilyIndices"; };
 GFXRECON_END_NAMESPACE(VkBufferCreateInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkImageCreateInfo)
@@ -1257,7 +1257,7 @@ struct tiling { using api_element = api_elements::VkImageTiling; using shape = f
 struct usage { using api_element = api_elements::VkImageUsageFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "usage"; };
 struct sharingMode { using api_element = api_elements::VkSharingMode; using shape = field_shape::Value; static constexpr std::string_view field_name = "sharingMode"; };
 struct queueFamilyIndexCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "queueFamilyIndexCount"; };
-struct pQueueFamilyIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<queueFamilyIndexCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueueFamilyIndices"; };
+struct pQueueFamilyIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<queueFamilyIndexCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueueFamilyIndices"; };
 struct initialLayout { using api_element = api_elements::VkImageLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "initialLayout"; };
 GFXRECON_END_NAMESPACE(VkImageCreateInfo)
 
@@ -1425,8 +1425,8 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct flags { using api_element = api_elements::VkShaderModuleCreateFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct codeSize { using api_element = api_elements::Size; using shape = field_shape::Value; static constexpr std::string_view field_name = "codeSize"; };
-// NOTE: field_count evaluates codeSize / 4
-struct pCode { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = Quotient<FieldValue<codeSize>, Literal<4u>>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCode"; };
+// NOTE: length evaluates codeSize / 4
+struct pCode { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = Quotient<FieldValue<codeSize>, Literal<4u>>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCode"; };
 GFXRECON_END_NAMESPACE(VkShaderModuleCreateInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkPipelineCacheCreateInfo)
@@ -1434,7 +1434,7 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = false; static constexpr std::string_view field_name = "pNext"; };
 struct flags { using api_element = api_elements::VkPipelineCacheCreateFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct initialDataSize { using api_element = api_elements::Size; using shape = field_shape::Value; static constexpr std::string_view field_name = "initialDataSize"; };
-struct pInitialData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<initialDataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInitialData"; };
+struct pInitialData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<initialDataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInitialData"; };
 GFXRECON_END_NAMESPACE(VkPipelineCacheCreateInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkSpecializationMapEntry)
@@ -1445,9 +1445,9 @@ GFXRECON_END_NAMESPACE(VkSpecializationMapEntry)
 
 GFXRECON_BEGIN_NAMESPACE(VkSpecializationInfo)
 struct mapEntryCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "mapEntryCount"; };
-struct pMapEntries { using api_element = api_elements::VkSpecializationMapEntry; using shape = field_shape::Array; using field_count = FieldValue<mapEntryCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMapEntries"; };
+struct pMapEntries { using api_element = api_elements::VkSpecializationMapEntry; using shape = field_shape::Array; using length = FieldValue<mapEntryCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMapEntries"; };
 struct dataSize { using api_element = api_elements::Size; using shape = field_shape::Value; static constexpr std::string_view field_name = "dataSize"; };
-struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
+struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
 GFXRECON_END_NAMESPACE(VkSpecializationInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkPipelineShaderStageCreateInfo)
@@ -1481,9 +1481,9 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct flags { using api_element = api_elements::VkPipelineLayoutCreateFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct setLayoutCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "setLayoutCount"; };
-struct pSetLayouts { using api_element = api_elements::VkDescriptorSetLayout; using shape = field_shape::Array; using field_count = FieldValue<setLayoutCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSetLayouts"; };
+struct pSetLayouts { using api_element = api_elements::VkDescriptorSetLayout; using shape = field_shape::Array; using length = FieldValue<setLayoutCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSetLayouts"; };
 struct pushConstantRangeCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "pushConstantRangeCount"; };
-struct pPushConstantRanges { using api_element = api_elements::VkPushConstantRange; using shape = field_shape::Array; using field_count = FieldValue<pushConstantRangeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPushConstantRanges"; };
+struct pPushConstantRanges { using api_element = api_elements::VkPushConstantRange; using shape = field_shape::Array; using length = FieldValue<pushConstantRangeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPushConstantRanges"; };
 GFXRECON_END_NAMESPACE(VkPipelineLayoutCreateInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkSamplerCreateInfo)
@@ -1542,7 +1542,7 @@ struct pNext { using api_element = api_elements::Void; using shape = field_shape
 struct flags { using api_element = api_elements::VkDescriptorPoolCreateFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct maxSets { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "maxSets"; };
 struct poolSizeCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "poolSizeCount"; };
-struct pPoolSizes { using api_element = api_elements::VkDescriptorPoolSize; using shape = field_shape::Array; using field_count = FieldValue<poolSizeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPoolSizes"; };
+struct pPoolSizes { using api_element = api_elements::VkDescriptorPoolSize; using shape = field_shape::Array; using length = FieldValue<poolSizeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPoolSizes"; };
 GFXRECON_END_NAMESPACE(VkDescriptorPoolCreateInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkDescriptorSetAllocateInfo)
@@ -1550,7 +1550,7 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct descriptorPool { using api_element = api_elements::VkDescriptorPool; using shape = field_shape::Value; static constexpr std::string_view field_name = "descriptorPool"; };
 struct descriptorSetCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "descriptorSetCount"; };
-struct pSetLayouts { using api_element = api_elements::VkDescriptorSetLayout; using shape = field_shape::Array; using field_count = FieldValue<descriptorSetCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSetLayouts"; };
+struct pSetLayouts { using api_element = api_elements::VkDescriptorSetLayout; using shape = field_shape::Array; using length = FieldValue<descriptorSetCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSetLayouts"; };
 GFXRECON_END_NAMESPACE(VkDescriptorSetAllocateInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkDescriptorSetLayoutBinding)
@@ -1558,7 +1558,7 @@ struct binding { using api_element = api_elements::UInt32; using shape = field_s
 struct descriptorType { using api_element = api_elements::VkDescriptorType; using shape = field_shape::Value; static constexpr std::string_view field_name = "descriptorType"; };
 struct descriptorCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "descriptorCount"; };
 struct stageFlags { using api_element = api_elements::VkShaderStageFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "stageFlags"; };
-struct pImmutableSamplers { using api_element = api_elements::VkSampler; using shape = field_shape::Array; using field_count = FieldValue<descriptorCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pImmutableSamplers"; };
+struct pImmutableSamplers { using api_element = api_elements::VkSampler; using shape = field_shape::Array; using length = FieldValue<descriptorCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pImmutableSamplers"; };
 GFXRECON_END_NAMESPACE(VkDescriptorSetLayoutBinding)
 
 GFXRECON_BEGIN_NAMESPACE(VkDescriptorSetLayoutCreateInfo)
@@ -1566,7 +1566,7 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct flags { using api_element = api_elements::VkDescriptorSetLayoutCreateFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct bindingCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "bindingCount"; };
-struct pBindings { using api_element = api_elements::VkDescriptorSetLayoutBinding; using shape = field_shape::Array; using field_count = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindings"; };
+struct pBindings { using api_element = api_elements::VkDescriptorSetLayoutBinding; using shape = field_shape::Array; using length = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindings"; };
 GFXRECON_END_NAMESPACE(VkDescriptorSetLayoutCreateInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkWriteDescriptorSet)
@@ -1577,9 +1577,9 @@ struct dstBinding { using api_element = api_elements::UInt32; using shape = fiel
 struct dstArrayElement { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstArrayElement"; };
 struct descriptorCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "descriptorCount"; };
 struct descriptorType { using api_element = api_elements::VkDescriptorType; using shape = field_shape::Value; static constexpr std::string_view field_name = "descriptorType"; };
-struct pImageInfo { using api_element = api_elements::VkDescriptorImageInfo; using shape = field_shape::Array; using field_count = FieldValue<descriptorCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pImageInfo"; };
-struct pBufferInfo { using api_element = api_elements::VkDescriptorBufferInfo; using shape = field_shape::Array; using field_count = FieldValue<descriptorCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBufferInfo"; };
-struct pTexelBufferView { using api_element = api_elements::VkBufferView; using shape = field_shape::Array; using field_count = FieldValue<descriptorCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTexelBufferView"; };
+struct pImageInfo { using api_element = api_elements::VkDescriptorImageInfo; using shape = field_shape::Array; using length = FieldValue<descriptorCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pImageInfo"; };
+struct pBufferInfo { using api_element = api_elements::VkDescriptorBufferInfo; using shape = field_shape::Array; using length = FieldValue<descriptorCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBufferInfo"; };
+struct pTexelBufferView { using api_element = api_elements::VkBufferView; using shape = field_shape::Array; using length = FieldValue<descriptorCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTexelBufferView"; };
 GFXRECON_END_NAMESPACE(VkWriteDescriptorSet)
 
 GFXRECON_BEGIN_NAMESPACE(VkDrawIndexedIndirectCommand)
@@ -1647,7 +1647,7 @@ struct flags { using api_element = api_elements::VkPipelineColorBlendStateCreate
 struct logicOpEnable { using api_element = api_elements::VkBool32; using shape = field_shape::Value; static constexpr std::string_view field_name = "logicOpEnable"; };
 struct logicOp { using api_element = api_elements::VkLogicOp; using shape = field_shape::Value; static constexpr std::string_view field_name = "logicOp"; };
 struct attachmentCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "attachmentCount"; };
-struct pAttachments { using api_element = api_elements::VkPipelineColorBlendAttachmentState; using shape = field_shape::Array; using field_count = FieldValue<attachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAttachments"; };
+struct pAttachments { using api_element = api_elements::VkPipelineColorBlendAttachmentState; using shape = field_shape::Array; using length = FieldValue<attachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAttachments"; };
 struct blendConstants { using api_element = api_elements::Float; using shape = field_shape::StaticArray; static constexpr std::string_view length_expression = "4"; static constexpr size_t extents[] = {4}; static constexpr std::string_view field_name = "blendConstants"; };
 GFXRECON_END_NAMESPACE(VkPipelineColorBlendStateCreateInfo)
 
@@ -1671,7 +1671,7 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = false; static constexpr std::string_view field_name = "pNext"; };
 struct flags { using api_element = api_elements::VkPipelineDynamicStateCreateFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct dynamicStateCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "dynamicStateCount"; };
-struct pDynamicStates { using api_element = api_elements::VkDynamicState; using shape = field_shape::Array; using field_count = FieldValue<dynamicStateCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDynamicStates"; };
+struct pDynamicStates { using api_element = api_elements::VkDynamicState; using shape = field_shape::Array; using length = FieldValue<dynamicStateCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDynamicStates"; };
 GFXRECON_END_NAMESPACE(VkPipelineDynamicStateCreateInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkPipelineInputAssemblyStateCreateInfo)
@@ -1689,8 +1689,8 @@ struct flags { using api_element = api_elements::VkPipelineMultisampleStateCreat
 struct rasterizationSamples { using api_element = api_elements::VkSampleCountFlagBits; using shape = field_shape::Value; static constexpr std::string_view field_name = "rasterizationSamples"; };
 struct sampleShadingEnable { using api_element = api_elements::VkBool32; using shape = field_shape::Value; static constexpr std::string_view field_name = "sampleShadingEnable"; };
 struct minSampleShading { using api_element = api_elements::Float; using shape = field_shape::Value; static constexpr std::string_view field_name = "minSampleShading"; };
-// NOTE: field_count evaluates (rasterizationSamples + 31) / 32
-struct pSampleMask { using api_element = api_elements::VkSampleMask; using shape = field_shape::Array; using field_count = Quotient<Sum<FieldValue<rasterizationSamples>, Literal<31>>, Literal<32>>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSampleMask"; };
+// NOTE: length evaluates (rasterizationSamples + 31) / 32
+struct pSampleMask { using api_element = api_elements::VkSampleMask; using shape = field_shape::Array; using length = Quotient<Sum<FieldValue<rasterizationSamples>, Literal<31>>, Literal<32>>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSampleMask"; };
 struct alphaToCoverageEnable { using api_element = api_elements::VkBool32; using shape = field_shape::Value; static constexpr std::string_view field_name = "alphaToCoverageEnable"; };
 struct alphaToOneEnable { using api_element = api_elements::VkBool32; using shape = field_shape::Value; static constexpr std::string_view field_name = "alphaToOneEnable"; };
 GFXRECON_END_NAMESPACE(VkPipelineMultisampleStateCreateInfo)
@@ -1723,9 +1723,9 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct flags { using api_element = api_elements::VkPipelineVertexInputStateCreateFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct vertexBindingDescriptionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "vertexBindingDescriptionCount"; };
-struct pVertexBindingDescriptions { using api_element = api_elements::VkVertexInputBindingDescription; using shape = field_shape::Array; using field_count = FieldValue<vertexBindingDescriptionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVertexBindingDescriptions"; };
+struct pVertexBindingDescriptions { using api_element = api_elements::VkVertexInputBindingDescription; using shape = field_shape::Array; using length = FieldValue<vertexBindingDescriptionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVertexBindingDescriptions"; };
 struct vertexAttributeDescriptionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "vertexAttributeDescriptionCount"; };
-struct pVertexAttributeDescriptions { using api_element = api_elements::VkVertexInputAttributeDescription; using shape = field_shape::Array; using field_count = FieldValue<vertexAttributeDescriptionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVertexAttributeDescriptions"; };
+struct pVertexAttributeDescriptions { using api_element = api_elements::VkVertexInputAttributeDescription; using shape = field_shape::Array; using length = FieldValue<vertexAttributeDescriptionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVertexAttributeDescriptions"; };
 GFXRECON_END_NAMESPACE(VkPipelineVertexInputStateCreateInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkPipelineViewportStateCreateInfo)
@@ -1733,9 +1733,9 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct flags { using api_element = api_elements::VkPipelineViewportStateCreateFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct viewportCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "viewportCount"; };
-struct pViewports { using api_element = api_elements::VkViewport; using shape = field_shape::Array; using field_count = FieldValue<viewportCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pViewports"; };
+struct pViewports { using api_element = api_elements::VkViewport; using shape = field_shape::Array; using length = FieldValue<viewportCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pViewports"; };
 struct scissorCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "scissorCount"; };
-struct pScissors { using api_element = api_elements::VkRect2D; using shape = field_shape::Array; using field_count = FieldValue<scissorCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pScissors"; };
+struct pScissors { using api_element = api_elements::VkRect2D; using shape = field_shape::Array; using length = FieldValue<scissorCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pScissors"; };
 GFXRECON_END_NAMESPACE(VkPipelineViewportStateCreateInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkGraphicsPipelineCreateInfo)
@@ -1743,7 +1743,7 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct flags { using api_element = api_elements::VkPipelineCreateFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct stageCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "stageCount"; };
-struct pStages { using api_element = api_elements::VkPipelineShaderStageCreateInfo; using shape = field_shape::Array; using field_count = FieldValue<stageCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStages"; };
+struct pStages { using api_element = api_elements::VkPipelineShaderStageCreateInfo; using shape = field_shape::Array; using length = FieldValue<stageCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStages"; };
 struct pVertexInputState { using api_element = api_elements::VkPipelineVertexInputStateCreateInfo; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVertexInputState"; };
 struct pInputAssemblyState { using api_element = api_elements::VkPipelineInputAssemblyStateCreateInfo; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInputAssemblyState"; };
 struct pTessellationState { using api_element = api_elements::VkPipelineTessellationStateCreateInfo; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTessellationState"; };
@@ -1783,7 +1783,7 @@ struct pNext { using api_element = api_elements::Void; using shape = field_shape
 struct flags { using api_element = api_elements::VkFramebufferCreateFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct renderPass { using api_element = api_elements::VkRenderPass; using shape = field_shape::Value; static constexpr std::string_view field_name = "renderPass"; };
 struct attachmentCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "attachmentCount"; };
-struct pAttachments { using api_element = api_elements::VkImageView; using shape = field_shape::Array; using field_count = FieldValue<attachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAttachments"; };
+struct pAttachments { using api_element = api_elements::VkImageView; using shape = field_shape::Array; using length = FieldValue<attachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAttachments"; };
 struct width { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "width"; };
 struct height { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "height"; };
 struct layers { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "layers"; };
@@ -1803,13 +1803,13 @@ GFXRECON_BEGIN_NAMESPACE(VkSubpassDescription)
 struct flags { using api_element = api_elements::VkSubpassDescriptionFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct pipelineBindPoint { using api_element = api_elements::VkPipelineBindPoint; using shape = field_shape::Value; static constexpr std::string_view field_name = "pipelineBindPoint"; };
 struct inputAttachmentCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "inputAttachmentCount"; };
-struct pInputAttachments { using api_element = api_elements::VkAttachmentReference; using shape = field_shape::Array; using field_count = FieldValue<inputAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInputAttachments"; };
+struct pInputAttachments { using api_element = api_elements::VkAttachmentReference; using shape = field_shape::Array; using length = FieldValue<inputAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInputAttachments"; };
 struct colorAttachmentCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "colorAttachmentCount"; };
-struct pColorAttachments { using api_element = api_elements::VkAttachmentReference; using shape = field_shape::Array; using field_count = FieldValue<colorAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorAttachments"; };
-struct pResolveAttachments { using api_element = api_elements::VkAttachmentReference; using shape = field_shape::Array; using field_count = FieldValue<colorAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pResolveAttachments"; };
+struct pColorAttachments { using api_element = api_elements::VkAttachmentReference; using shape = field_shape::Array; using length = FieldValue<colorAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorAttachments"; };
+struct pResolveAttachments { using api_element = api_elements::VkAttachmentReference; using shape = field_shape::Array; using length = FieldValue<colorAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pResolveAttachments"; };
 struct pDepthStencilAttachment { using api_element = api_elements::VkAttachmentReference; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDepthStencilAttachment"; };
 struct preserveAttachmentCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "preserveAttachmentCount"; };
-struct pPreserveAttachments { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<preserveAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPreserveAttachments"; };
+struct pPreserveAttachments { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<preserveAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPreserveAttachments"; };
 GFXRECON_END_NAMESPACE(VkSubpassDescription)
 
 GFXRECON_BEGIN_NAMESPACE(VkRenderPassCreateInfo)
@@ -1817,11 +1817,11 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct flags { using api_element = api_elements::VkRenderPassCreateFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct attachmentCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "attachmentCount"; };
-struct pAttachments { using api_element = api_elements::VkAttachmentDescription; using shape = field_shape::Array; using field_count = FieldValue<attachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAttachments"; };
+struct pAttachments { using api_element = api_elements::VkAttachmentDescription; using shape = field_shape::Array; using length = FieldValue<attachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAttachments"; };
 struct subpassCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "subpassCount"; };
-struct pSubpasses { using api_element = api_elements::VkSubpassDescription; using shape = field_shape::Array; using field_count = FieldValue<subpassCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSubpasses"; };
+struct pSubpasses { using api_element = api_elements::VkSubpassDescription; using shape = field_shape::Array; using length = FieldValue<subpassCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSubpasses"; };
 struct dependencyCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "dependencyCount"; };
-struct pDependencies { using api_element = api_elements::VkSubpassDependency; using shape = field_shape::Array; using field_count = FieldValue<dependencyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDependencies"; };
+struct pDependencies { using api_element = api_elements::VkSubpassDependency; using shape = field_shape::Array; using length = FieldValue<dependencyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDependencies"; };
 GFXRECON_END_NAMESPACE(VkRenderPassCreateInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkClearDepthStencilValue)
@@ -1863,7 +1863,7 @@ struct renderPass { using api_element = api_elements::VkRenderPass; using shape 
 struct framebuffer { using api_element = api_elements::VkFramebuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "framebuffer"; };
 struct renderArea { using api_element = api_elements::VkRect2D; using shape = field_shape::Value; static constexpr std::string_view field_name = "renderArea"; };
 struct clearValueCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "clearValueCount"; };
-struct pClearValues { using api_element = api_elements::VkClearValue; using shape = field_shape::Array; using field_count = FieldValue<clearValueCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pClearValues"; };
+struct pClearValues { using api_element = api_elements::VkClearValue; using shape = field_shape::Array; using length = FieldValue<clearValueCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pClearValues"; };
 GFXRECON_END_NAMESPACE(VkRenderPassBeginInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkBindBufferMemoryInfo)
@@ -1913,11 +1913,11 @@ GFXRECON_BEGIN_NAMESPACE(VkDeviceGroupSubmitInfo)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct waitSemaphoreCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "waitSemaphoreCount"; };
-struct pWaitSemaphoreDeviceIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<waitSemaphoreCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pWaitSemaphoreDeviceIndices"; };
+struct pWaitSemaphoreDeviceIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<waitSemaphoreCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pWaitSemaphoreDeviceIndices"; };
 struct commandBufferCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBufferCount"; };
-struct pCommandBufferDeviceMasks { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<commandBufferCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCommandBufferDeviceMasks"; };
+struct pCommandBufferDeviceMasks { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<commandBufferCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCommandBufferDeviceMasks"; };
 struct signalSemaphoreCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "signalSemaphoreCount"; };
-struct pSignalSemaphoreDeviceIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<signalSemaphoreCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSignalSemaphoreDeviceIndices"; };
+struct pSignalSemaphoreDeviceIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<signalSemaphoreCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSignalSemaphoreDeviceIndices"; };
 GFXRECON_END_NAMESPACE(VkDeviceGroupSubmitInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkDeviceGroupBindSparseInfo)
@@ -1931,23 +1931,23 @@ GFXRECON_BEGIN_NAMESPACE(VkBindBufferMemoryDeviceGroupInfo)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct deviceIndexCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "deviceIndexCount"; };
-struct pDeviceIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<deviceIndexCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDeviceIndices"; };
+struct pDeviceIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<deviceIndexCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDeviceIndices"; };
 GFXRECON_END_NAMESPACE(VkBindBufferMemoryDeviceGroupInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkBindImageMemoryDeviceGroupInfo)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct deviceIndexCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "deviceIndexCount"; };
-struct pDeviceIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<deviceIndexCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDeviceIndices"; };
+struct pDeviceIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<deviceIndexCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDeviceIndices"; };
 struct splitInstanceBindRegionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "splitInstanceBindRegionCount"; };
-struct pSplitInstanceBindRegions { using api_element = api_elements::VkRect2D; using shape = field_shape::Array; using field_count = FieldValue<splitInstanceBindRegionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSplitInstanceBindRegions"; };
+struct pSplitInstanceBindRegions { using api_element = api_elements::VkRect2D; using shape = field_shape::Array; using length = FieldValue<splitInstanceBindRegionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSplitInstanceBindRegions"; };
 GFXRECON_END_NAMESPACE(VkBindImageMemoryDeviceGroupInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceGroupProperties)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = false; static constexpr std::string_view field_name = "pNext"; };
 struct physicalDeviceCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDeviceCount"; };
-struct physicalDevices { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::StaticArray; using field_count = FieldValue<physicalDeviceCount>; static constexpr size_t extents[] = {VK_MAX_DEVICE_GROUP_SIZE}; static constexpr std::string_view field_name = "physicalDevices"; };
+struct physicalDevices { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::StaticArray; using length = FieldValue<physicalDeviceCount>; static constexpr size_t extents[] = {VK_MAX_DEVICE_GROUP_SIZE}; static constexpr std::string_view field_name = "physicalDevices"; };
 struct subsetAllocation { using api_element = api_elements::VkBool32; using shape = field_shape::Value; static constexpr std::string_view field_name = "subsetAllocation"; };
 GFXRECON_END_NAMESPACE(VkPhysicalDeviceGroupProperties)
 
@@ -1955,7 +1955,7 @@ GFXRECON_BEGIN_NAMESPACE(VkDeviceGroupDeviceCreateInfo)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct physicalDeviceCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDeviceCount"; };
-struct pPhysicalDevices { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Array; using field_count = FieldValue<physicalDeviceCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPhysicalDevices"; };
+struct pPhysicalDevices { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Array; using length = FieldValue<physicalDeviceCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPhysicalDevices"; };
 GFXRECON_END_NAMESPACE(VkDeviceGroupDeviceCreateInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkBufferMemoryRequirementsInfo2)
@@ -2233,7 +2233,7 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = false; static constexpr std::string_view field_name = "pNext"; };
 struct flags { using api_element = api_elements::VkDescriptorUpdateTemplateCreateFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct descriptorUpdateEntryCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "descriptorUpdateEntryCount"; };
-struct pDescriptorUpdateEntries { using api_element = api_elements::VkDescriptorUpdateTemplateEntry; using shape = field_shape::Array; using field_count = FieldValue<descriptorUpdateEntryCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescriptorUpdateEntries"; };
+struct pDescriptorUpdateEntries { using api_element = api_elements::VkDescriptorUpdateTemplateEntry; using shape = field_shape::Array; using length = FieldValue<descriptorUpdateEntryCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescriptorUpdateEntries"; };
 struct templateType { using api_element = api_elements::VkDescriptorUpdateTemplateType; using shape = field_shape::Value; static constexpr std::string_view field_name = "templateType"; };
 struct descriptorSetLayout { using api_element = api_elements::VkDescriptorSetLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "descriptorSetLayout"; };
 struct pipelineBindPoint { using api_element = api_elements::VkPipelineBindPoint; using shape = field_shape::Value; static constexpr std::string_view field_name = "pipelineBindPoint"; };
@@ -2290,7 +2290,7 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct deviceMask { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "deviceMask"; };
 struct deviceRenderAreaCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "deviceRenderAreaCount"; };
-struct pDeviceRenderAreas { using api_element = api_elements::VkRect2D; using shape = field_shape::Array; using field_count = FieldValue<deviceRenderAreaCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDeviceRenderAreas"; };
+struct pDeviceRenderAreas { using api_element = api_elements::VkRect2D; using shape = field_shape::Array; using length = FieldValue<deviceRenderAreaCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDeviceRenderAreas"; };
 GFXRECON_END_NAMESPACE(VkDeviceGroupRenderPassBeginInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDevicePointClippingProperties)
@@ -2309,7 +2309,7 @@ GFXRECON_BEGIN_NAMESPACE(VkRenderPassInputAttachmentAspectCreateInfo)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct aspectReferenceCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "aspectReferenceCount"; };
-struct pAspectReferences { using api_element = api_elements::VkInputAttachmentAspectReference; using shape = field_shape::Array; using field_count = FieldValue<aspectReferenceCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAspectReferences"; };
+struct pAspectReferences { using api_element = api_elements::VkInputAttachmentAspectReference; using shape = field_shape::Array; using length = FieldValue<aspectReferenceCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAspectReferences"; };
 GFXRECON_END_NAMESPACE(VkRenderPassInputAttachmentAspectCreateInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkPipelineTessellationDomainOriginStateCreateInfo)
@@ -2322,11 +2322,11 @@ GFXRECON_BEGIN_NAMESPACE(VkRenderPassMultiviewCreateInfo)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct subpassCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "subpassCount"; };
-struct pViewMasks { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<subpassCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pViewMasks"; };
+struct pViewMasks { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<subpassCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pViewMasks"; };
 struct dependencyCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "dependencyCount"; };
-struct pViewOffsets { using api_element = api_elements::Int32; using shape = field_shape::Array; using field_count = FieldValue<dependencyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pViewOffsets"; };
+struct pViewOffsets { using api_element = api_elements::Int32; using shape = field_shape::Array; using length = FieldValue<dependencyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pViewOffsets"; };
 struct correlationMaskCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "correlationMaskCount"; };
-struct pCorrelationMasks { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<correlationMaskCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCorrelationMasks"; };
+struct pCorrelationMasks { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<correlationMaskCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCorrelationMasks"; };
 GFXRECON_END_NAMESPACE(VkRenderPassMultiviewCreateInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceMultiviewFeatures)
@@ -2516,7 +2516,7 @@ GFXRECON_BEGIN_NAMESPACE(VkImageFormatListCreateInfo)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct viewFormatCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "viewFormatCount"; };
-struct pViewFormats { using api_element = api_elements::VkFormat; using shape = field_shape::Array; using field_count = FieldValue<viewFormatCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pViewFormats"; };
+struct pViewFormats { using api_element = api_elements::VkFormat; using shape = field_shape::Array; using length = FieldValue<viewFormatCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pViewFormats"; };
 GFXRECON_END_NAMESPACE(VkImageFormatListCreateInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceVulkanMemoryModelFeatures)
@@ -2556,9 +2556,9 @@ GFXRECON_BEGIN_NAMESPACE(VkTimelineSemaphoreSubmitInfo)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct waitSemaphoreValueCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "waitSemaphoreValueCount"; };
-struct pWaitSemaphoreValues { using api_element = api_elements::UInt64; using shape = field_shape::Array; using field_count = FieldValue<waitSemaphoreValueCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pWaitSemaphoreValues"; };
+struct pWaitSemaphoreValues { using api_element = api_elements::UInt64; using shape = field_shape::Array; using length = FieldValue<waitSemaphoreValueCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pWaitSemaphoreValues"; };
 struct signalSemaphoreValueCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "signalSemaphoreValueCount"; };
-struct pSignalSemaphoreValues { using api_element = api_elements::UInt64; using shape = field_shape::Array; using field_count = FieldValue<signalSemaphoreValueCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSignalSemaphoreValues"; };
+struct pSignalSemaphoreValues { using api_element = api_elements::UInt64; using shape = field_shape::Array; using length = FieldValue<signalSemaphoreValueCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSignalSemaphoreValues"; };
 GFXRECON_END_NAMESPACE(VkTimelineSemaphoreSubmitInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkSemaphoreWaitInfo)
@@ -2566,8 +2566,8 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = false; static constexpr std::string_view field_name = "pNext"; };
 struct flags { using api_element = api_elements::VkSemaphoreWaitFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct semaphoreCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "semaphoreCount"; };
-struct pSemaphores { using api_element = api_elements::VkSemaphore; using shape = field_shape::Array; using field_count = FieldValue<semaphoreCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSemaphores"; };
-struct pValues { using api_element = api_elements::UInt64; using shape = field_shape::Array; using field_count = FieldValue<semaphoreCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pValues"; };
+struct pSemaphores { using api_element = api_elements::VkSemaphore; using shape = field_shape::Array; using length = FieldValue<semaphoreCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSemaphores"; };
+struct pValues { using api_element = api_elements::UInt64; using shape = field_shape::Array; using length = FieldValue<semaphoreCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pValues"; };
 GFXRECON_END_NAMESPACE(VkSemaphoreWaitInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkSemaphoreSignalInfo)
@@ -2657,7 +2657,7 @@ GFXRECON_BEGIN_NAMESPACE(VkDescriptorSetLayoutBindingFlagsCreateInfo)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct bindingCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "bindingCount"; };
-struct pBindingFlags { using api_element = api_elements::VkDescriptorBindingFlags; using shape = field_shape::Array; using field_count = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindingFlags"; };
+struct pBindingFlags { using api_element = api_elements::VkDescriptorBindingFlags; using shape = field_shape::Array; using length = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindingFlags"; };
 GFXRECON_END_NAMESPACE(VkDescriptorSetLayoutBindingFlagsCreateInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceDescriptorIndexingFeatures)
@@ -2717,7 +2717,7 @@ GFXRECON_BEGIN_NAMESPACE(VkDescriptorSetVariableDescriptorCountAllocateInfo)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct descriptorSetCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "descriptorSetCount"; };
-struct pDescriptorCounts { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<descriptorSetCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescriptorCounts"; };
+struct pDescriptorCounts { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<descriptorSetCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescriptorCounts"; };
 GFXRECON_END_NAMESPACE(VkDescriptorSetVariableDescriptorCountAllocateInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkDescriptorSetVariableDescriptorCountLayoutSupport)
@@ -2786,13 +2786,13 @@ struct flags { using api_element = api_elements::VkSubpassDescriptionFlags; usin
 struct pipelineBindPoint { using api_element = api_elements::VkPipelineBindPoint; using shape = field_shape::Value; static constexpr std::string_view field_name = "pipelineBindPoint"; };
 struct viewMask { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "viewMask"; };
 struct inputAttachmentCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "inputAttachmentCount"; };
-struct pInputAttachments { using api_element = api_elements::VkAttachmentReference2; using shape = field_shape::Array; using field_count = FieldValue<inputAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInputAttachments"; };
+struct pInputAttachments { using api_element = api_elements::VkAttachmentReference2; using shape = field_shape::Array; using length = FieldValue<inputAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInputAttachments"; };
 struct colorAttachmentCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "colorAttachmentCount"; };
-struct pColorAttachments { using api_element = api_elements::VkAttachmentReference2; using shape = field_shape::Array; using field_count = FieldValue<colorAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorAttachments"; };
-struct pResolveAttachments { using api_element = api_elements::VkAttachmentReference2; using shape = field_shape::Array; using field_count = FieldValue<colorAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pResolveAttachments"; };
+struct pColorAttachments { using api_element = api_elements::VkAttachmentReference2; using shape = field_shape::Array; using length = FieldValue<colorAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorAttachments"; };
+struct pResolveAttachments { using api_element = api_elements::VkAttachmentReference2; using shape = field_shape::Array; using length = FieldValue<colorAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pResolveAttachments"; };
 struct pDepthStencilAttachment { using api_element = api_elements::VkAttachmentReference2; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDepthStencilAttachment"; };
 struct preserveAttachmentCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "preserveAttachmentCount"; };
-struct pPreserveAttachments { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<preserveAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPreserveAttachments"; };
+struct pPreserveAttachments { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<preserveAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPreserveAttachments"; };
 GFXRECON_END_NAMESPACE(VkSubpassDescription2)
 
 GFXRECON_BEGIN_NAMESPACE(VkSubpassDependency2)
@@ -2824,13 +2824,13 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct flags { using api_element = api_elements::VkRenderPassCreateFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct attachmentCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "attachmentCount"; };
-struct pAttachments { using api_element = api_elements::VkAttachmentDescription2; using shape = field_shape::Array; using field_count = FieldValue<attachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAttachments"; };
+struct pAttachments { using api_element = api_elements::VkAttachmentDescription2; using shape = field_shape::Array; using length = FieldValue<attachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAttachments"; };
 struct subpassCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "subpassCount"; };
-struct pSubpasses { using api_element = api_elements::VkSubpassDescription2; using shape = field_shape::Array; using field_count = FieldValue<subpassCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSubpasses"; };
+struct pSubpasses { using api_element = api_elements::VkSubpassDescription2; using shape = field_shape::Array; using length = FieldValue<subpassCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSubpasses"; };
 struct dependencyCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "dependencyCount"; };
-struct pDependencies { using api_element = api_elements::VkSubpassDependency2; using shape = field_shape::Array; using field_count = FieldValue<dependencyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDependencies"; };
+struct pDependencies { using api_element = api_elements::VkSubpassDependency2; using shape = field_shape::Array; using length = FieldValue<dependencyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDependencies"; };
 struct correlatedViewMaskCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "correlatedViewMaskCount"; };
-struct pCorrelatedViewMasks { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<correlatedViewMaskCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCorrelatedViewMasks"; };
+struct pCorrelatedViewMasks { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<correlatedViewMaskCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCorrelatedViewMasks"; };
 GFXRECON_END_NAMESPACE(VkRenderPassCreateInfo2)
 
 GFXRECON_BEGIN_NAMESPACE(VkSubpassDescriptionDepthStencilResolve)
@@ -2871,21 +2871,21 @@ struct width { using api_element = api_elements::UInt32; using shape = field_sha
 struct height { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "height"; };
 struct layerCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "layerCount"; };
 struct viewFormatCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "viewFormatCount"; };
-struct pViewFormats { using api_element = api_elements::VkFormat; using shape = field_shape::Array; using field_count = FieldValue<viewFormatCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pViewFormats"; };
+struct pViewFormats { using api_element = api_elements::VkFormat; using shape = field_shape::Array; using length = FieldValue<viewFormatCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pViewFormats"; };
 GFXRECON_END_NAMESPACE(VkFramebufferAttachmentImageInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkRenderPassAttachmentBeginInfo)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct attachmentCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "attachmentCount"; };
-struct pAttachments { using api_element = api_elements::VkImageView; using shape = field_shape::Array; using field_count = FieldValue<attachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAttachments"; };
+struct pAttachments { using api_element = api_elements::VkImageView; using shape = field_shape::Array; using length = FieldValue<attachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAttachments"; };
 GFXRECON_END_NAMESPACE(VkRenderPassAttachmentBeginInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkFramebufferAttachmentsCreateInfo)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct attachmentImageInfoCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "attachmentImageInfoCount"; };
-struct pAttachmentImageInfos { using api_element = api_elements::VkFramebufferAttachmentImageInfo; using shape = field_shape::Array; using field_count = FieldValue<attachmentImageInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAttachmentImageInfos"; };
+struct pAttachmentImageInfos { using api_element = api_elements::VkFramebufferAttachmentImageInfo; using shape = field_shape::Array; using length = FieldValue<attachmentImageInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAttachmentImageInfos"; };
 GFXRECON_END_NAMESPACE(VkFramebufferAttachmentsCreateInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures)
@@ -3048,11 +3048,11 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct dependencyFlags { using api_element = api_elements::VkDependencyFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "dependencyFlags"; };
 struct memoryBarrierCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "memoryBarrierCount"; };
-struct pMemoryBarriers { using api_element = api_elements::VkMemoryBarrier2; using shape = field_shape::Array; using field_count = FieldValue<memoryBarrierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMemoryBarriers"; };
+struct pMemoryBarriers { using api_element = api_elements::VkMemoryBarrier2; using shape = field_shape::Array; using length = FieldValue<memoryBarrierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMemoryBarriers"; };
 struct bufferMemoryBarrierCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "bufferMemoryBarrierCount"; };
-struct pBufferMemoryBarriers { using api_element = api_elements::VkBufferMemoryBarrier2; using shape = field_shape::Array; using field_count = FieldValue<bufferMemoryBarrierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBufferMemoryBarriers"; };
+struct pBufferMemoryBarriers { using api_element = api_elements::VkBufferMemoryBarrier2; using shape = field_shape::Array; using length = FieldValue<bufferMemoryBarrierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBufferMemoryBarriers"; };
 struct imageMemoryBarrierCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "imageMemoryBarrierCount"; };
-struct pImageMemoryBarriers { using api_element = api_elements::VkImageMemoryBarrier2; using shape = field_shape::Array; using field_count = FieldValue<imageMemoryBarrierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pImageMemoryBarriers"; };
+struct pImageMemoryBarriers { using api_element = api_elements::VkImageMemoryBarrier2; using shape = field_shape::Array; using length = FieldValue<imageMemoryBarrierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pImageMemoryBarriers"; };
 GFXRECON_END_NAMESPACE(VkDependencyInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkSemaphoreSubmitInfo)
@@ -3076,11 +3076,11 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct flags { using api_element = api_elements::VkSubmitFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct waitSemaphoreInfoCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "waitSemaphoreInfoCount"; };
-struct pWaitSemaphoreInfos { using api_element = api_elements::VkSemaphoreSubmitInfo; using shape = field_shape::Array; using field_count = FieldValue<waitSemaphoreInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pWaitSemaphoreInfos"; };
+struct pWaitSemaphoreInfos { using api_element = api_elements::VkSemaphoreSubmitInfo; using shape = field_shape::Array; using length = FieldValue<waitSemaphoreInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pWaitSemaphoreInfos"; };
 struct commandBufferInfoCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBufferInfoCount"; };
-struct pCommandBufferInfos { using api_element = api_elements::VkCommandBufferSubmitInfo; using shape = field_shape::Array; using field_count = FieldValue<commandBufferInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCommandBufferInfos"; };
+struct pCommandBufferInfos { using api_element = api_elements::VkCommandBufferSubmitInfo; using shape = field_shape::Array; using length = FieldValue<commandBufferInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCommandBufferInfos"; };
 struct signalSemaphoreInfoCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "signalSemaphoreInfoCount"; };
-struct pSignalSemaphoreInfos { using api_element = api_elements::VkSemaphoreSubmitInfo; using shape = field_shape::Array; using field_count = FieldValue<signalSemaphoreInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSignalSemaphoreInfos"; };
+struct pSignalSemaphoreInfos { using api_element = api_elements::VkSemaphoreSubmitInfo; using shape = field_shape::Array; using length = FieldValue<signalSemaphoreInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSignalSemaphoreInfos"; };
 GFXRECON_END_NAMESPACE(VkSubmitInfo2)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceSynchronization2Features)
@@ -3103,7 +3103,7 @@ struct pNext { using api_element = api_elements::Void; using shape = field_shape
 struct srcBuffer { using api_element = api_elements::VkBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "srcBuffer"; };
 struct dstBuffer { using api_element = api_elements::VkBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstBuffer"; };
 struct regionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "regionCount"; };
-struct pRegions { using api_element = api_elements::VkBufferCopy2; using shape = field_shape::Array; using field_count = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
+struct pRegions { using api_element = api_elements::VkBufferCopy2; using shape = field_shape::Array; using length = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
 GFXRECON_END_NAMESPACE(VkCopyBufferInfo2)
 
 GFXRECON_BEGIN_NAMESPACE(VkImageCopy2)
@@ -3124,7 +3124,7 @@ struct srcImageLayout { using api_element = api_elements::VkImageLayout; using s
 struct dstImage { using api_element = api_elements::VkImage; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstImage"; };
 struct dstImageLayout { using api_element = api_elements::VkImageLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstImageLayout"; };
 struct regionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "regionCount"; };
-struct pRegions { using api_element = api_elements::VkImageCopy2; using shape = field_shape::Array; using field_count = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
+struct pRegions { using api_element = api_elements::VkImageCopy2; using shape = field_shape::Array; using length = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
 GFXRECON_END_NAMESPACE(VkCopyImageInfo2)
 
 GFXRECON_BEGIN_NAMESPACE(VkBufferImageCopy2)
@@ -3145,7 +3145,7 @@ struct srcBuffer { using api_element = api_elements::VkBuffer; using shape = fie
 struct dstImage { using api_element = api_elements::VkImage; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstImage"; };
 struct dstImageLayout { using api_element = api_elements::VkImageLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstImageLayout"; };
 struct regionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "regionCount"; };
-struct pRegions { using api_element = api_elements::VkBufferImageCopy2; using shape = field_shape::Array; using field_count = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
+struct pRegions { using api_element = api_elements::VkBufferImageCopy2; using shape = field_shape::Array; using length = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
 GFXRECON_END_NAMESPACE(VkCopyBufferToImageInfo2)
 
 GFXRECON_BEGIN_NAMESPACE(VkCopyImageToBufferInfo2)
@@ -3155,7 +3155,7 @@ struct srcImage { using api_element = api_elements::VkImage; using shape = field
 struct srcImageLayout { using api_element = api_elements::VkImageLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "srcImageLayout"; };
 struct dstBuffer { using api_element = api_elements::VkBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstBuffer"; };
 struct regionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "regionCount"; };
-struct pRegions { using api_element = api_elements::VkBufferImageCopy2; using shape = field_shape::Array; using field_count = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
+struct pRegions { using api_element = api_elements::VkBufferImageCopy2; using shape = field_shape::Array; using length = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
 GFXRECON_END_NAMESPACE(VkCopyImageToBufferInfo2)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceTextureCompressionASTCHDRFeatures)
@@ -3207,7 +3207,7 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct pPipelineCreationFeedback { using api_element = api_elements::VkPipelineCreationFeedback; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelineCreationFeedback"; };
 struct pipelineStageCreationFeedbackCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "pipelineStageCreationFeedbackCount"; };
-struct pPipelineStageCreationFeedbacks { using api_element = api_elements::VkPipelineCreationFeedback; using shape = field_shape::Array; using field_count = FieldValue<pipelineStageCreationFeedbackCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelineStageCreationFeedbacks"; };
+struct pPipelineStageCreationFeedbacks { using api_element = api_elements::VkPipelineCreationFeedback; using shape = field_shape::Array; using length = FieldValue<pipelineStageCreationFeedbackCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelineStageCreationFeedbacks"; };
 GFXRECON_END_NAMESPACE(VkPipelineCreationFeedbackCreateInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceShaderTerminateInvocationFeatures)
@@ -3283,7 +3283,7 @@ GFXRECON_BEGIN_NAMESPACE(VkWriteDescriptorSetInlineUniformBlock)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct dataSize { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "dataSize"; };
-struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
+struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
 GFXRECON_END_NAMESPACE(VkWriteDescriptorSetInlineUniformBlock)
 
 GFXRECON_BEGIN_NAMESPACE(VkDescriptorPoolInlineUniformBlockCreateInfo)
@@ -3359,7 +3359,7 @@ struct srcImageLayout { using api_element = api_elements::VkImageLayout; using s
 struct dstImage { using api_element = api_elements::VkImage; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstImage"; };
 struct dstImageLayout { using api_element = api_elements::VkImageLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstImageLayout"; };
 struct regionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "regionCount"; };
-struct pRegions { using api_element = api_elements::VkImageBlit2; using shape = field_shape::Array; using field_count = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
+struct pRegions { using api_element = api_elements::VkImageBlit2; using shape = field_shape::Array; using length = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
 struct filter { using api_element = api_elements::VkFilter; using shape = field_shape::Value; static constexpr std::string_view field_name = "filter"; };
 GFXRECON_END_NAMESPACE(VkBlitImageInfo2)
 
@@ -3381,7 +3381,7 @@ struct srcImageLayout { using api_element = api_elements::VkImageLayout; using s
 struct dstImage { using api_element = api_elements::VkImage; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstImage"; };
 struct dstImageLayout { using api_element = api_elements::VkImageLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstImageLayout"; };
 struct regionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "regionCount"; };
-struct pRegions { using api_element = api_elements::VkImageResolve2; using shape = field_shape::Array; using field_count = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
+struct pRegions { using api_element = api_elements::VkImageResolve2; using shape = field_shape::Array; using length = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
 GFXRECON_END_NAMESPACE(VkResolveImageInfo2)
 
 GFXRECON_BEGIN_NAMESPACE(VkRenderingAttachmentInfo)
@@ -3405,7 +3405,7 @@ struct renderArea { using api_element = api_elements::VkRect2D; using shape = fi
 struct layerCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "layerCount"; };
 struct viewMask { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "viewMask"; };
 struct colorAttachmentCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "colorAttachmentCount"; };
-struct pColorAttachments { using api_element = api_elements::VkRenderingAttachmentInfo; using shape = field_shape::Array; using field_count = FieldValue<colorAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorAttachments"; };
+struct pColorAttachments { using api_element = api_elements::VkRenderingAttachmentInfo; using shape = field_shape::Array; using length = FieldValue<colorAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorAttachments"; };
 struct pDepthAttachment { using api_element = api_elements::VkRenderingAttachmentInfo; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDepthAttachment"; };
 struct pStencilAttachment { using api_element = api_elements::VkRenderingAttachmentInfo; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStencilAttachment"; };
 GFXRECON_END_NAMESPACE(VkRenderingInfo)
@@ -3415,7 +3415,7 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct viewMask { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "viewMask"; };
 struct colorAttachmentCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "colorAttachmentCount"; };
-struct pColorAttachmentFormats { using api_element = api_elements::VkFormat; using shape = field_shape::Array; using field_count = FieldValue<colorAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorAttachmentFormats"; };
+struct pColorAttachmentFormats { using api_element = api_elements::VkFormat; using shape = field_shape::Array; using length = FieldValue<colorAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorAttachmentFormats"; };
 struct depthAttachmentFormat { using api_element = api_elements::VkFormat; using shape = field_shape::Value; static constexpr std::string_view field_name = "depthAttachmentFormat"; };
 struct stencilAttachmentFormat { using api_element = api_elements::VkFormat; using shape = field_shape::Value; static constexpr std::string_view field_name = "stencilAttachmentFormat"; };
 GFXRECON_END_NAMESPACE(VkPipelineRenderingCreateInfo)
@@ -3432,7 +3432,7 @@ struct pNext { using api_element = api_elements::Void; using shape = field_shape
 struct flags { using api_element = api_elements::VkRenderingFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct viewMask { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "viewMask"; };
 struct colorAttachmentCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "colorAttachmentCount"; };
-struct pColorAttachmentFormats { using api_element = api_elements::VkFormat; using shape = field_shape::Array; using field_count = FieldValue<colorAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorAttachmentFormats"; };
+struct pColorAttachmentFormats { using api_element = api_elements::VkFormat; using shape = field_shape::Array; using length = FieldValue<colorAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorAttachmentFormats"; };
 struct depthAttachmentFormat { using api_element = api_elements::VkFormat; using shape = field_shape::Value; static constexpr std::string_view field_name = "depthAttachmentFormat"; };
 struct stencilAttachmentFormat { using api_element = api_elements::VkFormat; using shape = field_shape::Value; static constexpr std::string_view field_name = "stencilAttachmentFormat"; };
 struct rasterizationSamples { using api_element = api_elements::VkSampleCountFlagBits; using shape = field_shape::Value; static constexpr std::string_view field_name = "rasterizationSamples"; };
@@ -3487,9 +3487,9 @@ struct defaultRobustnessUniformBuffers { using api_element = api_elements::VkPip
 struct defaultRobustnessVertexInputs { using api_element = api_elements::VkPipelineRobustnessBufferBehavior; using shape = field_shape::Value; static constexpr std::string_view field_name = "defaultRobustnessVertexInputs"; };
 struct defaultRobustnessImages { using api_element = api_elements::VkPipelineRobustnessImageBehavior; using shape = field_shape::Value; static constexpr std::string_view field_name = "defaultRobustnessImages"; };
 struct copySrcLayoutCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "copySrcLayoutCount"; };
-struct pCopySrcLayouts { using api_element = api_elements::VkImageLayout; using shape = field_shape::Array; using field_count = FieldValue<copySrcLayoutCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCopySrcLayouts"; };
+struct pCopySrcLayouts { using api_element = api_elements::VkImageLayout; using shape = field_shape::Array; using length = FieldValue<copySrcLayoutCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCopySrcLayouts"; };
 struct copyDstLayoutCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "copyDstLayoutCount"; };
-struct pCopyDstLayouts { using api_element = api_elements::VkImageLayout; using shape = field_shape::Array; using field_count = FieldValue<copyDstLayoutCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCopyDstLayouts"; };
+struct pCopyDstLayouts { using api_element = api_elements::VkImageLayout; using shape = field_shape::Array; using length = FieldValue<copyDstLayoutCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCopyDstLayouts"; };
 struct optimalTilingLayoutUUID { using api_element = api_elements::UInt8; using shape = field_shape::StaticArray; static constexpr std::string_view length_expression = "VK_UUID_SIZE"; static constexpr size_t extents[] = {VK_UUID_SIZE}; static constexpr std::string_view field_name = "optimalTilingLayoutUUID"; };
 struct identicalMemoryTypeRequirements { using api_element = api_elements::VkBool32; using shape = field_shape::Value; static constexpr std::string_view field_name = "identicalMemoryTypeRequirements"; };
 GFXRECON_END_NAMESPACE(VkPhysicalDeviceVulkan14Properties)
@@ -3510,7 +3510,7 @@ GFXRECON_BEGIN_NAMESPACE(VkQueueFamilyGlobalPriorityProperties)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct priorityCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "priorityCount"; };
-struct priorities { using api_element = api_elements::VkQueueGlobalPriority; using shape = field_shape::StaticArray; using field_count = FieldValue<priorityCount>; static constexpr size_t extents[] = {VK_MAX_GLOBAL_PRIORITY_SIZE}; static constexpr std::string_view field_name = "priorities"; };
+struct priorities { using api_element = api_elements::VkQueueGlobalPriority; using shape = field_shape::StaticArray; using length = FieldValue<priorityCount>; static constexpr size_t extents[] = {VK_MAX_GLOBAL_PRIORITY_SIZE}; static constexpr std::string_view field_name = "priorities"; };
 GFXRECON_END_NAMESPACE(VkQueueFamilyGlobalPriorityProperties)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceIndexTypeUint8Features)
@@ -3607,9 +3607,9 @@ GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceHostImageCopyProperties)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct copySrcLayoutCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "copySrcLayoutCount"; };
-struct pCopySrcLayouts { using api_element = api_elements::VkImageLayout; using shape = field_shape::Array; using field_count = FieldValue<copySrcLayoutCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCopySrcLayouts"; };
+struct pCopySrcLayouts { using api_element = api_elements::VkImageLayout; using shape = field_shape::Array; using length = FieldValue<copySrcLayoutCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCopySrcLayouts"; };
 struct copyDstLayoutCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "copyDstLayoutCount"; };
-struct pCopyDstLayouts { using api_element = api_elements::VkImageLayout; using shape = field_shape::Array; using field_count = FieldValue<copyDstLayoutCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCopyDstLayouts"; };
+struct pCopyDstLayouts { using api_element = api_elements::VkImageLayout; using shape = field_shape::Array; using length = FieldValue<copyDstLayoutCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCopyDstLayouts"; };
 struct optimalTilingLayoutUUID { using api_element = api_elements::UInt8; using shape = field_shape::StaticArray; static constexpr std::string_view length_expression = "VK_UUID_SIZE"; static constexpr size_t extents[] = {VK_UUID_SIZE}; static constexpr std::string_view field_name = "optimalTilingLayoutUUID"; };
 struct identicalMemoryTypeRequirements { using api_element = api_elements::VkBool32; using shape = field_shape::Value; static constexpr std::string_view field_name = "identicalMemoryTypeRequirements"; };
 GFXRECON_END_NAMESPACE(VkPhysicalDeviceHostImageCopyProperties)
@@ -3643,7 +3643,7 @@ struct flags { using api_element = api_elements::VkHostImageCopyFlags; using sha
 struct dstImage { using api_element = api_elements::VkImage; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstImage"; };
 struct dstImageLayout { using api_element = api_elements::VkImageLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstImageLayout"; };
 struct regionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "regionCount"; };
-struct pRegions { using api_element = api_elements::VkMemoryToImageCopy; using shape = field_shape::Array; using field_count = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
+struct pRegions { using api_element = api_elements::VkMemoryToImageCopy; using shape = field_shape::Array; using length = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
 GFXRECON_END_NAMESPACE(VkCopyMemoryToImageInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkCopyImageToMemoryInfo)
@@ -3653,7 +3653,7 @@ struct flags { using api_element = api_elements::VkHostImageCopyFlags; using sha
 struct srcImage { using api_element = api_elements::VkImage; using shape = field_shape::Value; static constexpr std::string_view field_name = "srcImage"; };
 struct srcImageLayout { using api_element = api_elements::VkImageLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "srcImageLayout"; };
 struct regionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "regionCount"; };
-struct pRegions { using api_element = api_elements::VkImageToMemoryCopy; using shape = field_shape::Array; using field_count = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
+struct pRegions { using api_element = api_elements::VkImageToMemoryCopy; using shape = field_shape::Array; using length = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
 GFXRECON_END_NAMESPACE(VkCopyImageToMemoryInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkCopyImageToImageInfo)
@@ -3665,7 +3665,7 @@ struct srcImageLayout { using api_element = api_elements::VkImageLayout; using s
 struct dstImage { using api_element = api_elements::VkImage; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstImage"; };
 struct dstImageLayout { using api_element = api_elements::VkImageLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstImageLayout"; };
 struct regionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "regionCount"; };
-struct pRegions { using api_element = api_elements::VkImageCopy2; using shape = field_shape::Array; using field_count = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
+struct pRegions { using api_element = api_elements::VkImageCopy2; using shape = field_shape::Array; using length = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
 GFXRECON_END_NAMESPACE(VkCopyImageToImageInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkHostImageLayoutTransitionInfo)
@@ -3728,9 +3728,9 @@ struct stageFlags { using api_element = api_elements::VkShaderStageFlags; using 
 struct layout { using api_element = api_elements::VkPipelineLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "layout"; };
 struct firstSet { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstSet"; };
 struct descriptorSetCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "descriptorSetCount"; };
-struct pDescriptorSets { using api_element = api_elements::VkDescriptorSet; using shape = field_shape::Array; using field_count = FieldValue<descriptorSetCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescriptorSets"; };
+struct pDescriptorSets { using api_element = api_elements::VkDescriptorSet; using shape = field_shape::Array; using length = FieldValue<descriptorSetCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescriptorSets"; };
 struct dynamicOffsetCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "dynamicOffsetCount"; };
-struct pDynamicOffsets { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<dynamicOffsetCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDynamicOffsets"; };
+struct pDynamicOffsets { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<dynamicOffsetCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDynamicOffsets"; };
 GFXRECON_END_NAMESPACE(VkBindDescriptorSetsInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkPushConstantsInfo)
@@ -3740,7 +3740,7 @@ struct layout { using api_element = api_elements::VkPipelineLayout; using shape 
 struct stageFlags { using api_element = api_elements::VkShaderStageFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "stageFlags"; };
 struct offset { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "offset"; };
 struct size { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "size"; };
-struct pValues { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<size>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pValues"; };
+struct pValues { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<size>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pValues"; };
 GFXRECON_END_NAMESPACE(VkPushConstantsInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkPushDescriptorSetInfo)
@@ -3750,7 +3750,7 @@ struct stageFlags { using api_element = api_elements::VkShaderStageFlags; using 
 struct layout { using api_element = api_elements::VkPipelineLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "layout"; };
 struct set { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "set"; };
 struct descriptorWriteCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "descriptorWriteCount"; };
-struct pDescriptorWrites { using api_element = api_elements::VkWriteDescriptorSet; using shape = field_shape::Array; using field_count = FieldValue<descriptorWriteCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescriptorWrites"; };
+struct pDescriptorWrites { using api_element = api_elements::VkWriteDescriptorSet; using shape = field_shape::Array; using length = FieldValue<descriptorWriteCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescriptorWrites"; };
 GFXRECON_END_NAMESPACE(VkPushDescriptorSetInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkPushDescriptorSetWithTemplateInfo)
@@ -3834,7 +3834,7 @@ GFXRECON_BEGIN_NAMESPACE(VkPipelineVertexInputDivisorStateCreateInfo)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct vertexBindingDivisorCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "vertexBindingDivisorCount"; };
-struct pVertexBindingDivisors { using api_element = api_elements::VkVertexInputBindingDivisorDescription; using shape = field_shape::Array; using field_count = FieldValue<vertexBindingDivisorCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVertexBindingDivisors"; };
+struct pVertexBindingDivisors { using api_element = api_elements::VkVertexInputBindingDivisorDescription; using shape = field_shape::Array; using length = FieldValue<vertexBindingDivisorCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVertexBindingDivisors"; };
 GFXRECON_END_NAMESPACE(VkPipelineVertexInputDivisorStateCreateInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceVertexAttributeDivisorFeatures)
@@ -3849,7 +3849,7 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = false; static constexpr std::string_view field_name = "pNext"; };
 struct viewMask { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "viewMask"; };
 struct colorAttachmentCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "colorAttachmentCount"; };
-struct pColorAttachmentFormats { using api_element = api_elements::VkFormat; using shape = field_shape::Array; using field_count = FieldValue<colorAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorAttachmentFormats"; };
+struct pColorAttachmentFormats { using api_element = api_elements::VkFormat; using shape = field_shape::Array; using length = FieldValue<colorAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorAttachmentFormats"; };
 struct depthAttachmentFormat { using api_element = api_elements::VkFormat; using shape = field_shape::Value; static constexpr std::string_view field_name = "depthAttachmentFormat"; };
 struct stencilAttachmentFormat { using api_element = api_elements::VkFormat; using shape = field_shape::Value; static constexpr std::string_view field_name = "stencilAttachmentFormat"; };
 GFXRECON_END_NAMESPACE(VkRenderingAreaInfo)
@@ -3864,14 +3864,14 @@ GFXRECON_BEGIN_NAMESPACE(VkRenderingAttachmentLocationInfo)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct colorAttachmentCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "colorAttachmentCount"; };
-struct pColorAttachmentLocations { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<colorAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorAttachmentLocations"; };
+struct pColorAttachmentLocations { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<colorAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorAttachmentLocations"; };
 GFXRECON_END_NAMESPACE(VkRenderingAttachmentLocationInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkRenderingInputAttachmentIndexInfo)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct colorAttachmentCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "colorAttachmentCount"; };
-struct pColorAttachmentInputIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<colorAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorAttachmentInputIndices"; };
+struct pColorAttachmentInputIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<colorAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorAttachmentInputIndices"; };
 struct pDepthInputAttachmentIndex { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDepthInputAttachmentIndex"; };
 struct pStencilInputAttachmentIndex { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStencilInputAttachmentIndex"; };
 GFXRECON_END_NAMESPACE(VkRenderingInputAttachmentIndexInfo)
@@ -3907,7 +3907,7 @@ struct imageArrayLayers { using api_element = api_elements::UInt32; using shape 
 struct imageUsage { using api_element = api_elements::VkImageUsageFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "imageUsage"; };
 struct imageSharingMode { using api_element = api_elements::VkSharingMode; using shape = field_shape::Value; static constexpr std::string_view field_name = "imageSharingMode"; };
 struct queueFamilyIndexCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "queueFamilyIndexCount"; };
-struct pQueueFamilyIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<queueFamilyIndexCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueueFamilyIndices"; };
+struct pQueueFamilyIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<queueFamilyIndexCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueueFamilyIndices"; };
 struct preTransform { using api_element = api_elements::VkSurfaceTransformFlagBitsKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "preTransform"; };
 struct compositeAlpha { using api_element = api_elements::VkCompositeAlphaFlagBitsKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "compositeAlpha"; };
 struct presentMode { using api_element = api_elements::VkPresentModeKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "presentMode"; };
@@ -3919,11 +3919,11 @@ GFXRECON_BEGIN_NAMESPACE(VkPresentInfoKHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct waitSemaphoreCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "waitSemaphoreCount"; };
-struct pWaitSemaphores { using api_element = api_elements::VkSemaphore; using shape = field_shape::Array; using field_count = FieldValue<waitSemaphoreCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pWaitSemaphores"; };
+struct pWaitSemaphores { using api_element = api_elements::VkSemaphore; using shape = field_shape::Array; using length = FieldValue<waitSemaphoreCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pWaitSemaphores"; };
 struct swapchainCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "swapchainCount"; };
-struct pSwapchains { using api_element = api_elements::VkSwapchainKHR; using shape = field_shape::Array; using field_count = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSwapchains"; };
-struct pImageIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pImageIndices"; };
-struct pResults { using api_element = api_elements::VkResult; using shape = field_shape::Array; using field_count = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pResults"; };
+struct pSwapchains { using api_element = api_elements::VkSwapchainKHR; using shape = field_shape::Array; using length = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSwapchains"; };
+struct pImageIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pImageIndices"; };
+struct pResults { using api_element = api_elements::VkResult; using shape = field_shape::Array; using length = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pResults"; };
 GFXRECON_END_NAMESPACE(VkPresentInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkImageSwapchainCreateInfoKHR)
@@ -3960,7 +3960,7 @@ GFXRECON_BEGIN_NAMESPACE(VkDeviceGroupPresentInfoKHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct swapchainCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "swapchainCount"; };
-struct pDeviceMasks { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDeviceMasks"; };
+struct pDeviceMasks { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDeviceMasks"; };
 struct mode { using api_element = api_elements::VkDeviceGroupPresentModeFlagBitsKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "mode"; };
 GFXRECON_END_NAMESPACE(VkDeviceGroupPresentInfoKHR)
 
@@ -4099,7 +4099,7 @@ GFXRECON_BEGIN_NAMESPACE(VkVideoProfileListInfoKHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct profileCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "profileCount"; };
-struct pProfiles { using api_element = api_elements::VkVideoProfileInfoKHR; using shape = field_shape::Array; using field_count = FieldValue<profileCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProfiles"; };
+struct pProfiles { using api_element = api_elements::VkVideoProfileInfoKHR; using shape = field_shape::Array; using length = FieldValue<profileCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProfiles"; };
 GFXRECON_END_NAMESPACE(VkVideoProfileListInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkVideoCapabilitiesKHR)
@@ -4200,7 +4200,7 @@ struct flags { using api_element = api_elements::VkVideoBeginCodingFlagsKHR; usi
 struct videoSession { using api_element = api_elements::VkVideoSessionKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "videoSession"; };
 struct videoSessionParameters { using api_element = api_elements::VkVideoSessionParametersKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "videoSessionParameters"; };
 struct referenceSlotCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "referenceSlotCount"; };
-struct pReferenceSlots { using api_element = api_elements::VkVideoReferenceSlotInfoKHR; using shape = field_shape::Array; using field_count = FieldValue<referenceSlotCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pReferenceSlots"; };
+struct pReferenceSlots { using api_element = api_elements::VkVideoReferenceSlotInfoKHR; using shape = field_shape::Array; using length = FieldValue<referenceSlotCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pReferenceSlots"; };
 GFXRECON_END_NAMESPACE(VkVideoBeginCodingInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkVideoEndCodingInfoKHR)
@@ -4237,7 +4237,7 @@ struct srcBufferRange { using api_element = api_elements::VkDeviceSize; using sh
 struct dstPictureResource { using api_element = api_elements::VkVideoPictureResourceInfoKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstPictureResource"; };
 struct pSetupReferenceSlot { using api_element = api_elements::VkVideoReferenceSlotInfoKHR; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSetupReferenceSlot"; };
 struct referenceSlotCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "referenceSlotCount"; };
-struct pReferenceSlots { using api_element = api_elements::VkVideoReferenceSlotInfoKHR; using shape = field_shape::Array; using field_count = FieldValue<referenceSlotCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pReferenceSlots"; };
+struct pReferenceSlots { using api_element = api_elements::VkVideoReferenceSlotInfoKHR; using shape = field_shape::Array; using length = FieldValue<referenceSlotCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pReferenceSlots"; };
 GFXRECON_END_NAMESPACE(VkVideoDecodeInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkVideoEncodeH264CapabilitiesKHR)
@@ -4289,9 +4289,9 @@ GFXRECON_BEGIN_NAMESPACE(VkVideoEncodeH264SessionParametersAddInfoKHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct stdSPSCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "stdSPSCount"; };
-struct pStdSPSs { using api_element = api_elements::StdVideoH264SequenceParameterSet; using shape = field_shape::Array; using field_count = FieldValue<stdSPSCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStdSPSs"; };
+struct pStdSPSs { using api_element = api_elements::StdVideoH264SequenceParameterSet; using shape = field_shape::Array; using length = FieldValue<stdSPSCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStdSPSs"; };
 struct stdPPSCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "stdPPSCount"; };
-struct pStdPPSs { using api_element = api_elements::StdVideoH264PictureParameterSet; using shape = field_shape::Array; using field_count = FieldValue<stdPPSCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStdPPSs"; };
+struct pStdPPSs { using api_element = api_elements::StdVideoH264PictureParameterSet; using shape = field_shape::Array; using length = FieldValue<stdPPSCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStdPPSs"; };
 GFXRECON_END_NAMESPACE(VkVideoEncodeH264SessionParametersAddInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkVideoEncodeH264SessionParametersCreateInfoKHR)
@@ -4329,7 +4329,7 @@ GFXRECON_BEGIN_NAMESPACE(VkVideoEncodeH264PictureInfoKHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct naluSliceEntryCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "naluSliceEntryCount"; };
-struct pNaluSliceEntries { using api_element = api_elements::VkVideoEncodeH264NaluSliceInfoKHR; using shape = field_shape::Array; using field_count = FieldValue<naluSliceEntryCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pNaluSliceEntries"; };
+struct pNaluSliceEntries { using api_element = api_elements::VkVideoEncodeH264NaluSliceInfoKHR; using shape = field_shape::Array; using length = FieldValue<naluSliceEntryCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pNaluSliceEntries"; };
 struct pStdPictureInfo { using api_element = api_elements::StdVideoEncodeH264PictureInfo; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStdPictureInfo"; };
 struct generatePrefixNalu { using api_element = api_elements::VkBool32; using shape = field_shape::Value; static constexpr std::string_view field_name = "generatePrefixNalu"; };
 GFXRECON_END_NAMESPACE(VkVideoEncodeH264PictureInfoKHR)
@@ -4400,9 +4400,9 @@ GFXRECON_BEGIN_NAMESPACE(VkVideoDecodeH264SessionParametersAddInfoKHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct stdSPSCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "stdSPSCount"; };
-struct pStdSPSs { using api_element = api_elements::StdVideoH264SequenceParameterSet; using shape = field_shape::Array; using field_count = FieldValue<stdSPSCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStdSPSs"; };
+struct pStdSPSs { using api_element = api_elements::StdVideoH264SequenceParameterSet; using shape = field_shape::Array; using length = FieldValue<stdSPSCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStdSPSs"; };
 struct stdPPSCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "stdPPSCount"; };
-struct pStdPPSs { using api_element = api_elements::StdVideoH264PictureParameterSet; using shape = field_shape::Array; using field_count = FieldValue<stdPPSCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStdPPSs"; };
+struct pStdPPSs { using api_element = api_elements::StdVideoH264PictureParameterSet; using shape = field_shape::Array; using length = FieldValue<stdPPSCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStdPPSs"; };
 GFXRECON_END_NAMESPACE(VkVideoDecodeH264SessionParametersAddInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkVideoDecodeH264SessionParametersCreateInfoKHR)
@@ -4418,7 +4418,7 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct pStdPictureInfo { using api_element = api_elements::StdVideoDecodeH264PictureInfo; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStdPictureInfo"; };
 struct sliceCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "sliceCount"; };
-struct pSliceOffsets { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<sliceCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSliceOffsets"; };
+struct pSliceOffsets { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<sliceCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSliceOffsets"; };
 GFXRECON_END_NAMESPACE(VkVideoDecodeH264PictureInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkVideoDecodeH264DpbSlotInfoKHR)
@@ -4480,12 +4480,12 @@ GFXRECON_BEGIN_NAMESPACE(VkWin32KeyedMutexAcquireReleaseInfoKHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct acquireCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "acquireCount"; };
-struct pAcquireSyncs { using api_element = api_elements::VkDeviceMemory; using shape = field_shape::Array; using field_count = FieldValue<acquireCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAcquireSyncs"; };
-struct pAcquireKeys { using api_element = api_elements::UInt64; using shape = field_shape::Array; using field_count = FieldValue<acquireCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAcquireKeys"; };
-struct pAcquireTimeouts { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<acquireCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAcquireTimeouts"; };
+struct pAcquireSyncs { using api_element = api_elements::VkDeviceMemory; using shape = field_shape::Array; using length = FieldValue<acquireCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAcquireSyncs"; };
+struct pAcquireKeys { using api_element = api_elements::UInt64; using shape = field_shape::Array; using length = FieldValue<acquireCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAcquireKeys"; };
+struct pAcquireTimeouts { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<acquireCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAcquireTimeouts"; };
 struct releaseCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "releaseCount"; };
-struct pReleaseSyncs { using api_element = api_elements::VkDeviceMemory; using shape = field_shape::Array; using field_count = FieldValue<releaseCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pReleaseSyncs"; };
-struct pReleaseKeys { using api_element = api_elements::UInt64; using shape = field_shape::Array; using field_count = FieldValue<releaseCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pReleaseKeys"; };
+struct pReleaseSyncs { using api_element = api_elements::VkDeviceMemory; using shape = field_shape::Array; using length = FieldValue<releaseCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pReleaseSyncs"; };
+struct pReleaseKeys { using api_element = api_elements::UInt64; using shape = field_shape::Array; using length = FieldValue<releaseCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pReleaseKeys"; };
 GFXRECON_END_NAMESPACE(VkWin32KeyedMutexAcquireReleaseInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkImportSemaphoreWin32HandleInfoKHR)
@@ -4510,9 +4510,9 @@ GFXRECON_BEGIN_NAMESPACE(VkD3D12FenceSubmitInfoKHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct waitSemaphoreValuesCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "waitSemaphoreValuesCount"; };
-struct pWaitSemaphoreValues { using api_element = api_elements::UInt64; using shape = field_shape::Array; using field_count = FieldValue<waitSemaphoreValuesCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pWaitSemaphoreValues"; };
+struct pWaitSemaphoreValues { using api_element = api_elements::UInt64; using shape = field_shape::Array; using length = FieldValue<waitSemaphoreValuesCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pWaitSemaphoreValues"; };
 struct signalSemaphoreValuesCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "signalSemaphoreValuesCount"; };
-struct pSignalSemaphoreValues { using api_element = api_elements::UInt64; using shape = field_shape::Array; using field_count = FieldValue<signalSemaphoreValuesCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSignalSemaphoreValues"; };
+struct pSignalSemaphoreValues { using api_element = api_elements::UInt64; using shape = field_shape::Array; using length = FieldValue<signalSemaphoreValuesCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSignalSemaphoreValues"; };
 GFXRECON_END_NAMESPACE(VkD3D12FenceSubmitInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkSemaphoreGetWin32HandleInfoKHR)
@@ -4546,14 +4546,14 @@ GFXRECON_END_NAMESPACE(VkRectLayerKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkPresentRegionKHR)
 struct rectangleCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "rectangleCount"; };
-struct pRectangles { using api_element = api_elements::VkRectLayerKHR; using shape = field_shape::Array; using field_count = FieldValue<rectangleCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRectangles"; };
+struct pRectangles { using api_element = api_elements::VkRectLayerKHR; using shape = field_shape::Array; using length = FieldValue<rectangleCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRectangles"; };
 GFXRECON_END_NAMESPACE(VkPresentRegionKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkPresentRegionsKHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct swapchainCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "swapchainCount"; };
-struct pRegions { using api_element = api_elements::VkPresentRegionKHR; using shape = field_shape::Array; using field_count = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
+struct pRegions { using api_element = api_elements::VkPresentRegionKHR; using shape = field_shape::Array; using length = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
 GFXRECON_END_NAMESPACE(VkPresentRegionsKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkSharedPresentSurfaceCapabilitiesKHR)
@@ -4639,7 +4639,7 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct queueFamilyIndex { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "queueFamilyIndex"; };
 struct counterIndexCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "counterIndexCount"; };
-struct pCounterIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<counterIndexCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounterIndices"; };
+struct pCounterIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<counterIndexCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounterIndices"; };
 GFXRECON_END_NAMESPACE(VkQueryPoolPerformanceCreateInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkAcquireProfilingLockInfoKHR)
@@ -4820,7 +4820,7 @@ GFXRECON_BEGIN_NAMESPACE(VkDeviceFaultShaderAbortMessageInfoKHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct messageDataSize { using api_element = api_elements::UInt64; using shape = field_shape::Value; static constexpr std::string_view field_name = "messageDataSize"; };
-struct pMessageData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<messageDataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMessageData"; };
+struct pMessageData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<messageDataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMessageData"; };
 GFXRECON_END_NAMESPACE(VkDeviceFaultShaderAbortMessageInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceShaderAbortPropertiesKHR)
@@ -4891,21 +4891,21 @@ struct name { using api_element = api_elements::Char; using shape = field_shape:
 struct description { using api_element = api_elements::Char; using shape = field_shape::StaticArray; static constexpr std::string_view length_expression = "VK_MAX_DESCRIPTION_SIZE"; static constexpr size_t extents[] = {VK_MAX_DESCRIPTION_SIZE}; static constexpr std::string_view field_name = "description"; };
 struct isText { using api_element = api_elements::VkBool32; using shape = field_shape::Value; static constexpr std::string_view field_name = "isText"; };
 struct dataSize { using api_element = api_elements::Size; using shape = field_shape::Value; static constexpr std::string_view field_name = "dataSize"; };
-struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
+struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
 GFXRECON_END_NAMESPACE(VkPipelineExecutableInternalRepresentationKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkPipelineLibraryCreateInfoKHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct libraryCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "libraryCount"; };
-struct pLibraries { using api_element = api_elements::VkPipeline; using shape = field_shape::Array; using field_count = FieldValue<libraryCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pLibraries"; };
+struct pLibraries { using api_element = api_elements::VkPipeline; using shape = field_shape::Array; using length = FieldValue<libraryCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pLibraries"; };
 GFXRECON_END_NAMESPACE(VkPipelineLibraryCreateInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkPresentIdKHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct swapchainCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "swapchainCount"; };
-struct pPresentIds { using api_element = api_elements::UInt64; using shape = field_shape::Array; using field_count = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPresentIds"; };
+struct pPresentIds { using api_element = api_elements::UInt64; using shape = field_shape::Array; using length = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPresentIds"; };
 GFXRECON_END_NAMESPACE(VkPresentIdKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDevicePresentIdFeaturesKHR)
@@ -4924,7 +4924,7 @@ struct dstBufferRange { using api_element = api_elements::VkDeviceSize; using sh
 struct srcPictureResource { using api_element = api_elements::VkVideoPictureResourceInfoKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "srcPictureResource"; };
 struct pSetupReferenceSlot { using api_element = api_elements::VkVideoReferenceSlotInfoKHR; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSetupReferenceSlot"; };
 struct referenceSlotCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "referenceSlotCount"; };
-struct pReferenceSlots { using api_element = api_elements::VkVideoReferenceSlotInfoKHR; using shape = field_shape::Array; using field_count = FieldValue<referenceSlotCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pReferenceSlots"; };
+struct pReferenceSlots { using api_element = api_elements::VkVideoReferenceSlotInfoKHR; using shape = field_shape::Array; using length = FieldValue<referenceSlotCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pReferenceSlots"; };
 struct precedingExternallyEncodedBytes { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "precedingExternallyEncodedBytes"; };
 GFXRECON_END_NAMESPACE(VkVideoEncodeInfoKHR)
 
@@ -4969,7 +4969,7 @@ struct pNext { using api_element = api_elements::Void; using shape = field_shape
 struct flags { using api_element = api_elements::VkVideoEncodeRateControlFlagsKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct rateControlMode { using api_element = api_elements::VkVideoEncodeRateControlModeFlagBitsKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "rateControlMode"; };
 struct layerCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "layerCount"; };
-struct pLayers { using api_element = api_elements::VkVideoEncodeRateControlLayerInfoKHR; using shape = field_shape::Array; using field_count = FieldValue<layerCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pLayers"; };
+struct pLayers { using api_element = api_elements::VkVideoEncodeRateControlLayerInfoKHR; using shape = field_shape::Array; using length = FieldValue<layerCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pLayers"; };
 struct virtualBufferSizeInMs { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "virtualBufferSizeInMs"; };
 struct initialVirtualBufferSizeInMs { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "initialVirtualBufferSizeInMs"; };
 GFXRECON_END_NAMESPACE(VkVideoEncodeRateControlInfoKHR)
@@ -5030,7 +5030,7 @@ GFXRECON_BEGIN_NAMESPACE(VkCopyDeviceMemoryInfoKHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = false; static constexpr std::string_view field_name = "pNext"; };
 struct regionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "regionCount"; };
-struct pRegions { using api_element = api_elements::VkDeviceMemoryCopyKHR; using shape = field_shape::Array; using field_count = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
+struct pRegions { using api_element = api_elements::VkDeviceMemoryCopyKHR; using shape = field_shape::Array; using length = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
 GFXRECON_END_NAMESPACE(VkCopyDeviceMemoryInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkDeviceMemoryImageCopyKHR)
@@ -5051,7 +5051,7 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = false; static constexpr std::string_view field_name = "pNext"; };
 struct image { using api_element = api_elements::VkImage; using shape = field_shape::Value; static constexpr std::string_view field_name = "image"; };
 struct regionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "regionCount"; };
-struct pRegions { using api_element = api_elements::VkDeviceMemoryImageCopyKHR; using shape = field_shape::Array; using field_count = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
+struct pRegions { using api_element = api_elements::VkDeviceMemoryImageCopyKHR; using shape = field_shape::Array; using length = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
 GFXRECON_END_NAMESPACE(VkCopyDeviceMemoryImageInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkMemoryRangeBarrierKHR)
@@ -5071,7 +5071,7 @@ GFXRECON_BEGIN_NAMESPACE(VkMemoryRangeBarriersInfoKHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct memoryRangeBarrierCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "memoryRangeBarrierCount"; };
-struct pMemoryRangeBarriers { using api_element = api_elements::VkMemoryRangeBarrierKHR; using shape = field_shape::Array; using field_count = FieldValue<memoryRangeBarrierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMemoryRangeBarriers"; };
+struct pMemoryRangeBarriers { using api_element = api_elements::VkMemoryRangeBarrierKHR; using shape = field_shape::Array; using length = FieldValue<memoryRangeBarrierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMemoryRangeBarriers"; };
 GFXRECON_END_NAMESPACE(VkMemoryRangeBarriersInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceDeviceAddressCommandsFeaturesKHR)
@@ -5227,7 +5227,7 @@ GFXRECON_BEGIN_NAMESPACE(VkPresentId2KHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct swapchainCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "swapchainCount"; };
-struct pPresentIds { using api_element = api_elements::UInt64; using shape = field_shape::Array; using field_count = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPresentIds"; };
+struct pPresentIds { using api_element = api_elements::UInt64; using shape = field_shape::Array; using length = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPresentIds"; };
 GFXRECON_END_NAMESPACE(VkPresentId2KHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDevicePresentId2FeaturesKHR)
@@ -5287,18 +5287,18 @@ GFXRECON_BEGIN_NAMESPACE(VkPipelineBinaryKeyKHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = false; static constexpr std::string_view field_name = "pNext"; };
 struct keySize { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "keySize"; };
-struct key { using api_element = api_elements::UInt8; using shape = field_shape::StaticArray; using field_count = FieldValue<keySize>; static constexpr size_t extents[] = {VK_MAX_PIPELINE_BINARY_KEY_SIZE_KHR}; static constexpr std::string_view field_name = "key"; };
+struct key { using api_element = api_elements::UInt8; using shape = field_shape::StaticArray; using length = FieldValue<keySize>; static constexpr size_t extents[] = {VK_MAX_PIPELINE_BINARY_KEY_SIZE_KHR}; static constexpr std::string_view field_name = "key"; };
 GFXRECON_END_NAMESPACE(VkPipelineBinaryKeyKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkPipelineBinaryDataKHR)
 struct dataSize { using api_element = api_elements::Size; using shape = field_shape::Value; static constexpr std::string_view field_name = "dataSize"; };
-struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
+struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
 GFXRECON_END_NAMESPACE(VkPipelineBinaryDataKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkPipelineBinaryKeysAndDataKHR)
 struct binaryCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "binaryCount"; };
-struct pPipelineBinaryKeys { using api_element = api_elements::VkPipelineBinaryKeyKHR; using shape = field_shape::Array; using field_count = FieldValue<binaryCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelineBinaryKeys"; };
-struct pPipelineBinaryData { using api_element = api_elements::VkPipelineBinaryDataKHR; using shape = field_shape::Array; using field_count = FieldValue<binaryCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelineBinaryData"; };
+struct pPipelineBinaryKeys { using api_element = api_elements::VkPipelineBinaryKeyKHR; using shape = field_shape::Array; using length = FieldValue<binaryCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelineBinaryKeys"; };
+struct pPipelineBinaryData { using api_element = api_elements::VkPipelineBinaryDataKHR; using shape = field_shape::Array; using length = FieldValue<binaryCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelineBinaryData"; };
 GFXRECON_END_NAMESPACE(VkPipelineBinaryKeysAndDataKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkPipelineCreateInfoKHR)
@@ -5318,7 +5318,7 @@ GFXRECON_BEGIN_NAMESPACE(VkPipelineBinaryInfoKHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct binaryCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "binaryCount"; };
-struct pPipelineBinaries { using api_element = api_elements::VkPipelineBinaryKHR; using shape = field_shape::Array; using field_count = FieldValue<binaryCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelineBinaries"; };
+struct pPipelineBinaries { using api_element = api_elements::VkPipelineBinaryKHR; using shape = field_shape::Array; using length = FieldValue<binaryCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelineBinaries"; };
 GFXRECON_END_NAMESPACE(VkPipelineBinaryInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkReleaseCapturedPipelineDataInfoKHR)
@@ -5337,7 +5337,7 @@ GFXRECON_BEGIN_NAMESPACE(VkPipelineBinaryHandlesInfoKHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = false; static constexpr std::string_view field_name = "pNext"; };
 struct pipelineBinaryCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "pipelineBinaryCount"; };
-struct pPipelineBinaries { using api_element = api_elements::VkPipelineBinaryKHR; using shape = field_shape::Array; using field_count = FieldValue<pipelineBinaryCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelineBinaries"; };
+struct pPipelineBinaries { using api_element = api_elements::VkPipelineBinaryKHR; using shape = field_shape::Array; using length = FieldValue<pipelineBinaryCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelineBinaries"; };
 GFXRECON_END_NAMESPACE(VkPipelineBinaryHandlesInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkSurfacePresentModeKHR)
@@ -5360,7 +5360,7 @@ GFXRECON_BEGIN_NAMESPACE(VkSurfacePresentModeCompatibilityKHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct presentModeCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "presentModeCount"; };
-struct pPresentModes { using api_element = api_elements::VkPresentModeKHR; using shape = field_shape::Array; using field_count = FieldValue<presentModeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPresentModes"; };
+struct pPresentModes { using api_element = api_elements::VkPresentModeKHR; using shape = field_shape::Array; using length = FieldValue<presentModeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPresentModes"; };
 GFXRECON_END_NAMESPACE(VkSurfacePresentModeCompatibilityKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR)
@@ -5373,21 +5373,21 @@ GFXRECON_BEGIN_NAMESPACE(VkSwapchainPresentFenceInfoKHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct swapchainCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "swapchainCount"; };
-struct pFences { using api_element = api_elements::VkFence; using shape = field_shape::Array; using field_count = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pFences"; };
+struct pFences { using api_element = api_elements::VkFence; using shape = field_shape::Array; using length = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pFences"; };
 GFXRECON_END_NAMESPACE(VkSwapchainPresentFenceInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkSwapchainPresentModesCreateInfoKHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct presentModeCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "presentModeCount"; };
-struct pPresentModes { using api_element = api_elements::VkPresentModeKHR; using shape = field_shape::Array; using field_count = FieldValue<presentModeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPresentModes"; };
+struct pPresentModes { using api_element = api_elements::VkPresentModeKHR; using shape = field_shape::Array; using length = FieldValue<presentModeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPresentModes"; };
 GFXRECON_END_NAMESPACE(VkSwapchainPresentModesCreateInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkSwapchainPresentModeInfoKHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct swapchainCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "swapchainCount"; };
-struct pPresentModes { using api_element = api_elements::VkPresentModeKHR; using shape = field_shape::Array; using field_count = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPresentModes"; };
+struct pPresentModes { using api_element = api_elements::VkPresentModeKHR; using shape = field_shape::Array; using length = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPresentModes"; };
 GFXRECON_END_NAMESPACE(VkSwapchainPresentModeInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkSwapchainPresentScalingCreateInfoKHR)
@@ -5403,7 +5403,7 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = false; static constexpr std::string_view field_name = "pNext"; };
 struct swapchain { using api_element = api_elements::VkSwapchainKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "swapchain"; };
 struct imageIndexCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "imageIndexCount"; };
-struct pImageIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<imageIndexCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pImageIndices"; };
+struct pImageIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<imageIndexCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pImageIndices"; };
 GFXRECON_END_NAMESPACE(VkReleaseSwapchainImagesInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceInternallySynchronizedQueuesFeaturesKHR)
@@ -5478,8 +5478,8 @@ struct pStdPictureInfo { using api_element = api_elements::StdVideoDecodeAV1Pict
 struct referenceNameSlotIndices { using api_element = api_elements::Int32; using shape = field_shape::StaticArray; static constexpr std::string_view length_expression = "VK_MAX_VIDEO_AV1_REFERENCES_PER_FRAME_KHR"; static constexpr size_t extents[] = {VK_MAX_VIDEO_AV1_REFERENCES_PER_FRAME_KHR}; static constexpr std::string_view field_name = "referenceNameSlotIndices"; };
 struct frameHeaderOffset { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "frameHeaderOffset"; };
 struct tileCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "tileCount"; };
-struct pTileOffsets { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<tileCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTileOffsets"; };
-struct pTileSizes { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<tileCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTileSizes"; };
+struct pTileOffsets { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<tileCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTileOffsets"; };
+struct pTileSizes { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<tileCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTileSizes"; };
 GFXRECON_END_NAMESPACE(VkVideoDecodeAV1PictureInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkVideoDecodeAV1DpbSlotInfoKHR)
@@ -5562,7 +5562,7 @@ struct pNext { using api_element = api_elements::Void; using shape = field_shape
 struct pStdSequenceHeader { using api_element = api_elements::StdVideoAV1SequenceHeader; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStdSequenceHeader"; };
 struct pStdDecoderModelInfo { using api_element = api_elements::StdVideoEncodeAV1DecoderModelInfo; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStdDecoderModelInfo"; };
 struct stdOperatingPointCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "stdOperatingPointCount"; };
-struct pStdOperatingPoints { using api_element = api_elements::StdVideoEncodeAV1OperatingPointInfo; using shape = field_shape::Array; using field_count = FieldValue<stdOperatingPointCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStdOperatingPoints"; };
+struct pStdOperatingPoints { using api_element = api_elements::StdVideoEncodeAV1OperatingPointInfo; using shape = field_shape::Array; using length = FieldValue<stdOperatingPointCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStdOperatingPoints"; };
 GFXRECON_END_NAMESPACE(VkVideoEncodeAV1SessionParametersCreateInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkVideoEncodeAV1PictureInfoKHR)
@@ -5693,8 +5693,8 @@ struct stageFlags { using api_element = api_elements::VkShaderStageFlags; using 
 struct layout { using api_element = api_elements::VkPipelineLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "layout"; };
 struct firstSet { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstSet"; };
 struct setCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "setCount"; };
-struct pBufferIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<setCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBufferIndices"; };
-struct pOffsets { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Array; using field_count = FieldValue<setCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pOffsets"; };
+struct pBufferIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<setCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBufferIndices"; };
+struct pOffsets { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Array; using length = FieldValue<setCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pOffsets"; };
 GFXRECON_END_NAMESPACE(VkSetDescriptorBufferOffsetsInfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkBindDescriptorBufferEmbeddedSamplersInfoEXT)
@@ -5737,7 +5737,7 @@ struct copyCount { using api_element = api_elements::UInt32; using shape = field
 struct copyAddressRange { using api_element = api_elements::VkStridedDeviceAddressRangeKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "copyAddressRange"; };
 struct dstImage { using api_element = api_elements::VkImage; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstImage"; };
 struct dstImageLayout { using api_element = api_elements::VkImageLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstImageLayout"; };
-struct pImageSubresources { using api_element = api_elements::VkImageSubresourceLayers; using shape = field_shape::Array; using field_count = FieldValue<copyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pImageSubresources"; };
+struct pImageSubresources { using api_element = api_elements::VkImageSubresourceLayers; using shape = field_shape::Array; using length = FieldValue<copyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pImageSubresources"; };
 GFXRECON_END_NAMESPACE(VkCopyMemoryToImageIndirectInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR)
@@ -5890,7 +5890,7 @@ GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceLayeredApiPropertiesListKHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct layeredApiCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "layeredApiCount"; };
-struct pLayeredApis { using api_element = api_elements::VkPhysicalDeviceLayeredApiPropertiesKHR; using shape = field_shape::Array; using field_count = FieldValue<layeredApiCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pLayeredApis"; };
+struct pLayeredApis { using api_element = api_elements::VkPhysicalDeviceLayeredApiPropertiesKHR; using shape = field_shape::Array; using length = FieldValue<layeredApiCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pLayeredApis"; };
 GFXRECON_END_NAMESPACE(VkPhysicalDeviceLayeredApiPropertiesListKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceLayeredApiVulkanPropertiesKHR)
@@ -5941,7 +5941,7 @@ GFXRECON_BEGIN_NAMESPACE(VkDeviceFaultDebugInfoKHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct vendorBinarySize { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "vendorBinarySize"; };
-struct pVendorBinaryData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<vendorBinarySize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVendorBinaryData"; };
+struct pVendorBinaryData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<vendorBinarySize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVendorBinaryData"; };
 GFXRECON_END_NAMESPACE(VkDeviceFaultDebugInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkDeviceFaultVendorBinaryHeaderVersionOneKHR)
@@ -6055,8 +6055,8 @@ GFXRECON_BEGIN_NAMESPACE(VkAccelerationStructureGeometryMicromapDataKHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct usageCountsCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "usageCountsCount"; };
-struct pUsageCounts { using api_element = api_elements::VkMicromapUsageKHR; using shape = field_shape::Array; using field_count = FieldValue<usageCountsCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pUsageCounts"; };
-struct ppUsageCounts { using api_element = api_elements::VkMicromapUsageKHR; using shape = field_shape::PointerArray; using field_count = FieldValue<usageCountsCount>; static constexpr size_t pointer_count = 2; static constexpr std::string_view field_name = "ppUsageCounts"; };
+struct pUsageCounts { using api_element = api_elements::VkMicromapUsageKHR; using shape = field_shape::Array; using length = FieldValue<usageCountsCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pUsageCounts"; };
+struct ppUsageCounts { using api_element = api_elements::VkMicromapUsageKHR; using shape = field_shape::PointerArray; using length = FieldValue<usageCountsCount>; static constexpr size_t pointer_count = 2; static constexpr std::string_view field_name = "ppUsageCounts"; };
 struct data { using api_element = api_elements::VkDeviceAddress; using shape = field_shape::Value; static constexpr std::string_view field_name = "data"; };
 struct triangleArray { using api_element = api_elements::VkDeviceAddress; using shape = field_shape::Value; static constexpr std::string_view field_name = "triangleArray"; };
 struct triangleArrayStride { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Value; static constexpr std::string_view field_name = "triangleArrayStride"; };
@@ -6217,7 +6217,7 @@ struct objectType { using api_element = api_elements::VkDebugReportObjectTypeEXT
 struct object { using api_element = api_elements::GenericHandle; using shape = field_shape::Value; using selector_field = objectType; static constexpr std::string_view field_name = "object"; };
 struct tagName { using api_element = api_elements::UInt64; using shape = field_shape::Value; static constexpr std::string_view field_name = "tagName"; };
 struct tagSize { using api_element = api_elements::Size; using shape = field_shape::Value; static constexpr std::string_view field_name = "tagSize"; };
-struct pTag { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<tagSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTag"; };
+struct pTag { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<tagSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTag"; };
 GFXRECON_END_NAMESPACE(VkDebugMarkerObjectTagInfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkDebugMarkerMarkerInfoEXT)
@@ -6364,19 +6364,19 @@ GFXRECON_BEGIN_NAMESPACE(VkWin32KeyedMutexAcquireReleaseInfoNV)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct acquireCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "acquireCount"; };
-struct pAcquireSyncs { using api_element = api_elements::VkDeviceMemory; using shape = field_shape::Array; using field_count = FieldValue<acquireCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAcquireSyncs"; };
-struct pAcquireKeys { using api_element = api_elements::UInt64; using shape = field_shape::Array; using field_count = FieldValue<acquireCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAcquireKeys"; };
-struct pAcquireTimeoutMilliseconds { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<acquireCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAcquireTimeoutMilliseconds"; };
+struct pAcquireSyncs { using api_element = api_elements::VkDeviceMemory; using shape = field_shape::Array; using length = FieldValue<acquireCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAcquireSyncs"; };
+struct pAcquireKeys { using api_element = api_elements::UInt64; using shape = field_shape::Array; using length = FieldValue<acquireCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAcquireKeys"; };
+struct pAcquireTimeoutMilliseconds { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<acquireCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAcquireTimeoutMilliseconds"; };
 struct releaseCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "releaseCount"; };
-struct pReleaseSyncs { using api_element = api_elements::VkDeviceMemory; using shape = field_shape::Array; using field_count = FieldValue<releaseCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pReleaseSyncs"; };
-struct pReleaseKeys { using api_element = api_elements::UInt64; using shape = field_shape::Array; using field_count = FieldValue<releaseCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pReleaseKeys"; };
+struct pReleaseSyncs { using api_element = api_elements::VkDeviceMemory; using shape = field_shape::Array; using length = FieldValue<releaseCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pReleaseSyncs"; };
+struct pReleaseKeys { using api_element = api_elements::UInt64; using shape = field_shape::Array; using length = FieldValue<releaseCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pReleaseKeys"; };
 GFXRECON_END_NAMESPACE(VkWin32KeyedMutexAcquireReleaseInfoNV)
 
 GFXRECON_BEGIN_NAMESPACE(VkValidationFlagsEXT)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct disabledValidationCheckCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "disabledValidationCheckCount"; };
-struct pDisabledValidationChecks { using api_element = api_elements::VkValidationCheckEXT; using shape = field_shape::Array; using field_count = FieldValue<disabledValidationCheckCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDisabledValidationChecks"; };
+struct pDisabledValidationChecks { using api_element = api_elements::VkValidationCheckEXT; using shape = field_shape::Array; using length = FieldValue<disabledValidationCheckCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDisabledValidationChecks"; };
 GFXRECON_END_NAMESPACE(VkValidationFlagsEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkViSurfaceCreateInfoNN)
@@ -6429,7 +6429,7 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct viewportWScalingEnable { using api_element = api_elements::VkBool32; using shape = field_shape::Value; static constexpr std::string_view field_name = "viewportWScalingEnable"; };
 struct viewportCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "viewportCount"; };
-struct pViewportWScalings { using api_element = api_elements::VkViewportWScalingNV; using shape = field_shape::Array; using field_count = FieldValue<viewportCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pViewportWScalings"; };
+struct pViewportWScalings { using api_element = api_elements::VkViewportWScalingNV; using shape = field_shape::Array; using length = FieldValue<viewportCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pViewportWScalings"; };
 GFXRECON_END_NAMESPACE(VkPipelineViewportWScalingStateCreateInfoNV)
 
 GFXRECON_BEGIN_NAMESPACE(VkSurfaceCapabilities2EXT)
@@ -6493,7 +6493,7 @@ GFXRECON_BEGIN_NAMESPACE(VkPresentTimesInfoGOOGLE)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct swapchainCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "swapchainCount"; };
-struct pTimes { using api_element = api_elements::VkPresentTimeGOOGLE; using shape = field_shape::Array; using field_count = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTimes"; };
+struct pTimes { using api_element = api_elements::VkPresentTimeGOOGLE; using shape = field_shape::Array; using length = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTimes"; };
 GFXRECON_END_NAMESPACE(VkPresentTimesInfoGOOGLE)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX)
@@ -6521,7 +6521,7 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct flags { using api_element = api_elements::VkPipelineViewportSwizzleStateCreateFlagsNV; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct viewportCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "viewportCount"; };
-struct pViewportSwizzles { using api_element = api_elements::VkViewportSwizzleNV; using shape = field_shape::Array; using field_count = FieldValue<viewportCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pViewportSwizzles"; };
+struct pViewportSwizzles { using api_element = api_elements::VkViewportSwizzleNV; using shape = field_shape::Array; using length = FieldValue<viewportCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pViewportSwizzles"; };
 GFXRECON_END_NAMESPACE(VkPipelineViewportSwizzleStateCreateInfoNV)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceDiscardRectanglePropertiesEXT)
@@ -6536,7 +6536,7 @@ struct pNext { using api_element = api_elements::Void; using shape = field_shape
 struct flags { using api_element = api_elements::VkPipelineDiscardRectangleStateCreateFlagsEXT; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct discardRectangleMode { using api_element = api_elements::VkDiscardRectangleModeEXT; using shape = field_shape::Value; static constexpr std::string_view field_name = "discardRectangleMode"; };
 struct discardRectangleCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "discardRectangleCount"; };
-struct pDiscardRectangles { using api_element = api_elements::VkRect2D; using shape = field_shape::Array; using field_count = FieldValue<discardRectangleCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDiscardRectangles"; };
+struct pDiscardRectangles { using api_element = api_elements::VkRect2D; using shape = field_shape::Array; using length = FieldValue<discardRectangleCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDiscardRectangles"; };
 GFXRECON_END_NAMESPACE(VkPipelineDiscardRectangleStateCreateInfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceConservativeRasterizationPropertiesEXT)
@@ -6635,11 +6635,11 @@ struct pMessageIdName { using api_element = api_elements::Char; using shape = fi
 struct messageIdNumber { using api_element = api_elements::Int32; using shape = field_shape::Value; static constexpr std::string_view field_name = "messageIdNumber"; };
 struct pMessage { using api_element = api_elements::Char; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMessage"; };
 struct queueLabelCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "queueLabelCount"; };
-struct pQueueLabels { using api_element = api_elements::VkDebugUtilsLabelEXT; using shape = field_shape::Array; using field_count = FieldValue<queueLabelCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueueLabels"; };
+struct pQueueLabels { using api_element = api_elements::VkDebugUtilsLabelEXT; using shape = field_shape::Array; using length = FieldValue<queueLabelCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueueLabels"; };
 struct cmdBufLabelCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "cmdBufLabelCount"; };
-struct pCmdBufLabels { using api_element = api_elements::VkDebugUtilsLabelEXT; using shape = field_shape::Array; using field_count = FieldValue<cmdBufLabelCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCmdBufLabels"; };
+struct pCmdBufLabels { using api_element = api_elements::VkDebugUtilsLabelEXT; using shape = field_shape::Array; using length = FieldValue<cmdBufLabelCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCmdBufLabels"; };
 struct objectCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "objectCount"; };
-struct pObjects { using api_element = api_elements::VkDebugUtilsObjectNameInfoEXT; using shape = field_shape::Array; using field_count = FieldValue<objectCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pObjects"; };
+struct pObjects { using api_element = api_elements::VkDebugUtilsObjectNameInfoEXT; using shape = field_shape::Array; using length = FieldValue<objectCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pObjects"; };
 GFXRECON_END_NAMESPACE(VkDebugUtilsMessengerCallbackDataEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkDebugUtilsMessengerCreateInfoEXT)
@@ -6659,7 +6659,7 @@ struct objectType { using api_element = api_elements::VkObjectType; using shape 
 struct objectHandle { using api_element = api_elements::GenericHandle; using shape = field_shape::Value; using selector_field = objectType; static constexpr std::string_view field_name = "objectHandle"; };
 struct tagName { using api_element = api_elements::UInt64; using shape = field_shape::Value; static constexpr std::string_view field_name = "tagName"; };
 struct tagSize { using api_element = api_elements::Size; using shape = field_shape::Value; static constexpr std::string_view field_name = "tagSize"; };
-struct pTag { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<tagSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTag"; };
+struct pTag { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<tagSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTag"; };
 GFXRECON_END_NAMESPACE(VkDebugUtilsObjectTagInfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkAndroidHardwareBufferUsageANDROID)
@@ -6745,7 +6745,7 @@ struct flags { using api_element = api_elements::VkPhysicalDeviceGpaPropertiesFl
 struct maxSqttSeBufferSize { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Value; static constexpr std::string_view field_name = "maxSqttSeBufferSize"; };
 struct shaderEngineCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "shaderEngineCount"; };
 struct perfBlockCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "perfBlockCount"; };
-struct pPerfBlocks { using api_element = api_elements::VkGpaPerfBlockPropertiesAMD; using shape = field_shape::Array; using field_count = FieldValue<perfBlockCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPerfBlocks"; };
+struct pPerfBlocks { using api_element = api_elements::VkGpaPerfBlockPropertiesAMD; using shape = field_shape::Array; using length = FieldValue<perfBlockCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPerfBlocks"; };
 GFXRECON_END_NAMESPACE(VkPhysicalDeviceGpaPropertiesAMD)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceGpaProperties2AMD)
@@ -6769,7 +6769,7 @@ struct cacheFlushOnCounterCollection { using api_element = api_elements::VkBool3
 struct sqShaderMaskEnable { using api_element = api_elements::VkBool32; using shape = field_shape::Value; static constexpr std::string_view field_name = "sqShaderMaskEnable"; };
 struct sqShaderMask { using api_element = api_elements::VkGpaSqShaderStageFlagsAMD; using shape = field_shape::Value; static constexpr std::string_view field_name = "sqShaderMask"; };
 struct perfCounterCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "perfCounterCount"; };
-struct pPerfCounters { using api_element = api_elements::VkGpaPerfCounterAMD; using shape = field_shape::Array; using field_count = FieldValue<perfCounterCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPerfCounters"; };
+struct pPerfCounters { using api_element = api_elements::VkGpaPerfCounterAMD; using shape = field_shape::Array; using length = FieldValue<perfCounterCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPerfCounters"; };
 struct streamingPerfTraceSampleInterval { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "streamingPerfTraceSampleInterval"; };
 struct perfCounterDeviceMemoryLimit { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Value; static constexpr std::string_view field_name = "perfCounterDeviceMemoryLimit"; };
 struct sqThreadTraceEnable { using api_element = api_elements::VkBool32; using shape = field_shape::Value; static constexpr std::string_view field_name = "sqThreadTraceEnable"; };
@@ -6806,7 +6806,7 @@ GFXRECON_BEGIN_NAMESPACE(VkAttachmentSampleCountInfoAMD)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct colorAttachmentCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "colorAttachmentCount"; };
-struct pColorAttachmentSamples { using api_element = api_elements::VkSampleCountFlagBits; using shape = field_shape::Array; using field_count = FieldValue<colorAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorAttachmentSamples"; };
+struct pColorAttachmentSamples { using api_element = api_elements::VkSampleCountFlagBits; using shape = field_shape::Array; using length = FieldValue<colorAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorAttachmentSamples"; };
 struct depthStencilAttachmentSamples { using api_element = api_elements::VkSampleCountFlagBits; using shape = field_shape::Value; static constexpr std::string_view field_name = "depthStencilAttachmentSamples"; };
 GFXRECON_END_NAMESPACE(VkAttachmentSampleCountInfoAMD)
 
@@ -6821,7 +6821,7 @@ struct pNext { using api_element = api_elements::Void; using shape = field_shape
 struct sampleLocationsPerPixel { using api_element = api_elements::VkSampleCountFlagBits; using shape = field_shape::Value; static constexpr std::string_view field_name = "sampleLocationsPerPixel"; };
 struct sampleLocationGridSize { using api_element = api_elements::VkExtent2D; using shape = field_shape::Value; static constexpr std::string_view field_name = "sampleLocationGridSize"; };
 struct sampleLocationsCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "sampleLocationsCount"; };
-struct pSampleLocations { using api_element = api_elements::VkSampleLocationEXT; using shape = field_shape::Array; using field_count = FieldValue<sampleLocationsCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSampleLocations"; };
+struct pSampleLocations { using api_element = api_elements::VkSampleLocationEXT; using shape = field_shape::Array; using length = FieldValue<sampleLocationsCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSampleLocations"; };
 GFXRECON_END_NAMESPACE(VkSampleLocationsInfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkAttachmentSampleLocationsEXT)
@@ -6838,9 +6838,9 @@ GFXRECON_BEGIN_NAMESPACE(VkRenderPassSampleLocationsBeginInfoEXT)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct attachmentInitialSampleLocationsCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "attachmentInitialSampleLocationsCount"; };
-struct pAttachmentInitialSampleLocations { using api_element = api_elements::VkAttachmentSampleLocationsEXT; using shape = field_shape::Array; using field_count = FieldValue<attachmentInitialSampleLocationsCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAttachmentInitialSampleLocations"; };
+struct pAttachmentInitialSampleLocations { using api_element = api_elements::VkAttachmentSampleLocationsEXT; using shape = field_shape::Array; using length = FieldValue<attachmentInitialSampleLocationsCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAttachmentInitialSampleLocations"; };
 struct postSubpassSampleLocationsCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "postSubpassSampleLocationsCount"; };
-struct pPostSubpassSampleLocations { using api_element = api_elements::VkSubpassSampleLocationsEXT; using shape = field_shape::Array; using field_count = FieldValue<postSubpassSampleLocationsCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPostSubpassSampleLocations"; };
+struct pPostSubpassSampleLocations { using api_element = api_elements::VkSubpassSampleLocationsEXT; using shape = field_shape::Array; using length = FieldValue<postSubpassSampleLocationsCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPostSubpassSampleLocations"; };
 GFXRECON_END_NAMESPACE(VkRenderPassSampleLocationsBeginInfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkPipelineSampleLocationsStateCreateInfoEXT)
@@ -6906,7 +6906,7 @@ struct flags { using api_element = api_elements::VkPipelineCoverageModulationSta
 struct coverageModulationMode { using api_element = api_elements::VkCoverageModulationModeNV; using shape = field_shape::Value; static constexpr std::string_view field_name = "coverageModulationMode"; };
 struct coverageModulationTableEnable { using api_element = api_elements::VkBool32; using shape = field_shape::Value; static constexpr std::string_view field_name = "coverageModulationTableEnable"; };
 struct coverageModulationTableCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "coverageModulationTableCount"; };
-struct pCoverageModulationTable { using api_element = api_elements::Float; using shape = field_shape::Array; using field_count = FieldValue<coverageModulationTableCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCoverageModulationTable"; };
+struct pCoverageModulationTable { using api_element = api_elements::Float; using shape = field_shape::Array; using length = FieldValue<coverageModulationTableCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCoverageModulationTable"; };
 GFXRECON_END_NAMESPACE(VkPipelineCoverageModulationStateCreateInfoNV)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceShaderSMBuiltinsPropertiesNV)
@@ -6932,7 +6932,7 @@ GFXRECON_BEGIN_NAMESPACE(VkDrmFormatModifierPropertiesListEXT)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct drmFormatModifierCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "drmFormatModifierCount"; };
-struct pDrmFormatModifierProperties { using api_element = api_elements::VkDrmFormatModifierPropertiesEXT; using shape = field_shape::Array; using field_count = FieldValue<drmFormatModifierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDrmFormatModifierProperties"; };
+struct pDrmFormatModifierProperties { using api_element = api_elements::VkDrmFormatModifierPropertiesEXT; using shape = field_shape::Array; using length = FieldValue<drmFormatModifierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDrmFormatModifierProperties"; };
 GFXRECON_END_NAMESPACE(VkDrmFormatModifierPropertiesListEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceImageDrmFormatModifierInfoEXT)
@@ -6941,14 +6941,14 @@ struct pNext { using api_element = api_elements::Void; using shape = field_shape
 struct drmFormatModifier { using api_element = api_elements::UInt64; using shape = field_shape::Value; static constexpr std::string_view field_name = "drmFormatModifier"; };
 struct sharingMode { using api_element = api_elements::VkSharingMode; using shape = field_shape::Value; static constexpr std::string_view field_name = "sharingMode"; };
 struct queueFamilyIndexCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "queueFamilyIndexCount"; };
-struct pQueueFamilyIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<queueFamilyIndexCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueueFamilyIndices"; };
+struct pQueueFamilyIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<queueFamilyIndexCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueueFamilyIndices"; };
 GFXRECON_END_NAMESPACE(VkPhysicalDeviceImageDrmFormatModifierInfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkImageDrmFormatModifierListCreateInfoEXT)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct drmFormatModifierCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "drmFormatModifierCount"; };
-struct pDrmFormatModifiers { using api_element = api_elements::UInt64; using shape = field_shape::Array; using field_count = FieldValue<drmFormatModifierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDrmFormatModifiers"; };
+struct pDrmFormatModifiers { using api_element = api_elements::UInt64; using shape = field_shape::Array; using length = FieldValue<drmFormatModifierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDrmFormatModifiers"; };
 GFXRECON_END_NAMESPACE(VkImageDrmFormatModifierListCreateInfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkImageDrmFormatModifierExplicitCreateInfoEXT)
@@ -6956,7 +6956,7 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct drmFormatModifier { using api_element = api_elements::UInt64; using shape = field_shape::Value; static constexpr std::string_view field_name = "drmFormatModifier"; };
 struct drmFormatModifierPlaneCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "drmFormatModifierPlaneCount"; };
-struct pPlaneLayouts { using api_element = api_elements::VkSubresourceLayout; using shape = field_shape::Array; using field_count = FieldValue<drmFormatModifierPlaneCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPlaneLayouts"; };
+struct pPlaneLayouts { using api_element = api_elements::VkSubresourceLayout; using shape = field_shape::Array; using length = FieldValue<drmFormatModifierPlaneCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPlaneLayouts"; };
 GFXRECON_END_NAMESPACE(VkImageDrmFormatModifierExplicitCreateInfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkImageDrmFormatModifierPropertiesEXT)
@@ -6975,7 +6975,7 @@ GFXRECON_BEGIN_NAMESPACE(VkDrmFormatModifierPropertiesList2EXT)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct drmFormatModifierCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "drmFormatModifierCount"; };
-struct pDrmFormatModifierProperties { using api_element = api_elements::VkDrmFormatModifierProperties2EXT; using shape = field_shape::Array; using field_count = FieldValue<drmFormatModifierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDrmFormatModifierProperties"; };
+struct pDrmFormatModifierProperties { using api_element = api_elements::VkDrmFormatModifierProperties2EXT; using shape = field_shape::Array; using length = FieldValue<drmFormatModifierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDrmFormatModifierProperties"; };
 GFXRECON_END_NAMESPACE(VkDrmFormatModifierPropertiesList2EXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkValidationCacheCreateInfoEXT)
@@ -6983,7 +6983,7 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = false; static constexpr std::string_view field_name = "pNext"; };
 struct flags { using api_element = api_elements::VkValidationCacheCreateFlagsEXT; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct initialDataSize { using api_element = api_elements::Size; using shape = field_shape::Value; static constexpr std::string_view field_name = "initialDataSize"; };
-struct pInitialData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<initialDataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInitialData"; };
+struct pInitialData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<initialDataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInitialData"; };
 GFXRECON_END_NAMESPACE(VkValidationCacheCreateInfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkShaderModuleValidationCacheCreateInfoEXT)
@@ -6994,7 +6994,7 @@ GFXRECON_END_NAMESPACE(VkShaderModuleValidationCacheCreateInfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkShadingRatePaletteNV)
 struct shadingRatePaletteEntryCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "shadingRatePaletteEntryCount"; };
-struct pShadingRatePaletteEntries { using api_element = api_elements::VkShadingRatePaletteEntryNV; using shape = field_shape::Array; using field_count = FieldValue<shadingRatePaletteEntryCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pShadingRatePaletteEntries"; };
+struct pShadingRatePaletteEntries { using api_element = api_elements::VkShadingRatePaletteEntryNV; using shape = field_shape::Array; using length = FieldValue<shadingRatePaletteEntryCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pShadingRatePaletteEntries"; };
 GFXRECON_END_NAMESPACE(VkShadingRatePaletteNV)
 
 GFXRECON_BEGIN_NAMESPACE(VkPipelineViewportShadingRateImageStateCreateInfoNV)
@@ -7002,7 +7002,7 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct shadingRateImageEnable { using api_element = api_elements::VkBool32; using shape = field_shape::Value; static constexpr std::string_view field_name = "shadingRateImageEnable"; };
 struct viewportCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "viewportCount"; };
-struct pShadingRatePalettes { using api_element = api_elements::VkShadingRatePaletteNV; using shape = field_shape::Array; using field_count = FieldValue<viewportCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pShadingRatePalettes"; };
+struct pShadingRatePalettes { using api_element = api_elements::VkShadingRatePaletteNV; using shape = field_shape::Array; using length = FieldValue<viewportCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pShadingRatePalettes"; };
 GFXRECON_END_NAMESPACE(VkPipelineViewportShadingRateImageStateCreateInfoNV)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceShadingRateImageFeaturesNV)
@@ -7030,7 +7030,7 @@ GFXRECON_BEGIN_NAMESPACE(VkCoarseSampleOrderCustomNV)
 struct shadingRate { using api_element = api_elements::VkShadingRatePaletteEntryNV; using shape = field_shape::Value; static constexpr std::string_view field_name = "shadingRate"; };
 struct sampleCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "sampleCount"; };
 struct sampleLocationCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "sampleLocationCount"; };
-struct pSampleLocations { using api_element = api_elements::VkCoarseSampleLocationNV; using shape = field_shape::Array; using field_count = FieldValue<sampleLocationCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSampleLocations"; };
+struct pSampleLocations { using api_element = api_elements::VkCoarseSampleLocationNV; using shape = field_shape::Array; using length = FieldValue<sampleLocationCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSampleLocations"; };
 GFXRECON_END_NAMESPACE(VkCoarseSampleOrderCustomNV)
 
 GFXRECON_BEGIN_NAMESPACE(VkPipelineViewportCoarseSampleOrderStateCreateInfoNV)
@@ -7038,7 +7038,7 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct sampleOrderType { using api_element = api_elements::VkCoarseSampleOrderTypeNV; using shape = field_shape::Value; static constexpr std::string_view field_name = "sampleOrderType"; };
 struct customSampleOrderCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "customSampleOrderCount"; };
-struct pCustomSampleOrders { using api_element = api_elements::VkCoarseSampleOrderCustomNV; using shape = field_shape::Array; using field_count = FieldValue<customSampleOrderCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCustomSampleOrders"; };
+struct pCustomSampleOrders { using api_element = api_elements::VkCoarseSampleOrderCustomNV; using shape = field_shape::Array; using length = FieldValue<customSampleOrderCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCustomSampleOrders"; };
 GFXRECON_END_NAMESPACE(VkPipelineViewportCoarseSampleOrderStateCreateInfoNV)
 
 GFXRECON_BEGIN_NAMESPACE(VkRayTracingShaderGroupCreateInfoNV)
@@ -7056,9 +7056,9 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct flags { using api_element = api_elements::VkPipelineCreateFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct stageCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "stageCount"; };
-struct pStages { using api_element = api_elements::VkPipelineShaderStageCreateInfo; using shape = field_shape::Array; using field_count = FieldValue<stageCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStages"; };
+struct pStages { using api_element = api_elements::VkPipelineShaderStageCreateInfo; using shape = field_shape::Array; using length = FieldValue<stageCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStages"; };
 struct groupCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "groupCount"; };
-struct pGroups { using api_element = api_elements::VkRayTracingShaderGroupCreateInfoNV; using shape = field_shape::Array; using field_count = FieldValue<groupCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pGroups"; };
+struct pGroups { using api_element = api_elements::VkRayTracingShaderGroupCreateInfoNV; using shape = field_shape::Array; using length = FieldValue<groupCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pGroups"; };
 struct maxRecursionDepth { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "maxRecursionDepth"; };
 struct layout { using api_element = api_elements::VkPipelineLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "layout"; };
 struct basePipelineHandle { using api_element = api_elements::VkPipeline; using shape = field_shape::Value; static constexpr std::string_view field_name = "basePipelineHandle"; };
@@ -7110,7 +7110,7 @@ struct type { using api_element = api_elements::VkAccelerationStructureTypeKHR; 
 struct flags { using api_element = api_elements::VkBuildAccelerationStructureFlagsKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct instanceCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "instanceCount"; };
 struct geometryCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "geometryCount"; };
-struct pGeometries { using api_element = api_elements::VkGeometryNV; using shape = field_shape::Array; using field_count = FieldValue<geometryCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pGeometries"; };
+struct pGeometries { using api_element = api_elements::VkGeometryNV; using shape = field_shape::Array; using length = FieldValue<geometryCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pGeometries"; };
 GFXRECON_END_NAMESPACE(VkAccelerationStructureInfoNV)
 
 GFXRECON_BEGIN_NAMESPACE(VkAccelerationStructureCreateInfoNV)
@@ -7127,14 +7127,14 @@ struct accelerationStructure { using api_element = api_elements::VkAccelerationS
 struct memory { using api_element = api_elements::VkDeviceMemory; using shape = field_shape::Value; static constexpr std::string_view field_name = "memory"; };
 struct memoryOffset { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Value; static constexpr std::string_view field_name = "memoryOffset"; };
 struct deviceIndexCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "deviceIndexCount"; };
-struct pDeviceIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<deviceIndexCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDeviceIndices"; };
+struct pDeviceIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<deviceIndexCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDeviceIndices"; };
 GFXRECON_END_NAMESPACE(VkBindAccelerationStructureMemoryInfoNV)
 
 GFXRECON_BEGIN_NAMESPACE(VkWriteDescriptorSetAccelerationStructureNV)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct accelerationStructureCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "accelerationStructureCount"; };
-struct pAccelerationStructures { using api_element = api_elements::VkAccelerationStructureNV; using shape = field_shape::Array; using field_count = FieldValue<accelerationStructureCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAccelerationStructures"; };
+struct pAccelerationStructures { using api_element = api_elements::VkAccelerationStructureNV; using shape = field_shape::Array; using length = FieldValue<accelerationStructureCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAccelerationStructures"; };
 GFXRECON_END_NAMESPACE(VkWriteDescriptorSetAccelerationStructureNV)
 
 GFXRECON_BEGIN_NAMESPACE(VkAccelerationStructureMemoryRequirementsInfoNV)
@@ -7318,7 +7318,7 @@ GFXRECON_BEGIN_NAMESPACE(VkPipelineViewportExclusiveScissorStateCreateInfoNV)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct exclusiveScissorCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "exclusiveScissorCount"; };
-struct pExclusiveScissors { using api_element = api_elements::VkRect2D; using shape = field_shape::Array; using field_count = FieldValue<exclusiveScissorCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pExclusiveScissors"; };
+struct pExclusiveScissors { using api_element = api_elements::VkRect2D; using shape = field_shape::Array; using length = FieldValue<exclusiveScissorCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pExclusiveScissors"; };
 GFXRECON_END_NAMESPACE(VkPipelineViewportExclusiveScissorStateCreateInfoNV)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceExclusiveScissorFeaturesNV)
@@ -7389,8 +7389,8 @@ GFXRECON_BEGIN_NAMESPACE(VkSwapchainTimeDomainPropertiesEXT)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = false; static constexpr std::string_view field_name = "pNext"; };
 struct timeDomainCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "timeDomainCount"; };
-struct pTimeDomains { using api_element = api_elements::VkTimeDomainKHR; using shape = field_shape::Array; using field_count = FieldValue<timeDomainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTimeDomains"; };
-struct pTimeDomainIds { using api_element = api_elements::UInt64; using shape = field_shape::Array; using field_count = FieldValue<timeDomainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTimeDomainIds"; };
+struct pTimeDomains { using api_element = api_elements::VkTimeDomainKHR; using shape = field_shape::Array; using length = FieldValue<timeDomainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTimeDomains"; };
+struct pTimeDomainIds { using api_element = api_elements::UInt64; using shape = field_shape::Array; using length = FieldValue<timeDomainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTimeDomainIds"; };
 GFXRECON_END_NAMESPACE(VkSwapchainTimeDomainPropertiesEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkPastPresentationTimingInfoEXT)
@@ -7411,7 +7411,7 @@ struct pNext { using api_element = api_elements::Void; using shape = field_shape
 struct presentId { using api_element = api_elements::UInt64; using shape = field_shape::Value; static constexpr std::string_view field_name = "presentId"; };
 struct targetTime { using api_element = api_elements::UInt64; using shape = field_shape::Value; static constexpr std::string_view field_name = "targetTime"; };
 struct presentStageCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "presentStageCount"; };
-struct pPresentStages { using api_element = api_elements::VkPresentStageTimeEXT; using shape = field_shape::Array; using field_count = FieldValue<presentStageCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPresentStages"; };
+struct pPresentStages { using api_element = api_elements::VkPresentStageTimeEXT; using shape = field_shape::Array; using length = FieldValue<presentStageCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPresentStages"; };
 struct timeDomain { using api_element = api_elements::VkTimeDomainKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "timeDomain"; };
 struct timeDomainId { using api_element = api_elements::UInt64; using shape = field_shape::Value; static constexpr std::string_view field_name = "timeDomainId"; };
 struct reportComplete { using api_element = api_elements::VkBool32; using shape = field_shape::Value; static constexpr std::string_view field_name = "reportComplete"; };
@@ -7423,7 +7423,7 @@ struct pNext { using api_element = api_elements::Void; using shape = field_shape
 struct timingPropertiesCounter { using api_element = api_elements::UInt64; using shape = field_shape::Value; static constexpr std::string_view field_name = "timingPropertiesCounter"; };
 struct timeDomainsCounter { using api_element = api_elements::UInt64; using shape = field_shape::Value; static constexpr std::string_view field_name = "timeDomainsCounter"; };
 struct presentationTimingCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "presentationTimingCount"; };
-struct pPresentationTimings { using api_element = api_elements::VkPastPresentationTimingEXT; using shape = field_shape::Array; using field_count = FieldValue<presentationTimingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPresentationTimings"; };
+struct pPresentationTimings { using api_element = api_elements::VkPastPresentationTimingEXT; using shape = field_shape::Array; using length = FieldValue<presentationTimingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPresentationTimings"; };
 GFXRECON_END_NAMESPACE(VkPastPresentationTimingPropertiesEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkPresentTimingInfoEXT)
@@ -7440,7 +7440,7 @@ GFXRECON_BEGIN_NAMESPACE(VkPresentTimingsInfoEXT)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct swapchainCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "swapchainCount"; };
-struct pTimingInfos { using api_element = api_elements::VkPresentTimingInfoEXT; using shape = field_shape::Array; using field_count = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTimingInfos"; };
+struct pTimingInfos { using api_element = api_elements::VkPresentTimingInfoEXT; using shape = field_shape::Array; using length = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTimingInfos"; };
 GFXRECON_END_NAMESPACE(VkPresentTimingsInfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL)
@@ -7619,9 +7619,9 @@ GFXRECON_BEGIN_NAMESPACE(VkValidationFeaturesEXT)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct enabledValidationFeatureCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "enabledValidationFeatureCount"; };
-struct pEnabledValidationFeatures { using api_element = api_elements::VkValidationFeatureEnableEXT; using shape = field_shape::Array; using field_count = FieldValue<enabledValidationFeatureCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pEnabledValidationFeatures"; };
+struct pEnabledValidationFeatures { using api_element = api_elements::VkValidationFeatureEnableEXT; using shape = field_shape::Array; using length = FieldValue<enabledValidationFeatureCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pEnabledValidationFeatures"; };
 struct disabledValidationFeatureCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "disabledValidationFeatureCount"; };
-struct pDisabledValidationFeatures { using api_element = api_elements::VkValidationFeatureDisableEXT; using shape = field_shape::Array; using field_count = FieldValue<disabledValidationFeatureCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDisabledValidationFeatures"; };
+struct pDisabledValidationFeatures { using api_element = api_elements::VkValidationFeatureDisableEXT; using shape = field_shape::Array; using length = FieldValue<disabledValidationFeatureCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDisabledValidationFeatures"; };
 GFXRECON_END_NAMESPACE(VkValidationFeaturesEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkCooperativeMatrixPropertiesNV)
@@ -7814,7 +7814,7 @@ GFXRECON_BEGIN_NAMESPACE(VkGraphicsShaderGroupCreateInfoNV)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = false; static constexpr std::string_view field_name = "pNext"; };
 struct stageCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "stageCount"; };
-struct pStages { using api_element = api_elements::VkPipelineShaderStageCreateInfo; using shape = field_shape::Array; using field_count = FieldValue<stageCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStages"; };
+struct pStages { using api_element = api_elements::VkPipelineShaderStageCreateInfo; using shape = field_shape::Array; using length = FieldValue<stageCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStages"; };
 struct pVertexInputState { using api_element = api_elements::VkPipelineVertexInputStateCreateInfo; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVertexInputState"; };
 struct pTessellationState { using api_element = api_elements::VkPipelineTessellationStateCreateInfo; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTessellationState"; };
 GFXRECON_END_NAMESPACE(VkGraphicsShaderGroupCreateInfoNV)
@@ -7823,9 +7823,9 @@ GFXRECON_BEGIN_NAMESPACE(VkGraphicsPipelineShaderGroupsCreateInfoNV)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct groupCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "groupCount"; };
-struct pGroups { using api_element = api_elements::VkGraphicsShaderGroupCreateInfoNV; using shape = field_shape::Array; using field_count = FieldValue<groupCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pGroups"; };
+struct pGroups { using api_element = api_elements::VkGraphicsShaderGroupCreateInfoNV; using shape = field_shape::Array; using length = FieldValue<groupCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pGroups"; };
 struct pipelineCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "pipelineCount"; };
-struct pPipelines { using api_element = api_elements::VkPipeline; using shape = field_shape::Array; using field_count = FieldValue<pipelineCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelines"; };
+struct pPipelines { using api_element = api_elements::VkPipeline; using shape = field_shape::Array; using length = FieldValue<pipelineCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelines"; };
 GFXRECON_END_NAMESPACE(VkGraphicsPipelineShaderGroupsCreateInfoNV)
 
 GFXRECON_BEGIN_NAMESPACE(VkBindShaderGroupIndirectCommandNV)
@@ -7867,8 +7867,8 @@ struct pushconstantOffset { using api_element = api_elements::UInt32; using shap
 struct pushconstantSize { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "pushconstantSize"; };
 struct indirectStateFlags { using api_element = api_elements::VkIndirectStateFlagsNV; using shape = field_shape::Value; static constexpr std::string_view field_name = "indirectStateFlags"; };
 struct indexTypeCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "indexTypeCount"; };
-struct pIndexTypes { using api_element = api_elements::VkIndexType; using shape = field_shape::Array; using field_count = FieldValue<indexTypeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pIndexTypes"; };
-struct pIndexTypeValues { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<indexTypeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pIndexTypeValues"; };
+struct pIndexTypes { using api_element = api_elements::VkIndexType; using shape = field_shape::Array; using length = FieldValue<indexTypeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pIndexTypes"; };
+struct pIndexTypeValues { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<indexTypeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pIndexTypeValues"; };
 GFXRECON_END_NAMESPACE(VkIndirectCommandsLayoutTokenNV)
 
 GFXRECON_BEGIN_NAMESPACE(VkIndirectCommandsLayoutCreateInfoNV)
@@ -7877,9 +7877,9 @@ struct pNext { using api_element = api_elements::Void; using shape = field_shape
 struct flags { using api_element = api_elements::VkIndirectCommandsLayoutUsageFlagsNV; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct pipelineBindPoint { using api_element = api_elements::VkPipelineBindPoint; using shape = field_shape::Value; static constexpr std::string_view field_name = "pipelineBindPoint"; };
 struct tokenCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "tokenCount"; };
-struct pTokens { using api_element = api_elements::VkIndirectCommandsLayoutTokenNV; using shape = field_shape::Array; using field_count = FieldValue<tokenCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTokens"; };
+struct pTokens { using api_element = api_elements::VkIndirectCommandsLayoutTokenNV; using shape = field_shape::Array; using length = FieldValue<tokenCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTokens"; };
 struct streamCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "streamCount"; };
-struct pStreamStrides { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<streamCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStreamStrides"; };
+struct pStreamStrides { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<streamCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStreamStrides"; };
 GFXRECON_END_NAMESPACE(VkIndirectCommandsLayoutCreateInfoNV)
 
 GFXRECON_BEGIN_NAMESPACE(VkGeneratedCommandsInfoNV)
@@ -7889,7 +7889,7 @@ struct pipelineBindPoint { using api_element = api_elements::VkPipelineBindPoint
 struct pipeline { using api_element = api_elements::VkPipeline; using shape = field_shape::Value; static constexpr std::string_view field_name = "pipeline"; };
 struct indirectCommandsLayout { using api_element = api_elements::VkIndirectCommandsLayoutNV; using shape = field_shape::Value; static constexpr std::string_view field_name = "indirectCommandsLayout"; };
 struct streamCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "streamCount"; };
-struct pStreams { using api_element = api_elements::VkIndirectCommandsStreamNV; using shape = field_shape::Array; using field_count = FieldValue<streamCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStreams"; };
+struct pStreams { using api_element = api_elements::VkIndirectCommandsStreamNV; using shape = field_shape::Array; using length = FieldValue<streamCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStreams"; };
 struct sequencesCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "sequencesCount"; };
 struct preprocessBuffer { using api_element = api_elements::VkBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "preprocessBuffer"; };
 struct preprocessOffset { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Value; static constexpr std::string_view field_name = "preprocessOffset"; };
@@ -8417,7 +8417,7 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct flags { using api_element = api_elements::VkImageCompressionFlagsEXT; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct compressionControlPlaneCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "compressionControlPlaneCount"; };
-struct pFixedRateFlags { using api_element = api_elements::VkImageCompressionFixedRateFlagsEXT; using shape = field_shape::Array; using field_count = FieldValue<compressionControlPlaneCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pFixedRateFlags"; };
+struct pFixedRateFlags { using api_element = api_elements::VkImageCompressionFixedRateFlagsEXT; using shape = field_shape::Array; using length = FieldValue<compressionControlPlaneCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pFixedRateFlags"; };
 GFXRECON_END_NAMESPACE(VkImageCompressionControlEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkImageCompressionPropertiesEXT)
@@ -8494,14 +8494,14 @@ GFXRECON_END_NAMESPACE(VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkMutableDescriptorTypeListEXT)
 struct descriptorTypeCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "descriptorTypeCount"; };
-struct pDescriptorTypes { using api_element = api_elements::VkDescriptorType; using shape = field_shape::Array; using field_count = FieldValue<descriptorTypeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescriptorTypes"; };
+struct pDescriptorTypes { using api_element = api_elements::VkDescriptorType; using shape = field_shape::Array; using length = FieldValue<descriptorTypeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescriptorTypes"; };
 GFXRECON_END_NAMESPACE(VkMutableDescriptorTypeListEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkMutableDescriptorTypeCreateInfoEXT)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct mutableDescriptorTypeListCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "mutableDescriptorTypeListCount"; };
-struct pMutableDescriptorTypeLists { using api_element = api_elements::VkMutableDescriptorTypeListEXT; using shape = field_shape::Array; using field_count = FieldValue<mutableDescriptorTypeListCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMutableDescriptorTypeLists"; };
+struct pMutableDescriptorTypeLists { using api_element = api_elements::VkMutableDescriptorTypeListEXT; using shape = field_shape::Array; using length = FieldValue<mutableDescriptorTypeListCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMutableDescriptorTypeLists"; };
 GFXRECON_END_NAMESPACE(VkMutableDescriptorTypeCreateInfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT)
@@ -8640,12 +8640,12 @@ struct pNext { using api_element = api_elements::Void; using shape = field_shape
 struct flags { using api_element = api_elements::VkFrameBoundaryFlagsEXT; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct frameID { using api_element = api_elements::UInt64; using shape = field_shape::Value; static constexpr std::string_view field_name = "frameID"; };
 struct imageCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "imageCount"; };
-struct pImages { using api_element = api_elements::VkImage; using shape = field_shape::Array; using field_count = FieldValue<imageCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pImages"; };
+struct pImages { using api_element = api_elements::VkImage; using shape = field_shape::Array; using length = FieldValue<imageCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pImages"; };
 struct bufferCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "bufferCount"; };
-struct pBuffers { using api_element = api_elements::VkBuffer; using shape = field_shape::Array; using field_count = FieldValue<bufferCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBuffers"; };
+struct pBuffers { using api_element = api_elements::VkBuffer; using shape = field_shape::Array; using length = FieldValue<bufferCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBuffers"; };
 struct tagName { using api_element = api_elements::UInt64; using shape = field_shape::Value; static constexpr std::string_view field_name = "tagName"; };
 struct tagSize { using api_element = api_elements::Size; using shape = field_shape::Value; static constexpr std::string_view field_name = "tagSize"; };
-struct pTag { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<tagSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTag"; };
+struct pTag { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<tagSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTag"; };
 GFXRECON_END_NAMESPACE(VkFrameBoundaryEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT)
@@ -8693,7 +8693,7 @@ GFXRECON_BEGIN_NAMESPACE(VkPipelineColorWriteCreateInfoEXT)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct attachmentCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "attachmentCount"; };
-struct pColorWriteEnables { using api_element = api_elements::VkBool32; using shape = field_shape::Array; using field_count = FieldValue<attachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorWriteEnables"; };
+struct pColorWriteEnables { using api_element = api_elements::VkBool32; using shape = field_shape::Array; using length = FieldValue<attachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorWriteEnables"; };
 GFXRECON_END_NAMESPACE(VkPipelineColorWriteCreateInfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT)
@@ -8806,8 +8806,8 @@ struct flags { using api_element = api_elements::VkBuildMicromapFlagsEXT; using 
 struct mode { using api_element = api_elements::VkBuildMicromapModeEXT; using shape = field_shape::Value; static constexpr std::string_view field_name = "mode"; };
 struct dstMicromap { using api_element = api_elements::VkMicromapEXT; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstMicromap"; };
 struct usageCountsCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "usageCountsCount"; };
-struct pUsageCounts { using api_element = api_elements::VkMicromapUsageEXT; using shape = field_shape::Array; using field_count = FieldValue<usageCountsCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pUsageCounts"; };
-struct ppUsageCounts { using api_element = api_elements::VkMicromapUsageEXT; using shape = field_shape::PointerArray; using field_count = FieldValue<usageCountsCount>; static constexpr size_t pointer_count = 2; static constexpr std::string_view field_name = "ppUsageCounts"; };
+struct pUsageCounts { using api_element = api_elements::VkMicromapUsageEXT; using shape = field_shape::Array; using length = FieldValue<usageCountsCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pUsageCounts"; };
+struct ppUsageCounts { using api_element = api_elements::VkMicromapUsageEXT; using shape = field_shape::PointerArray; using length = FieldValue<usageCountsCount>; static constexpr size_t pointer_count = 2; static constexpr std::string_view field_name = "ppUsageCounts"; };
 struct data { using api_element = api_elements::VkDeviceOrHostAddressConstKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "data"; };
 struct scratchData { using api_element = api_elements::VkDeviceOrHostAddressKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "scratchData"; };
 struct triangleArray { using api_element = api_elements::VkDeviceOrHostAddressConstKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "triangleArray"; };
@@ -8843,8 +8843,8 @@ GFXRECON_END_NAMESPACE(VkPhysicalDeviceOpacityMicromapPropertiesEXT)
 GFXRECON_BEGIN_NAMESPACE(VkMicromapVersionInfoEXT)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = false; static constexpr std::string_view field_name = "pNext"; };
-// NOTE: field_count evaluates 2*VK_UUID_SIZE
-struct pVersionData { using api_element = api_elements::UInt8; using shape = field_shape::Array; using field_count = Product<Literal<2u>, Literal<VK_UUID_SIZE>>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVersionData"; };
+// NOTE: length evaluates 2*VK_UUID_SIZE
+struct pVersionData { using api_element = api_elements::UInt8; using shape = field_shape::Array; using length = Product<Literal<2u>, Literal<VK_UUID_SIZE>>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVersionData"; };
 GFXRECON_END_NAMESPACE(VkMicromapVersionInfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkCopyMicromapToMemoryInfoEXT)
@@ -8887,8 +8887,8 @@ struct indexBuffer { using api_element = api_elements::VkDeviceOrHostAddressCons
 struct indexStride { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Value; static constexpr std::string_view field_name = "indexStride"; };
 struct baseTriangle { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "baseTriangle"; };
 struct usageCountsCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "usageCountsCount"; };
-struct pUsageCounts { using api_element = api_elements::VkMicromapUsageEXT; using shape = field_shape::Array; using field_count = FieldValue<usageCountsCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pUsageCounts"; };
-struct ppUsageCounts { using api_element = api_elements::VkMicromapUsageEXT; using shape = field_shape::PointerArray; using field_count = FieldValue<usageCountsCount>; static constexpr size_t pointer_count = 2; static constexpr std::string_view field_name = "ppUsageCounts"; };
+struct pUsageCounts { using api_element = api_elements::VkMicromapUsageEXT; using shape = field_shape::Array; using length = FieldValue<usageCountsCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pUsageCounts"; };
+struct ppUsageCounts { using api_element = api_elements::VkMicromapUsageEXT; using shape = field_shape::PointerArray; using length = FieldValue<usageCountsCount>; static constexpr size_t pointer_count = 2; static constexpr std::string_view field_name = "ppUsageCounts"; };
 struct micromap { using api_element = api_elements::VkMicromapEXT; using shape = field_shape::Value; static constexpr std::string_view field_name = "micromap"; };
 GFXRECON_END_NAMESPACE(VkAccelerationStructureTrianglesOpacityMicromapEXT)
 
@@ -8920,8 +8920,8 @@ struct indexBuffer { using api_element = api_elements::VkDeviceOrHostAddressCons
 struct indexStride { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Value; static constexpr std::string_view field_name = "indexStride"; };
 struct baseTriangle { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "baseTriangle"; };
 struct usageCountsCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "usageCountsCount"; };
-struct pUsageCounts { using api_element = api_elements::VkMicromapUsageEXT; using shape = field_shape::Array; using field_count = FieldValue<usageCountsCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pUsageCounts"; };
-struct ppUsageCounts { using api_element = api_elements::VkMicromapUsageEXT; using shape = field_shape::PointerArray; using field_count = FieldValue<usageCountsCount>; static constexpr size_t pointer_count = 2; static constexpr std::string_view field_name = "ppUsageCounts"; };
+struct pUsageCounts { using api_element = api_elements::VkMicromapUsageEXT; using shape = field_shape::Array; using length = FieldValue<usageCountsCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pUsageCounts"; };
+struct ppUsageCounts { using api_element = api_elements::VkMicromapUsageEXT; using shape = field_shape::PointerArray; using length = FieldValue<usageCountsCount>; static constexpr size_t pointer_count = 2; static constexpr std::string_view field_name = "ppUsageCounts"; };
 struct micromap { using api_element = api_elements::VkMicromapEXT; using shape = field_shape::Value; static constexpr std::string_view field_name = "micromap"; };
 GFXRECON_END_NAMESPACE(VkAccelerationStructureTrianglesDisplacementMicromapNV)
 
@@ -9071,14 +9071,14 @@ GFXRECON_BEGIN_NAMESPACE(VkRenderPassStripeBeginInfoARM)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct stripeInfoCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "stripeInfoCount"; };
-struct pStripeInfos { using api_element = api_elements::VkRenderPassStripeInfoARM; using shape = field_shape::Array; using field_count = FieldValue<stripeInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStripeInfos"; };
+struct pStripeInfos { using api_element = api_elements::VkRenderPassStripeInfoARM; using shape = field_shape::Array; using length = FieldValue<stripeInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStripeInfos"; };
 GFXRECON_END_NAMESPACE(VkRenderPassStripeBeginInfoARM)
 
 GFXRECON_BEGIN_NAMESPACE(VkRenderPassStripeSubmitInfoARM)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct stripeSemaphoreInfoCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "stripeSemaphoreInfoCount"; };
-struct pStripeSemaphoreInfos { using api_element = api_elements::VkSemaphoreSubmitInfo; using shape = field_shape::Array; using field_count = FieldValue<stripeSemaphoreInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStripeSemaphoreInfos"; };
+struct pStripeSemaphoreInfos { using api_element = api_elements::VkSemaphoreSubmitInfo; using shape = field_shape::Array; using length = FieldValue<stripeSemaphoreInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStripeSemaphoreInfos"; };
 GFXRECON_END_NAMESPACE(VkRenderPassStripeSubmitInfoARM)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT)
@@ -9097,7 +9097,7 @@ GFXRECON_BEGIN_NAMESPACE(VkRenderPassFragmentDensityMapOffsetEndInfoEXT)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct fragmentDensityOffsetCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "fragmentDensityOffsetCount"; };
-struct pFragmentDensityOffsets { using api_element = api_elements::VkOffset2D; using shape = field_shape::Array; using field_count = FieldValue<fragmentDensityOffsetCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pFragmentDensityOffsets"; };
+struct pFragmentDensityOffsets { using api_element = api_elements::VkOffset2D; using shape = field_shape::Array; using length = FieldValue<fragmentDensityOffsetCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pFragmentDensityOffsets"; };
 GFXRECON_END_NAMESPACE(VkRenderPassFragmentDensityMapOffsetEndInfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV)
@@ -9326,7 +9326,7 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct mode { using api_element = api_elements::VkDirectDriverLoadingModeLUNARG; using shape = field_shape::Value; static constexpr std::string_view field_name = "mode"; };
 struct driverCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "driverCount"; };
-struct pDrivers { using api_element = api_elements::VkDirectDriverLoadingInfoLUNARG; using shape = field_shape::Array; using field_count = FieldValue<driverCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDrivers"; };
+struct pDrivers { using api_element = api_elements::VkDirectDriverLoadingInfoLUNARG; using shape = field_shape::Array; using length = FieldValue<driverCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDrivers"; };
 GFXRECON_END_NAMESPACE(VkDirectDriverLoadingListLUNARG)
 
 GFXRECON_BEGIN_NAMESPACE(VkTensorDescriptionARM)
@@ -9335,8 +9335,8 @@ struct pNext { using api_element = api_elements::Void; using shape = field_shape
 struct tiling { using api_element = api_elements::VkTensorTilingARM; using shape = field_shape::Value; static constexpr std::string_view field_name = "tiling"; };
 struct format { using api_element = api_elements::VkFormat; using shape = field_shape::Value; static constexpr std::string_view field_name = "format"; };
 struct dimensionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "dimensionCount"; };
-struct pDimensions { using api_element = api_elements::Int64; using shape = field_shape::Array; using field_count = FieldValue<dimensionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDimensions"; };
-struct pStrides { using api_element = api_elements::Int64; using shape = field_shape::Array; using field_count = FieldValue<dimensionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStrides"; };
+struct pDimensions { using api_element = api_elements::Int64; using shape = field_shape::Array; using length = FieldValue<dimensionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDimensions"; };
+struct pStrides { using api_element = api_elements::Int64; using shape = field_shape::Array; using length = FieldValue<dimensionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStrides"; };
 struct usage { using api_element = api_elements::VkTensorUsageFlagsARM; using shape = field_shape::Value; static constexpr std::string_view field_name = "usage"; };
 GFXRECON_END_NAMESPACE(VkTensorDescriptionARM)
 
@@ -9347,7 +9347,7 @@ struct flags { using api_element = api_elements::VkTensorCreateFlagsARM; using s
 struct pDescription { using api_element = api_elements::VkTensorDescriptionARM; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescription"; };
 struct sharingMode { using api_element = api_elements::VkSharingMode; using shape = field_shape::Value; static constexpr std::string_view field_name = "sharingMode"; };
 struct queueFamilyIndexCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "queueFamilyIndexCount"; };
-struct pQueueFamilyIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<queueFamilyIndexCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueueFamilyIndices"; };
+struct pQueueFamilyIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<queueFamilyIndexCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueueFamilyIndices"; };
 GFXRECON_END_NAMESPACE(VkTensorCreateInfoARM)
 
 GFXRECON_BEGIN_NAMESPACE(VkTensorViewCreateInfoARM)
@@ -9376,7 +9376,7 @@ GFXRECON_BEGIN_NAMESPACE(VkWriteDescriptorSetTensorARM)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct tensorViewCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "tensorViewCount"; };
-struct pTensorViews { using api_element = api_elements::VkTensorViewARM; using shape = field_shape::Array; using field_count = FieldValue<tensorViewCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTensorViews"; };
+struct pTensorViews { using api_element = api_elements::VkTensorViewARM; using shape = field_shape::Array; using length = FieldValue<tensorViewCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTensorViews"; };
 GFXRECON_END_NAMESPACE(VkWriteDescriptorSetTensorARM)
 
 GFXRECON_BEGIN_NAMESPACE(VkTensorFormatPropertiesARM)
@@ -9420,7 +9420,7 @@ GFXRECON_BEGIN_NAMESPACE(VkTensorDependencyInfoARM)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct tensorMemoryBarrierCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "tensorMemoryBarrierCount"; };
-struct pTensorMemoryBarriers { using api_element = api_elements::VkTensorMemoryBarrierARM; using shape = field_shape::Array; using field_count = FieldValue<tensorMemoryBarrierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTensorMemoryBarriers"; };
+struct pTensorMemoryBarriers { using api_element = api_elements::VkTensorMemoryBarrierARM; using shape = field_shape::Array; using length = FieldValue<tensorMemoryBarrierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTensorMemoryBarriers"; };
 GFXRECON_END_NAMESPACE(VkTensorDependencyInfoARM)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceTensorFeaturesARM)
@@ -9444,9 +9444,9 @@ GFXRECON_BEGIN_NAMESPACE(VkTensorCopyARM)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = false; static constexpr std::string_view field_name = "pNext"; };
 struct dimensionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "dimensionCount"; };
-struct pSrcOffset { using api_element = api_elements::UInt64; using shape = field_shape::Array; using field_count = FieldValue<dimensionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSrcOffset"; };
-struct pDstOffset { using api_element = api_elements::UInt64; using shape = field_shape::Array; using field_count = FieldValue<dimensionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDstOffset"; };
-struct pExtent { using api_element = api_elements::UInt64; using shape = field_shape::Array; using field_count = FieldValue<dimensionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pExtent"; };
+struct pSrcOffset { using api_element = api_elements::UInt64; using shape = field_shape::Array; using length = FieldValue<dimensionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSrcOffset"; };
+struct pDstOffset { using api_element = api_elements::UInt64; using shape = field_shape::Array; using length = FieldValue<dimensionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDstOffset"; };
+struct pExtent { using api_element = api_elements::UInt64; using shape = field_shape::Array; using length = FieldValue<dimensionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pExtent"; };
 GFXRECON_END_NAMESPACE(VkTensorCopyARM)
 
 GFXRECON_BEGIN_NAMESPACE(VkCopyTensorInfoARM)
@@ -9455,7 +9455,7 @@ struct pNext { using api_element = api_elements::Void; using shape = field_shape
 struct srcTensor { using api_element = api_elements::VkTensorARM; using shape = field_shape::Value; static constexpr std::string_view field_name = "srcTensor"; };
 struct dstTensor { using api_element = api_elements::VkTensorARM; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstTensor"; };
 struct regionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "regionCount"; };
-struct pRegions { using api_element = api_elements::VkTensorCopyARM; using shape = field_shape::Array; using field_count = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
+struct pRegions { using api_element = api_elements::VkTensorCopyARM; using shape = field_shape::Array; using length = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
 GFXRECON_END_NAMESPACE(VkCopyTensorInfoARM)
 
 GFXRECON_BEGIN_NAMESPACE(VkMemoryDedicatedAllocateInfoTensorARM)
@@ -9520,7 +9520,7 @@ GFXRECON_BEGIN_NAMESPACE(VkFrameBoundaryTensorsARM)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct tensorCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "tensorCount"; };
-struct pTensors { using api_element = api_elements::VkTensorARM; using shape = field_shape::Array; using field_count = FieldValue<tensorCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTensors"; };
+struct pTensors { using api_element = api_elements::VkTensorARM; using shape = field_shape::Array; using length = FieldValue<tensorCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTensors"; };
 GFXRECON_END_NAMESPACE(VkFrameBoundaryTensorsARM)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT)
@@ -9539,14 +9539,14 @@ GFXRECON_BEGIN_NAMESPACE(VkPipelineShaderStageModuleIdentifierCreateInfoEXT)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct identifierSize { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "identifierSize"; };
-struct pIdentifier { using api_element = api_elements::UInt8; using shape = field_shape::Array; using field_count = FieldValue<identifierSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pIdentifier"; };
+struct pIdentifier { using api_element = api_elements::UInt8; using shape = field_shape::Array; using length = FieldValue<identifierSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pIdentifier"; };
 GFXRECON_END_NAMESPACE(VkPipelineShaderStageModuleIdentifierCreateInfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkShaderModuleIdentifierEXT)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = false; static constexpr std::string_view field_name = "pNext"; };
 struct identifierSize { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "identifierSize"; };
-struct identifier { using api_element = api_elements::UInt8; using shape = field_shape::StaticArray; using field_count = FieldValue<identifierSize>; static constexpr size_t extents[] = {VK_MAX_SHADER_MODULE_IDENTIFIER_SIZE_EXT}; static constexpr std::string_view field_name = "identifier"; };
+struct identifier { using api_element = api_elements::UInt8; using shape = field_shape::StaticArray; using length = FieldValue<identifierSize>; static constexpr size_t extents[] = {VK_MAX_SHADER_MODULE_IDENTIFIER_SIZE_EXT}; static constexpr std::string_view field_name = "identifier"; };
 GFXRECON_END_NAMESPACE(VkShaderModuleIdentifierEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceOpticalFlowFeaturesNV)
@@ -9610,7 +9610,7 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = false; static constexpr std::string_view field_name = "pNext"; };
 struct flags { using api_element = api_elements::VkOpticalFlowExecuteFlagsNV; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct regionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "regionCount"; };
-struct pRegions { using api_element = api_elements::VkRect2D; using shape = field_shape::Array; using field_count = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
+struct pRegions { using api_element = api_elements::VkRect2D; using shape = field_shape::Array; using length = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
 GFXRECON_END_NAMESPACE(VkOpticalFlowExecuteInfoNV)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceLegacyDitheringFeaturesEXT)
@@ -9681,12 +9681,12 @@ struct stage { using api_element = api_elements::VkShaderStageFlagBits; using sh
 struct nextStage { using api_element = api_elements::VkShaderStageFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "nextStage"; };
 struct codeType { using api_element = api_elements::VkShaderCodeTypeEXT; using shape = field_shape::Value; static constexpr std::string_view field_name = "codeType"; };
 struct codeSize { using api_element = api_elements::Size; using shape = field_shape::Value; static constexpr std::string_view field_name = "codeSize"; };
-struct pCode { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<codeSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCode"; };
+struct pCode { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<codeSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCode"; };
 struct pName { using api_element = api_elements::Char; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pName"; };
 struct setLayoutCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "setLayoutCount"; };
-struct pSetLayouts { using api_element = api_elements::VkDescriptorSetLayout; using shape = field_shape::Array; using field_count = FieldValue<setLayoutCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSetLayouts"; };
+struct pSetLayouts { using api_element = api_elements::VkDescriptorSetLayout; using shape = field_shape::Array; using length = FieldValue<setLayoutCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSetLayouts"; };
 struct pushConstantRangeCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "pushConstantRangeCount"; };
-struct pPushConstantRanges { using api_element = api_elements::VkPushConstantRange; using shape = field_shape::Array; using field_count = FieldValue<pushConstantRangeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPushConstantRanges"; };
+struct pPushConstantRanges { using api_element = api_elements::VkPushConstantRange; using shape = field_shape::Array; using length = FieldValue<pushConstantRangeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPushConstantRanges"; };
 struct pSpecializationInfo { using api_element = api_elements::VkSpecializationInfo; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSpecializationInfo"; };
 GFXRECON_END_NAMESPACE(VkShaderCreateInfoEXT)
 
@@ -9815,14 +9815,14 @@ struct pLayerName { using api_element = api_elements::Char; using shape = field_
 struct pSettingName { using api_element = api_elements::Char; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSettingName"; };
 struct type { using api_element = api_elements::VkLayerSettingTypeEXT; using shape = field_shape::Value; static constexpr std::string_view field_name = "type"; };
 struct valueCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "valueCount"; };
-struct pValues { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<valueCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pValues"; };
+struct pValues { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<valueCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pValues"; };
 GFXRECON_END_NAMESPACE(VkLayerSettingEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkLayerSettingsCreateInfoEXT)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct settingCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "settingCount"; };
-struct pSettings { using api_element = api_elements::VkLayerSettingEXT; using shape = field_shape::Array; using field_count = FieldValue<settingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSettings"; };
+struct pSettings { using api_element = api_elements::VkLayerSettingEXT; using shape = field_shape::Array; using length = FieldValue<settingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSettings"; };
 GFXRECON_END_NAMESPACE(VkLayerSettingsCreateInfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM)
@@ -9890,7 +9890,7 @@ GFXRECON_BEGIN_NAMESPACE(VkGetLatencyMarkerInfoNV)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = false; static constexpr std::string_view field_name = "pNext"; };
 struct timingCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "timingCount"; };
-struct pTimings { using api_element = api_elements::VkLatencyTimingsFrameReportNV; using shape = field_shape::Array; using field_count = FieldValue<timingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTimings"; };
+struct pTimings { using api_element = api_elements::VkLatencyTimingsFrameReportNV; using shape = field_shape::Array; using length = FieldValue<timingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTimings"; };
 GFXRECON_END_NAMESPACE(VkGetLatencyMarkerInfoNV)
 
 GFXRECON_BEGIN_NAMESPACE(VkLatencySubmissionPresentIdNV)
@@ -9915,7 +9915,7 @@ GFXRECON_BEGIN_NAMESPACE(VkLatencySurfaceCapabilitiesNV)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct presentModeCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "presentModeCount"; };
-struct pPresentModes { using api_element = api_elements::VkPresentModeKHR; using shape = field_shape::Array; using field_count = FieldValue<presentModeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPresentModes"; };
+struct pPresentModes { using api_element = api_elements::VkPresentModeKHR; using shape = field_shape::Array; using length = FieldValue<presentModeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPresentModes"; };
 GFXRECON_END_NAMESPACE(VkLatencySurfaceCapabilitiesNV)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceDataGraphFeaturesARM)
@@ -9955,7 +9955,7 @@ struct pNext { using api_element = api_elements::Void; using shape = field_shape
 struct flags { using api_element = api_elements::VkPipelineCreateFlags2; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct layout { using api_element = api_elements::VkPipelineLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "layout"; };
 struct resourceInfoCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "resourceInfoCount"; };
-struct pResourceInfos { using api_element = api_elements::VkDataGraphPipelineResourceInfoARM; using shape = field_shape::Array; using field_count = FieldValue<resourceInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pResourceInfos"; };
+struct pResourceInfos { using api_element = api_elements::VkDataGraphPipelineResourceInfoARM; using shape = field_shape::Array; using length = FieldValue<resourceInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pResourceInfos"; };
 GFXRECON_END_NAMESPACE(VkDataGraphPipelineCreateInfoARM)
 
 GFXRECON_BEGIN_NAMESPACE(VkDataGraphPipelineShaderModuleCreateInfoARM)
@@ -9965,7 +9965,7 @@ struct module { using api_element = api_elements::VkShaderModule; using shape = 
 struct pName { using api_element = api_elements::Char; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pName"; };
 struct pSpecializationInfo { using api_element = api_elements::VkSpecializationInfo; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSpecializationInfo"; };
 struct constantCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "constantCount"; };
-struct pConstants { using api_element = api_elements::VkDataGraphPipelineConstantARM; using shape = field_shape::Array; using field_count = FieldValue<constantCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pConstants"; };
+struct pConstants { using api_element = api_elements::VkDataGraphPipelineConstantARM; using shape = field_shape::Array; using length = FieldValue<constantCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pConstants"; };
 GFXRECON_END_NAMESPACE(VkDataGraphPipelineShaderModuleCreateInfoARM)
 
 GFXRECON_BEGIN_NAMESPACE(VkDataGraphPipelineSessionCreateInfoARM)
@@ -10019,14 +10019,14 @@ struct pNext { using api_element = api_elements::Void; using shape = field_shape
 struct property { using api_element = api_elements::VkDataGraphPipelinePropertyARM; using shape = field_shape::Value; static constexpr std::string_view field_name = "property"; };
 struct isText { using api_element = api_elements::VkBool32; using shape = field_shape::Value; static constexpr std::string_view field_name = "isText"; };
 struct dataSize { using api_element = api_elements::Size; using shape = field_shape::Value; static constexpr std::string_view field_name = "dataSize"; };
-struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
+struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
 GFXRECON_END_NAMESPACE(VkDataGraphPipelinePropertyQueryResultARM)
 
 GFXRECON_BEGIN_NAMESPACE(VkDataGraphPipelineIdentifierCreateInfoARM)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct identifierSize { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "identifierSize"; };
-struct pIdentifier { using api_element = api_elements::UInt8; using shape = field_shape::Array; using field_count = FieldValue<identifierSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pIdentifier"; };
+struct pIdentifier { using api_element = api_elements::UInt8; using shape = field_shape::Array; using length = FieldValue<identifierSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pIdentifier"; };
 GFXRECON_END_NAMESPACE(VkDataGraphPipelineIdentifierCreateInfoARM)
 
 GFXRECON_BEGIN_NAMESPACE(VkDataGraphPipelineDispatchInfoARM)
@@ -10057,7 +10057,7 @@ GFXRECON_BEGIN_NAMESPACE(VkDataGraphProcessingEngineCreateInfoARM)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct processingEngineCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "processingEngineCount"; };
-struct pProcessingEngines { using api_element = api_elements::VkPhysicalDeviceDataGraphProcessingEngineARM; using shape = field_shape::Array; using field_count = FieldValue<processingEngineCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProcessingEngines"; };
+struct pProcessingEngines { using api_element = api_elements::VkPhysicalDeviceDataGraphProcessingEngineARM; using shape = field_shape::Array; using length = FieldValue<processingEngineCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProcessingEngines"; };
 GFXRECON_END_NAMESPACE(VkDataGraphProcessingEngineCreateInfoARM)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceQueueFamilyDataGraphProcessingEngineInfoARM)
@@ -10092,7 +10092,7 @@ GFXRECON_BEGIN_NAMESPACE(VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct perViewRenderAreaCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "perViewRenderAreaCount"; };
-struct pPerViewRenderAreas { using api_element = api_elements::VkRect2D; using shape = field_shape::Array; using field_count = FieldValue<perViewRenderAreaCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPerViewRenderAreas"; };
+struct pPerViewRenderAreas { using api_element = api_elements::VkRect2D; using shape = field_shape::Array; using length = FieldValue<perViewRenderAreaCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPerViewRenderAreas"; };
 GFXRECON_END_NAMESPACE(VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDevicePerStageDescriptorSetFeaturesNV)
@@ -10220,7 +10220,7 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = false; static constexpr std::string_view field_name = "pNext"; };
 struct decompressionMethod { using api_element = api_elements::VkMemoryDecompressionMethodFlagsEXT; using shape = field_shape::Value; static constexpr std::string_view field_name = "decompressionMethod"; };
 struct regionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "regionCount"; };
-struct pRegions { using api_element = api_elements::VkDecompressMemoryRegionEXT; using shape = field_shape::Array; using field_count = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
+struct pRegions { using api_element = api_elements::VkDecompressMemoryRegionEXT; using shape = field_shape::Array; using length = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
 GFXRECON_END_NAMESPACE(VkDecompressMemoryInfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceMemoryDecompressionFeaturesEXT)
@@ -10357,7 +10357,7 @@ GFXRECON_BEGIN_NAMESPACE(VkWriteDescriptorSetPartitionedAccelerationStructureNV)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct accelerationStructureCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "accelerationStructureCount"; };
-struct pAccelerationStructures { using api_element = api_elements::VkDeviceAddress; using shape = field_shape::Array; using field_count = FieldValue<accelerationStructureCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAccelerationStructures"; };
+struct pAccelerationStructures { using api_element = api_elements::VkDeviceAddress; using shape = field_shape::Array; using length = FieldValue<accelerationStructureCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAccelerationStructures"; };
 GFXRECON_END_NAMESPACE(VkWriteDescriptorSetPartitionedAccelerationStructureNV)
 
 GFXRECON_BEGIN_NAMESPACE(VkPartitionedAccelerationStructureInstancesInputNV)
@@ -10433,18 +10433,18 @@ GFXRECON_BEGIN_NAMESPACE(VkIndirectExecutionSetShaderLayoutInfoEXT)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = false; static constexpr std::string_view field_name = "pNext"; };
 struct setLayoutCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "setLayoutCount"; };
-struct pSetLayouts { using api_element = api_elements::VkDescriptorSetLayout; using shape = field_shape::Array; using field_count = FieldValue<setLayoutCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSetLayouts"; };
+struct pSetLayouts { using api_element = api_elements::VkDescriptorSetLayout; using shape = field_shape::Array; using length = FieldValue<setLayoutCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSetLayouts"; };
 GFXRECON_END_NAMESPACE(VkIndirectExecutionSetShaderLayoutInfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkIndirectExecutionSetShaderInfoEXT)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = false; static constexpr std::string_view field_name = "pNext"; };
 struct shaderCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "shaderCount"; };
-struct pInitialShaders { using api_element = api_elements::VkShaderEXT; using shape = field_shape::Array; using field_count = FieldValue<shaderCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInitialShaders"; };
-struct pSetLayoutInfos { using api_element = api_elements::VkIndirectExecutionSetShaderLayoutInfoEXT; using shape = field_shape::Array; using field_count = FieldValue<shaderCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSetLayoutInfos"; };
+struct pInitialShaders { using api_element = api_elements::VkShaderEXT; using shape = field_shape::Array; using length = FieldValue<shaderCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInitialShaders"; };
+struct pSetLayoutInfos { using api_element = api_elements::VkIndirectExecutionSetShaderLayoutInfoEXT; using shape = field_shape::Array; using length = FieldValue<shaderCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSetLayoutInfos"; };
 struct maxShaderCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "maxShaderCount"; };
 struct pushConstantRangeCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "pushConstantRangeCount"; };
-struct pPushConstantRanges { using api_element = api_elements::VkPushConstantRange; using shape = field_shape::Array; using field_count = FieldValue<pushConstantRangeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPushConstantRanges"; };
+struct pPushConstantRanges { using api_element = api_elements::VkPushConstantRange; using shape = field_shape::Array; using length = FieldValue<pushConstantRangeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPushConstantRanges"; };
 GFXRECON_END_NAMESPACE(VkIndirectExecutionSetShaderInfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkIndirectExecutionSetCreateInfoEXT)
@@ -10509,7 +10509,7 @@ struct shaderStages { using api_element = api_elements::VkShaderStageFlags; usin
 struct indirectStride { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "indirectStride"; };
 struct pipelineLayout { using api_element = api_elements::VkPipelineLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "pipelineLayout"; };
 struct tokenCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "tokenCount"; };
-struct pTokens { using api_element = api_elements::VkIndirectCommandsLayoutTokenEXT; using shape = field_shape::Array; using field_count = FieldValue<tokenCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTokens"; };
+struct pTokens { using api_element = api_elements::VkIndirectCommandsLayoutTokenEXT; using shape = field_shape::Array; using length = FieldValue<tokenCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTokens"; };
 GFXRECON_END_NAMESPACE(VkIndirectCommandsLayoutCreateInfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkDrawIndirectCountIndirectCommandEXT)
@@ -10540,7 +10540,7 @@ GFXRECON_BEGIN_NAMESPACE(VkGeneratedCommandsShaderInfoEXT)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct shaderCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "shaderCount"; };
-struct pShaders { using api_element = api_elements::VkShaderEXT; using shape = field_shape::Array; using field_count = FieldValue<shaderCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pShaders"; };
+struct pShaders { using api_element = api_elements::VkShaderEXT; using shape = field_shape::Array; using length = FieldValue<shaderCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pShaders"; };
 GFXRECON_END_NAMESPACE(VkGeneratedCommandsShaderInfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkWriteIndirectExecutionSetShaderEXT)
@@ -10625,7 +10625,7 @@ GFXRECON_BEGIN_NAMESPACE(VkHdrVividDynamicMetadataHUAWEI)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct dynamicMetadataSize { using api_element = api_elements::Size; using shape = field_shape::Value; static constexpr std::string_view field_name = "dynamicMetadataSize"; };
-struct pDynamicMetadata { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<dynamicMetadataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDynamicMetadata"; };
+struct pDynamicMetadata { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<dynamicMetadataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDynamicMetadata"; };
 GFXRECON_END_NAMESPACE(VkHdrVividDynamicMetadataHUAWEI)
 
 GFXRECON_BEGIN_NAMESPACE(VkCooperativeMatrixFlexibleDimensionsPropertiesNV)
@@ -10722,10 +10722,10 @@ GFXRECON_BEGIN_NAMESPACE(VkRenderPassPerformanceCountersByRegionBeginInfoARM)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct counterAddressCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "counterAddressCount"; };
-struct pCounterAddresses { using api_element = api_elements::VkDeviceAddress; using shape = field_shape::Array; using field_count = FieldValue<counterAddressCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounterAddresses"; };
+struct pCounterAddresses { using api_element = api_elements::VkDeviceAddress; using shape = field_shape::Array; using length = FieldValue<counterAddressCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounterAddresses"; };
 struct serializeRegions { using api_element = api_elements::VkBool32; using shape = field_shape::Value; static constexpr std::string_view field_name = "serializeRegions"; };
 struct counterIndexCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "counterIndexCount"; };
-struct pCounterIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<counterIndexCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounterIndices"; };
+struct pCounterIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<counterIndexCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounterIndices"; };
 GFXRECON_END_NAMESPACE(VkRenderPassPerformanceCountersByRegionBeginInfoARM)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT)
@@ -10811,7 +10811,7 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct customResolve { using api_element = api_elements::VkBool32; using shape = field_shape::Value; static constexpr std::string_view field_name = "customResolve"; };
 struct colorAttachmentCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "colorAttachmentCount"; };
-struct pColorAttachmentFormats { using api_element = api_elements::VkFormat; using shape = field_shape::Array; using field_count = FieldValue<colorAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorAttachmentFormats"; };
+struct pColorAttachmentFormats { using api_element = api_elements::VkFormat; using shape = field_shape::Array; using length = FieldValue<colorAttachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorAttachmentFormats"; };
 struct depthAttachmentFormat { using api_element = api_elements::VkFormat; using shape = field_shape::Value; static constexpr std::string_view field_name = "depthAttachmentFormat"; };
 struct stencilAttachmentFormat { using api_element = api_elements::VkFormat; using shape = field_shape::Value; static constexpr std::string_view field_name = "stencilAttachmentFormat"; };
 GFXRECON_END_NAMESPACE(VkCustomResolveCreateInfoEXT)
@@ -10907,7 +10907,7 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct nodeType { using api_element = api_elements::VkDataGraphPipelineNodeTypeARM; using shape = field_shape::Value; static constexpr std::string_view field_name = "nodeType"; };
 struct connectionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "connectionCount"; };
-struct pConnections { using api_element = api_elements::VkDataGraphPipelineSingleNodeConnectionARM; using shape = field_shape::Array; using field_count = FieldValue<connectionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pConnections"; };
+struct pConnections { using api_element = api_elements::VkDataGraphPipelineSingleNodeConnectionARM; using shape = field_shape::Array; using length = FieldValue<connectionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pConnections"; };
 GFXRECON_END_NAMESPACE(VkDataGraphPipelineSingleNodeCreateInfoARM)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceShaderLongVectorFeaturesEXT)
@@ -11138,8 +11138,8 @@ struct mode { using api_element = api_elements::VkBuildAccelerationStructureMode
 struct srcAccelerationStructure { using api_element = api_elements::VkAccelerationStructureKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "srcAccelerationStructure"; };
 struct dstAccelerationStructure { using api_element = api_elements::VkAccelerationStructureKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstAccelerationStructure"; };
 struct geometryCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "geometryCount"; };
-struct pGeometries { using api_element = api_elements::VkAccelerationStructureGeometryKHR; using shape = field_shape::Array; using field_count = FieldValue<geometryCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pGeometries"; };
-struct ppGeometries { using api_element = api_elements::VkAccelerationStructureGeometryKHR; using shape = field_shape::PointerArray; using field_count = FieldValue<geometryCount>; static constexpr size_t pointer_count = 2; static constexpr std::string_view field_name = "ppGeometries"; };
+struct pGeometries { using api_element = api_elements::VkAccelerationStructureGeometryKHR; using shape = field_shape::Array; using length = FieldValue<geometryCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pGeometries"; };
+struct ppGeometries { using api_element = api_elements::VkAccelerationStructureGeometryKHR; using shape = field_shape::PointerArray; using length = FieldValue<geometryCount>; static constexpr size_t pointer_count = 2; static constexpr std::string_view field_name = "ppGeometries"; };
 struct scratchData { using api_element = api_elements::VkDeviceOrHostAddressKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "scratchData"; };
 GFXRECON_END_NAMESPACE(VkAccelerationStructureBuildGeometryInfoKHR)
 
@@ -11158,7 +11158,7 @@ GFXRECON_BEGIN_NAMESPACE(VkWriteDescriptorSetAccelerationStructureKHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct accelerationStructureCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "accelerationStructureCount"; };
-struct pAccelerationStructures { using api_element = api_elements::VkAccelerationStructureKHR; using shape = field_shape::Array; using field_count = FieldValue<accelerationStructureCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAccelerationStructures"; };
+struct pAccelerationStructures { using api_element = api_elements::VkAccelerationStructureKHR; using shape = field_shape::Array; using length = FieldValue<accelerationStructureCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAccelerationStructures"; };
 GFXRECON_END_NAMESPACE(VkWriteDescriptorSetAccelerationStructureKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceAccelerationStructureFeaturesKHR)
@@ -11193,8 +11193,8 @@ GFXRECON_END_NAMESPACE(VkAccelerationStructureDeviceAddressInfoKHR)
 GFXRECON_BEGIN_NAMESPACE(VkAccelerationStructureVersionInfoKHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = false; static constexpr std::string_view field_name = "pNext"; };
-// NOTE: field_count evaluates 2*VK_UUID_SIZE
-struct pVersionData { using api_element = api_elements::UInt8; using shape = field_shape::Array; using field_count = Product<Literal<2u>, Literal<VK_UUID_SIZE>>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVersionData"; };
+// NOTE: length evaluates 2*VK_UUID_SIZE
+struct pVersionData { using api_element = api_elements::UInt8; using shape = field_shape::Array; using length = Product<Literal<2u>, Literal<VK_UUID_SIZE>>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVersionData"; };
 GFXRECON_END_NAMESPACE(VkAccelerationStructureVersionInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkCopyAccelerationStructureToMemoryInfoKHR)
@@ -11244,9 +11244,9 @@ struct sType { using api_element = api_elements::VkStructureType; using shape = 
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = true; static constexpr std::string_view field_name = "pNext"; };
 struct flags { using api_element = api_elements::VkPipelineCreateFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct stageCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "stageCount"; };
-struct pStages { using api_element = api_elements::VkPipelineShaderStageCreateInfo; using shape = field_shape::Array; using field_count = FieldValue<stageCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStages"; };
+struct pStages { using api_element = api_elements::VkPipelineShaderStageCreateInfo; using shape = field_shape::Array; using length = FieldValue<stageCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStages"; };
 struct groupCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "groupCount"; };
-struct pGroups { using api_element = api_elements::VkRayTracingShaderGroupCreateInfoKHR; using shape = field_shape::Array; using field_count = FieldValue<groupCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pGroups"; };
+struct pGroups { using api_element = api_elements::VkRayTracingShaderGroupCreateInfoKHR; using shape = field_shape::Array; using length = FieldValue<groupCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pGroups"; };
 struct maxPipelineRayRecursionDepth { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "maxPipelineRayRecursionDepth"; };
 struct pLibraryInfo { using api_element = api_elements::VkPipelineLibraryCreateInfoKHR; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pLibraryInfo"; };
 struct pLibraryInterface { using api_element = api_elements::VkRayTracingPipelineInterfaceCreateInfoKHR; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pLibraryInterface"; };
@@ -11444,7 +11444,7 @@ GFXRECON_END_NAMESPACE(DestroyInstance)
 GFXRECON_BEGIN_NAMESPACE(EnumeratePhysicalDevices)
 struct instance { using api_element = api_elements::VkInstance; using shape = field_shape::Value; static constexpr std::string_view field_name = "instance"; };
 struct pPhysicalDeviceCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPhysicalDeviceCount"; };
-struct pPhysicalDevices { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Array; using field_count = FieldValue<pPhysicalDeviceCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPhysicalDevices"; };
+struct pPhysicalDevices { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Array; using length = FieldValue<pPhysicalDeviceCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPhysicalDevices"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(EnumeratePhysicalDevices)
 
@@ -11481,7 +11481,7 @@ GFXRECON_END_NAMESPACE(GetPhysicalDeviceProperties)
 GFXRECON_BEGIN_NAMESPACE(GetPhysicalDeviceQueueFamilyProperties)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct pQueueFamilyPropertyCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueueFamilyPropertyCount"; };
-struct pQueueFamilyProperties { using api_element = api_elements::VkQueueFamilyProperties; using shape = field_shape::Array; using field_count = FieldValue<pQueueFamilyPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueueFamilyProperties"; };
+struct pQueueFamilyProperties { using api_element = api_elements::VkQueueFamilyProperties; using shape = field_shape::Array; using length = FieldValue<pQueueFamilyPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueueFamilyProperties"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceQueueFamilyProperties)
 
@@ -11516,7 +11516,7 @@ GFXRECON_END_NAMESPACE(GetDeviceQueue)
 GFXRECON_BEGIN_NAMESPACE(QueueSubmit)
 struct queue { using api_element = api_elements::VkQueue; using shape = field_shape::Value; static constexpr std::string_view field_name = "queue"; };
 struct submitCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "submitCount"; };
-struct pSubmits { using api_element = api_elements::VkSubmitInfo; using shape = field_shape::Array; using field_count = FieldValue<submitCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSubmits"; };
+struct pSubmits { using api_element = api_elements::VkSubmitInfo; using shape = field_shape::Array; using length = FieldValue<submitCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSubmits"; };
 struct fence { using api_element = api_elements::VkFence; using shape = field_shape::Value; static constexpr std::string_view field_name = "fence"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(QueueSubmit)
@@ -11565,14 +11565,14 @@ GFXRECON_END_NAMESPACE(UnmapMemory)
 GFXRECON_BEGIN_NAMESPACE(FlushMappedMemoryRanges)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct memoryRangeCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "memoryRangeCount"; };
-struct pMemoryRanges { using api_element = api_elements::VkMappedMemoryRange; using shape = field_shape::Array; using field_count = FieldValue<memoryRangeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMemoryRanges"; };
+struct pMemoryRanges { using api_element = api_elements::VkMappedMemoryRange; using shape = field_shape::Array; using length = FieldValue<memoryRangeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMemoryRanges"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(FlushMappedMemoryRanges)
 
 GFXRECON_BEGIN_NAMESPACE(InvalidateMappedMemoryRanges)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct memoryRangeCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "memoryRangeCount"; };
-struct pMemoryRanges { using api_element = api_elements::VkMappedMemoryRange; using shape = field_shape::Array; using field_count = FieldValue<memoryRangeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMemoryRanges"; };
+struct pMemoryRanges { using api_element = api_elements::VkMappedMemoryRange; using shape = field_shape::Array; using length = FieldValue<memoryRangeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMemoryRanges"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(InvalidateMappedMemoryRanges)
 
@@ -11617,7 +11617,7 @@ GFXRECON_BEGIN_NAMESPACE(GetImageSparseMemoryRequirements)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct image { using api_element = api_elements::VkImage; using shape = field_shape::Value; static constexpr std::string_view field_name = "image"; };
 struct pSparseMemoryRequirementCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSparseMemoryRequirementCount"; };
-struct pSparseMemoryRequirements { using api_element = api_elements::VkSparseImageMemoryRequirements; using shape = field_shape::Array; using field_count = FieldValue<pSparseMemoryRequirementCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSparseMemoryRequirements"; };
+struct pSparseMemoryRequirements { using api_element = api_elements::VkSparseImageMemoryRequirements; using shape = field_shape::Array; using length = FieldValue<pSparseMemoryRequirementCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSparseMemoryRequirements"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetImageSparseMemoryRequirements)
 
@@ -11629,14 +11629,14 @@ struct samples { using api_element = api_elements::VkSampleCountFlagBits; using 
 struct usage { using api_element = api_elements::VkImageUsageFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "usage"; };
 struct tiling { using api_element = api_elements::VkImageTiling; using shape = field_shape::Value; static constexpr std::string_view field_name = "tiling"; };
 struct pPropertyCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPropertyCount"; };
-struct pProperties { using api_element = api_elements::VkSparseImageFormatProperties; using shape = field_shape::Array; using field_count = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
+struct pProperties { using api_element = api_elements::VkSparseImageFormatProperties; using shape = field_shape::Array; using length = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceSparseImageFormatProperties)
 
 GFXRECON_BEGIN_NAMESPACE(QueueBindSparse)
 struct queue { using api_element = api_elements::VkQueue; using shape = field_shape::Value; static constexpr std::string_view field_name = "queue"; };
 struct bindInfoCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "bindInfoCount"; };
-struct pBindInfo { using api_element = api_elements::VkBindSparseInfo; using shape = field_shape::Array; using field_count = FieldValue<bindInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindInfo"; };
+struct pBindInfo { using api_element = api_elements::VkBindSparseInfo; using shape = field_shape::Array; using length = FieldValue<bindInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindInfo"; };
 struct fence { using api_element = api_elements::VkFence; using shape = field_shape::Value; static constexpr std::string_view field_name = "fence"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(QueueBindSparse)
@@ -11659,7 +11659,7 @@ GFXRECON_END_NAMESPACE(DestroyFence)
 GFXRECON_BEGIN_NAMESPACE(ResetFences)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct fenceCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "fenceCount"; };
-struct pFences { using api_element = api_elements::VkFence; using shape = field_shape::Array; using field_count = FieldValue<fenceCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pFences"; };
+struct pFences { using api_element = api_elements::VkFence; using shape = field_shape::Array; using length = FieldValue<fenceCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pFences"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(ResetFences)
 
@@ -11672,7 +11672,7 @@ GFXRECON_END_NAMESPACE(GetFenceStatus)
 GFXRECON_BEGIN_NAMESPACE(WaitForFences)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct fenceCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "fenceCount"; };
-struct pFences { using api_element = api_elements::VkFence; using shape = field_shape::Array; using field_count = FieldValue<fenceCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pFences"; };
+struct pFences { using api_element = api_elements::VkFence; using shape = field_shape::Array; using length = FieldValue<fenceCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pFences"; };
 struct waitAll { using api_element = api_elements::VkBool32; using shape = field_shape::Value; static constexpr std::string_view field_name = "waitAll"; };
 struct timeout { using api_element = api_elements::UInt64; using shape = field_shape::Value; static constexpr std::string_view field_name = "timeout"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
@@ -11714,7 +11714,7 @@ struct queryPool { using api_element = api_elements::VkQueryPool; using shape = 
 struct firstQuery { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstQuery"; };
 struct queryCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "queryCount"; };
 struct dataSize { using api_element = api_elements::Size; using shape = field_shape::Value; static constexpr std::string_view field_name = "dataSize"; };
-struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
+struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
 struct stride { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Value; static constexpr std::string_view field_name = "stride"; };
 struct flags { using api_element = api_elements::VkQueryResultFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
@@ -11798,7 +11798,7 @@ GFXRECON_END_NAMESPACE(ResetCommandPool)
 GFXRECON_BEGIN_NAMESPACE(AllocateCommandBuffers)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct pAllocateInfo { using api_element = api_elements::VkCommandBufferAllocateInfo; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAllocateInfo"; };
-struct pCommandBuffers { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Array; using field_count = FieldValue<pAllocateInfo, vulkan::fields::VkCommandBufferAllocateInfo::commandBufferCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCommandBuffers"; };
+struct pCommandBuffers { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Array; using length = FieldValue<pAllocateInfo, vulkan::fields::VkCommandBufferAllocateInfo::commandBufferCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCommandBuffers"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(AllocateCommandBuffers)
 
@@ -11806,7 +11806,7 @@ GFXRECON_BEGIN_NAMESPACE(FreeCommandBuffers)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct commandPool { using api_element = api_elements::VkCommandPool; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandPool"; };
 struct commandBufferCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBufferCount"; };
-struct pCommandBuffers { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Array; using field_count = FieldValue<commandBufferCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCommandBuffers"; };
+struct pCommandBuffers { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Array; using length = FieldValue<commandBufferCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCommandBuffers"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(FreeCommandBuffers)
 
@@ -11832,7 +11832,7 @@ struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using 
 struct srcBuffer { using api_element = api_elements::VkBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "srcBuffer"; };
 struct dstBuffer { using api_element = api_elements::VkBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstBuffer"; };
 struct regionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "regionCount"; };
-struct pRegions { using api_element = api_elements::VkBufferCopy; using shape = field_shape::Array; using field_count = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
+struct pRegions { using api_element = api_elements::VkBufferCopy; using shape = field_shape::Array; using length = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdCopyBuffer)
 
@@ -11843,7 +11843,7 @@ struct srcImageLayout { using api_element = api_elements::VkImageLayout; using s
 struct dstImage { using api_element = api_elements::VkImage; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstImage"; };
 struct dstImageLayout { using api_element = api_elements::VkImageLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstImageLayout"; };
 struct regionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "regionCount"; };
-struct pRegions { using api_element = api_elements::VkImageCopy; using shape = field_shape::Array; using field_count = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
+struct pRegions { using api_element = api_elements::VkImageCopy; using shape = field_shape::Array; using length = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdCopyImage)
 
@@ -11853,7 +11853,7 @@ struct srcBuffer { using api_element = api_elements::VkBuffer; using shape = fie
 struct dstImage { using api_element = api_elements::VkImage; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstImage"; };
 struct dstImageLayout { using api_element = api_elements::VkImageLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstImageLayout"; };
 struct regionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "regionCount"; };
-struct pRegions { using api_element = api_elements::VkBufferImageCopy; using shape = field_shape::Array; using field_count = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
+struct pRegions { using api_element = api_elements::VkBufferImageCopy; using shape = field_shape::Array; using length = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdCopyBufferToImage)
 
@@ -11863,7 +11863,7 @@ struct srcImage { using api_element = api_elements::VkImage; using shape = field
 struct srcImageLayout { using api_element = api_elements::VkImageLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "srcImageLayout"; };
 struct dstBuffer { using api_element = api_elements::VkBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstBuffer"; };
 struct regionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "regionCount"; };
-struct pRegions { using api_element = api_elements::VkBufferImageCopy; using shape = field_shape::Array; using field_count = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
+struct pRegions { using api_element = api_elements::VkBufferImageCopy; using shape = field_shape::Array; using length = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdCopyImageToBuffer)
 
@@ -11872,7 +11872,7 @@ struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using 
 struct dstBuffer { using api_element = api_elements::VkBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstBuffer"; };
 struct dstOffset { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstOffset"; };
 struct dataSize { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Value; static constexpr std::string_view field_name = "dataSize"; };
-struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
+struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdUpdateBuffer)
 
@@ -11891,11 +11891,11 @@ struct srcStageMask { using api_element = api_elements::VkPipelineStageFlags; us
 struct dstStageMask { using api_element = api_elements::VkPipelineStageFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstStageMask"; };
 struct dependencyFlags { using api_element = api_elements::VkDependencyFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "dependencyFlags"; };
 struct memoryBarrierCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "memoryBarrierCount"; };
-struct pMemoryBarriers { using api_element = api_elements::VkMemoryBarrier; using shape = field_shape::Array; using field_count = FieldValue<memoryBarrierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMemoryBarriers"; };
+struct pMemoryBarriers { using api_element = api_elements::VkMemoryBarrier; using shape = field_shape::Array; using length = FieldValue<memoryBarrierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMemoryBarriers"; };
 struct bufferMemoryBarrierCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "bufferMemoryBarrierCount"; };
-struct pBufferMemoryBarriers { using api_element = api_elements::VkBufferMemoryBarrier; using shape = field_shape::Array; using field_count = FieldValue<bufferMemoryBarrierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBufferMemoryBarriers"; };
+struct pBufferMemoryBarriers { using api_element = api_elements::VkBufferMemoryBarrier; using shape = field_shape::Array; using length = FieldValue<bufferMemoryBarrierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBufferMemoryBarriers"; };
 struct imageMemoryBarrierCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "imageMemoryBarrierCount"; };
-struct pImageMemoryBarriers { using api_element = api_elements::VkImageMemoryBarrier; using shape = field_shape::Array; using field_count = FieldValue<imageMemoryBarrierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pImageMemoryBarriers"; };
+struct pImageMemoryBarriers { using api_element = api_elements::VkImageMemoryBarrier; using shape = field_shape::Array; using length = FieldValue<imageMemoryBarrierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pImageMemoryBarriers"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdPipelineBarrier)
 
@@ -11945,7 +11945,7 @@ GFXRECON_END_NAMESPACE(CmdCopyQueryPoolResults)
 GFXRECON_BEGIN_NAMESPACE(CmdExecuteCommands)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct commandBufferCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBufferCount"; };
-struct pCommandBuffers { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Array; using field_count = FieldValue<commandBufferCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCommandBuffers"; };
+struct pCommandBuffers { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Array; using length = FieldValue<commandBufferCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCommandBuffers"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdExecuteCommands)
 
@@ -12031,7 +12031,7 @@ GFXRECON_BEGIN_NAMESPACE(GetPipelineCacheData)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct pipelineCache { using api_element = api_elements::VkPipelineCache; using shape = field_shape::Value; static constexpr std::string_view field_name = "pipelineCache"; };
 struct pDataSize { using api_element = api_elements::Size; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDataSize"; };
-struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<pDataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
+struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<pDataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPipelineCacheData)
 
@@ -12039,7 +12039,7 @@ GFXRECON_BEGIN_NAMESPACE(MergePipelineCaches)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct dstCache { using api_element = api_elements::VkPipelineCache; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstCache"; };
 struct srcCacheCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "srcCacheCount"; };
-struct pSrcCaches { using api_element = api_elements::VkPipelineCache; using shape = field_shape::Array; using field_count = FieldValue<srcCacheCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSrcCaches"; };
+struct pSrcCaches { using api_element = api_elements::VkPipelineCache; using shape = field_shape::Array; using length = FieldValue<srcCacheCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSrcCaches"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(MergePipelineCaches)
 
@@ -12047,9 +12047,9 @@ GFXRECON_BEGIN_NAMESPACE(CreateComputePipelines)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct pipelineCache { using api_element = api_elements::VkPipelineCache; using shape = field_shape::Value; static constexpr std::string_view field_name = "pipelineCache"; };
 struct createInfoCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "createInfoCount"; };
-struct pCreateInfos { using api_element = api_elements::VkComputePipelineCreateInfo; using shape = field_shape::Array; using field_count = FieldValue<createInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCreateInfos"; };
+struct pCreateInfos { using api_element = api_elements::VkComputePipelineCreateInfo; using shape = field_shape::Array; using length = FieldValue<createInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCreateInfos"; };
 struct pAllocator { using api_element = api_elements::VkAllocationCallbacks; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAllocator"; };
-struct pPipelines { using api_element = api_elements::VkPipeline; using shape = field_shape::Array; using field_count = FieldValue<createInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelines"; };
+struct pPipelines { using api_element = api_elements::VkPipeline; using shape = field_shape::Array; using length = FieldValue<createInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelines"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CreateComputePipelines)
 
@@ -12130,7 +12130,7 @@ GFXRECON_END_NAMESPACE(ResetDescriptorPool)
 GFXRECON_BEGIN_NAMESPACE(AllocateDescriptorSets)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct pAllocateInfo { using api_element = api_elements::VkDescriptorSetAllocateInfo; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAllocateInfo"; };
-struct pDescriptorSets { using api_element = api_elements::VkDescriptorSet; using shape = field_shape::Array; using field_count = FieldValue<pAllocateInfo, vulkan::fields::VkDescriptorSetAllocateInfo::descriptorSetCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescriptorSets"; };
+struct pDescriptorSets { using api_element = api_elements::VkDescriptorSet; using shape = field_shape::Array; using length = FieldValue<pAllocateInfo, vulkan::fields::VkDescriptorSetAllocateInfo::descriptorSetCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescriptorSets"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(AllocateDescriptorSets)
 
@@ -12138,16 +12138,16 @@ GFXRECON_BEGIN_NAMESPACE(FreeDescriptorSets)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct descriptorPool { using api_element = api_elements::VkDescriptorPool; using shape = field_shape::Value; static constexpr std::string_view field_name = "descriptorPool"; };
 struct descriptorSetCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "descriptorSetCount"; };
-struct pDescriptorSets { using api_element = api_elements::VkDescriptorSet; using shape = field_shape::Array; using field_count = FieldValue<descriptorSetCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescriptorSets"; };
+struct pDescriptorSets { using api_element = api_elements::VkDescriptorSet; using shape = field_shape::Array; using length = FieldValue<descriptorSetCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescriptorSets"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(FreeDescriptorSets)
 
 GFXRECON_BEGIN_NAMESPACE(UpdateDescriptorSets)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct descriptorWriteCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "descriptorWriteCount"; };
-struct pDescriptorWrites { using api_element = api_elements::VkWriteDescriptorSet; using shape = field_shape::Array; using field_count = FieldValue<descriptorWriteCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescriptorWrites"; };
+struct pDescriptorWrites { using api_element = api_elements::VkWriteDescriptorSet; using shape = field_shape::Array; using length = FieldValue<descriptorWriteCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescriptorWrites"; };
 struct descriptorCopyCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "descriptorCopyCount"; };
-struct pDescriptorCopies { using api_element = api_elements::VkCopyDescriptorSet; using shape = field_shape::Array; using field_count = FieldValue<descriptorCopyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescriptorCopies"; };
+struct pDescriptorCopies { using api_element = api_elements::VkCopyDescriptorSet; using shape = field_shape::Array; using length = FieldValue<descriptorCopyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescriptorCopies"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(UpdateDescriptorSets)
 
@@ -12164,9 +12164,9 @@ struct pipelineBindPoint { using api_element = api_elements::VkPipelineBindPoint
 struct layout { using api_element = api_elements::VkPipelineLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "layout"; };
 struct firstSet { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstSet"; };
 struct descriptorSetCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "descriptorSetCount"; };
-struct pDescriptorSets { using api_element = api_elements::VkDescriptorSet; using shape = field_shape::Array; using field_count = FieldValue<descriptorSetCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescriptorSets"; };
+struct pDescriptorSets { using api_element = api_elements::VkDescriptorSet; using shape = field_shape::Array; using length = FieldValue<descriptorSetCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescriptorSets"; };
 struct dynamicOffsetCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "dynamicOffsetCount"; };
-struct pDynamicOffsets { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<dynamicOffsetCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDynamicOffsets"; };
+struct pDynamicOffsets { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<dynamicOffsetCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDynamicOffsets"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdBindDescriptorSets)
 
@@ -12176,7 +12176,7 @@ struct image { using api_element = api_elements::VkImage; using shape = field_sh
 struct imageLayout { using api_element = api_elements::VkImageLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "imageLayout"; };
 struct pColor { using api_element = api_elements::VkClearColorValue; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColor"; };
 struct rangeCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "rangeCount"; };
-struct pRanges { using api_element = api_elements::VkImageSubresourceRange; using shape = field_shape::Array; using field_count = FieldValue<rangeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRanges"; };
+struct pRanges { using api_element = api_elements::VkImageSubresourceRange; using shape = field_shape::Array; using length = FieldValue<rangeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRanges"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdClearColorImage)
 
@@ -12212,15 +12212,15 @@ GFXRECON_END_NAMESPACE(CmdResetEvent)
 GFXRECON_BEGIN_NAMESPACE(CmdWaitEvents)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct eventCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "eventCount"; };
-struct pEvents { using api_element = api_elements::VkEvent; using shape = field_shape::Array; using field_count = FieldValue<eventCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pEvents"; };
+struct pEvents { using api_element = api_elements::VkEvent; using shape = field_shape::Array; using length = FieldValue<eventCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pEvents"; };
 struct srcStageMask { using api_element = api_elements::VkPipelineStageFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "srcStageMask"; };
 struct dstStageMask { using api_element = api_elements::VkPipelineStageFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstStageMask"; };
 struct memoryBarrierCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "memoryBarrierCount"; };
-struct pMemoryBarriers { using api_element = api_elements::VkMemoryBarrier; using shape = field_shape::Array; using field_count = FieldValue<memoryBarrierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMemoryBarriers"; };
+struct pMemoryBarriers { using api_element = api_elements::VkMemoryBarrier; using shape = field_shape::Array; using length = FieldValue<memoryBarrierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMemoryBarriers"; };
 struct bufferMemoryBarrierCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "bufferMemoryBarrierCount"; };
-struct pBufferMemoryBarriers { using api_element = api_elements::VkBufferMemoryBarrier; using shape = field_shape::Array; using field_count = FieldValue<bufferMemoryBarrierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBufferMemoryBarriers"; };
+struct pBufferMemoryBarriers { using api_element = api_elements::VkBufferMemoryBarrier; using shape = field_shape::Array; using length = FieldValue<bufferMemoryBarrierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBufferMemoryBarriers"; };
 struct imageMemoryBarrierCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "imageMemoryBarrierCount"; };
-struct pImageMemoryBarriers { using api_element = api_elements::VkImageMemoryBarrier; using shape = field_shape::Array; using field_count = FieldValue<imageMemoryBarrierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pImageMemoryBarriers"; };
+struct pImageMemoryBarriers { using api_element = api_elements::VkImageMemoryBarrier; using shape = field_shape::Array; using length = FieldValue<imageMemoryBarrierCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pImageMemoryBarriers"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdWaitEvents)
 
@@ -12230,7 +12230,7 @@ struct layout { using api_element = api_elements::VkPipelineLayout; using shape 
 struct stageFlags { using api_element = api_elements::VkShaderStageFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "stageFlags"; };
 struct offset { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "offset"; };
 struct size { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "size"; };
-struct pValues { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<size>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pValues"; };
+struct pValues { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<size>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pValues"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdPushConstants)
 
@@ -12238,9 +12238,9 @@ GFXRECON_BEGIN_NAMESPACE(CreateGraphicsPipelines)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct pipelineCache { using api_element = api_elements::VkPipelineCache; using shape = field_shape::Value; static constexpr std::string_view field_name = "pipelineCache"; };
 struct createInfoCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "createInfoCount"; };
-struct pCreateInfos { using api_element = api_elements::VkGraphicsPipelineCreateInfo; using shape = field_shape::Array; using field_count = FieldValue<createInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCreateInfos"; };
+struct pCreateInfos { using api_element = api_elements::VkGraphicsPipelineCreateInfo; using shape = field_shape::Array; using length = FieldValue<createInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCreateInfos"; };
 struct pAllocator { using api_element = api_elements::VkAllocationCallbacks; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAllocator"; };
-struct pPipelines { using api_element = api_elements::VkPipeline; using shape = field_shape::Array; using field_count = FieldValue<createInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelines"; };
+struct pPipelines { using api_element = api_elements::VkPipeline; using shape = field_shape::Array; using length = FieldValue<createInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelines"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CreateGraphicsPipelines)
 
@@ -12285,7 +12285,7 @@ GFXRECON_BEGIN_NAMESPACE(CmdSetViewport)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct firstViewport { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstViewport"; };
 struct viewportCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "viewportCount"; };
-struct pViewports { using api_element = api_elements::VkViewport; using shape = field_shape::Array; using field_count = FieldValue<viewportCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pViewports"; };
+struct pViewports { using api_element = api_elements::VkViewport; using shape = field_shape::Array; using length = FieldValue<viewportCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pViewports"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdSetViewport)
 
@@ -12293,7 +12293,7 @@ GFXRECON_BEGIN_NAMESPACE(CmdSetScissor)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct firstScissor { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstScissor"; };
 struct scissorCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "scissorCount"; };
-struct pScissors { using api_element = api_elements::VkRect2D; using shape = field_shape::Array; using field_count = FieldValue<scissorCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pScissors"; };
+struct pScissors { using api_element = api_elements::VkRect2D; using shape = field_shape::Array; using length = FieldValue<scissorCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pScissors"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdSetScissor)
 
@@ -12357,8 +12357,8 @@ GFXRECON_BEGIN_NAMESPACE(CmdBindVertexBuffers)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct firstBinding { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstBinding"; };
 struct bindingCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "bindingCount"; };
-struct pBuffers { using api_element = api_elements::VkBuffer; using shape = field_shape::Array; using field_count = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBuffers"; };
-struct pOffsets { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Array; using field_count = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pOffsets"; };
+struct pBuffers { using api_element = api_elements::VkBuffer; using shape = field_shape::Array; using length = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBuffers"; };
+struct pOffsets { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Array; using length = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pOffsets"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdBindVertexBuffers)
 
@@ -12406,7 +12406,7 @@ struct srcImageLayout { using api_element = api_elements::VkImageLayout; using s
 struct dstImage { using api_element = api_elements::VkImage; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstImage"; };
 struct dstImageLayout { using api_element = api_elements::VkImageLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstImageLayout"; };
 struct regionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "regionCount"; };
-struct pRegions { using api_element = api_elements::VkImageBlit; using shape = field_shape::Array; using field_count = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
+struct pRegions { using api_element = api_elements::VkImageBlit; using shape = field_shape::Array; using length = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
 struct filter { using api_element = api_elements::VkFilter; using shape = field_shape::Value; static constexpr std::string_view field_name = "filter"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdBlitImage)
@@ -12417,16 +12417,16 @@ struct image { using api_element = api_elements::VkImage; using shape = field_sh
 struct imageLayout { using api_element = api_elements::VkImageLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "imageLayout"; };
 struct pDepthStencil { using api_element = api_elements::VkClearDepthStencilValue; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDepthStencil"; };
 struct rangeCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "rangeCount"; };
-struct pRanges { using api_element = api_elements::VkImageSubresourceRange; using shape = field_shape::Array; using field_count = FieldValue<rangeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRanges"; };
+struct pRanges { using api_element = api_elements::VkImageSubresourceRange; using shape = field_shape::Array; using length = FieldValue<rangeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRanges"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdClearDepthStencilImage)
 
 GFXRECON_BEGIN_NAMESPACE(CmdClearAttachments)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct attachmentCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "attachmentCount"; };
-struct pAttachments { using api_element = api_elements::VkClearAttachment; using shape = field_shape::Array; using field_count = FieldValue<attachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAttachments"; };
+struct pAttachments { using api_element = api_elements::VkClearAttachment; using shape = field_shape::Array; using length = FieldValue<attachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAttachments"; };
 struct rectCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "rectCount"; };
-struct pRects { using api_element = api_elements::VkClearRect; using shape = field_shape::Array; using field_count = FieldValue<rectCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRects"; };
+struct pRects { using api_element = api_elements::VkClearRect; using shape = field_shape::Array; using length = FieldValue<rectCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRects"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdClearAttachments)
 
@@ -12437,7 +12437,7 @@ struct srcImageLayout { using api_element = api_elements::VkImageLayout; using s
 struct dstImage { using api_element = api_elements::VkImage; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstImage"; };
 struct dstImageLayout { using api_element = api_elements::VkImageLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstImageLayout"; };
 struct regionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "regionCount"; };
-struct pRegions { using api_element = api_elements::VkImageResolve; using shape = field_shape::Array; using field_count = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
+struct pRegions { using api_element = api_elements::VkImageResolve; using shape = field_shape::Array; using length = FieldValue<regionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRegions"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdResolveImage)
 
@@ -12462,14 +12462,14 @@ GFXRECON_END_NAMESPACE(CmdEndRenderPass)
 GFXRECON_BEGIN_NAMESPACE(BindBufferMemory2)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct bindInfoCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "bindInfoCount"; };
-struct pBindInfos { using api_element = api_elements::VkBindBufferMemoryInfo; using shape = field_shape::Array; using field_count = FieldValue<bindInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindInfos"; };
+struct pBindInfos { using api_element = api_elements::VkBindBufferMemoryInfo; using shape = field_shape::Array; using length = FieldValue<bindInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindInfos"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(BindBufferMemory2)
 
 GFXRECON_BEGIN_NAMESPACE(BindImageMemory2)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct bindInfoCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "bindInfoCount"; };
-struct pBindInfos { using api_element = api_elements::VkBindImageMemoryInfo; using shape = field_shape::Array; using field_count = FieldValue<bindInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindInfos"; };
+struct pBindInfos { using api_element = api_elements::VkBindImageMemoryInfo; using shape = field_shape::Array; using length = FieldValue<bindInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindInfos"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(BindImageMemory2)
 
@@ -12491,7 +12491,7 @@ GFXRECON_END_NAMESPACE(CmdSetDeviceMask)
 GFXRECON_BEGIN_NAMESPACE(EnumeratePhysicalDeviceGroups)
 struct instance { using api_element = api_elements::VkInstance; using shape = field_shape::Value; static constexpr std::string_view field_name = "instance"; };
 struct pPhysicalDeviceGroupCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPhysicalDeviceGroupCount"; };
-struct pPhysicalDeviceGroupProperties { using api_element = api_elements::VkPhysicalDeviceGroupProperties; using shape = field_shape::Array; using field_count = FieldValue<pPhysicalDeviceGroupCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPhysicalDeviceGroupProperties"; };
+struct pPhysicalDeviceGroupProperties { using api_element = api_elements::VkPhysicalDeviceGroupProperties; using shape = field_shape::Array; using length = FieldValue<pPhysicalDeviceGroupCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPhysicalDeviceGroupProperties"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(EnumeratePhysicalDeviceGroups)
 
@@ -12513,7 +12513,7 @@ GFXRECON_BEGIN_NAMESPACE(GetImageSparseMemoryRequirements2)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct pInfo { using api_element = api_elements::VkImageSparseMemoryRequirementsInfo2; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInfo"; };
 struct pSparseMemoryRequirementCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSparseMemoryRequirementCount"; };
-struct pSparseMemoryRequirements { using api_element = api_elements::VkSparseImageMemoryRequirements2; using shape = field_shape::Array; using field_count = FieldValue<pSparseMemoryRequirementCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSparseMemoryRequirements"; };
+struct pSparseMemoryRequirements { using api_element = api_elements::VkSparseImageMemoryRequirements2; using shape = field_shape::Array; using length = FieldValue<pSparseMemoryRequirementCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSparseMemoryRequirements"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetImageSparseMemoryRequirements2)
 
@@ -12546,7 +12546,7 @@ GFXRECON_END_NAMESPACE(GetPhysicalDeviceImageFormatProperties2)
 GFXRECON_BEGIN_NAMESPACE(GetPhysicalDeviceQueueFamilyProperties2)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct pQueueFamilyPropertyCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueueFamilyPropertyCount"; };
-struct pQueueFamilyProperties { using api_element = api_elements::VkQueueFamilyProperties2; using shape = field_shape::Array; using field_count = FieldValue<pQueueFamilyPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueueFamilyProperties"; };
+struct pQueueFamilyProperties { using api_element = api_elements::VkQueueFamilyProperties2; using shape = field_shape::Array; using length = FieldValue<pQueueFamilyPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueueFamilyProperties"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceQueueFamilyProperties2)
 
@@ -12560,7 +12560,7 @@ GFXRECON_BEGIN_NAMESPACE(GetPhysicalDeviceSparseImageFormatProperties2)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct pFormatInfo { using api_element = api_elements::VkPhysicalDeviceSparseImageFormatInfo2; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pFormatInfo"; };
 struct pPropertyCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPropertyCount"; };
-struct pProperties { using api_element = api_elements::VkSparseImageFormatProperties2; using shape = field_shape::Array; using field_count = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
+struct pProperties { using api_element = api_elements::VkSparseImageFormatProperties2; using shape = field_shape::Array; using length = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceSparseImageFormatProperties2)
 
@@ -12746,7 +12746,7 @@ GFXRECON_END_NAMESPACE(CmdEndRenderPass2)
 GFXRECON_BEGIN_NAMESPACE(GetPhysicalDeviceToolProperties)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct pToolCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pToolCount"; };
-struct pToolProperties { using api_element = api_elements::VkPhysicalDeviceToolProperties; using shape = field_shape::Array; using field_count = FieldValue<pToolCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pToolProperties"; };
+struct pToolProperties { using api_element = api_elements::VkPhysicalDeviceToolProperties; using shape = field_shape::Array; using length = FieldValue<pToolCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pToolProperties"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceToolProperties)
 
@@ -12800,7 +12800,7 @@ GFXRECON_END_NAMESPACE(CmdWriteTimestamp2)
 GFXRECON_BEGIN_NAMESPACE(QueueSubmit2)
 struct queue { using api_element = api_elements::VkQueue; using shape = field_shape::Value; static constexpr std::string_view field_name = "queue"; };
 struct submitCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "submitCount"; };
-struct pSubmits { using api_element = api_elements::VkSubmitInfo2; using shape = field_shape::Array; using field_count = FieldValue<submitCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSubmits"; };
+struct pSubmits { using api_element = api_elements::VkSubmitInfo2; using shape = field_shape::Array; using length = FieldValue<submitCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSubmits"; };
 struct fence { using api_element = api_elements::VkFence; using shape = field_shape::Value; static constexpr std::string_view field_name = "fence"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(QueueSubmit2)
@@ -12847,7 +12847,7 @@ GFXRECON_BEGIN_NAMESPACE(GetDeviceImageSparseMemoryRequirements)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct pInfo { using api_element = api_elements::VkDeviceImageMemoryRequirements; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInfo"; };
 struct pSparseMemoryRequirementCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSparseMemoryRequirementCount"; };
-struct pSparseMemoryRequirements { using api_element = api_elements::VkSparseImageMemoryRequirements2; using shape = field_shape::Array; using field_count = FieldValue<pSparseMemoryRequirementCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSparseMemoryRequirements"; };
+struct pSparseMemoryRequirements { using api_element = api_elements::VkSparseImageMemoryRequirements2; using shape = field_shape::Array; using length = FieldValue<pSparseMemoryRequirementCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSparseMemoryRequirements"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetDeviceImageSparseMemoryRequirements)
 
@@ -12868,8 +12868,8 @@ GFXRECON_END_NAMESPACE(CmdResetEvent2)
 GFXRECON_BEGIN_NAMESPACE(CmdWaitEvents2)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct eventCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "eventCount"; };
-struct pEvents { using api_element = api_elements::VkEvent; using shape = field_shape::Array; using field_count = FieldValue<eventCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pEvents"; };
-struct pDependencyInfos { using api_element = api_elements::VkDependencyInfo; using shape = field_shape::Array; using field_count = FieldValue<eventCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDependencyInfos"; };
+struct pEvents { using api_element = api_elements::VkEvent; using shape = field_shape::Array; using length = FieldValue<eventCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pEvents"; };
+struct pDependencyInfos { using api_element = api_elements::VkDependencyInfo; using shape = field_shape::Array; using length = FieldValue<eventCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDependencyInfos"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdWaitEvents2)
 
@@ -12917,14 +12917,14 @@ GFXRECON_END_NAMESPACE(CmdSetPrimitiveTopology)
 GFXRECON_BEGIN_NAMESPACE(CmdSetViewportWithCount)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct viewportCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "viewportCount"; };
-struct pViewports { using api_element = api_elements::VkViewport; using shape = field_shape::Array; using field_count = FieldValue<viewportCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pViewports"; };
+struct pViewports { using api_element = api_elements::VkViewport; using shape = field_shape::Array; using length = FieldValue<viewportCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pViewports"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdSetViewportWithCount)
 
 GFXRECON_BEGIN_NAMESPACE(CmdSetScissorWithCount)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct scissorCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "scissorCount"; };
-struct pScissors { using api_element = api_elements::VkRect2D; using shape = field_shape::Array; using field_count = FieldValue<scissorCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pScissors"; };
+struct pScissors { using api_element = api_elements::VkRect2D; using shape = field_shape::Array; using length = FieldValue<scissorCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pScissors"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdSetScissorWithCount)
 
@@ -12932,10 +12932,10 @@ GFXRECON_BEGIN_NAMESPACE(CmdBindVertexBuffers2)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct firstBinding { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstBinding"; };
 struct bindingCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "bindingCount"; };
-struct pBuffers { using api_element = api_elements::VkBuffer; using shape = field_shape::Array; using field_count = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBuffers"; };
-struct pOffsets { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Array; using field_count = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pOffsets"; };
-struct pSizes { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Array; using field_count = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSizes"; };
-struct pStrides { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Array; using field_count = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStrides"; };
+struct pBuffers { using api_element = api_elements::VkBuffer; using shape = field_shape::Array; using length = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBuffers"; };
+struct pOffsets { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Array; using length = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pOffsets"; };
+struct pSizes { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Array; using length = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSizes"; };
+struct pStrides { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Array; using length = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStrides"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdBindVertexBuffers2)
 
@@ -13046,7 +13046,7 @@ GFXRECON_END_NAMESPACE(CopyImageToImage)
 GFXRECON_BEGIN_NAMESPACE(TransitionImageLayout)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct transitionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "transitionCount"; };
-struct pTransitions { using api_element = api_elements::VkHostImageLayoutTransitionInfo; using shape = field_shape::Array; using field_count = FieldValue<transitionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTransitions"; };
+struct pTransitions { using api_element = api_elements::VkHostImageLayoutTransitionInfo; using shape = field_shape::Array; using length = FieldValue<transitionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTransitions"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(TransitionImageLayout)
 
@@ -13056,7 +13056,7 @@ struct pipelineBindPoint { using api_element = api_elements::VkPipelineBindPoint
 struct layout { using api_element = api_elements::VkPipelineLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "layout"; };
 struct set { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "set"; };
 struct descriptorWriteCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "descriptorWriteCount"; };
-struct pDescriptorWrites { using api_element = api_elements::VkWriteDescriptorSet; using shape = field_shape::Array; using field_count = FieldValue<descriptorWriteCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescriptorWrites"; };
+struct pDescriptorWrites { using api_element = api_elements::VkWriteDescriptorSet; using shape = field_shape::Array; using length = FieldValue<descriptorWriteCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescriptorWrites"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdPushDescriptorSet)
 
@@ -13139,7 +13139,7 @@ GFXRECON_BEGIN_NAMESPACE(GetPhysicalDeviceSurfaceFormatsKHR)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct surface { using api_element = api_elements::VkSurfaceKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "surface"; };
 struct pSurfaceFormatCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSurfaceFormatCount"; };
-struct pSurfaceFormats { using api_element = api_elements::VkSurfaceFormatKHR; using shape = field_shape::Array; using field_count = FieldValue<pSurfaceFormatCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSurfaceFormats"; };
+struct pSurfaceFormats { using api_element = api_elements::VkSurfaceFormatKHR; using shape = field_shape::Array; using length = FieldValue<pSurfaceFormatCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSurfaceFormats"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceSurfaceFormatsKHR)
 
@@ -13147,7 +13147,7 @@ GFXRECON_BEGIN_NAMESPACE(GetPhysicalDeviceSurfacePresentModesKHR)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct surface { using api_element = api_elements::VkSurfaceKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "surface"; };
 struct pPresentModeCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPresentModeCount"; };
-struct pPresentModes { using api_element = api_elements::VkPresentModeKHR; using shape = field_shape::Array; using field_count = FieldValue<pPresentModeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPresentModes"; };
+struct pPresentModes { using api_element = api_elements::VkPresentModeKHR; using shape = field_shape::Array; using length = FieldValue<pPresentModeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPresentModes"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceSurfacePresentModesKHR)
 
@@ -13170,7 +13170,7 @@ GFXRECON_BEGIN_NAMESPACE(GetSwapchainImagesKHR)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct swapchain { using api_element = api_elements::VkSwapchainKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "swapchain"; };
 struct pSwapchainImageCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSwapchainImageCount"; };
-struct pSwapchainImages { using api_element = api_elements::VkImage; using shape = field_shape::Array; using field_count = FieldValue<pSwapchainImageCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSwapchainImages"; };
+struct pSwapchainImages { using api_element = api_elements::VkImage; using shape = field_shape::Array; using length = FieldValue<pSwapchainImageCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSwapchainImages"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetSwapchainImagesKHR)
 
@@ -13207,7 +13207,7 @@ GFXRECON_BEGIN_NAMESPACE(GetPhysicalDevicePresentRectanglesKHR)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct surface { using api_element = api_elements::VkSurfaceKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "surface"; };
 struct pRectCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRectCount"; };
-struct pRects { using api_element = api_elements::VkRect2D; using shape = field_shape::Array; using field_count = FieldValue<pRectCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRects"; };
+struct pRects { using api_element = api_elements::VkRect2D; using shape = field_shape::Array; using length = FieldValue<pRectCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pRects"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDevicePresentRectanglesKHR)
 
@@ -13221,14 +13221,14 @@ GFXRECON_END_NAMESPACE(AcquireNextImage2KHR)
 GFXRECON_BEGIN_NAMESPACE(GetPhysicalDeviceDisplayPropertiesKHR)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct pPropertyCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPropertyCount"; };
-struct pProperties { using api_element = api_elements::VkDisplayPropertiesKHR; using shape = field_shape::Array; using field_count = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
+struct pProperties { using api_element = api_elements::VkDisplayPropertiesKHR; using shape = field_shape::Array; using length = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceDisplayPropertiesKHR)
 
 GFXRECON_BEGIN_NAMESPACE(GetPhysicalDeviceDisplayPlanePropertiesKHR)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct pPropertyCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPropertyCount"; };
-struct pProperties { using api_element = api_elements::VkDisplayPlanePropertiesKHR; using shape = field_shape::Array; using field_count = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
+struct pProperties { using api_element = api_elements::VkDisplayPlanePropertiesKHR; using shape = field_shape::Array; using length = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceDisplayPlanePropertiesKHR)
 
@@ -13236,7 +13236,7 @@ GFXRECON_BEGIN_NAMESPACE(GetDisplayPlaneSupportedDisplaysKHR)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct planeIndex { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "planeIndex"; };
 struct pDisplayCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDisplayCount"; };
-struct pDisplays { using api_element = api_elements::VkDisplayKHR; using shape = field_shape::Array; using field_count = FieldValue<pDisplayCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDisplays"; };
+struct pDisplays { using api_element = api_elements::VkDisplayKHR; using shape = field_shape::Array; using length = FieldValue<pDisplayCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDisplays"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetDisplayPlaneSupportedDisplaysKHR)
 
@@ -13244,7 +13244,7 @@ GFXRECON_BEGIN_NAMESPACE(GetDisplayModePropertiesKHR)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct display { using api_element = api_elements::VkDisplayKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "display"; };
 struct pPropertyCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPropertyCount"; };
-struct pProperties { using api_element = api_elements::VkDisplayModePropertiesKHR; using shape = field_shape::Array; using field_count = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
+struct pProperties { using api_element = api_elements::VkDisplayModePropertiesKHR; using shape = field_shape::Array; using length = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetDisplayModePropertiesKHR)
 
@@ -13276,9 +13276,9 @@ GFXRECON_END_NAMESPACE(CreateDisplayPlaneSurfaceKHR)
 GFXRECON_BEGIN_NAMESPACE(CreateSharedSwapchainsKHR)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct swapchainCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "swapchainCount"; };
-struct pCreateInfos { using api_element = api_elements::VkSwapchainCreateInfoKHR; using shape = field_shape::Array; using field_count = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCreateInfos"; };
+struct pCreateInfos { using api_element = api_elements::VkSwapchainCreateInfoKHR; using shape = field_shape::Array; using length = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCreateInfos"; };
 struct pAllocator { using api_element = api_elements::VkAllocationCallbacks; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAllocator"; };
-struct pSwapchains { using api_element = api_elements::VkSwapchainKHR; using shape = field_shape::Array; using field_count = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSwapchains"; };
+struct pSwapchains { using api_element = api_elements::VkSwapchainKHR; using shape = field_shape::Array; using length = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSwapchains"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CreateSharedSwapchainsKHR)
 
@@ -13362,7 +13362,7 @@ GFXRECON_BEGIN_NAMESPACE(GetPhysicalDeviceVideoFormatPropertiesKHR)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct pVideoFormatInfo { using api_element = api_elements::VkPhysicalDeviceVideoFormatInfoKHR; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVideoFormatInfo"; };
 struct pVideoFormatPropertyCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVideoFormatPropertyCount"; };
-struct pVideoFormatProperties { using api_element = api_elements::VkVideoFormatPropertiesKHR; using shape = field_shape::Array; using field_count = FieldValue<pVideoFormatPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVideoFormatProperties"; };
+struct pVideoFormatProperties { using api_element = api_elements::VkVideoFormatPropertiesKHR; using shape = field_shape::Array; using length = FieldValue<pVideoFormatPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVideoFormatProperties"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceVideoFormatPropertiesKHR)
 
@@ -13385,7 +13385,7 @@ GFXRECON_BEGIN_NAMESPACE(GetVideoSessionMemoryRequirementsKHR)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct videoSession { using api_element = api_elements::VkVideoSessionKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "videoSession"; };
 struct pMemoryRequirementsCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMemoryRequirementsCount"; };
-struct pMemoryRequirements { using api_element = api_elements::VkVideoSessionMemoryRequirementsKHR; using shape = field_shape::Array; using field_count = FieldValue<pMemoryRequirementsCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMemoryRequirements"; };
+struct pMemoryRequirements { using api_element = api_elements::VkVideoSessionMemoryRequirementsKHR; using shape = field_shape::Array; using length = FieldValue<pMemoryRequirementsCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMemoryRequirements"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetVideoSessionMemoryRequirementsKHR)
 
@@ -13393,7 +13393,7 @@ GFXRECON_BEGIN_NAMESPACE(BindVideoSessionMemoryKHR)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct videoSession { using api_element = api_elements::VkVideoSessionKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "videoSession"; };
 struct bindSessionMemoryInfoCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "bindSessionMemoryInfoCount"; };
-struct pBindSessionMemoryInfos { using api_element = api_elements::VkBindVideoSessionMemoryInfoKHR; using shape = field_shape::Array; using field_count = FieldValue<bindSessionMemoryInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindSessionMemoryInfos"; };
+struct pBindSessionMemoryInfos { using api_element = api_elements::VkBindVideoSessionMemoryInfoKHR; using shape = field_shape::Array; using length = FieldValue<bindSessionMemoryInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindSessionMemoryInfos"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(BindVideoSessionMemoryKHR)
 
@@ -13483,7 +13483,7 @@ GFXRECON_END_NAMESPACE(GetPhysicalDeviceImageFormatProperties2KHR)
 GFXRECON_BEGIN_NAMESPACE(GetPhysicalDeviceQueueFamilyProperties2KHR)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct pQueueFamilyPropertyCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueueFamilyPropertyCount"; };
-struct pQueueFamilyProperties { using api_element = api_elements::VkQueueFamilyProperties2; using shape = field_shape::Array; using field_count = FieldValue<pQueueFamilyPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueueFamilyProperties"; };
+struct pQueueFamilyProperties { using api_element = api_elements::VkQueueFamilyProperties2; using shape = field_shape::Array; using length = FieldValue<pQueueFamilyPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueueFamilyProperties"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceQueueFamilyProperties2KHR)
 
@@ -13497,7 +13497,7 @@ GFXRECON_BEGIN_NAMESPACE(GetPhysicalDeviceSparseImageFormatProperties2KHR)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct pFormatInfo { using api_element = api_elements::VkPhysicalDeviceSparseImageFormatInfo2; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pFormatInfo"; };
 struct pPropertyCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPropertyCount"; };
-struct pProperties { using api_element = api_elements::VkSparseImageFormatProperties2; using shape = field_shape::Array; using field_count = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
+struct pProperties { using api_element = api_elements::VkSparseImageFormatProperties2; using shape = field_shape::Array; using length = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceSparseImageFormatProperties2KHR)
 
@@ -13537,7 +13537,7 @@ GFXRECON_END_NAMESPACE(TrimCommandPoolKHR)
 GFXRECON_BEGIN_NAMESPACE(EnumeratePhysicalDeviceGroupsKHR)
 struct instance { using api_element = api_elements::VkInstance; using shape = field_shape::Value; static constexpr std::string_view field_name = "instance"; };
 struct pPhysicalDeviceGroupCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPhysicalDeviceGroupCount"; };
-struct pPhysicalDeviceGroupProperties { using api_element = api_elements::VkPhysicalDeviceGroupProperties; using shape = field_shape::Array; using field_count = FieldValue<pPhysicalDeviceGroupCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPhysicalDeviceGroupProperties"; };
+struct pPhysicalDeviceGroupProperties { using api_element = api_elements::VkPhysicalDeviceGroupProperties; using shape = field_shape::Array; using length = FieldValue<pPhysicalDeviceGroupCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPhysicalDeviceGroupProperties"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(EnumeratePhysicalDeviceGroupsKHR)
 
@@ -13617,7 +13617,7 @@ struct pipelineBindPoint { using api_element = api_elements::VkPipelineBindPoint
 struct layout { using api_element = api_elements::VkPipelineLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "layout"; };
 struct set { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "set"; };
 struct descriptorWriteCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "descriptorWriteCount"; };
-struct pDescriptorWrites { using api_element = api_elements::VkWriteDescriptorSet; using shape = field_shape::Array; using field_count = FieldValue<descriptorWriteCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescriptorWrites"; };
+struct pDescriptorWrites { using api_element = api_elements::VkWriteDescriptorSet; using shape = field_shape::Array; using length = FieldValue<descriptorWriteCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescriptorWrites"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdPushDescriptorSetKHR)
 
@@ -13707,8 +13707,8 @@ GFXRECON_BEGIN_NAMESPACE(EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCount
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct queueFamilyIndex { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "queueFamilyIndex"; };
 struct pCounterCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounterCount"; };
-struct pCounters { using api_element = api_elements::VkPerformanceCounterKHR; using shape = field_shape::Array; using field_count = FieldValue<pCounterCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounters"; };
-struct pCounterDescriptions { using api_element = api_elements::VkPerformanceCounterDescriptionKHR; using shape = field_shape::Array; using field_count = FieldValue<pCounterCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounterDescriptions"; };
+struct pCounters { using api_element = api_elements::VkPerformanceCounterKHR; using shape = field_shape::Array; using length = FieldValue<pCounterCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounters"; };
+struct pCounterDescriptions { using api_element = api_elements::VkPerformanceCounterDescriptionKHR; using shape = field_shape::Array; using length = FieldValue<pCounterCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounterDescriptions"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR)
 
@@ -13741,21 +13741,21 @@ GFXRECON_BEGIN_NAMESPACE(GetPhysicalDeviceSurfaceFormats2KHR)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct pSurfaceInfo { using api_element = api_elements::VkPhysicalDeviceSurfaceInfo2KHR; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSurfaceInfo"; };
 struct pSurfaceFormatCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSurfaceFormatCount"; };
-struct pSurfaceFormats { using api_element = api_elements::VkSurfaceFormat2KHR; using shape = field_shape::Array; using field_count = FieldValue<pSurfaceFormatCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSurfaceFormats"; };
+struct pSurfaceFormats { using api_element = api_elements::VkSurfaceFormat2KHR; using shape = field_shape::Array; using length = FieldValue<pSurfaceFormatCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSurfaceFormats"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceSurfaceFormats2KHR)
 
 GFXRECON_BEGIN_NAMESPACE(GetPhysicalDeviceDisplayProperties2KHR)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct pPropertyCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPropertyCount"; };
-struct pProperties { using api_element = api_elements::VkDisplayProperties2KHR; using shape = field_shape::Array; using field_count = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
+struct pProperties { using api_element = api_elements::VkDisplayProperties2KHR; using shape = field_shape::Array; using length = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceDisplayProperties2KHR)
 
 GFXRECON_BEGIN_NAMESPACE(GetPhysicalDeviceDisplayPlaneProperties2KHR)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct pPropertyCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPropertyCount"; };
-struct pProperties { using api_element = api_elements::VkDisplayPlaneProperties2KHR; using shape = field_shape::Array; using field_count = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
+struct pProperties { using api_element = api_elements::VkDisplayPlaneProperties2KHR; using shape = field_shape::Array; using length = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceDisplayPlaneProperties2KHR)
 
@@ -13763,7 +13763,7 @@ GFXRECON_BEGIN_NAMESPACE(GetDisplayModeProperties2KHR)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct display { using api_element = api_elements::VkDisplayKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "display"; };
 struct pPropertyCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPropertyCount"; };
-struct pProperties { using api_element = api_elements::VkDisplayModeProperties2KHR; using shape = field_shape::Array; using field_count = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
+struct pProperties { using api_element = api_elements::VkDisplayModeProperties2KHR; using shape = field_shape::Array; using length = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetDisplayModeProperties2KHR)
 
@@ -13792,7 +13792,7 @@ GFXRECON_BEGIN_NAMESPACE(GetImageSparseMemoryRequirements2KHR)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct pInfo { using api_element = api_elements::VkImageSparseMemoryRequirementsInfo2; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInfo"; };
 struct pSparseMemoryRequirementCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSparseMemoryRequirementCount"; };
-struct pSparseMemoryRequirements { using api_element = api_elements::VkSparseImageMemoryRequirements2; using shape = field_shape::Array; using field_count = FieldValue<pSparseMemoryRequirementCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSparseMemoryRequirements"; };
+struct pSparseMemoryRequirements { using api_element = api_elements::VkSparseImageMemoryRequirements2; using shape = field_shape::Array; using length = FieldValue<pSparseMemoryRequirementCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSparseMemoryRequirements"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetImageSparseMemoryRequirements2KHR)
 
@@ -13814,14 +13814,14 @@ GFXRECON_END_NAMESPACE(DestroySamplerYcbcrConversionKHR)
 GFXRECON_BEGIN_NAMESPACE(BindBufferMemory2KHR)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct bindInfoCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "bindInfoCount"; };
-struct pBindInfos { using api_element = api_elements::VkBindBufferMemoryInfo; using shape = field_shape::Array; using field_count = FieldValue<bindInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindInfos"; };
+struct pBindInfos { using api_element = api_elements::VkBindBufferMemoryInfo; using shape = field_shape::Array; using length = FieldValue<bindInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindInfos"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(BindBufferMemory2KHR)
 
 GFXRECON_BEGIN_NAMESPACE(BindImageMemory2KHR)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct bindInfoCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "bindInfoCount"; };
-struct pBindInfos { using api_element = api_elements::VkBindImageMemoryInfo; using shape = field_shape::Array; using field_count = FieldValue<bindInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindInfos"; };
+struct pBindInfos { using api_element = api_elements::VkBindImageMemoryInfo; using shape = field_shape::Array; using length = FieldValue<bindInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindInfos"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(BindImageMemory2KHR)
 
@@ -13877,7 +13877,7 @@ GFXRECON_END_NAMESPACE(SignalSemaphoreKHR)
 GFXRECON_BEGIN_NAMESPACE(GetPhysicalDeviceFragmentShadingRatesKHR)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct pFragmentShadingRateCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pFragmentShadingRateCount"; };
-struct pFragmentShadingRates { using api_element = api_elements::VkPhysicalDeviceFragmentShadingRateKHR; using shape = field_shape::Array; using field_count = FieldValue<pFragmentShadingRateCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pFragmentShadingRates"; };
+struct pFragmentShadingRates { using api_element = api_elements::VkPhysicalDeviceFragmentShadingRateKHR; using shape = field_shape::Array; using length = FieldValue<pFragmentShadingRateCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pFragmentShadingRates"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceFragmentShadingRatesKHR)
 
@@ -13962,7 +13962,7 @@ GFXRECON_BEGIN_NAMESPACE(GetPipelineExecutablePropertiesKHR)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct pPipelineInfo { using api_element = api_elements::VkPipelineInfoKHR; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelineInfo"; };
 struct pExecutableCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pExecutableCount"; };
-struct pProperties { using api_element = api_elements::VkPipelineExecutablePropertiesKHR; using shape = field_shape::Array; using field_count = FieldValue<pExecutableCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
+struct pProperties { using api_element = api_elements::VkPipelineExecutablePropertiesKHR; using shape = field_shape::Array; using length = FieldValue<pExecutableCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPipelineExecutablePropertiesKHR)
 
@@ -13970,7 +13970,7 @@ GFXRECON_BEGIN_NAMESPACE(GetPipelineExecutableStatisticsKHR)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct pExecutableInfo { using api_element = api_elements::VkPipelineExecutableInfoKHR; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pExecutableInfo"; };
 struct pStatisticCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStatisticCount"; };
-struct pStatistics { using api_element = api_elements::VkPipelineExecutableStatisticKHR; using shape = field_shape::Array; using field_count = FieldValue<pStatisticCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStatistics"; };
+struct pStatistics { using api_element = api_elements::VkPipelineExecutableStatisticKHR; using shape = field_shape::Array; using length = FieldValue<pStatisticCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStatistics"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPipelineExecutableStatisticsKHR)
 
@@ -13978,7 +13978,7 @@ GFXRECON_BEGIN_NAMESPACE(GetPipelineExecutableInternalRepresentationsKHR)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct pExecutableInfo { using api_element = api_elements::VkPipelineExecutableInfoKHR; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pExecutableInfo"; };
 struct pInternalRepresentationCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInternalRepresentationCount"; };
-struct pInternalRepresentations { using api_element = api_elements::VkPipelineExecutableInternalRepresentationKHR; using shape = field_shape::Array; using field_count = FieldValue<pInternalRepresentationCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInternalRepresentations"; };
+struct pInternalRepresentations { using api_element = api_elements::VkPipelineExecutableInternalRepresentationKHR; using shape = field_shape::Array; using length = FieldValue<pInternalRepresentationCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInternalRepresentations"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPipelineExecutableInternalRepresentationsKHR)
 
@@ -14007,7 +14007,7 @@ struct device { using api_element = api_elements::VkDevice; using shape = field_
 struct pVideoSessionParametersInfo { using api_element = api_elements::VkVideoEncodeSessionParametersGetInfoKHR; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVideoSessionParametersInfo"; };
 struct pFeedbackInfo { using api_element = api_elements::VkVideoEncodeSessionParametersFeedbackInfoKHR; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pFeedbackInfo"; };
 struct pDataSize { using api_element = api_elements::Size; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDataSize"; };
-struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<pDataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
+struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<pDataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetEncodedVideoSessionParametersKHR)
 
@@ -14034,8 +14034,8 @@ GFXRECON_END_NAMESPACE(CmdResetEvent2KHR)
 GFXRECON_BEGIN_NAMESPACE(CmdWaitEvents2KHR)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct eventCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "eventCount"; };
-struct pEvents { using api_element = api_elements::VkEvent; using shape = field_shape::Array; using field_count = FieldValue<eventCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pEvents"; };
-struct pDependencyInfos { using api_element = api_elements::VkDependencyInfo; using shape = field_shape::Array; using field_count = FieldValue<eventCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDependencyInfos"; };
+struct pEvents { using api_element = api_elements::VkEvent; using shape = field_shape::Array; using length = FieldValue<eventCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pEvents"; };
+struct pDependencyInfos { using api_element = api_elements::VkDependencyInfo; using shape = field_shape::Array; using length = FieldValue<eventCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDependencyInfos"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdWaitEvents2KHR)
 
@@ -14056,7 +14056,7 @@ GFXRECON_END_NAMESPACE(CmdWriteTimestamp2KHR)
 GFXRECON_BEGIN_NAMESPACE(QueueSubmit2KHR)
 struct queue { using api_element = api_elements::VkQueue; using shape = field_shape::Value; static constexpr std::string_view field_name = "queue"; };
 struct submitCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "submitCount"; };
-struct pSubmits { using api_element = api_elements::VkSubmitInfo2; using shape = field_shape::Array; using field_count = FieldValue<submitCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSubmits"; };
+struct pSubmits { using api_element = api_elements::VkSubmitInfo2; using shape = field_shape::Array; using length = FieldValue<submitCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSubmits"; };
 struct fence { using api_element = api_elements::VkFence; using shape = field_shape::Value; static constexpr std::string_view field_name = "fence"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(QueueSubmit2KHR)
@@ -14071,7 +14071,7 @@ GFXRECON_BEGIN_NAMESPACE(CmdBindVertexBuffers3KHR)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct firstBinding { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstBinding"; };
 struct bindingCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "bindingCount"; };
-struct pBindingInfos { using api_element = api_elements::VkBindVertexBuffer3InfoKHR; using shape = field_shape::Array; using field_count = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindingInfos"; };
+struct pBindingInfos { using api_element = api_elements::VkBindVertexBuffer3InfoKHR; using shape = field_shape::Array; using length = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindingInfos"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdBindVertexBuffers3KHR)
 
@@ -14116,7 +14116,7 @@ struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using 
 struct pDstRange { using api_element = api_elements::VkDeviceAddressRangeKHR; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDstRange"; };
 struct dstFlags { using api_element = api_elements::VkAddressCommandFlagsKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstFlags"; };
 struct dataSize { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Value; static constexpr std::string_view field_name = "dataSize"; };
-struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
+struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdUpdateMemoryKHR)
 
@@ -14161,7 +14161,7 @@ GFXRECON_BEGIN_NAMESPACE(CmdBindTransformFeedbackBuffers2EXT)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct firstBinding { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstBinding"; };
 struct bindingCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "bindingCount"; };
-struct pBindingInfos { using api_element = api_elements::VkBindTransformFeedbackBuffer2InfoEXT; using shape = field_shape::Array; using field_count = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindingInfos"; };
+struct pBindingInfos { using api_element = api_elements::VkBindTransformFeedbackBuffer2InfoEXT; using shape = field_shape::Array; using length = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindingInfos"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdBindTransformFeedbackBuffers2EXT)
 
@@ -14169,7 +14169,7 @@ GFXRECON_BEGIN_NAMESPACE(CmdBeginTransformFeedback2EXT)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct firstCounterRange { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstCounterRange"; };
 struct counterRangeCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "counterRangeCount"; };
-struct pCounterInfos { using api_element = api_elements::VkBindTransformFeedbackBuffer2InfoEXT; using shape = field_shape::Array; using field_count = FieldValue<counterRangeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounterInfos"; };
+struct pCounterInfos { using api_element = api_elements::VkBindTransformFeedbackBuffer2InfoEXT; using shape = field_shape::Array; using length = FieldValue<counterRangeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounterInfos"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdBeginTransformFeedback2EXT)
 
@@ -14177,7 +14177,7 @@ GFXRECON_BEGIN_NAMESPACE(CmdEndTransformFeedback2EXT)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct firstCounterRange { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstCounterRange"; };
 struct counterRangeCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "counterRangeCount"; };
-struct pCounterInfos { using api_element = api_elements::VkBindTransformFeedbackBuffer2InfoEXT; using shape = field_shape::Array; using field_count = FieldValue<counterRangeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounterInfos"; };
+struct pCounterInfos { using api_element = api_elements::VkBindTransformFeedbackBuffer2InfoEXT; using shape = field_shape::Array; using length = FieldValue<counterRangeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounterInfos"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdEndTransformFeedback2EXT)
 
@@ -14277,7 +14277,7 @@ GFXRECON_BEGIN_NAMESPACE(GetDeviceImageSparseMemoryRequirementsKHR)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct pInfo { using api_element = api_elements::VkDeviceImageMemoryRequirements; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInfo"; };
 struct pSparseMemoryRequirementCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSparseMemoryRequirementCount"; };
-struct pSparseMemoryRequirements { using api_element = api_elements::VkSparseImageMemoryRequirements2; using shape = field_shape::Array; using field_count = FieldValue<pSparseMemoryRequirementCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSparseMemoryRequirements"; };
+struct pSparseMemoryRequirements { using api_element = api_elements::VkSparseImageMemoryRequirements2; using shape = field_shape::Array; using length = FieldValue<pSparseMemoryRequirementCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSparseMemoryRequirements"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetDeviceImageSparseMemoryRequirementsKHR)
 
@@ -14346,7 +14346,7 @@ struct device { using api_element = api_elements::VkDevice; using shape = field_
 struct pInfo { using api_element = api_elements::VkPipelineBinaryDataInfoKHR; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInfo"; };
 struct pPipelineBinaryKey { using api_element = api_elements::VkPipelineBinaryKeyKHR; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelineBinaryKey"; };
 struct pPipelineBinaryDataSize { using api_element = api_elements::Size; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelineBinaryDataSize"; };
-struct pPipelineBinaryData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<pPipelineBinaryDataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelineBinaryData"; };
+struct pPipelineBinaryData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<pPipelineBinaryDataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelineBinaryData"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPipelineBinaryDataKHR)
 
@@ -14366,7 +14366,7 @@ GFXRECON_END_NAMESPACE(ReleaseSwapchainImagesKHR)
 GFXRECON_BEGIN_NAMESPACE(GetPhysicalDeviceCooperativeMatrixPropertiesKHR)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct pPropertyCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPropertyCount"; };
-struct pProperties { using api_element = api_elements::VkCooperativeMatrixPropertiesKHR; using shape = field_shape::Array; using field_count = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
+struct pProperties { using api_element = api_elements::VkCooperativeMatrixPropertiesKHR; using shape = field_shape::Array; using length = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceCooperativeMatrixPropertiesKHR)
 
@@ -14380,15 +14380,15 @@ GFXRECON_END_NAMESPACE(CmdSetLineStippleKHR)
 GFXRECON_BEGIN_NAMESPACE(GetPhysicalDeviceCalibrateableTimeDomainsKHR)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct pTimeDomainCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTimeDomainCount"; };
-struct pTimeDomains { using api_element = api_elements::VkTimeDomainKHR; using shape = field_shape::Array; using field_count = FieldValue<pTimeDomainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTimeDomains"; };
+struct pTimeDomains { using api_element = api_elements::VkTimeDomainKHR; using shape = field_shape::Array; using length = FieldValue<pTimeDomainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTimeDomains"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceCalibrateableTimeDomainsKHR)
 
 GFXRECON_BEGIN_NAMESPACE(GetCalibratedTimestampsKHR)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct timestampCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "timestampCount"; };
-struct pTimestampInfos { using api_element = api_elements::VkCalibratedTimestampInfoKHR; using shape = field_shape::Array; using field_count = FieldValue<timestampCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTimestampInfos"; };
-struct pTimestamps { using api_element = api_elements::UInt64; using shape = field_shape::Array; using field_count = FieldValue<timestampCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTimestamps"; };
+struct pTimestampInfos { using api_element = api_elements::VkCalibratedTimestampInfoKHR; using shape = field_shape::Array; using length = FieldValue<timestampCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTimestampInfos"; };
+struct pTimestamps { using api_element = api_elements::UInt64; using shape = field_shape::Array; using length = FieldValue<timestampCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTimestamps"; };
 struct pMaxDeviation { using api_element = api_elements::UInt64; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMaxDeviation"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetCalibratedTimestampsKHR)
@@ -14439,7 +14439,7 @@ GFXRECON_BEGIN_NAMESPACE(GetDeviceFaultReportsKHR)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct timeout { using api_element = api_elements::UInt64; using shape = field_shape::Value; static constexpr std::string_view field_name = "timeout"; };
 struct pFaultCounts { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pFaultCounts"; };
-struct pFaultInfo { using api_element = api_elements::VkDeviceFaultInfoKHR; using shape = field_shape::Array; using field_count = FieldValue<pFaultCounts>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pFaultInfo"; };
+struct pFaultInfo { using api_element = api_elements::VkDeviceFaultInfoKHR; using shape = field_shape::Array; using length = FieldValue<pFaultCounts>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pFaultInfo"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetDeviceFaultReportsKHR)
 
@@ -14522,9 +14522,9 @@ GFXRECON_BEGIN_NAMESPACE(CmdBindTransformFeedbackBuffersEXT)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct firstBinding { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstBinding"; };
 struct bindingCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "bindingCount"; };
-struct pBuffers { using api_element = api_elements::VkBuffer; using shape = field_shape::Array; using field_count = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBuffers"; };
-struct pOffsets { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Array; using field_count = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pOffsets"; };
-struct pSizes { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Array; using field_count = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSizes"; };
+struct pBuffers { using api_element = api_elements::VkBuffer; using shape = field_shape::Array; using length = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBuffers"; };
+struct pOffsets { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Array; using length = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pOffsets"; };
+struct pSizes { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Array; using length = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSizes"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdBindTransformFeedbackBuffersEXT)
 
@@ -14532,8 +14532,8 @@ GFXRECON_BEGIN_NAMESPACE(CmdBeginTransformFeedbackEXT)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct firstCounterBuffer { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstCounterBuffer"; };
 struct counterBufferCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "counterBufferCount"; };
-struct pCounterBuffers { using api_element = api_elements::VkBuffer; using shape = field_shape::Array; using field_count = FieldValue<counterBufferCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounterBuffers"; };
-struct pCounterBufferOffsets { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Array; using field_count = FieldValue<counterBufferCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounterBufferOffsets"; };
+struct pCounterBuffers { using api_element = api_elements::VkBuffer; using shape = field_shape::Array; using length = FieldValue<counterBufferCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounterBuffers"; };
+struct pCounterBufferOffsets { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Array; using length = FieldValue<counterBufferCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounterBufferOffsets"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdBeginTransformFeedbackEXT)
 
@@ -14541,8 +14541,8 @@ GFXRECON_BEGIN_NAMESPACE(CmdEndTransformFeedbackEXT)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct firstCounterBuffer { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstCounterBuffer"; };
 struct counterBufferCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "counterBufferCount"; };
-struct pCounterBuffers { using api_element = api_elements::VkBuffer; using shape = field_shape::Array; using field_count = FieldValue<counterBufferCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounterBuffers"; };
-struct pCounterBufferOffsets { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Array; using field_count = FieldValue<counterBufferCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounterBufferOffsets"; };
+struct pCounterBuffers { using api_element = api_elements::VkBuffer; using shape = field_shape::Array; using length = FieldValue<counterBufferCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounterBuffers"; };
+struct pCounterBufferOffsets { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Array; using length = FieldValue<counterBufferCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounterBufferOffsets"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdEndTransformFeedbackEXT)
 
@@ -14628,7 +14628,7 @@ struct pipeline { using api_element = api_elements::VkPipeline; using shape = fi
 struct shaderStage { using api_element = api_elements::VkShaderStageFlagBits; using shape = field_shape::Value; static constexpr std::string_view field_name = "shaderStage"; };
 struct infoType { using api_element = api_elements::VkShaderInfoTypeAMD; using shape = field_shape::Value; static constexpr std::string_view field_name = "infoType"; };
 struct pInfoSize { using api_element = api_elements::Size; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInfoSize"; };
-struct pInfo { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<pInfoSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInfo"; };
+struct pInfo { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<pInfoSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInfo"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetShaderInfoAMD)
 
@@ -14683,7 +14683,7 @@ GFXRECON_BEGIN_NAMESPACE(CmdSetViewportWScalingNV)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct firstViewport { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstViewport"; };
 struct viewportCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "viewportCount"; };
-struct pViewportWScalings { using api_element = api_elements::VkViewportWScalingNV; using shape = field_shape::Array; using field_count = FieldValue<viewportCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pViewportWScalings"; };
+struct pViewportWScalings { using api_element = api_elements::VkViewportWScalingNV; using shape = field_shape::Array; using length = FieldValue<viewportCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pViewportWScalings"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdSetViewportWScalingNV)
 
@@ -14758,7 +14758,7 @@ GFXRECON_BEGIN_NAMESPACE(GetPastPresentationTimingGOOGLE)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct swapchain { using api_element = api_elements::VkSwapchainKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "swapchain"; };
 struct pPresentationTimingCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPresentationTimingCount"; };
-struct pPresentationTimings { using api_element = api_elements::VkPastPresentationTimingGOOGLE; using shape = field_shape::Array; using field_count = FieldValue<pPresentationTimingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPresentationTimings"; };
+struct pPresentationTimings { using api_element = api_elements::VkPastPresentationTimingGOOGLE; using shape = field_shape::Array; using length = FieldValue<pPresentationTimingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPresentationTimings"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPastPresentationTimingGOOGLE)
 
@@ -14766,7 +14766,7 @@ GFXRECON_BEGIN_NAMESPACE(CmdSetDiscardRectangleEXT)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct firstDiscardRectangle { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstDiscardRectangle"; };
 struct discardRectangleCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "discardRectangleCount"; };
-struct pDiscardRectangles { using api_element = api_elements::VkRect2D; using shape = field_shape::Array; using field_count = FieldValue<discardRectangleCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDiscardRectangles"; };
+struct pDiscardRectangles { using api_element = api_elements::VkRect2D; using shape = field_shape::Array; using length = FieldValue<discardRectangleCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDiscardRectangles"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdSetDiscardRectangleEXT)
 
@@ -14785,8 +14785,8 @@ GFXRECON_END_NAMESPACE(CmdSetDiscardRectangleModeEXT)
 GFXRECON_BEGIN_NAMESPACE(SetHdrMetadataEXT)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct swapchainCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "swapchainCount"; };
-struct pSwapchains { using api_element = api_elements::VkSwapchainKHR; using shape = field_shape::Array; using field_count = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSwapchains"; };
-struct pMetadata { using api_element = api_elements::VkHdrMetadataEXT; using shape = field_shape::Array; using field_count = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMetadata"; };
+struct pSwapchains { using api_element = api_elements::VkSwapchainKHR; using shape = field_shape::Array; using length = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSwapchains"; };
+struct pMetadata { using api_element = api_elements::VkHdrMetadataEXT; using shape = field_shape::Array; using length = FieldValue<swapchainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMetadata"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(SetHdrMetadataEXT)
 
@@ -14954,7 +14954,7 @@ struct device { using api_element = api_elements::VkDevice; using shape = field_
 struct gpaSession { using api_element = api_elements::VkGpaSessionAMD; using shape = field_shape::Value; static constexpr std::string_view field_name = "gpaSession"; };
 struct sampleID { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "sampleID"; };
 struct pSizeInBytes { using api_element = api_elements::Size; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSizeInBytes"; };
-struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<pSizeInBytes>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
+struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<pSizeInBytes>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetGpaSessionResultsAMD)
 
@@ -15009,7 +15009,7 @@ GFXRECON_BEGIN_NAMESPACE(MergeValidationCachesEXT)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct dstCache { using api_element = api_elements::VkValidationCacheEXT; using shape = field_shape::Value; static constexpr std::string_view field_name = "dstCache"; };
 struct srcCacheCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "srcCacheCount"; };
-struct pSrcCaches { using api_element = api_elements::VkValidationCacheEXT; using shape = field_shape::Array; using field_count = FieldValue<srcCacheCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSrcCaches"; };
+struct pSrcCaches { using api_element = api_elements::VkValidationCacheEXT; using shape = field_shape::Array; using length = FieldValue<srcCacheCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSrcCaches"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(MergeValidationCachesEXT)
 
@@ -15017,7 +15017,7 @@ GFXRECON_BEGIN_NAMESPACE(GetValidationCacheDataEXT)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct validationCache { using api_element = api_elements::VkValidationCacheEXT; using shape = field_shape::Value; static constexpr std::string_view field_name = "validationCache"; };
 struct pDataSize { using api_element = api_elements::Size; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDataSize"; };
-struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<pDataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
+struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<pDataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetValidationCacheDataEXT)
 
@@ -15032,7 +15032,7 @@ GFXRECON_BEGIN_NAMESPACE(CmdSetViewportShadingRatePaletteNV)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct firstViewport { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstViewport"; };
 struct viewportCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "viewportCount"; };
-struct pShadingRatePalettes { using api_element = api_elements::VkShadingRatePaletteNV; using shape = field_shape::Array; using field_count = FieldValue<viewportCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pShadingRatePalettes"; };
+struct pShadingRatePalettes { using api_element = api_elements::VkShadingRatePaletteNV; using shape = field_shape::Array; using length = FieldValue<viewportCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pShadingRatePalettes"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdSetViewportShadingRatePaletteNV)
 
@@ -15040,7 +15040,7 @@ GFXRECON_BEGIN_NAMESPACE(CmdSetCoarseSampleOrderNV)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct sampleOrderType { using api_element = api_elements::VkCoarseSampleOrderTypeNV; using shape = field_shape::Value; static constexpr std::string_view field_name = "sampleOrderType"; };
 struct customSampleOrderCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "customSampleOrderCount"; };
-struct pCustomSampleOrders { using api_element = api_elements::VkCoarseSampleOrderCustomNV; using shape = field_shape::Array; using field_count = FieldValue<customSampleOrderCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCustomSampleOrders"; };
+struct pCustomSampleOrders { using api_element = api_elements::VkCoarseSampleOrderCustomNV; using shape = field_shape::Array; using length = FieldValue<customSampleOrderCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCustomSampleOrders"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdSetCoarseSampleOrderNV)
 
@@ -15069,7 +15069,7 @@ GFXRECON_END_NAMESPACE(GetAccelerationStructureMemoryRequirementsNV)
 GFXRECON_BEGIN_NAMESPACE(BindAccelerationStructureMemoryNV)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct bindInfoCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "bindInfoCount"; };
-struct pBindInfos { using api_element = api_elements::VkBindAccelerationStructureMemoryInfoNV; using shape = field_shape::Array; using field_count = FieldValue<bindInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindInfos"; };
+struct pBindInfos { using api_element = api_elements::VkBindAccelerationStructureMemoryInfoNV; using shape = field_shape::Array; using length = FieldValue<bindInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindInfos"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(BindAccelerationStructureMemoryNV)
 
@@ -15117,9 +15117,9 @@ GFXRECON_BEGIN_NAMESPACE(CreateRayTracingPipelinesNV)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct pipelineCache { using api_element = api_elements::VkPipelineCache; using shape = field_shape::Value; static constexpr std::string_view field_name = "pipelineCache"; };
 struct createInfoCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "createInfoCount"; };
-struct pCreateInfos { using api_element = api_elements::VkRayTracingPipelineCreateInfoNV; using shape = field_shape::Array; using field_count = FieldValue<createInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCreateInfos"; };
+struct pCreateInfos { using api_element = api_elements::VkRayTracingPipelineCreateInfoNV; using shape = field_shape::Array; using length = FieldValue<createInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCreateInfos"; };
 struct pAllocator { using api_element = api_elements::VkAllocationCallbacks; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAllocator"; };
-struct pPipelines { using api_element = api_elements::VkPipeline; using shape = field_shape::Array; using field_count = FieldValue<createInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelines"; };
+struct pPipelines { using api_element = api_elements::VkPipeline; using shape = field_shape::Array; using length = FieldValue<createInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelines"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CreateRayTracingPipelinesNV)
 
@@ -15129,7 +15129,7 @@ struct pipeline { using api_element = api_elements::VkPipeline; using shape = fi
 struct firstGroup { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstGroup"; };
 struct groupCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "groupCount"; };
 struct dataSize { using api_element = api_elements::Size; using shape = field_shape::Value; static constexpr std::string_view field_name = "dataSize"; };
-struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
+struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetRayTracingShaderGroupHandlesKHR)
 
@@ -15139,7 +15139,7 @@ struct pipeline { using api_element = api_elements::VkPipeline; using shape = fi
 struct firstGroup { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstGroup"; };
 struct groupCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "groupCount"; };
 struct dataSize { using api_element = api_elements::Size; using shape = field_shape::Value; static constexpr std::string_view field_name = "dataSize"; };
-struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
+struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetRayTracingShaderGroupHandlesNV)
 
@@ -15147,14 +15147,14 @@ GFXRECON_BEGIN_NAMESPACE(GetAccelerationStructureHandleNV)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct accelerationStructure { using api_element = api_elements::VkAccelerationStructureNV; using shape = field_shape::Value; static constexpr std::string_view field_name = "accelerationStructure"; };
 struct dataSize { using api_element = api_elements::Size; using shape = field_shape::Value; static constexpr std::string_view field_name = "dataSize"; };
-struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
+struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetAccelerationStructureHandleNV)
 
 GFXRECON_BEGIN_NAMESPACE(CmdWriteAccelerationStructuresPropertiesNV)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct accelerationStructureCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "accelerationStructureCount"; };
-struct pAccelerationStructures { using api_element = api_elements::VkAccelerationStructureNV; using shape = field_shape::Array; using field_count = FieldValue<accelerationStructureCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAccelerationStructures"; };
+struct pAccelerationStructures { using api_element = api_elements::VkAccelerationStructureNV; using shape = field_shape::Array; using length = FieldValue<accelerationStructureCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAccelerationStructures"; };
 struct queryType { using api_element = api_elements::VkQueryType; using shape = field_shape::Value; static constexpr std::string_view field_name = "queryType"; };
 struct queryPool { using api_element = api_elements::VkQueryPool; using shape = field_shape::Value; static constexpr std::string_view field_name = "queryPool"; };
 struct firstQuery { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstQuery"; };
@@ -15197,15 +15197,15 @@ GFXRECON_END_NAMESPACE(CmdWriteBufferMarker2AMD)
 GFXRECON_BEGIN_NAMESPACE(GetPhysicalDeviceCalibrateableTimeDomainsEXT)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct pTimeDomainCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTimeDomainCount"; };
-struct pTimeDomains { using api_element = api_elements::VkTimeDomainKHR; using shape = field_shape::Array; using field_count = FieldValue<pTimeDomainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTimeDomains"; };
+struct pTimeDomains { using api_element = api_elements::VkTimeDomainKHR; using shape = field_shape::Array; using length = FieldValue<pTimeDomainCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTimeDomains"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceCalibrateableTimeDomainsEXT)
 
 GFXRECON_BEGIN_NAMESPACE(GetCalibratedTimestampsEXT)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct timestampCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "timestampCount"; };
-struct pTimestampInfos { using api_element = api_elements::VkCalibratedTimestampInfoKHR; using shape = field_shape::Array; using field_count = FieldValue<timestampCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTimestampInfos"; };
-struct pTimestamps { using api_element = api_elements::UInt64; using shape = field_shape::Array; using field_count = FieldValue<timestampCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTimestamps"; };
+struct pTimestampInfos { using api_element = api_elements::VkCalibratedTimestampInfoKHR; using shape = field_shape::Array; using length = FieldValue<timestampCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTimestampInfos"; };
+struct pTimestamps { using api_element = api_elements::UInt64; using shape = field_shape::Array; using length = FieldValue<timestampCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTimestamps"; };
 struct pMaxDeviation { using api_element = api_elements::UInt64; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMaxDeviation"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetCalibratedTimestampsEXT)
@@ -15241,7 +15241,7 @@ GFXRECON_BEGIN_NAMESPACE(CmdSetExclusiveScissorEnableNV)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct firstExclusiveScissor { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstExclusiveScissor"; };
 struct exclusiveScissorCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "exclusiveScissorCount"; };
-struct pExclusiveScissorEnables { using api_element = api_elements::VkBool32; using shape = field_shape::Array; using field_count = FieldValue<exclusiveScissorCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pExclusiveScissorEnables"; };
+struct pExclusiveScissorEnables { using api_element = api_elements::VkBool32; using shape = field_shape::Array; using length = FieldValue<exclusiveScissorCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pExclusiveScissorEnables"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdSetExclusiveScissorEnableNV)
 
@@ -15249,7 +15249,7 @@ GFXRECON_BEGIN_NAMESPACE(CmdSetExclusiveScissorNV)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct firstExclusiveScissor { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstExclusiveScissor"; };
 struct exclusiveScissorCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "exclusiveScissorCount"; };
-struct pExclusiveScissors { using api_element = api_elements::VkRect2D; using shape = field_shape::Array; using field_count = FieldValue<exclusiveScissorCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pExclusiveScissors"; };
+struct pExclusiveScissors { using api_element = api_elements::VkRect2D; using shape = field_shape::Array; using length = FieldValue<exclusiveScissorCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pExclusiveScissors"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdSetExclusiveScissorNV)
 
@@ -15262,14 +15262,14 @@ GFXRECON_END_NAMESPACE(CmdSetCheckpointNV)
 GFXRECON_BEGIN_NAMESPACE(GetQueueCheckpointDataNV)
 struct queue { using api_element = api_elements::VkQueue; using shape = field_shape::Value; static constexpr std::string_view field_name = "queue"; };
 struct pCheckpointDataCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCheckpointDataCount"; };
-struct pCheckpointData { using api_element = api_elements::VkCheckpointDataNV; using shape = field_shape::Array; using field_count = FieldValue<pCheckpointDataCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCheckpointData"; };
+struct pCheckpointData { using api_element = api_elements::VkCheckpointDataNV; using shape = field_shape::Array; using length = FieldValue<pCheckpointDataCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCheckpointData"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetQueueCheckpointDataNV)
 
 GFXRECON_BEGIN_NAMESPACE(GetQueueCheckpointData2NV)
 struct queue { using api_element = api_elements::VkQueue; using shape = field_shape::Value; static constexpr std::string_view field_name = "queue"; };
 struct pCheckpointDataCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCheckpointDataCount"; };
-struct pCheckpointData { using api_element = api_elements::VkCheckpointData2NV; using shape = field_shape::Array; using field_count = FieldValue<pCheckpointDataCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCheckpointData"; };
+struct pCheckpointData { using api_element = api_elements::VkCheckpointData2NV; using shape = field_shape::Array; using length = FieldValue<pCheckpointDataCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCheckpointData"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetQueueCheckpointData2NV)
 
@@ -15390,21 +15390,21 @@ GFXRECON_END_NAMESPACE(GetBufferDeviceAddressEXT)
 GFXRECON_BEGIN_NAMESPACE(GetPhysicalDeviceToolPropertiesEXT)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct pToolCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pToolCount"; };
-struct pToolProperties { using api_element = api_elements::VkPhysicalDeviceToolProperties; using shape = field_shape::Array; using field_count = FieldValue<pToolCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pToolProperties"; };
+struct pToolProperties { using api_element = api_elements::VkPhysicalDeviceToolProperties; using shape = field_shape::Array; using length = FieldValue<pToolCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pToolProperties"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceToolPropertiesEXT)
 
 GFXRECON_BEGIN_NAMESPACE(GetPhysicalDeviceCooperativeMatrixPropertiesNV)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct pPropertyCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPropertyCount"; };
-struct pProperties { using api_element = api_elements::VkCooperativeMatrixPropertiesNV; using shape = field_shape::Array; using field_count = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
+struct pProperties { using api_element = api_elements::VkCooperativeMatrixPropertiesNV; using shape = field_shape::Array; using length = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceCooperativeMatrixPropertiesNV)
 
 GFXRECON_BEGIN_NAMESPACE(GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct pCombinationCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCombinationCount"; };
-struct pCombinations { using api_element = api_elements::VkFramebufferMixedSamplesCombinationNV; using shape = field_shape::Array; using field_count = FieldValue<pCombinationCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCombinations"; };
+struct pCombinations { using api_element = api_elements::VkFramebufferMixedSamplesCombinationNV; using shape = field_shape::Array; using length = FieldValue<pCombinationCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCombinations"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV)
 
@@ -15412,7 +15412,7 @@ GFXRECON_BEGIN_NAMESPACE(GetPhysicalDeviceSurfacePresentModes2EXT)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct pSurfaceInfo { using api_element = api_elements::VkPhysicalDeviceSurfaceInfo2KHR; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSurfaceInfo"; };
 struct pPresentModeCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPresentModeCount"; };
-struct pPresentModes { using api_element = api_elements::VkPresentModeKHR; using shape = field_shape::Array; using field_count = FieldValue<pPresentModeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPresentModes"; };
+struct pPresentModes { using api_element = api_elements::VkPresentModeKHR; using shape = field_shape::Array; using length = FieldValue<pPresentModeCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPresentModes"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceSurfacePresentModes2EXT)
 
@@ -15479,14 +15479,14 @@ GFXRECON_END_NAMESPACE(CmdSetPrimitiveTopologyEXT)
 GFXRECON_BEGIN_NAMESPACE(CmdSetViewportWithCountEXT)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct viewportCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "viewportCount"; };
-struct pViewports { using api_element = api_elements::VkViewport; using shape = field_shape::Array; using field_count = FieldValue<viewportCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pViewports"; };
+struct pViewports { using api_element = api_elements::VkViewport; using shape = field_shape::Array; using length = FieldValue<viewportCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pViewports"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdSetViewportWithCountEXT)
 
 GFXRECON_BEGIN_NAMESPACE(CmdSetScissorWithCountEXT)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct scissorCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "scissorCount"; };
-struct pScissors { using api_element = api_elements::VkRect2D; using shape = field_shape::Array; using field_count = FieldValue<scissorCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pScissors"; };
+struct pScissors { using api_element = api_elements::VkRect2D; using shape = field_shape::Array; using length = FieldValue<scissorCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pScissors"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdSetScissorWithCountEXT)
 
@@ -15494,10 +15494,10 @@ GFXRECON_BEGIN_NAMESPACE(CmdBindVertexBuffers2EXT)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct firstBinding { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstBinding"; };
 struct bindingCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "bindingCount"; };
-struct pBuffers { using api_element = api_elements::VkBuffer; using shape = field_shape::Array; using field_count = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBuffers"; };
-struct pOffsets { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Array; using field_count = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pOffsets"; };
-struct pSizes { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Array; using field_count = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSizes"; };
-struct pStrides { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Array; using field_count = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStrides"; };
+struct pBuffers { using api_element = api_elements::VkBuffer; using shape = field_shape::Array; using length = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBuffers"; };
+struct pOffsets { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Array; using length = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pOffsets"; };
+struct pSizes { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Array; using length = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSizes"; };
+struct pStrides { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Array; using length = FieldValue<bindingCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStrides"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdBindVertexBuffers2EXT)
 
@@ -15562,7 +15562,7 @@ GFXRECON_END_NAMESPACE(CopyImageToImageEXT)
 GFXRECON_BEGIN_NAMESPACE(TransitionImageLayoutEXT)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct transitionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "transitionCount"; };
-struct pTransitions { using api_element = api_elements::VkHostImageLayoutTransitionInfo; using shape = field_shape::Array; using field_count = FieldValue<transitionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTransitions"; };
+struct pTransitions { using api_element = api_elements::VkHostImageLayoutTransitionInfo; using shape = field_shape::Array; using length = FieldValue<transitionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pTransitions"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(TransitionImageLayoutEXT)
 
@@ -15720,14 +15720,14 @@ GFXRECON_BEGIN_NAMESPACE(GetDescriptorEXT)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct pDescriptorInfo { using api_element = api_elements::VkDescriptorGetInfoEXT; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescriptorInfo"; };
 struct dataSize { using api_element = api_elements::Size; using shape = field_shape::Value; static constexpr std::string_view field_name = "dataSize"; };
-struct pDescriptor { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescriptor"; };
+struct pDescriptor { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDescriptor"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetDescriptorEXT)
 
 GFXRECON_BEGIN_NAMESPACE(CmdBindDescriptorBuffersEXT)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct bufferCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "bufferCount"; };
-struct pBindingInfos { using api_element = api_elements::VkDescriptorBufferBindingInfoEXT; using shape = field_shape::Array; using field_count = FieldValue<bufferCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindingInfos"; };
+struct pBindingInfos { using api_element = api_elements::VkDescriptorBufferBindingInfoEXT; using shape = field_shape::Array; using length = FieldValue<bufferCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindingInfos"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdBindDescriptorBuffersEXT)
 
@@ -15737,8 +15737,8 @@ struct pipelineBindPoint { using api_element = api_elements::VkPipelineBindPoint
 struct layout { using api_element = api_elements::VkPipelineLayout; using shape = field_shape::Value; static constexpr std::string_view field_name = "layout"; };
 struct firstSet { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstSet"; };
 struct setCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "setCount"; };
-struct pBufferIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<setCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBufferIndices"; };
-struct pOffsets { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Array; using field_count = FieldValue<setCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pOffsets"; };
+struct pBufferIndices { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<setCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBufferIndices"; };
+struct pOffsets { using api_element = api_elements::VkDeviceSize; using shape = field_shape::Array; using length = FieldValue<setCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pOffsets"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdSetDescriptorBufferOffsetsEXT)
 
@@ -15795,9 +15795,9 @@ GFXRECON_END_NAMESPACE(GetPhysicalDeviceDirectFBPresentationSupportEXT)
 GFXRECON_BEGIN_NAMESPACE(CmdSetVertexInputEXT)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct vertexBindingDescriptionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "vertexBindingDescriptionCount"; };
-struct pVertexBindingDescriptions { using api_element = api_elements::VkVertexInputBindingDescription2EXT; using shape = field_shape::Array; using field_count = FieldValue<vertexBindingDescriptionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVertexBindingDescriptions"; };
+struct pVertexBindingDescriptions { using api_element = api_elements::VkVertexInputBindingDescription2EXT; using shape = field_shape::Array; using length = FieldValue<vertexBindingDescriptionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVertexBindingDescriptions"; };
 struct vertexAttributeDescriptionCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "vertexAttributeDescriptionCount"; };
-struct pVertexAttributeDescriptions { using api_element = api_elements::VkVertexInputAttributeDescription2EXT; using shape = field_shape::Array; using field_count = FieldValue<vertexAttributeDescriptionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVertexAttributeDescriptions"; };
+struct pVertexAttributeDescriptions { using api_element = api_elements::VkVertexInputAttributeDescription2EXT; using shape = field_shape::Array; using length = FieldValue<vertexAttributeDescriptionCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVertexAttributeDescriptions"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdSetVertexInputEXT)
 
@@ -15891,14 +15891,14 @@ GFXRECON_END_NAMESPACE(GetPhysicalDeviceScreenPresentationSupportQNX)
 GFXRECON_BEGIN_NAMESPACE(CmdSetColorWriteEnableEXT)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct attachmentCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "attachmentCount"; };
-struct pColorWriteEnables { using api_element = api_elements::VkBool32; using shape = field_shape::Array; using field_count = FieldValue<attachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorWriteEnables"; };
+struct pColorWriteEnables { using api_element = api_elements::VkBool32; using shape = field_shape::Array; using length = FieldValue<attachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorWriteEnables"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdSetColorWriteEnableEXT)
 
 GFXRECON_BEGIN_NAMESPACE(CmdDrawMultiEXT)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct drawCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "drawCount"; };
-struct pVertexInfo { using api_element = api_elements::VkMultiDrawInfoEXT; using shape = field_shape::Array; using field_count = FieldValue<drawCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVertexInfo"; };
+struct pVertexInfo { using api_element = api_elements::VkMultiDrawInfoEXT; using shape = field_shape::Array; using length = FieldValue<drawCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVertexInfo"; };
 struct instanceCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "instanceCount"; };
 struct firstInstance { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstInstance"; };
 struct stride { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "stride"; };
@@ -15908,7 +15908,7 @@ GFXRECON_END_NAMESPACE(CmdDrawMultiEXT)
 GFXRECON_BEGIN_NAMESPACE(CmdDrawMultiIndexedEXT)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct drawCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "drawCount"; };
-struct pIndexInfo { using api_element = api_elements::VkMultiDrawIndexedInfoEXT; using shape = field_shape::Array; using field_count = FieldValue<drawCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pIndexInfo"; };
+struct pIndexInfo { using api_element = api_elements::VkMultiDrawIndexedInfoEXT; using shape = field_shape::Array; using length = FieldValue<drawCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pIndexInfo"; };
 struct instanceCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "instanceCount"; };
 struct firstInstance { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstInstance"; };
 struct stride { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "stride"; };
@@ -15934,7 +15934,7 @@ GFXRECON_END_NAMESPACE(DestroyMicromapEXT)
 GFXRECON_BEGIN_NAMESPACE(CmdBuildMicromapsEXT)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct infoCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "infoCount"; };
-struct pInfos { using api_element = api_elements::VkMicromapBuildInfoEXT; using shape = field_shape::Array; using field_count = FieldValue<infoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInfos"; };
+struct pInfos { using api_element = api_elements::VkMicromapBuildInfoEXT; using shape = field_shape::Array; using length = FieldValue<infoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInfos"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdBuildMicromapsEXT)
 
@@ -15942,7 +15942,7 @@ GFXRECON_BEGIN_NAMESPACE(BuildMicromapsEXT)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct deferredOperation { using api_element = api_elements::VkDeferredOperationKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "deferredOperation"; };
 struct infoCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "infoCount"; };
-struct pInfos { using api_element = api_elements::VkMicromapBuildInfoEXT; using shape = field_shape::Array; using field_count = FieldValue<infoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInfos"; };
+struct pInfos { using api_element = api_elements::VkMicromapBuildInfoEXT; using shape = field_shape::Array; using length = FieldValue<infoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInfos"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(BuildMicromapsEXT)
 
@@ -15970,10 +15970,10 @@ GFXRECON_END_NAMESPACE(CopyMemoryToMicromapEXT)
 GFXRECON_BEGIN_NAMESPACE(WriteMicromapsPropertiesEXT)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct micromapCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "micromapCount"; };
-struct pMicromaps { using api_element = api_elements::VkMicromapEXT; using shape = field_shape::Array; using field_count = FieldValue<micromapCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMicromaps"; };
+struct pMicromaps { using api_element = api_elements::VkMicromapEXT; using shape = field_shape::Array; using length = FieldValue<micromapCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMicromaps"; };
 struct queryType { using api_element = api_elements::VkQueryType; using shape = field_shape::Value; static constexpr std::string_view field_name = "queryType"; };
 struct dataSize { using api_element = api_elements::Size; using shape = field_shape::Value; static constexpr std::string_view field_name = "dataSize"; };
-struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
+struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
 struct stride { using api_element = api_elements::Size; using shape = field_shape::Value; static constexpr std::string_view field_name = "stride"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(WriteMicromapsPropertiesEXT)
@@ -15999,7 +15999,7 @@ GFXRECON_END_NAMESPACE(CmdCopyMemoryToMicromapEXT)
 GFXRECON_BEGIN_NAMESPACE(CmdWriteMicromapsPropertiesEXT)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct micromapCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "micromapCount"; };
-struct pMicromaps { using api_element = api_elements::VkMicromapEXT; using shape = field_shape::Array; using field_count = FieldValue<micromapCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMicromaps"; };
+struct pMicromaps { using api_element = api_elements::VkMicromapEXT; using shape = field_shape::Array; using length = FieldValue<micromapCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMicromaps"; };
 struct queryType { using api_element = api_elements::VkQueryType; using shape = field_shape::Value; static constexpr std::string_view field_name = "queryType"; };
 struct queryPool { using api_element = api_elements::VkQueryPool; using shape = field_shape::Value; static constexpr std::string_view field_name = "queryPool"; };
 struct firstQuery { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstQuery"; };
@@ -16104,8 +16104,8 @@ GFXRECON_END_NAMESPACE(CmdSetRasterizationSamplesEXT)
 GFXRECON_BEGIN_NAMESPACE(CmdSetSampleMaskEXT)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct samples { using api_element = api_elements::VkSampleCountFlagBits; using shape = field_shape::Value; static constexpr std::string_view field_name = "samples"; };
-// NOTE: field_count evaluates (samples + 31) / 32
-struct pSampleMask { using api_element = api_elements::VkSampleMask; using shape = field_shape::Array; using field_count = Quotient<Sum<FieldValue<samples>, Literal<31>>, Literal<32>>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSampleMask"; };
+// NOTE: length evaluates (samples + 31) / 32
+struct pSampleMask { using api_element = api_elements::VkSampleMask; using shape = field_shape::Array; using length = Quotient<Sum<FieldValue<samples>, Literal<31>>, Literal<32>>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSampleMask"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdSetSampleMaskEXT)
 
@@ -16131,7 +16131,7 @@ GFXRECON_BEGIN_NAMESPACE(CmdSetColorBlendEnableEXT)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct firstAttachment { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstAttachment"; };
 struct attachmentCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "attachmentCount"; };
-struct pColorBlendEnables { using api_element = api_elements::VkBool32; using shape = field_shape::Array; using field_count = FieldValue<attachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorBlendEnables"; };
+struct pColorBlendEnables { using api_element = api_elements::VkBool32; using shape = field_shape::Array; using length = FieldValue<attachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorBlendEnables"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdSetColorBlendEnableEXT)
 
@@ -16139,7 +16139,7 @@ GFXRECON_BEGIN_NAMESPACE(CmdSetColorBlendEquationEXT)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct firstAttachment { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstAttachment"; };
 struct attachmentCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "attachmentCount"; };
-struct pColorBlendEquations { using api_element = api_elements::VkColorBlendEquationEXT; using shape = field_shape::Array; using field_count = FieldValue<attachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorBlendEquations"; };
+struct pColorBlendEquations { using api_element = api_elements::VkColorBlendEquationEXT; using shape = field_shape::Array; using length = FieldValue<attachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorBlendEquations"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdSetColorBlendEquationEXT)
 
@@ -16147,7 +16147,7 @@ GFXRECON_BEGIN_NAMESPACE(CmdSetColorWriteMaskEXT)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct firstAttachment { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstAttachment"; };
 struct attachmentCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "attachmentCount"; };
-struct pColorWriteMasks { using api_element = api_elements::VkColorComponentFlags; using shape = field_shape::Array; using field_count = FieldValue<attachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorWriteMasks"; };
+struct pColorWriteMasks { using api_element = api_elements::VkColorComponentFlags; using shape = field_shape::Array; using length = FieldValue<attachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorWriteMasks"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdSetColorWriteMaskEXT)
 
@@ -16191,7 +16191,7 @@ GFXRECON_BEGIN_NAMESPACE(CmdSetColorBlendAdvancedEXT)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct firstAttachment { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstAttachment"; };
 struct attachmentCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "attachmentCount"; };
-struct pColorBlendAdvanced { using api_element = api_elements::VkColorBlendAdvancedEXT; using shape = field_shape::Array; using field_count = FieldValue<attachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorBlendAdvanced"; };
+struct pColorBlendAdvanced { using api_element = api_elements::VkColorBlendAdvancedEXT; using shape = field_shape::Array; using length = FieldValue<attachmentCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pColorBlendAdvanced"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdSetColorBlendAdvancedEXT)
 
@@ -16229,7 +16229,7 @@ GFXRECON_BEGIN_NAMESPACE(CmdSetViewportSwizzleNV)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct firstViewport { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstViewport"; };
 struct viewportCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "viewportCount"; };
-struct pViewportSwizzles { using api_element = api_elements::VkViewportSwizzleNV; using shape = field_shape::Array; using field_count = FieldValue<viewportCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pViewportSwizzles"; };
+struct pViewportSwizzles { using api_element = api_elements::VkViewportSwizzleNV; using shape = field_shape::Array; using length = FieldValue<viewportCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pViewportSwizzles"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdSetViewportSwizzleNV)
 
@@ -16260,7 +16260,7 @@ GFXRECON_END_NAMESPACE(CmdSetCoverageModulationTableEnableNV)
 GFXRECON_BEGIN_NAMESPACE(CmdSetCoverageModulationTableNV)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct coverageModulationTableCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "coverageModulationTableCount"; };
-struct pCoverageModulationTable { using api_element = api_elements::Float; using shape = field_shape::Array; using field_count = FieldValue<coverageModulationTableCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCoverageModulationTable"; };
+struct pCoverageModulationTable { using api_element = api_elements::Float; using shape = field_shape::Array; using length = FieldValue<coverageModulationTableCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCoverageModulationTable"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdSetCoverageModulationTableNV)
 
@@ -16322,7 +16322,7 @@ GFXRECON_END_NAMESPACE(GetTensorMemoryRequirementsARM)
 GFXRECON_BEGIN_NAMESPACE(BindTensorMemoryARM)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct bindInfoCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "bindInfoCount"; };
-struct pBindInfos { using api_element = api_elements::VkBindTensorMemoryInfoARM; using shape = field_shape::Array; using field_count = FieldValue<bindInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindInfos"; };
+struct pBindInfos { using api_element = api_elements::VkBindTensorMemoryInfoARM; using shape = field_shape::Array; using length = FieldValue<bindInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindInfos"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(BindTensorMemoryARM)
 
@@ -16364,7 +16364,7 @@ GFXRECON_BEGIN_NAMESPACE(GetPhysicalDeviceOpticalFlowImageFormatsNV)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct pOpticalFlowImageFormatInfo { using api_element = api_elements::VkOpticalFlowImageFormatInfoNV; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pOpticalFlowImageFormatInfo"; };
 struct pFormatCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pFormatCount"; };
-struct pImageFormatProperties { using api_element = api_elements::VkOpticalFlowImageFormatPropertiesNV; using shape = field_shape::Array; using field_count = FieldValue<pFormatCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pImageFormatProperties"; };
+struct pImageFormatProperties { using api_element = api_elements::VkOpticalFlowImageFormatPropertiesNV; using shape = field_shape::Array; using length = FieldValue<pFormatCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pImageFormatProperties"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceOpticalFlowImageFormatsNV)
 
@@ -16408,9 +16408,9 @@ GFXRECON_END_NAMESPACE(AntiLagUpdateAMD)
 GFXRECON_BEGIN_NAMESPACE(CreateShadersEXT)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct createInfoCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "createInfoCount"; };
-struct pCreateInfos { using api_element = api_elements::VkShaderCreateInfoEXT; using shape = field_shape::Array; using field_count = FieldValue<createInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCreateInfos"; };
+struct pCreateInfos { using api_element = api_elements::VkShaderCreateInfoEXT; using shape = field_shape::Array; using length = FieldValue<createInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCreateInfos"; };
 struct pAllocator { using api_element = api_elements::VkAllocationCallbacks; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAllocator"; };
-struct pShaders { using api_element = api_elements::VkShaderEXT; using shape = field_shape::Array; using field_count = FieldValue<createInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pShaders"; };
+struct pShaders { using api_element = api_elements::VkShaderEXT; using shape = field_shape::Array; using length = FieldValue<createInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pShaders"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CreateShadersEXT)
 
@@ -16425,15 +16425,15 @@ GFXRECON_BEGIN_NAMESPACE(GetShaderBinaryDataEXT)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct shader { using api_element = api_elements::VkShaderEXT; using shape = field_shape::Value; static constexpr std::string_view field_name = "shader"; };
 struct pDataSize { using api_element = api_elements::Size; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pDataSize"; };
-struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<pDataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
+struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<pDataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetShaderBinaryDataEXT)
 
 GFXRECON_BEGIN_NAMESPACE(CmdBindShadersEXT)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct stageCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "stageCount"; };
-struct pStages { using api_element = api_elements::VkShaderStageFlagBits; using shape = field_shape::Array; using field_count = FieldValue<stageCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStages"; };
-struct pShaders { using api_element = api_elements::VkShaderEXT; using shape = field_shape::Array; using field_count = FieldValue<stageCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pShaders"; };
+struct pStages { using api_element = api_elements::VkShaderStageFlagBits; using shape = field_shape::Array; using length = FieldValue<stageCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pStages"; };
+struct pShaders { using api_element = api_elements::VkShaderEXT; using shape = field_shape::Array; using length = FieldValue<stageCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pShaders"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdBindShadersEXT)
 
@@ -16448,7 +16448,7 @@ GFXRECON_BEGIN_NAMESPACE(GetFramebufferTilePropertiesQCOM)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct framebuffer { using api_element = api_elements::VkFramebuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "framebuffer"; };
 struct pPropertiesCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPropertiesCount"; };
-struct pProperties { using api_element = api_elements::VkTilePropertiesQCOM; using shape = field_shape::Array; using field_count = FieldValue<pPropertiesCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
+struct pProperties { using api_element = api_elements::VkTilePropertiesQCOM; using shape = field_shape::Array; using length = FieldValue<pPropertiesCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetFramebufferTilePropertiesQCOM)
 
@@ -16462,7 +16462,7 @@ GFXRECON_END_NAMESPACE(GetDynamicRenderingTilePropertiesQCOM)
 GFXRECON_BEGIN_NAMESPACE(GetPhysicalDeviceCooperativeVectorPropertiesNV)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct pPropertyCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPropertyCount"; };
-struct pProperties { using api_element = api_elements::VkCooperativeVectorPropertiesNV; using shape = field_shape::Array; using field_count = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
+struct pProperties { using api_element = api_elements::VkCooperativeVectorPropertiesNV; using shape = field_shape::Array; using length = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceCooperativeVectorPropertiesNV)
 
@@ -16475,7 +16475,7 @@ GFXRECON_END_NAMESPACE(ConvertCooperativeVectorMatrixNV)
 GFXRECON_BEGIN_NAMESPACE(CmdConvertCooperativeVectorMatrixNV)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct infoCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "infoCount"; };
-struct pInfos { using api_element = api_elements::VkConvertCooperativeVectorMatrixInfoNV; using shape = field_shape::Array; using field_count = FieldValue<infoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInfos"; };
+struct pInfos { using api_element = api_elements::VkConvertCooperativeVectorMatrixInfoNV; using shape = field_shape::Array; using length = FieldValue<infoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInfos"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdConvertCooperativeVectorMatrixNV)
 
@@ -16518,9 +16518,9 @@ struct device { using api_element = api_elements::VkDevice; using shape = field_
 struct deferredOperation { using api_element = api_elements::VkDeferredOperationKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "deferredOperation"; };
 struct pipelineCache { using api_element = api_elements::VkPipelineCache; using shape = field_shape::Value; static constexpr std::string_view field_name = "pipelineCache"; };
 struct createInfoCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "createInfoCount"; };
-struct pCreateInfos { using api_element = api_elements::VkDataGraphPipelineCreateInfoARM; using shape = field_shape::Array; using field_count = FieldValue<createInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCreateInfos"; };
+struct pCreateInfos { using api_element = api_elements::VkDataGraphPipelineCreateInfoARM; using shape = field_shape::Array; using length = FieldValue<createInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCreateInfos"; };
 struct pAllocator { using api_element = api_elements::VkAllocationCallbacks; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAllocator"; };
-struct pPipelines { using api_element = api_elements::VkPipeline; using shape = field_shape::Array; using field_count = FieldValue<createInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelines"; };
+struct pPipelines { using api_element = api_elements::VkPipeline; using shape = field_shape::Array; using length = FieldValue<createInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelines"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CreateDataGraphPipelinesARM)
 
@@ -16536,7 +16536,7 @@ GFXRECON_BEGIN_NAMESPACE(GetDataGraphPipelineSessionBindPointRequirementsARM)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct pInfo { using api_element = api_elements::VkDataGraphPipelineSessionBindPointRequirementsInfoARM; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInfo"; };
 struct pBindPointRequirementCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindPointRequirementCount"; };
-struct pBindPointRequirements { using api_element = api_elements::VkDataGraphPipelineSessionBindPointRequirementARM; using shape = field_shape::Array; using field_count = FieldValue<pBindPointRequirementCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindPointRequirements"; };
+struct pBindPointRequirements { using api_element = api_elements::VkDataGraphPipelineSessionBindPointRequirementARM; using shape = field_shape::Array; using length = FieldValue<pBindPointRequirementCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindPointRequirements"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetDataGraphPipelineSessionBindPointRequirementsARM)
 
@@ -16550,7 +16550,7 @@ GFXRECON_END_NAMESPACE(GetDataGraphPipelineSessionMemoryRequirementsARM)
 GFXRECON_BEGIN_NAMESPACE(BindDataGraphPipelineSessionMemoryARM)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct bindInfoCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "bindInfoCount"; };
-struct pBindInfos { using api_element = api_elements::VkBindDataGraphPipelineSessionMemoryInfoARM; using shape = field_shape::Array; using field_count = FieldValue<bindInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindInfos"; };
+struct pBindInfos { using api_element = api_elements::VkBindDataGraphPipelineSessionMemoryInfoARM; using shape = field_shape::Array; using length = FieldValue<bindInfoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBindInfos"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(BindDataGraphPipelineSessionMemoryARM)
 
@@ -16572,7 +16572,7 @@ GFXRECON_BEGIN_NAMESPACE(GetDataGraphPipelineAvailablePropertiesARM)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct pPipelineInfo { using api_element = api_elements::VkDataGraphPipelineInfoARM; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelineInfo"; };
 struct pPropertiesCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPropertiesCount"; };
-struct pProperties { using api_element = api_elements::VkDataGraphPipelinePropertyARM; using shape = field_shape::Array; using field_count = FieldValue<pPropertiesCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
+struct pProperties { using api_element = api_elements::VkDataGraphPipelinePropertyARM; using shape = field_shape::Array; using length = FieldValue<pPropertiesCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetDataGraphPipelineAvailablePropertiesARM)
 
@@ -16580,7 +16580,7 @@ GFXRECON_BEGIN_NAMESPACE(GetDataGraphPipelinePropertiesARM)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct pPipelineInfo { using api_element = api_elements::VkDataGraphPipelineInfoARM; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPipelineInfo"; };
 struct propertiesCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "propertiesCount"; };
-struct pProperties { using api_element = api_elements::VkDataGraphPipelinePropertyQueryResultARM; using shape = field_shape::Array; using field_count = FieldValue<propertiesCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
+struct pProperties { using api_element = api_elements::VkDataGraphPipelinePropertyQueryResultARM; using shape = field_shape::Array; using length = FieldValue<propertiesCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetDataGraphPipelinePropertiesARM)
 
@@ -16588,7 +16588,7 @@ GFXRECON_BEGIN_NAMESPACE(GetPhysicalDeviceQueueFamilyDataGraphPropertiesARM)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct queueFamilyIndex { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "queueFamilyIndex"; };
 struct pQueueFamilyDataGraphPropertyCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueueFamilyDataGraphPropertyCount"; };
-struct pQueueFamilyDataGraphProperties { using api_element = api_elements::VkQueueFamilyDataGraphPropertiesARM; using shape = field_shape::Array; using field_count = FieldValue<pQueueFamilyDataGraphPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueueFamilyDataGraphProperties"; };
+struct pQueueFamilyDataGraphProperties { using api_element = api_elements::VkQueueFamilyDataGraphPropertiesARM; using shape = field_shape::Array; using length = FieldValue<pQueueFamilyDataGraphPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueueFamilyDataGraphProperties"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceQueueFamilyDataGraphPropertiesARM)
 
@@ -16695,7 +16695,7 @@ GFXRECON_BEGIN_NAMESPACE(UpdateIndirectExecutionSetPipelineEXT)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct indirectExecutionSet { using api_element = api_elements::VkIndirectExecutionSetEXT; using shape = field_shape::Value; static constexpr std::string_view field_name = "indirectExecutionSet"; };
 struct executionSetWriteCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "executionSetWriteCount"; };
-struct pExecutionSetWrites { using api_element = api_elements::VkWriteIndirectExecutionSetPipelineEXT; using shape = field_shape::Array; using field_count = FieldValue<executionSetWriteCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pExecutionSetWrites"; };
+struct pExecutionSetWrites { using api_element = api_elements::VkWriteIndirectExecutionSetPipelineEXT; using shape = field_shape::Array; using length = FieldValue<executionSetWriteCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pExecutionSetWrites"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(UpdateIndirectExecutionSetPipelineEXT)
 
@@ -16703,14 +16703,14 @@ GFXRECON_BEGIN_NAMESPACE(UpdateIndirectExecutionSetShaderEXT)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct indirectExecutionSet { using api_element = api_elements::VkIndirectExecutionSetEXT; using shape = field_shape::Value; static constexpr std::string_view field_name = "indirectExecutionSet"; };
 struct executionSetWriteCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "executionSetWriteCount"; };
-struct pExecutionSetWrites { using api_element = api_elements::VkWriteIndirectExecutionSetShaderEXT; using shape = field_shape::Array; using field_count = FieldValue<executionSetWriteCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pExecutionSetWrites"; };
+struct pExecutionSetWrites { using api_element = api_elements::VkWriteIndirectExecutionSetShaderEXT; using shape = field_shape::Array; using length = FieldValue<executionSetWriteCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pExecutionSetWrites"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(UpdateIndirectExecutionSetShaderEXT)
 
 GFXRECON_BEGIN_NAMESPACE(GetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct pPropertyCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPropertyCount"; };
-struct pProperties { using api_element = api_elements::VkCooperativeMatrixFlexibleDimensionsPropertiesNV; using shape = field_shape::Array; using field_count = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
+struct pProperties { using api_element = api_elements::VkCooperativeMatrixFlexibleDimensionsPropertiesNV; using shape = field_shape::Array; using length = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV)
 
@@ -16733,8 +16733,8 @@ GFXRECON_BEGIN_NAMESPACE(EnumeratePhysicalDeviceQueueFamilyPerformanceCountersBy
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct queueFamilyIndex { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "queueFamilyIndex"; };
 struct pCounterCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounterCount"; };
-struct pCounters { using api_element = api_elements::VkPerformanceCounterARM; using shape = field_shape::Array; using field_count = FieldValue<pCounterCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounters"; };
-struct pCounterDescriptions { using api_element = api_elements::VkPerformanceCounterDescriptionARM; using shape = field_shape::Array; using field_count = FieldValue<pCounterCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounterDescriptions"; };
+struct pCounters { using api_element = api_elements::VkPerformanceCounterARM; using shape = field_shape::Array; using length = FieldValue<pCounterCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounters"; };
+struct pCounterDescriptions { using api_element = api_elements::VkPerformanceCounterDescriptionARM; using shape = field_shape::Array; using length = FieldValue<pCounterCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCounterDescriptions"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(EnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM)
 
@@ -16756,7 +16756,7 @@ struct queueFamilyIndex { using api_element = api_elements::UInt32; using shape 
 struct pQueueFamilyDataGraphProperties { using api_element = api_elements::VkQueueFamilyDataGraphPropertiesARM; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pQueueFamilyDataGraphProperties"; };
 struct pOpticalFlowImageFormatInfo { using api_element = api_elements::VkDataGraphOpticalFlowImageFormatInfoARM; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pOpticalFlowImageFormatInfo"; };
 struct pFormatCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pFormatCount"; };
-struct pImageFormatProperties { using api_element = api_elements::VkDataGraphOpticalFlowImageFormatPropertiesARM; using shape = field_shape::Array; using field_count = FieldValue<pFormatCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pImageFormatProperties"; };
+struct pImageFormatProperties { using api_element = api_elements::VkDataGraphOpticalFlowImageFormatPropertiesARM; using shape = field_shape::Array; using length = FieldValue<pFormatCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pImageFormatProperties"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM)
 
@@ -16778,7 +16778,7 @@ GFXRECON_BEGIN_NAMESPACE(GetPhysicalDeviceCooperativeMatrixProperties2EXT)
 struct physicalDevice { using api_element = api_elements::VkPhysicalDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "physicalDevice"; };
 struct pCooperativeMatrixInfo { using api_element = api_elements::VkPhysicalDeviceCooperativeMatrixInfo2EXT; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCooperativeMatrixInfo"; };
 struct pPropertyCount { using api_element = api_elements::UInt32; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pPropertyCount"; };
-struct pProperties { using api_element = api_elements::VkCooperativeMatrixProperties2EXT; using shape = field_shape::Array; using field_count = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
+struct pProperties { using api_element = api_elements::VkCooperativeMatrixProperties2EXT; using shape = field_shape::Array; using length = FieldValue<pPropertyCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pProperties"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetPhysicalDeviceCooperativeMatrixProperties2EXT)
 
@@ -16806,18 +16806,18 @@ GFXRECON_END_NAMESPACE(DestroyAccelerationStructureKHR)
 GFXRECON_BEGIN_NAMESPACE(CmdBuildAccelerationStructuresKHR)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct infoCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "infoCount"; };
-struct pInfos { using api_element = api_elements::VkAccelerationStructureBuildGeometryInfoKHR; using shape = field_shape::Array; using field_count = FieldValue<infoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInfos"; };
-struct ppBuildRangeInfos { using api_element = api_elements::VkAccelerationStructureBuildRangeInfoKHR; using shape = field_shape::Array; using field_count = FieldValue<infoCount>; static constexpr size_t pointer_count = 2; static constexpr std::string_view field_name = "ppBuildRangeInfos"; };
+struct pInfos { using api_element = api_elements::VkAccelerationStructureBuildGeometryInfoKHR; using shape = field_shape::Array; using length = FieldValue<infoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInfos"; };
+struct ppBuildRangeInfos { using api_element = api_elements::VkAccelerationStructureBuildRangeInfoKHR; using shape = field_shape::Array; using length = FieldValue<infoCount>; static constexpr size_t pointer_count = 2; static constexpr std::string_view field_name = "ppBuildRangeInfos"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdBuildAccelerationStructuresKHR)
 
 GFXRECON_BEGIN_NAMESPACE(CmdBuildAccelerationStructuresIndirectKHR)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct infoCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "infoCount"; };
-struct pInfos { using api_element = api_elements::VkAccelerationStructureBuildGeometryInfoKHR; using shape = field_shape::Array; using field_count = FieldValue<infoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInfos"; };
-struct pIndirectDeviceAddresses { using api_element = api_elements::VkDeviceAddress; using shape = field_shape::Array; using field_count = FieldValue<infoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pIndirectDeviceAddresses"; };
-struct pIndirectStrides { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<infoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pIndirectStrides"; };
-struct ppMaxPrimitiveCounts { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<infoCount>; static constexpr size_t pointer_count = 2; static constexpr std::string_view field_name = "ppMaxPrimitiveCounts"; };
+struct pInfos { using api_element = api_elements::VkAccelerationStructureBuildGeometryInfoKHR; using shape = field_shape::Array; using length = FieldValue<infoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pInfos"; };
+struct pIndirectDeviceAddresses { using api_element = api_elements::VkDeviceAddress; using shape = field_shape::Array; using length = FieldValue<infoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pIndirectDeviceAddresses"; };
+struct pIndirectStrides { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<infoCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pIndirectStrides"; };
+struct ppMaxPrimitiveCounts { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<infoCount>; static constexpr size_t pointer_count = 2; static constexpr std::string_view field_name = "ppMaxPrimitiveCounts"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdBuildAccelerationStructuresIndirectKHR)
 
@@ -16838,10 +16838,10 @@ GFXRECON_END_NAMESPACE(CopyMemoryToAccelerationStructureKHR)
 GFXRECON_BEGIN_NAMESPACE(WriteAccelerationStructuresPropertiesKHR)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct accelerationStructureCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "accelerationStructureCount"; };
-struct pAccelerationStructures { using api_element = api_elements::VkAccelerationStructureKHR; using shape = field_shape::Array; using field_count = FieldValue<accelerationStructureCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAccelerationStructures"; };
+struct pAccelerationStructures { using api_element = api_elements::VkAccelerationStructureKHR; using shape = field_shape::Array; using length = FieldValue<accelerationStructureCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAccelerationStructures"; };
 struct queryType { using api_element = api_elements::VkQueryType; using shape = field_shape::Value; static constexpr std::string_view field_name = "queryType"; };
 struct dataSize { using api_element = api_elements::Size; using shape = field_shape::Value; static constexpr std::string_view field_name = "dataSize"; };
-struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
+struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
 struct stride { using api_element = api_elements::Size; using shape = field_shape::Value; static constexpr std::string_view field_name = "stride"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(WriteAccelerationStructuresPropertiesKHR)
@@ -16873,7 +16873,7 @@ GFXRECON_END_NAMESPACE(GetAccelerationStructureDeviceAddressKHR)
 GFXRECON_BEGIN_NAMESPACE(CmdWriteAccelerationStructuresPropertiesKHR)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct accelerationStructureCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "accelerationStructureCount"; };
-struct pAccelerationStructures { using api_element = api_elements::VkAccelerationStructureKHR; using shape = field_shape::Array; using field_count = FieldValue<accelerationStructureCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAccelerationStructures"; };
+struct pAccelerationStructures { using api_element = api_elements::VkAccelerationStructureKHR; using shape = field_shape::Array; using length = FieldValue<accelerationStructureCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pAccelerationStructures"; };
 struct queryType { using api_element = api_elements::VkQueryType; using shape = field_shape::Value; static constexpr std::string_view field_name = "queryType"; };
 struct queryPool { using api_element = api_elements::VkQueryPool; using shape = field_shape::Value; static constexpr std::string_view field_name = "queryPool"; };
 struct firstQuery { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstQuery"; };
@@ -16891,7 +16891,7 @@ GFXRECON_BEGIN_NAMESPACE(GetAccelerationStructureBuildSizesKHR)
 struct device { using api_element = api_elements::VkDevice; using shape = field_shape::Value; static constexpr std::string_view field_name = "device"; };
 struct buildType { using api_element = api_elements::VkAccelerationStructureBuildTypeKHR; using shape = field_shape::Value; static constexpr std::string_view field_name = "buildType"; };
 struct pBuildInfo { using api_element = api_elements::VkAccelerationStructureBuildGeometryInfoKHR; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pBuildInfo"; };
-struct pMaxPrimitiveCounts { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = FieldValue<pBuildInfo, vulkan::fields::VkAccelerationStructureBuildGeometryInfoKHR::geometryCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMaxPrimitiveCounts"; };
+struct pMaxPrimitiveCounts { using api_element = api_elements::UInt32; using shape = field_shape::Array; using length = FieldValue<pBuildInfo, vulkan::fields::VkAccelerationStructureBuildGeometryInfoKHR::geometryCount>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pMaxPrimitiveCounts"; };
 struct pSizeInfo { using api_element = api_elements::VkAccelerationStructureBuildSizesInfoKHR; using shape = field_shape::Pointer; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSizeInfo"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetAccelerationStructureBuildSizesKHR)
@@ -16914,7 +16914,7 @@ struct pipeline { using api_element = api_elements::VkPipeline; using shape = fi
 struct firstGroup { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "firstGroup"; };
 struct groupCount { using api_element = api_elements::UInt32; using shape = field_shape::Value; static constexpr std::string_view field_name = "groupCount"; };
 struct dataSize { using api_element = api_elements::Size; using shape = field_shape::Value; static constexpr std::string_view field_name = "dataSize"; };
-struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using field_count = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
+struct pData { using api_element = api_elements::OpaqueBytes; using shape = field_shape::Array; using length = FieldValue<dataSize>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pData"; };
 struct result { using api_element = api_elements::VkResult; using shape = field_shape::Value; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(GetRayTracingCaptureReplayShaderGroupHandlesKHR)
 
