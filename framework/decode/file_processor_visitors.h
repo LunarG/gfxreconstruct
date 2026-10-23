@@ -120,6 +120,15 @@ class DispatchVisitor
         return DispatchArgs(state_end);
     }
 
+    ProcessBlockState operator()(const FrameEndMarkerArgs* end_frame)
+    {
+        if (end_frame->redundant)
+        {
+            return ProcessBlockState::kContinue;
+        }
+        return DispatchArgs(end_frame);
+    }
+
     ProcessBlockState operator()(const AnnotationArgs* annotation)
     {
         if (config_.annotation_handler)
