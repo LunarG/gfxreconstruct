@@ -63,6 +63,7 @@
 #include <cassert>
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -1958,6 +1959,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     static bool SupportsDataGraphOpticalFlowPipeline(const VulkanReplayDeviceInfo::DataGraphOpticalFlowInfo& info,
                                                      const VkDataGraphPipelineOpticalFlowCreateInfoARM& create_info);
 
+    void MaybeWaitBeforeFirstSubmit();
+
+    void MaybeWaitBeforeFrame();
+
     void InitializeLoader();
 
     void AddInstanceTable(VkInstance instance);
@@ -2332,6 +2337,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::unique_ptr<VulkanSwapchain>      swapchain_;
     graphics::FpsInfo*                    fps_info_;
     VulkanDecoder*                        decoder_ = nullptr;
+
+    std::once_flag wait_before_first_submit_flag_;
 
     VulkanPerDeviceAddressTrackers    device_address_trackers_;
     VulkanPerDeviceAddressReplacers   device_address_replacers_;
