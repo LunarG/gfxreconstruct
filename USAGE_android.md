@@ -781,7 +781,8 @@ usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--log-level LEVEL]
                           [--screenshot-size SIZE] [--screenshot-scale SCALE]
                           [--screenshot-results]
                           [--capture]
-                          [--sfa] [--opcd] [--surface-index N] [--sync]
+                          [--sfa] [--replace-shaders DIR] [--opcd]
+                          [--surface-index N] [--sync]
                           [--remove-unsupported] [--validate] [--onhb]
                           [--use-colorspace-fallback]
                           [--offscreen-swapchain-frame-boundary]
@@ -912,6 +913,13 @@ options:
                         Skip vkAllocateMemory, vkAllocateCommandBuffers, and
                         vkAllocateDescriptorSets calls that failed during
                         capture (forwarded to replay tool)
+  --replace-shaders DIR
+                        Replace the shader code in each CreateShaderModule
+                        with the contents of the file DIR/sh<handle_id> if
+                        found, where <handle_id> is the handle id of the
+                        CreateShaderModule call. DIR is a directory on the
+                        device. See gfxrecon-extract. (forwarded to replay
+                        tool)
   --opcd, --omit-pipeline-cache-data
                         Omit pipeline cache data from calls to
                         vkCreatePipelineCache and skip calls to
