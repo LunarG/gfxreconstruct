@@ -72,8 +72,6 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     void Process_vkDestroyFence(const ApiCallInfo& call_info, args::DestroyFence& args) override;
 
-    void Process_vkQueueBindSparse(const ApiCallInfo& call_info, args::QueueBindSparse& args) override;
-
     void Process_vkCreateEvent(const ApiCallInfo& call_info, args::CreateEvent& args) override;
 
     void Process_vkDestroyEvent(const ApiCallInfo& call_info, args::DestroyEvent& args) override;
@@ -107,6 +105,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     virtual void StartLooping() override;
 
+    virtual void OnFrameEnd() override;
+
     // Private declarations
   private:
     void RemovePoolDanglingCreateDescriptors(format::HandleId descriptorPool);
@@ -118,7 +118,6 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     void TrackFenceStates();
     void TrackFenceState(format::HandleId device, format::HandleId fence);
     void FixupDeviceFences(format::HandleId device, format::HandleId queue);
-    void FrameBoundaryEndOfFrame(format::HandleId queue, PNextNode* pNext);
 
     struct EventTracking
     {
@@ -128,6 +127,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     void TrackEventState(format::HandleId device, format::HandleId event);
     void FixupDeviceEvents(format::HandleId device);
     void FixupDeviceObjects(format::HandleId device, format::HandleId queue);
+    void TrackLoopQueue(format::HandleId queue);
 
     struct SemaphoreTracking
     {
@@ -396,6 +396,9 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     std::unordered_set<format::HandleId> dangling_destroy_descriptor_sets_;
 
     std::unordered_map<format::HandleId, SemaphoreTracking> per_device_semaphore_tracking_;
+
+    /// The last queue each device submitted to or presented on
+    std::unordered_map<format::HandleId, format::HandleId> per_device_last_queue_;
 
     std::unordered_map<format::HandleId, uint32_t> query_pool_sizes_;
 

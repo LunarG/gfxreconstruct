@@ -85,6 +85,8 @@ class FileProcessor
 
     void WaitDecodersIdle();
 
+    void OnFrameEnd();
+
     void SetAnnotationProcessor(AnnotationHandler* handler) { config_.annotation_handler = handler; }
 
     void AddDecoder(ApiDecoder* decoder) { config_.decoders.push_back(decoder); }

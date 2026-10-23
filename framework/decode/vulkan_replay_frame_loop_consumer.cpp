@@ -324,6 +324,7 @@ void VulkanReplayFrameLoopConsumer::ProcessStateEndMarker(uint64_t frame_number)
         per_device_fence_tracking_.clear();
         per_device_event_tracking_.clear();
         per_device_semaphore_tracking_.clear();
+        per_device_last_queue_.clear();
         ResetBufferTracking();
         ResetImageTracking();
         StartLooping();
@@ -361,6 +362,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkDestroyDevice(const ApiCallInfo& c
     {
         ResetBufferTracking(args.device);
         ResetImageTracking(args.device);
+        per_device_last_queue_.erase(args.device);
     }
     VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDevice(call_info, args);
 }
@@ -1421,31 +1423,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkMapMemory(const ApiCallInfo& call_
     VulkanReplayConsumer::Process_vkMapMemory(call_info, args);
 }
 
-void VulkanReplayFrameLoopConsumer::FrameBoundaryEndOfFrame(format::HandleId queue, PNextNode* pNext)
-{
-    const Decoded_VkFrameBoundaryEXT* frame_boundary = GetPNextMetaStruct<Decoded_VkFrameBoundaryEXT>(pNext);
-    if (frame_boundary != nullptr)
-    {
-        if ((frame_boundary->decoded_value->flags & VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT) ==
-            VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT)
-        {
-            // This submit is being used as a frame boundary
-            CommonObjectInfoTable& table      = GetObjectInfoTable();
-            VulkanQueueInfo*       queue_info = table.GetVkQueueInfo(queue);
-            VkDevice               device     = queue_info->parent;
-            GFXRECON_ASSERT(device != 0);
-            const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device);
-            GFXRECON_ASSERT(device_table != nullptr);
-
-            GFXRECON_LOG_DEBUG("Waiting for device to idle...");
-            VkResult result = device_table->DeviceWaitIdle(device);
-            CHECK_VK_RESULT(result, "vkDeviceWaitIdle");
-
-            FixupDeviceObjects(queue_info->parent_id, queue);
-        }
-    }
-}
-
 static bool IsRestorableLayout(VkImageLayout layout)
 {
     return (layout != VK_IMAGE_LAYOUT_UNDEFINED) && (layout != VK_IMAGE_LAYOUT_PREINITIALIZED);
@@ -2218,16 +2195,32 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceObjects(format::HandleId device, 
     GetSemaphoreTracking(device).FixupSemaphores(queue);
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkQueueBindSparse(const ApiCallInfo& call_info, args::QueueBindSparse& args)
+void VulkanReplayFrameLoopConsumer::TrackLoopQueue(format::HandleId queue)
 {
-    VulkanReplayFrameLoopConsumerBase::Process_vkQueueBindSparse(call_info, args);
+    const VulkanQueueInfo* queue_info             = GetObjectInfoTable().GetVkQueueInfo(queue);
+    per_device_last_queue_[queue_info->parent_id] = queue;
+}
 
-    if (frame_loop_info_.IsLooping())
+void VulkanReplayFrameLoopConsumer::OnFrameEnd()
+{
+    if (!frame_loop_info_.IsLooping() || frame_loop_info_.IsFinalIteration())
     {
-        for (Decoded_VkBindSparseInfo submit : args.pBindInfo.GetMetaStructSpan())
-        {
-            FrameBoundaryEndOfFrame(args.queue, submit.pNext);
-        }
+        return;
+    }
+
+    CommonObjectInfoTable& table = GetObjectInfoTable();
+    for (const auto& [device_id, queue] : per_device_last_queue_)
+    {
+        VkDevice device = table.GetVkDeviceInfo(device_id)->handle;
+        GFXRECON_ASSERT(device != VK_NULL_HANDLE);
+        const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device);
+        GFXRECON_ASSERT(device_table != nullptr);
+
+        GFXRECON_LOG_DEBUG("Waiting for device to idle...");
+        VkResult result = device_table->DeviceWaitIdle(device);
+        CHECK_VK_RESULT(result, "vkDeviceWaitIdle");
+
+        FixupDeviceObjects(device_id, queue);
     }
 }
 
@@ -2237,15 +2230,12 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit(const ApiCallInfo& cal
 
     if (frame_loop_info_.IsLooping())
     {
+        TrackLoopQueue(args.queue);
+
         if (frame_loop_info_.IsFirstIteration())
         {
             VulkanQueueInfo* queue_info = GetObjectInfoTable().GetVkQueueInfo(args.queue);
             GetSemaphoreTracking(queue_info->parent_id).TrackSemaphores(args);
-        }
-
-        for (Decoded_VkSubmitInfo submit : args.pSubmits.GetMetaStructSpan())
-        {
-            FrameBoundaryEndOfFrame(args.queue, submit.pNext);
         }
     }
 }
@@ -2256,15 +2246,12 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit2(const ApiCallInfo& ca
 
     if (frame_loop_info_.IsLooping())
     {
+        TrackLoopQueue(args.queue);
+
         if (frame_loop_info_.IsFirstIteration())
         {
             VulkanQueueInfo* queue_info = GetObjectInfoTable().GetVkQueueInfo(args.queue);
             GetSemaphoreTracking(queue_info->parent_id).TrackSemaphores(args);
-        }
-
-        for (Decoded_VkSubmitInfo2 submit : args.pSubmits.GetMetaStructSpan())
-        {
-            FrameBoundaryEndOfFrame(args.queue, submit.pNext);
         }
     }
 }
@@ -2275,15 +2262,12 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit2KHR(const ApiCallInfo&
 
     if (frame_loop_info_.IsLooping())
     {
+        TrackLoopQueue(args.queue);
+
         if (frame_loop_info_.IsFirstIteration())
         {
             VulkanQueueInfo* queue_info = GetObjectInfoTable().GetVkQueueInfo(args.queue);
             GetSemaphoreTracking(queue_info->parent_id).TrackSemaphores(args);
-        }
-
-        for (Decoded_VkSubmitInfo2 submit : args.pSubmits.GetMetaStructSpan())
-        {
-            FrameBoundaryEndOfFrame(args.queue, submit.pNext);
         }
     }
 }
@@ -2316,23 +2300,13 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(const ApiCallInfo&
 
     if (frame_loop_info_.IsLooping())
     {
-        CommonObjectInfoTable& table      = GetObjectInfoTable();
-        VulkanQueueInfo*       queue_info = table.GetVkQueueInfo(args.queue);
-        VkDevice               device     = queue_info->parent;
-        GFXRECON_ASSERT(device != VK_NULL_HANDLE);
-        const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device);
-        GFXRECON_ASSERT(device_table != nullptr);
+        TrackLoopQueue(args.queue);
 
         if (frame_loop_info_.IsFirstIteration())
         {
+            VulkanQueueInfo* queue_info = GetObjectInfoTable().GetVkQueueInfo(args.queue);
             GetSemaphoreTracking(queue_info->parent_id).TrackSemaphores(args);
         }
-
-        GFXRECON_LOG_DEBUG("Waiting for device to idle...");
-        VkResult result = device_table->DeviceWaitIdle(device);
-        CHECK_VK_RESULT(result, "vkDeviceWaitIdle");
-
-        FixupDeviceObjects(queue_info->parent_id, args.queue);
     }
 }
 

@@ -51,6 +51,14 @@ void FileProcessor::WaitDecodersIdle()
     }
 }
 
+void FileProcessor::OnFrameEnd()
+{
+    for (auto decoder : config_.decoders)
+    {
+        decoder->OnFrameEnd();
+    }
+}
+
 void FileProcessor::SetBlocksToSkip(const std::unordered_set<uint64_t>& blocks_to_skip)
 {
     GFXRECON_ASSERT(!frame_processing_initialized_);
