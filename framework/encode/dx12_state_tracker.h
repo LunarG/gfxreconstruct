@@ -52,7 +52,7 @@ class Dx12StateTracker
 
     template <typename ParentWrapper>
     void AddEntry(REFIID                          riid,
-                  typename void**                 new_handle,
+                  void**                          new_handle,
                   format::ApiCallId               create_call_id,
                   ParentWrapper*                  create_object_wrapper,
                   const util::MemoryOutputStream* create_parameter_buffer)
@@ -74,7 +74,7 @@ class Dx12StateTracker
 
     // Specialize templated AddEntry for API calls (which do not have a calling object).
     void AddEntry(REFIID                          riid,
-                  typename void**                 new_handle,
+                  void**                          new_handle,
                   format::ApiCallId               create_call_id,
                   void*                           create_object_wrapper,
                   const util::MemoryOutputStream* create_parameter_buffer)
