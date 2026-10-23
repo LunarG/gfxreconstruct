@@ -1,0 +1,5 @@
+# The code generators write the generated sources with LF line endings, so
+# check them out with LF line endings regardless of core.autocrlf. Regeneration
+# then leaves an unchanged file's bytes, and timestamp, alone on every platform.
+framework/generated/generated_*.cpp text eol=lf
+framework/generated/generated_*.h text eol=lf

@@ -220,7 +220,7 @@ def generate(protocol_path: str) -> None:
     protocol_name = root.attrib['name']
     generated_filename = os.path.join(SCRIPT_DIR, f'generated_wayland_{protocol_name}.h')
 
-    with open(generated_filename, 'w') as file:
+    with open(generated_filename, 'w', newline='\n') as file:
         
         # Header of file
 

@@ -33,6 +33,7 @@ SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 KHRONOS_REGISTRY_DIR = os.path.normpath(
     os.path.join(SCRIPT_DIR, '..', '..', 'external', 'Vulkan-Headers', 'registry')
 )
+COMMON_GENERATOR_DIR = os.path.join(SCRIPT_DIR, 'common_generators')
 KHRONOS_GENERATOR_DIR = os.path.join(SCRIPT_DIR, 'khronos_generators')
 GENERATOR_DIR = os.path.join(SCRIPT_DIR, 'khronos_generators', 'vulkan_generators')
 VK_HEADERS_DIR = os.path.join(SCRIPT_DIR, '..', '..', 'external', 'Vulkan-Headers')
@@ -181,6 +182,7 @@ def main():
     env['PYTHONPATH'] = os.pathsep.join(
         [
             KHRONOS_REGISTRY_DIR,
+            COMMON_GENERATOR_DIR,
             KHRONOS_GENERATOR_DIR,
             GENERATOR_DIR,
             VK_HEADERS_DIR,

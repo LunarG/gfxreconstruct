@@ -40,6 +40,7 @@ XR_REGISTRY_SCRIPTS_DIR = os.path.normpath(
    )
 )
 
+COMMON_GENERATOR_DIR = os.path.join(SCRIPT_DIR, 'common_generators')
 KHRONOS_GENERATOR_DIR = os.path.join(SCRIPT_DIR, 'khronos_generators')
 GENERATOR_DIR = os.path.join(SCRIPT_DIR, 'khronos_generators', 'openxr_generators')
 XR_HEADERS_DIR = os.path.join(SCRIPT_DIR, '..', '..', 'external', 'OpenXR-SDK')
@@ -140,6 +141,7 @@ if __name__ == '__main__':
     env['PYTHONPATH'] = os.pathsep.join(
         [
             registry_scripts_dir,
+            COMMON_GENERATOR_DIR,
             KHRONOS_GENERATOR_DIR,
             GENERATOR_DIR,
             XR_HEADERS_DIR,
