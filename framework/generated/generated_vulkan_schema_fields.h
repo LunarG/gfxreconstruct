@@ -1426,7 +1426,7 @@ struct pNext { using api_element = api_elements::Void; using shape = field_shape
 struct flags { using api_element = api_elements::VkShaderModuleCreateFlags; using shape = field_shape::Value; static constexpr std::string_view field_name = "flags"; };
 struct codeSize { using api_element = api_elements::Size; using shape = field_shape::Value; static constexpr std::string_view field_name = "codeSize"; };
 // NOTE: field_count evaluates codeSize / 4
-struct pCode { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = Quotient<FieldValue<codeSize>, Constant<4u>>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCode"; };
+struct pCode { using api_element = api_elements::UInt32; using shape = field_shape::Array; using field_count = Quotient<FieldValue<codeSize>, Literal<4u>>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pCode"; };
 GFXRECON_END_NAMESPACE(VkShaderModuleCreateInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkPipelineCacheCreateInfo)
@@ -1690,7 +1690,7 @@ struct rasterizationSamples { using api_element = api_elements::VkSampleCountFla
 struct sampleShadingEnable { using api_element = api_elements::VkBool32; using shape = field_shape::Value; static constexpr std::string_view field_name = "sampleShadingEnable"; };
 struct minSampleShading { using api_element = api_elements::Float; using shape = field_shape::Value; static constexpr std::string_view field_name = "minSampleShading"; };
 // NOTE: field_count evaluates (rasterizationSamples + 31) / 32
-struct pSampleMask { using api_element = api_elements::VkSampleMask; using shape = field_shape::Array; using field_count = Quotient<Sum<FieldValue<rasterizationSamples>, Constant<31>>, Constant<32>>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSampleMask"; };
+struct pSampleMask { using api_element = api_elements::VkSampleMask; using shape = field_shape::Array; using field_count = Quotient<Sum<FieldValue<rasterizationSamples>, Literal<31>>, Literal<32>>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSampleMask"; };
 struct alphaToCoverageEnable { using api_element = api_elements::VkBool32; using shape = field_shape::Value; static constexpr std::string_view field_name = "alphaToCoverageEnable"; };
 struct alphaToOneEnable { using api_element = api_elements::VkBool32; using shape = field_shape::Value; static constexpr std::string_view field_name = "alphaToOneEnable"; };
 GFXRECON_END_NAMESPACE(VkPipelineMultisampleStateCreateInfo)
@@ -8844,7 +8844,7 @@ GFXRECON_BEGIN_NAMESPACE(VkMicromapVersionInfoEXT)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = false; static constexpr std::string_view field_name = "pNext"; };
 // NOTE: field_count evaluates 2*VK_UUID_SIZE
-struct pVersionData { using api_element = api_elements::UInt8; using shape = field_shape::Array; using field_count = Product<Constant<2u>, Constant<VK_UUID_SIZE>>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVersionData"; };
+struct pVersionData { using api_element = api_elements::UInt8; using shape = field_shape::Array; using field_count = Product<Literal<2u>, Literal<VK_UUID_SIZE>>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVersionData"; };
 GFXRECON_END_NAMESPACE(VkMicromapVersionInfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkCopyMicromapToMemoryInfoEXT)
@@ -11194,7 +11194,7 @@ GFXRECON_BEGIN_NAMESPACE(VkAccelerationStructureVersionInfoKHR)
 struct sType { using api_element = api_elements::VkStructureType; using shape = field_shape::Value; static constexpr std::string_view field_name = "sType"; };
 struct pNext { using api_element = api_elements::Void; using shape = field_shape::ExtensionChain; static constexpr bool has_extensions = false; static constexpr std::string_view field_name = "pNext"; };
 // NOTE: field_count evaluates 2*VK_UUID_SIZE
-struct pVersionData { using api_element = api_elements::UInt8; using shape = field_shape::Array; using field_count = Product<Constant<2u>, Constant<VK_UUID_SIZE>>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVersionData"; };
+struct pVersionData { using api_element = api_elements::UInt8; using shape = field_shape::Array; using field_count = Product<Literal<2u>, Literal<VK_UUID_SIZE>>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pVersionData"; };
 GFXRECON_END_NAMESPACE(VkAccelerationStructureVersionInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkCopyAccelerationStructureToMemoryInfoKHR)
@@ -16105,7 +16105,7 @@ GFXRECON_BEGIN_NAMESPACE(CmdSetSampleMaskEXT)
 struct commandBuffer { using api_element = api_elements::VkCommandBuffer; using shape = field_shape::Value; static constexpr std::string_view field_name = "commandBuffer"; };
 struct samples { using api_element = api_elements::VkSampleCountFlagBits; using shape = field_shape::Value; static constexpr std::string_view field_name = "samples"; };
 // NOTE: field_count evaluates (samples + 31) / 32
-struct pSampleMask { using api_element = api_elements::VkSampleMask; using shape = field_shape::Array; using field_count = Quotient<Sum<FieldValue<samples>, Constant<31>>, Constant<32>>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSampleMask"; };
+struct pSampleMask { using api_element = api_elements::VkSampleMask; using shape = field_shape::Array; using field_count = Quotient<Sum<FieldValue<samples>, Literal<31>>, Literal<32>>; static constexpr size_t pointer_count = 1; static constexpr std::string_view field_name = "pSampleMask"; };
 struct result { using api_element = api_elements::Void; using shape = field_shape::VoidReturn; static constexpr bool is_return = true; static constexpr std::string_view field_name = "result"; };
 GFXRECON_END_NAMESPACE(CmdSetSampleMaskEXT)
 

@@ -1003,11 +1003,11 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         def emit(node):
             if node[0] == 'number':
-                return 'Constant<{}{}>'.format(node[1], suffix)
+                return 'Literal<{}{}>'.format(node[1], suffix)
             if node[0] == 'sibling':
                 return 'FieldValue<{}>'.format(node[1])
             if node[0] == 'constant':
-                return 'Constant<{}>'.format(node[1])
+                return 'Literal<{}>'.format(node[1])
             return '{}<{}, {}>'.format(operators[node[0]], emit(node[1]), emit(node[2]))
 
         return emit(tree)

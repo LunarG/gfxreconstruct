@@ -102,7 +102,7 @@ GFXRECON_END_NAMESPACE(field_shape)
 //                     expression over the owner's storage. FieldValue<Sibling> for a length that is exactly one
 //                     sibling member, or a sibling and the constant 1 for a PointerArray; FieldValue<Sibling, Member>
 //                     for a length read through a pointer sibling, `sibling->member`; Sum, Product and Quotient over
-//                     those and Constant for the registry's arithmetic, `codeSize / 4`, `2*VK_UUID_SIZE`.
+//                     those and Literal for the registry's arithmetic, `codeSize / 4`, `2*VK_UUID_SIZE`.
 //   length_expression Array or StaticArray whose registry length is anything else: the registry text as
 //                     written, for example a computed length or the comma-joined extents of a matrix. Not read by
 //                     any operation; a length no Action can evaluate is recorded here rather than dropped.
@@ -379,7 +379,7 @@ struct FieldValue<Field, Member> : StoreValueBase
 // A number written into the schema, in the type the generator gave the literal. An API constant such as VK_UUID_SIZE
 // is a macro, so the type carries its value and the generated header's NOTE line carries its name.
 template <auto V>
-struct Constant : StoreValueBase
+struct Literal : StoreValueBase
 {
     template <typename Store>
     [[nodiscard]] static constexpr auto Get(const Store&)

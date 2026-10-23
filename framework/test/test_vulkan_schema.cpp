@@ -1860,19 +1860,19 @@ TEST_CASE("Schema EncodeStruct matches computed-count wire bytes", "[schema][enc
     // The API elements state the registry's arithmetic in prefix form, literals unsigned beside an unsigned
     // sibling or constant and int beside an enum.
     static_assert(std::is_same_v<schema::FieldCount<shader_field::pCode>,
-                                 schema::Quotient<schema::FieldValue<shader_field::codeSize>, schema::Constant<4u>>>);
+                                 schema::Quotient<schema::FieldValue<shader_field::codeSize>, schema::Literal<4u>>>);
     static_assert(
         std::is_same_v<schema::FieldCount<multisample_field::pSampleMask>,
                        schema::Quotient<schema::Sum<schema::FieldValue<multisample_field::rasterizationSamples>,
-                                                    schema::Constant<31>>,
-                                        schema::Constant<32>>>);
+                                                    schema::Literal<31>>,
+                                        schema::Literal<32>>>);
     static_assert(std::is_same_v<schema::FieldCount<micromap_field::pVersionData>,
-                                 schema::Product<schema::Constant<2u>, schema::Constant<VK_UUID_SIZE>>>);
+                                 schema::Product<schema::Literal<2u>, schema::Literal<VK_UUID_SIZE>>>);
 
     // Every operand is a StoreValue, nothing else is, and a count yields an integer or an enum but never a bool.
     static_assert(schema::StoreValue<schema::FieldValue<shader_field::codeSize>>);
-    static_assert(schema::StoreValue<schema::Constant<4u>>);
-    static_assert(schema::StoreValue<schema::Sum<schema::Constant<1u>, schema::Constant<2u>>>);
+    static_assert(schema::StoreValue<schema::Literal<4u>>);
+    static_assert(schema::StoreValue<schema::Sum<schema::Literal<1u>, schema::Literal<2u>>>);
     static_assert(!schema::StoreValue<int>);
     static_assert(!schema::StoreValue<shader_field::codeSize>);
     static_assert(schema::CountValue<size_t>);
