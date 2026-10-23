@@ -69,7 +69,7 @@ GFXRECON_BEGIN_NAMESPACE(args)
 
 struct CreateInstance
 {
-    using api_element = schema::vulkan::commands::CreateInstance;
+    using api_element = schema::vulkan::api_elements::CreateInstance;
 
     VkResult result;
     StructPointerDecoder<Decoded_VkInstanceCreateInfo> pCreateInfo;
@@ -82,7 +82,7 @@ struct CreateInstance
 
 struct DestroyInstance
 {
-    using api_element = schema::vulkan::commands::DestroyInstance;
+    using api_element = schema::vulkan::api_elements::DestroyInstance;
 
     format::HandleId instance;
     StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
@@ -93,7 +93,7 @@ struct DestroyInstance
 
 struct EnumeratePhysicalDevices
 {
-    using api_element = schema::vulkan::commands::EnumeratePhysicalDevices;
+    using api_element = schema::vulkan::api_elements::EnumeratePhysicalDevices;
 
     VkResult result;
     format::HandleId instance;
@@ -106,7 +106,7 @@ struct EnumeratePhysicalDevices
 
 struct GetPhysicalDeviceFeatures
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceFeatures;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceFeatures;
 
     format::HandleId physicalDevice;
     StructPointerDecoder<Decoded_VkPhysicalDeviceFeatures> pFeatures;
@@ -117,7 +117,7 @@ struct GetPhysicalDeviceFeatures
 
 struct GetPhysicalDeviceFormatProperties
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceFormatProperties;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceFormatProperties;
 
     format::HandleId physicalDevice;
     VkFormat format;
@@ -129,7 +129,7 @@ struct GetPhysicalDeviceFormatProperties
 
 struct GetPhysicalDeviceImageFormatProperties
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceImageFormatProperties;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceImageFormatProperties;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -146,7 +146,7 @@ struct GetPhysicalDeviceImageFormatProperties
 
 struct GetPhysicalDeviceProperties
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceProperties;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceProperties;
 
     format::HandleId physicalDevice;
     StructPointerDecoder<Decoded_VkPhysicalDeviceProperties> pProperties;
@@ -157,7 +157,7 @@ struct GetPhysicalDeviceProperties
 
 struct GetPhysicalDeviceQueueFamilyProperties
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceQueueFamilyProperties;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceQueueFamilyProperties;
 
     format::HandleId physicalDevice;
     PointerDecoder<uint32_t> pQueueFamilyPropertyCount;
@@ -169,7 +169,7 @@ struct GetPhysicalDeviceQueueFamilyProperties
 
 struct GetPhysicalDeviceMemoryProperties
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceMemoryProperties;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceMemoryProperties;
 
     format::HandleId physicalDevice;
     StructPointerDecoder<Decoded_VkPhysicalDeviceMemoryProperties> pMemoryProperties;
@@ -180,7 +180,7 @@ struct GetPhysicalDeviceMemoryProperties
 
 struct CreateDevice
 {
-    using api_element = schema::vulkan::commands::CreateDevice;
+    using api_element = schema::vulkan::api_elements::CreateDevice;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -194,7 +194,7 @@ struct CreateDevice
 
 struct DestroyDevice
 {
-    using api_element = schema::vulkan::commands::DestroyDevice;
+    using api_element = schema::vulkan::api_elements::DestroyDevice;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
@@ -205,7 +205,7 @@ struct DestroyDevice
 
 struct GetDeviceQueue
 {
-    using api_element = schema::vulkan::commands::GetDeviceQueue;
+    using api_element = schema::vulkan::api_elements::GetDeviceQueue;
 
     format::HandleId device;
     uint32_t queueFamilyIndex;
@@ -218,7 +218,7 @@ struct GetDeviceQueue
 
 struct QueueSubmit
 {
-    using api_element = schema::vulkan::commands::QueueSubmit;
+    using api_element = schema::vulkan::api_elements::QueueSubmit;
 
     VkResult result;
     format::HandleId queue;
@@ -232,7 +232,7 @@ struct QueueSubmit
 
 struct QueueWaitIdle
 {
-    using api_element = schema::vulkan::commands::QueueWaitIdle;
+    using api_element = schema::vulkan::api_elements::QueueWaitIdle;
 
     VkResult result;
     format::HandleId queue;
@@ -243,7 +243,7 @@ struct QueueWaitIdle
 
 struct DeviceWaitIdle
 {
-    using api_element = schema::vulkan::commands::DeviceWaitIdle;
+    using api_element = schema::vulkan::api_elements::DeviceWaitIdle;
 
     VkResult result;
     format::HandleId device;
@@ -254,7 +254,7 @@ struct DeviceWaitIdle
 
 struct AllocateMemory
 {
-    using api_element = schema::vulkan::commands::AllocateMemory;
+    using api_element = schema::vulkan::api_elements::AllocateMemory;
 
     VkResult result;
     format::HandleId device;
@@ -268,7 +268,7 @@ struct AllocateMemory
 
 struct FreeMemory
 {
-    using api_element = schema::vulkan::commands::FreeMemory;
+    using api_element = schema::vulkan::api_elements::FreeMemory;
 
     format::HandleId device;
     format::HandleId memory;
@@ -280,7 +280,7 @@ struct FreeMemory
 
 struct MapMemory
 {
-    using api_element = schema::vulkan::commands::MapMemory;
+    using api_element = schema::vulkan::api_elements::MapMemory;
 
     VkResult result;
     format::HandleId device;
@@ -296,7 +296,7 @@ struct MapMemory
 
 struct UnmapMemory
 {
-    using api_element = schema::vulkan::commands::UnmapMemory;
+    using api_element = schema::vulkan::api_elements::UnmapMemory;
 
     format::HandleId device;
     format::HandleId memory;
@@ -307,7 +307,7 @@ struct UnmapMemory
 
 struct FlushMappedMemoryRanges
 {
-    using api_element = schema::vulkan::commands::FlushMappedMemoryRanges;
+    using api_element = schema::vulkan::api_elements::FlushMappedMemoryRanges;
 
     VkResult result;
     format::HandleId device;
@@ -320,7 +320,7 @@ struct FlushMappedMemoryRanges
 
 struct InvalidateMappedMemoryRanges
 {
-    using api_element = schema::vulkan::commands::InvalidateMappedMemoryRanges;
+    using api_element = schema::vulkan::api_elements::InvalidateMappedMemoryRanges;
 
     VkResult result;
     format::HandleId device;
@@ -333,7 +333,7 @@ struct InvalidateMappedMemoryRanges
 
 struct GetDeviceMemoryCommitment
 {
-    using api_element = schema::vulkan::commands::GetDeviceMemoryCommitment;
+    using api_element = schema::vulkan::api_elements::GetDeviceMemoryCommitment;
 
     format::HandleId device;
     format::HandleId memory;
@@ -345,7 +345,7 @@ struct GetDeviceMemoryCommitment
 
 struct BindBufferMemory
 {
-    using api_element = schema::vulkan::commands::BindBufferMemory;
+    using api_element = schema::vulkan::api_elements::BindBufferMemory;
 
     VkResult result;
     format::HandleId device;
@@ -359,7 +359,7 @@ struct BindBufferMemory
 
 struct BindImageMemory
 {
-    using api_element = schema::vulkan::commands::BindImageMemory;
+    using api_element = schema::vulkan::api_elements::BindImageMemory;
 
     VkResult result;
     format::HandleId device;
@@ -373,7 +373,7 @@ struct BindImageMemory
 
 struct GetBufferMemoryRequirements
 {
-    using api_element = schema::vulkan::commands::GetBufferMemoryRequirements;
+    using api_element = schema::vulkan::api_elements::GetBufferMemoryRequirements;
 
     format::HandleId device;
     format::HandleId buffer;
@@ -385,7 +385,7 @@ struct GetBufferMemoryRequirements
 
 struct GetImageMemoryRequirements
 {
-    using api_element = schema::vulkan::commands::GetImageMemoryRequirements;
+    using api_element = schema::vulkan::api_elements::GetImageMemoryRequirements;
 
     format::HandleId device;
     format::HandleId image;
@@ -397,7 +397,7 @@ struct GetImageMemoryRequirements
 
 struct GetImageSparseMemoryRequirements
 {
-    using api_element = schema::vulkan::commands::GetImageSparseMemoryRequirements;
+    using api_element = schema::vulkan::api_elements::GetImageSparseMemoryRequirements;
 
     format::HandleId device;
     format::HandleId image;
@@ -410,7 +410,7 @@ struct GetImageSparseMemoryRequirements
 
 struct GetPhysicalDeviceSparseImageFormatProperties
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceSparseImageFormatProperties;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceSparseImageFormatProperties;
 
     format::HandleId physicalDevice;
     VkFormat format;
@@ -427,7 +427,7 @@ struct GetPhysicalDeviceSparseImageFormatProperties
 
 struct QueueBindSparse
 {
-    using api_element = schema::vulkan::commands::QueueBindSparse;
+    using api_element = schema::vulkan::api_elements::QueueBindSparse;
 
     VkResult result;
     format::HandleId queue;
@@ -441,7 +441,7 @@ struct QueueBindSparse
 
 struct CreateFence
 {
-    using api_element = schema::vulkan::commands::CreateFence;
+    using api_element = schema::vulkan::api_elements::CreateFence;
 
     VkResult result;
     format::HandleId device;
@@ -455,7 +455,7 @@ struct CreateFence
 
 struct DestroyFence
 {
-    using api_element = schema::vulkan::commands::DestroyFence;
+    using api_element = schema::vulkan::api_elements::DestroyFence;
 
     format::HandleId device;
     format::HandleId fence;
@@ -467,7 +467,7 @@ struct DestroyFence
 
 struct ResetFences
 {
-    using api_element = schema::vulkan::commands::ResetFences;
+    using api_element = schema::vulkan::api_elements::ResetFences;
 
     VkResult result;
     format::HandleId device;
@@ -480,7 +480,7 @@ struct ResetFences
 
 struct GetFenceStatus
 {
-    using api_element = schema::vulkan::commands::GetFenceStatus;
+    using api_element = schema::vulkan::api_elements::GetFenceStatus;
 
     VkResult result;
     format::HandleId device;
@@ -492,7 +492,7 @@ struct GetFenceStatus
 
 struct WaitForFences
 {
-    using api_element = schema::vulkan::commands::WaitForFences;
+    using api_element = schema::vulkan::api_elements::WaitForFences;
 
     VkResult result;
     format::HandleId device;
@@ -507,7 +507,7 @@ struct WaitForFences
 
 struct CreateSemaphore
 {
-    using api_element = schema::vulkan::commands::CreateSemaphore;
+    using api_element = schema::vulkan::api_elements::CreateSemaphore;
 
     VkResult result;
     format::HandleId device;
@@ -521,7 +521,7 @@ struct CreateSemaphore
 
 struct DestroySemaphore
 {
-    using api_element = schema::vulkan::commands::DestroySemaphore;
+    using api_element = schema::vulkan::api_elements::DestroySemaphore;
 
     format::HandleId device;
     format::HandleId semaphore;
@@ -533,7 +533,7 @@ struct DestroySemaphore
 
 struct CreateQueryPool
 {
-    using api_element = schema::vulkan::commands::CreateQueryPool;
+    using api_element = schema::vulkan::api_elements::CreateQueryPool;
 
     VkResult result;
     format::HandleId device;
@@ -547,7 +547,7 @@ struct CreateQueryPool
 
 struct DestroyQueryPool
 {
-    using api_element = schema::vulkan::commands::DestroyQueryPool;
+    using api_element = schema::vulkan::api_elements::DestroyQueryPool;
 
     format::HandleId device;
     format::HandleId queryPool;
@@ -559,7 +559,7 @@ struct DestroyQueryPool
 
 struct GetQueryPoolResults
 {
-    using api_element = schema::vulkan::commands::GetQueryPoolResults;
+    using api_element = schema::vulkan::api_elements::GetQueryPoolResults;
 
     VkResult result;
     format::HandleId device;
@@ -577,7 +577,7 @@ struct GetQueryPoolResults
 
 struct CreateBuffer
 {
-    using api_element = schema::vulkan::commands::CreateBuffer;
+    using api_element = schema::vulkan::api_elements::CreateBuffer;
 
     VkResult result;
     format::HandleId device;
@@ -591,7 +591,7 @@ struct CreateBuffer
 
 struct DestroyBuffer
 {
-    using api_element = schema::vulkan::commands::DestroyBuffer;
+    using api_element = schema::vulkan::api_elements::DestroyBuffer;
 
     format::HandleId device;
     format::HandleId buffer;
@@ -603,7 +603,7 @@ struct DestroyBuffer
 
 struct CreateImage
 {
-    using api_element = schema::vulkan::commands::CreateImage;
+    using api_element = schema::vulkan::api_elements::CreateImage;
 
     VkResult result;
     format::HandleId device;
@@ -617,7 +617,7 @@ struct CreateImage
 
 struct DestroyImage
 {
-    using api_element = schema::vulkan::commands::DestroyImage;
+    using api_element = schema::vulkan::api_elements::DestroyImage;
 
     format::HandleId device;
     format::HandleId image;
@@ -629,7 +629,7 @@ struct DestroyImage
 
 struct GetImageSubresourceLayout
 {
-    using api_element = schema::vulkan::commands::GetImageSubresourceLayout;
+    using api_element = schema::vulkan::api_elements::GetImageSubresourceLayout;
 
     format::HandleId device;
     format::HandleId image;
@@ -642,7 +642,7 @@ struct GetImageSubresourceLayout
 
 struct CreateImageView
 {
-    using api_element = schema::vulkan::commands::CreateImageView;
+    using api_element = schema::vulkan::api_elements::CreateImageView;
 
     VkResult result;
     format::HandleId device;
@@ -656,7 +656,7 @@ struct CreateImageView
 
 struct DestroyImageView
 {
-    using api_element = schema::vulkan::commands::DestroyImageView;
+    using api_element = schema::vulkan::api_elements::DestroyImageView;
 
     format::HandleId device;
     format::HandleId imageView;
@@ -668,7 +668,7 @@ struct DestroyImageView
 
 struct CreateCommandPool
 {
-    using api_element = schema::vulkan::commands::CreateCommandPool;
+    using api_element = schema::vulkan::api_elements::CreateCommandPool;
 
     VkResult result;
     format::HandleId device;
@@ -682,7 +682,7 @@ struct CreateCommandPool
 
 struct DestroyCommandPool
 {
-    using api_element = schema::vulkan::commands::DestroyCommandPool;
+    using api_element = schema::vulkan::api_elements::DestroyCommandPool;
 
     format::HandleId device;
     format::HandleId commandPool;
@@ -694,7 +694,7 @@ struct DestroyCommandPool
 
 struct ResetCommandPool
 {
-    using api_element = schema::vulkan::commands::ResetCommandPool;
+    using api_element = schema::vulkan::api_elements::ResetCommandPool;
 
     VkResult result;
     format::HandleId device;
@@ -707,7 +707,7 @@ struct ResetCommandPool
 
 struct AllocateCommandBuffers
 {
-    using api_element = schema::vulkan::commands::AllocateCommandBuffers;
+    using api_element = schema::vulkan::api_elements::AllocateCommandBuffers;
 
     VkResult result;
     format::HandleId device;
@@ -720,7 +720,7 @@ struct AllocateCommandBuffers
 
 struct FreeCommandBuffers
 {
-    using api_element = schema::vulkan::commands::FreeCommandBuffers;
+    using api_element = schema::vulkan::api_elements::FreeCommandBuffers;
 
     format::HandleId device;
     format::HandleId commandPool;
@@ -733,7 +733,7 @@ struct FreeCommandBuffers
 
 struct BeginCommandBuffer
 {
-    using api_element = schema::vulkan::commands::BeginCommandBuffer;
+    using api_element = schema::vulkan::api_elements::BeginCommandBuffer;
 
     VkResult result;
     format::HandleId commandBuffer;
@@ -745,7 +745,7 @@ struct BeginCommandBuffer
 
 struct EndCommandBuffer
 {
-    using api_element = schema::vulkan::commands::EndCommandBuffer;
+    using api_element = schema::vulkan::api_elements::EndCommandBuffer;
 
     VkResult result;
     format::HandleId commandBuffer;
@@ -756,7 +756,7 @@ struct EndCommandBuffer
 
 struct ResetCommandBuffer
 {
-    using api_element = schema::vulkan::commands::ResetCommandBuffer;
+    using api_element = schema::vulkan::api_elements::ResetCommandBuffer;
 
     VkResult result;
     format::HandleId commandBuffer;
@@ -768,7 +768,7 @@ struct ResetCommandBuffer
 
 struct CmdCopyBuffer
 {
-    using api_element = schema::vulkan::commands::CmdCopyBuffer;
+    using api_element = schema::vulkan::api_elements::CmdCopyBuffer;
 
     format::HandleId commandBuffer;
     format::HandleId srcBuffer;
@@ -782,7 +782,7 @@ struct CmdCopyBuffer
 
 struct CmdCopyImage
 {
-    using api_element = schema::vulkan::commands::CmdCopyImage;
+    using api_element = schema::vulkan::api_elements::CmdCopyImage;
 
     format::HandleId commandBuffer;
     format::HandleId srcImage;
@@ -798,7 +798,7 @@ struct CmdCopyImage
 
 struct CmdCopyBufferToImage
 {
-    using api_element = schema::vulkan::commands::CmdCopyBufferToImage;
+    using api_element = schema::vulkan::api_elements::CmdCopyBufferToImage;
 
     format::HandleId commandBuffer;
     format::HandleId srcBuffer;
@@ -813,7 +813,7 @@ struct CmdCopyBufferToImage
 
 struct CmdCopyImageToBuffer
 {
-    using api_element = schema::vulkan::commands::CmdCopyImageToBuffer;
+    using api_element = schema::vulkan::api_elements::CmdCopyImageToBuffer;
 
     format::HandleId commandBuffer;
     format::HandleId srcImage;
@@ -828,7 +828,7 @@ struct CmdCopyImageToBuffer
 
 struct CmdUpdateBuffer
 {
-    using api_element = schema::vulkan::commands::CmdUpdateBuffer;
+    using api_element = schema::vulkan::api_elements::CmdUpdateBuffer;
 
     format::HandleId commandBuffer;
     format::HandleId dstBuffer;
@@ -842,7 +842,7 @@ struct CmdUpdateBuffer
 
 struct CmdFillBuffer
 {
-    using api_element = schema::vulkan::commands::CmdFillBuffer;
+    using api_element = schema::vulkan::api_elements::CmdFillBuffer;
 
     format::HandleId commandBuffer;
     format::HandleId dstBuffer;
@@ -856,7 +856,7 @@ struct CmdFillBuffer
 
 struct CmdPipelineBarrier
 {
-    using api_element = schema::vulkan::commands::CmdPipelineBarrier;
+    using api_element = schema::vulkan::api_elements::CmdPipelineBarrier;
 
     format::HandleId commandBuffer;
     VkPipelineStageFlags srcStageMask;
@@ -875,7 +875,7 @@ struct CmdPipelineBarrier
 
 struct CmdBeginQuery
 {
-    using api_element = schema::vulkan::commands::CmdBeginQuery;
+    using api_element = schema::vulkan::api_elements::CmdBeginQuery;
 
     format::HandleId commandBuffer;
     format::HandleId queryPool;
@@ -888,7 +888,7 @@ struct CmdBeginQuery
 
 struct CmdEndQuery
 {
-    using api_element = schema::vulkan::commands::CmdEndQuery;
+    using api_element = schema::vulkan::api_elements::CmdEndQuery;
 
     format::HandleId commandBuffer;
     format::HandleId queryPool;
@@ -900,7 +900,7 @@ struct CmdEndQuery
 
 struct CmdResetQueryPool
 {
-    using api_element = schema::vulkan::commands::CmdResetQueryPool;
+    using api_element = schema::vulkan::api_elements::CmdResetQueryPool;
 
     format::HandleId commandBuffer;
     format::HandleId queryPool;
@@ -913,7 +913,7 @@ struct CmdResetQueryPool
 
 struct CmdWriteTimestamp
 {
-    using api_element = schema::vulkan::commands::CmdWriteTimestamp;
+    using api_element = schema::vulkan::api_elements::CmdWriteTimestamp;
 
     format::HandleId commandBuffer;
     VkPipelineStageFlagBits pipelineStage;
@@ -926,7 +926,7 @@ struct CmdWriteTimestamp
 
 struct CmdCopyQueryPoolResults
 {
-    using api_element = schema::vulkan::commands::CmdCopyQueryPoolResults;
+    using api_element = schema::vulkan::api_elements::CmdCopyQueryPoolResults;
 
     format::HandleId commandBuffer;
     format::HandleId queryPool;
@@ -943,7 +943,7 @@ struct CmdCopyQueryPoolResults
 
 struct CmdExecuteCommands
 {
-    using api_element = schema::vulkan::commands::CmdExecuteCommands;
+    using api_element = schema::vulkan::api_elements::CmdExecuteCommands;
 
     format::HandleId commandBuffer;
     uint32_t commandBufferCount;
@@ -955,7 +955,7 @@ struct CmdExecuteCommands
 
 struct CreateEvent
 {
-    using api_element = schema::vulkan::commands::CreateEvent;
+    using api_element = schema::vulkan::api_elements::CreateEvent;
 
     VkResult result;
     format::HandleId device;
@@ -969,7 +969,7 @@ struct CreateEvent
 
 struct DestroyEvent
 {
-    using api_element = schema::vulkan::commands::DestroyEvent;
+    using api_element = schema::vulkan::api_elements::DestroyEvent;
 
     format::HandleId device;
     format::HandleId event;
@@ -981,7 +981,7 @@ struct DestroyEvent
 
 struct GetEventStatus
 {
-    using api_element = schema::vulkan::commands::GetEventStatus;
+    using api_element = schema::vulkan::api_elements::GetEventStatus;
 
     VkResult result;
     format::HandleId device;
@@ -993,7 +993,7 @@ struct GetEventStatus
 
 struct SetEvent
 {
-    using api_element = schema::vulkan::commands::SetEvent;
+    using api_element = schema::vulkan::api_elements::SetEvent;
 
     VkResult result;
     format::HandleId device;
@@ -1005,7 +1005,7 @@ struct SetEvent
 
 struct ResetEvent
 {
-    using api_element = schema::vulkan::commands::ResetEvent;
+    using api_element = schema::vulkan::api_elements::ResetEvent;
 
     VkResult result;
     format::HandleId device;
@@ -1017,7 +1017,7 @@ struct ResetEvent
 
 struct CreateBufferView
 {
-    using api_element = schema::vulkan::commands::CreateBufferView;
+    using api_element = schema::vulkan::api_elements::CreateBufferView;
 
     VkResult result;
     format::HandleId device;
@@ -1031,7 +1031,7 @@ struct CreateBufferView
 
 struct DestroyBufferView
 {
-    using api_element = schema::vulkan::commands::DestroyBufferView;
+    using api_element = schema::vulkan::api_elements::DestroyBufferView;
 
     format::HandleId device;
     format::HandleId bufferView;
@@ -1043,7 +1043,7 @@ struct DestroyBufferView
 
 struct CreateShaderModule
 {
-    using api_element = schema::vulkan::commands::CreateShaderModule;
+    using api_element = schema::vulkan::api_elements::CreateShaderModule;
 
     VkResult result;
     format::HandleId device;
@@ -1057,7 +1057,7 @@ struct CreateShaderModule
 
 struct DestroyShaderModule
 {
-    using api_element = schema::vulkan::commands::DestroyShaderModule;
+    using api_element = schema::vulkan::api_elements::DestroyShaderModule;
 
     format::HandleId device;
     format::HandleId shaderModule;
@@ -1069,7 +1069,7 @@ struct DestroyShaderModule
 
 struct CreatePipelineCache
 {
-    using api_element = schema::vulkan::commands::CreatePipelineCache;
+    using api_element = schema::vulkan::api_elements::CreatePipelineCache;
 
     VkResult result;
     format::HandleId device;
@@ -1083,7 +1083,7 @@ struct CreatePipelineCache
 
 struct DestroyPipelineCache
 {
-    using api_element = schema::vulkan::commands::DestroyPipelineCache;
+    using api_element = schema::vulkan::api_elements::DestroyPipelineCache;
 
     format::HandleId device;
     format::HandleId pipelineCache;
@@ -1095,7 +1095,7 @@ struct DestroyPipelineCache
 
 struct GetPipelineCacheData
 {
-    using api_element = schema::vulkan::commands::GetPipelineCacheData;
+    using api_element = schema::vulkan::api_elements::GetPipelineCacheData;
 
     VkResult result;
     format::HandleId device;
@@ -1109,7 +1109,7 @@ struct GetPipelineCacheData
 
 struct MergePipelineCaches
 {
-    using api_element = schema::vulkan::commands::MergePipelineCaches;
+    using api_element = schema::vulkan::api_elements::MergePipelineCaches;
 
     VkResult result;
     format::HandleId device;
@@ -1123,7 +1123,7 @@ struct MergePipelineCaches
 
 struct CreateComputePipelines
 {
-    using api_element = schema::vulkan::commands::CreateComputePipelines;
+    using api_element = schema::vulkan::api_elements::CreateComputePipelines;
 
     VkResult result;
     format::HandleId device;
@@ -1139,7 +1139,7 @@ struct CreateComputePipelines
 
 struct DestroyPipeline
 {
-    using api_element = schema::vulkan::commands::DestroyPipeline;
+    using api_element = schema::vulkan::api_elements::DestroyPipeline;
 
     format::HandleId device;
     format::HandleId pipeline;
@@ -1151,7 +1151,7 @@ struct DestroyPipeline
 
 struct CreatePipelineLayout
 {
-    using api_element = schema::vulkan::commands::CreatePipelineLayout;
+    using api_element = schema::vulkan::api_elements::CreatePipelineLayout;
 
     VkResult result;
     format::HandleId device;
@@ -1165,7 +1165,7 @@ struct CreatePipelineLayout
 
 struct DestroyPipelineLayout
 {
-    using api_element = schema::vulkan::commands::DestroyPipelineLayout;
+    using api_element = schema::vulkan::api_elements::DestroyPipelineLayout;
 
     format::HandleId device;
     format::HandleId pipelineLayout;
@@ -1177,7 +1177,7 @@ struct DestroyPipelineLayout
 
 struct CreateSampler
 {
-    using api_element = schema::vulkan::commands::CreateSampler;
+    using api_element = schema::vulkan::api_elements::CreateSampler;
 
     VkResult result;
     format::HandleId device;
@@ -1191,7 +1191,7 @@ struct CreateSampler
 
 struct DestroySampler
 {
-    using api_element = schema::vulkan::commands::DestroySampler;
+    using api_element = schema::vulkan::api_elements::DestroySampler;
 
     format::HandleId device;
     format::HandleId sampler;
@@ -1203,7 +1203,7 @@ struct DestroySampler
 
 struct CreateDescriptorSetLayout
 {
-    using api_element = schema::vulkan::commands::CreateDescriptorSetLayout;
+    using api_element = schema::vulkan::api_elements::CreateDescriptorSetLayout;
 
     VkResult result;
     format::HandleId device;
@@ -1217,7 +1217,7 @@ struct CreateDescriptorSetLayout
 
 struct DestroyDescriptorSetLayout
 {
-    using api_element = schema::vulkan::commands::DestroyDescriptorSetLayout;
+    using api_element = schema::vulkan::api_elements::DestroyDescriptorSetLayout;
 
     format::HandleId device;
     format::HandleId descriptorSetLayout;
@@ -1229,7 +1229,7 @@ struct DestroyDescriptorSetLayout
 
 struct CreateDescriptorPool
 {
-    using api_element = schema::vulkan::commands::CreateDescriptorPool;
+    using api_element = schema::vulkan::api_elements::CreateDescriptorPool;
 
     VkResult result;
     format::HandleId device;
@@ -1243,7 +1243,7 @@ struct CreateDescriptorPool
 
 struct DestroyDescriptorPool
 {
-    using api_element = schema::vulkan::commands::DestroyDescriptorPool;
+    using api_element = schema::vulkan::api_elements::DestroyDescriptorPool;
 
     format::HandleId device;
     format::HandleId descriptorPool;
@@ -1255,7 +1255,7 @@ struct DestroyDescriptorPool
 
 struct ResetDescriptorPool
 {
-    using api_element = schema::vulkan::commands::ResetDescriptorPool;
+    using api_element = schema::vulkan::api_elements::ResetDescriptorPool;
 
     VkResult result;
     format::HandleId device;
@@ -1268,7 +1268,7 @@ struct ResetDescriptorPool
 
 struct AllocateDescriptorSets
 {
-    using api_element = schema::vulkan::commands::AllocateDescriptorSets;
+    using api_element = schema::vulkan::api_elements::AllocateDescriptorSets;
 
     VkResult result;
     format::HandleId device;
@@ -1281,7 +1281,7 @@ struct AllocateDescriptorSets
 
 struct FreeDescriptorSets
 {
-    using api_element = schema::vulkan::commands::FreeDescriptorSets;
+    using api_element = schema::vulkan::api_elements::FreeDescriptorSets;
 
     VkResult result;
     format::HandleId device;
@@ -1295,7 +1295,7 @@ struct FreeDescriptorSets
 
 struct UpdateDescriptorSets
 {
-    using api_element = schema::vulkan::commands::UpdateDescriptorSets;
+    using api_element = schema::vulkan::api_elements::UpdateDescriptorSets;
 
     format::HandleId device;
     uint32_t descriptorWriteCount;
@@ -1309,7 +1309,7 @@ struct UpdateDescriptorSets
 
 struct CmdBindPipeline
 {
-    using api_element = schema::vulkan::commands::CmdBindPipeline;
+    using api_element = schema::vulkan::api_elements::CmdBindPipeline;
 
     format::HandleId commandBuffer;
     VkPipelineBindPoint pipelineBindPoint;
@@ -1321,7 +1321,7 @@ struct CmdBindPipeline
 
 struct CmdBindDescriptorSets
 {
-    using api_element = schema::vulkan::commands::CmdBindDescriptorSets;
+    using api_element = schema::vulkan::api_elements::CmdBindDescriptorSets;
 
     format::HandleId commandBuffer;
     VkPipelineBindPoint pipelineBindPoint;
@@ -1338,7 +1338,7 @@ struct CmdBindDescriptorSets
 
 struct CmdClearColorImage
 {
-    using api_element = schema::vulkan::commands::CmdClearColorImage;
+    using api_element = schema::vulkan::api_elements::CmdClearColorImage;
 
     format::HandleId commandBuffer;
     format::HandleId image;
@@ -1353,7 +1353,7 @@ struct CmdClearColorImage
 
 struct CmdDispatch
 {
-    using api_element = schema::vulkan::commands::CmdDispatch;
+    using api_element = schema::vulkan::api_elements::CmdDispatch;
 
     format::HandleId commandBuffer;
     uint32_t groupCountX;
@@ -1366,7 +1366,7 @@ struct CmdDispatch
 
 struct CmdDispatchIndirect
 {
-    using api_element = schema::vulkan::commands::CmdDispatchIndirect;
+    using api_element = schema::vulkan::api_elements::CmdDispatchIndirect;
 
     format::HandleId commandBuffer;
     format::HandleId buffer;
@@ -1378,7 +1378,7 @@ struct CmdDispatchIndirect
 
 struct CmdSetEvent
 {
-    using api_element = schema::vulkan::commands::CmdSetEvent;
+    using api_element = schema::vulkan::api_elements::CmdSetEvent;
 
     format::HandleId commandBuffer;
     format::HandleId event;
@@ -1390,7 +1390,7 @@ struct CmdSetEvent
 
 struct CmdResetEvent
 {
-    using api_element = schema::vulkan::commands::CmdResetEvent;
+    using api_element = schema::vulkan::api_elements::CmdResetEvent;
 
     format::HandleId commandBuffer;
     format::HandleId event;
@@ -1402,7 +1402,7 @@ struct CmdResetEvent
 
 struct CmdWaitEvents
 {
-    using api_element = schema::vulkan::commands::CmdWaitEvents;
+    using api_element = schema::vulkan::api_elements::CmdWaitEvents;
 
     format::HandleId commandBuffer;
     uint32_t eventCount;
@@ -1422,7 +1422,7 @@ struct CmdWaitEvents
 
 struct CmdPushConstants
 {
-    using api_element = schema::vulkan::commands::CmdPushConstants;
+    using api_element = schema::vulkan::api_elements::CmdPushConstants;
 
     format::HandleId commandBuffer;
     format::HandleId layout;
@@ -1437,7 +1437,7 @@ struct CmdPushConstants
 
 struct CreateGraphicsPipelines
 {
-    using api_element = schema::vulkan::commands::CreateGraphicsPipelines;
+    using api_element = schema::vulkan::api_elements::CreateGraphicsPipelines;
 
     VkResult result;
     format::HandleId device;
@@ -1453,7 +1453,7 @@ struct CreateGraphicsPipelines
 
 struct CreateFramebuffer
 {
-    using api_element = schema::vulkan::commands::CreateFramebuffer;
+    using api_element = schema::vulkan::api_elements::CreateFramebuffer;
 
     VkResult result;
     format::HandleId device;
@@ -1467,7 +1467,7 @@ struct CreateFramebuffer
 
 struct DestroyFramebuffer
 {
-    using api_element = schema::vulkan::commands::DestroyFramebuffer;
+    using api_element = schema::vulkan::api_elements::DestroyFramebuffer;
 
     format::HandleId device;
     format::HandleId framebuffer;
@@ -1479,7 +1479,7 @@ struct DestroyFramebuffer
 
 struct CreateRenderPass
 {
-    using api_element = schema::vulkan::commands::CreateRenderPass;
+    using api_element = schema::vulkan::api_elements::CreateRenderPass;
 
     VkResult result;
     format::HandleId device;
@@ -1493,7 +1493,7 @@ struct CreateRenderPass
 
 struct DestroyRenderPass
 {
-    using api_element = schema::vulkan::commands::DestroyRenderPass;
+    using api_element = schema::vulkan::api_elements::DestroyRenderPass;
 
     format::HandleId device;
     format::HandleId renderPass;
@@ -1505,7 +1505,7 @@ struct DestroyRenderPass
 
 struct GetRenderAreaGranularity
 {
-    using api_element = schema::vulkan::commands::GetRenderAreaGranularity;
+    using api_element = schema::vulkan::api_elements::GetRenderAreaGranularity;
 
     format::HandleId device;
     format::HandleId renderPass;
@@ -1517,7 +1517,7 @@ struct GetRenderAreaGranularity
 
 struct CmdSetViewport
 {
-    using api_element = schema::vulkan::commands::CmdSetViewport;
+    using api_element = schema::vulkan::api_elements::CmdSetViewport;
 
     format::HandleId commandBuffer;
     uint32_t firstViewport;
@@ -1530,7 +1530,7 @@ struct CmdSetViewport
 
 struct CmdSetScissor
 {
-    using api_element = schema::vulkan::commands::CmdSetScissor;
+    using api_element = schema::vulkan::api_elements::CmdSetScissor;
 
     format::HandleId commandBuffer;
     uint32_t firstScissor;
@@ -1543,7 +1543,7 @@ struct CmdSetScissor
 
 struct CmdSetLineWidth
 {
-    using api_element = schema::vulkan::commands::CmdSetLineWidth;
+    using api_element = schema::vulkan::api_elements::CmdSetLineWidth;
 
     format::HandleId commandBuffer;
     float lineWidth;
@@ -1554,7 +1554,7 @@ struct CmdSetLineWidth
 
 struct CmdSetDepthBias
 {
-    using api_element = schema::vulkan::commands::CmdSetDepthBias;
+    using api_element = schema::vulkan::api_elements::CmdSetDepthBias;
 
     format::HandleId commandBuffer;
     float depthBiasConstantFactor;
@@ -1567,7 +1567,7 @@ struct CmdSetDepthBias
 
 struct CmdSetBlendConstants
 {
-    using api_element = schema::vulkan::commands::CmdSetBlendConstants;
+    using api_element = schema::vulkan::api_elements::CmdSetBlendConstants;
 
     format::HandleId commandBuffer;
     PointerDecoder<float> blendConstants;
@@ -1578,7 +1578,7 @@ struct CmdSetBlendConstants
 
 struct CmdSetDepthBounds
 {
-    using api_element = schema::vulkan::commands::CmdSetDepthBounds;
+    using api_element = schema::vulkan::api_elements::CmdSetDepthBounds;
 
     format::HandleId commandBuffer;
     float minDepthBounds;
@@ -1590,7 +1590,7 @@ struct CmdSetDepthBounds
 
 struct CmdSetStencilCompareMask
 {
-    using api_element = schema::vulkan::commands::CmdSetStencilCompareMask;
+    using api_element = schema::vulkan::api_elements::CmdSetStencilCompareMask;
 
     format::HandleId commandBuffer;
     VkStencilFaceFlags faceMask;
@@ -1602,7 +1602,7 @@ struct CmdSetStencilCompareMask
 
 struct CmdSetStencilWriteMask
 {
-    using api_element = schema::vulkan::commands::CmdSetStencilWriteMask;
+    using api_element = schema::vulkan::api_elements::CmdSetStencilWriteMask;
 
     format::HandleId commandBuffer;
     VkStencilFaceFlags faceMask;
@@ -1614,7 +1614,7 @@ struct CmdSetStencilWriteMask
 
 struct CmdSetStencilReference
 {
-    using api_element = schema::vulkan::commands::CmdSetStencilReference;
+    using api_element = schema::vulkan::api_elements::CmdSetStencilReference;
 
     format::HandleId commandBuffer;
     VkStencilFaceFlags faceMask;
@@ -1626,7 +1626,7 @@ struct CmdSetStencilReference
 
 struct CmdBindIndexBuffer
 {
-    using api_element = schema::vulkan::commands::CmdBindIndexBuffer;
+    using api_element = schema::vulkan::api_elements::CmdBindIndexBuffer;
 
     format::HandleId commandBuffer;
     format::HandleId buffer;
@@ -1639,7 +1639,7 @@ struct CmdBindIndexBuffer
 
 struct CmdBindVertexBuffers
 {
-    using api_element = schema::vulkan::commands::CmdBindVertexBuffers;
+    using api_element = schema::vulkan::api_elements::CmdBindVertexBuffers;
 
     format::HandleId commandBuffer;
     uint32_t firstBinding;
@@ -1653,7 +1653,7 @@ struct CmdBindVertexBuffers
 
 struct CmdDraw
 {
-    using api_element = schema::vulkan::commands::CmdDraw;
+    using api_element = schema::vulkan::api_elements::CmdDraw;
 
     format::HandleId commandBuffer;
     uint32_t vertexCount;
@@ -1667,7 +1667,7 @@ struct CmdDraw
 
 struct CmdDrawIndexed
 {
-    using api_element = schema::vulkan::commands::CmdDrawIndexed;
+    using api_element = schema::vulkan::api_elements::CmdDrawIndexed;
 
     format::HandleId commandBuffer;
     uint32_t indexCount;
@@ -1682,7 +1682,7 @@ struct CmdDrawIndexed
 
 struct CmdDrawIndirect
 {
-    using api_element = schema::vulkan::commands::CmdDrawIndirect;
+    using api_element = schema::vulkan::api_elements::CmdDrawIndirect;
 
     format::HandleId commandBuffer;
     format::HandleId buffer;
@@ -1696,7 +1696,7 @@ struct CmdDrawIndirect
 
 struct CmdDrawIndexedIndirect
 {
-    using api_element = schema::vulkan::commands::CmdDrawIndexedIndirect;
+    using api_element = schema::vulkan::api_elements::CmdDrawIndexedIndirect;
 
     format::HandleId commandBuffer;
     format::HandleId buffer;
@@ -1710,7 +1710,7 @@ struct CmdDrawIndexedIndirect
 
 struct CmdBlitImage
 {
-    using api_element = schema::vulkan::commands::CmdBlitImage;
+    using api_element = schema::vulkan::api_elements::CmdBlitImage;
 
     format::HandleId commandBuffer;
     format::HandleId srcImage;
@@ -1727,7 +1727,7 @@ struct CmdBlitImage
 
 struct CmdClearDepthStencilImage
 {
-    using api_element = schema::vulkan::commands::CmdClearDepthStencilImage;
+    using api_element = schema::vulkan::api_elements::CmdClearDepthStencilImage;
 
     format::HandleId commandBuffer;
     format::HandleId image;
@@ -1742,7 +1742,7 @@ struct CmdClearDepthStencilImage
 
 struct CmdClearAttachments
 {
-    using api_element = schema::vulkan::commands::CmdClearAttachments;
+    using api_element = schema::vulkan::api_elements::CmdClearAttachments;
 
     format::HandleId commandBuffer;
     uint32_t attachmentCount;
@@ -1756,7 +1756,7 @@ struct CmdClearAttachments
 
 struct CmdResolveImage
 {
-    using api_element = schema::vulkan::commands::CmdResolveImage;
+    using api_element = schema::vulkan::api_elements::CmdResolveImage;
 
     format::HandleId commandBuffer;
     format::HandleId srcImage;
@@ -1772,7 +1772,7 @@ struct CmdResolveImage
 
 struct CmdBeginRenderPass
 {
-    using api_element = schema::vulkan::commands::CmdBeginRenderPass;
+    using api_element = schema::vulkan::api_elements::CmdBeginRenderPass;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkRenderPassBeginInfo> pRenderPassBegin;
@@ -1784,7 +1784,7 @@ struct CmdBeginRenderPass
 
 struct CmdNextSubpass
 {
-    using api_element = schema::vulkan::commands::CmdNextSubpass;
+    using api_element = schema::vulkan::api_elements::CmdNextSubpass;
 
     format::HandleId commandBuffer;
     VkSubpassContents contents;
@@ -1795,7 +1795,7 @@ struct CmdNextSubpass
 
 struct CmdEndRenderPass
 {
-    using api_element = schema::vulkan::commands::CmdEndRenderPass;
+    using api_element = schema::vulkan::api_elements::CmdEndRenderPass;
 
     format::HandleId commandBuffer;
 
@@ -1805,7 +1805,7 @@ struct CmdEndRenderPass
 
 struct BindBufferMemory2
 {
-    using api_element = schema::vulkan::commands::BindBufferMemory2;
+    using api_element = schema::vulkan::api_elements::BindBufferMemory2;
 
     VkResult result;
     format::HandleId device;
@@ -1818,7 +1818,7 @@ struct BindBufferMemory2
 
 struct BindImageMemory2
 {
-    using api_element = schema::vulkan::commands::BindImageMemory2;
+    using api_element = schema::vulkan::api_elements::BindImageMemory2;
 
     VkResult result;
     format::HandleId device;
@@ -1831,7 +1831,7 @@ struct BindImageMemory2
 
 struct GetDeviceGroupPeerMemoryFeatures
 {
-    using api_element = schema::vulkan::commands::GetDeviceGroupPeerMemoryFeatures;
+    using api_element = schema::vulkan::api_elements::GetDeviceGroupPeerMemoryFeatures;
 
     format::HandleId device;
     uint32_t heapIndex;
@@ -1845,7 +1845,7 @@ struct GetDeviceGroupPeerMemoryFeatures
 
 struct CmdSetDeviceMask
 {
-    using api_element = schema::vulkan::commands::CmdSetDeviceMask;
+    using api_element = schema::vulkan::api_elements::CmdSetDeviceMask;
 
     format::HandleId commandBuffer;
     uint32_t deviceMask;
@@ -1856,7 +1856,7 @@ struct CmdSetDeviceMask
 
 struct EnumeratePhysicalDeviceGroups
 {
-    using api_element = schema::vulkan::commands::EnumeratePhysicalDeviceGroups;
+    using api_element = schema::vulkan::api_elements::EnumeratePhysicalDeviceGroups;
 
     VkResult result;
     format::HandleId instance;
@@ -1869,7 +1869,7 @@ struct EnumeratePhysicalDeviceGroups
 
 struct GetImageMemoryRequirements2
 {
-    using api_element = schema::vulkan::commands::GetImageMemoryRequirements2;
+    using api_element = schema::vulkan::api_elements::GetImageMemoryRequirements2;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkImageMemoryRequirementsInfo2> pInfo;
@@ -1881,7 +1881,7 @@ struct GetImageMemoryRequirements2
 
 struct GetBufferMemoryRequirements2
 {
-    using api_element = schema::vulkan::commands::GetBufferMemoryRequirements2;
+    using api_element = schema::vulkan::api_elements::GetBufferMemoryRequirements2;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkBufferMemoryRequirementsInfo2> pInfo;
@@ -1893,7 +1893,7 @@ struct GetBufferMemoryRequirements2
 
 struct GetImageSparseMemoryRequirements2
 {
-    using api_element = schema::vulkan::commands::GetImageSparseMemoryRequirements2;
+    using api_element = schema::vulkan::api_elements::GetImageSparseMemoryRequirements2;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkImageSparseMemoryRequirementsInfo2> pInfo;
@@ -1906,7 +1906,7 @@ struct GetImageSparseMemoryRequirements2
 
 struct GetPhysicalDeviceFeatures2
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceFeatures2;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceFeatures2;
 
     format::HandleId physicalDevice;
     StructPointerDecoder<Decoded_VkPhysicalDeviceFeatures2> pFeatures;
@@ -1917,7 +1917,7 @@ struct GetPhysicalDeviceFeatures2
 
 struct GetPhysicalDeviceProperties2
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceProperties2;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceProperties2;
 
     format::HandleId physicalDevice;
     StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2> pProperties;
@@ -1928,7 +1928,7 @@ struct GetPhysicalDeviceProperties2
 
 struct GetPhysicalDeviceFormatProperties2
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceFormatProperties2;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceFormatProperties2;
 
     format::HandleId physicalDevice;
     VkFormat format;
@@ -1940,7 +1940,7 @@ struct GetPhysicalDeviceFormatProperties2
 
 struct GetPhysicalDeviceImageFormatProperties2
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceImageFormatProperties2;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceImageFormatProperties2;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -1953,7 +1953,7 @@ struct GetPhysicalDeviceImageFormatProperties2
 
 struct GetPhysicalDeviceQueueFamilyProperties2
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceQueueFamilyProperties2;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceQueueFamilyProperties2;
 
     format::HandleId physicalDevice;
     PointerDecoder<uint32_t> pQueueFamilyPropertyCount;
@@ -1965,7 +1965,7 @@ struct GetPhysicalDeviceQueueFamilyProperties2
 
 struct GetPhysicalDeviceMemoryProperties2
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceMemoryProperties2;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceMemoryProperties2;
 
     format::HandleId physicalDevice;
     StructPointerDecoder<Decoded_VkPhysicalDeviceMemoryProperties2> pMemoryProperties;
@@ -1976,7 +1976,7 @@ struct GetPhysicalDeviceMemoryProperties2
 
 struct GetPhysicalDeviceSparseImageFormatProperties2
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceSparseImageFormatProperties2;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceSparseImageFormatProperties2;
 
     format::HandleId physicalDevice;
     StructPointerDecoder<Decoded_VkPhysicalDeviceSparseImageFormatInfo2> pFormatInfo;
@@ -1989,7 +1989,7 @@ struct GetPhysicalDeviceSparseImageFormatProperties2
 
 struct TrimCommandPool
 {
-    using api_element = schema::vulkan::commands::TrimCommandPool;
+    using api_element = schema::vulkan::api_elements::TrimCommandPool;
 
     format::HandleId device;
     format::HandleId commandPool;
@@ -2001,7 +2001,7 @@ struct TrimCommandPool
 
 struct GetDeviceQueue2
 {
-    using api_element = schema::vulkan::commands::GetDeviceQueue2;
+    using api_element = schema::vulkan::api_elements::GetDeviceQueue2;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkDeviceQueueInfo2> pQueueInfo;
@@ -2013,7 +2013,7 @@ struct GetDeviceQueue2
 
 struct GetPhysicalDeviceExternalBufferProperties
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceExternalBufferProperties;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceExternalBufferProperties;
 
     format::HandleId physicalDevice;
     StructPointerDecoder<Decoded_VkPhysicalDeviceExternalBufferInfo> pExternalBufferInfo;
@@ -2025,7 +2025,7 @@ struct GetPhysicalDeviceExternalBufferProperties
 
 struct GetPhysicalDeviceExternalFenceProperties
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceExternalFenceProperties;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceExternalFenceProperties;
 
     format::HandleId physicalDevice;
     StructPointerDecoder<Decoded_VkPhysicalDeviceExternalFenceInfo> pExternalFenceInfo;
@@ -2037,7 +2037,7 @@ struct GetPhysicalDeviceExternalFenceProperties
 
 struct GetPhysicalDeviceExternalSemaphoreProperties
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceExternalSemaphoreProperties;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceExternalSemaphoreProperties;
 
     format::HandleId physicalDevice;
     StructPointerDecoder<Decoded_VkPhysicalDeviceExternalSemaphoreInfo> pExternalSemaphoreInfo;
@@ -2049,7 +2049,7 @@ struct GetPhysicalDeviceExternalSemaphoreProperties
 
 struct CmdDispatchBase
 {
-    using api_element = schema::vulkan::commands::CmdDispatchBase;
+    using api_element = schema::vulkan::api_elements::CmdDispatchBase;
 
     format::HandleId commandBuffer;
     uint32_t baseGroupX;
@@ -2065,7 +2065,7 @@ struct CmdDispatchBase
 
 struct CreateDescriptorUpdateTemplate
 {
-    using api_element = schema::vulkan::commands::CreateDescriptorUpdateTemplate;
+    using api_element = schema::vulkan::api_elements::CreateDescriptorUpdateTemplate;
 
     VkResult result;
     format::HandleId device;
@@ -2079,7 +2079,7 @@ struct CreateDescriptorUpdateTemplate
 
 struct DestroyDescriptorUpdateTemplate
 {
-    using api_element = schema::vulkan::commands::DestroyDescriptorUpdateTemplate;
+    using api_element = schema::vulkan::api_elements::DestroyDescriptorUpdateTemplate;
 
     format::HandleId device;
     format::HandleId descriptorUpdateTemplate;
@@ -2091,7 +2091,7 @@ struct DestroyDescriptorUpdateTemplate
 
 struct GetDescriptorSetLayoutSupport
 {
-    using api_element = schema::vulkan::commands::GetDescriptorSetLayoutSupport;
+    using api_element = schema::vulkan::api_elements::GetDescriptorSetLayoutSupport;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkDescriptorSetLayoutCreateInfo> pCreateInfo;
@@ -2103,7 +2103,7 @@ struct GetDescriptorSetLayoutSupport
 
 struct CreateSamplerYcbcrConversion
 {
-    using api_element = schema::vulkan::commands::CreateSamplerYcbcrConversion;
+    using api_element = schema::vulkan::api_elements::CreateSamplerYcbcrConversion;
 
     VkResult result;
     format::HandleId device;
@@ -2117,7 +2117,7 @@ struct CreateSamplerYcbcrConversion
 
 struct DestroySamplerYcbcrConversion
 {
-    using api_element = schema::vulkan::commands::DestroySamplerYcbcrConversion;
+    using api_element = schema::vulkan::api_elements::DestroySamplerYcbcrConversion;
 
     format::HandleId device;
     format::HandleId ycbcrConversion;
@@ -2129,7 +2129,7 @@ struct DestroySamplerYcbcrConversion
 
 struct ResetQueryPool
 {
-    using api_element = schema::vulkan::commands::ResetQueryPool;
+    using api_element = schema::vulkan::api_elements::ResetQueryPool;
 
     format::HandleId device;
     format::HandleId queryPool;
@@ -2142,7 +2142,7 @@ struct ResetQueryPool
 
 struct GetSemaphoreCounterValue
 {
-    using api_element = schema::vulkan::commands::GetSemaphoreCounterValue;
+    using api_element = schema::vulkan::api_elements::GetSemaphoreCounterValue;
 
     VkResult result;
     format::HandleId device;
@@ -2155,7 +2155,7 @@ struct GetSemaphoreCounterValue
 
 struct WaitSemaphores
 {
-    using api_element = schema::vulkan::commands::WaitSemaphores;
+    using api_element = schema::vulkan::api_elements::WaitSemaphores;
 
     VkResult result;
     format::HandleId device;
@@ -2168,7 +2168,7 @@ struct WaitSemaphores
 
 struct SignalSemaphore
 {
-    using api_element = schema::vulkan::commands::SignalSemaphore;
+    using api_element = schema::vulkan::api_elements::SignalSemaphore;
 
     VkResult result;
     format::HandleId device;
@@ -2180,7 +2180,7 @@ struct SignalSemaphore
 
 struct GetBufferDeviceAddress
 {
-    using api_element = schema::vulkan::commands::GetBufferDeviceAddress;
+    using api_element = schema::vulkan::api_elements::GetBufferDeviceAddress;
 
     VkDeviceAddress result;
     format::HandleId device;
@@ -2192,7 +2192,7 @@ struct GetBufferDeviceAddress
 
 struct GetBufferOpaqueCaptureAddress
 {
-    using api_element = schema::vulkan::commands::GetBufferOpaqueCaptureAddress;
+    using api_element = schema::vulkan::api_elements::GetBufferOpaqueCaptureAddress;
 
     uint64_t result;
     format::HandleId device;
@@ -2204,7 +2204,7 @@ struct GetBufferOpaqueCaptureAddress
 
 struct GetDeviceMemoryOpaqueCaptureAddress
 {
-    using api_element = schema::vulkan::commands::GetDeviceMemoryOpaqueCaptureAddress;
+    using api_element = schema::vulkan::api_elements::GetDeviceMemoryOpaqueCaptureAddress;
 
     uint64_t result;
     format::HandleId device;
@@ -2216,7 +2216,7 @@ struct GetDeviceMemoryOpaqueCaptureAddress
 
 struct CmdDrawIndirectCount
 {
-    using api_element = schema::vulkan::commands::CmdDrawIndirectCount;
+    using api_element = schema::vulkan::api_elements::CmdDrawIndirectCount;
 
     format::HandleId commandBuffer;
     format::HandleId buffer;
@@ -2232,7 +2232,7 @@ struct CmdDrawIndirectCount
 
 struct CmdDrawIndexedIndirectCount
 {
-    using api_element = schema::vulkan::commands::CmdDrawIndexedIndirectCount;
+    using api_element = schema::vulkan::api_elements::CmdDrawIndexedIndirectCount;
 
     format::HandleId commandBuffer;
     format::HandleId buffer;
@@ -2248,7 +2248,7 @@ struct CmdDrawIndexedIndirectCount
 
 struct CreateRenderPass2
 {
-    using api_element = schema::vulkan::commands::CreateRenderPass2;
+    using api_element = schema::vulkan::api_elements::CreateRenderPass2;
 
     VkResult result;
     format::HandleId device;
@@ -2262,7 +2262,7 @@ struct CreateRenderPass2
 
 struct CmdBeginRenderPass2
 {
-    using api_element = schema::vulkan::commands::CmdBeginRenderPass2;
+    using api_element = schema::vulkan::api_elements::CmdBeginRenderPass2;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkRenderPassBeginInfo> pRenderPassBegin;
@@ -2274,7 +2274,7 @@ struct CmdBeginRenderPass2
 
 struct CmdNextSubpass2
 {
-    using api_element = schema::vulkan::commands::CmdNextSubpass2;
+    using api_element = schema::vulkan::api_elements::CmdNextSubpass2;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkSubpassBeginInfo> pSubpassBeginInfo;
@@ -2286,7 +2286,7 @@ struct CmdNextSubpass2
 
 struct CmdEndRenderPass2
 {
-    using api_element = schema::vulkan::commands::CmdEndRenderPass2;
+    using api_element = schema::vulkan::api_elements::CmdEndRenderPass2;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkSubpassEndInfo> pSubpassEndInfo;
@@ -2297,7 +2297,7 @@ struct CmdEndRenderPass2
 
 struct GetPhysicalDeviceToolProperties
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceToolProperties;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceToolProperties;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -2310,7 +2310,7 @@ struct GetPhysicalDeviceToolProperties
 
 struct CreatePrivateDataSlot
 {
-    using api_element = schema::vulkan::commands::CreatePrivateDataSlot;
+    using api_element = schema::vulkan::api_elements::CreatePrivateDataSlot;
 
     VkResult result;
     format::HandleId device;
@@ -2324,7 +2324,7 @@ struct CreatePrivateDataSlot
 
 struct DestroyPrivateDataSlot
 {
-    using api_element = schema::vulkan::commands::DestroyPrivateDataSlot;
+    using api_element = schema::vulkan::api_elements::DestroyPrivateDataSlot;
 
     format::HandleId device;
     format::HandleId privateDataSlot;
@@ -2336,7 +2336,7 @@ struct DestroyPrivateDataSlot
 
 struct SetPrivateData
 {
-    using api_element = schema::vulkan::commands::SetPrivateData;
+    using api_element = schema::vulkan::api_elements::SetPrivateData;
 
     VkResult result;
     format::HandleId device;
@@ -2351,7 +2351,7 @@ struct SetPrivateData
 
 struct GetPrivateData
 {
-    using api_element = schema::vulkan::commands::GetPrivateData;
+    using api_element = schema::vulkan::api_elements::GetPrivateData;
 
     format::HandleId device;
     VkObjectType objectType;
@@ -2365,7 +2365,7 @@ struct GetPrivateData
 
 struct CmdPipelineBarrier2
 {
-    using api_element = schema::vulkan::commands::CmdPipelineBarrier2;
+    using api_element = schema::vulkan::api_elements::CmdPipelineBarrier2;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkDependencyInfo> pDependencyInfo;
@@ -2376,7 +2376,7 @@ struct CmdPipelineBarrier2
 
 struct CmdWriteTimestamp2
 {
-    using api_element = schema::vulkan::commands::CmdWriteTimestamp2;
+    using api_element = schema::vulkan::api_elements::CmdWriteTimestamp2;
 
     format::HandleId commandBuffer;
     VkPipelineStageFlags2 stage;
@@ -2389,7 +2389,7 @@ struct CmdWriteTimestamp2
 
 struct QueueSubmit2
 {
-    using api_element = schema::vulkan::commands::QueueSubmit2;
+    using api_element = schema::vulkan::api_elements::QueueSubmit2;
 
     VkResult result;
     format::HandleId queue;
@@ -2403,7 +2403,7 @@ struct QueueSubmit2
 
 struct CmdCopyBuffer2
 {
-    using api_element = schema::vulkan::commands::CmdCopyBuffer2;
+    using api_element = schema::vulkan::api_elements::CmdCopyBuffer2;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkCopyBufferInfo2> pCopyBufferInfo;
@@ -2414,7 +2414,7 @@ struct CmdCopyBuffer2
 
 struct CmdCopyImage2
 {
-    using api_element = schema::vulkan::commands::CmdCopyImage2;
+    using api_element = schema::vulkan::api_elements::CmdCopyImage2;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkCopyImageInfo2> pCopyImageInfo;
@@ -2425,7 +2425,7 @@ struct CmdCopyImage2
 
 struct CmdCopyBufferToImage2
 {
-    using api_element = schema::vulkan::commands::CmdCopyBufferToImage2;
+    using api_element = schema::vulkan::api_elements::CmdCopyBufferToImage2;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2> pCopyBufferToImageInfo;
@@ -2436,7 +2436,7 @@ struct CmdCopyBufferToImage2
 
 struct CmdCopyImageToBuffer2
 {
-    using api_element = schema::vulkan::commands::CmdCopyImageToBuffer2;
+    using api_element = schema::vulkan::api_elements::CmdCopyImageToBuffer2;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2> pCopyImageToBufferInfo;
@@ -2447,7 +2447,7 @@ struct CmdCopyImageToBuffer2
 
 struct GetDeviceBufferMemoryRequirements
 {
-    using api_element = schema::vulkan::commands::GetDeviceBufferMemoryRequirements;
+    using api_element = schema::vulkan::api_elements::GetDeviceBufferMemoryRequirements;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkDeviceBufferMemoryRequirements> pInfo;
@@ -2459,7 +2459,7 @@ struct GetDeviceBufferMemoryRequirements
 
 struct GetDeviceImageMemoryRequirements
 {
-    using api_element = schema::vulkan::commands::GetDeviceImageMemoryRequirements;
+    using api_element = schema::vulkan::api_elements::GetDeviceImageMemoryRequirements;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkDeviceImageMemoryRequirements> pInfo;
@@ -2471,7 +2471,7 @@ struct GetDeviceImageMemoryRequirements
 
 struct GetDeviceImageSparseMemoryRequirements
 {
-    using api_element = schema::vulkan::commands::GetDeviceImageSparseMemoryRequirements;
+    using api_element = schema::vulkan::api_elements::GetDeviceImageSparseMemoryRequirements;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkDeviceImageMemoryRequirements> pInfo;
@@ -2484,7 +2484,7 @@ struct GetDeviceImageSparseMemoryRequirements
 
 struct CmdSetEvent2
 {
-    using api_element = schema::vulkan::commands::CmdSetEvent2;
+    using api_element = schema::vulkan::api_elements::CmdSetEvent2;
 
     format::HandleId commandBuffer;
     format::HandleId event;
@@ -2496,7 +2496,7 @@ struct CmdSetEvent2
 
 struct CmdResetEvent2
 {
-    using api_element = schema::vulkan::commands::CmdResetEvent2;
+    using api_element = schema::vulkan::api_elements::CmdResetEvent2;
 
     format::HandleId commandBuffer;
     format::HandleId event;
@@ -2508,7 +2508,7 @@ struct CmdResetEvent2
 
 struct CmdWaitEvents2
 {
-    using api_element = schema::vulkan::commands::CmdWaitEvents2;
+    using api_element = schema::vulkan::api_elements::CmdWaitEvents2;
 
     format::HandleId commandBuffer;
     uint32_t eventCount;
@@ -2521,7 +2521,7 @@ struct CmdWaitEvents2
 
 struct CmdBlitImage2
 {
-    using api_element = schema::vulkan::commands::CmdBlitImage2;
+    using api_element = schema::vulkan::api_elements::CmdBlitImage2;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkBlitImageInfo2> pBlitImageInfo;
@@ -2532,7 +2532,7 @@ struct CmdBlitImage2
 
 struct CmdResolveImage2
 {
-    using api_element = schema::vulkan::commands::CmdResolveImage2;
+    using api_element = schema::vulkan::api_elements::CmdResolveImage2;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkResolveImageInfo2> pResolveImageInfo;
@@ -2543,7 +2543,7 @@ struct CmdResolveImage2
 
 struct CmdBeginRendering
 {
-    using api_element = schema::vulkan::commands::CmdBeginRendering;
+    using api_element = schema::vulkan::api_elements::CmdBeginRendering;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkRenderingInfo> pRenderingInfo;
@@ -2554,7 +2554,7 @@ struct CmdBeginRendering
 
 struct CmdEndRendering
 {
-    using api_element = schema::vulkan::commands::CmdEndRendering;
+    using api_element = schema::vulkan::api_elements::CmdEndRendering;
 
     format::HandleId commandBuffer;
 
@@ -2564,7 +2564,7 @@ struct CmdEndRendering
 
 struct CmdSetCullMode
 {
-    using api_element = schema::vulkan::commands::CmdSetCullMode;
+    using api_element = schema::vulkan::api_elements::CmdSetCullMode;
 
     format::HandleId commandBuffer;
     VkCullModeFlags cullMode;
@@ -2575,7 +2575,7 @@ struct CmdSetCullMode
 
 struct CmdSetFrontFace
 {
-    using api_element = schema::vulkan::commands::CmdSetFrontFace;
+    using api_element = schema::vulkan::api_elements::CmdSetFrontFace;
 
     format::HandleId commandBuffer;
     VkFrontFace frontFace;
@@ -2586,7 +2586,7 @@ struct CmdSetFrontFace
 
 struct CmdSetPrimitiveTopology
 {
-    using api_element = schema::vulkan::commands::CmdSetPrimitiveTopology;
+    using api_element = schema::vulkan::api_elements::CmdSetPrimitiveTopology;
 
     format::HandleId commandBuffer;
     VkPrimitiveTopology primitiveTopology;
@@ -2597,7 +2597,7 @@ struct CmdSetPrimitiveTopology
 
 struct CmdSetViewportWithCount
 {
-    using api_element = schema::vulkan::commands::CmdSetViewportWithCount;
+    using api_element = schema::vulkan::api_elements::CmdSetViewportWithCount;
 
     format::HandleId commandBuffer;
     uint32_t viewportCount;
@@ -2609,7 +2609,7 @@ struct CmdSetViewportWithCount
 
 struct CmdSetScissorWithCount
 {
-    using api_element = schema::vulkan::commands::CmdSetScissorWithCount;
+    using api_element = schema::vulkan::api_elements::CmdSetScissorWithCount;
 
     format::HandleId commandBuffer;
     uint32_t scissorCount;
@@ -2621,7 +2621,7 @@ struct CmdSetScissorWithCount
 
 struct CmdBindVertexBuffers2
 {
-    using api_element = schema::vulkan::commands::CmdBindVertexBuffers2;
+    using api_element = schema::vulkan::api_elements::CmdBindVertexBuffers2;
 
     format::HandleId commandBuffer;
     uint32_t firstBinding;
@@ -2637,7 +2637,7 @@ struct CmdBindVertexBuffers2
 
 struct CmdSetDepthTestEnable
 {
-    using api_element = schema::vulkan::commands::CmdSetDepthTestEnable;
+    using api_element = schema::vulkan::api_elements::CmdSetDepthTestEnable;
 
     format::HandleId commandBuffer;
     VkBool32 depthTestEnable;
@@ -2648,7 +2648,7 @@ struct CmdSetDepthTestEnable
 
 struct CmdSetDepthWriteEnable
 {
-    using api_element = schema::vulkan::commands::CmdSetDepthWriteEnable;
+    using api_element = schema::vulkan::api_elements::CmdSetDepthWriteEnable;
 
     format::HandleId commandBuffer;
     VkBool32 depthWriteEnable;
@@ -2659,7 +2659,7 @@ struct CmdSetDepthWriteEnable
 
 struct CmdSetDepthCompareOp
 {
-    using api_element = schema::vulkan::commands::CmdSetDepthCompareOp;
+    using api_element = schema::vulkan::api_elements::CmdSetDepthCompareOp;
 
     format::HandleId commandBuffer;
     VkCompareOp depthCompareOp;
@@ -2670,7 +2670,7 @@ struct CmdSetDepthCompareOp
 
 struct CmdSetDepthBoundsTestEnable
 {
-    using api_element = schema::vulkan::commands::CmdSetDepthBoundsTestEnable;
+    using api_element = schema::vulkan::api_elements::CmdSetDepthBoundsTestEnable;
 
     format::HandleId commandBuffer;
     VkBool32 depthBoundsTestEnable;
@@ -2681,7 +2681,7 @@ struct CmdSetDepthBoundsTestEnable
 
 struct CmdSetStencilTestEnable
 {
-    using api_element = schema::vulkan::commands::CmdSetStencilTestEnable;
+    using api_element = schema::vulkan::api_elements::CmdSetStencilTestEnable;
 
     format::HandleId commandBuffer;
     VkBool32 stencilTestEnable;
@@ -2692,7 +2692,7 @@ struct CmdSetStencilTestEnable
 
 struct CmdSetStencilOp
 {
-    using api_element = schema::vulkan::commands::CmdSetStencilOp;
+    using api_element = schema::vulkan::api_elements::CmdSetStencilOp;
 
     format::HandleId commandBuffer;
     VkStencilFaceFlags faceMask;
@@ -2707,7 +2707,7 @@ struct CmdSetStencilOp
 
 struct CmdSetRasterizerDiscardEnable
 {
-    using api_element = schema::vulkan::commands::CmdSetRasterizerDiscardEnable;
+    using api_element = schema::vulkan::api_elements::CmdSetRasterizerDiscardEnable;
 
     format::HandleId commandBuffer;
     VkBool32 rasterizerDiscardEnable;
@@ -2718,7 +2718,7 @@ struct CmdSetRasterizerDiscardEnable
 
 struct CmdSetDepthBiasEnable
 {
-    using api_element = schema::vulkan::commands::CmdSetDepthBiasEnable;
+    using api_element = schema::vulkan::api_elements::CmdSetDepthBiasEnable;
 
     format::HandleId commandBuffer;
     VkBool32 depthBiasEnable;
@@ -2729,7 +2729,7 @@ struct CmdSetDepthBiasEnable
 
 struct CmdSetPrimitiveRestartEnable
 {
-    using api_element = schema::vulkan::commands::CmdSetPrimitiveRestartEnable;
+    using api_element = schema::vulkan::api_elements::CmdSetPrimitiveRestartEnable;
 
     format::HandleId commandBuffer;
     VkBool32 primitiveRestartEnable;
@@ -2740,7 +2740,7 @@ struct CmdSetPrimitiveRestartEnable
 
 struct MapMemory2
 {
-    using api_element = schema::vulkan::commands::MapMemory2;
+    using api_element = schema::vulkan::api_elements::MapMemory2;
 
     VkResult result;
     format::HandleId device;
@@ -2753,7 +2753,7 @@ struct MapMemory2
 
 struct UnmapMemory2
 {
-    using api_element = schema::vulkan::commands::UnmapMemory2;
+    using api_element = schema::vulkan::api_elements::UnmapMemory2;
 
     VkResult result;
     format::HandleId device;
@@ -2765,7 +2765,7 @@ struct UnmapMemory2
 
 struct GetDeviceImageSubresourceLayout
 {
-    using api_element = schema::vulkan::commands::GetDeviceImageSubresourceLayout;
+    using api_element = schema::vulkan::api_elements::GetDeviceImageSubresourceLayout;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkDeviceImageSubresourceInfo> pInfo;
@@ -2777,7 +2777,7 @@ struct GetDeviceImageSubresourceLayout
 
 struct GetImageSubresourceLayout2
 {
-    using api_element = schema::vulkan::commands::GetImageSubresourceLayout2;
+    using api_element = schema::vulkan::api_elements::GetImageSubresourceLayout2;
 
     format::HandleId device;
     format::HandleId image;
@@ -2790,7 +2790,7 @@ struct GetImageSubresourceLayout2
 
 struct CopyMemoryToImage
 {
-    using api_element = schema::vulkan::commands::CopyMemoryToImage;
+    using api_element = schema::vulkan::api_elements::CopyMemoryToImage;
 
     VkResult result;
     format::HandleId device;
@@ -2802,7 +2802,7 @@ struct CopyMemoryToImage
 
 struct CopyImageToMemory
 {
-    using api_element = schema::vulkan::commands::CopyImageToMemory;
+    using api_element = schema::vulkan::api_elements::CopyImageToMemory;
 
     VkResult result;
     format::HandleId device;
@@ -2814,7 +2814,7 @@ struct CopyImageToMemory
 
 struct CopyImageToImage
 {
-    using api_element = schema::vulkan::commands::CopyImageToImage;
+    using api_element = schema::vulkan::api_elements::CopyImageToImage;
 
     VkResult result;
     format::HandleId device;
@@ -2826,7 +2826,7 @@ struct CopyImageToImage
 
 struct TransitionImageLayout
 {
-    using api_element = schema::vulkan::commands::TransitionImageLayout;
+    using api_element = schema::vulkan::api_elements::TransitionImageLayout;
 
     VkResult result;
     format::HandleId device;
@@ -2839,7 +2839,7 @@ struct TransitionImageLayout
 
 struct CmdPushDescriptorSet
 {
-    using api_element = schema::vulkan::commands::CmdPushDescriptorSet;
+    using api_element = schema::vulkan::api_elements::CmdPushDescriptorSet;
 
     format::HandleId commandBuffer;
     VkPipelineBindPoint pipelineBindPoint;
@@ -2854,7 +2854,7 @@ struct CmdPushDescriptorSet
 
 struct CmdBindDescriptorSets2
 {
-    using api_element = schema::vulkan::commands::CmdBindDescriptorSets2;
+    using api_element = schema::vulkan::api_elements::CmdBindDescriptorSets2;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkBindDescriptorSetsInfo> pBindDescriptorSetsInfo;
@@ -2865,7 +2865,7 @@ struct CmdBindDescriptorSets2
 
 struct CmdPushConstants2
 {
-    using api_element = schema::vulkan::commands::CmdPushConstants2;
+    using api_element = schema::vulkan::api_elements::CmdPushConstants2;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkPushConstantsInfo> pPushConstantsInfo;
@@ -2876,7 +2876,7 @@ struct CmdPushConstants2
 
 struct CmdPushDescriptorSet2
 {
-    using api_element = schema::vulkan::commands::CmdPushDescriptorSet2;
+    using api_element = schema::vulkan::api_elements::CmdPushDescriptorSet2;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkPushDescriptorSetInfo> pPushDescriptorSetInfo;
@@ -2887,7 +2887,7 @@ struct CmdPushDescriptorSet2
 
 struct CmdSetLineStipple
 {
-    using api_element = schema::vulkan::commands::CmdSetLineStipple;
+    using api_element = schema::vulkan::api_elements::CmdSetLineStipple;
 
     format::HandleId commandBuffer;
     uint32_t lineStippleFactor;
@@ -2899,7 +2899,7 @@ struct CmdSetLineStipple
 
 struct CmdBindIndexBuffer2
 {
-    using api_element = schema::vulkan::commands::CmdBindIndexBuffer2;
+    using api_element = schema::vulkan::api_elements::CmdBindIndexBuffer2;
 
     format::HandleId commandBuffer;
     format::HandleId buffer;
@@ -2913,7 +2913,7 @@ struct CmdBindIndexBuffer2
 
 struct GetRenderingAreaGranularity
 {
-    using api_element = schema::vulkan::commands::GetRenderingAreaGranularity;
+    using api_element = schema::vulkan::api_elements::GetRenderingAreaGranularity;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkRenderingAreaInfo> pRenderingAreaInfo;
@@ -2925,7 +2925,7 @@ struct GetRenderingAreaGranularity
 
 struct CmdSetRenderingAttachmentLocations
 {
-    using api_element = schema::vulkan::commands::CmdSetRenderingAttachmentLocations;
+    using api_element = schema::vulkan::api_elements::CmdSetRenderingAttachmentLocations;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkRenderingAttachmentLocationInfo> pLocationInfo;
@@ -2936,7 +2936,7 @@ struct CmdSetRenderingAttachmentLocations
 
 struct CmdSetRenderingInputAttachmentIndices
 {
-    using api_element = schema::vulkan::commands::CmdSetRenderingInputAttachmentIndices;
+    using api_element = schema::vulkan::api_elements::CmdSetRenderingInputAttachmentIndices;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfo> pInputAttachmentIndexInfo;
@@ -2947,7 +2947,7 @@ struct CmdSetRenderingInputAttachmentIndices
 
 struct DestroySurfaceKHR
 {
-    using api_element = schema::vulkan::commands::DestroySurfaceKHR;
+    using api_element = schema::vulkan::api_elements::DestroySurfaceKHR;
 
     format::HandleId instance;
     format::HandleId surface;
@@ -2959,7 +2959,7 @@ struct DestroySurfaceKHR
 
 struct GetPhysicalDeviceSurfaceSupportKHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceSurfaceSupportKHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceSurfaceSupportKHR;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -2973,7 +2973,7 @@ struct GetPhysicalDeviceSurfaceSupportKHR
 
 struct GetPhysicalDeviceSurfaceCapabilitiesKHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceSurfaceCapabilitiesKHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceSurfaceCapabilitiesKHR;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -2986,7 +2986,7 @@ struct GetPhysicalDeviceSurfaceCapabilitiesKHR
 
 struct GetPhysicalDeviceSurfaceFormatsKHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceSurfaceFormatsKHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceSurfaceFormatsKHR;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -3000,7 +3000,7 @@ struct GetPhysicalDeviceSurfaceFormatsKHR
 
 struct GetPhysicalDeviceSurfacePresentModesKHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceSurfacePresentModesKHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceSurfacePresentModesKHR;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -3014,7 +3014,7 @@ struct GetPhysicalDeviceSurfacePresentModesKHR
 
 struct CreateSwapchainKHR
 {
-    using api_element = schema::vulkan::commands::CreateSwapchainKHR;
+    using api_element = schema::vulkan::api_elements::CreateSwapchainKHR;
 
     VkResult result;
     format::HandleId device;
@@ -3028,7 +3028,7 @@ struct CreateSwapchainKHR
 
 struct DestroySwapchainKHR
 {
-    using api_element = schema::vulkan::commands::DestroySwapchainKHR;
+    using api_element = schema::vulkan::api_elements::DestroySwapchainKHR;
 
     format::HandleId device;
     format::HandleId swapchain;
@@ -3040,7 +3040,7 @@ struct DestroySwapchainKHR
 
 struct GetSwapchainImagesKHR
 {
-    using api_element = schema::vulkan::commands::GetSwapchainImagesKHR;
+    using api_element = schema::vulkan::api_elements::GetSwapchainImagesKHR;
 
     VkResult result;
     format::HandleId device;
@@ -3054,7 +3054,7 @@ struct GetSwapchainImagesKHR
 
 struct AcquireNextImageKHR
 {
-    using api_element = schema::vulkan::commands::AcquireNextImageKHR;
+    using api_element = schema::vulkan::api_elements::AcquireNextImageKHR;
 
     VkResult result;
     format::HandleId device;
@@ -3070,7 +3070,7 @@ struct AcquireNextImageKHR
 
 struct QueuePresentKHR
 {
-    using api_element = schema::vulkan::commands::QueuePresentKHR;
+    using api_element = schema::vulkan::api_elements::QueuePresentKHR;
 
     VkResult result;
     format::HandleId queue;
@@ -3082,7 +3082,7 @@ struct QueuePresentKHR
 
 struct GetDeviceGroupPresentCapabilitiesKHR
 {
-    using api_element = schema::vulkan::commands::GetDeviceGroupPresentCapabilitiesKHR;
+    using api_element = schema::vulkan::api_elements::GetDeviceGroupPresentCapabilitiesKHR;
 
     VkResult result;
     format::HandleId device;
@@ -3094,7 +3094,7 @@ struct GetDeviceGroupPresentCapabilitiesKHR
 
 struct GetDeviceGroupSurfacePresentModesKHR
 {
-    using api_element = schema::vulkan::commands::GetDeviceGroupSurfacePresentModesKHR;
+    using api_element = schema::vulkan::api_elements::GetDeviceGroupSurfacePresentModesKHR;
 
     VkResult result;
     format::HandleId device;
@@ -3107,7 +3107,7 @@ struct GetDeviceGroupSurfacePresentModesKHR
 
 struct GetPhysicalDevicePresentRectanglesKHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDevicePresentRectanglesKHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDevicePresentRectanglesKHR;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -3121,7 +3121,7 @@ struct GetPhysicalDevicePresentRectanglesKHR
 
 struct AcquireNextImage2KHR
 {
-    using api_element = schema::vulkan::commands::AcquireNextImage2KHR;
+    using api_element = schema::vulkan::api_elements::AcquireNextImage2KHR;
 
     VkResult result;
     format::HandleId device;
@@ -3134,7 +3134,7 @@ struct AcquireNextImage2KHR
 
 struct GetPhysicalDeviceDisplayPropertiesKHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceDisplayPropertiesKHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceDisplayPropertiesKHR;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -3147,7 +3147,7 @@ struct GetPhysicalDeviceDisplayPropertiesKHR
 
 struct GetPhysicalDeviceDisplayPlanePropertiesKHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceDisplayPlanePropertiesKHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceDisplayPlanePropertiesKHR;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -3160,7 +3160,7 @@ struct GetPhysicalDeviceDisplayPlanePropertiesKHR
 
 struct GetDisplayPlaneSupportedDisplaysKHR
 {
-    using api_element = schema::vulkan::commands::GetDisplayPlaneSupportedDisplaysKHR;
+    using api_element = schema::vulkan::api_elements::GetDisplayPlaneSupportedDisplaysKHR;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -3174,7 +3174,7 @@ struct GetDisplayPlaneSupportedDisplaysKHR
 
 struct GetDisplayModePropertiesKHR
 {
-    using api_element = schema::vulkan::commands::GetDisplayModePropertiesKHR;
+    using api_element = schema::vulkan::api_elements::GetDisplayModePropertiesKHR;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -3188,7 +3188,7 @@ struct GetDisplayModePropertiesKHR
 
 struct CreateDisplayModeKHR
 {
-    using api_element = schema::vulkan::commands::CreateDisplayModeKHR;
+    using api_element = schema::vulkan::api_elements::CreateDisplayModeKHR;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -3203,7 +3203,7 @@ struct CreateDisplayModeKHR
 
 struct GetDisplayPlaneCapabilitiesKHR
 {
-    using api_element = schema::vulkan::commands::GetDisplayPlaneCapabilitiesKHR;
+    using api_element = schema::vulkan::api_elements::GetDisplayPlaneCapabilitiesKHR;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -3217,7 +3217,7 @@ struct GetDisplayPlaneCapabilitiesKHR
 
 struct CreateDisplayPlaneSurfaceKHR
 {
-    using api_element = schema::vulkan::commands::CreateDisplayPlaneSurfaceKHR;
+    using api_element = schema::vulkan::api_elements::CreateDisplayPlaneSurfaceKHR;
 
     VkResult result;
     format::HandleId instance;
@@ -3231,7 +3231,7 @@ struct CreateDisplayPlaneSurfaceKHR
 
 struct CreateSharedSwapchainsKHR
 {
-    using api_element = schema::vulkan::commands::CreateSharedSwapchainsKHR;
+    using api_element = schema::vulkan::api_elements::CreateSharedSwapchainsKHR;
 
     VkResult result;
     format::HandleId device;
@@ -3246,7 +3246,7 @@ struct CreateSharedSwapchainsKHR
 
 struct CreateXlibSurfaceKHR
 {
-    using api_element = schema::vulkan::commands::CreateXlibSurfaceKHR;
+    using api_element = schema::vulkan::api_elements::CreateXlibSurfaceKHR;
 
     VkResult result;
     format::HandleId instance;
@@ -3260,7 +3260,7 @@ struct CreateXlibSurfaceKHR
 
 struct GetPhysicalDeviceXlibPresentationSupportKHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceXlibPresentationSupportKHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceXlibPresentationSupportKHR;
 
     VkBool32 result;
     format::HandleId physicalDevice;
@@ -3274,7 +3274,7 @@ struct GetPhysicalDeviceXlibPresentationSupportKHR
 
 struct CreateXcbSurfaceKHR
 {
-    using api_element = schema::vulkan::commands::CreateXcbSurfaceKHR;
+    using api_element = schema::vulkan::api_elements::CreateXcbSurfaceKHR;
 
     VkResult result;
     format::HandleId instance;
@@ -3288,7 +3288,7 @@ struct CreateXcbSurfaceKHR
 
 struct GetPhysicalDeviceXcbPresentationSupportKHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceXcbPresentationSupportKHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceXcbPresentationSupportKHR;
 
     VkBool32 result;
     format::HandleId physicalDevice;
@@ -3302,7 +3302,7 @@ struct GetPhysicalDeviceXcbPresentationSupportKHR
 
 struct CreateWaylandSurfaceKHR
 {
-    using api_element = schema::vulkan::commands::CreateWaylandSurfaceKHR;
+    using api_element = schema::vulkan::api_elements::CreateWaylandSurfaceKHR;
 
     VkResult result;
     format::HandleId instance;
@@ -3316,7 +3316,7 @@ struct CreateWaylandSurfaceKHR
 
 struct GetPhysicalDeviceWaylandPresentationSupportKHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceWaylandPresentationSupportKHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceWaylandPresentationSupportKHR;
 
     VkBool32 result;
     format::HandleId physicalDevice;
@@ -3329,7 +3329,7 @@ struct GetPhysicalDeviceWaylandPresentationSupportKHR
 
 struct CreateAndroidSurfaceKHR
 {
-    using api_element = schema::vulkan::commands::CreateAndroidSurfaceKHR;
+    using api_element = schema::vulkan::api_elements::CreateAndroidSurfaceKHR;
 
     VkResult result;
     format::HandleId instance;
@@ -3343,7 +3343,7 @@ struct CreateAndroidSurfaceKHR
 
 struct CreateWin32SurfaceKHR
 {
-    using api_element = schema::vulkan::commands::CreateWin32SurfaceKHR;
+    using api_element = schema::vulkan::api_elements::CreateWin32SurfaceKHR;
 
     VkResult result;
     format::HandleId instance;
@@ -3357,7 +3357,7 @@ struct CreateWin32SurfaceKHR
 
 struct GetPhysicalDeviceWin32PresentationSupportKHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceWin32PresentationSupportKHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceWin32PresentationSupportKHR;
 
     VkBool32 result;
     format::HandleId physicalDevice;
@@ -3369,7 +3369,7 @@ struct GetPhysicalDeviceWin32PresentationSupportKHR
 
 struct GetPhysicalDeviceVideoCapabilitiesKHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceVideoCapabilitiesKHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceVideoCapabilitiesKHR;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -3382,7 +3382,7 @@ struct GetPhysicalDeviceVideoCapabilitiesKHR
 
 struct GetPhysicalDeviceVideoFormatPropertiesKHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceVideoFormatPropertiesKHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceVideoFormatPropertiesKHR;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -3396,7 +3396,7 @@ struct GetPhysicalDeviceVideoFormatPropertiesKHR
 
 struct CreateVideoSessionKHR
 {
-    using api_element = schema::vulkan::commands::CreateVideoSessionKHR;
+    using api_element = schema::vulkan::api_elements::CreateVideoSessionKHR;
 
     VkResult result;
     format::HandleId device;
@@ -3410,7 +3410,7 @@ struct CreateVideoSessionKHR
 
 struct DestroyVideoSessionKHR
 {
-    using api_element = schema::vulkan::commands::DestroyVideoSessionKHR;
+    using api_element = schema::vulkan::api_elements::DestroyVideoSessionKHR;
 
     format::HandleId device;
     format::HandleId videoSession;
@@ -3422,7 +3422,7 @@ struct DestroyVideoSessionKHR
 
 struct GetVideoSessionMemoryRequirementsKHR
 {
-    using api_element = schema::vulkan::commands::GetVideoSessionMemoryRequirementsKHR;
+    using api_element = schema::vulkan::api_elements::GetVideoSessionMemoryRequirementsKHR;
 
     VkResult result;
     format::HandleId device;
@@ -3436,7 +3436,7 @@ struct GetVideoSessionMemoryRequirementsKHR
 
 struct BindVideoSessionMemoryKHR
 {
-    using api_element = schema::vulkan::commands::BindVideoSessionMemoryKHR;
+    using api_element = schema::vulkan::api_elements::BindVideoSessionMemoryKHR;
 
     VkResult result;
     format::HandleId device;
@@ -3450,7 +3450,7 @@ struct BindVideoSessionMemoryKHR
 
 struct CreateVideoSessionParametersKHR
 {
-    using api_element = schema::vulkan::commands::CreateVideoSessionParametersKHR;
+    using api_element = schema::vulkan::api_elements::CreateVideoSessionParametersKHR;
 
     VkResult result;
     format::HandleId device;
@@ -3464,7 +3464,7 @@ struct CreateVideoSessionParametersKHR
 
 struct UpdateVideoSessionParametersKHR
 {
-    using api_element = schema::vulkan::commands::UpdateVideoSessionParametersKHR;
+    using api_element = schema::vulkan::api_elements::UpdateVideoSessionParametersKHR;
 
     VkResult result;
     format::HandleId device;
@@ -3477,7 +3477,7 @@ struct UpdateVideoSessionParametersKHR
 
 struct DestroyVideoSessionParametersKHR
 {
-    using api_element = schema::vulkan::commands::DestroyVideoSessionParametersKHR;
+    using api_element = schema::vulkan::api_elements::DestroyVideoSessionParametersKHR;
 
     format::HandleId device;
     format::HandleId videoSessionParameters;
@@ -3489,7 +3489,7 @@ struct DestroyVideoSessionParametersKHR
 
 struct CmdBeginVideoCodingKHR
 {
-    using api_element = schema::vulkan::commands::CmdBeginVideoCodingKHR;
+    using api_element = schema::vulkan::api_elements::CmdBeginVideoCodingKHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkVideoBeginCodingInfoKHR> pBeginInfo;
@@ -3500,7 +3500,7 @@ struct CmdBeginVideoCodingKHR
 
 struct CmdEndVideoCodingKHR
 {
-    using api_element = schema::vulkan::commands::CmdEndVideoCodingKHR;
+    using api_element = schema::vulkan::api_elements::CmdEndVideoCodingKHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkVideoEndCodingInfoKHR> pEndCodingInfo;
@@ -3511,7 +3511,7 @@ struct CmdEndVideoCodingKHR
 
 struct CmdControlVideoCodingKHR
 {
-    using api_element = schema::vulkan::commands::CmdControlVideoCodingKHR;
+    using api_element = schema::vulkan::api_elements::CmdControlVideoCodingKHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkVideoCodingControlInfoKHR> pCodingControlInfo;
@@ -3522,7 +3522,7 @@ struct CmdControlVideoCodingKHR
 
 struct CmdDecodeVideoKHR
 {
-    using api_element = schema::vulkan::commands::CmdDecodeVideoKHR;
+    using api_element = schema::vulkan::api_elements::CmdDecodeVideoKHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkVideoDecodeInfoKHR> pDecodeInfo;
@@ -3533,7 +3533,7 @@ struct CmdDecodeVideoKHR
 
 struct CmdBeginRenderingKHR
 {
-    using api_element = schema::vulkan::commands::CmdBeginRenderingKHR;
+    using api_element = schema::vulkan::api_elements::CmdBeginRenderingKHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkRenderingInfo> pRenderingInfo;
@@ -3544,7 +3544,7 @@ struct CmdBeginRenderingKHR
 
 struct CmdEndRenderingKHR
 {
-    using api_element = schema::vulkan::commands::CmdEndRenderingKHR;
+    using api_element = schema::vulkan::api_elements::CmdEndRenderingKHR;
 
     format::HandleId commandBuffer;
 
@@ -3554,7 +3554,7 @@ struct CmdEndRenderingKHR
 
 struct GetPhysicalDeviceFeatures2KHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceFeatures2KHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceFeatures2KHR;
 
     format::HandleId physicalDevice;
     StructPointerDecoder<Decoded_VkPhysicalDeviceFeatures2> pFeatures;
@@ -3565,7 +3565,7 @@ struct GetPhysicalDeviceFeatures2KHR
 
 struct GetPhysicalDeviceProperties2KHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceProperties2KHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceProperties2KHR;
 
     format::HandleId physicalDevice;
     StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2> pProperties;
@@ -3576,7 +3576,7 @@ struct GetPhysicalDeviceProperties2KHR
 
 struct GetPhysicalDeviceFormatProperties2KHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceFormatProperties2KHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceFormatProperties2KHR;
 
     format::HandleId physicalDevice;
     VkFormat format;
@@ -3588,7 +3588,7 @@ struct GetPhysicalDeviceFormatProperties2KHR
 
 struct GetPhysicalDeviceImageFormatProperties2KHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceImageFormatProperties2KHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceImageFormatProperties2KHR;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -3601,7 +3601,7 @@ struct GetPhysicalDeviceImageFormatProperties2KHR
 
 struct GetPhysicalDeviceQueueFamilyProperties2KHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceQueueFamilyProperties2KHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceQueueFamilyProperties2KHR;
 
     format::HandleId physicalDevice;
     PointerDecoder<uint32_t> pQueueFamilyPropertyCount;
@@ -3613,7 +3613,7 @@ struct GetPhysicalDeviceQueueFamilyProperties2KHR
 
 struct GetPhysicalDeviceMemoryProperties2KHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceMemoryProperties2KHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceMemoryProperties2KHR;
 
     format::HandleId physicalDevice;
     StructPointerDecoder<Decoded_VkPhysicalDeviceMemoryProperties2> pMemoryProperties;
@@ -3624,7 +3624,7 @@ struct GetPhysicalDeviceMemoryProperties2KHR
 
 struct GetPhysicalDeviceSparseImageFormatProperties2KHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceSparseImageFormatProperties2KHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceSparseImageFormatProperties2KHR;
 
     format::HandleId physicalDevice;
     StructPointerDecoder<Decoded_VkPhysicalDeviceSparseImageFormatInfo2> pFormatInfo;
@@ -3637,7 +3637,7 @@ struct GetPhysicalDeviceSparseImageFormatProperties2KHR
 
 struct GetDeviceGroupPeerMemoryFeaturesKHR
 {
-    using api_element = schema::vulkan::commands::GetDeviceGroupPeerMemoryFeaturesKHR;
+    using api_element = schema::vulkan::api_elements::GetDeviceGroupPeerMemoryFeaturesKHR;
 
     format::HandleId device;
     uint32_t heapIndex;
@@ -3651,7 +3651,7 @@ struct GetDeviceGroupPeerMemoryFeaturesKHR
 
 struct CmdSetDeviceMaskKHR
 {
-    using api_element = schema::vulkan::commands::CmdSetDeviceMaskKHR;
+    using api_element = schema::vulkan::api_elements::CmdSetDeviceMaskKHR;
 
     format::HandleId commandBuffer;
     uint32_t deviceMask;
@@ -3662,7 +3662,7 @@ struct CmdSetDeviceMaskKHR
 
 struct CmdDispatchBaseKHR
 {
-    using api_element = schema::vulkan::commands::CmdDispatchBaseKHR;
+    using api_element = schema::vulkan::api_elements::CmdDispatchBaseKHR;
 
     format::HandleId commandBuffer;
     uint32_t baseGroupX;
@@ -3678,7 +3678,7 @@ struct CmdDispatchBaseKHR
 
 struct TrimCommandPoolKHR
 {
-    using api_element = schema::vulkan::commands::TrimCommandPoolKHR;
+    using api_element = schema::vulkan::api_elements::TrimCommandPoolKHR;
 
     format::HandleId device;
     format::HandleId commandPool;
@@ -3690,7 +3690,7 @@ struct TrimCommandPoolKHR
 
 struct EnumeratePhysicalDeviceGroupsKHR
 {
-    using api_element = schema::vulkan::commands::EnumeratePhysicalDeviceGroupsKHR;
+    using api_element = schema::vulkan::api_elements::EnumeratePhysicalDeviceGroupsKHR;
 
     VkResult result;
     format::HandleId instance;
@@ -3703,7 +3703,7 @@ struct EnumeratePhysicalDeviceGroupsKHR
 
 struct GetPhysicalDeviceExternalBufferPropertiesKHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceExternalBufferPropertiesKHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceExternalBufferPropertiesKHR;
 
     format::HandleId physicalDevice;
     StructPointerDecoder<Decoded_VkPhysicalDeviceExternalBufferInfo> pExternalBufferInfo;
@@ -3715,7 +3715,7 @@ struct GetPhysicalDeviceExternalBufferPropertiesKHR
 
 struct GetMemoryWin32HandleKHR
 {
-    using api_element = schema::vulkan::commands::GetMemoryWin32HandleKHR;
+    using api_element = schema::vulkan::api_elements::GetMemoryWin32HandleKHR;
 
     VkResult result;
     format::HandleId device;
@@ -3728,7 +3728,7 @@ struct GetMemoryWin32HandleKHR
 
 struct GetMemoryWin32HandlePropertiesKHR
 {
-    using api_element = schema::vulkan::commands::GetMemoryWin32HandlePropertiesKHR;
+    using api_element = schema::vulkan::api_elements::GetMemoryWin32HandlePropertiesKHR;
 
     VkResult result;
     format::HandleId device;
@@ -3742,7 +3742,7 @@ struct GetMemoryWin32HandlePropertiesKHR
 
 struct GetMemoryFdKHR
 {
-    using api_element = schema::vulkan::commands::GetMemoryFdKHR;
+    using api_element = schema::vulkan::api_elements::GetMemoryFdKHR;
 
     VkResult result;
     format::HandleId device;
@@ -3755,7 +3755,7 @@ struct GetMemoryFdKHR
 
 struct GetMemoryFdPropertiesKHR
 {
-    using api_element = schema::vulkan::commands::GetMemoryFdPropertiesKHR;
+    using api_element = schema::vulkan::api_elements::GetMemoryFdPropertiesKHR;
 
     VkResult result;
     format::HandleId device;
@@ -3769,7 +3769,7 @@ struct GetMemoryFdPropertiesKHR
 
 struct GetPhysicalDeviceExternalSemaphorePropertiesKHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceExternalSemaphorePropertiesKHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceExternalSemaphorePropertiesKHR;
 
     format::HandleId physicalDevice;
     StructPointerDecoder<Decoded_VkPhysicalDeviceExternalSemaphoreInfo> pExternalSemaphoreInfo;
@@ -3781,7 +3781,7 @@ struct GetPhysicalDeviceExternalSemaphorePropertiesKHR
 
 struct ImportSemaphoreWin32HandleKHR
 {
-    using api_element = schema::vulkan::commands::ImportSemaphoreWin32HandleKHR;
+    using api_element = schema::vulkan::api_elements::ImportSemaphoreWin32HandleKHR;
 
     VkResult result;
     format::HandleId device;
@@ -3793,7 +3793,7 @@ struct ImportSemaphoreWin32HandleKHR
 
 struct GetSemaphoreWin32HandleKHR
 {
-    using api_element = schema::vulkan::commands::GetSemaphoreWin32HandleKHR;
+    using api_element = schema::vulkan::api_elements::GetSemaphoreWin32HandleKHR;
 
     VkResult result;
     format::HandleId device;
@@ -3806,7 +3806,7 @@ struct GetSemaphoreWin32HandleKHR
 
 struct ImportSemaphoreFdKHR
 {
-    using api_element = schema::vulkan::commands::ImportSemaphoreFdKHR;
+    using api_element = schema::vulkan::api_elements::ImportSemaphoreFdKHR;
 
     VkResult result;
     format::HandleId device;
@@ -3818,7 +3818,7 @@ struct ImportSemaphoreFdKHR
 
 struct GetSemaphoreFdKHR
 {
-    using api_element = schema::vulkan::commands::GetSemaphoreFdKHR;
+    using api_element = schema::vulkan::api_elements::GetSemaphoreFdKHR;
 
     VkResult result;
     format::HandleId device;
@@ -3831,7 +3831,7 @@ struct GetSemaphoreFdKHR
 
 struct CmdPushDescriptorSetKHR
 {
-    using api_element = schema::vulkan::commands::CmdPushDescriptorSetKHR;
+    using api_element = schema::vulkan::api_elements::CmdPushDescriptorSetKHR;
 
     format::HandleId commandBuffer;
     VkPipelineBindPoint pipelineBindPoint;
@@ -3846,7 +3846,7 @@ struct CmdPushDescriptorSetKHR
 
 struct CreateDescriptorUpdateTemplateKHR
 {
-    using api_element = schema::vulkan::commands::CreateDescriptorUpdateTemplateKHR;
+    using api_element = schema::vulkan::api_elements::CreateDescriptorUpdateTemplateKHR;
 
     VkResult result;
     format::HandleId device;
@@ -3860,7 +3860,7 @@ struct CreateDescriptorUpdateTemplateKHR
 
 struct DestroyDescriptorUpdateTemplateKHR
 {
-    using api_element = schema::vulkan::commands::DestroyDescriptorUpdateTemplateKHR;
+    using api_element = schema::vulkan::api_elements::DestroyDescriptorUpdateTemplateKHR;
 
     format::HandleId device;
     format::HandleId descriptorUpdateTemplate;
@@ -3872,7 +3872,7 @@ struct DestroyDescriptorUpdateTemplateKHR
 
 struct CreateRenderPass2KHR
 {
-    using api_element = schema::vulkan::commands::CreateRenderPass2KHR;
+    using api_element = schema::vulkan::api_elements::CreateRenderPass2KHR;
 
     VkResult result;
     format::HandleId device;
@@ -3886,7 +3886,7 @@ struct CreateRenderPass2KHR
 
 struct CmdBeginRenderPass2KHR
 {
-    using api_element = schema::vulkan::commands::CmdBeginRenderPass2KHR;
+    using api_element = schema::vulkan::api_elements::CmdBeginRenderPass2KHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkRenderPassBeginInfo> pRenderPassBegin;
@@ -3898,7 +3898,7 @@ struct CmdBeginRenderPass2KHR
 
 struct CmdNextSubpass2KHR
 {
-    using api_element = schema::vulkan::commands::CmdNextSubpass2KHR;
+    using api_element = schema::vulkan::api_elements::CmdNextSubpass2KHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkSubpassBeginInfo> pSubpassBeginInfo;
@@ -3910,7 +3910,7 @@ struct CmdNextSubpass2KHR
 
 struct CmdEndRenderPass2KHR
 {
-    using api_element = schema::vulkan::commands::CmdEndRenderPass2KHR;
+    using api_element = schema::vulkan::api_elements::CmdEndRenderPass2KHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkSubpassEndInfo> pSubpassEndInfo;
@@ -3921,7 +3921,7 @@ struct CmdEndRenderPass2KHR
 
 struct GetSwapchainStatusKHR
 {
-    using api_element = schema::vulkan::commands::GetSwapchainStatusKHR;
+    using api_element = schema::vulkan::api_elements::GetSwapchainStatusKHR;
 
     VkResult result;
     format::HandleId device;
@@ -3933,7 +3933,7 @@ struct GetSwapchainStatusKHR
 
 struct GetPhysicalDeviceExternalFencePropertiesKHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceExternalFencePropertiesKHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceExternalFencePropertiesKHR;
 
     format::HandleId physicalDevice;
     StructPointerDecoder<Decoded_VkPhysicalDeviceExternalFenceInfo> pExternalFenceInfo;
@@ -3945,7 +3945,7 @@ struct GetPhysicalDeviceExternalFencePropertiesKHR
 
 struct ImportFenceWin32HandleKHR
 {
-    using api_element = schema::vulkan::commands::ImportFenceWin32HandleKHR;
+    using api_element = schema::vulkan::api_elements::ImportFenceWin32HandleKHR;
 
     VkResult result;
     format::HandleId device;
@@ -3957,7 +3957,7 @@ struct ImportFenceWin32HandleKHR
 
 struct GetFenceWin32HandleKHR
 {
-    using api_element = schema::vulkan::commands::GetFenceWin32HandleKHR;
+    using api_element = schema::vulkan::api_elements::GetFenceWin32HandleKHR;
 
     VkResult result;
     format::HandleId device;
@@ -3970,7 +3970,7 @@ struct GetFenceWin32HandleKHR
 
 struct ImportFenceFdKHR
 {
-    using api_element = schema::vulkan::commands::ImportFenceFdKHR;
+    using api_element = schema::vulkan::api_elements::ImportFenceFdKHR;
 
     VkResult result;
     format::HandleId device;
@@ -3982,7 +3982,7 @@ struct ImportFenceFdKHR
 
 struct GetFenceFdKHR
 {
-    using api_element = schema::vulkan::commands::GetFenceFdKHR;
+    using api_element = schema::vulkan::api_elements::GetFenceFdKHR;
 
     VkResult result;
     format::HandleId device;
@@ -3995,7 +3995,7 @@ struct GetFenceFdKHR
 
 struct EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR
 {
-    using api_element = schema::vulkan::commands::EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR;
+    using api_element = schema::vulkan::api_elements::EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -4010,7 +4010,7 @@ struct EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR
 
 struct GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR;
 
     format::HandleId physicalDevice;
     StructPointerDecoder<Decoded_VkQueryPoolPerformanceCreateInfoKHR> pPerformanceQueryCreateInfo;
@@ -4022,7 +4022,7 @@ struct GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR
 
 struct AcquireProfilingLockKHR
 {
-    using api_element = schema::vulkan::commands::AcquireProfilingLockKHR;
+    using api_element = schema::vulkan::api_elements::AcquireProfilingLockKHR;
 
     VkResult result;
     format::HandleId device;
@@ -4034,7 +4034,7 @@ struct AcquireProfilingLockKHR
 
 struct ReleaseProfilingLockKHR
 {
-    using api_element = schema::vulkan::commands::ReleaseProfilingLockKHR;
+    using api_element = schema::vulkan::api_elements::ReleaseProfilingLockKHR;
 
     format::HandleId device;
 
@@ -4044,7 +4044,7 @@ struct ReleaseProfilingLockKHR
 
 struct GetPhysicalDeviceSurfaceCapabilities2KHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceSurfaceCapabilities2KHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceSurfaceCapabilities2KHR;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -4057,7 +4057,7 @@ struct GetPhysicalDeviceSurfaceCapabilities2KHR
 
 struct GetPhysicalDeviceSurfaceFormats2KHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceSurfaceFormats2KHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceSurfaceFormats2KHR;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -4071,7 +4071,7 @@ struct GetPhysicalDeviceSurfaceFormats2KHR
 
 struct GetPhysicalDeviceDisplayProperties2KHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceDisplayProperties2KHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceDisplayProperties2KHR;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -4084,7 +4084,7 @@ struct GetPhysicalDeviceDisplayProperties2KHR
 
 struct GetPhysicalDeviceDisplayPlaneProperties2KHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceDisplayPlaneProperties2KHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceDisplayPlaneProperties2KHR;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -4097,7 +4097,7 @@ struct GetPhysicalDeviceDisplayPlaneProperties2KHR
 
 struct GetDisplayModeProperties2KHR
 {
-    using api_element = schema::vulkan::commands::GetDisplayModeProperties2KHR;
+    using api_element = schema::vulkan::api_elements::GetDisplayModeProperties2KHR;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -4111,7 +4111,7 @@ struct GetDisplayModeProperties2KHR
 
 struct GetDisplayPlaneCapabilities2KHR
 {
-    using api_element = schema::vulkan::commands::GetDisplayPlaneCapabilities2KHR;
+    using api_element = schema::vulkan::api_elements::GetDisplayPlaneCapabilities2KHR;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -4124,7 +4124,7 @@ struct GetDisplayPlaneCapabilities2KHR
 
 struct GetImageMemoryRequirements2KHR
 {
-    using api_element = schema::vulkan::commands::GetImageMemoryRequirements2KHR;
+    using api_element = schema::vulkan::api_elements::GetImageMemoryRequirements2KHR;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkImageMemoryRequirementsInfo2> pInfo;
@@ -4136,7 +4136,7 @@ struct GetImageMemoryRequirements2KHR
 
 struct GetBufferMemoryRequirements2KHR
 {
-    using api_element = schema::vulkan::commands::GetBufferMemoryRequirements2KHR;
+    using api_element = schema::vulkan::api_elements::GetBufferMemoryRequirements2KHR;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkBufferMemoryRequirementsInfo2> pInfo;
@@ -4148,7 +4148,7 @@ struct GetBufferMemoryRequirements2KHR
 
 struct GetImageSparseMemoryRequirements2KHR
 {
-    using api_element = schema::vulkan::commands::GetImageSparseMemoryRequirements2KHR;
+    using api_element = schema::vulkan::api_elements::GetImageSparseMemoryRequirements2KHR;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkImageSparseMemoryRequirementsInfo2> pInfo;
@@ -4161,7 +4161,7 @@ struct GetImageSparseMemoryRequirements2KHR
 
 struct CreateSamplerYcbcrConversionKHR
 {
-    using api_element = schema::vulkan::commands::CreateSamplerYcbcrConversionKHR;
+    using api_element = schema::vulkan::api_elements::CreateSamplerYcbcrConversionKHR;
 
     VkResult result;
     format::HandleId device;
@@ -4175,7 +4175,7 @@ struct CreateSamplerYcbcrConversionKHR
 
 struct DestroySamplerYcbcrConversionKHR
 {
-    using api_element = schema::vulkan::commands::DestroySamplerYcbcrConversionKHR;
+    using api_element = schema::vulkan::api_elements::DestroySamplerYcbcrConversionKHR;
 
     format::HandleId device;
     format::HandleId ycbcrConversion;
@@ -4187,7 +4187,7 @@ struct DestroySamplerYcbcrConversionKHR
 
 struct BindBufferMemory2KHR
 {
-    using api_element = schema::vulkan::commands::BindBufferMemory2KHR;
+    using api_element = schema::vulkan::api_elements::BindBufferMemory2KHR;
 
     VkResult result;
     format::HandleId device;
@@ -4200,7 +4200,7 @@ struct BindBufferMemory2KHR
 
 struct BindImageMemory2KHR
 {
-    using api_element = schema::vulkan::commands::BindImageMemory2KHR;
+    using api_element = schema::vulkan::api_elements::BindImageMemory2KHR;
 
     VkResult result;
     format::HandleId device;
@@ -4213,7 +4213,7 @@ struct BindImageMemory2KHR
 
 struct GetDescriptorSetLayoutSupportKHR
 {
-    using api_element = schema::vulkan::commands::GetDescriptorSetLayoutSupportKHR;
+    using api_element = schema::vulkan::api_elements::GetDescriptorSetLayoutSupportKHR;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkDescriptorSetLayoutCreateInfo> pCreateInfo;
@@ -4225,7 +4225,7 @@ struct GetDescriptorSetLayoutSupportKHR
 
 struct CmdDrawIndirectCountKHR
 {
-    using api_element = schema::vulkan::commands::CmdDrawIndirectCountKHR;
+    using api_element = schema::vulkan::api_elements::CmdDrawIndirectCountKHR;
 
     format::HandleId commandBuffer;
     format::HandleId buffer;
@@ -4241,7 +4241,7 @@ struct CmdDrawIndirectCountKHR
 
 struct CmdDrawIndexedIndirectCountKHR
 {
-    using api_element = schema::vulkan::commands::CmdDrawIndexedIndirectCountKHR;
+    using api_element = schema::vulkan::api_elements::CmdDrawIndexedIndirectCountKHR;
 
     format::HandleId commandBuffer;
     format::HandleId buffer;
@@ -4257,7 +4257,7 @@ struct CmdDrawIndexedIndirectCountKHR
 
 struct GetSemaphoreCounterValueKHR
 {
-    using api_element = schema::vulkan::commands::GetSemaphoreCounterValueKHR;
+    using api_element = schema::vulkan::api_elements::GetSemaphoreCounterValueKHR;
 
     VkResult result;
     format::HandleId device;
@@ -4270,7 +4270,7 @@ struct GetSemaphoreCounterValueKHR
 
 struct WaitSemaphoresKHR
 {
-    using api_element = schema::vulkan::commands::WaitSemaphoresKHR;
+    using api_element = schema::vulkan::api_elements::WaitSemaphoresKHR;
 
     VkResult result;
     format::HandleId device;
@@ -4283,7 +4283,7 @@ struct WaitSemaphoresKHR
 
 struct SignalSemaphoreKHR
 {
-    using api_element = schema::vulkan::commands::SignalSemaphoreKHR;
+    using api_element = schema::vulkan::api_elements::SignalSemaphoreKHR;
 
     VkResult result;
     format::HandleId device;
@@ -4295,7 +4295,7 @@ struct SignalSemaphoreKHR
 
 struct GetPhysicalDeviceFragmentShadingRatesKHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceFragmentShadingRatesKHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceFragmentShadingRatesKHR;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -4308,7 +4308,7 @@ struct GetPhysicalDeviceFragmentShadingRatesKHR
 
 struct CmdSetFragmentShadingRateKHR
 {
-    using api_element = schema::vulkan::commands::CmdSetFragmentShadingRateKHR;
+    using api_element = schema::vulkan::api_elements::CmdSetFragmentShadingRateKHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkExtent2D> pFragmentSize;
@@ -4320,7 +4320,7 @@ struct CmdSetFragmentShadingRateKHR
 
 struct CmdSetRenderingAttachmentLocationsKHR
 {
-    using api_element = schema::vulkan::commands::CmdSetRenderingAttachmentLocationsKHR;
+    using api_element = schema::vulkan::api_elements::CmdSetRenderingAttachmentLocationsKHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkRenderingAttachmentLocationInfo> pLocationInfo;
@@ -4331,7 +4331,7 @@ struct CmdSetRenderingAttachmentLocationsKHR
 
 struct CmdSetRenderingInputAttachmentIndicesKHR
 {
-    using api_element = schema::vulkan::commands::CmdSetRenderingInputAttachmentIndicesKHR;
+    using api_element = schema::vulkan::api_elements::CmdSetRenderingInputAttachmentIndicesKHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfo> pInputAttachmentIndexInfo;
@@ -4342,7 +4342,7 @@ struct CmdSetRenderingInputAttachmentIndicesKHR
 
 struct WaitForPresentKHR
 {
-    using api_element = schema::vulkan::commands::WaitForPresentKHR;
+    using api_element = schema::vulkan::api_elements::WaitForPresentKHR;
 
     VkResult result;
     format::HandleId device;
@@ -4356,7 +4356,7 @@ struct WaitForPresentKHR
 
 struct GetBufferDeviceAddressKHR
 {
-    using api_element = schema::vulkan::commands::GetBufferDeviceAddressKHR;
+    using api_element = schema::vulkan::api_elements::GetBufferDeviceAddressKHR;
 
     VkDeviceAddress result;
     format::HandleId device;
@@ -4368,7 +4368,7 @@ struct GetBufferDeviceAddressKHR
 
 struct GetBufferOpaqueCaptureAddressKHR
 {
-    using api_element = schema::vulkan::commands::GetBufferOpaqueCaptureAddressKHR;
+    using api_element = schema::vulkan::api_elements::GetBufferOpaqueCaptureAddressKHR;
 
     uint64_t result;
     format::HandleId device;
@@ -4380,7 +4380,7 @@ struct GetBufferOpaqueCaptureAddressKHR
 
 struct GetDeviceMemoryOpaqueCaptureAddressKHR
 {
-    using api_element = schema::vulkan::commands::GetDeviceMemoryOpaqueCaptureAddressKHR;
+    using api_element = schema::vulkan::api_elements::GetDeviceMemoryOpaqueCaptureAddressKHR;
 
     uint64_t result;
     format::HandleId device;
@@ -4392,7 +4392,7 @@ struct GetDeviceMemoryOpaqueCaptureAddressKHR
 
 struct CreateDeferredOperationKHR
 {
-    using api_element = schema::vulkan::commands::CreateDeferredOperationKHR;
+    using api_element = schema::vulkan::api_elements::CreateDeferredOperationKHR;
 
     VkResult result;
     format::HandleId device;
@@ -4405,7 +4405,7 @@ struct CreateDeferredOperationKHR
 
 struct DestroyDeferredOperationKHR
 {
-    using api_element = schema::vulkan::commands::DestroyDeferredOperationKHR;
+    using api_element = schema::vulkan::api_elements::DestroyDeferredOperationKHR;
 
     format::HandleId device;
     format::HandleId operation;
@@ -4417,7 +4417,7 @@ struct DestroyDeferredOperationKHR
 
 struct GetDeferredOperationMaxConcurrencyKHR
 {
-    using api_element = schema::vulkan::commands::GetDeferredOperationMaxConcurrencyKHR;
+    using api_element = schema::vulkan::api_elements::GetDeferredOperationMaxConcurrencyKHR;
 
     uint32_t result;
     format::HandleId device;
@@ -4429,7 +4429,7 @@ struct GetDeferredOperationMaxConcurrencyKHR
 
 struct GetDeferredOperationResultKHR
 {
-    using api_element = schema::vulkan::commands::GetDeferredOperationResultKHR;
+    using api_element = schema::vulkan::api_elements::GetDeferredOperationResultKHR;
 
     VkResult result;
     format::HandleId device;
@@ -4441,7 +4441,7 @@ struct GetDeferredOperationResultKHR
 
 struct GetPipelineExecutablePropertiesKHR
 {
-    using api_element = schema::vulkan::commands::GetPipelineExecutablePropertiesKHR;
+    using api_element = schema::vulkan::api_elements::GetPipelineExecutablePropertiesKHR;
 
     VkResult result;
     format::HandleId device;
@@ -4455,7 +4455,7 @@ struct GetPipelineExecutablePropertiesKHR
 
 struct GetPipelineExecutableStatisticsKHR
 {
-    using api_element = schema::vulkan::commands::GetPipelineExecutableStatisticsKHR;
+    using api_element = schema::vulkan::api_elements::GetPipelineExecutableStatisticsKHR;
 
     VkResult result;
     format::HandleId device;
@@ -4469,7 +4469,7 @@ struct GetPipelineExecutableStatisticsKHR
 
 struct GetPipelineExecutableInternalRepresentationsKHR
 {
-    using api_element = schema::vulkan::commands::GetPipelineExecutableInternalRepresentationsKHR;
+    using api_element = schema::vulkan::api_elements::GetPipelineExecutableInternalRepresentationsKHR;
 
     VkResult result;
     format::HandleId device;
@@ -4483,7 +4483,7 @@ struct GetPipelineExecutableInternalRepresentationsKHR
 
 struct MapMemory2KHR
 {
-    using api_element = schema::vulkan::commands::MapMemory2KHR;
+    using api_element = schema::vulkan::api_elements::MapMemory2KHR;
 
     VkResult result;
     format::HandleId device;
@@ -4496,7 +4496,7 @@ struct MapMemory2KHR
 
 struct UnmapMemory2KHR
 {
-    using api_element = schema::vulkan::commands::UnmapMemory2KHR;
+    using api_element = schema::vulkan::api_elements::UnmapMemory2KHR;
 
     VkResult result;
     format::HandleId device;
@@ -4508,7 +4508,7 @@ struct UnmapMemory2KHR
 
 struct GetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -4521,7 +4521,7 @@ struct GetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR
 
 struct GetEncodedVideoSessionParametersKHR
 {
-    using api_element = schema::vulkan::commands::GetEncodedVideoSessionParametersKHR;
+    using api_element = schema::vulkan::api_elements::GetEncodedVideoSessionParametersKHR;
 
     VkResult result;
     format::HandleId device;
@@ -4536,7 +4536,7 @@ struct GetEncodedVideoSessionParametersKHR
 
 struct CmdEncodeVideoKHR
 {
-    using api_element = schema::vulkan::commands::CmdEncodeVideoKHR;
+    using api_element = schema::vulkan::api_elements::CmdEncodeVideoKHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkVideoEncodeInfoKHR> pEncodeInfo;
@@ -4547,7 +4547,7 @@ struct CmdEncodeVideoKHR
 
 struct CmdSetEvent2KHR
 {
-    using api_element = schema::vulkan::commands::CmdSetEvent2KHR;
+    using api_element = schema::vulkan::api_elements::CmdSetEvent2KHR;
 
     format::HandleId commandBuffer;
     format::HandleId event;
@@ -4559,7 +4559,7 @@ struct CmdSetEvent2KHR
 
 struct CmdResetEvent2KHR
 {
-    using api_element = schema::vulkan::commands::CmdResetEvent2KHR;
+    using api_element = schema::vulkan::api_elements::CmdResetEvent2KHR;
 
     format::HandleId commandBuffer;
     format::HandleId event;
@@ -4571,7 +4571,7 @@ struct CmdResetEvent2KHR
 
 struct CmdWaitEvents2KHR
 {
-    using api_element = schema::vulkan::commands::CmdWaitEvents2KHR;
+    using api_element = schema::vulkan::api_elements::CmdWaitEvents2KHR;
 
     format::HandleId commandBuffer;
     uint32_t eventCount;
@@ -4584,7 +4584,7 @@ struct CmdWaitEvents2KHR
 
 struct CmdPipelineBarrier2KHR
 {
-    using api_element = schema::vulkan::commands::CmdPipelineBarrier2KHR;
+    using api_element = schema::vulkan::api_elements::CmdPipelineBarrier2KHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkDependencyInfo> pDependencyInfo;
@@ -4595,7 +4595,7 @@ struct CmdPipelineBarrier2KHR
 
 struct CmdWriteTimestamp2KHR
 {
-    using api_element = schema::vulkan::commands::CmdWriteTimestamp2KHR;
+    using api_element = schema::vulkan::api_elements::CmdWriteTimestamp2KHR;
 
     format::HandleId commandBuffer;
     VkPipelineStageFlags2 stage;
@@ -4608,7 +4608,7 @@ struct CmdWriteTimestamp2KHR
 
 struct QueueSubmit2KHR
 {
-    using api_element = schema::vulkan::commands::QueueSubmit2KHR;
+    using api_element = schema::vulkan::api_elements::QueueSubmit2KHR;
 
     VkResult result;
     format::HandleId queue;
@@ -4622,7 +4622,7 @@ struct QueueSubmit2KHR
 
 struct CmdBindIndexBuffer3KHR
 {
-    using api_element = schema::vulkan::commands::CmdBindIndexBuffer3KHR;
+    using api_element = schema::vulkan::api_elements::CmdBindIndexBuffer3KHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkBindIndexBuffer3InfoKHR> pInfo;
@@ -4633,7 +4633,7 @@ struct CmdBindIndexBuffer3KHR
 
 struct CmdBindVertexBuffers3KHR
 {
-    using api_element = schema::vulkan::commands::CmdBindVertexBuffers3KHR;
+    using api_element = schema::vulkan::api_elements::CmdBindVertexBuffers3KHR;
 
     format::HandleId commandBuffer;
     uint32_t firstBinding;
@@ -4646,7 +4646,7 @@ struct CmdBindVertexBuffers3KHR
 
 struct CmdDrawIndirect2KHR
 {
-    using api_element = schema::vulkan::commands::CmdDrawIndirect2KHR;
+    using api_element = schema::vulkan::api_elements::CmdDrawIndirect2KHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkDrawIndirect2InfoKHR> pInfo;
@@ -4657,7 +4657,7 @@ struct CmdDrawIndirect2KHR
 
 struct CmdDrawIndexedIndirect2KHR
 {
-    using api_element = schema::vulkan::commands::CmdDrawIndexedIndirect2KHR;
+    using api_element = schema::vulkan::api_elements::CmdDrawIndexedIndirect2KHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkDrawIndirect2InfoKHR> pInfo;
@@ -4668,7 +4668,7 @@ struct CmdDrawIndexedIndirect2KHR
 
 struct CmdDispatchIndirect2KHR
 {
-    using api_element = schema::vulkan::commands::CmdDispatchIndirect2KHR;
+    using api_element = schema::vulkan::api_elements::CmdDispatchIndirect2KHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkDispatchIndirect2InfoKHR> pInfo;
@@ -4679,7 +4679,7 @@ struct CmdDispatchIndirect2KHR
 
 struct CmdCopyMemoryKHR
 {
-    using api_element = schema::vulkan::commands::CmdCopyMemoryKHR;
+    using api_element = schema::vulkan::api_elements::CmdCopyMemoryKHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkCopyDeviceMemoryInfoKHR> pCopyMemoryInfo;
@@ -4690,7 +4690,7 @@ struct CmdCopyMemoryKHR
 
 struct CmdCopyMemoryToImageKHR
 {
-    using api_element = schema::vulkan::commands::CmdCopyMemoryToImageKHR;
+    using api_element = schema::vulkan::api_elements::CmdCopyMemoryToImageKHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkCopyDeviceMemoryImageInfoKHR> pCopyMemoryInfo;
@@ -4701,7 +4701,7 @@ struct CmdCopyMemoryToImageKHR
 
 struct CmdCopyImageToMemoryKHR
 {
-    using api_element = schema::vulkan::commands::CmdCopyImageToMemoryKHR;
+    using api_element = schema::vulkan::api_elements::CmdCopyImageToMemoryKHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkCopyDeviceMemoryImageInfoKHR> pCopyMemoryInfo;
@@ -4712,7 +4712,7 @@ struct CmdCopyImageToMemoryKHR
 
 struct CmdUpdateMemoryKHR
 {
-    using api_element = schema::vulkan::commands::CmdUpdateMemoryKHR;
+    using api_element = schema::vulkan::api_elements::CmdUpdateMemoryKHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkDeviceAddressRangeKHR> pDstRange;
@@ -4726,7 +4726,7 @@ struct CmdUpdateMemoryKHR
 
 struct CmdFillMemoryKHR
 {
-    using api_element = schema::vulkan::commands::CmdFillMemoryKHR;
+    using api_element = schema::vulkan::api_elements::CmdFillMemoryKHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkDeviceAddressRangeKHR> pDstRange;
@@ -4739,7 +4739,7 @@ struct CmdFillMemoryKHR
 
 struct CmdCopyQueryPoolResultsToMemoryKHR
 {
-    using api_element = schema::vulkan::commands::CmdCopyQueryPoolResultsToMemoryKHR;
+    using api_element = schema::vulkan::api_elements::CmdCopyQueryPoolResultsToMemoryKHR;
 
     format::HandleId commandBuffer;
     format::HandleId queryPool;
@@ -4755,7 +4755,7 @@ struct CmdCopyQueryPoolResultsToMemoryKHR
 
 struct CmdDrawIndirectCount2KHR
 {
-    using api_element = schema::vulkan::commands::CmdDrawIndirectCount2KHR;
+    using api_element = schema::vulkan::api_elements::CmdDrawIndirectCount2KHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkDrawIndirectCount2InfoKHR> pInfo;
@@ -4766,7 +4766,7 @@ struct CmdDrawIndirectCount2KHR
 
 struct CmdDrawIndexedIndirectCount2KHR
 {
-    using api_element = schema::vulkan::commands::CmdDrawIndexedIndirectCount2KHR;
+    using api_element = schema::vulkan::api_elements::CmdDrawIndexedIndirectCount2KHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkDrawIndirectCount2InfoKHR> pInfo;
@@ -4777,7 +4777,7 @@ struct CmdDrawIndexedIndirectCount2KHR
 
 struct CmdBeginConditionalRendering2EXT
 {
-    using api_element = schema::vulkan::commands::CmdBeginConditionalRendering2EXT;
+    using api_element = schema::vulkan::api_elements::CmdBeginConditionalRendering2EXT;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkConditionalRenderingBeginInfo2EXT> pConditionalRenderingBegin;
@@ -4788,7 +4788,7 @@ struct CmdBeginConditionalRendering2EXT
 
 struct CmdBindTransformFeedbackBuffers2EXT
 {
-    using api_element = schema::vulkan::commands::CmdBindTransformFeedbackBuffers2EXT;
+    using api_element = schema::vulkan::api_elements::CmdBindTransformFeedbackBuffers2EXT;
 
     format::HandleId commandBuffer;
     uint32_t firstBinding;
@@ -4801,7 +4801,7 @@ struct CmdBindTransformFeedbackBuffers2EXT
 
 struct CmdBeginTransformFeedback2EXT
 {
-    using api_element = schema::vulkan::commands::CmdBeginTransformFeedback2EXT;
+    using api_element = schema::vulkan::api_elements::CmdBeginTransformFeedback2EXT;
 
     format::HandleId commandBuffer;
     uint32_t firstCounterRange;
@@ -4814,7 +4814,7 @@ struct CmdBeginTransformFeedback2EXT
 
 struct CmdEndTransformFeedback2EXT
 {
-    using api_element = schema::vulkan::commands::CmdEndTransformFeedback2EXT;
+    using api_element = schema::vulkan::api_elements::CmdEndTransformFeedback2EXT;
 
     format::HandleId commandBuffer;
     uint32_t firstCounterRange;
@@ -4827,7 +4827,7 @@ struct CmdEndTransformFeedback2EXT
 
 struct CmdDrawIndirectByteCount2EXT
 {
-    using api_element = schema::vulkan::commands::CmdDrawIndirectByteCount2EXT;
+    using api_element = schema::vulkan::api_elements::CmdDrawIndirectByteCount2EXT;
 
     format::HandleId commandBuffer;
     uint32_t instanceCount;
@@ -4842,7 +4842,7 @@ struct CmdDrawIndirectByteCount2EXT
 
 struct CmdDrawMeshTasksIndirect2EXT
 {
-    using api_element = schema::vulkan::commands::CmdDrawMeshTasksIndirect2EXT;
+    using api_element = schema::vulkan::api_elements::CmdDrawMeshTasksIndirect2EXT;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkDrawIndirect2InfoKHR> pInfo;
@@ -4853,7 +4853,7 @@ struct CmdDrawMeshTasksIndirect2EXT
 
 struct CmdDrawMeshTasksIndirectCount2EXT
 {
-    using api_element = schema::vulkan::commands::CmdDrawMeshTasksIndirectCount2EXT;
+    using api_element = schema::vulkan::api_elements::CmdDrawMeshTasksIndirectCount2EXT;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkDrawIndirectCount2InfoKHR> pInfo;
@@ -4864,7 +4864,7 @@ struct CmdDrawMeshTasksIndirectCount2EXT
 
 struct CmdWriteMarkerToMemoryAMD
 {
-    using api_element = schema::vulkan::commands::CmdWriteMarkerToMemoryAMD;
+    using api_element = schema::vulkan::api_elements::CmdWriteMarkerToMemoryAMD;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkMemoryMarkerInfoAMD> pInfo;
@@ -4875,7 +4875,7 @@ struct CmdWriteMarkerToMemoryAMD
 
 struct CreateAccelerationStructure2KHR
 {
-    using api_element = schema::vulkan::commands::CreateAccelerationStructure2KHR;
+    using api_element = schema::vulkan::api_elements::CreateAccelerationStructure2KHR;
 
     VkResult result;
     format::HandleId device;
@@ -4889,7 +4889,7 @@ struct CreateAccelerationStructure2KHR
 
 struct CmdCopyBuffer2KHR
 {
-    using api_element = schema::vulkan::commands::CmdCopyBuffer2KHR;
+    using api_element = schema::vulkan::api_elements::CmdCopyBuffer2KHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkCopyBufferInfo2> pCopyBufferInfo;
@@ -4900,7 +4900,7 @@ struct CmdCopyBuffer2KHR
 
 struct CmdCopyImage2KHR
 {
-    using api_element = schema::vulkan::commands::CmdCopyImage2KHR;
+    using api_element = schema::vulkan::api_elements::CmdCopyImage2KHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkCopyImageInfo2> pCopyImageInfo;
@@ -4911,7 +4911,7 @@ struct CmdCopyImage2KHR
 
 struct CmdCopyBufferToImage2KHR
 {
-    using api_element = schema::vulkan::commands::CmdCopyBufferToImage2KHR;
+    using api_element = schema::vulkan::api_elements::CmdCopyBufferToImage2KHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2> pCopyBufferToImageInfo;
@@ -4922,7 +4922,7 @@ struct CmdCopyBufferToImage2KHR
 
 struct CmdCopyImageToBuffer2KHR
 {
-    using api_element = schema::vulkan::commands::CmdCopyImageToBuffer2KHR;
+    using api_element = schema::vulkan::api_elements::CmdCopyImageToBuffer2KHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2> pCopyImageToBufferInfo;
@@ -4933,7 +4933,7 @@ struct CmdCopyImageToBuffer2KHR
 
 struct CmdBlitImage2KHR
 {
-    using api_element = schema::vulkan::commands::CmdBlitImage2KHR;
+    using api_element = schema::vulkan::api_elements::CmdBlitImage2KHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkBlitImageInfo2> pBlitImageInfo;
@@ -4944,7 +4944,7 @@ struct CmdBlitImage2KHR
 
 struct CmdResolveImage2KHR
 {
-    using api_element = schema::vulkan::commands::CmdResolveImage2KHR;
+    using api_element = schema::vulkan::api_elements::CmdResolveImage2KHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkResolveImageInfo2> pResolveImageInfo;
@@ -4955,7 +4955,7 @@ struct CmdResolveImage2KHR
 
 struct CmdTraceRaysIndirect2KHR
 {
-    using api_element = schema::vulkan::commands::CmdTraceRaysIndirect2KHR;
+    using api_element = schema::vulkan::api_elements::CmdTraceRaysIndirect2KHR;
 
     format::HandleId commandBuffer;
     VkDeviceAddress indirectDeviceAddress;
@@ -4966,7 +4966,7 @@ struct CmdTraceRaysIndirect2KHR
 
 struct GetDeviceBufferMemoryRequirementsKHR
 {
-    using api_element = schema::vulkan::commands::GetDeviceBufferMemoryRequirementsKHR;
+    using api_element = schema::vulkan::api_elements::GetDeviceBufferMemoryRequirementsKHR;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkDeviceBufferMemoryRequirements> pInfo;
@@ -4978,7 +4978,7 @@ struct GetDeviceBufferMemoryRequirementsKHR
 
 struct GetDeviceImageMemoryRequirementsKHR
 {
-    using api_element = schema::vulkan::commands::GetDeviceImageMemoryRequirementsKHR;
+    using api_element = schema::vulkan::api_elements::GetDeviceImageMemoryRequirementsKHR;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkDeviceImageMemoryRequirements> pInfo;
@@ -4990,7 +4990,7 @@ struct GetDeviceImageMemoryRequirementsKHR
 
 struct GetDeviceImageSparseMemoryRequirementsKHR
 {
-    using api_element = schema::vulkan::commands::GetDeviceImageSparseMemoryRequirementsKHR;
+    using api_element = schema::vulkan::api_elements::GetDeviceImageSparseMemoryRequirementsKHR;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkDeviceImageMemoryRequirements> pInfo;
@@ -5003,7 +5003,7 @@ struct GetDeviceImageSparseMemoryRequirementsKHR
 
 struct CmdBindIndexBuffer2KHR
 {
-    using api_element = schema::vulkan::commands::CmdBindIndexBuffer2KHR;
+    using api_element = schema::vulkan::api_elements::CmdBindIndexBuffer2KHR;
 
     format::HandleId commandBuffer;
     format::HandleId buffer;
@@ -5017,7 +5017,7 @@ struct CmdBindIndexBuffer2KHR
 
 struct GetRenderingAreaGranularityKHR
 {
-    using api_element = schema::vulkan::commands::GetRenderingAreaGranularityKHR;
+    using api_element = schema::vulkan::api_elements::GetRenderingAreaGranularityKHR;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkRenderingAreaInfo> pRenderingAreaInfo;
@@ -5029,7 +5029,7 @@ struct GetRenderingAreaGranularityKHR
 
 struct GetDeviceImageSubresourceLayoutKHR
 {
-    using api_element = schema::vulkan::commands::GetDeviceImageSubresourceLayoutKHR;
+    using api_element = schema::vulkan::api_elements::GetDeviceImageSubresourceLayoutKHR;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkDeviceImageSubresourceInfo> pInfo;
@@ -5041,7 +5041,7 @@ struct GetDeviceImageSubresourceLayoutKHR
 
 struct GetImageSubresourceLayout2KHR
 {
-    using api_element = schema::vulkan::commands::GetImageSubresourceLayout2KHR;
+    using api_element = schema::vulkan::api_elements::GetImageSubresourceLayout2KHR;
 
     format::HandleId device;
     format::HandleId image;
@@ -5054,7 +5054,7 @@ struct GetImageSubresourceLayout2KHR
 
 struct WaitForPresent2KHR
 {
-    using api_element = schema::vulkan::commands::WaitForPresent2KHR;
+    using api_element = schema::vulkan::api_elements::WaitForPresent2KHR;
 
     VkResult result;
     format::HandleId device;
@@ -5067,7 +5067,7 @@ struct WaitForPresent2KHR
 
 struct CreatePipelineBinariesKHR
 {
-    using api_element = schema::vulkan::commands::CreatePipelineBinariesKHR;
+    using api_element = schema::vulkan::api_elements::CreatePipelineBinariesKHR;
 
     VkResult result;
     format::HandleId device;
@@ -5081,7 +5081,7 @@ struct CreatePipelineBinariesKHR
 
 struct DestroyPipelineBinaryKHR
 {
-    using api_element = schema::vulkan::commands::DestroyPipelineBinaryKHR;
+    using api_element = schema::vulkan::api_elements::DestroyPipelineBinaryKHR;
 
     format::HandleId device;
     format::HandleId pipelineBinary;
@@ -5093,7 +5093,7 @@ struct DestroyPipelineBinaryKHR
 
 struct GetPipelineKeyKHR
 {
-    using api_element = schema::vulkan::commands::GetPipelineKeyKHR;
+    using api_element = schema::vulkan::api_elements::GetPipelineKeyKHR;
 
     VkResult result;
     format::HandleId device;
@@ -5106,7 +5106,7 @@ struct GetPipelineKeyKHR
 
 struct GetPipelineBinaryDataKHR
 {
-    using api_element = schema::vulkan::commands::GetPipelineBinaryDataKHR;
+    using api_element = schema::vulkan::api_elements::GetPipelineBinaryDataKHR;
 
     VkResult result;
     format::HandleId device;
@@ -5121,7 +5121,7 @@ struct GetPipelineBinaryDataKHR
 
 struct ReleaseCapturedPipelineDataKHR
 {
-    using api_element = schema::vulkan::commands::ReleaseCapturedPipelineDataKHR;
+    using api_element = schema::vulkan::api_elements::ReleaseCapturedPipelineDataKHR;
 
     VkResult result;
     format::HandleId device;
@@ -5134,7 +5134,7 @@ struct ReleaseCapturedPipelineDataKHR
 
 struct ReleaseSwapchainImagesKHR
 {
-    using api_element = schema::vulkan::commands::ReleaseSwapchainImagesKHR;
+    using api_element = schema::vulkan::api_elements::ReleaseSwapchainImagesKHR;
 
     VkResult result;
     format::HandleId device;
@@ -5146,7 +5146,7 @@ struct ReleaseSwapchainImagesKHR
 
 struct GetPhysicalDeviceCooperativeMatrixPropertiesKHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceCooperativeMatrixPropertiesKHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceCooperativeMatrixPropertiesKHR;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -5159,7 +5159,7 @@ struct GetPhysicalDeviceCooperativeMatrixPropertiesKHR
 
 struct CmdSetLineStippleKHR
 {
-    using api_element = schema::vulkan::commands::CmdSetLineStippleKHR;
+    using api_element = schema::vulkan::api_elements::CmdSetLineStippleKHR;
 
     format::HandleId commandBuffer;
     uint32_t lineStippleFactor;
@@ -5171,7 +5171,7 @@ struct CmdSetLineStippleKHR
 
 struct GetPhysicalDeviceCalibrateableTimeDomainsKHR
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceCalibrateableTimeDomainsKHR;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceCalibrateableTimeDomainsKHR;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -5184,7 +5184,7 @@ struct GetPhysicalDeviceCalibrateableTimeDomainsKHR
 
 struct GetCalibratedTimestampsKHR
 {
-    using api_element = schema::vulkan::commands::GetCalibratedTimestampsKHR;
+    using api_element = schema::vulkan::api_elements::GetCalibratedTimestampsKHR;
 
     VkResult result;
     format::HandleId device;
@@ -5199,7 +5199,7 @@ struct GetCalibratedTimestampsKHR
 
 struct CmdBindDescriptorSets2KHR
 {
-    using api_element = schema::vulkan::commands::CmdBindDescriptorSets2KHR;
+    using api_element = schema::vulkan::api_elements::CmdBindDescriptorSets2KHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkBindDescriptorSetsInfo> pBindDescriptorSetsInfo;
@@ -5210,7 +5210,7 @@ struct CmdBindDescriptorSets2KHR
 
 struct CmdPushConstants2KHR
 {
-    using api_element = schema::vulkan::commands::CmdPushConstants2KHR;
+    using api_element = schema::vulkan::api_elements::CmdPushConstants2KHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkPushConstantsInfo> pPushConstantsInfo;
@@ -5221,7 +5221,7 @@ struct CmdPushConstants2KHR
 
 struct CmdPushDescriptorSet2KHR
 {
-    using api_element = schema::vulkan::commands::CmdPushDescriptorSet2KHR;
+    using api_element = schema::vulkan::api_elements::CmdPushDescriptorSet2KHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkPushDescriptorSetInfo> pPushDescriptorSetInfo;
@@ -5232,7 +5232,7 @@ struct CmdPushDescriptorSet2KHR
 
 struct CmdSetDescriptorBufferOffsets2EXT
 {
-    using api_element = schema::vulkan::commands::CmdSetDescriptorBufferOffsets2EXT;
+    using api_element = schema::vulkan::api_elements::CmdSetDescriptorBufferOffsets2EXT;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkSetDescriptorBufferOffsetsInfoEXT> pSetDescriptorBufferOffsetsInfo;
@@ -5243,7 +5243,7 @@ struct CmdSetDescriptorBufferOffsets2EXT
 
 struct CmdBindDescriptorBufferEmbeddedSamplers2EXT
 {
-    using api_element = schema::vulkan::commands::CmdBindDescriptorBufferEmbeddedSamplers2EXT;
+    using api_element = schema::vulkan::api_elements::CmdBindDescriptorBufferEmbeddedSamplers2EXT;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkBindDescriptorBufferEmbeddedSamplersInfoEXT> pBindDescriptorBufferEmbeddedSamplersInfo;
@@ -5254,7 +5254,7 @@ struct CmdBindDescriptorBufferEmbeddedSamplers2EXT
 
 struct CmdCopyMemoryIndirectKHR
 {
-    using api_element = schema::vulkan::commands::CmdCopyMemoryIndirectKHR;
+    using api_element = schema::vulkan::api_elements::CmdCopyMemoryIndirectKHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkCopyMemoryIndirectInfoKHR> pCopyMemoryIndirectInfo;
@@ -5265,7 +5265,7 @@ struct CmdCopyMemoryIndirectKHR
 
 struct CmdCopyMemoryToImageIndirectKHR
 {
-    using api_element = schema::vulkan::commands::CmdCopyMemoryToImageIndirectKHR;
+    using api_element = schema::vulkan::api_elements::CmdCopyMemoryToImageIndirectKHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkCopyMemoryToImageIndirectInfoKHR> pCopyMemoryToImageIndirectInfo;
@@ -5276,7 +5276,7 @@ struct CmdCopyMemoryToImageIndirectKHR
 
 struct GetDeviceFaultReportsKHR
 {
-    using api_element = schema::vulkan::commands::GetDeviceFaultReportsKHR;
+    using api_element = schema::vulkan::api_elements::GetDeviceFaultReportsKHR;
 
     VkResult result;
     format::HandleId device;
@@ -5290,7 +5290,7 @@ struct GetDeviceFaultReportsKHR
 
 struct GetDeviceFaultDebugInfoKHR
 {
-    using api_element = schema::vulkan::commands::GetDeviceFaultDebugInfoKHR;
+    using api_element = schema::vulkan::api_elements::GetDeviceFaultDebugInfoKHR;
 
     VkResult result;
     format::HandleId device;
@@ -5302,7 +5302,7 @@ struct GetDeviceFaultDebugInfoKHR
 
 struct CmdEndRendering2KHR
 {
-    using api_element = schema::vulkan::commands::CmdEndRendering2KHR;
+    using api_element = schema::vulkan::api_elements::CmdEndRendering2KHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkRenderingEndInfoKHR> pRenderingEndInfo;
@@ -5313,7 +5313,7 @@ struct CmdEndRendering2KHR
 
 struct FrameBoundaryANDROID
 {
-    using api_element = schema::vulkan::commands::FrameBoundaryANDROID;
+    using api_element = schema::vulkan::api_elements::FrameBoundaryANDROID;
 
     format::HandleId device;
     format::HandleId semaphore;
@@ -5325,7 +5325,7 @@ struct FrameBoundaryANDROID
 
 struct CreateDebugReportCallbackEXT
 {
-    using api_element = schema::vulkan::commands::CreateDebugReportCallbackEXT;
+    using api_element = schema::vulkan::api_elements::CreateDebugReportCallbackEXT;
 
     VkResult result;
     format::HandleId instance;
@@ -5339,7 +5339,7 @@ struct CreateDebugReportCallbackEXT
 
 struct DestroyDebugReportCallbackEXT
 {
-    using api_element = schema::vulkan::commands::DestroyDebugReportCallbackEXT;
+    using api_element = schema::vulkan::api_elements::DestroyDebugReportCallbackEXT;
 
     format::HandleId instance;
     format::HandleId callback;
@@ -5351,7 +5351,7 @@ struct DestroyDebugReportCallbackEXT
 
 struct DebugReportMessageEXT
 {
-    using api_element = schema::vulkan::commands::DebugReportMessageEXT;
+    using api_element = schema::vulkan::api_elements::DebugReportMessageEXT;
 
     format::HandleId instance;
     VkDebugReportFlagsEXT flags;
@@ -5368,7 +5368,7 @@ struct DebugReportMessageEXT
 
 struct DebugMarkerSetObjectTagEXT
 {
-    using api_element = schema::vulkan::commands::DebugMarkerSetObjectTagEXT;
+    using api_element = schema::vulkan::api_elements::DebugMarkerSetObjectTagEXT;
 
     VkResult result;
     format::HandleId device;
@@ -5380,7 +5380,7 @@ struct DebugMarkerSetObjectTagEXT
 
 struct DebugMarkerSetObjectNameEXT
 {
-    using api_element = schema::vulkan::commands::DebugMarkerSetObjectNameEXT;
+    using api_element = schema::vulkan::api_elements::DebugMarkerSetObjectNameEXT;
 
     VkResult result;
     format::HandleId device;
@@ -5392,7 +5392,7 @@ struct DebugMarkerSetObjectNameEXT
 
 struct CmdDebugMarkerBeginEXT
 {
-    using api_element = schema::vulkan::commands::CmdDebugMarkerBeginEXT;
+    using api_element = schema::vulkan::api_elements::CmdDebugMarkerBeginEXT;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkDebugMarkerMarkerInfoEXT> pMarkerInfo;
@@ -5403,7 +5403,7 @@ struct CmdDebugMarkerBeginEXT
 
 struct CmdDebugMarkerEndEXT
 {
-    using api_element = schema::vulkan::commands::CmdDebugMarkerEndEXT;
+    using api_element = schema::vulkan::api_elements::CmdDebugMarkerEndEXT;
 
     format::HandleId commandBuffer;
 
@@ -5413,7 +5413,7 @@ struct CmdDebugMarkerEndEXT
 
 struct CmdDebugMarkerInsertEXT
 {
-    using api_element = schema::vulkan::commands::CmdDebugMarkerInsertEXT;
+    using api_element = schema::vulkan::api_elements::CmdDebugMarkerInsertEXT;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkDebugMarkerMarkerInfoEXT> pMarkerInfo;
@@ -5424,7 +5424,7 @@ struct CmdDebugMarkerInsertEXT
 
 struct CmdBindTransformFeedbackBuffersEXT
 {
-    using api_element = schema::vulkan::commands::CmdBindTransformFeedbackBuffersEXT;
+    using api_element = schema::vulkan::api_elements::CmdBindTransformFeedbackBuffersEXT;
 
     format::HandleId commandBuffer;
     uint32_t firstBinding;
@@ -5439,7 +5439,7 @@ struct CmdBindTransformFeedbackBuffersEXT
 
 struct CmdBeginTransformFeedbackEXT
 {
-    using api_element = schema::vulkan::commands::CmdBeginTransformFeedbackEXT;
+    using api_element = schema::vulkan::api_elements::CmdBeginTransformFeedbackEXT;
 
     format::HandleId commandBuffer;
     uint32_t firstCounterBuffer;
@@ -5453,7 +5453,7 @@ struct CmdBeginTransformFeedbackEXT
 
 struct CmdEndTransformFeedbackEXT
 {
-    using api_element = schema::vulkan::commands::CmdEndTransformFeedbackEXT;
+    using api_element = schema::vulkan::api_elements::CmdEndTransformFeedbackEXT;
 
     format::HandleId commandBuffer;
     uint32_t firstCounterBuffer;
@@ -5467,7 +5467,7 @@ struct CmdEndTransformFeedbackEXT
 
 struct CmdBeginQueryIndexedEXT
 {
-    using api_element = schema::vulkan::commands::CmdBeginQueryIndexedEXT;
+    using api_element = schema::vulkan::api_elements::CmdBeginQueryIndexedEXT;
 
     format::HandleId commandBuffer;
     format::HandleId queryPool;
@@ -5481,7 +5481,7 @@ struct CmdBeginQueryIndexedEXT
 
 struct CmdEndQueryIndexedEXT
 {
-    using api_element = schema::vulkan::commands::CmdEndQueryIndexedEXT;
+    using api_element = schema::vulkan::api_elements::CmdEndQueryIndexedEXT;
 
     format::HandleId commandBuffer;
     format::HandleId queryPool;
@@ -5494,7 +5494,7 @@ struct CmdEndQueryIndexedEXT
 
 struct CmdDrawIndirectByteCountEXT
 {
-    using api_element = schema::vulkan::commands::CmdDrawIndirectByteCountEXT;
+    using api_element = schema::vulkan::api_elements::CmdDrawIndirectByteCountEXT;
 
     format::HandleId commandBuffer;
     uint32_t instanceCount;
@@ -5510,7 +5510,7 @@ struct CmdDrawIndirectByteCountEXT
 
 struct GetImageViewHandleNVX
 {
-    using api_element = schema::vulkan::commands::GetImageViewHandleNVX;
+    using api_element = schema::vulkan::api_elements::GetImageViewHandleNVX;
 
     uint32_t result;
     format::HandleId device;
@@ -5522,7 +5522,7 @@ struct GetImageViewHandleNVX
 
 struct GetImageViewHandle64NVX
 {
-    using api_element = schema::vulkan::commands::GetImageViewHandle64NVX;
+    using api_element = schema::vulkan::api_elements::GetImageViewHandle64NVX;
 
     uint64_t result;
     format::HandleId device;
@@ -5534,7 +5534,7 @@ struct GetImageViewHandle64NVX
 
 struct GetImageViewAddressNVX
 {
-    using api_element = schema::vulkan::commands::GetImageViewAddressNVX;
+    using api_element = schema::vulkan::api_elements::GetImageViewAddressNVX;
 
     VkResult result;
     format::HandleId device;
@@ -5547,7 +5547,7 @@ struct GetImageViewAddressNVX
 
 struct GetDeviceCombinedImageSamplerIndexNVX
 {
-    using api_element = schema::vulkan::commands::GetDeviceCombinedImageSamplerIndexNVX;
+    using api_element = schema::vulkan::api_elements::GetDeviceCombinedImageSamplerIndexNVX;
 
     uint64_t result;
     format::HandleId device;
@@ -5560,7 +5560,7 @@ struct GetDeviceCombinedImageSamplerIndexNVX
 
 struct CmdDrawIndirectCountAMD
 {
-    using api_element = schema::vulkan::commands::CmdDrawIndirectCountAMD;
+    using api_element = schema::vulkan::api_elements::CmdDrawIndirectCountAMD;
 
     format::HandleId commandBuffer;
     format::HandleId buffer;
@@ -5576,7 +5576,7 @@ struct CmdDrawIndirectCountAMD
 
 struct CmdDrawIndexedIndirectCountAMD
 {
-    using api_element = schema::vulkan::commands::CmdDrawIndexedIndirectCountAMD;
+    using api_element = schema::vulkan::api_elements::CmdDrawIndexedIndirectCountAMD;
 
     format::HandleId commandBuffer;
     format::HandleId buffer;
@@ -5592,7 +5592,7 @@ struct CmdDrawIndexedIndirectCountAMD
 
 struct GetShaderInfoAMD
 {
-    using api_element = schema::vulkan::commands::GetShaderInfoAMD;
+    using api_element = schema::vulkan::api_elements::GetShaderInfoAMD;
 
     VkResult result;
     format::HandleId device;
@@ -5608,7 +5608,7 @@ struct GetShaderInfoAMD
 
 struct CreateStreamDescriptorSurfaceGGP
 {
-    using api_element = schema::vulkan::commands::CreateStreamDescriptorSurfaceGGP;
+    using api_element = schema::vulkan::api_elements::CreateStreamDescriptorSurfaceGGP;
 
     VkResult result;
     format::HandleId instance;
@@ -5622,7 +5622,7 @@ struct CreateStreamDescriptorSurfaceGGP
 
 struct GetPhysicalDeviceExternalImageFormatPropertiesNV
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceExternalImageFormatPropertiesNV;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceExternalImageFormatPropertiesNV;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -5640,7 +5640,7 @@ struct GetPhysicalDeviceExternalImageFormatPropertiesNV
 
 struct GetMemoryWin32HandleNV
 {
-    using api_element = schema::vulkan::commands::GetMemoryWin32HandleNV;
+    using api_element = schema::vulkan::api_elements::GetMemoryWin32HandleNV;
 
     VkResult result;
     format::HandleId device;
@@ -5654,7 +5654,7 @@ struct GetMemoryWin32HandleNV
 
 struct CreateViSurfaceNN
 {
-    using api_element = schema::vulkan::commands::CreateViSurfaceNN;
+    using api_element = schema::vulkan::api_elements::CreateViSurfaceNN;
 
     VkResult result;
     format::HandleId instance;
@@ -5668,7 +5668,7 @@ struct CreateViSurfaceNN
 
 struct CmdBeginConditionalRenderingEXT
 {
-    using api_element = schema::vulkan::commands::CmdBeginConditionalRenderingEXT;
+    using api_element = schema::vulkan::api_elements::CmdBeginConditionalRenderingEXT;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkConditionalRenderingBeginInfoEXT> pConditionalRenderingBegin;
@@ -5679,7 +5679,7 @@ struct CmdBeginConditionalRenderingEXT
 
 struct CmdEndConditionalRenderingEXT
 {
-    using api_element = schema::vulkan::commands::CmdEndConditionalRenderingEXT;
+    using api_element = schema::vulkan::api_elements::CmdEndConditionalRenderingEXT;
 
     format::HandleId commandBuffer;
 
@@ -5689,7 +5689,7 @@ struct CmdEndConditionalRenderingEXT
 
 struct CmdSetViewportWScalingNV
 {
-    using api_element = schema::vulkan::commands::CmdSetViewportWScalingNV;
+    using api_element = schema::vulkan::api_elements::CmdSetViewportWScalingNV;
 
     format::HandleId commandBuffer;
     uint32_t firstViewport;
@@ -5702,7 +5702,7 @@ struct CmdSetViewportWScalingNV
 
 struct ReleaseDisplayEXT
 {
-    using api_element = schema::vulkan::commands::ReleaseDisplayEXT;
+    using api_element = schema::vulkan::api_elements::ReleaseDisplayEXT;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -5714,7 +5714,7 @@ struct ReleaseDisplayEXT
 
 struct AcquireXlibDisplayEXT
 {
-    using api_element = schema::vulkan::commands::AcquireXlibDisplayEXT;
+    using api_element = schema::vulkan::api_elements::AcquireXlibDisplayEXT;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -5727,7 +5727,7 @@ struct AcquireXlibDisplayEXT
 
 struct GetRandROutputDisplayEXT
 {
-    using api_element = schema::vulkan::commands::GetRandROutputDisplayEXT;
+    using api_element = schema::vulkan::api_elements::GetRandROutputDisplayEXT;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -5741,7 +5741,7 @@ struct GetRandROutputDisplayEXT
 
 struct GetPhysicalDeviceSurfaceCapabilities2EXT
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceSurfaceCapabilities2EXT;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceSurfaceCapabilities2EXT;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -5754,7 +5754,7 @@ struct GetPhysicalDeviceSurfaceCapabilities2EXT
 
 struct DisplayPowerControlEXT
 {
-    using api_element = schema::vulkan::commands::DisplayPowerControlEXT;
+    using api_element = schema::vulkan::api_elements::DisplayPowerControlEXT;
 
     VkResult result;
     format::HandleId device;
@@ -5767,7 +5767,7 @@ struct DisplayPowerControlEXT
 
 struct RegisterDeviceEventEXT
 {
-    using api_element = schema::vulkan::commands::RegisterDeviceEventEXT;
+    using api_element = schema::vulkan::api_elements::RegisterDeviceEventEXT;
 
     VkResult result;
     format::HandleId device;
@@ -5781,7 +5781,7 @@ struct RegisterDeviceEventEXT
 
 struct RegisterDisplayEventEXT
 {
-    using api_element = schema::vulkan::commands::RegisterDisplayEventEXT;
+    using api_element = schema::vulkan::api_elements::RegisterDisplayEventEXT;
 
     VkResult result;
     format::HandleId device;
@@ -5796,7 +5796,7 @@ struct RegisterDisplayEventEXT
 
 struct GetSwapchainCounterEXT
 {
-    using api_element = schema::vulkan::commands::GetSwapchainCounterEXT;
+    using api_element = schema::vulkan::api_elements::GetSwapchainCounterEXT;
 
     VkResult result;
     format::HandleId device;
@@ -5810,7 +5810,7 @@ struct GetSwapchainCounterEXT
 
 struct GetRefreshCycleDurationGOOGLE
 {
-    using api_element = schema::vulkan::commands::GetRefreshCycleDurationGOOGLE;
+    using api_element = schema::vulkan::api_elements::GetRefreshCycleDurationGOOGLE;
 
     VkResult result;
     format::HandleId device;
@@ -5823,7 +5823,7 @@ struct GetRefreshCycleDurationGOOGLE
 
 struct GetPastPresentationTimingGOOGLE
 {
-    using api_element = schema::vulkan::commands::GetPastPresentationTimingGOOGLE;
+    using api_element = schema::vulkan::api_elements::GetPastPresentationTimingGOOGLE;
 
     VkResult result;
     format::HandleId device;
@@ -5837,7 +5837,7 @@ struct GetPastPresentationTimingGOOGLE
 
 struct CmdSetDiscardRectangleEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetDiscardRectangleEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetDiscardRectangleEXT;
 
     format::HandleId commandBuffer;
     uint32_t firstDiscardRectangle;
@@ -5850,7 +5850,7 @@ struct CmdSetDiscardRectangleEXT
 
 struct CmdSetDiscardRectangleEnableEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetDiscardRectangleEnableEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetDiscardRectangleEnableEXT;
 
     format::HandleId commandBuffer;
     VkBool32 discardRectangleEnable;
@@ -5861,7 +5861,7 @@ struct CmdSetDiscardRectangleEnableEXT
 
 struct CmdSetDiscardRectangleModeEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetDiscardRectangleModeEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetDiscardRectangleModeEXT;
 
     format::HandleId commandBuffer;
     VkDiscardRectangleModeEXT discardRectangleMode;
@@ -5872,7 +5872,7 @@ struct CmdSetDiscardRectangleModeEXT
 
 struct SetHdrMetadataEXT
 {
-    using api_element = schema::vulkan::commands::SetHdrMetadataEXT;
+    using api_element = schema::vulkan::api_elements::SetHdrMetadataEXT;
 
     format::HandleId device;
     uint32_t swapchainCount;
@@ -5885,7 +5885,7 @@ struct SetHdrMetadataEXT
 
 struct CreateIOSSurfaceMVK
 {
-    using api_element = schema::vulkan::commands::CreateIOSSurfaceMVK;
+    using api_element = schema::vulkan::api_elements::CreateIOSSurfaceMVK;
 
     VkResult result;
     format::HandleId instance;
@@ -5899,7 +5899,7 @@ struct CreateIOSSurfaceMVK
 
 struct CreateMacOSSurfaceMVK
 {
-    using api_element = schema::vulkan::commands::CreateMacOSSurfaceMVK;
+    using api_element = schema::vulkan::api_elements::CreateMacOSSurfaceMVK;
 
     VkResult result;
     format::HandleId instance;
@@ -5913,7 +5913,7 @@ struct CreateMacOSSurfaceMVK
 
 struct SetDebugUtilsObjectNameEXT
 {
-    using api_element = schema::vulkan::commands::SetDebugUtilsObjectNameEXT;
+    using api_element = schema::vulkan::api_elements::SetDebugUtilsObjectNameEXT;
 
     VkResult result;
     format::HandleId device;
@@ -5925,7 +5925,7 @@ struct SetDebugUtilsObjectNameEXT
 
 struct SetDebugUtilsObjectTagEXT
 {
-    using api_element = schema::vulkan::commands::SetDebugUtilsObjectTagEXT;
+    using api_element = schema::vulkan::api_elements::SetDebugUtilsObjectTagEXT;
 
     VkResult result;
     format::HandleId device;
@@ -5937,7 +5937,7 @@ struct SetDebugUtilsObjectTagEXT
 
 struct QueueBeginDebugUtilsLabelEXT
 {
-    using api_element = schema::vulkan::commands::QueueBeginDebugUtilsLabelEXT;
+    using api_element = schema::vulkan::api_elements::QueueBeginDebugUtilsLabelEXT;
 
     format::HandleId queue;
     StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT> pLabelInfo;
@@ -5948,7 +5948,7 @@ struct QueueBeginDebugUtilsLabelEXT
 
 struct QueueEndDebugUtilsLabelEXT
 {
-    using api_element = schema::vulkan::commands::QueueEndDebugUtilsLabelEXT;
+    using api_element = schema::vulkan::api_elements::QueueEndDebugUtilsLabelEXT;
 
     format::HandleId queue;
 
@@ -5958,7 +5958,7 @@ struct QueueEndDebugUtilsLabelEXT
 
 struct QueueInsertDebugUtilsLabelEXT
 {
-    using api_element = schema::vulkan::commands::QueueInsertDebugUtilsLabelEXT;
+    using api_element = schema::vulkan::api_elements::QueueInsertDebugUtilsLabelEXT;
 
     format::HandleId queue;
     StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT> pLabelInfo;
@@ -5969,7 +5969,7 @@ struct QueueInsertDebugUtilsLabelEXT
 
 struct CmdBeginDebugUtilsLabelEXT
 {
-    using api_element = schema::vulkan::commands::CmdBeginDebugUtilsLabelEXT;
+    using api_element = schema::vulkan::api_elements::CmdBeginDebugUtilsLabelEXT;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT> pLabelInfo;
@@ -5980,7 +5980,7 @@ struct CmdBeginDebugUtilsLabelEXT
 
 struct CmdEndDebugUtilsLabelEXT
 {
-    using api_element = schema::vulkan::commands::CmdEndDebugUtilsLabelEXT;
+    using api_element = schema::vulkan::api_elements::CmdEndDebugUtilsLabelEXT;
 
     format::HandleId commandBuffer;
 
@@ -5990,7 +5990,7 @@ struct CmdEndDebugUtilsLabelEXT
 
 struct CmdInsertDebugUtilsLabelEXT
 {
-    using api_element = schema::vulkan::commands::CmdInsertDebugUtilsLabelEXT;
+    using api_element = schema::vulkan::api_elements::CmdInsertDebugUtilsLabelEXT;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT> pLabelInfo;
@@ -6001,7 +6001,7 @@ struct CmdInsertDebugUtilsLabelEXT
 
 struct CreateDebugUtilsMessengerEXT
 {
-    using api_element = schema::vulkan::commands::CreateDebugUtilsMessengerEXT;
+    using api_element = schema::vulkan::api_elements::CreateDebugUtilsMessengerEXT;
 
     VkResult result;
     format::HandleId instance;
@@ -6015,7 +6015,7 @@ struct CreateDebugUtilsMessengerEXT
 
 struct DestroyDebugUtilsMessengerEXT
 {
-    using api_element = schema::vulkan::commands::DestroyDebugUtilsMessengerEXT;
+    using api_element = schema::vulkan::api_elements::DestroyDebugUtilsMessengerEXT;
 
     format::HandleId instance;
     format::HandleId messenger;
@@ -6027,7 +6027,7 @@ struct DestroyDebugUtilsMessengerEXT
 
 struct SubmitDebugUtilsMessageEXT
 {
-    using api_element = schema::vulkan::commands::SubmitDebugUtilsMessageEXT;
+    using api_element = schema::vulkan::api_elements::SubmitDebugUtilsMessageEXT;
 
     format::HandleId instance;
     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity;
@@ -6040,7 +6040,7 @@ struct SubmitDebugUtilsMessageEXT
 
 struct GetAndroidHardwareBufferPropertiesANDROID
 {
-    using api_element = schema::vulkan::commands::GetAndroidHardwareBufferPropertiesANDROID;
+    using api_element = schema::vulkan::api_elements::GetAndroidHardwareBufferPropertiesANDROID;
 
     VkResult result;
     format::HandleId device;
@@ -6053,7 +6053,7 @@ struct GetAndroidHardwareBufferPropertiesANDROID
 
 struct GetMemoryAndroidHardwareBufferANDROID
 {
-    using api_element = schema::vulkan::commands::GetMemoryAndroidHardwareBufferANDROID;
+    using api_element = schema::vulkan::api_elements::GetMemoryAndroidHardwareBufferANDROID;
 
     VkResult result;
     format::HandleId device;
@@ -6066,7 +6066,7 @@ struct GetMemoryAndroidHardwareBufferANDROID
 
 struct CreateGpaSessionAMD
 {
-    using api_element = schema::vulkan::commands::CreateGpaSessionAMD;
+    using api_element = schema::vulkan::api_elements::CreateGpaSessionAMD;
 
     VkResult result;
     format::HandleId device;
@@ -6080,7 +6080,7 @@ struct CreateGpaSessionAMD
 
 struct DestroyGpaSessionAMD
 {
-    using api_element = schema::vulkan::commands::DestroyGpaSessionAMD;
+    using api_element = schema::vulkan::api_elements::DestroyGpaSessionAMD;
 
     format::HandleId device;
     format::HandleId gpaSession;
@@ -6092,7 +6092,7 @@ struct DestroyGpaSessionAMD
 
 struct SetGpaDeviceClockModeAMD
 {
-    using api_element = schema::vulkan::commands::SetGpaDeviceClockModeAMD;
+    using api_element = schema::vulkan::api_elements::SetGpaDeviceClockModeAMD;
 
     VkResult result;
     format::HandleId device;
@@ -6104,7 +6104,7 @@ struct SetGpaDeviceClockModeAMD
 
 struct GetGpaDeviceClockInfoAMD
 {
-    using api_element = schema::vulkan::commands::GetGpaDeviceClockInfoAMD;
+    using api_element = schema::vulkan::api_elements::GetGpaDeviceClockInfoAMD;
 
     VkResult result;
     format::HandleId device;
@@ -6116,7 +6116,7 @@ struct GetGpaDeviceClockInfoAMD
 
 struct CmdBeginGpaSessionAMD
 {
-    using api_element = schema::vulkan::commands::CmdBeginGpaSessionAMD;
+    using api_element = schema::vulkan::api_elements::CmdBeginGpaSessionAMD;
 
     VkResult result;
     format::HandleId commandBuffer;
@@ -6128,7 +6128,7 @@ struct CmdBeginGpaSessionAMD
 
 struct CmdEndGpaSessionAMD
 {
-    using api_element = schema::vulkan::commands::CmdEndGpaSessionAMD;
+    using api_element = schema::vulkan::api_elements::CmdEndGpaSessionAMD;
 
     VkResult result;
     format::HandleId commandBuffer;
@@ -6140,7 +6140,7 @@ struct CmdEndGpaSessionAMD
 
 struct CmdBeginGpaSampleAMD
 {
-    using api_element = schema::vulkan::commands::CmdBeginGpaSampleAMD;
+    using api_element = schema::vulkan::api_elements::CmdBeginGpaSampleAMD;
 
     VkResult result;
     format::HandleId commandBuffer;
@@ -6154,7 +6154,7 @@ struct CmdBeginGpaSampleAMD
 
 struct CmdEndGpaSampleAMD
 {
-    using api_element = schema::vulkan::commands::CmdEndGpaSampleAMD;
+    using api_element = schema::vulkan::api_elements::CmdEndGpaSampleAMD;
 
     format::HandleId commandBuffer;
     format::HandleId gpaSession;
@@ -6166,7 +6166,7 @@ struct CmdEndGpaSampleAMD
 
 struct GetGpaSessionStatusAMD
 {
-    using api_element = schema::vulkan::commands::GetGpaSessionStatusAMD;
+    using api_element = schema::vulkan::api_elements::GetGpaSessionStatusAMD;
 
     VkResult result;
     format::HandleId device;
@@ -6178,7 +6178,7 @@ struct GetGpaSessionStatusAMD
 
 struct GetGpaSessionResultsAMD
 {
-    using api_element = schema::vulkan::commands::GetGpaSessionResultsAMD;
+    using api_element = schema::vulkan::api_elements::GetGpaSessionResultsAMD;
 
     VkResult result;
     format::HandleId device;
@@ -6193,7 +6193,7 @@ struct GetGpaSessionResultsAMD
 
 struct ResetGpaSessionAMD
 {
-    using api_element = schema::vulkan::commands::ResetGpaSessionAMD;
+    using api_element = schema::vulkan::api_elements::ResetGpaSessionAMD;
 
     VkResult result;
     format::HandleId device;
@@ -6205,7 +6205,7 @@ struct ResetGpaSessionAMD
 
 struct CmdCopyGpaSessionResultsAMD
 {
-    using api_element = schema::vulkan::commands::CmdCopyGpaSessionResultsAMD;
+    using api_element = schema::vulkan::api_elements::CmdCopyGpaSessionResultsAMD;
 
     format::HandleId commandBuffer;
     format::HandleId gpaSession;
@@ -6216,7 +6216,7 @@ struct CmdCopyGpaSessionResultsAMD
 
 struct CmdSetSampleLocationsEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetSampleLocationsEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetSampleLocationsEXT;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkSampleLocationsInfoEXT> pSampleLocationsInfo;
@@ -6227,7 +6227,7 @@ struct CmdSetSampleLocationsEXT
 
 struct GetPhysicalDeviceMultisamplePropertiesEXT
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceMultisamplePropertiesEXT;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceMultisamplePropertiesEXT;
 
     format::HandleId physicalDevice;
     VkSampleCountFlagBits samples;
@@ -6239,7 +6239,7 @@ struct GetPhysicalDeviceMultisamplePropertiesEXT
 
 struct GetImageDrmFormatModifierPropertiesEXT
 {
-    using api_element = schema::vulkan::commands::GetImageDrmFormatModifierPropertiesEXT;
+    using api_element = schema::vulkan::api_elements::GetImageDrmFormatModifierPropertiesEXT;
 
     VkResult result;
     format::HandleId device;
@@ -6252,7 +6252,7 @@ struct GetImageDrmFormatModifierPropertiesEXT
 
 struct CreateValidationCacheEXT
 {
-    using api_element = schema::vulkan::commands::CreateValidationCacheEXT;
+    using api_element = schema::vulkan::api_elements::CreateValidationCacheEXT;
 
     VkResult result;
     format::HandleId device;
@@ -6266,7 +6266,7 @@ struct CreateValidationCacheEXT
 
 struct DestroyValidationCacheEXT
 {
-    using api_element = schema::vulkan::commands::DestroyValidationCacheEXT;
+    using api_element = schema::vulkan::api_elements::DestroyValidationCacheEXT;
 
     format::HandleId device;
     format::HandleId validationCache;
@@ -6278,7 +6278,7 @@ struct DestroyValidationCacheEXT
 
 struct MergeValidationCachesEXT
 {
-    using api_element = schema::vulkan::commands::MergeValidationCachesEXT;
+    using api_element = schema::vulkan::api_elements::MergeValidationCachesEXT;
 
     VkResult result;
     format::HandleId device;
@@ -6292,7 +6292,7 @@ struct MergeValidationCachesEXT
 
 struct GetValidationCacheDataEXT
 {
-    using api_element = schema::vulkan::commands::GetValidationCacheDataEXT;
+    using api_element = schema::vulkan::api_elements::GetValidationCacheDataEXT;
 
     VkResult result;
     format::HandleId device;
@@ -6306,7 +6306,7 @@ struct GetValidationCacheDataEXT
 
 struct CmdBindShadingRateImageNV
 {
-    using api_element = schema::vulkan::commands::CmdBindShadingRateImageNV;
+    using api_element = schema::vulkan::api_elements::CmdBindShadingRateImageNV;
 
     format::HandleId commandBuffer;
     format::HandleId imageView;
@@ -6318,7 +6318,7 @@ struct CmdBindShadingRateImageNV
 
 struct CmdSetViewportShadingRatePaletteNV
 {
-    using api_element = schema::vulkan::commands::CmdSetViewportShadingRatePaletteNV;
+    using api_element = schema::vulkan::api_elements::CmdSetViewportShadingRatePaletteNV;
 
     format::HandleId commandBuffer;
     uint32_t firstViewport;
@@ -6331,7 +6331,7 @@ struct CmdSetViewportShadingRatePaletteNV
 
 struct CmdSetCoarseSampleOrderNV
 {
-    using api_element = schema::vulkan::commands::CmdSetCoarseSampleOrderNV;
+    using api_element = schema::vulkan::api_elements::CmdSetCoarseSampleOrderNV;
 
     format::HandleId commandBuffer;
     VkCoarseSampleOrderTypeNV sampleOrderType;
@@ -6344,7 +6344,7 @@ struct CmdSetCoarseSampleOrderNV
 
 struct CreateAccelerationStructureNV
 {
-    using api_element = schema::vulkan::commands::CreateAccelerationStructureNV;
+    using api_element = schema::vulkan::api_elements::CreateAccelerationStructureNV;
 
     VkResult result;
     format::HandleId device;
@@ -6358,7 +6358,7 @@ struct CreateAccelerationStructureNV
 
 struct DestroyAccelerationStructureNV
 {
-    using api_element = schema::vulkan::commands::DestroyAccelerationStructureNV;
+    using api_element = schema::vulkan::api_elements::DestroyAccelerationStructureNV;
 
     format::HandleId device;
     format::HandleId accelerationStructure;
@@ -6370,7 +6370,7 @@ struct DestroyAccelerationStructureNV
 
 struct GetAccelerationStructureMemoryRequirementsNV
 {
-    using api_element = schema::vulkan::commands::GetAccelerationStructureMemoryRequirementsNV;
+    using api_element = schema::vulkan::api_elements::GetAccelerationStructureMemoryRequirementsNV;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkAccelerationStructureMemoryRequirementsInfoNV> pInfo;
@@ -6382,7 +6382,7 @@ struct GetAccelerationStructureMemoryRequirementsNV
 
 struct BindAccelerationStructureMemoryNV
 {
-    using api_element = schema::vulkan::commands::BindAccelerationStructureMemoryNV;
+    using api_element = schema::vulkan::api_elements::BindAccelerationStructureMemoryNV;
 
     VkResult result;
     format::HandleId device;
@@ -6395,7 +6395,7 @@ struct BindAccelerationStructureMemoryNV
 
 struct CmdBuildAccelerationStructureNV
 {
-    using api_element = schema::vulkan::commands::CmdBuildAccelerationStructureNV;
+    using api_element = schema::vulkan::api_elements::CmdBuildAccelerationStructureNV;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkAccelerationStructureInfoNV> pInfo;
@@ -6413,7 +6413,7 @@ struct CmdBuildAccelerationStructureNV
 
 struct CmdCopyAccelerationStructureNV
 {
-    using api_element = schema::vulkan::commands::CmdCopyAccelerationStructureNV;
+    using api_element = schema::vulkan::api_elements::CmdCopyAccelerationStructureNV;
 
     format::HandleId commandBuffer;
     format::HandleId dst;
@@ -6426,7 +6426,7 @@ struct CmdCopyAccelerationStructureNV
 
 struct CmdTraceRaysNV
 {
-    using api_element = schema::vulkan::commands::CmdTraceRaysNV;
+    using api_element = schema::vulkan::api_elements::CmdTraceRaysNV;
 
     format::HandleId commandBuffer;
     format::HandleId raygenShaderBindingTableBuffer;
@@ -6450,7 +6450,7 @@ struct CmdTraceRaysNV
 
 struct CreateRayTracingPipelinesNV
 {
-    using api_element = schema::vulkan::commands::CreateRayTracingPipelinesNV;
+    using api_element = schema::vulkan::api_elements::CreateRayTracingPipelinesNV;
 
     VkResult result;
     format::HandleId device;
@@ -6466,7 +6466,7 @@ struct CreateRayTracingPipelinesNV
 
 struct GetRayTracingShaderGroupHandlesKHR
 {
-    using api_element = schema::vulkan::commands::GetRayTracingShaderGroupHandlesKHR;
+    using api_element = schema::vulkan::api_elements::GetRayTracingShaderGroupHandlesKHR;
 
     VkResult result;
     format::HandleId device;
@@ -6482,7 +6482,7 @@ struct GetRayTracingShaderGroupHandlesKHR
 
 struct GetRayTracingShaderGroupHandlesNV
 {
-    using api_element = schema::vulkan::commands::GetRayTracingShaderGroupHandlesNV;
+    using api_element = schema::vulkan::api_elements::GetRayTracingShaderGroupHandlesNV;
 
     VkResult result;
     format::HandleId device;
@@ -6498,7 +6498,7 @@ struct GetRayTracingShaderGroupHandlesNV
 
 struct GetAccelerationStructureHandleNV
 {
-    using api_element = schema::vulkan::commands::GetAccelerationStructureHandleNV;
+    using api_element = schema::vulkan::api_elements::GetAccelerationStructureHandleNV;
 
     VkResult result;
     format::HandleId device;
@@ -6512,7 +6512,7 @@ struct GetAccelerationStructureHandleNV
 
 struct CmdWriteAccelerationStructuresPropertiesNV
 {
-    using api_element = schema::vulkan::commands::CmdWriteAccelerationStructuresPropertiesNV;
+    using api_element = schema::vulkan::api_elements::CmdWriteAccelerationStructuresPropertiesNV;
 
     format::HandleId commandBuffer;
     uint32_t accelerationStructureCount;
@@ -6527,7 +6527,7 @@ struct CmdWriteAccelerationStructuresPropertiesNV
 
 struct CompileDeferredNV
 {
-    using api_element = schema::vulkan::commands::CompileDeferredNV;
+    using api_element = schema::vulkan::api_elements::CompileDeferredNV;
 
     VkResult result;
     format::HandleId device;
@@ -6540,7 +6540,7 @@ struct CompileDeferredNV
 
 struct GetMemoryHostPointerPropertiesEXT
 {
-    using api_element = schema::vulkan::commands::GetMemoryHostPointerPropertiesEXT;
+    using api_element = schema::vulkan::api_elements::GetMemoryHostPointerPropertiesEXT;
 
     VkResult result;
     format::HandleId device;
@@ -6554,7 +6554,7 @@ struct GetMemoryHostPointerPropertiesEXT
 
 struct CmdWriteBufferMarkerAMD
 {
-    using api_element = schema::vulkan::commands::CmdWriteBufferMarkerAMD;
+    using api_element = schema::vulkan::api_elements::CmdWriteBufferMarkerAMD;
 
     format::HandleId commandBuffer;
     VkPipelineStageFlagBits pipelineStage;
@@ -6568,7 +6568,7 @@ struct CmdWriteBufferMarkerAMD
 
 struct CmdWriteBufferMarker2AMD
 {
-    using api_element = schema::vulkan::commands::CmdWriteBufferMarker2AMD;
+    using api_element = schema::vulkan::api_elements::CmdWriteBufferMarker2AMD;
 
     format::HandleId commandBuffer;
     VkPipelineStageFlags2 stage;
@@ -6582,7 +6582,7 @@ struct CmdWriteBufferMarker2AMD
 
 struct GetPhysicalDeviceCalibrateableTimeDomainsEXT
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceCalibrateableTimeDomainsEXT;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceCalibrateableTimeDomainsEXT;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -6595,7 +6595,7 @@ struct GetPhysicalDeviceCalibrateableTimeDomainsEXT
 
 struct GetCalibratedTimestampsEXT
 {
-    using api_element = schema::vulkan::commands::GetCalibratedTimestampsEXT;
+    using api_element = schema::vulkan::api_elements::GetCalibratedTimestampsEXT;
 
     VkResult result;
     format::HandleId device;
@@ -6610,7 +6610,7 @@ struct GetCalibratedTimestampsEXT
 
 struct CmdDrawMeshTasksNV
 {
-    using api_element = schema::vulkan::commands::CmdDrawMeshTasksNV;
+    using api_element = schema::vulkan::api_elements::CmdDrawMeshTasksNV;
 
     format::HandleId commandBuffer;
     uint32_t taskCount;
@@ -6622,7 +6622,7 @@ struct CmdDrawMeshTasksNV
 
 struct CmdDrawMeshTasksIndirectNV
 {
-    using api_element = schema::vulkan::commands::CmdDrawMeshTasksIndirectNV;
+    using api_element = schema::vulkan::api_elements::CmdDrawMeshTasksIndirectNV;
 
     format::HandleId commandBuffer;
     format::HandleId buffer;
@@ -6636,7 +6636,7 @@ struct CmdDrawMeshTasksIndirectNV
 
 struct CmdDrawMeshTasksIndirectCountNV
 {
-    using api_element = schema::vulkan::commands::CmdDrawMeshTasksIndirectCountNV;
+    using api_element = schema::vulkan::api_elements::CmdDrawMeshTasksIndirectCountNV;
 
     format::HandleId commandBuffer;
     format::HandleId buffer;
@@ -6652,7 +6652,7 @@ struct CmdDrawMeshTasksIndirectCountNV
 
 struct CmdSetExclusiveScissorEnableNV
 {
-    using api_element = schema::vulkan::commands::CmdSetExclusiveScissorEnableNV;
+    using api_element = schema::vulkan::api_elements::CmdSetExclusiveScissorEnableNV;
 
     format::HandleId commandBuffer;
     uint32_t firstExclusiveScissor;
@@ -6665,7 +6665,7 @@ struct CmdSetExclusiveScissorEnableNV
 
 struct CmdSetExclusiveScissorNV
 {
-    using api_element = schema::vulkan::commands::CmdSetExclusiveScissorNV;
+    using api_element = schema::vulkan::api_elements::CmdSetExclusiveScissorNV;
 
     format::HandleId commandBuffer;
     uint32_t firstExclusiveScissor;
@@ -6678,7 +6678,7 @@ struct CmdSetExclusiveScissorNV
 
 struct CmdSetCheckpointNV
 {
-    using api_element = schema::vulkan::commands::CmdSetCheckpointNV;
+    using api_element = schema::vulkan::api_elements::CmdSetCheckpointNV;
 
     format::HandleId commandBuffer;
     uint64_t pCheckpointMarker;
@@ -6689,7 +6689,7 @@ struct CmdSetCheckpointNV
 
 struct GetQueueCheckpointDataNV
 {
-    using api_element = schema::vulkan::commands::GetQueueCheckpointDataNV;
+    using api_element = schema::vulkan::api_elements::GetQueueCheckpointDataNV;
 
     format::HandleId queue;
     PointerDecoder<uint32_t> pCheckpointDataCount;
@@ -6701,7 +6701,7 @@ struct GetQueueCheckpointDataNV
 
 struct GetQueueCheckpointData2NV
 {
-    using api_element = schema::vulkan::commands::GetQueueCheckpointData2NV;
+    using api_element = schema::vulkan::api_elements::GetQueueCheckpointData2NV;
 
     format::HandleId queue;
     PointerDecoder<uint32_t> pCheckpointDataCount;
@@ -6713,7 +6713,7 @@ struct GetQueueCheckpointData2NV
 
 struct SetSwapchainPresentTimingQueueSizeEXT
 {
-    using api_element = schema::vulkan::commands::SetSwapchainPresentTimingQueueSizeEXT;
+    using api_element = schema::vulkan::api_elements::SetSwapchainPresentTimingQueueSizeEXT;
 
     VkResult result;
     format::HandleId device;
@@ -6726,7 +6726,7 @@ struct SetSwapchainPresentTimingQueueSizeEXT
 
 struct GetSwapchainTimingPropertiesEXT
 {
-    using api_element = schema::vulkan::commands::GetSwapchainTimingPropertiesEXT;
+    using api_element = schema::vulkan::api_elements::GetSwapchainTimingPropertiesEXT;
 
     VkResult result;
     format::HandleId device;
@@ -6740,7 +6740,7 @@ struct GetSwapchainTimingPropertiesEXT
 
 struct GetSwapchainTimeDomainPropertiesEXT
 {
-    using api_element = schema::vulkan::commands::GetSwapchainTimeDomainPropertiesEXT;
+    using api_element = schema::vulkan::api_elements::GetSwapchainTimeDomainPropertiesEXT;
 
     VkResult result;
     format::HandleId device;
@@ -6754,7 +6754,7 @@ struct GetSwapchainTimeDomainPropertiesEXT
 
 struct GetPastPresentationTimingEXT
 {
-    using api_element = schema::vulkan::commands::GetPastPresentationTimingEXT;
+    using api_element = schema::vulkan::api_elements::GetPastPresentationTimingEXT;
 
     VkResult result;
     format::HandleId device;
@@ -6767,7 +6767,7 @@ struct GetPastPresentationTimingEXT
 
 struct InitializePerformanceApiINTEL
 {
-    using api_element = schema::vulkan::commands::InitializePerformanceApiINTEL;
+    using api_element = schema::vulkan::api_elements::InitializePerformanceApiINTEL;
 
     VkResult result;
     format::HandleId device;
@@ -6779,7 +6779,7 @@ struct InitializePerformanceApiINTEL
 
 struct UninitializePerformanceApiINTEL
 {
-    using api_element = schema::vulkan::commands::UninitializePerformanceApiINTEL;
+    using api_element = schema::vulkan::api_elements::UninitializePerformanceApiINTEL;
 
     format::HandleId device;
 
@@ -6789,7 +6789,7 @@ struct UninitializePerformanceApiINTEL
 
 struct CmdSetPerformanceMarkerINTEL
 {
-    using api_element = schema::vulkan::commands::CmdSetPerformanceMarkerINTEL;
+    using api_element = schema::vulkan::api_elements::CmdSetPerformanceMarkerINTEL;
 
     VkResult result;
     format::HandleId commandBuffer;
@@ -6801,7 +6801,7 @@ struct CmdSetPerformanceMarkerINTEL
 
 struct CmdSetPerformanceStreamMarkerINTEL
 {
-    using api_element = schema::vulkan::commands::CmdSetPerformanceStreamMarkerINTEL;
+    using api_element = schema::vulkan::api_elements::CmdSetPerformanceStreamMarkerINTEL;
 
     VkResult result;
     format::HandleId commandBuffer;
@@ -6813,7 +6813,7 @@ struct CmdSetPerformanceStreamMarkerINTEL
 
 struct CmdSetPerformanceOverrideINTEL
 {
-    using api_element = schema::vulkan::commands::CmdSetPerformanceOverrideINTEL;
+    using api_element = schema::vulkan::api_elements::CmdSetPerformanceOverrideINTEL;
 
     VkResult result;
     format::HandleId commandBuffer;
@@ -6825,7 +6825,7 @@ struct CmdSetPerformanceOverrideINTEL
 
 struct AcquirePerformanceConfigurationINTEL
 {
-    using api_element = schema::vulkan::commands::AcquirePerformanceConfigurationINTEL;
+    using api_element = schema::vulkan::api_elements::AcquirePerformanceConfigurationINTEL;
 
     VkResult result;
     format::HandleId device;
@@ -6838,7 +6838,7 @@ struct AcquirePerformanceConfigurationINTEL
 
 struct ReleasePerformanceConfigurationINTEL
 {
-    using api_element = schema::vulkan::commands::ReleasePerformanceConfigurationINTEL;
+    using api_element = schema::vulkan::api_elements::ReleasePerformanceConfigurationINTEL;
 
     VkResult result;
     format::HandleId device;
@@ -6850,7 +6850,7 @@ struct ReleasePerformanceConfigurationINTEL
 
 struct QueueSetPerformanceConfigurationINTEL
 {
-    using api_element = schema::vulkan::commands::QueueSetPerformanceConfigurationINTEL;
+    using api_element = schema::vulkan::api_elements::QueueSetPerformanceConfigurationINTEL;
 
     VkResult result;
     format::HandleId queue;
@@ -6862,7 +6862,7 @@ struct QueueSetPerformanceConfigurationINTEL
 
 struct GetPerformanceParameterINTEL
 {
-    using api_element = schema::vulkan::commands::GetPerformanceParameterINTEL;
+    using api_element = schema::vulkan::api_elements::GetPerformanceParameterINTEL;
 
     VkResult result;
     format::HandleId device;
@@ -6875,7 +6875,7 @@ struct GetPerformanceParameterINTEL
 
 struct SetLocalDimmingAMD
 {
-    using api_element = schema::vulkan::commands::SetLocalDimmingAMD;
+    using api_element = schema::vulkan::api_elements::SetLocalDimmingAMD;
 
     format::HandleId device;
     format::HandleId swapChain;
@@ -6887,7 +6887,7 @@ struct SetLocalDimmingAMD
 
 struct CreateImagePipeSurfaceFUCHSIA
 {
-    using api_element = schema::vulkan::commands::CreateImagePipeSurfaceFUCHSIA;
+    using api_element = schema::vulkan::api_elements::CreateImagePipeSurfaceFUCHSIA;
 
     VkResult result;
     format::HandleId instance;
@@ -6901,7 +6901,7 @@ struct CreateImagePipeSurfaceFUCHSIA
 
 struct CreateMetalSurfaceEXT
 {
-    using api_element = schema::vulkan::commands::CreateMetalSurfaceEXT;
+    using api_element = schema::vulkan::api_elements::CreateMetalSurfaceEXT;
 
     VkResult result;
     format::HandleId instance;
@@ -6915,7 +6915,7 @@ struct CreateMetalSurfaceEXT
 
 struct GetBufferDeviceAddressEXT
 {
-    using api_element = schema::vulkan::commands::GetBufferDeviceAddressEXT;
+    using api_element = schema::vulkan::api_elements::GetBufferDeviceAddressEXT;
 
     VkDeviceAddress result;
     format::HandleId device;
@@ -6927,7 +6927,7 @@ struct GetBufferDeviceAddressEXT
 
 struct GetPhysicalDeviceToolPropertiesEXT
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceToolPropertiesEXT;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceToolPropertiesEXT;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -6940,7 +6940,7 @@ struct GetPhysicalDeviceToolPropertiesEXT
 
 struct GetPhysicalDeviceCooperativeMatrixPropertiesNV
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceCooperativeMatrixPropertiesNV;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceCooperativeMatrixPropertiesNV;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -6953,7 +6953,7 @@ struct GetPhysicalDeviceCooperativeMatrixPropertiesNV
 
 struct GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -6966,7 +6966,7 @@ struct GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV
 
 struct GetPhysicalDeviceSurfacePresentModes2EXT
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceSurfacePresentModes2EXT;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceSurfacePresentModes2EXT;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -6980,7 +6980,7 @@ struct GetPhysicalDeviceSurfacePresentModes2EXT
 
 struct AcquireFullScreenExclusiveModeEXT
 {
-    using api_element = schema::vulkan::commands::AcquireFullScreenExclusiveModeEXT;
+    using api_element = schema::vulkan::api_elements::AcquireFullScreenExclusiveModeEXT;
 
     VkResult result;
     format::HandleId device;
@@ -6992,7 +6992,7 @@ struct AcquireFullScreenExclusiveModeEXT
 
 struct ReleaseFullScreenExclusiveModeEXT
 {
-    using api_element = schema::vulkan::commands::ReleaseFullScreenExclusiveModeEXT;
+    using api_element = schema::vulkan::api_elements::ReleaseFullScreenExclusiveModeEXT;
 
     VkResult result;
     format::HandleId device;
@@ -7004,7 +7004,7 @@ struct ReleaseFullScreenExclusiveModeEXT
 
 struct GetDeviceGroupSurfacePresentModes2EXT
 {
-    using api_element = schema::vulkan::commands::GetDeviceGroupSurfacePresentModes2EXT;
+    using api_element = schema::vulkan::api_elements::GetDeviceGroupSurfacePresentModes2EXT;
 
     VkResult result;
     format::HandleId device;
@@ -7017,7 +7017,7 @@ struct GetDeviceGroupSurfacePresentModes2EXT
 
 struct CreateHeadlessSurfaceEXT
 {
-    using api_element = schema::vulkan::commands::CreateHeadlessSurfaceEXT;
+    using api_element = schema::vulkan::api_elements::CreateHeadlessSurfaceEXT;
 
     VkResult result;
     format::HandleId instance;
@@ -7031,7 +7031,7 @@ struct CreateHeadlessSurfaceEXT
 
 struct CmdSetLineStippleEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetLineStippleEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetLineStippleEXT;
 
     format::HandleId commandBuffer;
     uint32_t lineStippleFactor;
@@ -7043,7 +7043,7 @@ struct CmdSetLineStippleEXT
 
 struct ResetQueryPoolEXT
 {
-    using api_element = schema::vulkan::commands::ResetQueryPoolEXT;
+    using api_element = schema::vulkan::api_elements::ResetQueryPoolEXT;
 
     format::HandleId device;
     format::HandleId queryPool;
@@ -7056,7 +7056,7 @@ struct ResetQueryPoolEXT
 
 struct CmdSetCullModeEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetCullModeEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetCullModeEXT;
 
     format::HandleId commandBuffer;
     VkCullModeFlags cullMode;
@@ -7067,7 +7067,7 @@ struct CmdSetCullModeEXT
 
 struct CmdSetFrontFaceEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetFrontFaceEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetFrontFaceEXT;
 
     format::HandleId commandBuffer;
     VkFrontFace frontFace;
@@ -7078,7 +7078,7 @@ struct CmdSetFrontFaceEXT
 
 struct CmdSetPrimitiveTopologyEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetPrimitiveTopologyEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetPrimitiveTopologyEXT;
 
     format::HandleId commandBuffer;
     VkPrimitiveTopology primitiveTopology;
@@ -7089,7 +7089,7 @@ struct CmdSetPrimitiveTopologyEXT
 
 struct CmdSetViewportWithCountEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetViewportWithCountEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetViewportWithCountEXT;
 
     format::HandleId commandBuffer;
     uint32_t viewportCount;
@@ -7101,7 +7101,7 @@ struct CmdSetViewportWithCountEXT
 
 struct CmdSetScissorWithCountEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetScissorWithCountEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetScissorWithCountEXT;
 
     format::HandleId commandBuffer;
     uint32_t scissorCount;
@@ -7113,7 +7113,7 @@ struct CmdSetScissorWithCountEXT
 
 struct CmdBindVertexBuffers2EXT
 {
-    using api_element = schema::vulkan::commands::CmdBindVertexBuffers2EXT;
+    using api_element = schema::vulkan::api_elements::CmdBindVertexBuffers2EXT;
 
     format::HandleId commandBuffer;
     uint32_t firstBinding;
@@ -7129,7 +7129,7 @@ struct CmdBindVertexBuffers2EXT
 
 struct CmdSetDepthTestEnableEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetDepthTestEnableEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetDepthTestEnableEXT;
 
     format::HandleId commandBuffer;
     VkBool32 depthTestEnable;
@@ -7140,7 +7140,7 @@ struct CmdSetDepthTestEnableEXT
 
 struct CmdSetDepthWriteEnableEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetDepthWriteEnableEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetDepthWriteEnableEXT;
 
     format::HandleId commandBuffer;
     VkBool32 depthWriteEnable;
@@ -7151,7 +7151,7 @@ struct CmdSetDepthWriteEnableEXT
 
 struct CmdSetDepthCompareOpEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetDepthCompareOpEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetDepthCompareOpEXT;
 
     format::HandleId commandBuffer;
     VkCompareOp depthCompareOp;
@@ -7162,7 +7162,7 @@ struct CmdSetDepthCompareOpEXT
 
 struct CmdSetDepthBoundsTestEnableEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetDepthBoundsTestEnableEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetDepthBoundsTestEnableEXT;
 
     format::HandleId commandBuffer;
     VkBool32 depthBoundsTestEnable;
@@ -7173,7 +7173,7 @@ struct CmdSetDepthBoundsTestEnableEXT
 
 struct CmdSetStencilTestEnableEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetStencilTestEnableEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetStencilTestEnableEXT;
 
     format::HandleId commandBuffer;
     VkBool32 stencilTestEnable;
@@ -7184,7 +7184,7 @@ struct CmdSetStencilTestEnableEXT
 
 struct CmdSetStencilOpEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetStencilOpEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetStencilOpEXT;
 
     format::HandleId commandBuffer;
     VkStencilFaceFlags faceMask;
@@ -7199,7 +7199,7 @@ struct CmdSetStencilOpEXT
 
 struct CopyMemoryToImageEXT
 {
-    using api_element = schema::vulkan::commands::CopyMemoryToImageEXT;
+    using api_element = schema::vulkan::api_elements::CopyMemoryToImageEXT;
 
     VkResult result;
     format::HandleId device;
@@ -7211,7 +7211,7 @@ struct CopyMemoryToImageEXT
 
 struct CopyImageToMemoryEXT
 {
-    using api_element = schema::vulkan::commands::CopyImageToMemoryEXT;
+    using api_element = schema::vulkan::api_elements::CopyImageToMemoryEXT;
 
     VkResult result;
     format::HandleId device;
@@ -7223,7 +7223,7 @@ struct CopyImageToMemoryEXT
 
 struct CopyImageToImageEXT
 {
-    using api_element = schema::vulkan::commands::CopyImageToImageEXT;
+    using api_element = schema::vulkan::api_elements::CopyImageToImageEXT;
 
     VkResult result;
     format::HandleId device;
@@ -7235,7 +7235,7 @@ struct CopyImageToImageEXT
 
 struct TransitionImageLayoutEXT
 {
-    using api_element = schema::vulkan::commands::TransitionImageLayoutEXT;
+    using api_element = schema::vulkan::api_elements::TransitionImageLayoutEXT;
 
     VkResult result;
     format::HandleId device;
@@ -7248,7 +7248,7 @@ struct TransitionImageLayoutEXT
 
 struct GetImageSubresourceLayout2EXT
 {
-    using api_element = schema::vulkan::commands::GetImageSubresourceLayout2EXT;
+    using api_element = schema::vulkan::api_elements::GetImageSubresourceLayout2EXT;
 
     format::HandleId device;
     format::HandleId image;
@@ -7261,7 +7261,7 @@ struct GetImageSubresourceLayout2EXT
 
 struct ReleaseSwapchainImagesEXT
 {
-    using api_element = schema::vulkan::commands::ReleaseSwapchainImagesEXT;
+    using api_element = schema::vulkan::api_elements::ReleaseSwapchainImagesEXT;
 
     VkResult result;
     format::HandleId device;
@@ -7273,7 +7273,7 @@ struct ReleaseSwapchainImagesEXT
 
 struct GetGeneratedCommandsMemoryRequirementsNV
 {
-    using api_element = schema::vulkan::commands::GetGeneratedCommandsMemoryRequirementsNV;
+    using api_element = schema::vulkan::api_elements::GetGeneratedCommandsMemoryRequirementsNV;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkGeneratedCommandsMemoryRequirementsInfoNV> pInfo;
@@ -7285,7 +7285,7 @@ struct GetGeneratedCommandsMemoryRequirementsNV
 
 struct CmdPreprocessGeneratedCommandsNV
 {
-    using api_element = schema::vulkan::commands::CmdPreprocessGeneratedCommandsNV;
+    using api_element = schema::vulkan::api_elements::CmdPreprocessGeneratedCommandsNV;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkGeneratedCommandsInfoNV> pGeneratedCommandsInfo;
@@ -7296,7 +7296,7 @@ struct CmdPreprocessGeneratedCommandsNV
 
 struct CmdExecuteGeneratedCommandsNV
 {
-    using api_element = schema::vulkan::commands::CmdExecuteGeneratedCommandsNV;
+    using api_element = schema::vulkan::api_elements::CmdExecuteGeneratedCommandsNV;
 
     format::HandleId commandBuffer;
     VkBool32 isPreprocessed;
@@ -7308,7 +7308,7 @@ struct CmdExecuteGeneratedCommandsNV
 
 struct CmdBindPipelineShaderGroupNV
 {
-    using api_element = schema::vulkan::commands::CmdBindPipelineShaderGroupNV;
+    using api_element = schema::vulkan::api_elements::CmdBindPipelineShaderGroupNV;
 
     format::HandleId commandBuffer;
     VkPipelineBindPoint pipelineBindPoint;
@@ -7321,7 +7321,7 @@ struct CmdBindPipelineShaderGroupNV
 
 struct CreateIndirectCommandsLayoutNV
 {
-    using api_element = schema::vulkan::commands::CreateIndirectCommandsLayoutNV;
+    using api_element = schema::vulkan::api_elements::CreateIndirectCommandsLayoutNV;
 
     VkResult result;
     format::HandleId device;
@@ -7335,7 +7335,7 @@ struct CreateIndirectCommandsLayoutNV
 
 struct DestroyIndirectCommandsLayoutNV
 {
-    using api_element = schema::vulkan::commands::DestroyIndirectCommandsLayoutNV;
+    using api_element = schema::vulkan::api_elements::DestroyIndirectCommandsLayoutNV;
 
     format::HandleId device;
     format::HandleId indirectCommandsLayout;
@@ -7347,7 +7347,7 @@ struct DestroyIndirectCommandsLayoutNV
 
 struct CmdSetDepthBias2EXT
 {
-    using api_element = schema::vulkan::commands::CmdSetDepthBias2EXT;
+    using api_element = schema::vulkan::api_elements::CmdSetDepthBias2EXT;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkDepthBiasInfoEXT> pDepthBiasInfo;
@@ -7358,7 +7358,7 @@ struct CmdSetDepthBias2EXT
 
 struct AcquireDrmDisplayEXT
 {
-    using api_element = schema::vulkan::commands::AcquireDrmDisplayEXT;
+    using api_element = schema::vulkan::api_elements::AcquireDrmDisplayEXT;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -7371,7 +7371,7 @@ struct AcquireDrmDisplayEXT
 
 struct GetDrmDisplayEXT
 {
-    using api_element = schema::vulkan::commands::GetDrmDisplayEXT;
+    using api_element = schema::vulkan::api_elements::GetDrmDisplayEXT;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -7385,7 +7385,7 @@ struct GetDrmDisplayEXT
 
 struct CreatePrivateDataSlotEXT
 {
-    using api_element = schema::vulkan::commands::CreatePrivateDataSlotEXT;
+    using api_element = schema::vulkan::api_elements::CreatePrivateDataSlotEXT;
 
     VkResult result;
     format::HandleId device;
@@ -7399,7 +7399,7 @@ struct CreatePrivateDataSlotEXT
 
 struct DestroyPrivateDataSlotEXT
 {
-    using api_element = schema::vulkan::commands::DestroyPrivateDataSlotEXT;
+    using api_element = schema::vulkan::api_elements::DestroyPrivateDataSlotEXT;
 
     format::HandleId device;
     format::HandleId privateDataSlot;
@@ -7411,7 +7411,7 @@ struct DestroyPrivateDataSlotEXT
 
 struct SetPrivateDataEXT
 {
-    using api_element = schema::vulkan::commands::SetPrivateDataEXT;
+    using api_element = schema::vulkan::api_elements::SetPrivateDataEXT;
 
     VkResult result;
     format::HandleId device;
@@ -7426,7 +7426,7 @@ struct SetPrivateDataEXT
 
 struct GetPrivateDataEXT
 {
-    using api_element = schema::vulkan::commands::GetPrivateDataEXT;
+    using api_element = schema::vulkan::api_elements::GetPrivateDataEXT;
 
     format::HandleId device;
     VkObjectType objectType;
@@ -7440,7 +7440,7 @@ struct GetPrivateDataEXT
 
 struct QueueSetPerfHintQCOM
 {
-    using api_element = schema::vulkan::commands::QueueSetPerfHintQCOM;
+    using api_element = schema::vulkan::api_elements::QueueSetPerfHintQCOM;
 
     VkResult result;
     format::HandleId queue;
@@ -7452,7 +7452,7 @@ struct QueueSetPerfHintQCOM
 
 struct CmdDispatchTileQCOM
 {
-    using api_element = schema::vulkan::commands::CmdDispatchTileQCOM;
+    using api_element = schema::vulkan::api_elements::CmdDispatchTileQCOM;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkDispatchTileInfoQCOM> pDispatchTileInfo;
@@ -7463,7 +7463,7 @@ struct CmdDispatchTileQCOM
 
 struct CmdBeginPerTileExecutionQCOM
 {
-    using api_element = schema::vulkan::commands::CmdBeginPerTileExecutionQCOM;
+    using api_element = schema::vulkan::api_elements::CmdBeginPerTileExecutionQCOM;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkPerTileBeginInfoQCOM> pPerTileBeginInfo;
@@ -7474,7 +7474,7 @@ struct CmdBeginPerTileExecutionQCOM
 
 struct CmdEndPerTileExecutionQCOM
 {
-    using api_element = schema::vulkan::commands::CmdEndPerTileExecutionQCOM;
+    using api_element = schema::vulkan::api_elements::CmdEndPerTileExecutionQCOM;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkPerTileEndInfoQCOM> pPerTileEndInfo;
@@ -7485,7 +7485,7 @@ struct CmdEndPerTileExecutionQCOM
 
 struct GetDescriptorSetLayoutSizeEXT
 {
-    using api_element = schema::vulkan::commands::GetDescriptorSetLayoutSizeEXT;
+    using api_element = schema::vulkan::api_elements::GetDescriptorSetLayoutSizeEXT;
 
     format::HandleId device;
     format::HandleId layout;
@@ -7497,7 +7497,7 @@ struct GetDescriptorSetLayoutSizeEXT
 
 struct GetDescriptorSetLayoutBindingOffsetEXT
 {
-    using api_element = schema::vulkan::commands::GetDescriptorSetLayoutBindingOffsetEXT;
+    using api_element = schema::vulkan::api_elements::GetDescriptorSetLayoutBindingOffsetEXT;
 
     format::HandleId device;
     format::HandleId layout;
@@ -7510,7 +7510,7 @@ struct GetDescriptorSetLayoutBindingOffsetEXT
 
 struct GetDescriptorEXT
 {
-    using api_element = schema::vulkan::commands::GetDescriptorEXT;
+    using api_element = schema::vulkan::api_elements::GetDescriptorEXT;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkDescriptorGetInfoEXT> pDescriptorInfo;
@@ -7523,7 +7523,7 @@ struct GetDescriptorEXT
 
 struct CmdBindDescriptorBuffersEXT
 {
-    using api_element = schema::vulkan::commands::CmdBindDescriptorBuffersEXT;
+    using api_element = schema::vulkan::api_elements::CmdBindDescriptorBuffersEXT;
 
     format::HandleId commandBuffer;
     uint32_t bufferCount;
@@ -7535,7 +7535,7 @@ struct CmdBindDescriptorBuffersEXT
 
 struct CmdSetDescriptorBufferOffsetsEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetDescriptorBufferOffsetsEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetDescriptorBufferOffsetsEXT;
 
     format::HandleId commandBuffer;
     VkPipelineBindPoint pipelineBindPoint;
@@ -7551,7 +7551,7 @@ struct CmdSetDescriptorBufferOffsetsEXT
 
 struct CmdBindDescriptorBufferEmbeddedSamplersEXT
 {
-    using api_element = schema::vulkan::commands::CmdBindDescriptorBufferEmbeddedSamplersEXT;
+    using api_element = schema::vulkan::api_elements::CmdBindDescriptorBufferEmbeddedSamplersEXT;
 
     format::HandleId commandBuffer;
     VkPipelineBindPoint pipelineBindPoint;
@@ -7564,7 +7564,7 @@ struct CmdBindDescriptorBufferEmbeddedSamplersEXT
 
 struct CmdSetFragmentShadingRateEnumNV
 {
-    using api_element = schema::vulkan::commands::CmdSetFragmentShadingRateEnumNV;
+    using api_element = schema::vulkan::api_elements::CmdSetFragmentShadingRateEnumNV;
 
     format::HandleId commandBuffer;
     VkFragmentShadingRateNV shadingRate;
@@ -7576,7 +7576,7 @@ struct CmdSetFragmentShadingRateEnumNV
 
 struct GetDeviceFaultInfoEXT
 {
-    using api_element = schema::vulkan::commands::GetDeviceFaultInfoEXT;
+    using api_element = schema::vulkan::api_elements::GetDeviceFaultInfoEXT;
 
     VkResult result;
     format::HandleId device;
@@ -7589,7 +7589,7 @@ struct GetDeviceFaultInfoEXT
 
 struct AcquireWinrtDisplayNV
 {
-    using api_element = schema::vulkan::commands::AcquireWinrtDisplayNV;
+    using api_element = schema::vulkan::api_elements::AcquireWinrtDisplayNV;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -7601,7 +7601,7 @@ struct AcquireWinrtDisplayNV
 
 struct GetWinrtDisplayNV
 {
-    using api_element = schema::vulkan::commands::GetWinrtDisplayNV;
+    using api_element = schema::vulkan::api_elements::GetWinrtDisplayNV;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -7614,7 +7614,7 @@ struct GetWinrtDisplayNV
 
 struct CreateDirectFBSurfaceEXT
 {
-    using api_element = schema::vulkan::commands::CreateDirectFBSurfaceEXT;
+    using api_element = schema::vulkan::api_elements::CreateDirectFBSurfaceEXT;
 
     VkResult result;
     format::HandleId instance;
@@ -7628,7 +7628,7 @@ struct CreateDirectFBSurfaceEXT
 
 struct GetPhysicalDeviceDirectFBPresentationSupportEXT
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceDirectFBPresentationSupportEXT;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceDirectFBPresentationSupportEXT;
 
     VkBool32 result;
     format::HandleId physicalDevice;
@@ -7641,7 +7641,7 @@ struct GetPhysicalDeviceDirectFBPresentationSupportEXT
 
 struct CmdSetVertexInputEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetVertexInputEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetVertexInputEXT;
 
     format::HandleId commandBuffer;
     uint32_t vertexBindingDescriptionCount;
@@ -7655,7 +7655,7 @@ struct CmdSetVertexInputEXT
 
 struct GetMemoryZirconHandleFUCHSIA
 {
-    using api_element = schema::vulkan::commands::GetMemoryZirconHandleFUCHSIA;
+    using api_element = schema::vulkan::api_elements::GetMemoryZirconHandleFUCHSIA;
 
     VkResult result;
     format::HandleId device;
@@ -7668,7 +7668,7 @@ struct GetMemoryZirconHandleFUCHSIA
 
 struct GetMemoryZirconHandlePropertiesFUCHSIA
 {
-    using api_element = schema::vulkan::commands::GetMemoryZirconHandlePropertiesFUCHSIA;
+    using api_element = schema::vulkan::api_elements::GetMemoryZirconHandlePropertiesFUCHSIA;
 
     VkResult result;
     format::HandleId device;
@@ -7682,7 +7682,7 @@ struct GetMemoryZirconHandlePropertiesFUCHSIA
 
 struct ImportSemaphoreZirconHandleFUCHSIA
 {
-    using api_element = schema::vulkan::commands::ImportSemaphoreZirconHandleFUCHSIA;
+    using api_element = schema::vulkan::api_elements::ImportSemaphoreZirconHandleFUCHSIA;
 
     VkResult result;
     format::HandleId device;
@@ -7694,7 +7694,7 @@ struct ImportSemaphoreZirconHandleFUCHSIA
 
 struct GetSemaphoreZirconHandleFUCHSIA
 {
-    using api_element = schema::vulkan::commands::GetSemaphoreZirconHandleFUCHSIA;
+    using api_element = schema::vulkan::api_elements::GetSemaphoreZirconHandleFUCHSIA;
 
     VkResult result;
     format::HandleId device;
@@ -7707,7 +7707,7 @@ struct GetSemaphoreZirconHandleFUCHSIA
 
 struct CmdBindInvocationMaskHUAWEI
 {
-    using api_element = schema::vulkan::commands::CmdBindInvocationMaskHUAWEI;
+    using api_element = schema::vulkan::api_elements::CmdBindInvocationMaskHUAWEI;
 
     format::HandleId commandBuffer;
     format::HandleId imageView;
@@ -7719,7 +7719,7 @@ struct CmdBindInvocationMaskHUAWEI
 
 struct GetMemoryRemoteAddressNV
 {
-    using api_element = schema::vulkan::commands::GetMemoryRemoteAddressNV;
+    using api_element = schema::vulkan::api_elements::GetMemoryRemoteAddressNV;
 
     VkResult result;
     format::HandleId device;
@@ -7732,7 +7732,7 @@ struct GetMemoryRemoteAddressNV
 
 struct CmdSetPatchControlPointsEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetPatchControlPointsEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetPatchControlPointsEXT;
 
     format::HandleId commandBuffer;
     uint32_t patchControlPoints;
@@ -7743,7 +7743,7 @@ struct CmdSetPatchControlPointsEXT
 
 struct CmdSetRasterizerDiscardEnableEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetRasterizerDiscardEnableEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetRasterizerDiscardEnableEXT;
 
     format::HandleId commandBuffer;
     VkBool32 rasterizerDiscardEnable;
@@ -7754,7 +7754,7 @@ struct CmdSetRasterizerDiscardEnableEXT
 
 struct CmdSetDepthBiasEnableEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetDepthBiasEnableEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetDepthBiasEnableEXT;
 
     format::HandleId commandBuffer;
     VkBool32 depthBiasEnable;
@@ -7765,7 +7765,7 @@ struct CmdSetDepthBiasEnableEXT
 
 struct CmdSetLogicOpEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetLogicOpEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetLogicOpEXT;
 
     format::HandleId commandBuffer;
     VkLogicOp logicOp;
@@ -7776,7 +7776,7 @@ struct CmdSetLogicOpEXT
 
 struct CmdSetPrimitiveRestartEnableEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetPrimitiveRestartEnableEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetPrimitiveRestartEnableEXT;
 
     format::HandleId commandBuffer;
     VkBool32 primitiveRestartEnable;
@@ -7787,7 +7787,7 @@ struct CmdSetPrimitiveRestartEnableEXT
 
 struct CreateScreenSurfaceQNX
 {
-    using api_element = schema::vulkan::commands::CreateScreenSurfaceQNX;
+    using api_element = schema::vulkan::api_elements::CreateScreenSurfaceQNX;
 
     VkResult result;
     format::HandleId instance;
@@ -7801,7 +7801,7 @@ struct CreateScreenSurfaceQNX
 
 struct GetPhysicalDeviceScreenPresentationSupportQNX
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceScreenPresentationSupportQNX;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceScreenPresentationSupportQNX;
 
     VkBool32 result;
     format::HandleId physicalDevice;
@@ -7814,7 +7814,7 @@ struct GetPhysicalDeviceScreenPresentationSupportQNX
 
 struct CmdSetColorWriteEnableEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetColorWriteEnableEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetColorWriteEnableEXT;
 
     format::HandleId commandBuffer;
     uint32_t attachmentCount;
@@ -7826,7 +7826,7 @@ struct CmdSetColorWriteEnableEXT
 
 struct CmdDrawMultiEXT
 {
-    using api_element = schema::vulkan::commands::CmdDrawMultiEXT;
+    using api_element = schema::vulkan::api_elements::CmdDrawMultiEXT;
 
     format::HandleId commandBuffer;
     uint32_t drawCount;
@@ -7841,7 +7841,7 @@ struct CmdDrawMultiEXT
 
 struct CmdDrawMultiIndexedEXT
 {
-    using api_element = schema::vulkan::commands::CmdDrawMultiIndexedEXT;
+    using api_element = schema::vulkan::api_elements::CmdDrawMultiIndexedEXT;
 
     format::HandleId commandBuffer;
     uint32_t drawCount;
@@ -7857,7 +7857,7 @@ struct CmdDrawMultiIndexedEXT
 
 struct CreateMicromapEXT
 {
-    using api_element = schema::vulkan::commands::CreateMicromapEXT;
+    using api_element = schema::vulkan::api_elements::CreateMicromapEXT;
 
     VkResult result;
     format::HandleId device;
@@ -7871,7 +7871,7 @@ struct CreateMicromapEXT
 
 struct DestroyMicromapEXT
 {
-    using api_element = schema::vulkan::commands::DestroyMicromapEXT;
+    using api_element = schema::vulkan::api_elements::DestroyMicromapEXT;
 
     format::HandleId device;
     format::HandleId micromap;
@@ -7883,7 +7883,7 @@ struct DestroyMicromapEXT
 
 struct CmdBuildMicromapsEXT
 {
-    using api_element = schema::vulkan::commands::CmdBuildMicromapsEXT;
+    using api_element = schema::vulkan::api_elements::CmdBuildMicromapsEXT;
 
     format::HandleId commandBuffer;
     uint32_t infoCount;
@@ -7895,7 +7895,7 @@ struct CmdBuildMicromapsEXT
 
 struct BuildMicromapsEXT
 {
-    using api_element = schema::vulkan::commands::BuildMicromapsEXT;
+    using api_element = schema::vulkan::api_elements::BuildMicromapsEXT;
 
     VkResult result;
     format::HandleId device;
@@ -7909,7 +7909,7 @@ struct BuildMicromapsEXT
 
 struct CopyMicromapEXT
 {
-    using api_element = schema::vulkan::commands::CopyMicromapEXT;
+    using api_element = schema::vulkan::api_elements::CopyMicromapEXT;
 
     VkResult result;
     format::HandleId device;
@@ -7922,7 +7922,7 @@ struct CopyMicromapEXT
 
 struct CopyMicromapToMemoryEXT
 {
-    using api_element = schema::vulkan::commands::CopyMicromapToMemoryEXT;
+    using api_element = schema::vulkan::api_elements::CopyMicromapToMemoryEXT;
 
     VkResult result;
     format::HandleId device;
@@ -7935,7 +7935,7 @@ struct CopyMicromapToMemoryEXT
 
 struct CopyMemoryToMicromapEXT
 {
-    using api_element = schema::vulkan::commands::CopyMemoryToMicromapEXT;
+    using api_element = schema::vulkan::api_elements::CopyMemoryToMicromapEXT;
 
     VkResult result;
     format::HandleId device;
@@ -7948,7 +7948,7 @@ struct CopyMemoryToMicromapEXT
 
 struct WriteMicromapsPropertiesEXT
 {
-    using api_element = schema::vulkan::commands::WriteMicromapsPropertiesEXT;
+    using api_element = schema::vulkan::api_elements::WriteMicromapsPropertiesEXT;
 
     VkResult result;
     format::HandleId device;
@@ -7965,7 +7965,7 @@ struct WriteMicromapsPropertiesEXT
 
 struct CmdCopyMicromapEXT
 {
-    using api_element = schema::vulkan::commands::CmdCopyMicromapEXT;
+    using api_element = schema::vulkan::api_elements::CmdCopyMicromapEXT;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkCopyMicromapInfoEXT> pInfo;
@@ -7976,7 +7976,7 @@ struct CmdCopyMicromapEXT
 
 struct CmdCopyMicromapToMemoryEXT
 {
-    using api_element = schema::vulkan::commands::CmdCopyMicromapToMemoryEXT;
+    using api_element = schema::vulkan::api_elements::CmdCopyMicromapToMemoryEXT;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkCopyMicromapToMemoryInfoEXT> pInfo;
@@ -7987,7 +7987,7 @@ struct CmdCopyMicromapToMemoryEXT
 
 struct CmdCopyMemoryToMicromapEXT
 {
-    using api_element = schema::vulkan::commands::CmdCopyMemoryToMicromapEXT;
+    using api_element = schema::vulkan::api_elements::CmdCopyMemoryToMicromapEXT;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkCopyMemoryToMicromapInfoEXT> pInfo;
@@ -7998,7 +7998,7 @@ struct CmdCopyMemoryToMicromapEXT
 
 struct CmdWriteMicromapsPropertiesEXT
 {
-    using api_element = schema::vulkan::commands::CmdWriteMicromapsPropertiesEXT;
+    using api_element = schema::vulkan::api_elements::CmdWriteMicromapsPropertiesEXT;
 
     format::HandleId commandBuffer;
     uint32_t micromapCount;
@@ -8013,7 +8013,7 @@ struct CmdWriteMicromapsPropertiesEXT
 
 struct GetDeviceMicromapCompatibilityEXT
 {
-    using api_element = schema::vulkan::commands::GetDeviceMicromapCompatibilityEXT;
+    using api_element = schema::vulkan::api_elements::GetDeviceMicromapCompatibilityEXT;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkMicromapVersionInfoEXT> pVersionInfo;
@@ -8025,7 +8025,7 @@ struct GetDeviceMicromapCompatibilityEXT
 
 struct GetMicromapBuildSizesEXT
 {
-    using api_element = schema::vulkan::commands::GetMicromapBuildSizesEXT;
+    using api_element = schema::vulkan::api_elements::GetMicromapBuildSizesEXT;
 
     format::HandleId device;
     VkAccelerationStructureBuildTypeKHR buildType;
@@ -8038,7 +8038,7 @@ struct GetMicromapBuildSizesEXT
 
 struct CmdDrawClusterHUAWEI
 {
-    using api_element = schema::vulkan::commands::CmdDrawClusterHUAWEI;
+    using api_element = schema::vulkan::api_elements::CmdDrawClusterHUAWEI;
 
     format::HandleId commandBuffer;
     uint32_t groupCountX;
@@ -8051,7 +8051,7 @@ struct CmdDrawClusterHUAWEI
 
 struct CmdDrawClusterIndirectHUAWEI
 {
-    using api_element = schema::vulkan::commands::CmdDrawClusterIndirectHUAWEI;
+    using api_element = schema::vulkan::api_elements::CmdDrawClusterIndirectHUAWEI;
 
     format::HandleId commandBuffer;
     format::HandleId buffer;
@@ -8063,7 +8063,7 @@ struct CmdDrawClusterIndirectHUAWEI
 
 struct SetDeviceMemoryPriorityEXT
 {
-    using api_element = schema::vulkan::commands::SetDeviceMemoryPriorityEXT;
+    using api_element = schema::vulkan::api_elements::SetDeviceMemoryPriorityEXT;
 
     format::HandleId device;
     format::HandleId memory;
@@ -8075,7 +8075,7 @@ struct SetDeviceMemoryPriorityEXT
 
 struct CmdSetDispatchParametersARM
 {
-    using api_element = schema::vulkan::commands::CmdSetDispatchParametersARM;
+    using api_element = schema::vulkan::api_elements::CmdSetDispatchParametersARM;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkDispatchParametersARM> pDispatchParameters;
@@ -8086,7 +8086,7 @@ struct CmdSetDispatchParametersARM
 
 struct GetDescriptorSetLayoutHostMappingInfoVALVE
 {
-    using api_element = schema::vulkan::commands::GetDescriptorSetLayoutHostMappingInfoVALVE;
+    using api_element = schema::vulkan::api_elements::GetDescriptorSetLayoutHostMappingInfoVALVE;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkDescriptorSetBindingReferenceVALVE> pBindingReference;
@@ -8098,7 +8098,7 @@ struct GetDescriptorSetLayoutHostMappingInfoVALVE
 
 struct GetDescriptorSetHostMappingVALVE
 {
-    using api_element = schema::vulkan::commands::GetDescriptorSetHostMappingVALVE;
+    using api_element = schema::vulkan::api_elements::GetDescriptorSetHostMappingVALVE;
 
     format::HandleId device;
     format::HandleId descriptorSet;
@@ -8110,7 +8110,7 @@ struct GetDescriptorSetHostMappingVALVE
 
 struct GetPipelineIndirectMemoryRequirementsNV
 {
-    using api_element = schema::vulkan::commands::GetPipelineIndirectMemoryRequirementsNV;
+    using api_element = schema::vulkan::api_elements::GetPipelineIndirectMemoryRequirementsNV;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkComputePipelineCreateInfo> pCreateInfo;
@@ -8122,7 +8122,7 @@ struct GetPipelineIndirectMemoryRequirementsNV
 
 struct CmdUpdatePipelineIndirectBufferNV
 {
-    using api_element = schema::vulkan::commands::CmdUpdatePipelineIndirectBufferNV;
+    using api_element = schema::vulkan::api_elements::CmdUpdatePipelineIndirectBufferNV;
 
     format::HandleId commandBuffer;
     VkPipelineBindPoint pipelineBindPoint;
@@ -8134,7 +8134,7 @@ struct CmdUpdatePipelineIndirectBufferNV
 
 struct GetPipelineIndirectDeviceAddressNV
 {
-    using api_element = schema::vulkan::commands::GetPipelineIndirectDeviceAddressNV;
+    using api_element = schema::vulkan::api_elements::GetPipelineIndirectDeviceAddressNV;
 
     VkDeviceAddress result;
     format::HandleId device;
@@ -8146,7 +8146,7 @@ struct GetPipelineIndirectDeviceAddressNV
 
 struct CmdSetDepthClampEnableEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetDepthClampEnableEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetDepthClampEnableEXT;
 
     format::HandleId commandBuffer;
     VkBool32 depthClampEnable;
@@ -8157,7 +8157,7 @@ struct CmdSetDepthClampEnableEXT
 
 struct CmdSetPolygonModeEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetPolygonModeEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetPolygonModeEXT;
 
     format::HandleId commandBuffer;
     VkPolygonMode polygonMode;
@@ -8168,7 +8168,7 @@ struct CmdSetPolygonModeEXT
 
 struct CmdSetRasterizationSamplesEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetRasterizationSamplesEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetRasterizationSamplesEXT;
 
     format::HandleId commandBuffer;
     VkSampleCountFlagBits rasterizationSamples;
@@ -8179,7 +8179,7 @@ struct CmdSetRasterizationSamplesEXT
 
 struct CmdSetSampleMaskEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetSampleMaskEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetSampleMaskEXT;
 
     format::HandleId commandBuffer;
     VkSampleCountFlagBits samples;
@@ -8191,7 +8191,7 @@ struct CmdSetSampleMaskEXT
 
 struct CmdSetAlphaToCoverageEnableEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetAlphaToCoverageEnableEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetAlphaToCoverageEnableEXT;
 
     format::HandleId commandBuffer;
     VkBool32 alphaToCoverageEnable;
@@ -8202,7 +8202,7 @@ struct CmdSetAlphaToCoverageEnableEXT
 
 struct CmdSetAlphaToOneEnableEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetAlphaToOneEnableEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetAlphaToOneEnableEXT;
 
     format::HandleId commandBuffer;
     VkBool32 alphaToOneEnable;
@@ -8213,7 +8213,7 @@ struct CmdSetAlphaToOneEnableEXT
 
 struct CmdSetLogicOpEnableEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetLogicOpEnableEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetLogicOpEnableEXT;
 
     format::HandleId commandBuffer;
     VkBool32 logicOpEnable;
@@ -8224,7 +8224,7 @@ struct CmdSetLogicOpEnableEXT
 
 struct CmdSetColorBlendEnableEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetColorBlendEnableEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetColorBlendEnableEXT;
 
     format::HandleId commandBuffer;
     uint32_t firstAttachment;
@@ -8237,7 +8237,7 @@ struct CmdSetColorBlendEnableEXT
 
 struct CmdSetColorBlendEquationEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetColorBlendEquationEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetColorBlendEquationEXT;
 
     format::HandleId commandBuffer;
     uint32_t firstAttachment;
@@ -8250,7 +8250,7 @@ struct CmdSetColorBlendEquationEXT
 
 struct CmdSetColorWriteMaskEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetColorWriteMaskEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetColorWriteMaskEXT;
 
     format::HandleId commandBuffer;
     uint32_t firstAttachment;
@@ -8263,7 +8263,7 @@ struct CmdSetColorWriteMaskEXT
 
 struct CmdSetTessellationDomainOriginEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetTessellationDomainOriginEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetTessellationDomainOriginEXT;
 
     format::HandleId commandBuffer;
     VkTessellationDomainOrigin domainOrigin;
@@ -8274,7 +8274,7 @@ struct CmdSetTessellationDomainOriginEXT
 
 struct CmdSetRasterizationStreamEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetRasterizationStreamEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetRasterizationStreamEXT;
 
     format::HandleId commandBuffer;
     uint32_t rasterizationStream;
@@ -8285,7 +8285,7 @@ struct CmdSetRasterizationStreamEXT
 
 struct CmdSetConservativeRasterizationModeEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetConservativeRasterizationModeEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetConservativeRasterizationModeEXT;
 
     format::HandleId commandBuffer;
     VkConservativeRasterizationModeEXT conservativeRasterizationMode;
@@ -8296,7 +8296,7 @@ struct CmdSetConservativeRasterizationModeEXT
 
 struct CmdSetExtraPrimitiveOverestimationSizeEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetExtraPrimitiveOverestimationSizeEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetExtraPrimitiveOverestimationSizeEXT;
 
     format::HandleId commandBuffer;
     float extraPrimitiveOverestimationSize;
@@ -8307,7 +8307,7 @@ struct CmdSetExtraPrimitiveOverestimationSizeEXT
 
 struct CmdSetDepthClipEnableEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetDepthClipEnableEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetDepthClipEnableEXT;
 
     format::HandleId commandBuffer;
     VkBool32 depthClipEnable;
@@ -8318,7 +8318,7 @@ struct CmdSetDepthClipEnableEXT
 
 struct CmdSetSampleLocationsEnableEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetSampleLocationsEnableEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetSampleLocationsEnableEXT;
 
     format::HandleId commandBuffer;
     VkBool32 sampleLocationsEnable;
@@ -8329,7 +8329,7 @@ struct CmdSetSampleLocationsEnableEXT
 
 struct CmdSetColorBlendAdvancedEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetColorBlendAdvancedEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetColorBlendAdvancedEXT;
 
     format::HandleId commandBuffer;
     uint32_t firstAttachment;
@@ -8342,7 +8342,7 @@ struct CmdSetColorBlendAdvancedEXT
 
 struct CmdSetProvokingVertexModeEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetProvokingVertexModeEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetProvokingVertexModeEXT;
 
     format::HandleId commandBuffer;
     VkProvokingVertexModeEXT provokingVertexMode;
@@ -8353,7 +8353,7 @@ struct CmdSetProvokingVertexModeEXT
 
 struct CmdSetLineRasterizationModeEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetLineRasterizationModeEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetLineRasterizationModeEXT;
 
     format::HandleId commandBuffer;
     VkLineRasterizationModeEXT lineRasterizationMode;
@@ -8364,7 +8364,7 @@ struct CmdSetLineRasterizationModeEXT
 
 struct CmdSetLineStippleEnableEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetLineStippleEnableEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetLineStippleEnableEXT;
 
     format::HandleId commandBuffer;
     VkBool32 stippledLineEnable;
@@ -8375,7 +8375,7 @@ struct CmdSetLineStippleEnableEXT
 
 struct CmdSetDepthClipNegativeOneToOneEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetDepthClipNegativeOneToOneEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetDepthClipNegativeOneToOneEXT;
 
     format::HandleId commandBuffer;
     VkBool32 negativeOneToOne;
@@ -8386,7 +8386,7 @@ struct CmdSetDepthClipNegativeOneToOneEXT
 
 struct CmdSetViewportWScalingEnableNV
 {
-    using api_element = schema::vulkan::commands::CmdSetViewportWScalingEnableNV;
+    using api_element = schema::vulkan::api_elements::CmdSetViewportWScalingEnableNV;
 
     format::HandleId commandBuffer;
     VkBool32 viewportWScalingEnable;
@@ -8397,7 +8397,7 @@ struct CmdSetViewportWScalingEnableNV
 
 struct CmdSetViewportSwizzleNV
 {
-    using api_element = schema::vulkan::commands::CmdSetViewportSwizzleNV;
+    using api_element = schema::vulkan::api_elements::CmdSetViewportSwizzleNV;
 
     format::HandleId commandBuffer;
     uint32_t firstViewport;
@@ -8410,7 +8410,7 @@ struct CmdSetViewportSwizzleNV
 
 struct CmdSetCoverageToColorEnableNV
 {
-    using api_element = schema::vulkan::commands::CmdSetCoverageToColorEnableNV;
+    using api_element = schema::vulkan::api_elements::CmdSetCoverageToColorEnableNV;
 
     format::HandleId commandBuffer;
     VkBool32 coverageToColorEnable;
@@ -8421,7 +8421,7 @@ struct CmdSetCoverageToColorEnableNV
 
 struct CmdSetCoverageToColorLocationNV
 {
-    using api_element = schema::vulkan::commands::CmdSetCoverageToColorLocationNV;
+    using api_element = schema::vulkan::api_elements::CmdSetCoverageToColorLocationNV;
 
     format::HandleId commandBuffer;
     uint32_t coverageToColorLocation;
@@ -8432,7 +8432,7 @@ struct CmdSetCoverageToColorLocationNV
 
 struct CmdSetCoverageModulationModeNV
 {
-    using api_element = schema::vulkan::commands::CmdSetCoverageModulationModeNV;
+    using api_element = schema::vulkan::api_elements::CmdSetCoverageModulationModeNV;
 
     format::HandleId commandBuffer;
     VkCoverageModulationModeNV coverageModulationMode;
@@ -8443,7 +8443,7 @@ struct CmdSetCoverageModulationModeNV
 
 struct CmdSetCoverageModulationTableEnableNV
 {
-    using api_element = schema::vulkan::commands::CmdSetCoverageModulationTableEnableNV;
+    using api_element = schema::vulkan::api_elements::CmdSetCoverageModulationTableEnableNV;
 
     format::HandleId commandBuffer;
     VkBool32 coverageModulationTableEnable;
@@ -8454,7 +8454,7 @@ struct CmdSetCoverageModulationTableEnableNV
 
 struct CmdSetCoverageModulationTableNV
 {
-    using api_element = schema::vulkan::commands::CmdSetCoverageModulationTableNV;
+    using api_element = schema::vulkan::api_elements::CmdSetCoverageModulationTableNV;
 
     format::HandleId commandBuffer;
     uint32_t coverageModulationTableCount;
@@ -8466,7 +8466,7 @@ struct CmdSetCoverageModulationTableNV
 
 struct CmdSetShadingRateImageEnableNV
 {
-    using api_element = schema::vulkan::commands::CmdSetShadingRateImageEnableNV;
+    using api_element = schema::vulkan::api_elements::CmdSetShadingRateImageEnableNV;
 
     format::HandleId commandBuffer;
     VkBool32 shadingRateImageEnable;
@@ -8477,7 +8477,7 @@ struct CmdSetShadingRateImageEnableNV
 
 struct CmdSetRepresentativeFragmentTestEnableNV
 {
-    using api_element = schema::vulkan::commands::CmdSetRepresentativeFragmentTestEnableNV;
+    using api_element = schema::vulkan::api_elements::CmdSetRepresentativeFragmentTestEnableNV;
 
     format::HandleId commandBuffer;
     VkBool32 representativeFragmentTestEnable;
@@ -8488,7 +8488,7 @@ struct CmdSetRepresentativeFragmentTestEnableNV
 
 struct CmdSetCoverageReductionModeNV
 {
-    using api_element = schema::vulkan::commands::CmdSetCoverageReductionModeNV;
+    using api_element = schema::vulkan::api_elements::CmdSetCoverageReductionModeNV;
 
     format::HandleId commandBuffer;
     VkCoverageReductionModeNV coverageReductionMode;
@@ -8499,7 +8499,7 @@ struct CmdSetCoverageReductionModeNV
 
 struct CreateTensorARM
 {
-    using api_element = schema::vulkan::commands::CreateTensorARM;
+    using api_element = schema::vulkan::api_elements::CreateTensorARM;
 
     VkResult result;
     format::HandleId device;
@@ -8513,7 +8513,7 @@ struct CreateTensorARM
 
 struct DestroyTensorARM
 {
-    using api_element = schema::vulkan::commands::DestroyTensorARM;
+    using api_element = schema::vulkan::api_elements::DestroyTensorARM;
 
     format::HandleId device;
     format::HandleId tensor;
@@ -8525,7 +8525,7 @@ struct DestroyTensorARM
 
 struct CreateTensorViewARM
 {
-    using api_element = schema::vulkan::commands::CreateTensorViewARM;
+    using api_element = schema::vulkan::api_elements::CreateTensorViewARM;
 
     VkResult result;
     format::HandleId device;
@@ -8539,7 +8539,7 @@ struct CreateTensorViewARM
 
 struct DestroyTensorViewARM
 {
-    using api_element = schema::vulkan::commands::DestroyTensorViewARM;
+    using api_element = schema::vulkan::api_elements::DestroyTensorViewARM;
 
     format::HandleId device;
     format::HandleId tensorView;
@@ -8551,7 +8551,7 @@ struct DestroyTensorViewARM
 
 struct GetTensorMemoryRequirementsARM
 {
-    using api_element = schema::vulkan::commands::GetTensorMemoryRequirementsARM;
+    using api_element = schema::vulkan::api_elements::GetTensorMemoryRequirementsARM;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkTensorMemoryRequirementsInfoARM> pInfo;
@@ -8563,7 +8563,7 @@ struct GetTensorMemoryRequirementsARM
 
 struct BindTensorMemoryARM
 {
-    using api_element = schema::vulkan::commands::BindTensorMemoryARM;
+    using api_element = schema::vulkan::api_elements::BindTensorMemoryARM;
 
     VkResult result;
     format::HandleId device;
@@ -8576,7 +8576,7 @@ struct BindTensorMemoryARM
 
 struct GetDeviceTensorMemoryRequirementsARM
 {
-    using api_element = schema::vulkan::commands::GetDeviceTensorMemoryRequirementsARM;
+    using api_element = schema::vulkan::api_elements::GetDeviceTensorMemoryRequirementsARM;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkDeviceTensorMemoryRequirementsARM> pInfo;
@@ -8588,7 +8588,7 @@ struct GetDeviceTensorMemoryRequirementsARM
 
 struct CmdCopyTensorARM
 {
-    using api_element = schema::vulkan::commands::CmdCopyTensorARM;
+    using api_element = schema::vulkan::api_elements::CmdCopyTensorARM;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkCopyTensorInfoARM> pCopyTensorInfo;
@@ -8599,7 +8599,7 @@ struct CmdCopyTensorARM
 
 struct GetPhysicalDeviceExternalTensorPropertiesARM
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceExternalTensorPropertiesARM;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceExternalTensorPropertiesARM;
 
     format::HandleId physicalDevice;
     StructPointerDecoder<Decoded_VkPhysicalDeviceExternalTensorInfoARM> pExternalTensorInfo;
@@ -8611,7 +8611,7 @@ struct GetPhysicalDeviceExternalTensorPropertiesARM
 
 struct GetShaderModuleIdentifierEXT
 {
-    using api_element = schema::vulkan::commands::GetShaderModuleIdentifierEXT;
+    using api_element = schema::vulkan::api_elements::GetShaderModuleIdentifierEXT;
 
     format::HandleId device;
     format::HandleId shaderModule;
@@ -8623,7 +8623,7 @@ struct GetShaderModuleIdentifierEXT
 
 struct GetShaderModuleCreateInfoIdentifierEXT
 {
-    using api_element = schema::vulkan::commands::GetShaderModuleCreateInfoIdentifierEXT;
+    using api_element = schema::vulkan::api_elements::GetShaderModuleCreateInfoIdentifierEXT;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkShaderModuleCreateInfo> pCreateInfo;
@@ -8635,7 +8635,7 @@ struct GetShaderModuleCreateInfoIdentifierEXT
 
 struct GetPhysicalDeviceOpticalFlowImageFormatsNV
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceOpticalFlowImageFormatsNV;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceOpticalFlowImageFormatsNV;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -8649,7 +8649,7 @@ struct GetPhysicalDeviceOpticalFlowImageFormatsNV
 
 struct CreateOpticalFlowSessionNV
 {
-    using api_element = schema::vulkan::commands::CreateOpticalFlowSessionNV;
+    using api_element = schema::vulkan::api_elements::CreateOpticalFlowSessionNV;
 
     VkResult result;
     format::HandleId device;
@@ -8663,7 +8663,7 @@ struct CreateOpticalFlowSessionNV
 
 struct DestroyOpticalFlowSessionNV
 {
-    using api_element = schema::vulkan::commands::DestroyOpticalFlowSessionNV;
+    using api_element = schema::vulkan::api_elements::DestroyOpticalFlowSessionNV;
 
     format::HandleId device;
     format::HandleId session;
@@ -8675,7 +8675,7 @@ struct DestroyOpticalFlowSessionNV
 
 struct BindOpticalFlowSessionImageNV
 {
-    using api_element = schema::vulkan::commands::BindOpticalFlowSessionImageNV;
+    using api_element = schema::vulkan::api_elements::BindOpticalFlowSessionImageNV;
 
     VkResult result;
     format::HandleId device;
@@ -8690,7 +8690,7 @@ struct BindOpticalFlowSessionImageNV
 
 struct CmdOpticalFlowExecuteNV
 {
-    using api_element = schema::vulkan::commands::CmdOpticalFlowExecuteNV;
+    using api_element = schema::vulkan::api_elements::CmdOpticalFlowExecuteNV;
 
     format::HandleId commandBuffer;
     format::HandleId session;
@@ -8702,7 +8702,7 @@ struct CmdOpticalFlowExecuteNV
 
 struct AntiLagUpdateAMD
 {
-    using api_element = schema::vulkan::commands::AntiLagUpdateAMD;
+    using api_element = schema::vulkan::api_elements::AntiLagUpdateAMD;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkAntiLagDataAMD> pData;
@@ -8713,7 +8713,7 @@ struct AntiLagUpdateAMD
 
 struct CreateShadersEXT
 {
-    using api_element = schema::vulkan::commands::CreateShadersEXT;
+    using api_element = schema::vulkan::api_elements::CreateShadersEXT;
 
     VkResult result;
     format::HandleId device;
@@ -8728,7 +8728,7 @@ struct CreateShadersEXT
 
 struct DestroyShaderEXT
 {
-    using api_element = schema::vulkan::commands::DestroyShaderEXT;
+    using api_element = schema::vulkan::api_elements::DestroyShaderEXT;
 
     format::HandleId device;
     format::HandleId shader;
@@ -8740,7 +8740,7 @@ struct DestroyShaderEXT
 
 struct GetShaderBinaryDataEXT
 {
-    using api_element = schema::vulkan::commands::GetShaderBinaryDataEXT;
+    using api_element = schema::vulkan::api_elements::GetShaderBinaryDataEXT;
 
     VkResult result;
     format::HandleId device;
@@ -8754,7 +8754,7 @@ struct GetShaderBinaryDataEXT
 
 struct CmdBindShadersEXT
 {
-    using api_element = schema::vulkan::commands::CmdBindShadersEXT;
+    using api_element = schema::vulkan::api_elements::CmdBindShadersEXT;
 
     format::HandleId commandBuffer;
     uint32_t stageCount;
@@ -8767,7 +8767,7 @@ struct CmdBindShadersEXT
 
 struct CmdSetDepthClampRangeEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetDepthClampRangeEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetDepthClampRangeEXT;
 
     format::HandleId commandBuffer;
     VkDepthClampModeEXT depthClampMode;
@@ -8779,7 +8779,7 @@ struct CmdSetDepthClampRangeEXT
 
 struct GetFramebufferTilePropertiesQCOM
 {
-    using api_element = schema::vulkan::commands::GetFramebufferTilePropertiesQCOM;
+    using api_element = schema::vulkan::api_elements::GetFramebufferTilePropertiesQCOM;
 
     VkResult result;
     format::HandleId device;
@@ -8793,7 +8793,7 @@ struct GetFramebufferTilePropertiesQCOM
 
 struct GetDynamicRenderingTilePropertiesQCOM
 {
-    using api_element = schema::vulkan::commands::GetDynamicRenderingTilePropertiesQCOM;
+    using api_element = schema::vulkan::api_elements::GetDynamicRenderingTilePropertiesQCOM;
 
     VkResult result;
     format::HandleId device;
@@ -8806,7 +8806,7 @@ struct GetDynamicRenderingTilePropertiesQCOM
 
 struct GetPhysicalDeviceCooperativeVectorPropertiesNV
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceCooperativeVectorPropertiesNV;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceCooperativeVectorPropertiesNV;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -8819,7 +8819,7 @@ struct GetPhysicalDeviceCooperativeVectorPropertiesNV
 
 struct ConvertCooperativeVectorMatrixNV
 {
-    using api_element = schema::vulkan::commands::ConvertCooperativeVectorMatrixNV;
+    using api_element = schema::vulkan::api_elements::ConvertCooperativeVectorMatrixNV;
 
     VkResult result;
     format::HandleId device;
@@ -8831,7 +8831,7 @@ struct ConvertCooperativeVectorMatrixNV
 
 struct CmdConvertCooperativeVectorMatrixNV
 {
-    using api_element = schema::vulkan::commands::CmdConvertCooperativeVectorMatrixNV;
+    using api_element = schema::vulkan::api_elements::CmdConvertCooperativeVectorMatrixNV;
 
     format::HandleId commandBuffer;
     uint32_t infoCount;
@@ -8843,7 +8843,7 @@ struct CmdConvertCooperativeVectorMatrixNV
 
 struct SetLatencySleepModeNV
 {
-    using api_element = schema::vulkan::commands::SetLatencySleepModeNV;
+    using api_element = schema::vulkan::api_elements::SetLatencySleepModeNV;
 
     VkResult result;
     format::HandleId device;
@@ -8856,7 +8856,7 @@ struct SetLatencySleepModeNV
 
 struct LatencySleepNV
 {
-    using api_element = schema::vulkan::commands::LatencySleepNV;
+    using api_element = schema::vulkan::api_elements::LatencySleepNV;
 
     VkResult result;
     format::HandleId device;
@@ -8869,7 +8869,7 @@ struct LatencySleepNV
 
 struct SetLatencyMarkerNV
 {
-    using api_element = schema::vulkan::commands::SetLatencyMarkerNV;
+    using api_element = schema::vulkan::api_elements::SetLatencyMarkerNV;
 
     format::HandleId device;
     format::HandleId swapchain;
@@ -8881,7 +8881,7 @@ struct SetLatencyMarkerNV
 
 struct GetLatencyTimingsNV
 {
-    using api_element = schema::vulkan::commands::GetLatencyTimingsNV;
+    using api_element = schema::vulkan::api_elements::GetLatencyTimingsNV;
 
     format::HandleId device;
     format::HandleId swapchain;
@@ -8893,7 +8893,7 @@ struct GetLatencyTimingsNV
 
 struct QueueNotifyOutOfBandNV
 {
-    using api_element = schema::vulkan::commands::QueueNotifyOutOfBandNV;
+    using api_element = schema::vulkan::api_elements::QueueNotifyOutOfBandNV;
 
     format::HandleId queue;
     StructPointerDecoder<Decoded_VkOutOfBandQueueTypeInfoNV> pQueueTypeInfo;
@@ -8904,7 +8904,7 @@ struct QueueNotifyOutOfBandNV
 
 struct CreateDataGraphPipelinesARM
 {
-    using api_element = schema::vulkan::commands::CreateDataGraphPipelinesARM;
+    using api_element = schema::vulkan::api_elements::CreateDataGraphPipelinesARM;
 
     VkResult result;
     format::HandleId device;
@@ -8921,7 +8921,7 @@ struct CreateDataGraphPipelinesARM
 
 struct CreateDataGraphPipelineSessionARM
 {
-    using api_element = schema::vulkan::commands::CreateDataGraphPipelineSessionARM;
+    using api_element = schema::vulkan::api_elements::CreateDataGraphPipelineSessionARM;
 
     VkResult result;
     format::HandleId device;
@@ -8935,7 +8935,7 @@ struct CreateDataGraphPipelineSessionARM
 
 struct GetDataGraphPipelineSessionBindPointRequirementsARM
 {
-    using api_element = schema::vulkan::commands::GetDataGraphPipelineSessionBindPointRequirementsARM;
+    using api_element = schema::vulkan::api_elements::GetDataGraphPipelineSessionBindPointRequirementsARM;
 
     VkResult result;
     format::HandleId device;
@@ -8949,7 +8949,7 @@ struct GetDataGraphPipelineSessionBindPointRequirementsARM
 
 struct GetDataGraphPipelineSessionMemoryRequirementsARM
 {
-    using api_element = schema::vulkan::commands::GetDataGraphPipelineSessionMemoryRequirementsARM;
+    using api_element = schema::vulkan::api_elements::GetDataGraphPipelineSessionMemoryRequirementsARM;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkDataGraphPipelineSessionMemoryRequirementsInfoARM> pInfo;
@@ -8961,7 +8961,7 @@ struct GetDataGraphPipelineSessionMemoryRequirementsARM
 
 struct BindDataGraphPipelineSessionMemoryARM
 {
-    using api_element = schema::vulkan::commands::BindDataGraphPipelineSessionMemoryARM;
+    using api_element = schema::vulkan::api_elements::BindDataGraphPipelineSessionMemoryARM;
 
     VkResult result;
     format::HandleId device;
@@ -8974,7 +8974,7 @@ struct BindDataGraphPipelineSessionMemoryARM
 
 struct DestroyDataGraphPipelineSessionARM
 {
-    using api_element = schema::vulkan::commands::DestroyDataGraphPipelineSessionARM;
+    using api_element = schema::vulkan::api_elements::DestroyDataGraphPipelineSessionARM;
 
     format::HandleId device;
     format::HandleId session;
@@ -8986,7 +8986,7 @@ struct DestroyDataGraphPipelineSessionARM
 
 struct CmdDispatchDataGraphARM
 {
-    using api_element = schema::vulkan::commands::CmdDispatchDataGraphARM;
+    using api_element = schema::vulkan::api_elements::CmdDispatchDataGraphARM;
 
     format::HandleId commandBuffer;
     format::HandleId session;
@@ -8998,7 +8998,7 @@ struct CmdDispatchDataGraphARM
 
 struct GetDataGraphPipelineAvailablePropertiesARM
 {
-    using api_element = schema::vulkan::commands::GetDataGraphPipelineAvailablePropertiesARM;
+    using api_element = schema::vulkan::api_elements::GetDataGraphPipelineAvailablePropertiesARM;
 
     VkResult result;
     format::HandleId device;
@@ -9012,7 +9012,7 @@ struct GetDataGraphPipelineAvailablePropertiesARM
 
 struct GetDataGraphPipelinePropertiesARM
 {
-    using api_element = schema::vulkan::commands::GetDataGraphPipelinePropertiesARM;
+    using api_element = schema::vulkan::api_elements::GetDataGraphPipelinePropertiesARM;
 
     VkResult result;
     format::HandleId device;
@@ -9026,7 +9026,7 @@ struct GetDataGraphPipelinePropertiesARM
 
 struct GetPhysicalDeviceQueueFamilyDataGraphPropertiesARM
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceQueueFamilyDataGraphPropertiesARM;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceQueueFamilyDataGraphPropertiesARM;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -9040,7 +9040,7 @@ struct GetPhysicalDeviceQueueFamilyDataGraphPropertiesARM
 
 struct GetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM;
 
     format::HandleId physicalDevice;
     StructPointerDecoder<Decoded_VkPhysicalDeviceQueueFamilyDataGraphProcessingEngineInfoARM> pQueueFamilyDataGraphProcessingEngineInfo;
@@ -9052,7 +9052,7 @@ struct GetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM
 
 struct CmdSetAttachmentFeedbackLoopEnableEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetAttachmentFeedbackLoopEnableEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetAttachmentFeedbackLoopEnableEXT;
 
     format::HandleId commandBuffer;
     VkImageAspectFlags aspectMask;
@@ -9063,7 +9063,7 @@ struct CmdSetAttachmentFeedbackLoopEnableEXT
 
 struct CmdBindTileMemoryQCOM
 {
-    using api_element = schema::vulkan::commands::CmdBindTileMemoryQCOM;
+    using api_element = schema::vulkan::api_elements::CmdBindTileMemoryQCOM;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkTileMemoryBindInfoQCOM> pTileMemoryBindInfo;
@@ -9074,7 +9074,7 @@ struct CmdBindTileMemoryQCOM
 
 struct CmdDecompressMemoryEXT
 {
-    using api_element = schema::vulkan::commands::CmdDecompressMemoryEXT;
+    using api_element = schema::vulkan::api_elements::CmdDecompressMemoryEXT;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkDecompressMemoryInfoEXT> pDecompressMemoryInfoEXT;
@@ -9085,7 +9085,7 @@ struct CmdDecompressMemoryEXT
 
 struct CmdDecompressMemoryIndirectCountEXT
 {
-    using api_element = schema::vulkan::commands::CmdDecompressMemoryIndirectCountEXT;
+    using api_element = schema::vulkan::api_elements::CmdDecompressMemoryIndirectCountEXT;
 
     format::HandleId commandBuffer;
     VkMemoryDecompressionMethodFlagsEXT decompressionMethod;
@@ -9100,7 +9100,7 @@ struct CmdDecompressMemoryIndirectCountEXT
 
 struct GetPartitionedAccelerationStructuresBuildSizesNV
 {
-    using api_element = schema::vulkan::commands::GetPartitionedAccelerationStructuresBuildSizesNV;
+    using api_element = schema::vulkan::api_elements::GetPartitionedAccelerationStructuresBuildSizesNV;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkPartitionedAccelerationStructureInstancesInputNV> pInfo;
@@ -9112,7 +9112,7 @@ struct GetPartitionedAccelerationStructuresBuildSizesNV
 
 struct CmdBuildPartitionedAccelerationStructuresNV
 {
-    using api_element = schema::vulkan::commands::CmdBuildPartitionedAccelerationStructuresNV;
+    using api_element = schema::vulkan::api_elements::CmdBuildPartitionedAccelerationStructuresNV;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkBuildPartitionedAccelerationStructureInfoNV> pBuildInfo;
@@ -9123,7 +9123,7 @@ struct CmdBuildPartitionedAccelerationStructuresNV
 
 struct GetGeneratedCommandsMemoryRequirementsEXT
 {
-    using api_element = schema::vulkan::commands::GetGeneratedCommandsMemoryRequirementsEXT;
+    using api_element = schema::vulkan::api_elements::GetGeneratedCommandsMemoryRequirementsEXT;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkGeneratedCommandsMemoryRequirementsInfoEXT> pInfo;
@@ -9135,7 +9135,7 @@ struct GetGeneratedCommandsMemoryRequirementsEXT
 
 struct CmdPreprocessGeneratedCommandsEXT
 {
-    using api_element = schema::vulkan::commands::CmdPreprocessGeneratedCommandsEXT;
+    using api_element = schema::vulkan::api_elements::CmdPreprocessGeneratedCommandsEXT;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT> pGeneratedCommandsInfo;
@@ -9147,7 +9147,7 @@ struct CmdPreprocessGeneratedCommandsEXT
 
 struct CmdExecuteGeneratedCommandsEXT
 {
-    using api_element = schema::vulkan::commands::CmdExecuteGeneratedCommandsEXT;
+    using api_element = schema::vulkan::api_elements::CmdExecuteGeneratedCommandsEXT;
 
     format::HandleId commandBuffer;
     VkBool32 isPreprocessed;
@@ -9159,7 +9159,7 @@ struct CmdExecuteGeneratedCommandsEXT
 
 struct CreateIndirectCommandsLayoutEXT
 {
-    using api_element = schema::vulkan::commands::CreateIndirectCommandsLayoutEXT;
+    using api_element = schema::vulkan::api_elements::CreateIndirectCommandsLayoutEXT;
 
     VkResult result;
     format::HandleId device;
@@ -9173,7 +9173,7 @@ struct CreateIndirectCommandsLayoutEXT
 
 struct DestroyIndirectCommandsLayoutEXT
 {
-    using api_element = schema::vulkan::commands::DestroyIndirectCommandsLayoutEXT;
+    using api_element = schema::vulkan::api_elements::DestroyIndirectCommandsLayoutEXT;
 
     format::HandleId device;
     format::HandleId indirectCommandsLayout;
@@ -9185,7 +9185,7 @@ struct DestroyIndirectCommandsLayoutEXT
 
 struct CreateIndirectExecutionSetEXT
 {
-    using api_element = schema::vulkan::commands::CreateIndirectExecutionSetEXT;
+    using api_element = schema::vulkan::api_elements::CreateIndirectExecutionSetEXT;
 
     VkResult result;
     format::HandleId device;
@@ -9199,7 +9199,7 @@ struct CreateIndirectExecutionSetEXT
 
 struct DestroyIndirectExecutionSetEXT
 {
-    using api_element = schema::vulkan::commands::DestroyIndirectExecutionSetEXT;
+    using api_element = schema::vulkan::api_elements::DestroyIndirectExecutionSetEXT;
 
     format::HandleId device;
     format::HandleId indirectExecutionSet;
@@ -9211,7 +9211,7 @@ struct DestroyIndirectExecutionSetEXT
 
 struct UpdateIndirectExecutionSetPipelineEXT
 {
-    using api_element = schema::vulkan::commands::UpdateIndirectExecutionSetPipelineEXT;
+    using api_element = schema::vulkan::api_elements::UpdateIndirectExecutionSetPipelineEXT;
 
     format::HandleId device;
     format::HandleId indirectExecutionSet;
@@ -9224,7 +9224,7 @@ struct UpdateIndirectExecutionSetPipelineEXT
 
 struct UpdateIndirectExecutionSetShaderEXT
 {
-    using api_element = schema::vulkan::commands::UpdateIndirectExecutionSetShaderEXT;
+    using api_element = schema::vulkan::api_elements::UpdateIndirectExecutionSetShaderEXT;
 
     format::HandleId device;
     format::HandleId indirectExecutionSet;
@@ -9237,7 +9237,7 @@ struct UpdateIndirectExecutionSetShaderEXT
 
 struct GetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -9250,7 +9250,7 @@ struct GetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV
 
 struct GetMemoryMetalHandleEXT
 {
-    using api_element = schema::vulkan::commands::GetMemoryMetalHandleEXT;
+    using api_element = schema::vulkan::api_elements::GetMemoryMetalHandleEXT;
 
     VkResult result;
     format::HandleId device;
@@ -9263,7 +9263,7 @@ struct GetMemoryMetalHandleEXT
 
 struct GetMemoryMetalHandlePropertiesEXT
 {
-    using api_element = schema::vulkan::commands::GetMemoryMetalHandlePropertiesEXT;
+    using api_element = schema::vulkan::api_elements::GetMemoryMetalHandlePropertiesEXT;
 
     VkResult result;
     format::HandleId device;
@@ -9277,7 +9277,7 @@ struct GetMemoryMetalHandlePropertiesEXT
 
 struct EnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM
 {
-    using api_element = schema::vulkan::commands::EnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM;
+    using api_element = schema::vulkan::api_elements::EnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -9292,7 +9292,7 @@ struct EnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM
 
 struct CmdEndRendering2EXT
 {
-    using api_element = schema::vulkan::commands::CmdEndRendering2EXT;
+    using api_element = schema::vulkan::api_elements::CmdEndRendering2EXT;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkRenderingEndInfoKHR> pRenderingEndInfo;
@@ -9303,7 +9303,7 @@ struct CmdEndRendering2EXT
 
 struct CmdBeginCustomResolveEXT
 {
-    using api_element = schema::vulkan::commands::CmdBeginCustomResolveEXT;
+    using api_element = schema::vulkan::api_elements::CmdBeginCustomResolveEXT;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkBeginCustomResolveInfoEXT> pBeginCustomResolveInfo;
@@ -9314,7 +9314,7 @@ struct CmdBeginCustomResolveEXT
 
 struct GetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -9330,7 +9330,7 @@ struct GetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM
 
 struct GetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -9344,7 +9344,7 @@ struct GetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM
 
 struct CmdSetComputeOccupancyPriorityNV
 {
-    using api_element = schema::vulkan::commands::CmdSetComputeOccupancyPriorityNV;
+    using api_element = schema::vulkan::api_elements::CmdSetComputeOccupancyPriorityNV;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkComputeOccupancyPriorityParametersNV> pParameters;
@@ -9355,7 +9355,7 @@ struct CmdSetComputeOccupancyPriorityNV
 
 struct GetPhysicalDeviceCooperativeMatrixProperties2EXT
 {
-    using api_element = schema::vulkan::commands::GetPhysicalDeviceCooperativeMatrixProperties2EXT;
+    using api_element = schema::vulkan::api_elements::GetPhysicalDeviceCooperativeMatrixProperties2EXT;
 
     VkResult result;
     format::HandleId physicalDevice;
@@ -9369,7 +9369,7 @@ struct GetPhysicalDeviceCooperativeMatrixProperties2EXT
 
 struct CmdSetPrimitiveRestartIndexEXT
 {
-    using api_element = schema::vulkan::commands::CmdSetPrimitiveRestartIndexEXT;
+    using api_element = schema::vulkan::api_elements::CmdSetPrimitiveRestartIndexEXT;
 
     format::HandleId commandBuffer;
     uint32_t primitiveRestartIndex;
@@ -9380,7 +9380,7 @@ struct CmdSetPrimitiveRestartIndexEXT
 
 struct CreateAccelerationStructureKHR
 {
-    using api_element = schema::vulkan::commands::CreateAccelerationStructureKHR;
+    using api_element = schema::vulkan::api_elements::CreateAccelerationStructureKHR;
 
     VkResult result;
     format::HandleId device;
@@ -9394,7 +9394,7 @@ struct CreateAccelerationStructureKHR
 
 struct DestroyAccelerationStructureKHR
 {
-    using api_element = schema::vulkan::commands::DestroyAccelerationStructureKHR;
+    using api_element = schema::vulkan::api_elements::DestroyAccelerationStructureKHR;
 
     format::HandleId device;
     format::HandleId accelerationStructure;
@@ -9406,7 +9406,7 @@ struct DestroyAccelerationStructureKHR
 
 struct CmdBuildAccelerationStructuresKHR
 {
-    using api_element = schema::vulkan::commands::CmdBuildAccelerationStructuresKHR;
+    using api_element = schema::vulkan::api_elements::CmdBuildAccelerationStructuresKHR;
 
     format::HandleId commandBuffer;
     uint32_t infoCount;
@@ -9419,7 +9419,7 @@ struct CmdBuildAccelerationStructuresKHR
 
 struct CmdBuildAccelerationStructuresIndirectKHR
 {
-    using api_element = schema::vulkan::commands::CmdBuildAccelerationStructuresIndirectKHR;
+    using api_element = schema::vulkan::api_elements::CmdBuildAccelerationStructuresIndirectKHR;
 
     format::HandleId commandBuffer;
     uint32_t infoCount;
@@ -9434,7 +9434,7 @@ struct CmdBuildAccelerationStructuresIndirectKHR
 
 struct CopyAccelerationStructureToMemoryKHR
 {
-    using api_element = schema::vulkan::commands::CopyAccelerationStructureToMemoryKHR;
+    using api_element = schema::vulkan::api_elements::CopyAccelerationStructureToMemoryKHR;
 
     VkResult result;
     format::HandleId device;
@@ -9447,7 +9447,7 @@ struct CopyAccelerationStructureToMemoryKHR
 
 struct CopyMemoryToAccelerationStructureKHR
 {
-    using api_element = schema::vulkan::commands::CopyMemoryToAccelerationStructureKHR;
+    using api_element = schema::vulkan::api_elements::CopyMemoryToAccelerationStructureKHR;
 
     VkResult result;
     format::HandleId device;
@@ -9460,7 +9460,7 @@ struct CopyMemoryToAccelerationStructureKHR
 
 struct WriteAccelerationStructuresPropertiesKHR
 {
-    using api_element = schema::vulkan::commands::WriteAccelerationStructuresPropertiesKHR;
+    using api_element = schema::vulkan::api_elements::WriteAccelerationStructuresPropertiesKHR;
 
     VkResult result;
     format::HandleId device;
@@ -9477,7 +9477,7 @@ struct WriteAccelerationStructuresPropertiesKHR
 
 struct CmdCopyAccelerationStructureKHR
 {
-    using api_element = schema::vulkan::commands::CmdCopyAccelerationStructureKHR;
+    using api_element = schema::vulkan::api_elements::CmdCopyAccelerationStructureKHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR> pInfo;
@@ -9488,7 +9488,7 @@ struct CmdCopyAccelerationStructureKHR
 
 struct CmdCopyAccelerationStructureToMemoryKHR
 {
-    using api_element = schema::vulkan::commands::CmdCopyAccelerationStructureToMemoryKHR;
+    using api_element = schema::vulkan::api_elements::CmdCopyAccelerationStructureToMemoryKHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkCopyAccelerationStructureToMemoryInfoKHR> pInfo;
@@ -9499,7 +9499,7 @@ struct CmdCopyAccelerationStructureToMemoryKHR
 
 struct CmdCopyMemoryToAccelerationStructureKHR
 {
-    using api_element = schema::vulkan::commands::CmdCopyMemoryToAccelerationStructureKHR;
+    using api_element = schema::vulkan::api_elements::CmdCopyMemoryToAccelerationStructureKHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkCopyMemoryToAccelerationStructureInfoKHR> pInfo;
@@ -9510,7 +9510,7 @@ struct CmdCopyMemoryToAccelerationStructureKHR
 
 struct GetAccelerationStructureDeviceAddressKHR
 {
-    using api_element = schema::vulkan::commands::GetAccelerationStructureDeviceAddressKHR;
+    using api_element = schema::vulkan::api_elements::GetAccelerationStructureDeviceAddressKHR;
 
     VkDeviceAddress result;
     format::HandleId device;
@@ -9522,7 +9522,7 @@ struct GetAccelerationStructureDeviceAddressKHR
 
 struct CmdWriteAccelerationStructuresPropertiesKHR
 {
-    using api_element = schema::vulkan::commands::CmdWriteAccelerationStructuresPropertiesKHR;
+    using api_element = schema::vulkan::api_elements::CmdWriteAccelerationStructuresPropertiesKHR;
 
     format::HandleId commandBuffer;
     uint32_t accelerationStructureCount;
@@ -9537,7 +9537,7 @@ struct CmdWriteAccelerationStructuresPropertiesKHR
 
 struct GetDeviceAccelerationStructureCompatibilityKHR
 {
-    using api_element = schema::vulkan::commands::GetDeviceAccelerationStructureCompatibilityKHR;
+    using api_element = schema::vulkan::api_elements::GetDeviceAccelerationStructureCompatibilityKHR;
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkAccelerationStructureVersionInfoKHR> pVersionInfo;
@@ -9549,7 +9549,7 @@ struct GetDeviceAccelerationStructureCompatibilityKHR
 
 struct GetAccelerationStructureBuildSizesKHR
 {
-    using api_element = schema::vulkan::commands::GetAccelerationStructureBuildSizesKHR;
+    using api_element = schema::vulkan::api_elements::GetAccelerationStructureBuildSizesKHR;
 
     format::HandleId device;
     VkAccelerationStructureBuildTypeKHR buildType;
@@ -9563,7 +9563,7 @@ struct GetAccelerationStructureBuildSizesKHR
 
 struct CmdTraceRaysKHR
 {
-    using api_element = schema::vulkan::commands::CmdTraceRaysKHR;
+    using api_element = schema::vulkan::api_elements::CmdTraceRaysKHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR> pRaygenShaderBindingTable;
@@ -9580,7 +9580,7 @@ struct CmdTraceRaysKHR
 
 struct GetRayTracingCaptureReplayShaderGroupHandlesKHR
 {
-    using api_element = schema::vulkan::commands::GetRayTracingCaptureReplayShaderGroupHandlesKHR;
+    using api_element = schema::vulkan::api_elements::GetRayTracingCaptureReplayShaderGroupHandlesKHR;
 
     VkResult result;
     format::HandleId device;
@@ -9596,7 +9596,7 @@ struct GetRayTracingCaptureReplayShaderGroupHandlesKHR
 
 struct CmdTraceRaysIndirectKHR
 {
-    using api_element = schema::vulkan::commands::CmdTraceRaysIndirectKHR;
+    using api_element = schema::vulkan::api_elements::CmdTraceRaysIndirectKHR;
 
     format::HandleId commandBuffer;
     StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR> pRaygenShaderBindingTable;
@@ -9611,7 +9611,7 @@ struct CmdTraceRaysIndirectKHR
 
 struct GetRayTracingShaderGroupStackSizeKHR
 {
-    using api_element = schema::vulkan::commands::GetRayTracingShaderGroupStackSizeKHR;
+    using api_element = schema::vulkan::api_elements::GetRayTracingShaderGroupStackSizeKHR;
 
     VkDeviceSize result;
     format::HandleId device;
@@ -9625,7 +9625,7 @@ struct GetRayTracingShaderGroupStackSizeKHR
 
 struct CmdSetRayTracingPipelineStackSizeKHR
 {
-    using api_element = schema::vulkan::commands::CmdSetRayTracingPipelineStackSizeKHR;
+    using api_element = schema::vulkan::api_elements::CmdSetRayTracingPipelineStackSizeKHR;
 
     format::HandleId commandBuffer;
     uint32_t pipelineStackSize;
@@ -9636,7 +9636,7 @@ struct CmdSetRayTracingPipelineStackSizeKHR
 
 struct CmdDrawMeshTasksEXT
 {
-    using api_element = schema::vulkan::commands::CmdDrawMeshTasksEXT;
+    using api_element = schema::vulkan::api_elements::CmdDrawMeshTasksEXT;
 
     format::HandleId commandBuffer;
     uint32_t groupCountX;
@@ -9649,7 +9649,7 @@ struct CmdDrawMeshTasksEXT
 
 struct CmdDrawMeshTasksIndirectEXT
 {
-    using api_element = schema::vulkan::commands::CmdDrawMeshTasksIndirectEXT;
+    using api_element = schema::vulkan::api_elements::CmdDrawMeshTasksIndirectEXT;
 
     format::HandleId commandBuffer;
     format::HandleId buffer;
@@ -9663,7 +9663,7 @@ struct CmdDrawMeshTasksIndirectEXT
 
 struct CmdDrawMeshTasksIndirectCountEXT
 {
-    using api_element = schema::vulkan::commands::CmdDrawMeshTasksIndirectCountEXT;
+    using api_element = schema::vulkan::api_elements::CmdDrawMeshTasksIndirectCountEXT;
 
     format::HandleId commandBuffer;
     format::HandleId buffer;

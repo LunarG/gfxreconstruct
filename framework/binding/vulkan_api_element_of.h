@@ -20,14 +20,14 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// The Vulkan DescriptorFor rows, a visitor invoked across the inventory: every structure, every union and every native
-// enum to its API type descriptor. A 64-bit flag-bits type is spelled VkFlags64, so it has no row; one would bind the
+// The Vulkan ApiElementOf rows, a visitor invoked across the inventory: every structure, every union and every native
+// enum to its API element. A 64-bit flag-bits type is spelled VkFlags64, so it has no row; one would bind the
 // bare integer type.
 
-#ifndef GFXRECON_BINDING_VULKAN_DESCRIPTOR_FOR_H
-#define GFXRECON_BINDING_VULKAN_DESCRIPTOR_FOR_H
+#ifndef GFXRECON_BINDING_VULKAN_API_ELEMENT_OF_H
+#define GFXRECON_BINDING_VULKAN_API_ELEMENT_OF_H
 
-#include "binding/descriptor_for.h"
+#include "binding/api_element_of.h"
 #include "generated/generated_vulkan_schema_types.h"
 #include "util/defines.h"
 #include "util/inventory_utils.h"
@@ -37,7 +37,7 @@ GFXRECON_BEGIN_NAMESPACE(binding)
 
 // A struct visitor: it yields a specialization, a type, so this lives in a header.
 #define GFXRECON_INVENTORY_VISIT_STRUCT(Name) \
-    GFXRECON_INVENTORY_DESCRIPTOR_FOR(::Name, schema::vulkan::api_types::Name);
+    GFXRECON_INVENTORY_API_ELEMENT_FOR(::Name, schema::vulkan::api_elements::Name);
 #define GFXRECON_INVENTORY_VISIT_UNION(Name) GFXRECON_INVENTORY_VISIT_STRUCT(Name)
 #define GFXRECON_INVENTORY_VISIT_ENUM(Name) GFXRECON_INVENTORY_VISIT_STRUCT(Name)
 #define GFXRECON_INVENTORY_VISIT_FLAG_BITS(Name) GFXRECON_INVENTORY_VISIT_STRUCT(Name)
@@ -46,4 +46,4 @@ GFXRECON_BEGIN_NAMESPACE(binding)
 GFXRECON_END_NAMESPACE(binding)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_BINDING_VULKAN_DESCRIPTOR_FOR_H
+#endif // GFXRECON_BINDING_VULKAN_API_ELEMENT_OF_H

@@ -21,7 +21,7 @@
 */
 
 // The bodies behind Vulkan's enum ToString: the lookup and the mask expansion over an enumerant table, and the two
-// descriptor-keyed templates. Included only by generated_vulkan_enum_to_string.cpp, which defines the generated
+// API element-keyed templates. Included only by generated_vulkan_enum_to_string.cpp, which defines the generated
 // specializations as one-line calls into these and instantiates the templates; callers include the generated header.
 #ifndef GFXRECON_UTIL_VULKAN_ENUM_TO_STRING_IMPL_H
 #define GFXRECON_UTIL_VULKAN_ENUM_TO_STRING_IMPL_H
@@ -43,32 +43,32 @@ GFXRECON_BEGIN_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(detail)
 
 template <typename Table>
-std::string EnumerantToString(typename binding::EnumerantDescriptorOf<Table>::element_type value)
+std::string EnumerantToString(typename binding::EnumerantApiElementOf<Table>::element_type value)
 {
     const std::string_view name = binding::NameIn<Table>(value);
-    return name.empty() ? "Unhandled " + std::string(binding::EnumerantDescriptorOf<Table>::name) : std::string(name);
+    return name.empty() ? "Unhandled " + std::string(binding::EnumerantApiElementOf<Table>::name) : std::string(name);
 }
 
 // Each set bit by name, in bit order, joined with '|'; zero by the table's name for zero.
 template <typename Table, typename Flags>
 std::string EnumerantMaskToString(Flags flags)
 {
-    using Bit = typename binding::EnumerantDescriptorOf<Table>::element_type;
+    using Bit = typename binding::EnumerantApiElementOf<Table>::element_type;
     return BitmaskToString<Bit>(flags, [](Bit bit) { return EnumerantToString<Table>(bit); });
 }
 
 GFXRECON_END_NAMESPACE(detail)
 
-template <schema::HasEnumerants Descriptor>
-std::string ToString(typename Descriptor::element_type value, ToStringFlags, uint32_t, uint32_t)
+template <schema::HasEnumerants Element>
+std::string ToString(typename Element::element_type value, ToStringFlags, uint32_t, uint32_t)
 {
-    return detail::EnumerantToString<typename Descriptor::enumerants>(value);
+    return detail::EnumerantToString<typename Element::enumerants>(value);
 }
 
-template <schema::HasBitvalues Descriptor>
+template <schema::HasBitvalues Element>
 std::string ToString(VkFlags64 flags, ToStringFlags, uint32_t, uint32_t)
 {
-    return detail::EnumerantMaskToString<typename Descriptor::bitvalues::enumerants>(flags);
+    return detail::EnumerantMaskToString<typename Element::bitvalues::enumerants>(flags);
 }
 
 GFXRECON_END_NAMESPACE(util)

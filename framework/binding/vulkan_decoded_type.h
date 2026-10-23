@@ -51,9 +51,9 @@ GFXRECON_BEGIN_NAMESPACE(binding)
 // A struct visitor: it yields a specialization, a type, so this lives in a header.
 #define GFXRECON_INVENTORY_REQUIRE GFXRECON_INVENTORY_HAS_DECODED_TYPE
 #define GFXRECON_INVENTORY_VISIT_STRUCT(Name) \
-    GFXRECON_INVENTORY_DECODED_TYPE(schema::vulkan::api_types::Name, decode::Decoded_##Name);
+    GFXRECON_INVENTORY_DECODED_TYPE(schema::vulkan::api_elements::Name, decode::Decoded_##Name);
 #define GFXRECON_INVENTORY_VISIT_COMMAND(Name) \
-    GFXRECON_INVENTORY_DECODED_TYPE(schema::vulkan::commands::Name, decode::args::Name);
+    GFXRECON_INVENTORY_DECODED_TYPE(schema::vulkan::api_elements::Name, decode::args::Name);
 #include "generated/generated_vulkan_inventory.h"
 
 GFXRECON_END_NAMESPACE(binding)

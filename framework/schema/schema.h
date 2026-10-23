@@ -21,8 +21,8 @@
 */
 
 // A Schema is the arrangement: the canonical, ordered Field list for one API element, and the algorithms over it.
-// It composes schema/field.h with the schema-independent TypeList facility, and defines no API type descriptor and
-// no Field descriptor -- those are generated content.
+// It composes schema/field.h with the schema-independent TypeList facility, and defines no API element and
+// no Field -- those are generated content.
 
 #ifndef GFXRECON_SCHEMA_SCHEMA_H
 #define GFXRECON_SCHEMA_SCHEMA_H
@@ -38,40 +38,40 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(schema)
 
-// One traits-class template maps an API element to its canonical field list. A command keys on its command descriptor
-// and a structure on its API type descriptor.
+// One traits-class template maps an API element to its canonical field list. A command keys on its command API element
+// and a structure on its API element.
 template <typename ApiElement>
 struct Schema;
 
-// A structure the API discriminates by a type value in its first member carries that value on its descriptor.
-template <typename Descriptor>
+// A structure the API discriminates by a type value in its first member carries that value on its API element.
+template <typename Element>
 concept HasStructureType = requires
 {
-    Descriptor::structure_type;
+    Element::structure_type;
 }
-&&std::is_enum_v<std::remove_cv_t<decltype(Descriptor::structure_type)>>;
+&&std::is_enum_v<std::remove_cv_t<decltype(Element::structure_type)>>;
 
-// An enumerated type's descriptor names its enumerant table.
-template <typename Descriptor>
+// An enumerated type's API element names its enumerant table.
+template <typename Element>
 concept HasEnumerants = requires
 {
-    typename Descriptor::enumerants;
+    typename Element::enumerants;
 };
 
 // A bits enum: its values compose into a mask of the type bitmask names. The registry declares the group a bitmask
 // and states the width.
-template <typename Descriptor>
-concept HasBitmask = HasEnumerants<Descriptor> && requires
+template <typename Element>
+concept HasBitmask = HasEnumerants<Element> && requires
 {
-    typename Descriptor::bitmask;
+    typename Element::bitmask;
 };
 
-// A mask typedef's descriptor names the descriptor of the bits enum whose values compose it.
-template <typename Descriptor>
+// A mask typedef's API element names the API element of the bits enum whose values compose it.
+template <typename Element>
 concept HasBitvalues = requires
 {
-    typename Descriptor::bitvalues;
-    requires HasBitmask<typename Descriptor::bitvalues>;
+    typename Element::bitvalues;
+    requires HasBitmask<typename Element::bitvalues>;
 };
 
 template <typename ApiElement>
@@ -114,7 +114,7 @@ template <HasCommandSchema ApiElement>
 using Return = util::TypeListSole<ReturnFields<ApiElement>>;
 
 template <HasCommandSchema ApiElement>
-using ReturnType = ElementType<typename Return<ApiElement>::api_type>;
+using ReturnType = ElementType<typename Return<ApiElement>::api_element>;
 
 template <HasCommandSchema ApiElement>
 using ParameterFields = decltype(util::TypeListDrop(typename Schema<ApiElement>::Fields{}, kIsReturnField));

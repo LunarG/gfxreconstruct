@@ -27,7 +27,7 @@
 #include "encode/parameter_buffer.h"
 #include "encode/parameter_encoder.h"
 #include "encode/struct_pointer_encoder.h"
-#include "binding/vulkan_descriptor_for.h"
+#include "binding/vulkan_api_element_of.h"
 #include "binding/vulkan_catalog.h"
 #include "generated/generated_vulkan_schema_enumerants.h"
 #include "generated/generated_vulkan_schema_types.h"
@@ -60,12 +60,12 @@ TEST_CASE("EncodePNextStruct dispatches every extensible structure to its encode
     };
 
     size_t visited = 0;
-    util::TypeListForEach<ExtensibleStructures>([&]<typename Descriptor>() {
-        using Struct = typename Descriptor::element_type;
-        INFO(binding::NameOf(Descriptor::structure_type));
+    util::TypeListForEach<ExtensibleStructures>([&]<typename Element>() {
+        using Struct = typename Element::element_type;
+        INFO(binding::NameOf(Element::structure_type));
 
         Struct value{};
-        value.sType = Descriptor::structure_type;
+        value.sType = Element::structure_type;
 
         encode::ParameterBuffer  actual_buffer;
         encode::ParameterEncoder actual(&actual_buffer);
@@ -76,7 +76,7 @@ TEST_CASE("EncodePNextStruct dispatches every extensible structure to its encode
         encode::EncodeStructPtr(&oracle, &value);
 
         CHECK(same_bytes(actual_buffer, oracle_buffer));
-        CHECK(Index::Find(Descriptor::structure_type) != Index::End());
+        CHECK(Index::Find(Element::structure_type) != Index::End());
         ++visited;
     });
     CHECK(visited == Index::kSize);

@@ -30,15 +30,15 @@
 
 #include "util/type_list.h"
 
-// One row: Native is the API's structure, Descriptor its API type descriptor.
-#define GFXRECON_INVENTORY_DESCRIPTOR_FOR(Native, Descriptor) \
+// One row: Native is the API's structure, Element its API element.
+#define GFXRECON_INVENTORY_API_ELEMENT_FOR(Native, Element) \
     template <>                                               \
-    struct DescriptorFor<Native>                              \
+    struct ApiElementOf<Native>                              \
     {                                                         \
-        using type = Descriptor;                              \
+        using type = Element;                              \
     }
 
-// One row: ApiElement is the structure or command descriptor, Decoded the type decode represents it with.
+// One row: ApiElement is the structure or command API element, Decoded the type decode represents it with.
 #define GFXRECON_INVENTORY_DECODED_TYPE(ApiElement, Decoded) \
     template <>                                              \
     struct DecodedType<ApiElement>                           \
@@ -46,7 +46,7 @@
         using type = Decoded;                                \
     }
 
-// One row: Command is the command descriptor, Id its ApiCallId enumerator.
+// One row: Command is the command API element, Id its ApiCallId enumerator.
 #define GFXRECON_INVENTORY_CALL_ID(Command, Id)        \
     template <>                                        \
     struct CallId<Command>                             \

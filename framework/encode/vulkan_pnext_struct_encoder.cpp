@@ -22,12 +22,12 @@
 
 // The pNext chain encoder: one entry point over the schema's structure list, in place of a generated switch with a
 // case per structure. A node is found by its sType in the StructureTypeIndex and encoded through the EncodeStructPtr
-// its descriptor names; an unrecognized node is reported and skipped, and the hop past it is probed (DF-2).
+// its API element names; an unrecognized node is reported and skipped, and the hop past it is probed (DF-2).
 
 #include "binding/structure_type.h"
 #include "encode/struct_pointer_encoder.h"
 #include "encode/vulkan_capture_manager.h"
-#include "binding/vulkan_descriptor_for.h"
+#include "binding/vulkan_api_element_of.h"
 #include "binding/vulkan_catalog.h"
 #include "generated/generated_vulkan_schema_types.h"
 #include "generated/generated_vulkan_struct_encoders.h"
@@ -49,13 +49,13 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 namespace
 {
 
-// Encodes the node as the structure its descriptor names, the way the generated case for that structure did.
+// Encodes the node as the structure its API element names, the way the generated case for that structure did.
 struct EncodeNode
 {
-    template <schema::HasStructureType Descriptor>
+    template <schema::HasStructureType Element>
     void operator()(ParameterEncoder* encoder, const VkBaseInStructure* base) const
     {
-        EncodeStructPtr(encoder, binding::StructureTypeCast<Descriptor>(base));
+        EncodeStructPtr(encoder, binding::StructureTypeCast<Element>(base));
     }
 };
 

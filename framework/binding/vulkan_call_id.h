@@ -46,7 +46,7 @@ GFXRECON_BEGIN_NAMESPACE(binding)
 
 // A struct visitor: it yields a specialization, a type, so this lives in a header.
 #define GFXRECON_INVENTORY_VISIT_COMMAND(Name) \
-    GFXRECON_INVENTORY_CALL_ID(schema::vulkan::commands::Name, format::ApiCallId::ApiCall_vk##Name);
+    GFXRECON_INVENTORY_CALL_ID(schema::vulkan::api_elements::Name, format::ApiCallId::ApiCall_vk##Name);
 #include "generated/generated_vulkan_inventory.h"
 
 GFXRECON_END_NAMESPACE(binding)

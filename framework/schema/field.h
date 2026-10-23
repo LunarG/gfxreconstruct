@@ -24,7 +24,7 @@
 //
 // gfxrecon::format defines the primitives a capture can represent and how each is encoded. This layer defines their
 // arrangement: which API type a Field names, how that type is packaged at the use site, and which member of which
-// store holds it. It declares no API type descriptor, no Field descriptor and no member trait -- those are generated
+// store holds it. It declares no API element, no Field and no member trait -- those are generated
 // content -- and no wire type, which is format's to state.
 
 #ifndef GFXRECON_SCHEMA_FIELD_H
@@ -41,7 +41,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(schema)
 
-// The logical kinds a descriptor names live in format/format.h, on the kind tags themselves, together with the wire
+// The logical kinds an API element names live in format/format.h, on the kind tags themselves, together with the wire
 // type each is recorded as. This layer declares no kind; it selects on them.
 
 // How one field use packages its API type. Shape is a property of the use site, not of the type.
@@ -86,17 +86,17 @@ struct VoidReturn
 
 GFXRECON_END_NAMESPACE(field_shape)
 
-// The Field descriptor vocabulary. Every Field descriptor the schema generator emits is a struct of the members below
-// and no others; the members present depend on the field's shape and kind. A descriptor states what one use site
+// The Field vocabulary. Every Field the schema generator emits is a struct of the members below
+// and no others; the members present depend on the field's shape and kind. An API element states what one use site
 // is, never what an operation does with it, so nothing here names an operation, a wire type or a storage type.
 //
-//   api_type          Every field. The API type descriptor; its kind and element_type answer every type question, and
+//   api_element          Every field. The API element; its kind and element_type answer every type question, and
 //                     the kind concepts below select on it.
 //   shape             Every field. One of the field_shape tags above; the shape concepts below select on it.
 //   field_name        Every field. The registry's member or parameter name, for diagnostics. It is not `name`,
 //                     because Vulkan declares members called name and a member cannot share the name of its class.
 //   is_return         A command's Return Field only, always true. Absent means false; schema.h's return predicate
-//                     reads it that way so that no other descriptor has to state it.
+//                     reads it that way so that no other API element has to state it.
 //   pointer_count     Pointer, Array and PointerArray. The declared star count, one or two.
 //   field_count       Array, PointerArray or StaticArray whose registry length an Action can evaluate: a StoreValue
 //                     expression over the owner's storage. FieldValue<Sibling> for a length that is exactly one
@@ -119,22 +119,22 @@ GFXRECON_END_NAMESPACE(field_shape)
 //                     requires a create-info node and declares none. The schema records the fact and nothing
 //                     more; whether to trust, probe or ignore the pointer is the Action's policy, not the Field's.
 //
-// Storage facts, which member of which type holds a field, are MemberPointer specializations and never descriptor
-// members. Type facts, kind, element_type, capture_wrapper_type, are on the api_type and are not restated.
+// Storage facts, which member of which type holds a field, are MemberPointer specializations and never API element
+// members. Type facts, kind, element_type, capture_wrapper_type, are on the api_element and are not restated.
 
-// The API's own C++ type for one element of a field that names this descriptor. It is not the declared type of any
-// field: the shape supplies the packaging, so a pointer-array field naming this descriptor is declared as a pointer
+// The API's own C++ type for one element of a field that names this API element. It is not the declared type of any
+// field: the shape supplies the packaging, so a pointer-array field naming this API element is declared as a pointer
 // to this type.
 template <typename ApiType>
 using ElementType = typename ApiType::element_type;
 
 template <typename Field>
-using FieldElementType = ElementType<typename Field::api_type>;
+using FieldElementType = ElementType<typename Field::api_element>;
 
 // The logical kind a Field's API type names. Every kind concept below asks format.h a question about this type
 // and never spells a kind tag itself.
 template <typename Field>
-using FieldKind = typename Field::api_type::kind;
+using FieldKind = typename Field::api_element::kind;
 
 // The wire type a Field is recorded as. The join between a kind and its width is on the kind itself, in
 // format/format.h, so a change to the capture format touches that header and no schema content.
@@ -331,9 +331,9 @@ concept ExtensionChainShapeField = std::same_as<typename Field::shape, field_sha
 template <typename Field>
 concept VoidReturnShapeField = std::same_as<typename Field::shape, field_shape::VoidReturn>;
 
-// Store values. A store value is a type with a static Get(store) that yields a value; a descriptor names one as its
+// Store values. A store value is a type with a static Get(store) that yields a value; an API element names one as its
 // field_count, and an Action evaluates it. The base marks the types that are one, so an operator can require it of
-// its operands and a descriptor member can be constrained on it.
+// its operands and an API element member can be constrained on it.
 struct StoreValueBase
 {};
 

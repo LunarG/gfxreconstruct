@@ -27,12 +27,12 @@
 // decode/vulkan_decode_struct.h and links against those instantiations, reaching no schema, so the next operation
 // family costs one translation unit rather than one per caller.
 //
-// It is a header because the body is API-agnostic: it names no structure and no field, only the descriptor, the
+// It is a header because the body is API-agnostic: it names no structure and no field, only the API element, the
 // Schema and the Action. Each API's instantiation unit includes it and stamps its own rows, so the body is written
 // once and vulkan_struct_decoders.cpp is the first such unit, not the only one. Folding it into that file would
 // make the second API copy it.
 //
-// Everything generated that the body touches is a dependent name -- the descriptors, the Schema specializations,
+// Everything generated that the body touches is a dependent name -- the API elements, the Schema specializations,
 // each wrapper's api_element and both member-trait partitions are needed to instantiate, not to parse. So
 // this header could be light. It is not, because two headers it includes deliberately carry their generated
 // content: binding/vulkan_decoded_type.h is the rows, so HasDecodedType cannot silently answer no, and
@@ -66,7 +66,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 template <typename Wrapper>
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Wrapper* wrapper)
 {
-    static_assert(binding::HasApiElement<Wrapper>, "A schema-driven wrapper must name an API element");
+    static_assert(binding::NamesApiElement<Wrapper>, "A schema-driven wrapper must name an API element");
     static_assert(schema::HasSchemaFields<typename Wrapper::api_element>,
                   "A schema-driven wrapper's API element must have a schema");
 

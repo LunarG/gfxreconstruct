@@ -20,7 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// The decoded-type binding: an API element, a structure's API type descriptor or a command descriptor, to the type
+// The decoded-type binding: an API element, a structure's API element or a command API element, to the type
 // decode represents it with. Which wrapper represents an element is the C++ back end's decision, so this is a binding
 // and not a schema fact. The other direction needs no binding: a decoded wrapper names its element as api_element.
 //
@@ -39,7 +39,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(binding)
 
-// Keyed on an API type descriptor or a command descriptor. Declared, not defined, so an absent row is an incomplete
+// Keyed on an API element or a command API element. Declared, not defined, so an absent row is an incomplete
 // type and HasDecodedType reads as unsatisfied.
 template <typename ApiElement>
 struct DecodedType;
@@ -59,7 +59,7 @@ using DecodedTypeOf = typename DecodedType<ApiElement>::type;
 // struct_type. An operation handed a wrapper reaches the schema and the bindings through that member, so no inverse
 // binding is generated; the generated checks assert that each wrapper's element resolves back to the wrapper.
 template <typename Wrapper>
-concept HasApiElement = requires
+concept NamesApiElement = requires
 {
     typename Wrapper::api_element;
 };
