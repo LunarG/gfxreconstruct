@@ -62,13 +62,13 @@
 // name follows what reads it: HAS_ a concept, MAY_ and a bare adjective a catalog list.
 //   GFXRECON_INVENTORY_HAS_DECODED_TYPE       binding::HasDecodedType                 a Decoded_ wrapper exists and the decoded-type rows reach it
 //   GFXRECON_INVENTORY_MAY_REACH_HANDLES      binding::vulkan::MayReachHandles        a handle is reachable through its fields, pNext included
-//   GFXRECON_INVENTORY_EXTERNAL               binding::vulkan::IsExternal             a platform header defines it, not the registry, so it has a descriptor and no Schema
+//   GFXRECON_INVENTORY_EXTERNAL               binding::vulkan::IsExternal             a platform header defines it, not the registry, so it has a API element and no Schema
 //   GFXRECON_INVENTORY_CUSTOM_ENCODE          binding::vulkan::IsCustomEncode         its encoder is hand-written
 //   GFXRECON_INVENTORY_CUSTOM_DECODE          binding::vulkan::IsCustomDecode         its decoder is hand-written
 //   GFXRECON_INVENTORY_CUSTOM_HANDLE_MAPPING  binding::vulkan::IsCustomHandleMapping  its unwrap and map bodies are hand-written, or absent
 //   GFXRECON_INVENTORY_GENERIC_HANDLE         binding::vulkan::HasGenericHandle       a member is a runtime-typed handle, an integer its sibling object type names the type of
 //   GFXRECON_INVENTORY_DEEP_COPY_EXCLUDED     binding::vulkan::IsDeepCopyExcluded     vulkan_struct_deep_copy does not handle it
-//   GFXRECON_INVENTORY_HAS_STRUCTURE_TYPE     schema::HasStructureType                the registry gives it a structure type, which its descriptor carries, so a pNext chain can hold it
+//   GFXRECON_INVENTORY_HAS_STRUCTURE_TYPE     schema::HasStructureType                the registry gives it a structure type, which its API element carries, so a pNext chain can hold it
 //
 // To read the list as C++, use the catalog, binding/vulkan_catalog.h, not this file.
 
@@ -113,7 +113,7 @@
 #define GFXRECON_INVENTORY_SELECT(props) \
     ((((props) & GFXRECON_INVENTORY_REQUIRE) == GFXRECON_INVENTORY_REQUIRE) && !((props) & GFXRECON_INVENTORY_FORBID))
 
-// Structures, by descriptor name, grouped by property set.
+// Structures, by API element name, grouped by property set.
 
 // 199: HAS_DECODED_TYPE
 #if GFXRECON_INVENTORY_SELECT(GFXRECON_INVENTORY_HAS_DECODED_TYPE)
@@ -1524,7 +1524,7 @@ GFXRECON_INVENTORY_VISIT_STRUCT(VkXcbSurfaceCreateInfoKHR)
 GFXRECON_INVENTORY_VISIT_STRUCT(VkXlibSurfaceCreateInfoKHR)
 #endif
 
-// Unions, by descriptor name, grouped by property set.
+// Unions, by API element name, grouped by property set.
 
 // 8: no properties
 #if GFXRECON_INVENTORY_SELECT(0)
@@ -1949,7 +1949,7 @@ GFXRECON_INVENTORY_VISIT_FLAG_BITS(VkVideoSessionCreateFlagBitsKHR)
 GFXRECON_INVENTORY_VISIT_FLAG_BITS(VkVideoSessionParametersCreateFlagBitsKHR)
 GFXRECON_INVENTORY_VISIT_ENUM(VkViewportCoordinateSwizzleNV)
 
-// Commands, by descriptor name: the command name without its vk prefix.
+// Commands, by API element name: the command name without its vk prefix.
 GFXRECON_INVENTORY_VISIT_COMMAND(CreateInstance)
 GFXRECON_INVENTORY_VISIT_COMMAND(DestroyInstance)
 GFXRECON_INVENTORY_VISIT_COMMAND(EnumeratePhysicalDevices)

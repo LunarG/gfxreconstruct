@@ -118,7 +118,7 @@ class DecodeStructAction
     // A value-shaped identifier -- a handle, or an opaque address -- decodes as what the capture recorded, into the
     // decoded wrapper. The decoded value's member is nulled, and stays null until replay resolves the identifier:
     // a handle through the mapping to a handle from this run, an address through PreProcessExternalObject for the
-    // fields the ExternalObject descriptor names. Both halves are the invariant: the wrapper carries the captured
+    // fields the ExternalObject API element names. Both halves are the invariant: the wrapper carries the captured
     // identifier, the decoded value carries nothing from another run.
     //
     // The null is written as a value-initialized member -- the decoded value's own declared type -- rather than as
@@ -129,7 +129,7 @@ class DecodeStructAction
     // build, and gets the 0 its generated body wrote; VK_NULL_HANDLE is a null pointer in the builds where handles
     // are pointers, and would not convert there. A function pointer or a pointer to something outside the API
     // value-initializes to nullptr, which is what its generated body wrote. The element type would not do for the
-    // last of those: every address outside the API names the one ExternalObject descriptor, whose element type is
+    // last of those: every address outside the API names the one ExternalObject API element, whose element type is
     // void*, while the member itself may be a typed platform pointer such as HMONITOR, to which a null void* does
     // not convert.
     //

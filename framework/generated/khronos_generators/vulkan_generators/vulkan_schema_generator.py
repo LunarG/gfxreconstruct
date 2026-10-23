@@ -23,16 +23,16 @@
 
 One generator emits every part of the schema from one field-order model, so no output owns a separate field order.
 The parts are separate files so that each includer pays for what it names and no more. The schema itself is three
-files in a strict include order: types (API type descriptors and command descriptors) is what anything naming an API
-element needs; fields (Field descriptors) is what an Action's member traits need; schema (the Schema
+files in a strict include order: types (API elements and command API elements) is what anything naming an API
+element needs; fields (Fields) is what an Action's member traits need; schema (the Schema
 specializations) is what the field walk needs. The member traits are partitioned further by storage population, and
 only the target that owns an operation includes the population it reads.
 
 This is the initial version. It emits:
 
-    one API type descriptor for each registry type that a Field names or a Schema keys on
-    one command descriptor for each command
-    one Field descriptor for each command parameter and structure member
+    one API element for each registry type that a Field names or a Schema keys on
+    one command API element for each command
+    one Field for each command parameter and structure member
     one Return Field for each command, including a VoidReturn Return Field for a void command
     one Schema specialization for each command and each structure the registry gives members, and one of
     Alternatives for each union
@@ -42,12 +42,12 @@ This is the initial version. It emits:
 
 It does not yet emit:
 
-    semantic metadata, on either the API type descriptor or the Field descriptor
-    capture_wrapper_type on a handle descriptor, which needs an authoritative handle to wrapper mapping
+    semantic metadata, on either the API element or the Field
+    capture_wrapper_type on a handle API element, which needs an authoritative handle to wrapper mapping
     formal API-signature storage and its member traits, and the decoded metadata storage population
     runtime dispatch tables, custom hooks, command lifecycle traits, or the args compatibility bindings
 
-Two Field descriptor properties differ from the design text, because the registry forces the difference:
+Two Field properties differ from the design text, because the registry forces the difference:
 
     The name property is emitted as field_name. Vulkan declares members called 'name', and a class member cannot
     share the name of its enclosing class.
@@ -95,8 +95,8 @@ class VulkanSchemaBaseGeneratorOptions(VulkanBaseGeneratorOptions):
 
         self.add_part_headers(begin_end)
 
-        # A command descriptor is named for the command with its API prefix removed, and the Windows headers define
-        # macros for two of the resulting names. Every part shares this treatment, so a descriptor spells the same in
+        # A command API element is named for the command with its API prefix removed, and the Windows headers define
+        # macros for two of the resulting names. Every part shares this treatment, so an API element spells the same in
         # all of them.
         begin_end.pre_namespace_code.extend((
             '#ifdef WIN32',
@@ -120,7 +120,7 @@ class VulkanSchemaBaseGeneratorOptions(VulkanBaseGeneratorOptions):
 
 
 class VulkanSchemaTypesGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
-    """Options for the API type descriptors and command descriptors. This is the public face of the schema: a descriptor is
+    """Options for the API elements and command API elements. This is the public face of the schema: an API element is
     the key every trait and Schema is looked up by, and a wrapper can name its own. It needs the API headers and the
     kinds in format/format.h, and nothing else.
     """
@@ -136,7 +136,7 @@ class VulkanSchemaTypesGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
 
 
 class VulkanSchemaFieldsGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
-    """Options for the Field descriptors. A Field names its API type descriptor and a shape, so this needs the types
+    """Options for the Fields. A Field names its API element and a shape, so this needs the types
     file and schema/field.h. Nothing outside an Action's member traits has a reason to name a Field.
     """
 
@@ -273,7 +273,7 @@ class VulkanSchemaEnumerantsGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
 
 class VulkanEnumToStringBodyGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
     """Options for the enum ToString definitions, one line each over the enumerant tables, and the explicit
-    instantiations of the descriptor-keyed forms for the 64-bit flag-bits types. The bodies they forward to are in
+    instantiations of the API element-keyed forms for the 64-bit flag-bits types. The bodies they forward to are in
     util/vulkan_enum_to_string_impl.h, which only this file includes."""
 
     def add_part_headers(self, begin_end):
@@ -296,7 +296,7 @@ class VulkanSchemaChecksGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
             'binding/enumerants.h',
             'binding/vulkan_call_id.h',
             'binding/vulkan_decoded_type.h',
-            'binding/vulkan_descriptor_for.h',
+            'binding/vulkan_api_element_of.h',
             'decode/vulkan_decoder_args.h',
             'binding/vulkan_catalog.h',
             'generated/generated_vulkan_decoder_args.h',
@@ -336,7 +336,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
     # wire.
     #
     # No width is stated here. A kind's wire type lives on the kind, in format/format.h, and the generated checks
-    # file asserts against it: every scalar descriptor's element is as wide as its kind's wire type, and every
+    # file asserts against it: every scalar API element's element is as wide as its kind's wire type, and every
     # refinement here records the same bytes as the primitive the encoder resolves it to.
     CURATED_KINDS = {
         'size_t': 'SizeT',
@@ -349,7 +349,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
     # types, but text is reached through a string decoder and wchar_t is 2 or 4 bytes against 2 on the wire.
     NON_SCALAR_KINDS = ('Char', 'WChar', 'Address', 'Handle', 'Struct', 'Void')
 
-    # Types the API headers do not declare with a distinct name of their own, so a descriptor cannot be named for
+    # Types the API headers do not declare with a distinct name of their own, so an API element cannot be named for
     # them and their element type needs no qualification.
     PRIMITIVE_TYPES = (
         'int8_t',
@@ -368,7 +368,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         'double',
     )
 
-    # Descriptor names for the types whose registry spelling is not a usable identifier. A descriptor is a type of
+    # Element names for the types whose registry spelling is not a usable identifier. An API element is a type of
     # its own, so it cannot be named for a keyword, and it must not shadow the element type it names.
     DESCRIPTOR_NAME_FOR_TYPE = {
         'int8_t': 'Int8',
@@ -389,19 +389,19 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
     }
 
     # A field the API declares as a plain integer but GFXReconstruct treats as a handle, with the handle type carried
-    # by a sibling field at run time. The type alone cannot express that, so those fields name one shared descriptor.
+    # by a sibling field at run time. The type alone cannot express that, so those fields name one shared API element.
     GENERIC_HANDLE_DESCRIPTOR = 'GenericHandle'
 
     # An opaque pointer: a handle to something outside the API, or a pointer to memory this process does not own.
     # It is recorded as the 64-bit value the capture saw, and replay resolves it through
     # PreProcessExternalObject. The type alone cannot express that -- the declared type is void, and a void
     # pointer with a count is a run of bytes, not an address -- so the fields that mean it name one shared
-    # descriptor, selected by the base generator's EXTERNAL_OBJECT_TYPES the same way four other generators
+    # API element, selected by the base generator's EXTERNAL_OBJECT_TYPES the same way four other generators
     # select it.
     EXTERNAL_OBJECT_DESCRIPTOR = 'ExternalObject'
 
     # A counted run of bytes the API declares as a void pointer. The capture stores the bytes and nothing else, so
-    # the element is uint8_t and the kind is UInt8, the same as a declared byte array; the descriptor's name is what
+    # the element is uint8_t and the kind is UInt8, the same as a declared byte array; the API element's name is what
     # keeps the two apart for anything that reads the schema. The Action constrains on kind, so one overload serves
     # both.
     OPAQUE_BYTES_DESCRIPTOR = 'OpaqueBytes'
@@ -429,8 +429,8 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         self.member_selectors = dict()
         self.member_selections = dict()
         self.may_reach_cache = dict()
-        self.api_type_kinds = dict()  # Descriptor name to format::kind expression.
-        self.api_type_elements = dict()  # Descriptor name to element type expression.
+        self.api_type_kinds = dict()  # Element name to format::kind expression.
+        self.api_type_elements = dict()  # Element name to element type expression.
         self.defaulted_types = set()  # Registry types that reached the Scalar fallback without being classified.
         # Enum groups the registry declares type="bitmask", to the mask type their values compose into: the API's
         # 32-bit flags type unless the group states bitwidth="64".
@@ -516,15 +516,15 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         self.generic_handle_structs = set(self.GENERIC_HANDLE_STRUCTS)
         self.deep_copy_exclusions = lists['structures-deep-copy']
 
-        # 'void' always has a descriptor, because a void command still has one Return Field.
+        # 'void' always has an API element, because a void command still has one Return Field.
         self.add_api_type('void')
 
-        # One shared descriptor for the runtime-typed handle fields.
+        # One shared API element for the runtime-typed handle fields.
         self.api_type_kinds[self.GENERIC_HANDLE_DESCRIPTOR] = 'Handle'
         self.api_type_elements[self.GENERIC_HANDLE_DESCRIPTOR] = 'uint64_t'
 
         # One element is the address itself, not what it points at, the same way GenericHandle's element is the
-        # uint64_t it stores rather than the object it names. So a Value-shaped field of this descriptor is a
+        # uint64_t it stores rather than the object it names. So a Value-shaped field of this API element is a
         # void*, and a Pointer-shaped one is a void** -- which is what the declarations say.
         self.api_type_kinds[self.EXTERNAL_OBJECT_DESCRIPTOR] = 'Address'
         self.api_type_elements[self.EXTERNAL_OBJECT_DESCRIPTOR] = 'void*'
@@ -535,8 +535,8 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         self.api_type_elements[self.OPAQUE_BYTES_DESCRIPTOR] = 'uint8_t'
 
         for struct in self.schema_structs:
-            # Every element that gets a Schema also gets a descriptor, because the decoded representation traits key
-            # on the descriptor even when no Field names the type.
+            # Every element that gets a Schema also gets an API element, because the decoded representation traits key
+            # on the API element even when no Field names the type.
             self.add_api_type(struct)
 
             for value in self.all_struct_members[struct]:
@@ -554,13 +554,13 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             for value in params:
                 self.add_api_type(value.base_type)
 
-        # Every structure the registry gives a type gets a descriptor, described or not, so a sieve over
+        # Every structure the registry gives a type gets an API element, described or not, so a sieve over
         # structure_type reaches the hand-written encoders of the structures the schema excludes.
         for struct in self.struct_type_names:
             if struct not in self.all_struct_aliases:
                 self.add_api_type(struct)
 
-        # Every enumerated type gets a descriptor, named or not, so its enumerant table has a key.
+        # Every enumerated type gets an API element, named or not, so its enumerant table has a key.
         for enum in self.enum_names:
             if self.is_enumerated(enum):
                 self.add_api_type(enum)
@@ -667,19 +667,19 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             and not value.is_array
         )
 
-    def get_descriptor_name(self, base_type):
-        """The identifier of the API type descriptor for a registry type."""
+    def get_api_element_name(self, base_type):
+        """The identifier of the API element for a registry type."""
         resolved = self.resolve_type_alias(base_type)
         return self.DESCRIPTOR_NAME_FOR_TYPE.get(resolved, resolved)
 
-    def get_descriptor_path(self, base_type):
-        """The descriptor's path from the schema namespace, for a line emitted at schema scope."""
-        return 'vulkan::api_types::{}'.format(self.get_descriptor_name(base_type))
+    def get_api_element_path(self, base_type):
+        """The API element's path from the schema namespace, for a line emitted at schema scope."""
+        return 'vulkan::api_elements::{}'.format(self.get_api_element_name(base_type))
 
-    def get_descriptor_reference(self, name):
-        """The descriptor's spelling from inside the API's own namespace, where a field descriptor is emitted: lookup
+    def get_api_element_reference(self, name):
+        """The API element's spelling from inside the API's own namespace, where a Field is emitted: lookup
         reaches schema::vulkan from schema::vulkan::fields::<owner>, so the API component is not written."""
-        return 'api_types::{}'.format(name)
+        return 'api_elements::{}'.format(name)
 
     def get_generic_handles(self, owner, is_command, members):
         """Map member name to selector name for the fields GFXReconstruct treats as runtime-typed handles.
@@ -705,10 +705,10 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         return generic
 
     def get_element_type(self, base_type):
-        """The API's own C++ type for one element of a field that names this descriptor.
+        """The API's own C++ type for one element of a field that names this API element.
 
         This is the element type, not the declared type of any field. The shape supplies the packaging, so a
-        pointer-array field naming this descriptor is declared as a pointer to this type.
+        pointer-array field naming this API element is declared as a pointer to this type.
         """
         resolved = self.resolve_type_alias(base_type)
 
@@ -719,7 +719,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             return resolved
 
         # Everything else is a name the API headers declare at global scope. The qualification matters, because a
-        # descriptor carries the name of the type it describes.
+        # API element carries the name of the type it describes.
         return '::{}'.format(resolved)
 
     def get_underlying_primitive(self, base_type):
@@ -808,7 +808,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         return 'Scalar'
 
     def add_api_type(self, base_type):
-        name = self.get_descriptor_name(base_type)
+        name = self.get_api_element_name(base_type)
 
         if name in self.api_type_kinds:
             return
@@ -824,7 +824,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
     # Field model
     #
 
-    def get_command_descriptor_name(self, command):
+    def get_command_api_element_name(self, command):
         return VulkanBaseGenerator.make_args_struct_name(command)
 
     def get_field_namespace(self, element):
@@ -1032,7 +1032,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         return None
 
     def get_count_note(self, value, members):
-        """The NOTE line written above a descriptor whose count is arithmetic, carrying the registry's text."""
+        """The NOTE line written above a API element whose count is arithmetic, carrying the registry's text."""
         if self.parse_count_expression(value, members) is None:
             return None
 
@@ -1043,7 +1043,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         return [part.strip() for part in value.array_capacity.split(',')]
 
     def make_field_definition(self, value, members, generic_handles, owner):
-        """One Field descriptor. It names its API type descriptor and its shape, and restates no type fact."""
+        """One Field api_element. It names its API element and its shape, and restates no type fact."""
         shape = self.get_field_shape(value)
         generic_selector = generic_handles.get(value.name)
 
@@ -1052,16 +1052,16 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         selector = generic_selector if generic_selector is not None else self.member_selectors.get((owner, value.name))
 
         if generic_selector is not None:
-            descriptor = self.get_descriptor_reference(self.GENERIC_HANDLE_DESCRIPTOR)
+            api_element = self.get_api_element_reference(self.GENERIC_HANDLE_DESCRIPTOR)
         elif self.is_external_object(value):
-            descriptor = self.get_descriptor_reference(self.EXTERNAL_OBJECT_DESCRIPTOR)
+            api_element = self.get_api_element_reference(self.EXTERNAL_OBJECT_DESCRIPTOR)
         elif self.is_opaque_bytes(value):
-            descriptor = self.get_descriptor_reference(self.OPAQUE_BYTES_DESCRIPTOR)
+            api_element = self.get_api_element_reference(self.OPAQUE_BYTES_DESCRIPTOR)
         else:
-            descriptor = self.get_descriptor_reference(self.get_descriptor_name(value.base_type))
+            api_element = self.get_api_element_reference(self.get_api_element_name(value.base_type))
 
         parts = [
-            'using api_type = {};'.format(descriptor),
+            'using api_element = {};'.format(api_element),
             'using shape = field_shape::{};'.format(shape),
         ]
 
@@ -1111,7 +1111,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
                 )
             )
 
-        # The descriptor member is field_name rather than name, because Vulkan declares members called 'name' and a
+        # The API element member is field_name rather than name, because Vulkan declares members called 'name' and a
         # member cannot share the name of its enclosing class.
         parts.append(
             'static constexpr std::string_view field_name = "{}";'.format(
@@ -1126,8 +1126,8 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         is_void = self.clean_return_type(return_type) == 'void'
 
         parts = [
-            'using api_type = {};'.format(
-                self.get_descriptor_reference(self.get_descriptor_name(self.clean_return_type(return_type)))
+            'using api_element = {};'.format(
+                self.get_api_element_reference(self.get_api_element_name(self.clean_return_type(return_type)))
             ),
             'using shape = field_shape::{};'.format(
                 'VoidReturn' if is_void else 'Value'
@@ -1143,7 +1143,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         )
 
     def write_field_namespace(self, element, members, owner, is_command, return_type=None):
-        """One namespace of Field descriptors for one API element."""
+        """One namespace of Fields for one API element."""
         write(
             'GFXRECON_BEGIN_NAMESPACE({})'.format(element), file=self.outFile
         )
@@ -1151,7 +1151,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         generic_handles = self.get_generic_handles(owner, is_command, members)
 
         # A field_count or a selector_field names a sibling, and the Vulkan registry always declares that sibling
-        # before the member that names it, so the descriptors are written in declaration order with no forward
+        # before the member that names it, so the API elements are written in declaration order with no forward
         # declarations. That is a Vulkan-derived rule: a sibling named before its declaration fails to compile at
         # that line, and an API that breaks the rule needs a "references" fact in the IR and a backend that emits
         # the declaration.
@@ -1227,9 +1227,9 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         write('GFXRECON_END_NAMESPACE(schema)', file=self.outFile)
 
-    def write_api_type_descriptors(self):
+    def write_api_elements(self):
         write(
-            '// API type descriptors. A descriptor carries the API\'s own type for one element and the logical kind',
+            '// API type api_elements. A API element carries the API\'s own type for one element and the logical kind',
             file=self.outFile
         )
         write(
@@ -1242,13 +1242,13 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         )
         write('GFXRECON_BEGIN_NAMESPACE(vulkan)', file=self.outFile)
         self.newline()
-        write('// The enumerant tables, defined in generated_vulkan_schema_enumerants.h. A descriptor names its own.', file=self.outFile)
+        write('// The enumerant tables, defined in generated_vulkan_schema_enumerants.h. A API element names its own.', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(enumerants)', file=self.outFile)
         for enum in self.get_enumerated_types():
             write('struct {};'.format(enum), file=self.outFile)
         write('GFXRECON_END_NAMESPACE(enumerants)', file=self.outFile)
         self.newline()
-        write('GFXRECON_BEGIN_NAMESPACE(api_types)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(api_elements)', file=self.outFile)
 
         bitvalues = self.get_bitvalues_of_bitmasks()
         for name in sorted(self.api_type_kinds):
@@ -1260,60 +1260,60 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
                 members += ' static constexpr {} structure_type = {};'.format(
                     '::' + self.get_struct_type_enum_name(), structure_type
                 )
-            # Qualified from the global namespace: within the descriptor an unqualified enumerants would change
+            # Qualified from the global namespace: within the API element an unqualified enumerants would change
             # meaning once the member of that name is declared.
             if self.is_enumerated(name):
                 members += ' using enumerants = ::gfxrecon::schema::vulkan::enumerants::{};'.format(name)
                 if name in self.bitmask_types:
                     members += ' using bitmask = ::{};'.format(self.bitmask_types[name])
             elif name in bitvalues:
-                members += ' using bitvalues = ::gfxrecon::schema::vulkan::api_types::{};'.format(bitvalues[name])
+                members += ' using bitvalues = ::gfxrecon::schema::vulkan::api_elements::{};'.format(bitvalues[name])
             write('struct {} {{ {} }};'.format(name, members), file=self.outFile)
 
-        write('GFXRECON_END_NAMESPACE(api_types)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(api_elements)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(vulkan)', file=self.outFile)
         self.newline()
 
-    def get_deep_copy_excluded_descriptors(self):
-        """The deep-copy exclusions that are structure descriptors, by name; an alias in the list names no descriptor."""
-        return [name for name in self.get_structure_descriptors() if name in self.deep_copy_exclusions]
+    def get_deep_copy_excluded_api_elements(self):
+        """The deep-copy exclusions that are structure api_elements, by name; an alias in the list names no api_element."""
+        return [name for name in self.get_structure_api_elements() if name in self.deep_copy_exclusions]
 
     def get_enumerated_types(self):
-        """Every enumerated type, by name; its descriptor and its table carry the same name."""
+        """Every enumerated type, by name; its API element and its table carry the same name."""
         return sorted(enum for enum in self.enum_names if self.is_enumerated(enum))
 
     def get_native_enumerated_types(self):
         """The enumerated types that are C enums, by name: every enumerated type but the 64-bit flag-bits typedefs."""
-        return [enum for enum in self.get_enumerated_types() if self.api_type_kinds[self.get_descriptor_name(enum)] == 'Enum']
+        return [enum for enum in self.get_enumerated_types() if self.api_type_kinds[self.get_api_element_name(enum)] == 'Enum']
 
     def get_wide_bitmask_pairs(self):
-        """(bits descriptor, typedef descriptor) for each 64-bit flag-bits type whose typedef has a descriptor."""
+        """(bits api_element, typedef api_element) for each 64-bit flag-bits type whose typedef has a api_element."""
         return sorted(
             (enum, flags) for flags, enum in self.get_bitvalues_of_bitmasks().items()
-            if flags in self.api_type_kinds and self.api_type_kinds[self.get_descriptor_name(enum)] == 'Flags64'
+            if flags in self.api_type_kinds and self.api_type_kinds[self.get_api_element_name(enum)] == 'Flags64'
         )
 
     def get_bitvalues_of_bitmasks(self):
-        """Mask typedef descriptor name to the descriptor name of the bits enum whose values compose it, from the
-        registry's requires or bitvalues attribute on the typedef, for the typedefs that have a descriptor."""
+        """Mask typedef API element name to the API element name of the bits enum whose values compose it, from the
+        registry's requires or bitvalues attribute on the typedef, for the typedefs that have an API element."""
         result = dict()
         for enum in self.get_enumerated_types():
             if enum not in self.bitmask_types:
                 continue
             flags = self.get_flags_type_from_enum(enum)
             if flags is not None:
-                result[self.get_descriptor_name(flags)] = enum
+                result[self.get_api_element_name(flags)] = enum
         return result
 
-    def get_structure_descriptors(self):
-        """Every descriptor of kind Struct that is not a union, by name."""
+    def get_structure_api_elements(self):
+        """Every API element of kind Struct that is not a union, by name."""
         return [
             name for name in sorted(self.api_type_kinds)
             if self.api_type_kinds[name] == 'Struct' and name not in self.all_union_members
         ]
 
-    def get_union_descriptors(self):
-        """Every union descriptor, by name. A union's kind is Struct: the encode and decode operations treat it as
+    def get_union_api_elements(self):
+        """Every union API element, by name. A union's kind is Struct: the encode and decode operations treat it as
         one, and its Schema of Alternatives is what tells it apart."""
         return [name for name in sorted(self.api_type_kinds) if name in self.all_union_members]
 
@@ -1329,38 +1329,38 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
     )
 
     def get_binding_catalog_members(self, attribute):
-        """The members of one binding list that are structure or union descriptors, by name."""
+        """The members of one binding list that are structure or union api_elements, by name."""
         names = set(getattr(self, attribute))
-        return [name for name in self.get_structure_descriptors() + self.get_union_descriptors() if name in names]
+        return [name for name in self.get_structure_api_elements() + self.get_union_api_elements() if name in names]
 
     def get_structure_type(self, name):
-        """The registry's structure type enumerant for a structure descriptor, or None: an alias or a type without one."""
+        """The registry's structure type enumerant for a structure api_element, or None: an alias or a type without one."""
         if name in self.all_struct_aliases or name not in self.struct_type_names:
             return None
         return self.struct_type_names[name]
 
-    def write_command_descriptors(self):
+    def write_command_api_elements(self):
         write(
-            '// Command descriptors. A command descriptor is a schema key and a binding key. It carries no members of its own\n'
+            '// Command api_elements. A command API element is a schema key and a binding key. It carries no members of its own\n'
             '// until command piloting, or an operation over commands, needs one.',
             file=self.outFile
         )
         write('GFXRECON_BEGIN_NAMESPACE(vulkan)', file=self.outFile)
-        write('GFXRECON_BEGIN_NAMESPACE(commands)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(api_elements)', file=self.outFile)
 
         for command in self.schema_commands:
             write(
-                'struct {} {{}};'.format(self.get_command_descriptor_name(command)),
+                'struct {} {{}};'.format(self.get_command_api_element_name(command)),
                 file=self.outFile
             )
 
-        write('GFXRECON_END_NAMESPACE(commands)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(api_elements)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(vulkan)', file=self.outFile)
         self.newline()
 
-    def write_field_descriptors(self):
+    def write_fields(self):
         write(
-            '// Field descriptors. A Field names its API type and its shape at this use site.',
+            '// Field api_elements. A Field names its API type and its shape at this use site.',
             file=self.outFile
         )
         write('GFXRECON_BEGIN_NAMESPACE(vulkan)', file=self.outFile)
@@ -1380,7 +1380,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         for command in self.schema_commands:
             return_type, _, params = self.all_cmd_params[command]
             self.write_field_namespace(
-                self.get_command_descriptor_name(command),
+                self.get_command_api_element_name(command),
                 params,
                 command,
                 True,
@@ -1393,7 +1393,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
     def write_schemas(self):
         write(
-            '// Schemas. A structure keys on its API type descriptor and a command on its command descriptor, which is the',
+            '// Schemas. A structure keys on its API element and a command on its command api_element, which is the',
             file=self.outFile
         )
         write(
@@ -1406,7 +1406,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             names = [value.name for value in self.all_struct_members[struct]]
             write(
                 self.make_schema_specialization(
-                    self.get_descriptor_path(struct), struct, names
+                    self.get_api_element_path(struct), struct, names
                 ),
                 file=self.outFile
             )
@@ -1420,7 +1420,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             names = [value.name for value in self.all_union_members[union]]
             write(
                 self.make_schema_specialization(
-                    self.get_descriptor_path(union), union, names, 'Alternatives'
+                    self.get_api_element_path(union), union, names, 'Alternatives'
                 ),
                 file=self.outFile
             )
@@ -1428,19 +1428,19 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         for command in self.schema_commands:
             _, _, params = self.all_cmd_params[command]
-            descriptor = self.get_command_descriptor_name(command)
+            api_element = self.get_command_api_element_name(command)
             names = [value.name for value in params]
             names.append(self.RETURN_FIELD_NAME)
             write(
                 self.make_schema_specialization(
-                    'vulkan::commands::{}'.format(descriptor), descriptor, names
+                    'vulkan::api_elements::{}'.format(api_element), api_element, names
                 ),
                 file=self.outFile
             )
             self.newline()
 
     def get_inventory_handles(self):
-        """Every handle descriptor but the generic handle, by name: the handles that have a capture wrapper."""
+        """Every handle API element but the generic handle, by name: the handles that have a capture wrapper."""
         return [
             name for name in sorted(self.api_type_kinds)
             if self.api_type_kinds[name] == 'Handle' and name != self.GENERIC_HANDLE_DESCRIPTOR
@@ -1481,7 +1481,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         ('MAY_REACH_HANDLES', 'binding::vulkan::MayReachHandles',
          'a handle is reachable through its fields, pNext included'),
         ('EXTERNAL', 'binding::vulkan::IsExternal',
-         'a platform header defines it, not the registry, so it has a descriptor and no Schema'),
+         'a platform header defines it, not the registry, so it has a API element and no Schema'),
         ('CUSTOM_ENCODE', 'binding::vulkan::IsCustomEncode', 'its encoder is hand-written'),
         ('CUSTOM_DECODE', 'binding::vulkan::IsCustomDecode', 'its decoder is hand-written'),
         ('CUSTOM_HANDLE_MAPPING', 'binding::vulkan::IsCustomHandleMapping',
@@ -1490,7 +1490,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
          'a member is a runtime-typed handle, an integer its sibling object type names the type of'),
         ('DEEP_COPY_EXCLUDED', 'binding::vulkan::IsDeepCopyExcluded', 'vulkan_struct_deep_copy does not handle it'),
         ('HAS_STRUCTURE_TYPE', 'schema::HasStructureType',
-         'the registry gives it a structure type, which its descriptor carries, so a pNext chain can hold it'),
+         'the registry gives it a structure type, which its API element carries, so a pNext chain can hold it'),
     )
 
     def inventory_property_macro(self, suffix):
@@ -1600,10 +1600,10 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         body = banner + prologue
 
         for kind, macro, names in (
-            ('Structures', 'GFXRECON_INVENTORY_VISIT_STRUCT', self.get_structure_descriptors()),
-            ('Unions', 'GFXRECON_INVENTORY_VISIT_UNION', self.get_union_descriptors()),
+            ('Structures', 'GFXRECON_INVENTORY_VISIT_STRUCT', self.get_structure_api_elements()),
+            ('Unions', 'GFXRECON_INVENTORY_VISIT_UNION', self.get_union_api_elements()),
         ):
-            body.append('// {}, by descriptor name, grouped by property set.'.format(kind))
+            body.append('// {}, by API element name, grouped by property set.'.format(kind))
             for properties, rows in self.get_inventory_groups(names):
                 mask = ' | '.join(self.inventory_property_macro(suffix) for suffix in properties) or '0'
                 body.append('')
@@ -1623,9 +1623,9 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             body.append('GFXRECON_INVENTORY_VISIT_{}({})'.format('FLAG_BITS' if is_flag_bits else 'ENUM', enum))
         body.append('')
 
-        body.append('// Commands, by descriptor name: the command name without its vk prefix.')
+        body.append('// Commands, by API element name: the command name without its vk prefix.')
         for command in self.schema_commands:
-            body.append('GFXRECON_INVENTORY_VISIT_COMMAND({})'.format(self.get_command_descriptor_name(command)))
+            body.append('GFXRECON_INVENTORY_VISIT_COMMAND({})'.format(self.get_command_api_element_name(command)))
         body.append('')
 
         for macro in self.INVENTORY_ROW_MACROS:
@@ -1638,7 +1638,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         """Static checks over the whole generated schema, compiled by the framework test target.
 
         Three of these compare one generator's output against another's. A decoded wrapper's struct_type comes from
-        the struct-decoders generator, which knows nothing about the schema, so agreeing with the descriptor's
+        the struct-decoders generator, which knows nothing about the schema, so agreeing with the API element's
         element type is a real cross-check rather than this generator confirming itself.
         """
         # The file already opens gfxrecon, from the options, so only the inner namespace belongs here.
@@ -1648,7 +1648,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         write('// Every structure has a well formed schema, and no structure has a return Field.', file=self.outFile)
 
         for struct in self.schema_structs:
-            element = 'schema::{}'.format(self.get_descriptor_path(struct))
+            element = 'schema::{}'.format(self.get_api_element_path(struct))
             write('static_assert(schema::HasSchemaFields<{}>);'.format(element), file=self.outFile)
             write('static_assert(!schema::HasCommandSchema<{}>);'.format(element), file=self.outFile)
 
@@ -1656,7 +1656,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         write('// Every union has a Schema of Alternatives and no Fields.', file=self.outFile)
 
         for union in self.schema_unions:
-            element = 'schema::{}'.format(self.get_descriptor_path(union))
+            element = 'schema::{}'.format(self.get_api_element_path(union))
             write('static_assert(schema::HasSchemaAlternatives<{}>);'.format(element), file=self.outFile)
             write('static_assert(!schema::HasSchemaFields<{}>);'.format(element), file=self.outFile)
 
@@ -1668,8 +1668,8 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         write('// TypeListSole.', file=self.outFile)
 
         for command in self.schema_commands:
-            descriptor = 'schema::vulkan::commands::{}'.format(self.get_command_descriptor_name(command))
-            write('static_assert(schema::HasCommandSchema<{}>);'.format(descriptor), file=self.outFile)
+            api_element = 'schema::vulkan::api_elements::{}'.format(self.get_command_api_element_name(command))
+            write('static_assert(schema::HasCommandSchema<{}>);'.format(api_element), file=self.outFile)
 
         self.newline()
         write('// Each wrapper names its element, and the trait keyed on that element names the wrapper. The two', file=self.outFile)
@@ -1685,16 +1685,16 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         self.newline()
 
         for command in self.schema_commands:
-            descriptor = self.get_command_descriptor_name(command)
+            api_element = self.get_command_api_element_name(command)
             write(
-                'static_assert(std::is_same_v<binding::DecodedTypeOf<typename args::{descriptor}::api_element>, '
-                'args::{descriptor}>);'.format(descriptor=descriptor),
+                'static_assert(std::is_same_v<binding::DecodedTypeOf<typename args::{api_element}::api_element>, '
+                'args::{api_element}>);'.format(api_element=api_element),
                 file=self.outFile
             )
 
         self.newline()
         write(
-            '// Cross-generator: the element type on the descriptor against struct_type on the decoded wrapper,',
+            '// Cross-generator: the element type on the API element against struct_type on the decoded wrapper,',
             file=self.outFile
         )
         write('// which the struct-decoders generator emits without any knowledge of the schema.', file=self.outFile)
@@ -1703,7 +1703,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             write(
                 'static_assert(std::is_same_v<schema::ElementType<schema::{path}>, '
                 'typename Decoded_{name}::struct_type>);'.format(
-                    path=self.get_descriptor_path(struct), name=struct
+                    path=self.get_api_element_path(struct), name=struct
                 ),
                 file=self.outFile
             )
@@ -1739,7 +1739,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
                     )
 
         self.newline()
-        write('// A descriptor states a kind and the kind states the wire type, in format/format.h. A descriptor', file=self.outFile)
+        write('// A API element states a kind and the kind states the wire type, in format/format.h. A API element', file=self.outFile)
         write('// whose element is narrower than its kind would compile and desynchronize the stream, so every', file=self.outFile)
         write('// scalar element is as wide as its wire type. size_t is the one exception, 4 or 8 bytes in memory', file=self.outFile)
         write('// against 8 on the wire, which ValueDecoder converts.', file=self.outFile)
@@ -1751,8 +1751,8 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
                 continue
 
             write(
-                'static_assert(sizeof(schema::ElementType<schema::vulkan::api_types::{name}>) == '
-                'sizeof(format::EncodeTypeFor<schema::vulkan::api_types::{name}::kind>));'.format(name=name),
+                'static_assert(sizeof(schema::ElementType<schema::vulkan::api_elements::{name}>) == '
+                'sizeof(format::EncodeTypeFor<schema::vulkan::api_elements::{name}::kind>));'.format(name=name),
                 file=self.outFile
             )
 
@@ -1776,29 +1776,29 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         self.newline()
         self.newline()
-        write('// A descriptor carries structure_type exactly when the registry gives the structure one: the row property and', file=self.outFile)
-        write('// the descriptor member are two emissions of that one fact, checked against each other on every row.', file=self.outFile)
+        write('// A API element carries structure_type exactly when the registry gives the structure one: the row property and', file=self.outFile)
+        write('// the API element member are two emissions of that one fact, checked against each other on every row.', file=self.outFile)
         write('#define GFXRECON_INVENTORY_REQUIRE GFXRECON_INVENTORY_HAS_STRUCTURE_TYPE', file=self.outFile)
-        write('#define GFXRECON_INVENTORY_VISIT_STRUCT(Name) static_assert(schema::HasStructureType<schema::vulkan::api_types::Name>);', file=self.outFile)
+        write('#define GFXRECON_INVENTORY_VISIT_STRUCT(Name) static_assert(schema::HasStructureType<schema::vulkan::api_elements::Name>);', file=self.outFile)
         write('#define GFXRECON_INVENTORY_VISIT_UNION(Name) GFXRECON_INVENTORY_VISIT_STRUCT(Name)', file=self.outFile)
         write('#include "generated/generated_vulkan_inventory.h"', file=self.outFile)
         write('#define GFXRECON_INVENTORY_FORBID GFXRECON_INVENTORY_HAS_STRUCTURE_TYPE', file=self.outFile)
-        write('#define GFXRECON_INVENTORY_VISIT_STRUCT(Name) static_assert(!schema::HasStructureType<schema::vulkan::api_types::Name>);', file=self.outFile)
+        write('#define GFXRECON_INVENTORY_VISIT_STRUCT(Name) static_assert(!schema::HasStructureType<schema::vulkan::api_elements::Name>);', file=self.outFile)
         write('#define GFXRECON_INVENTORY_VISIT_UNION(Name) GFXRECON_INVENTORY_VISIT_STRUCT(Name)', file=self.outFile)
         write('#include "generated/generated_vulkan_inventory.h"', file=self.outFile)
 
-        typed = sum(1 for struct in self.get_structure_descriptors() if self.get_structure_type(struct) is not None)
+        typed = sum(1 for struct in self.get_structure_api_elements() if self.get_structure_type(struct) is not None)
 
         self.newline()
         write('// The sizes the generator counted, then the relation checked arithmetically.', file=self.outFile)
         write(
             'constexpr size_t kStructuresCount = util::TypeListSizeV<binding::vulkan::catalog::structures>;\n' +
-            'static_assert(kStructuresCount == {});'.format(len(self.get_structure_descriptors())),
+            'static_assert(kStructuresCount == {});'.format(len(self.get_structure_api_elements())),
             file=self.outFile
         )
         write(
             'constexpr size_t kUnionsCount = util::TypeListSizeV<binding::vulkan::catalog::unions>;\n' +
-            'static_assert(kUnionsCount == {});'.format(len(self.get_union_descriptors())),
+            'static_assert(kUnionsCount == {});'.format(len(self.get_union_api_elements())),
             file=self.outFile
         )
         write(
@@ -1806,7 +1806,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             file=self.outFile
         )
 
-        excluded = self.get_deep_copy_excluded_descriptors()
+        excluded = self.get_deep_copy_excluded_api_elements()
         excluded_typed = [name for name in excluded if self.get_structure_type(name) is not None]
         write(
             'static_assert(util::TypeListSizeV<binding::vulkan::catalog::deep_copyable_structures> == {});'.format(typed - len(excluded_typed)),
@@ -1814,23 +1814,23 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         )
 
         self.newline()
-        write('// Every enumerated type\'s descriptor names its table, and every one but a 64-bit flag-bits type is bound to', file=self.outFile)
+        write('// Every enumerated type\'s API element names its table, and every one but a 64-bit flag-bits type is bound to', file=self.outFile)
         write('// its native enum. Nothing is bound to the bare integer types that the 64-bit flag-bits and the Flags', file=self.outFile)
         write('// typedefs are spelled as, which would draw their ToString calls into the enumerant overloads.', file=self.outFile)
 
         for enum in self.get_enumerated_types():
-            element = 'schema::{}'.format(self.get_descriptor_path(enum))
+            element = 'schema::{}'.format(self.get_api_element_path(enum))
             write('static_assert(schema::HasEnumerants<{}>);'.format(element), file=self.outFile)
             if not self.is_flags_enum_64bit(enum):
                 write(
-                    'static_assert(std::is_same_v<binding::DescriptorFor<::{}>::type, {}>);'.format(enum, element),
+                    'static_assert(std::is_same_v<binding::ApiElementOf<::{}>::type, {}>);'.format(enum, element),
                     file=self.outFile
                 )
         self.newline()
         write('// The registry declares a group a bitmask exactly when its name says FlagBits. The two are separate sources,', file=self.outFile)
         write('// so a group that breaks the convention fails here by name.', file=self.outFile)
         for enum in self.get_enumerated_types():
-            element = 'schema::{}'.format(self.get_descriptor_path(enum))
+            element = 'schema::{}'.format(self.get_api_element_path(enum))
             write(
                 'static_assert({}schema::HasBitmask<{}>);'.format('' if 'FlagBits' in enum else '!', element),
                 file=self.outFile
@@ -1841,14 +1841,14 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         for flags, enum in sorted(self.get_bitvalues_of_bitmasks().items()):
             if flags not in self.api_type_kinds:
                 continue
-            element = 'schema::{}'.format(self.get_descriptor_path(flags))
+            element = 'schema::{}'.format(self.get_api_element_path(flags))
             write(
                 'static_assert(std::is_same_v<{0}::element_type, {0}::bitvalues::bitmask>);'.format(element),
                 file=self.outFile
             )
         self.newline()
-        write('static_assert(!binding::HasDescriptor<uint32_t>);', file=self.outFile)
-        write('static_assert(!binding::HasDescriptor<uint64_t>);', file=self.outFile)
+        write('static_assert(!binding::HasApiElement<uint32_t>);', file=self.outFile)
+        write('static_assert(!binding::HasApiElement<uint64_t>);', file=self.outFile)
 
         self.newline()
         write('// The catalog: each list, read back from an inventory property, is the size of the input the', file=self.outFile)
@@ -1881,14 +1881,14 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         self.newline()
         write('// The one property with a second source: EXTERNAL comes from the platform list, and a Schema from the members', file=self.outFile)
-        write('// the registry gives, so an external structure has a descriptor and no Schema of either kind, and every other', file=self.outFile)
+        write('// the registry gives, so an external structure has a API element and no Schema of either kind, and every other', file=self.outFile)
         write('// structure and union row has one. Every other property is read back into C++ by a visit and cannot disagree.', file=self.outFile)
         write('#define GFXRECON_INVENTORY_REQUIRE GFXRECON_INVENTORY_EXTERNAL', file=self.outFile)
-        write('#define GFXRECON_INVENTORY_VISIT_STRUCT(Name) static_assert(!schema::HasSchemaFields<schema::vulkan::api_types::Name> && !schema::HasSchemaAlternatives<schema::vulkan::api_types::Name>);', file=self.outFile)
+        write('#define GFXRECON_INVENTORY_VISIT_STRUCT(Name) static_assert(!schema::HasSchemaFields<schema::vulkan::api_elements::Name> && !schema::HasSchemaAlternatives<schema::vulkan::api_elements::Name>);', file=self.outFile)
         write('#define GFXRECON_INVENTORY_VISIT_UNION(Name) GFXRECON_INVENTORY_VISIT_STRUCT(Name)', file=self.outFile)
         write('#include "generated/generated_vulkan_inventory.h"', file=self.outFile)
         write('#define GFXRECON_INVENTORY_FORBID GFXRECON_INVENTORY_EXTERNAL', file=self.outFile)
-        write('#define GFXRECON_INVENTORY_VISIT_STRUCT(Name) static_assert(schema::HasSchemaFields<schema::vulkan::api_types::Name> || schema::HasSchemaAlternatives<schema::vulkan::api_types::Name>);', file=self.outFile)
+        write('#define GFXRECON_INVENTORY_VISIT_STRUCT(Name) static_assert(schema::HasSchemaFields<schema::vulkan::api_elements::Name> || schema::HasSchemaAlternatives<schema::vulkan::api_elements::Name>);', file=self.outFile)
         write('#define GFXRECON_INVENTORY_VISIT_UNION(Name) GFXRECON_INVENTORY_VISIT_STRUCT(Name)', file=self.outFile)
         write('#include "generated/generated_vulkan_inventory.h"', file=self.outFile)
 
@@ -1986,13 +1986,13 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         for command in self.schema_commands:
             return_type, _, params = self.all_cmd_params[command]
-            descriptor = self.get_command_descriptor_name(command)
-            storage = 'decode::args::{}'.format(descriptor)
+            api_element = self.get_command_api_element_name(command)
+            storage = 'decode::args::{}'.format(api_element)
 
             for value in params:
                 write(
                     self.make_member_pointer(
-                        storage, self.get_field_path(descriptor, value.name),
+                        storage, self.get_field_path(api_element, value.name),
                         '{}::{}'.format(storage, value.name)
                     ),
                     file=self.outFile
@@ -2003,7 +2003,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
                 write(
                     self.make_member_pointer(
                         storage,
-                        self.get_field_path(descriptor, self.RETURN_FIELD_NAME),
+                        self.get_field_path(api_element, self.RETURN_FIELD_NAME),
                         '{}::{}'.format(storage, self.RETURN_FIELD_NAME)
                     ),
                     file=self.outFile
@@ -2013,10 +2013,10 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
 
 class VulkanSchemaTypesGenerator(VulkanSchemaBaseGenerator):
-    """Generates the API type descriptors and command descriptors."""
+    """Generates the API elements and command api_elements."""
 
     def write_part(self):
-        self.write_schema_part(self.write_api_type_descriptors, self.write_command_descriptors)
+        self.write_schema_part(self.write_api_elements, self.write_command_api_elements)
 
 
 class VulkanSchemaEnumerantsGenerator(VulkanSchemaBaseGenerator):
@@ -2025,8 +2025,8 @@ class VulkanSchemaEnumerantsGenerator(VulkanSchemaBaseGenerator):
     def write_part(self):
         write('// Enumerants: one table per enumerated type, in registry order, with the name the API spells. For a flag-bits', file=self.outFile)
         write('// type the table holds single bits, combined masks and zero alike: lookups go from value to name, so they', file=self.outFile)
-        write('// are not told apart. An alias adds no entry. The type\'s API type descriptor names its table, and each entry', file=self.outFile)
-        write('// names the descriptor.', file=self.outFile)
+        write('// are not told apart. An alias adds no entry. The type\'s API element names its table, and each entry', file=self.outFile)
+        write('// names the api_element.', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(schema)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(vulkan)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(enumerants)', file=self.outFile)
@@ -2034,7 +2034,7 @@ class VulkanSchemaEnumerantsGenerator(VulkanSchemaBaseGenerator):
 
         for enum in self.get_enumerated_types():
             enumerants = self.enumEnumerants[enum]
-            entry = 'binding::Enumerant<{}>'.format(self.get_descriptor_reference(self.get_descriptor_name(enum)))
+            entry = 'binding::Enumerant<{}>'.format(self.get_api_element_reference(self.get_api_element_name(enum)))
             write('struct {}'.format(enum), file=self.outFile)
             write('{', file=self.outFile)
             if enumerants:
@@ -2075,11 +2075,11 @@ class VulkanEnumToStringBodyGenerator(VulkanSchemaBaseGenerator):
                     file=self.outFile
                 )
         self.newline()
-        write('// The 64-bit flag-bits types, by descriptor: the bits descriptor names one enumerant, the typedef\'s expands a mask.', file=self.outFile)
+        write('// The 64-bit flag-bits types, by api_element: the bits API element names one enumerant, the typedef\'s expands a mask.', file=self.outFile)
         for bits, flags in self.get_wide_bitmask_pairs():
-            for descriptor in (bits, flags):
+            for api_element in (bits, flags):
                 write(
-                    'template std::string ToString<schema::vulkan::api_types::{0}>({1}, ToStringFlags, uint32_t, uint32_t);'.format(descriptor, api_data.flags_64_type),
+                    'template std::string ToString<schema::vulkan::api_elements::{0}>({1}, ToStringFlags, uint32_t, uint32_t);'.format(api_element, api_data.flags_64_type),
                     file=self.outFile
                 )
         self.newline()
@@ -2087,10 +2087,10 @@ class VulkanEnumToStringBodyGenerator(VulkanSchemaBaseGenerator):
 
 
 class VulkanSchemaFieldsGenerator(VulkanSchemaBaseGenerator):
-    """Generates the Field descriptors."""
+    """Generates the Field api_elements."""
 
     def write_part(self):
-        self.write_schema_part(self.write_field_descriptors)
+        self.write_schema_part(self.write_fields)
 
 
 class VulkanSchemaGenerator(VulkanSchemaBaseGenerator):

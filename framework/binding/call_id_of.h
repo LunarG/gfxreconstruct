@@ -20,7 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// The call-id binding: a command's descriptor to the ApiCallId the classic encoding writes for the command on the
+// The call-id binding: a command's API element to the ApiCallId the classic encoding writes for the command on the
 // wire. The registry gives a command no such number, and a second encoding could number commands differently, so
 // this is a binding and not a schema fact.
 //
@@ -37,7 +37,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(binding)
 
-// Keyed on a command descriptor. Declared, not defined, so an absent row is an incomplete type and HasCallId reads as
+// Keyed on a command API element. Declared, not defined, so an absent row is an incomplete type and HasCallId reads as
 // unsatisfied.
 template <typename Command>
 struct CallId;

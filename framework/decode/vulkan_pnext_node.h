@@ -26,7 +26,7 @@
 
 #include "util/defines.h"
 #include "binding/structure_type.h"
-#include "binding/vulkan_descriptor_for.h"
+#include "binding/vulkan_api_element_of.h"
 
 #include <cassert>
 #include <memory>

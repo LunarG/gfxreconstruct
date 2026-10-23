@@ -21,12 +21,12 @@
 */
 
 // The lookup over an enumerant table. The tables are generated schema content, one per enumerated type, each holding
-// only entries; an entry names the type's API type descriptor, which gives the value type and the type's name. The
+// only entries; an entry names the type's API element, which gives the value type and the type's name. The
 // index is built from entries here, at compile time.
 #ifndef GFXRECON_BINDING_ENUMERANTS_H
 #define GFXRECON_BINDING_ENUMERANTS_H
 
-#include "binding/descriptor_for.h"
+#include "binding/api_element_of.h"
 #include "schema/schema.h"
 #include "util/defines.h"
 #include "util/key_index.h"
@@ -39,49 +39,49 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(binding)
 
-// One enumerant of the type Descriptor describes: its value and the name the API spells it with.
-template <typename Descriptor>
+// One enumerant of the type Element describes: its value and the name the API spells it with.
+template <typename Element>
 struct Enumerant
 {
-    using descriptor = Descriptor;
+    using descriptor = Element;
 
-    typename Descriptor::element_type value;
+    typename Element::element_type value;
     std::string_view                  name;
 };
 
-// The descriptor of the type whose enumerants Table holds.
+// The API element of the type whose enumerants Table holds.
 template <typename Table>
-using EnumerantDescriptorOf = typename std::remove_cv_t<decltype(Table::entries)>::value_type::descriptor;
+using EnumerantApiElementOf = typename std::remove_cv_t<decltype(Table::entries)>::value_type::descriptor;
 
 // The sorted index over Table::entries; a position found through it reads the entry it came from.
 template <typename Table>
 struct EnumerantLookup
 {
-    using value_type = typename EnumerantDescriptorOf<Table>::element_type;
+    using value_type = typename EnumerantApiElementOf<Table>::element_type;
 
     static constexpr size_t kSize = Table::entries.size();
 
     using Index = util::KeyIndex<value_type, kSize>;
 
     static constexpr Index index{ Table::entries,
-                                  [](const Enumerant<EnumerantDescriptorOf<Table>>& entry) { return entry.value; } };
+                                  [](const Enumerant<EnumerantApiElementOf<Table>>& entry) { return entry.value; } };
 };
 
 // The name of an enumerant in Table, or an empty view when value is not one. What a miss means is the caller's.
 template <typename Table>
-constexpr std::string_view NameIn(typename EnumerantDescriptorOf<Table>::element_type value)
+constexpr std::string_view NameIn(typename EnumerantApiElementOf<Table>::element_type value)
 {
     using Lookup          = EnumerantLookup<Table>;
     const size_t position = Lookup::index.Find(value);
     return (position == Lookup::Index::kMiss) ? std::string_view{} : Table::entries[position].name;
 }
 
-// The table of an enum bound to an enumerated descriptor.
+// The table of an enum bound to an enumerated API element.
 template <typename Enum>
-concept HasEnumerantTable = HasDescriptor<Enum> && schema::HasEnumerants<typename DescriptorFor<Enum>::type>;
+concept HasEnumerantTable = HasApiElement<Enum> && schema::HasEnumerants<typename ApiElementOf<Enum>::type>;
 
 template <HasEnumerantTable Enum>
-using EnumerantTableOf = typename DescriptorFor<Enum>::type::enumerants;
+using EnumerantTableOf = typename ApiElementOf<Enum>::type::enumerants;
 
 template <HasEnumerantTable Enum>
 constexpr std::string_view NameOf(Enum value)

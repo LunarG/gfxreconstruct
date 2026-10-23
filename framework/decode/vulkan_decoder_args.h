@@ -94,7 +94,7 @@ struct CreateRayTracingPipelinesKHR
 
 struct DeferredOperationJoinKHR
 {
-    using api_element = schema::vulkan::commands::DeferredOperationJoinKHR;
+    using api_element = schema::vulkan::api_elements::DeferredOperationJoinKHR;
 
     VkResult         result;
     format::HandleId device;

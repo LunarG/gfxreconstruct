@@ -24,7 +24,7 @@
 // includes it and instantiates the walk. Callers see the declaration in encode/vulkan_encode_struct.h, beside the
 // prototypes of the structures that keep a hand-written body, and a call by structure type resolves as it always did.
 //
-// It is a header because the body is API-agnostic: it names no structure and no field, only the descriptor, the
+// It is a header because the body is API-agnostic: it names no structure and no field, only the API element, the
 // Schema and the Action. Each API's instantiation unit includes it and stamps its own rows, so the body is written
 // once and vulkan_struct_encoders.cpp is the first such unit, not the only one. Folding it into that file would
 // make the second API copy it.
@@ -36,20 +36,20 @@
 #include "encode/vulkan_encode_struct.h"
 #include "encode/vulkan_encode_capture_wrappers.h"
 #include "generated/generated_vulkan_schema.h"
-#include "binding/vulkan_descriptor_for.h"
+#include "binding/vulkan_api_element_of.h"
 #include "schema/schema.h"
 #include "util/defines.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-// The assertion is the only gate: a structure with no descriptor fails here, naming the structure, rather than inside
+// The assertion is the only gate: a structure with no API element fails here, naming the structure, rather than inside
 // WalkFields.
 template <typename Struct>
 void EncodeStruct(ParameterEncoder* encoder, const Struct& value)
 {
-    static_assert(binding::HasDescriptor<Struct>, "A schema-driven structure must name its API type descriptor");
-    using ApiElement = typename binding::DescriptorFor<Struct>::type;
+    static_assert(binding::HasApiElement<Struct>, "A schema-driven structure must name its API element");
+    using ApiElement = typename binding::ApiElementOf<Struct>::type;
     static_assert(schema::HasSchemaFields<ApiElement>, "A schema-driven structure's API element must have a schema");
 
     EncodeStructAction action(encoder);

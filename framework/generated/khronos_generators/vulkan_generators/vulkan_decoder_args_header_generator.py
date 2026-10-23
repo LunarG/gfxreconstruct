@@ -116,7 +116,7 @@ class VulkanDecoderArgsHeaderGenerator(
             body = "\n"
             body += f"struct {args_struct_name}\n"
             body += "{\n"
-            body += f"    using api_element = schema::vulkan::commands::{args_struct_name};\n"
+            body += f"    using api_element = schema::vulkan::api_elements::{args_struct_name};\n"
             body += "\n"
 
             if return_type and return_type != 'void':

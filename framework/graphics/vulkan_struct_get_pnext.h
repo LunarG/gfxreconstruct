@@ -26,7 +26,7 @@
 #include "util/defines.h"
 #include "format/platform_types.h"
 #include "binding/structure_type.h"
-#include "binding/vulkan_descriptor_for.h"
+#include "binding/vulkan_api_element_of.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)

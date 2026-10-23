@@ -26,7 +26,7 @@
 # it. Header-only and API-agnostic: it names no Vulkan type, no decoded representation and no operation, so capture
 # and replay can both reach it without reaching each other.
 #
-# Generated content is not here. An API's descriptors, Field descriptors and schemas are generated into
+# Generated content is not here. An API's API elements, Fields and schemas are generated into
 # framework/generated and listed by the target that compiles them.
 
 add_library(gfxrecon_binding INTERFACE)
@@ -43,10 +43,10 @@ add_custom_target(gfxrecon_binding_headers
                   SOURCES
                       ${CMAKE_CURRENT_LIST_DIR}/call_id_of.h
                       ${CMAKE_CURRENT_LIST_DIR}/decoded_type_of.h
-                      ${CMAKE_CURRENT_LIST_DIR}/descriptor_for.h
+                      ${CMAKE_CURRENT_LIST_DIR}/api_element_of.h
                       ${CMAKE_CURRENT_LIST_DIR}/enumerants.h
                       ${CMAKE_CURRENT_LIST_DIR}/structure_type.h
                       ${CMAKE_CURRENT_LIST_DIR}/vulkan_call_id.h
                       ${CMAKE_CURRENT_LIST_DIR}/vulkan_catalog.h
                       ${CMAKE_CURRENT_LIST_DIR}/vulkan_decoded_type.h
-                      ${CMAKE_CURRENT_LIST_DIR}/vulkan_descriptor_for.h)
+                      ${CMAKE_CURRENT_LIST_DIR}/vulkan_api_element_of.h)

@@ -20,10 +20,10 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// A handle's API type descriptor to its capture wrapper. The design places this fact on the descriptor as
+// A handle's API element to its capture wrapper. The design places this fact on the API element as
 // capture_wrapper_type; naming an encode-side wrapper from the public types header would pull the wrapper headers
-// into every includer, so it is an encode-private trait keyed on the descriptor instead. The rows are a visitor
-// invoked across the inventory below, one per handle descriptor, named by the base generator's rule: the handle name
+// into every includer, so it is an encode-private trait keyed on the API element instead. The rows are a visitor
+// invoked across the inventory below, one per handle API element, named by the base generator's rule: the handle name
 // without its Vk prefix, plus Wrapper. Making the wrappers themselves the specializations stays deferred (findings,
 // OPT-2).
 
@@ -53,14 +53,14 @@ concept HasCaptureWrapper = requires
     typename CaptureWrapperFor<ApiType>::type;
 };
 
-// One row per mapped handle type. The static_assert holds the row to the descriptor: the wrapper named must wrap
-// the handle type the descriptor describes.
+// One row per mapped handle type. The static_assert holds the row to the API element: the wrapper named must wrap
+// the handle type the API element describes.
 #define GFXRECON_VULKAN_CAPTURE_WRAPPER_FOR(Handle, Wrapper)                                                    \
     template <>                                                                                                 \
-    struct CaptureWrapperFor<schema::vulkan::api_types::Handle>                                                 \
+    struct CaptureWrapperFor<schema::vulkan::api_elements::Handle>                                                 \
     {                                                                                                           \
         using type = vulkan_wrappers::Wrapper;                                                                  \
-        static_assert(std::is_same_v<type::HandleType, schema::ElementType<schema::vulkan::api_types::Handle>>, \
+        static_assert(std::is_same_v<type::HandleType, schema::ElementType<schema::vulkan::api_elements::Handle>>, \
                       "The wrapper's handle type must be the descriptor's element type");                       \
     }
 

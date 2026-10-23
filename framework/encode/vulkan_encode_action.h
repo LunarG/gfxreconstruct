@@ -84,29 +84,29 @@ struct EncoderAdapter
     void operator()(Field, ParameterEncoder* encoder, const DeclaredType* array, size_t count) const
     {
         // We encode the schema's element type, not the member's declared type. This is to support
-        // vulkan::api_types::OpaqueBytes, which are void* members with a count, and the api_type descriptor makes it a
-        // run of uint8_t. For every other api_type run the two agree and the cast is the identity.
+        // vulkan::api_elements::OpaqueBytes, which are void* members with a count, and the API element makes it a
+        // run of uint8_t. For every other api_element run the two agree and the cast is the identity.
         using ElementType = schema::FieldElementType<Field>;
         encoder->EncodeArray(schema::FieldKind<Field>{}, static_cast<const ElementType*>(array), count);
     }
 
     // Handle kind: value, pointer, run. A handle is recorded as its capture wrapper's id, so each entry needs the
-    // wrapper type CaptureWrapperFor maps its descriptor to, and requires HasCaptureWrapper.
+    // wrapper type CaptureWrapperFor maps its API element to, and requires HasCaptureWrapper.
     template <typename Field>
     requires schema::HandleKindField<Field> && schema::ValueShapeField<Field> &&
-        HasCaptureWrapper<typename Field::api_type>
+        HasCaptureWrapper<typename Field::api_element>
     void operator()(Field field, ParameterEncoder* encoder, const schema::FieldElementType<Field>& handle) const
     {
-        using Wrapper = CaptureWrapperType<typename Field::api_type>;
+        using Wrapper = CaptureWrapperType<typename Field::api_element>;
         encoder->template EncodeVulkanHandleValue<Wrapper>(handle);
     }
 
     template <typename Field>
     requires schema::HandleKindField<Field> && schema::PointerShapeField<Field> &&
-        HasCaptureWrapper<typename Field::api_type>
+        HasCaptureWrapper<typename Field::api_element>
     void operator()(Field, ParameterEncoder* encoder, const schema::FieldElementType<Field>* handle_pointer) const
     {
-        using Wrapper = CaptureWrapperType<typename Field::api_type>;
+        using Wrapper = CaptureWrapperType<typename Field::api_element>;
         // No structure field has this shape; the entry is here for the command Action's output parameters and has no
         // byte gate yet. TODO: determine a mechanism to pass omit_output_data when the adapter serves command
         // parameters: potentially a Field-level fact beside the Return Field, or the generated encoders' result-based
@@ -116,10 +116,10 @@ struct EncoderAdapter
 
     template <typename Field>
     requires schema::HandleKindField<Field> && schema::AnyArrayShapeField<Field> &&
-        HasCaptureWrapper<typename Field::api_type>
+        HasCaptureWrapper<typename Field::api_element>
     void operator()(Field, ParameterEncoder* encoder, const schema::FieldElementType<Field>* array, size_t count) const
     {
-        using Wrapper = CaptureWrapperType<typename Field::api_type>;
+        using Wrapper = CaptureWrapperType<typename Field::api_element>;
         encoder->template EncodeVulkanHandleArray<Wrapper>(array, count);
     }
 
@@ -147,7 +147,7 @@ struct EncoderAdapter
 
     // A run of pointers to structures. On the wire a pointer to one structure is a row of length one, so this is the
     // two-dimensional structure array with every row of length 1. The 1 is the encoder's spelling of the shape, not a
-    // schema fact, which is why the descriptor carries no extent for it.
+    // schema fact, which is why the API element carries no extent for it.
     template <typename Field>
     requires schema::StructKindField<Field> && schema::PointerArrayShapeField<Field>
     void

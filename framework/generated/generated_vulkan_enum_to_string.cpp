@@ -545,39 +545,39 @@ template <> std::string ToString<VkVideoSessionParametersCreateFlagBitsKHR>(cons
 template <> std::string ToString<VkVideoSessionParametersCreateFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t) { return detail::EnumerantMaskToString<schema::vulkan::enumerants::VkVideoSessionParametersCreateFlagBitsKHR>(vkFlags); }
 template <> std::string ToString<VkViewportCoordinateSwizzleNV>(const VkViewportCoordinateSwizzleNV& value, ToStringFlags, uint32_t, uint32_t) { return detail::EnumerantToString<schema::vulkan::enumerants::VkViewportCoordinateSwizzleNV>(value); }
 
-// The 64-bit flag-bits types, by descriptor: the bits descriptor names one enumerant, the typedef's expands a mask.
-template std::string ToString<schema::vulkan::api_types::VkAccessFlagBits2>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkAccessFlags2>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkAccessFlagBits3KHR>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkAccessFlags3KHR>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkBufferUsageFlagBits2>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkBufferUsageFlags2>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkDataGraphPipelineDispatchFlagBitsARM>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkDataGraphPipelineDispatchFlagsARM>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkDataGraphPipelineSessionCreateFlagBitsARM>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkDataGraphPipelineSessionCreateFlagsARM>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkFormatFeatureFlagBits2>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkFormatFeatureFlags2>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkFormatFeatureFlagBits4KHR>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkFormatFeatureFlags4KHR>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkImageCreateFlagBits2KHR>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkImageCreateFlags2KHR>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkImageUsageFlagBits2KHR>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkImageUsageFlags2KHR>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkMemoryDecompressionMethodFlagBitsEXT>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkMemoryDecompressionMethodFlagsEXT>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkPhysicalDeviceSchedulingControlsFlagBitsARM>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkPhysicalDeviceSchedulingControlsFlagsARM>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkPipelineCreateFlagBits2>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkPipelineCreateFlags2>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkPipelineStageFlagBits2>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkPipelineStageFlags2>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkTensorCreateFlagBitsARM>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkTensorCreateFlagsARM>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkTensorUsageFlagBitsARM>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkTensorUsageFlagsARM>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkTensorViewCreateFlagBitsARM>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
-template std::string ToString<schema::vulkan::api_types::VkTensorViewCreateFlagsARM>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+// The 64-bit flag-bits types, by api_element: the bits API element names one enumerant, the typedef's expands a mask.
+template std::string ToString<schema::vulkan::api_elements::VkAccessFlagBits2>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkAccessFlags2>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkAccessFlagBits3KHR>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkAccessFlags3KHR>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkBufferUsageFlagBits2>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkBufferUsageFlags2>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkDataGraphPipelineDispatchFlagBitsARM>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkDataGraphPipelineDispatchFlagsARM>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkDataGraphPipelineSessionCreateFlagBitsARM>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkDataGraphPipelineSessionCreateFlagsARM>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkFormatFeatureFlagBits2>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkFormatFeatureFlags2>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkFormatFeatureFlagBits4KHR>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkFormatFeatureFlags4KHR>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkImageCreateFlagBits2KHR>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkImageCreateFlags2KHR>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkImageUsageFlagBits2KHR>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkImageUsageFlags2KHR>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkMemoryDecompressionMethodFlagBitsEXT>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkMemoryDecompressionMethodFlagsEXT>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkPhysicalDeviceSchedulingControlsFlagBitsARM>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkPhysicalDeviceSchedulingControlsFlagsARM>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkPipelineCreateFlagBits2>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkPipelineCreateFlags2>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkPipelineStageFlagBits2>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkPipelineStageFlags2>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkTensorCreateFlagBitsARM>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkTensorCreateFlagsARM>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkTensorUsageFlagBitsARM>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkTensorUsageFlagsARM>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkTensorViewCreateFlagBitsARM>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
+template std::string ToString<schema::vulkan::api_elements::VkTensorViewCreateFlagsARM>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

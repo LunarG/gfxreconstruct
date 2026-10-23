@@ -91,9 +91,9 @@ class FillAction
 
         if constexpr (schema::StructKindField<Field>)
         {
-            if constexpr (schema::HasSchemaFields<typename Field::api_type> && schema::Addressable<Storage, Field>)
+            if constexpr (schema::HasSchemaFields<typename Field::api_element> && schema::Addressable<Storage, Field>)
             {
-                Fill<typename Field::api_type>(context_, schema::GetRef(storage, field));
+                Fill<typename Field::api_element>(context_, schema::GetRef(storage, field));
             }
         }
         else if constexpr (!schema::HandleKindField<Field> && IsPatternable<Element>)
@@ -209,9 +209,9 @@ class FillAction
     {
         if constexpr (schema::StructKindField<Field>)
         {
-            if constexpr (schema::HasSchemaFields<typename Field::api_type>)
+            if constexpr (schema::HasSchemaFields<typename Field::api_element>)
             {
-                Fill<typename Field::api_type>(context_, element);
+                Fill<typename Field::api_element>(context_, element);
             }
         }
         else if constexpr (!schema::HandleKindField<Field> && IsPatternable<Element>)

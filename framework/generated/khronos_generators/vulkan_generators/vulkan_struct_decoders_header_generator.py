@@ -89,13 +89,13 @@ class VulkanStructDecodersHeaderGenerator(
         )
 
     def make_api_element_alias(self, struct):
-        """Method override. Every generated Vulkan wrapper names its API type descriptor, which the schema generator
-        emits for every filtered structure. A blacklisted structure keeps a hand-written body and has no descriptor.
+        """Method override. Every generated Vulkan wrapper names its API element, which the schema generator
+        emits for every filtered structure. A blacklisted structure keeps a hand-written body and has no API element.
         """
         if self.is_struct_black_listed(struct):
             return ''
 
-        return '    using api_element = schema::vulkan::api_types::{};\n'.format(struct)
+        return '    using api_element = schema::vulkan::api_elements::{};\n'.format(struct)
 
     def endFile(self):
         """Method override."""

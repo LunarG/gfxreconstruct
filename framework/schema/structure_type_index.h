@@ -20,7 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// The index over a list of structure descriptors by their structure_type, for the sieves that discriminate on it.
+// The index over a list of structure API elements by their structure_type, for the sieves that discriminate on it.
 #ifndef GFXRECON_SCHEMA_STRUCTURE_TYPE_INDEX_H
 #define GFXRECON_SCHEMA_STRUCTURE_TYPE_INDEX_H
 
@@ -40,27 +40,27 @@ GFXRECON_BEGIN_NAMESPACE(schema)
 
 GFXRECON_BEGIN_NAMESPACE(detail)
 
-// The structure_type of each descriptor, as an array parallel to the list. Every descriptor carries one, and the
-// key type is the first descriptor's, which every other descriptor's must agree with. When a descriptor has no
+// The structure_type of each API element, as an array parallel to the list. Every API element carries one, and the
+// key type is the first API element's, which every other API element's must agree with. When an API element has no
 // structure_type, the assertion's message prints the list of those that do not; the filter that builds the list
 // is instantiated only then.
-template <typename... Descriptors>
-constexpr auto StructureTypesOf(util::TypeList<Descriptors...>)
+template <typename... Elements>
+constexpr auto StructureTypesOf(util::TypeList<Elements...>)
 {
-    using List                       = util::TypeList<Descriptors...>;
-    constexpr auto kHasStructureType = []<typename Descriptor>() { return HasStructureType<Descriptor>; };
-    if constexpr (util::TypeListCountIf(List{}, kHasStructureType) != sizeof...(Descriptors))
+    using List                       = util::TypeList<Elements...>;
+    constexpr auto kHasStructureType = []<typename Element>() { return HasStructureType<Element>; };
+    if constexpr (util::TypeListCountIf(List{}, kHasStructureType) != sizeof...(Elements))
     {
         static_assert(std::same_as<decltype(util::TypeListDrop(List{}, kHasStructureType)), util::TypeList<>>,
                       "StructureTypeIndex: descriptors without a structure_type");
     }
     using Key                  = std::remove_cv_t<decltype(util::TypeListAt<0, List>::structure_type)>;
-    constexpr auto kHasKeyType = []<typename Descriptor>() {
-        return std::is_same_v<Key, std::remove_cv_t<decltype(Descriptor::structure_type)>>;
+    constexpr auto kHasKeyType = []<typename Element>() {
+        return std::is_same_v<Key, std::remove_cv_t<decltype(Element::structure_type)>>;
     };
-    static_assert(util::TypeListCountIf(List{}, kHasKeyType) == sizeof...(Descriptors),
+    static_assert(util::TypeListCountIf(List{}, kHasKeyType) == sizeof...(Elements),
                   "StructureTypeIndex: one structure type enum per list");
-    return std::array<Key, sizeof...(Descriptors)>{ Descriptors::structure_type... };
+    return std::array<Key, sizeof...(Elements)>{ Elements::structure_type... };
 }
 
 GFXRECON_END_NAMESPACE(detail)
@@ -84,8 +84,8 @@ class StructureTypeIndex
     static constexpr util::KeyIndex<key_type, kSize> kKeys{ detail::StructureTypesOf(List{}) };
 };
 
-// Visits the descriptor in List whose structure_type is key: on_find.operator()<Descriptor>(args...) when found,
-// on_miss(args...) when not. The two take the same arguments and return the same type. Every descriptor's
+// Visits the API element in List whose structure_type is key: on_find.operator()<Element>(args...) when found,
+// on_miss(args...) when not. The two take the same arguments and return the same type. Every API element's
 // operator() is instantiated, so on_find's constraint must hold for all of List.
 template <typename List, typename Key, typename OnFind, typename OnMiss, typename... Args>
 decltype(auto) StructureTypeVisit(const Key& key, OnFind&& on_find, OnMiss&& on_miss, Args&&... args)
@@ -95,8 +95,8 @@ decltype(auto) StructureTypeVisit(const Key& key, OnFind&& on_find, OnMiss&& on_
 
     if (const auto position = Index::Find(key); position != Index::End())
     {
-        auto visitor = [&on_find]<HasStructureType Descriptor>(Args&&... arg_pack) {
-            return on_find.template operator()<Descriptor>(std::forward<Args>(arg_pack)...);
+        auto visitor = [&on_find]<HasStructureType Element>(Args&&... arg_pack) {
+            return on_find.template operator()<Element>(std::forward<Args>(arg_pack)...);
         };
         return util::Visit(position, visitor, std::forward<Args>(args)...);
     }

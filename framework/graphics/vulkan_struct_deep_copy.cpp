@@ -23,7 +23,7 @@
 */
 
 #include "binding/structure_type.h"
-#include "binding/vulkan_descriptor_for.h"
+#include "binding/vulkan_api_element_of.h"
 #include "binding/vulkan_catalog.h"
 #include "graphics/vulkan_struct_deep_copy.h"
 #include "schema/structure_type_index.h"
@@ -37,8 +37,8 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
     GFXRECON_ASSERT(pNext != nullptr);
     const auto s_type = reinterpret_cast<const VkBaseInStructure*>(pNext)->sType;
 
-    auto on_find = [pNext, out_data]<schema::HasStructureType Descriptor>() {
-        return vulkan_struct_deep_copy(binding::StructureTypeCast<Descriptor>(pNext), 1, out_data);
+    auto on_find = [pNext, out_data]<schema::HasStructureType Element>() {
+        return vulkan_struct_deep_copy(binding::StructureTypeCast<Element>(pNext), 1, out_data);
     };
     auto on_miss = [s_type]() {
         GFXRECON_LOG_WARNING("vulkan_struct_deep_copy_stype: unknown struct-type: %d", s_type);

@@ -20,13 +20,13 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// The structure type of a native structure, read through its descriptor binding, and the cast a sieve makes once it
+// The structure type of a native structure, read through its API element binding, and the cast a sieve makes once it
 // has matched one.
 
 #ifndef GFXRECON_BINDING_STRUCTURE_TYPE_H
 #define GFXRECON_BINDING_STRUCTURE_TYPE_H
 
-#include "binding/descriptor_for.h"
+#include "binding/api_element_of.h"
 #include "schema/schema.h"
 #include "util/defines.h"
 #include "util/logging.h"
@@ -37,11 +37,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(binding)
 
-// The structure type the native structure's descriptor carries.
+// The structure type the native structure's API element carries.
 template <HasSchemaStructureType Native>
 constexpr auto StructureTypeOf()
 {
-    return DescriptorFor<Native>::type::structure_type;
+    return ApiElementOf<Native>::type::structure_type;
 }
 
 // A pointer to a chained structure, as the native type its structure type names, constness carried over from the
@@ -58,12 +58,12 @@ auto StructureTypeCast(Generic generic)
     return specific;
 }
 
-// The same, keyed on the descriptor.
-template <schema::HasStructureType Descriptor, typename Generic>
+// The same, keyed on the API element.
+template <schema::HasStructureType Element, typename Generic>
 requires std::is_pointer_v<Generic>
 auto StructureTypeCast(Generic generic)
 {
-    return StructureTypeCast<typename Descriptor::element_type>(generic);
+    return StructureTypeCast<typename Element::element_type>(generic);
 }
 
 GFXRECON_END_NAMESPACE(binding)

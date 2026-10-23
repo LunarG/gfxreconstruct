@@ -56,11 +56,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(schema)
 
-// Schemas. A structure keys on its API type descriptor and a command on its command descriptor, which is the
+// Schemas. A structure keys on its API element and a command on its command api_element, which is the
 // same key the decoded-type binding uses, so one spelling reaches both.
 
 template <>
-struct Schema<vulkan::api_types::StdVideoH264SpsVuiFlags>
+struct Schema<vulkan::api_elements::StdVideoH264SpsVuiFlags>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoH264SpsVuiFlags::aspect_ratio_info_present_flag,
                                   vulkan::fields::StdVideoH264SpsVuiFlags::overscan_info_present_flag,
@@ -77,7 +77,7 @@ struct Schema<vulkan::api_types::StdVideoH264SpsVuiFlags>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoH264HrdParameters>
+struct Schema<vulkan::api_elements::StdVideoH264HrdParameters>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoH264HrdParameters::cpb_cnt_minus1,
                                   vulkan::fields::StdVideoH264HrdParameters::bit_rate_scale,
@@ -93,7 +93,7 @@ struct Schema<vulkan::api_types::StdVideoH264HrdParameters>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoH264SequenceParameterSetVui>
+struct Schema<vulkan::api_elements::StdVideoH264SequenceParameterSetVui>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoH264SequenceParameterSetVui::flags,
                                   vulkan::fields::StdVideoH264SequenceParameterSetVui::aspect_ratio_idc,
@@ -114,7 +114,7 @@ struct Schema<vulkan::api_types::StdVideoH264SequenceParameterSetVui>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoH264SpsFlags>
+struct Schema<vulkan::api_elements::StdVideoH264SpsFlags>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoH264SpsFlags::constraint_set0_flag,
                                   vulkan::fields::StdVideoH264SpsFlags::constraint_set1_flag,
@@ -135,7 +135,7 @@ struct Schema<vulkan::api_types::StdVideoH264SpsFlags>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoH264ScalingLists>
+struct Schema<vulkan::api_elements::StdVideoH264ScalingLists>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoH264ScalingLists::scaling_list_present_mask,
                                   vulkan::fields::StdVideoH264ScalingLists::use_default_scaling_matrix_mask,
@@ -144,7 +144,7 @@ struct Schema<vulkan::api_types::StdVideoH264ScalingLists>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoH264SequenceParameterSet>
+struct Schema<vulkan::api_elements::StdVideoH264SequenceParameterSet>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoH264SequenceParameterSet::flags,
                                   vulkan::fields::StdVideoH264SequenceParameterSet::profile_idc,
@@ -174,7 +174,7 @@ struct Schema<vulkan::api_types::StdVideoH264SequenceParameterSet>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoH264PpsFlags>
+struct Schema<vulkan::api_elements::StdVideoH264PpsFlags>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoH264PpsFlags::transform_8x8_mode_flag,
                                   vulkan::fields::StdVideoH264PpsFlags::redundant_pic_cnt_present_flag,
@@ -187,7 +187,7 @@ struct Schema<vulkan::api_types::StdVideoH264PpsFlags>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoH264PictureParameterSet>
+struct Schema<vulkan::api_elements::StdVideoH264PictureParameterSet>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoH264PictureParameterSet::flags,
                                   vulkan::fields::StdVideoH264PictureParameterSet::seq_parameter_set_id,
@@ -203,7 +203,7 @@ struct Schema<vulkan::api_types::StdVideoH264PictureParameterSet>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoDecodeH264PictureInfoFlags>
+struct Schema<vulkan::api_elements::StdVideoDecodeH264PictureInfoFlags>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoDecodeH264PictureInfoFlags::field_pic_flag,
                                   vulkan::fields::StdVideoDecodeH264PictureInfoFlags::is_intra,
@@ -214,7 +214,7 @@ struct Schema<vulkan::api_types::StdVideoDecodeH264PictureInfoFlags>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoDecodeH264PictureInfo>
+struct Schema<vulkan::api_elements::StdVideoDecodeH264PictureInfo>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoDecodeH264PictureInfo::flags,
                                   vulkan::fields::StdVideoDecodeH264PictureInfo::seq_parameter_set_id,
@@ -227,7 +227,7 @@ struct Schema<vulkan::api_types::StdVideoDecodeH264PictureInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoDecodeH264ReferenceInfoFlags>
+struct Schema<vulkan::api_elements::StdVideoDecodeH264ReferenceInfoFlags>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoDecodeH264ReferenceInfoFlags::top_field_flag,
                                   vulkan::fields::StdVideoDecodeH264ReferenceInfoFlags::bottom_field_flag,
@@ -236,7 +236,7 @@ struct Schema<vulkan::api_types::StdVideoDecodeH264ReferenceInfoFlags>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoDecodeH264ReferenceInfo>
+struct Schema<vulkan::api_elements::StdVideoDecodeH264ReferenceInfo>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoDecodeH264ReferenceInfo::flags,
                                   vulkan::fields::StdVideoDecodeH264ReferenceInfo::FrameNum,
@@ -245,7 +245,7 @@ struct Schema<vulkan::api_types::StdVideoDecodeH264ReferenceInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoEncodeH264WeightTableFlags>
+struct Schema<vulkan::api_elements::StdVideoEncodeH264WeightTableFlags>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoEncodeH264WeightTableFlags::luma_weight_l0_flag,
                                   vulkan::fields::StdVideoEncodeH264WeightTableFlags::chroma_weight_l0_flag,
@@ -254,7 +254,7 @@ struct Schema<vulkan::api_types::StdVideoEncodeH264WeightTableFlags>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoEncodeH264WeightTable>
+struct Schema<vulkan::api_elements::StdVideoEncodeH264WeightTable>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoEncodeH264WeightTable::flags,
                                   vulkan::fields::StdVideoEncodeH264WeightTable::luma_log2_weight_denom,
@@ -270,7 +270,7 @@ struct Schema<vulkan::api_types::StdVideoEncodeH264WeightTable>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoEncodeH264SliceHeaderFlags>
+struct Schema<vulkan::api_elements::StdVideoEncodeH264SliceHeaderFlags>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoEncodeH264SliceHeaderFlags::direct_spatial_mv_pred_flag,
                                   vulkan::fields::StdVideoEncodeH264SliceHeaderFlags::num_ref_idx_active_override_flag,
@@ -278,7 +278,7 @@ struct Schema<vulkan::api_types::StdVideoEncodeH264SliceHeaderFlags>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoEncodeH264PictureInfoFlags>
+struct Schema<vulkan::api_elements::StdVideoEncodeH264PictureInfoFlags>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoEncodeH264PictureInfoFlags::IdrPicFlag,
                                   vulkan::fields::StdVideoEncodeH264PictureInfoFlags::is_reference,
@@ -289,14 +289,14 @@ struct Schema<vulkan::api_types::StdVideoEncodeH264PictureInfoFlags>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoEncodeH264ReferenceInfoFlags>
+struct Schema<vulkan::api_elements::StdVideoEncodeH264ReferenceInfoFlags>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoEncodeH264ReferenceInfoFlags::used_for_long_term_reference,
                                   vulkan::fields::StdVideoEncodeH264ReferenceInfoFlags::reserved>;
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoEncodeH264ReferenceListsInfoFlags>
+struct Schema<vulkan::api_elements::StdVideoEncodeH264ReferenceListsInfoFlags>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoEncodeH264ReferenceListsInfoFlags::ref_pic_list_modification_flag_l0,
                                   vulkan::fields::StdVideoEncodeH264ReferenceListsInfoFlags::ref_pic_list_modification_flag_l1,
@@ -304,7 +304,7 @@ struct Schema<vulkan::api_types::StdVideoEncodeH264ReferenceListsInfoFlags>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoEncodeH264RefListModEntry>
+struct Schema<vulkan::api_elements::StdVideoEncodeH264RefListModEntry>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoEncodeH264RefListModEntry::modification_of_pic_nums_idc,
                                   vulkan::fields::StdVideoEncodeH264RefListModEntry::abs_diff_pic_num_minus1,
@@ -312,7 +312,7 @@ struct Schema<vulkan::api_types::StdVideoEncodeH264RefListModEntry>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoEncodeH264RefPicMarkingEntry>
+struct Schema<vulkan::api_elements::StdVideoEncodeH264RefPicMarkingEntry>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoEncodeH264RefPicMarkingEntry::memory_management_control_operation,
                                   vulkan::fields::StdVideoEncodeH264RefPicMarkingEntry::difference_of_pic_nums_minus1,
@@ -322,7 +322,7 @@ struct Schema<vulkan::api_types::StdVideoEncodeH264RefPicMarkingEntry>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoEncodeH264ReferenceListsInfo>
+struct Schema<vulkan::api_elements::StdVideoEncodeH264ReferenceListsInfo>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoEncodeH264ReferenceListsInfo::flags,
                                   vulkan::fields::StdVideoEncodeH264ReferenceListsInfo::num_ref_idx_l0_active_minus1,
@@ -339,7 +339,7 @@ struct Schema<vulkan::api_types::StdVideoEncodeH264ReferenceListsInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoEncodeH264PictureInfo>
+struct Schema<vulkan::api_elements::StdVideoEncodeH264PictureInfo>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoEncodeH264PictureInfo::flags,
                                   vulkan::fields::StdVideoEncodeH264PictureInfo::seq_parameter_set_id,
@@ -354,7 +354,7 @@ struct Schema<vulkan::api_types::StdVideoEncodeH264PictureInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoEncodeH264ReferenceInfo>
+struct Schema<vulkan::api_elements::StdVideoEncodeH264ReferenceInfo>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoEncodeH264ReferenceInfo::flags,
                                   vulkan::fields::StdVideoEncodeH264ReferenceInfo::primary_pic_type,
@@ -366,7 +366,7 @@ struct Schema<vulkan::api_types::StdVideoEncodeH264ReferenceInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoEncodeH264SliceHeader>
+struct Schema<vulkan::api_elements::StdVideoEncodeH264SliceHeader>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoEncodeH264SliceHeader::flags,
                                   vulkan::fields::StdVideoEncodeH264SliceHeader::first_mb_in_slice,
@@ -381,14 +381,14 @@ struct Schema<vulkan::api_types::StdVideoEncodeH264SliceHeader>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoVP9ColorConfigFlags>
+struct Schema<vulkan::api_elements::StdVideoVP9ColorConfigFlags>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoVP9ColorConfigFlags::color_range,
                                   vulkan::fields::StdVideoVP9ColorConfigFlags::reserved>;
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoVP9ColorConfig>
+struct Schema<vulkan::api_elements::StdVideoVP9ColorConfig>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoVP9ColorConfig::flags,
                                   vulkan::fields::StdVideoVP9ColorConfig::BitDepth,
@@ -399,7 +399,7 @@ struct Schema<vulkan::api_types::StdVideoVP9ColorConfig>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoVP9LoopFilterFlags>
+struct Schema<vulkan::api_elements::StdVideoVP9LoopFilterFlags>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoVP9LoopFilterFlags::loop_filter_delta_enabled,
                                   vulkan::fields::StdVideoVP9LoopFilterFlags::loop_filter_delta_update,
@@ -407,7 +407,7 @@ struct Schema<vulkan::api_types::StdVideoVP9LoopFilterFlags>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoVP9LoopFilter>
+struct Schema<vulkan::api_elements::StdVideoVP9LoopFilter>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoVP9LoopFilter::flags,
                                   vulkan::fields::StdVideoVP9LoopFilter::loop_filter_level,
@@ -419,7 +419,7 @@ struct Schema<vulkan::api_types::StdVideoVP9LoopFilter>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoVP9SegmentationFlags>
+struct Schema<vulkan::api_elements::StdVideoVP9SegmentationFlags>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoVP9SegmentationFlags::segmentation_update_map,
                                   vulkan::fields::StdVideoVP9SegmentationFlags::segmentation_temporal_update,
@@ -429,7 +429,7 @@ struct Schema<vulkan::api_types::StdVideoVP9SegmentationFlags>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoVP9Segmentation>
+struct Schema<vulkan::api_elements::StdVideoVP9Segmentation>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoVP9Segmentation::flags,
                                   vulkan::fields::StdVideoVP9Segmentation::segmentation_tree_probs,
@@ -439,7 +439,7 @@ struct Schema<vulkan::api_types::StdVideoVP9Segmentation>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoDecodeVP9PictureInfoFlags>
+struct Schema<vulkan::api_elements::StdVideoDecodeVP9PictureInfoFlags>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoDecodeVP9PictureInfoFlags::error_resilient_mode,
                                   vulkan::fields::StdVideoDecodeVP9PictureInfoFlags::intra_only,
@@ -453,7 +453,7 @@ struct Schema<vulkan::api_types::StdVideoDecodeVP9PictureInfoFlags>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoDecodeVP9PictureInfo>
+struct Schema<vulkan::api_elements::StdVideoDecodeVP9PictureInfo>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoDecodeVP9PictureInfo::flags,
                                   vulkan::fields::StdVideoDecodeVP9PictureInfo::profile,
@@ -476,7 +476,7 @@ struct Schema<vulkan::api_types::StdVideoDecodeVP9PictureInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoAV1ColorConfigFlags>
+struct Schema<vulkan::api_elements::StdVideoAV1ColorConfigFlags>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoAV1ColorConfigFlags::mono_chrome,
                                   vulkan::fields::StdVideoAV1ColorConfigFlags::color_range,
@@ -486,7 +486,7 @@ struct Schema<vulkan::api_types::StdVideoAV1ColorConfigFlags>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoAV1ColorConfig>
+struct Schema<vulkan::api_elements::StdVideoAV1ColorConfig>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoAV1ColorConfig::flags,
                                   vulkan::fields::StdVideoAV1ColorConfig::BitDepth,
@@ -500,14 +500,14 @@ struct Schema<vulkan::api_types::StdVideoAV1ColorConfig>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoAV1TimingInfoFlags>
+struct Schema<vulkan::api_elements::StdVideoAV1TimingInfoFlags>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoAV1TimingInfoFlags::equal_picture_interval,
                                   vulkan::fields::StdVideoAV1TimingInfoFlags::reserved>;
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoAV1TimingInfo>
+struct Schema<vulkan::api_elements::StdVideoAV1TimingInfo>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoAV1TimingInfo::flags,
                                   vulkan::fields::StdVideoAV1TimingInfo::num_units_in_display_tick,
@@ -516,7 +516,7 @@ struct Schema<vulkan::api_types::StdVideoAV1TimingInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoAV1SequenceHeaderFlags>
+struct Schema<vulkan::api_elements::StdVideoAV1SequenceHeaderFlags>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoAV1SequenceHeaderFlags::still_picture,
                                   vulkan::fields::StdVideoAV1SequenceHeaderFlags::reduced_still_picture_header,
@@ -541,7 +541,7 @@ struct Schema<vulkan::api_types::StdVideoAV1SequenceHeaderFlags>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoAV1SequenceHeader>
+struct Schema<vulkan::api_elements::StdVideoAV1SequenceHeader>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoAV1SequenceHeader::flags,
                                   vulkan::fields::StdVideoAV1SequenceHeader::seq_profile,
@@ -560,7 +560,7 @@ struct Schema<vulkan::api_types::StdVideoAV1SequenceHeader>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoAV1LoopFilterFlags>
+struct Schema<vulkan::api_elements::StdVideoAV1LoopFilterFlags>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoAV1LoopFilterFlags::loop_filter_delta_enabled,
                                   vulkan::fields::StdVideoAV1LoopFilterFlags::loop_filter_delta_update,
@@ -568,7 +568,7 @@ struct Schema<vulkan::api_types::StdVideoAV1LoopFilterFlags>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoAV1LoopFilter>
+struct Schema<vulkan::api_elements::StdVideoAV1LoopFilter>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoAV1LoopFilter::flags,
                                   vulkan::fields::StdVideoAV1LoopFilter::loop_filter_level,
@@ -580,7 +580,7 @@ struct Schema<vulkan::api_types::StdVideoAV1LoopFilter>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoAV1QuantizationFlags>
+struct Schema<vulkan::api_elements::StdVideoAV1QuantizationFlags>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoAV1QuantizationFlags::using_qmatrix,
                                   vulkan::fields::StdVideoAV1QuantizationFlags::diff_uv_delta,
@@ -588,7 +588,7 @@ struct Schema<vulkan::api_types::StdVideoAV1QuantizationFlags>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoAV1Quantization>
+struct Schema<vulkan::api_elements::StdVideoAV1Quantization>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoAV1Quantization::flags,
                                   vulkan::fields::StdVideoAV1Quantization::base_q_idx,
@@ -603,21 +603,21 @@ struct Schema<vulkan::api_types::StdVideoAV1Quantization>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoAV1Segmentation>
+struct Schema<vulkan::api_elements::StdVideoAV1Segmentation>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoAV1Segmentation::FeatureEnabled,
                                   vulkan::fields::StdVideoAV1Segmentation::FeatureData>;
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoAV1TileInfoFlags>
+struct Schema<vulkan::api_elements::StdVideoAV1TileInfoFlags>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoAV1TileInfoFlags::uniform_tile_spacing_flag,
                                   vulkan::fields::StdVideoAV1TileInfoFlags::reserved>;
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoAV1TileInfo>
+struct Schema<vulkan::api_elements::StdVideoAV1TileInfo>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoAV1TileInfo::flags,
                                   vulkan::fields::StdVideoAV1TileInfo::TileCols,
@@ -632,7 +632,7 @@ struct Schema<vulkan::api_types::StdVideoAV1TileInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoAV1CDEF>
+struct Schema<vulkan::api_elements::StdVideoAV1CDEF>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoAV1CDEF::cdef_damping_minus_3,
                                   vulkan::fields::StdVideoAV1CDEF::cdef_bits,
@@ -643,21 +643,21 @@ struct Schema<vulkan::api_types::StdVideoAV1CDEF>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoAV1LoopRestoration>
+struct Schema<vulkan::api_elements::StdVideoAV1LoopRestoration>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoAV1LoopRestoration::FrameRestorationType,
                                   vulkan::fields::StdVideoAV1LoopRestoration::LoopRestorationSize>;
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoAV1GlobalMotion>
+struct Schema<vulkan::api_elements::StdVideoAV1GlobalMotion>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoAV1GlobalMotion::GmType,
                                   vulkan::fields::StdVideoAV1GlobalMotion::gm_params>;
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoAV1FilmGrainFlags>
+struct Schema<vulkan::api_elements::StdVideoAV1FilmGrainFlags>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoAV1FilmGrainFlags::chroma_scaling_from_luma,
                                   vulkan::fields::StdVideoAV1FilmGrainFlags::overlap_flag,
@@ -667,7 +667,7 @@ struct Schema<vulkan::api_types::StdVideoAV1FilmGrainFlags>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoAV1FilmGrain>
+struct Schema<vulkan::api_elements::StdVideoAV1FilmGrain>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoAV1FilmGrain::flags,
                                   vulkan::fields::StdVideoAV1FilmGrain::grain_scaling_minus_8,
@@ -697,7 +697,7 @@ struct Schema<vulkan::api_types::StdVideoAV1FilmGrain>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoDecodeAV1PictureInfoFlags>
+struct Schema<vulkan::api_elements::StdVideoDecodeAV1PictureInfoFlags>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoDecodeAV1PictureInfoFlags::error_resilient_mode,
                                   vulkan::fields::StdVideoDecodeAV1PictureInfoFlags::disable_cdf_update,
@@ -732,7 +732,7 @@ struct Schema<vulkan::api_types::StdVideoDecodeAV1PictureInfoFlags>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoDecodeAV1PictureInfo>
+struct Schema<vulkan::api_elements::StdVideoDecodeAV1PictureInfo>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoDecodeAV1PictureInfo::flags,
                                   vulkan::fields::StdVideoDecodeAV1PictureInfo::frame_type,
@@ -761,7 +761,7 @@ struct Schema<vulkan::api_types::StdVideoDecodeAV1PictureInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoDecodeAV1ReferenceInfoFlags>
+struct Schema<vulkan::api_elements::StdVideoDecodeAV1ReferenceInfoFlags>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoDecodeAV1ReferenceInfoFlags::disable_frame_end_update_cdf,
                                   vulkan::fields::StdVideoDecodeAV1ReferenceInfoFlags::segmentation_enabled,
@@ -769,7 +769,7 @@ struct Schema<vulkan::api_types::StdVideoDecodeAV1ReferenceInfoFlags>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoDecodeAV1ReferenceInfo>
+struct Schema<vulkan::api_elements::StdVideoDecodeAV1ReferenceInfo>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoDecodeAV1ReferenceInfo::flags,
                                   vulkan::fields::StdVideoDecodeAV1ReferenceInfo::frame_type,
@@ -779,14 +779,14 @@ struct Schema<vulkan::api_types::StdVideoDecodeAV1ReferenceInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoEncodeAV1ExtensionHeader>
+struct Schema<vulkan::api_elements::StdVideoEncodeAV1ExtensionHeader>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoEncodeAV1ExtensionHeader::temporal_id,
                                   vulkan::fields::StdVideoEncodeAV1ExtensionHeader::spatial_id>;
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoEncodeAV1DecoderModelInfo>
+struct Schema<vulkan::api_elements::StdVideoEncodeAV1DecoderModelInfo>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoEncodeAV1DecoderModelInfo::buffer_delay_length_minus_1,
                                   vulkan::fields::StdVideoEncodeAV1DecoderModelInfo::buffer_removal_time_length_minus_1,
@@ -796,7 +796,7 @@ struct Schema<vulkan::api_types::StdVideoEncodeAV1DecoderModelInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoEncodeAV1OperatingPointInfoFlags>
+struct Schema<vulkan::api_elements::StdVideoEncodeAV1OperatingPointInfoFlags>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoEncodeAV1OperatingPointInfoFlags::decoder_model_present_for_this_op,
                                   vulkan::fields::StdVideoEncodeAV1OperatingPointInfoFlags::low_delay_mode_flag,
@@ -805,7 +805,7 @@ struct Schema<vulkan::api_types::StdVideoEncodeAV1OperatingPointInfoFlags>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoEncodeAV1OperatingPointInfo>
+struct Schema<vulkan::api_elements::StdVideoEncodeAV1OperatingPointInfo>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoEncodeAV1OperatingPointInfo::flags,
                                   vulkan::fields::StdVideoEncodeAV1OperatingPointInfo::operating_point_idc,
@@ -817,7 +817,7 @@ struct Schema<vulkan::api_types::StdVideoEncodeAV1OperatingPointInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoEncodeAV1PictureInfoFlags>
+struct Schema<vulkan::api_elements::StdVideoEncodeAV1PictureInfoFlags>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoEncodeAV1PictureInfoFlags::error_resilient_mode,
                                   vulkan::fields::StdVideoEncodeAV1PictureInfoFlags::disable_cdf_update,
@@ -852,7 +852,7 @@ struct Schema<vulkan::api_types::StdVideoEncodeAV1PictureInfoFlags>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoEncodeAV1PictureInfo>
+struct Schema<vulkan::api_elements::StdVideoEncodeAV1PictureInfo>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoEncodeAV1PictureInfo::flags,
                                   vulkan::fields::StdVideoEncodeAV1PictureInfo::frame_type,
@@ -884,7 +884,7 @@ struct Schema<vulkan::api_types::StdVideoEncodeAV1PictureInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoEncodeAV1ReferenceInfoFlags>
+struct Schema<vulkan::api_elements::StdVideoEncodeAV1ReferenceInfoFlags>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoEncodeAV1ReferenceInfoFlags::disable_frame_end_update_cdf,
                                   vulkan::fields::StdVideoEncodeAV1ReferenceInfoFlags::segmentation_enabled,
@@ -892,7 +892,7 @@ struct Schema<vulkan::api_types::StdVideoEncodeAV1ReferenceInfoFlags>
 };
 
 template <>
-struct Schema<vulkan::api_types::StdVideoEncodeAV1ReferenceInfo>
+struct Schema<vulkan::api_elements::StdVideoEncodeAV1ReferenceInfo>
 {
     using Fields = util::TypeList<vulkan::fields::StdVideoEncodeAV1ReferenceInfo::flags,
                                   vulkan::fields::StdVideoEncodeAV1ReferenceInfo::RefFrameId,
@@ -903,51 +903,51 @@ struct Schema<vulkan::api_types::StdVideoEncodeAV1ReferenceInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkExtent2D>
+struct Schema<vulkan::api_elements::VkExtent2D>
 {
     using Fields = util::TypeList<vulkan::fields::VkExtent2D::width, vulkan::fields::VkExtent2D::height>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkExtent3D>
+struct Schema<vulkan::api_elements::VkExtent3D>
 {
     using Fields = util::TypeList<vulkan::fields::VkExtent3D::width, vulkan::fields::VkExtent3D::height,
                                   vulkan::fields::VkExtent3D::depth>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkOffset2D>
+struct Schema<vulkan::api_elements::VkOffset2D>
 {
     using Fields = util::TypeList<vulkan::fields::VkOffset2D::x, vulkan::fields::VkOffset2D::y>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkOffset3D>
+struct Schema<vulkan::api_elements::VkOffset3D>
 {
     using Fields = util::TypeList<vulkan::fields::VkOffset3D::x, vulkan::fields::VkOffset3D::y,
                                   vulkan::fields::VkOffset3D::z>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRect2D>
+struct Schema<vulkan::api_elements::VkRect2D>
 {
     using Fields = util::TypeList<vulkan::fields::VkRect2D::offset, vulkan::fields::VkRect2D::extent>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBaseInStructure>
+struct Schema<vulkan::api_elements::VkBaseInStructure>
 {
     using Fields = util::TypeList<vulkan::fields::VkBaseInStructure::sType, vulkan::fields::VkBaseInStructure::pNext>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBaseOutStructure>
+struct Schema<vulkan::api_elements::VkBaseOutStructure>
 {
     using Fields = util::TypeList<vulkan::fields::VkBaseOutStructure::sType, vulkan::fields::VkBaseOutStructure::pNext>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAllocationCallbacks>
+struct Schema<vulkan::api_elements::VkAllocationCallbacks>
 {
     using Fields = util::TypeList<vulkan::fields::VkAllocationCallbacks::pUserData,
                                   vulkan::fields::VkAllocationCallbacks::pfnAllocation,
@@ -958,7 +958,7 @@ struct Schema<vulkan::api_types::VkAllocationCallbacks>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkApplicationInfo>
+struct Schema<vulkan::api_elements::VkApplicationInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkApplicationInfo::sType, vulkan::fields::VkApplicationInfo::pNext,
                                   vulkan::fields::VkApplicationInfo::pApplicationName,
@@ -969,7 +969,7 @@ struct Schema<vulkan::api_types::VkApplicationInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkFormatProperties>
+struct Schema<vulkan::api_elements::VkFormatProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkFormatProperties::linearTilingFeatures,
                                   vulkan::fields::VkFormatProperties::optimalTilingFeatures,
@@ -977,7 +977,7 @@ struct Schema<vulkan::api_types::VkFormatProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageFormatProperties>
+struct Schema<vulkan::api_elements::VkImageFormatProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageFormatProperties::maxExtent,
                                   vulkan::fields::VkImageFormatProperties::maxMipLevels,
@@ -987,7 +987,7 @@ struct Schema<vulkan::api_types::VkImageFormatProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkInstanceCreateInfo>
+struct Schema<vulkan::api_elements::VkInstanceCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkInstanceCreateInfo::sType,
                                   vulkan::fields::VkInstanceCreateInfo::pNext,
@@ -1000,19 +1000,19 @@ struct Schema<vulkan::api_types::VkInstanceCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryHeap>
+struct Schema<vulkan::api_elements::VkMemoryHeap>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryHeap::size, vulkan::fields::VkMemoryHeap::flags>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryType>
+struct Schema<vulkan::api_elements::VkMemoryType>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryType::propertyFlags, vulkan::fields::VkMemoryType::heapIndex>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceFeatures::robustBufferAccess,
                                   vulkan::fields::VkPhysicalDeviceFeatures::fullDrawIndexUint32,
@@ -1072,7 +1072,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceFeatures>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceLimits>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceLimits>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceLimits::maxImageDimension1D,
                                   vulkan::fields::VkPhysicalDeviceLimits::maxImageDimension2D,
@@ -1183,7 +1183,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceLimits>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMemoryProperties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMemoryProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMemoryProperties::memoryTypeCount,
                                   vulkan::fields::VkPhysicalDeviceMemoryProperties::memoryTypes,
@@ -1192,7 +1192,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMemoryProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceSparseProperties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceSparseProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceSparseProperties::residencyStandard2DBlockShape,
                                   vulkan::fields::VkPhysicalDeviceSparseProperties::residencyStandard2DMultisampleBlockShape,
@@ -1202,7 +1202,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceSparseProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceProperties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceProperties::apiVersion,
                                   vulkan::fields::VkPhysicalDeviceProperties::driverVersion,
@@ -1216,7 +1216,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkQueueFamilyProperties>
+struct Schema<vulkan::api_elements::VkQueueFamilyProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkQueueFamilyProperties::queueFlags,
                                   vulkan::fields::VkQueueFamilyProperties::queueCount,
@@ -1225,7 +1225,7 @@ struct Schema<vulkan::api_types::VkQueueFamilyProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceQueueCreateInfo>
+struct Schema<vulkan::api_elements::VkDeviceQueueCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceQueueCreateInfo::sType,
                                   vulkan::fields::VkDeviceQueueCreateInfo::pNext,
@@ -1236,7 +1236,7 @@ struct Schema<vulkan::api_types::VkDeviceQueueCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceCreateInfo>
+struct Schema<vulkan::api_elements::VkDeviceCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceCreateInfo::sType, vulkan::fields::VkDeviceCreateInfo::pNext,
                                   vulkan::fields::VkDeviceCreateInfo::flags,
@@ -1250,14 +1250,14 @@ struct Schema<vulkan::api_types::VkDeviceCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkExtensionProperties>
+struct Schema<vulkan::api_elements::VkExtensionProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkExtensionProperties::extensionName,
                                   vulkan::fields::VkExtensionProperties::specVersion>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkLayerProperties>
+struct Schema<vulkan::api_elements::VkLayerProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkLayerProperties::layerName,
                                   vulkan::fields::VkLayerProperties::specVersion,
@@ -1266,7 +1266,7 @@ struct Schema<vulkan::api_types::VkLayerProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSubmitInfo>
+struct Schema<vulkan::api_elements::VkSubmitInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkSubmitInfo::sType, vulkan::fields::VkSubmitInfo::pNext,
                                   vulkan::fields::VkSubmitInfo::waitSemaphoreCount,
@@ -1279,7 +1279,7 @@ struct Schema<vulkan::api_types::VkSubmitInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMappedMemoryRange>
+struct Schema<vulkan::api_elements::VkMappedMemoryRange>
 {
     using Fields = util::TypeList<vulkan::fields::VkMappedMemoryRange::sType,
                                   vulkan::fields::VkMappedMemoryRange::pNext,
@@ -1289,7 +1289,7 @@ struct Schema<vulkan::api_types::VkMappedMemoryRange>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryAllocateInfo>
+struct Schema<vulkan::api_elements::VkMemoryAllocateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryAllocateInfo::sType,
                                   vulkan::fields::VkMemoryAllocateInfo::pNext,
@@ -1298,7 +1298,7 @@ struct Schema<vulkan::api_types::VkMemoryAllocateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryRequirements>
+struct Schema<vulkan::api_elements::VkMemoryRequirements>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryRequirements::size,
                                   vulkan::fields::VkMemoryRequirements::alignment,
@@ -1306,7 +1306,7 @@ struct Schema<vulkan::api_types::VkMemoryRequirements>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageSubresource>
+struct Schema<vulkan::api_elements::VkImageSubresource>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageSubresource::aspectMask,
                                   vulkan::fields::VkImageSubresource::mipLevel,
@@ -1314,7 +1314,7 @@ struct Schema<vulkan::api_types::VkImageSubresource>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSparseImageFormatProperties>
+struct Schema<vulkan::api_elements::VkSparseImageFormatProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkSparseImageFormatProperties::aspectMask,
                                   vulkan::fields::VkSparseImageFormatProperties::imageGranularity,
@@ -1322,7 +1322,7 @@ struct Schema<vulkan::api_types::VkSparseImageFormatProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSparseImageMemoryBind>
+struct Schema<vulkan::api_elements::VkSparseImageMemoryBind>
 {
     using Fields = util::TypeList<vulkan::fields::VkSparseImageMemoryBind::subresource,
                                   vulkan::fields::VkSparseImageMemoryBind::offset,
@@ -1333,7 +1333,7 @@ struct Schema<vulkan::api_types::VkSparseImageMemoryBind>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSparseImageMemoryBindInfo>
+struct Schema<vulkan::api_elements::VkSparseImageMemoryBindInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkSparseImageMemoryBindInfo::image,
                                   vulkan::fields::VkSparseImageMemoryBindInfo::bindCount,
@@ -1341,7 +1341,7 @@ struct Schema<vulkan::api_types::VkSparseImageMemoryBindInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSparseImageMemoryRequirements>
+struct Schema<vulkan::api_elements::VkSparseImageMemoryRequirements>
 {
     using Fields = util::TypeList<vulkan::fields::VkSparseImageMemoryRequirements::formatProperties,
                                   vulkan::fields::VkSparseImageMemoryRequirements::imageMipTailFirstLod,
@@ -1351,7 +1351,7 @@ struct Schema<vulkan::api_types::VkSparseImageMemoryRequirements>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSparseMemoryBind>
+struct Schema<vulkan::api_elements::VkSparseMemoryBind>
 {
     using Fields = util::TypeList<vulkan::fields::VkSparseMemoryBind::resourceOffset,
                                   vulkan::fields::VkSparseMemoryBind::size, vulkan::fields::VkSparseMemoryBind::memory,
@@ -1360,7 +1360,7 @@ struct Schema<vulkan::api_types::VkSparseMemoryBind>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSparseBufferMemoryBindInfo>
+struct Schema<vulkan::api_elements::VkSparseBufferMemoryBindInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkSparseBufferMemoryBindInfo::buffer,
                                   vulkan::fields::VkSparseBufferMemoryBindInfo::bindCount,
@@ -1368,7 +1368,7 @@ struct Schema<vulkan::api_types::VkSparseBufferMemoryBindInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSparseImageOpaqueMemoryBindInfo>
+struct Schema<vulkan::api_elements::VkSparseImageOpaqueMemoryBindInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkSparseImageOpaqueMemoryBindInfo::image,
                                   vulkan::fields::VkSparseImageOpaqueMemoryBindInfo::bindCount,
@@ -1376,7 +1376,7 @@ struct Schema<vulkan::api_types::VkSparseImageOpaqueMemoryBindInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBindSparseInfo>
+struct Schema<vulkan::api_elements::VkBindSparseInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkBindSparseInfo::sType, vulkan::fields::VkBindSparseInfo::pNext,
                                   vulkan::fields::VkBindSparseInfo::waitSemaphoreCount,
@@ -1392,14 +1392,14 @@ struct Schema<vulkan::api_types::VkBindSparseInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkFenceCreateInfo>
+struct Schema<vulkan::api_elements::VkFenceCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkFenceCreateInfo::sType, vulkan::fields::VkFenceCreateInfo::pNext,
                                   vulkan::fields::VkFenceCreateInfo::flags>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSemaphoreCreateInfo>
+struct Schema<vulkan::api_elements::VkSemaphoreCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkSemaphoreCreateInfo::sType,
                                   vulkan::fields::VkSemaphoreCreateInfo::pNext,
@@ -1407,7 +1407,7 @@ struct Schema<vulkan::api_types::VkSemaphoreCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkQueryPoolCreateInfo>
+struct Schema<vulkan::api_elements::VkQueryPoolCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkQueryPoolCreateInfo::sType,
                                   vulkan::fields::VkQueryPoolCreateInfo::pNext,
@@ -1418,7 +1418,7 @@ struct Schema<vulkan::api_types::VkQueryPoolCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBufferCreateInfo>
+struct Schema<vulkan::api_elements::VkBufferCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkBufferCreateInfo::sType, vulkan::fields::VkBufferCreateInfo::pNext,
                                   vulkan::fields::VkBufferCreateInfo::flags, vulkan::fields::VkBufferCreateInfo::size,
@@ -1429,7 +1429,7 @@ struct Schema<vulkan::api_types::VkBufferCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageCreateInfo>
+struct Schema<vulkan::api_elements::VkImageCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageCreateInfo::sType, vulkan::fields::VkImageCreateInfo::pNext,
                                   vulkan::fields::VkImageCreateInfo::flags,
@@ -1446,7 +1446,7 @@ struct Schema<vulkan::api_types::VkImageCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSubresourceLayout>
+struct Schema<vulkan::api_elements::VkSubresourceLayout>
 {
     using Fields = util::TypeList<vulkan::fields::VkSubresourceLayout::offset,
                                   vulkan::fields::VkSubresourceLayout::size,
@@ -1456,14 +1456,14 @@ struct Schema<vulkan::api_types::VkSubresourceLayout>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkComponentMapping>
+struct Schema<vulkan::api_elements::VkComponentMapping>
 {
     using Fields = util::TypeList<vulkan::fields::VkComponentMapping::r, vulkan::fields::VkComponentMapping::g,
                                   vulkan::fields::VkComponentMapping::b, vulkan::fields::VkComponentMapping::a>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageSubresourceRange>
+struct Schema<vulkan::api_elements::VkImageSubresourceRange>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageSubresourceRange::aspectMask,
                                   vulkan::fields::VkImageSubresourceRange::baseMipLevel,
@@ -1473,7 +1473,7 @@ struct Schema<vulkan::api_types::VkImageSubresourceRange>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageViewCreateInfo>
+struct Schema<vulkan::api_elements::VkImageViewCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageViewCreateInfo::sType,
                                   vulkan::fields::VkImageViewCreateInfo::pNext,
@@ -1486,7 +1486,7 @@ struct Schema<vulkan::api_types::VkImageViewCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCommandPoolCreateInfo>
+struct Schema<vulkan::api_elements::VkCommandPoolCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkCommandPoolCreateInfo::sType,
                                   vulkan::fields::VkCommandPoolCreateInfo::pNext,
@@ -1495,7 +1495,7 @@ struct Schema<vulkan::api_types::VkCommandPoolCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCommandBufferAllocateInfo>
+struct Schema<vulkan::api_elements::VkCommandBufferAllocateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkCommandBufferAllocateInfo::sType,
                                   vulkan::fields::VkCommandBufferAllocateInfo::pNext,
@@ -1505,7 +1505,7 @@ struct Schema<vulkan::api_types::VkCommandBufferAllocateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCommandBufferInheritanceInfo>
+struct Schema<vulkan::api_elements::VkCommandBufferInheritanceInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkCommandBufferInheritanceInfo::sType,
                                   vulkan::fields::VkCommandBufferInheritanceInfo::pNext,
@@ -1518,7 +1518,7 @@ struct Schema<vulkan::api_types::VkCommandBufferInheritanceInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCommandBufferBeginInfo>
+struct Schema<vulkan::api_elements::VkCommandBufferBeginInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkCommandBufferBeginInfo::sType,
                                   vulkan::fields::VkCommandBufferBeginInfo::pNext,
@@ -1527,14 +1527,14 @@ struct Schema<vulkan::api_types::VkCommandBufferBeginInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBufferCopy>
+struct Schema<vulkan::api_elements::VkBufferCopy>
 {
     using Fields = util::TypeList<vulkan::fields::VkBufferCopy::srcOffset, vulkan::fields::VkBufferCopy::dstOffset,
                                   vulkan::fields::VkBufferCopy::size>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageSubresourceLayers>
+struct Schema<vulkan::api_elements::VkImageSubresourceLayers>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageSubresourceLayers::aspectMask,
                                   vulkan::fields::VkImageSubresourceLayers::mipLevel,
@@ -1543,7 +1543,7 @@ struct Schema<vulkan::api_types::VkImageSubresourceLayers>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBufferImageCopy>
+struct Schema<vulkan::api_elements::VkBufferImageCopy>
 {
     using Fields = util::TypeList<vulkan::fields::VkBufferImageCopy::bufferOffset,
                                   vulkan::fields::VkBufferImageCopy::bufferRowLength,
@@ -1554,7 +1554,7 @@ struct Schema<vulkan::api_types::VkBufferImageCopy>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageCopy>
+struct Schema<vulkan::api_elements::VkImageCopy>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageCopy::srcSubresource, vulkan::fields::VkImageCopy::srcOffset,
                                   vulkan::fields::VkImageCopy::dstSubresource, vulkan::fields::VkImageCopy::dstOffset,
@@ -1562,7 +1562,7 @@ struct Schema<vulkan::api_types::VkImageCopy>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBufferMemoryBarrier>
+struct Schema<vulkan::api_elements::VkBufferMemoryBarrier>
 {
     using Fields = util::TypeList<vulkan::fields::VkBufferMemoryBarrier::sType,
                                   vulkan::fields::VkBufferMemoryBarrier::pNext,
@@ -1576,7 +1576,7 @@ struct Schema<vulkan::api_types::VkBufferMemoryBarrier>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageMemoryBarrier>
+struct Schema<vulkan::api_elements::VkImageMemoryBarrier>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageMemoryBarrier::sType,
                                   vulkan::fields::VkImageMemoryBarrier::pNext,
@@ -1591,7 +1591,7 @@ struct Schema<vulkan::api_types::VkImageMemoryBarrier>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryBarrier>
+struct Schema<vulkan::api_elements::VkMemoryBarrier>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryBarrier::sType, vulkan::fields::VkMemoryBarrier::pNext,
                                   vulkan::fields::VkMemoryBarrier::srcAccessMask,
@@ -1599,7 +1599,7 @@ struct Schema<vulkan::api_types::VkMemoryBarrier>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDispatchIndirectCommand>
+struct Schema<vulkan::api_elements::VkDispatchIndirectCommand>
 {
     using Fields = util::TypeList<vulkan::fields::VkDispatchIndirectCommand::x,
                                   vulkan::fields::VkDispatchIndirectCommand::y,
@@ -1607,7 +1607,7 @@ struct Schema<vulkan::api_types::VkDispatchIndirectCommand>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineCacheHeaderVersionOne>
+struct Schema<vulkan::api_elements::VkPipelineCacheHeaderVersionOne>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineCacheHeaderVersionOne::headerSize,
                                   vulkan::fields::VkPipelineCacheHeaderVersionOne::headerVersion,
@@ -1617,14 +1617,14 @@ struct Schema<vulkan::api_types::VkPipelineCacheHeaderVersionOne>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkEventCreateInfo>
+struct Schema<vulkan::api_elements::VkEventCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkEventCreateInfo::sType, vulkan::fields::VkEventCreateInfo::pNext,
                                   vulkan::fields::VkEventCreateInfo::flags>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBufferViewCreateInfo>
+struct Schema<vulkan::api_elements::VkBufferViewCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkBufferViewCreateInfo::sType,
                                   vulkan::fields::VkBufferViewCreateInfo::pNext,
@@ -1636,7 +1636,7 @@ struct Schema<vulkan::api_types::VkBufferViewCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkShaderModuleCreateInfo>
+struct Schema<vulkan::api_elements::VkShaderModuleCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkShaderModuleCreateInfo::sType,
                                   vulkan::fields::VkShaderModuleCreateInfo::pNext,
@@ -1646,7 +1646,7 @@ struct Schema<vulkan::api_types::VkShaderModuleCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineCacheCreateInfo>
+struct Schema<vulkan::api_elements::VkPipelineCacheCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineCacheCreateInfo::sType,
                                   vulkan::fields::VkPipelineCacheCreateInfo::pNext,
@@ -1656,7 +1656,7 @@ struct Schema<vulkan::api_types::VkPipelineCacheCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSpecializationMapEntry>
+struct Schema<vulkan::api_elements::VkSpecializationMapEntry>
 {
     using Fields = util::TypeList<vulkan::fields::VkSpecializationMapEntry::constantID,
                                   vulkan::fields::VkSpecializationMapEntry::offset,
@@ -1664,7 +1664,7 @@ struct Schema<vulkan::api_types::VkSpecializationMapEntry>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSpecializationInfo>
+struct Schema<vulkan::api_elements::VkSpecializationInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkSpecializationInfo::mapEntryCount,
                                   vulkan::fields::VkSpecializationInfo::pMapEntries,
@@ -1673,7 +1673,7 @@ struct Schema<vulkan::api_types::VkSpecializationInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineShaderStageCreateInfo>
+struct Schema<vulkan::api_elements::VkPipelineShaderStageCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineShaderStageCreateInfo::sType,
                                   vulkan::fields::VkPipelineShaderStageCreateInfo::pNext,
@@ -1685,7 +1685,7 @@ struct Schema<vulkan::api_types::VkPipelineShaderStageCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkComputePipelineCreateInfo>
+struct Schema<vulkan::api_elements::VkComputePipelineCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkComputePipelineCreateInfo::sType,
                                   vulkan::fields::VkComputePipelineCreateInfo::pNext,
@@ -1697,7 +1697,7 @@ struct Schema<vulkan::api_types::VkComputePipelineCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPushConstantRange>
+struct Schema<vulkan::api_elements::VkPushConstantRange>
 {
     using Fields = util::TypeList<vulkan::fields::VkPushConstantRange::stageFlags,
                                   vulkan::fields::VkPushConstantRange::offset,
@@ -1705,7 +1705,7 @@ struct Schema<vulkan::api_types::VkPushConstantRange>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineLayoutCreateInfo>
+struct Schema<vulkan::api_elements::VkPipelineLayoutCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineLayoutCreateInfo::sType,
                                   vulkan::fields::VkPipelineLayoutCreateInfo::pNext,
@@ -1717,7 +1717,7 @@ struct Schema<vulkan::api_types::VkPipelineLayoutCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSamplerCreateInfo>
+struct Schema<vulkan::api_elements::VkSamplerCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkSamplerCreateInfo::sType,
                                   vulkan::fields::VkSamplerCreateInfo::pNext,
@@ -1740,7 +1740,7 @@ struct Schema<vulkan::api_types::VkSamplerCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCopyDescriptorSet>
+struct Schema<vulkan::api_elements::VkCopyDescriptorSet>
 {
     using Fields = util::TypeList<vulkan::fields::VkCopyDescriptorSet::sType,
                                   vulkan::fields::VkCopyDescriptorSet::pNext,
@@ -1754,7 +1754,7 @@ struct Schema<vulkan::api_types::VkCopyDescriptorSet>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDescriptorBufferInfo>
+struct Schema<vulkan::api_elements::VkDescriptorBufferInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkDescriptorBufferInfo::buffer,
                                   vulkan::fields::VkDescriptorBufferInfo::offset,
@@ -1762,7 +1762,7 @@ struct Schema<vulkan::api_types::VkDescriptorBufferInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDescriptorImageInfo>
+struct Schema<vulkan::api_elements::VkDescriptorImageInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkDescriptorImageInfo::sampler,
                                   vulkan::fields::VkDescriptorImageInfo::imageView,
@@ -1770,14 +1770,14 @@ struct Schema<vulkan::api_types::VkDescriptorImageInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDescriptorPoolSize>
+struct Schema<vulkan::api_elements::VkDescriptorPoolSize>
 {
     using Fields = util::TypeList<vulkan::fields::VkDescriptorPoolSize::type,
                                   vulkan::fields::VkDescriptorPoolSize::descriptorCount>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDescriptorPoolCreateInfo>
+struct Schema<vulkan::api_elements::VkDescriptorPoolCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkDescriptorPoolCreateInfo::sType,
                                   vulkan::fields::VkDescriptorPoolCreateInfo::pNext,
@@ -1788,7 +1788,7 @@ struct Schema<vulkan::api_types::VkDescriptorPoolCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDescriptorSetAllocateInfo>
+struct Schema<vulkan::api_elements::VkDescriptorSetAllocateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkDescriptorSetAllocateInfo::sType,
                                   vulkan::fields::VkDescriptorSetAllocateInfo::pNext,
@@ -1798,7 +1798,7 @@ struct Schema<vulkan::api_types::VkDescriptorSetAllocateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDescriptorSetLayoutBinding>
+struct Schema<vulkan::api_elements::VkDescriptorSetLayoutBinding>
 {
     using Fields = util::TypeList<vulkan::fields::VkDescriptorSetLayoutBinding::binding,
                                   vulkan::fields::VkDescriptorSetLayoutBinding::descriptorType,
@@ -1808,7 +1808,7 @@ struct Schema<vulkan::api_types::VkDescriptorSetLayoutBinding>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDescriptorSetLayoutCreateInfo>
+struct Schema<vulkan::api_elements::VkDescriptorSetLayoutCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkDescriptorSetLayoutCreateInfo::sType,
                                   vulkan::fields::VkDescriptorSetLayoutCreateInfo::pNext,
@@ -1818,7 +1818,7 @@ struct Schema<vulkan::api_types::VkDescriptorSetLayoutCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkWriteDescriptorSet>
+struct Schema<vulkan::api_elements::VkWriteDescriptorSet>
 {
     using Fields = util::TypeList<vulkan::fields::VkWriteDescriptorSet::sType,
                                   vulkan::fields::VkWriteDescriptorSet::pNext,
@@ -1833,7 +1833,7 @@ struct Schema<vulkan::api_types::VkWriteDescriptorSet>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDrawIndexedIndirectCommand>
+struct Schema<vulkan::api_elements::VkDrawIndexedIndirectCommand>
 {
     using Fields = util::TypeList<vulkan::fields::VkDrawIndexedIndirectCommand::indexCount,
                                   vulkan::fields::VkDrawIndexedIndirectCommand::instanceCount,
@@ -1843,7 +1843,7 @@ struct Schema<vulkan::api_types::VkDrawIndexedIndirectCommand>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDrawIndirectCommand>
+struct Schema<vulkan::api_elements::VkDrawIndirectCommand>
 {
     using Fields = util::TypeList<vulkan::fields::VkDrawIndirectCommand::vertexCount,
                                   vulkan::fields::VkDrawIndirectCommand::instanceCount,
@@ -1852,7 +1852,7 @@ struct Schema<vulkan::api_types::VkDrawIndirectCommand>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkStencilOpState>
+struct Schema<vulkan::api_elements::VkStencilOpState>
 {
     using Fields = util::TypeList<vulkan::fields::VkStencilOpState::failOp, vulkan::fields::VkStencilOpState::passOp,
                                   vulkan::fields::VkStencilOpState::depthFailOp,
@@ -1863,7 +1863,7 @@ struct Schema<vulkan::api_types::VkStencilOpState>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVertexInputAttributeDescription>
+struct Schema<vulkan::api_elements::VkVertexInputAttributeDescription>
 {
     using Fields = util::TypeList<vulkan::fields::VkVertexInputAttributeDescription::location,
                                   vulkan::fields::VkVertexInputAttributeDescription::binding,
@@ -1872,7 +1872,7 @@ struct Schema<vulkan::api_types::VkVertexInputAttributeDescription>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVertexInputBindingDescription>
+struct Schema<vulkan::api_elements::VkVertexInputBindingDescription>
 {
     using Fields = util::TypeList<vulkan::fields::VkVertexInputBindingDescription::binding,
                                   vulkan::fields::VkVertexInputBindingDescription::stride,
@@ -1880,7 +1880,7 @@ struct Schema<vulkan::api_types::VkVertexInputBindingDescription>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkViewport>
+struct Schema<vulkan::api_elements::VkViewport>
 {
     using Fields = util::TypeList<vulkan::fields::VkViewport::x, vulkan::fields::VkViewport::y,
                                   vulkan::fields::VkViewport::width, vulkan::fields::VkViewport::height,
@@ -1888,7 +1888,7 @@ struct Schema<vulkan::api_types::VkViewport>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineColorBlendAttachmentState>
+struct Schema<vulkan::api_elements::VkPipelineColorBlendAttachmentState>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineColorBlendAttachmentState::blendEnable,
                                   vulkan::fields::VkPipelineColorBlendAttachmentState::srcColorBlendFactor,
@@ -1901,7 +1901,7 @@ struct Schema<vulkan::api_types::VkPipelineColorBlendAttachmentState>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineColorBlendStateCreateInfo>
+struct Schema<vulkan::api_elements::VkPipelineColorBlendStateCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineColorBlendStateCreateInfo::sType,
                                   vulkan::fields::VkPipelineColorBlendStateCreateInfo::pNext,
@@ -1914,7 +1914,7 @@ struct Schema<vulkan::api_types::VkPipelineColorBlendStateCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineDepthStencilStateCreateInfo>
+struct Schema<vulkan::api_elements::VkPipelineDepthStencilStateCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineDepthStencilStateCreateInfo::sType,
                                   vulkan::fields::VkPipelineDepthStencilStateCreateInfo::pNext,
@@ -1931,7 +1931,7 @@ struct Schema<vulkan::api_types::VkPipelineDepthStencilStateCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineDynamicStateCreateInfo>
+struct Schema<vulkan::api_elements::VkPipelineDynamicStateCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineDynamicStateCreateInfo::sType,
                                   vulkan::fields::VkPipelineDynamicStateCreateInfo::pNext,
@@ -1941,7 +1941,7 @@ struct Schema<vulkan::api_types::VkPipelineDynamicStateCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineInputAssemblyStateCreateInfo>
+struct Schema<vulkan::api_elements::VkPipelineInputAssemblyStateCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineInputAssemblyStateCreateInfo::sType,
                                   vulkan::fields::VkPipelineInputAssemblyStateCreateInfo::pNext,
@@ -1951,7 +1951,7 @@ struct Schema<vulkan::api_types::VkPipelineInputAssemblyStateCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineMultisampleStateCreateInfo>
+struct Schema<vulkan::api_elements::VkPipelineMultisampleStateCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineMultisampleStateCreateInfo::sType,
                                   vulkan::fields::VkPipelineMultisampleStateCreateInfo::pNext,
@@ -1965,7 +1965,7 @@ struct Schema<vulkan::api_types::VkPipelineMultisampleStateCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineRasterizationStateCreateInfo>
+struct Schema<vulkan::api_elements::VkPipelineRasterizationStateCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineRasterizationStateCreateInfo::sType,
                                   vulkan::fields::VkPipelineRasterizationStateCreateInfo::pNext,
@@ -1983,7 +1983,7 @@ struct Schema<vulkan::api_types::VkPipelineRasterizationStateCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineTessellationStateCreateInfo>
+struct Schema<vulkan::api_elements::VkPipelineTessellationStateCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineTessellationStateCreateInfo::sType,
                                   vulkan::fields::VkPipelineTessellationStateCreateInfo::pNext,
@@ -1992,7 +1992,7 @@ struct Schema<vulkan::api_types::VkPipelineTessellationStateCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineVertexInputStateCreateInfo>
+struct Schema<vulkan::api_elements::VkPipelineVertexInputStateCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineVertexInputStateCreateInfo::sType,
                                   vulkan::fields::VkPipelineVertexInputStateCreateInfo::pNext,
@@ -2004,7 +2004,7 @@ struct Schema<vulkan::api_types::VkPipelineVertexInputStateCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineViewportStateCreateInfo>
+struct Schema<vulkan::api_elements::VkPipelineViewportStateCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineViewportStateCreateInfo::sType,
                                   vulkan::fields::VkPipelineViewportStateCreateInfo::pNext,
@@ -2016,7 +2016,7 @@ struct Schema<vulkan::api_types::VkPipelineViewportStateCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkGraphicsPipelineCreateInfo>
+struct Schema<vulkan::api_elements::VkGraphicsPipelineCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkGraphicsPipelineCreateInfo::sType,
                                   vulkan::fields::VkGraphicsPipelineCreateInfo::pNext,
@@ -2040,7 +2040,7 @@ struct Schema<vulkan::api_types::VkGraphicsPipelineCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAttachmentDescription>
+struct Schema<vulkan::api_elements::VkAttachmentDescription>
 {
     using Fields = util::TypeList<vulkan::fields::VkAttachmentDescription::flags,
                                   vulkan::fields::VkAttachmentDescription::format,
@@ -2054,14 +2054,14 @@ struct Schema<vulkan::api_types::VkAttachmentDescription>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAttachmentReference>
+struct Schema<vulkan::api_elements::VkAttachmentReference>
 {
     using Fields = util::TypeList<vulkan::fields::VkAttachmentReference::attachment,
                                   vulkan::fields::VkAttachmentReference::layout>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkFramebufferCreateInfo>
+struct Schema<vulkan::api_elements::VkFramebufferCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkFramebufferCreateInfo::sType,
                                   vulkan::fields::VkFramebufferCreateInfo::pNext,
@@ -2075,7 +2075,7 @@ struct Schema<vulkan::api_types::VkFramebufferCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSubpassDependency>
+struct Schema<vulkan::api_elements::VkSubpassDependency>
 {
     using Fields = util::TypeList<vulkan::fields::VkSubpassDependency::srcSubpass,
                                   vulkan::fields::VkSubpassDependency::dstSubpass,
@@ -2087,7 +2087,7 @@ struct Schema<vulkan::api_types::VkSubpassDependency>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSubpassDescription>
+struct Schema<vulkan::api_elements::VkSubpassDescription>
 {
     using Fields = util::TypeList<vulkan::fields::VkSubpassDescription::flags,
                                   vulkan::fields::VkSubpassDescription::pipelineBindPoint,
@@ -2102,7 +2102,7 @@ struct Schema<vulkan::api_types::VkSubpassDescription>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderPassCreateInfo>
+struct Schema<vulkan::api_elements::VkRenderPassCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderPassCreateInfo::sType,
                                   vulkan::fields::VkRenderPassCreateInfo::pNext,
@@ -2116,21 +2116,21 @@ struct Schema<vulkan::api_types::VkRenderPassCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkClearDepthStencilValue>
+struct Schema<vulkan::api_elements::VkClearDepthStencilValue>
 {
     using Fields = util::TypeList<vulkan::fields::VkClearDepthStencilValue::depth,
                                   vulkan::fields::VkClearDepthStencilValue::stencil>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkClearRect>
+struct Schema<vulkan::api_elements::VkClearRect>
 {
     using Fields = util::TypeList<vulkan::fields::VkClearRect::rect, vulkan::fields::VkClearRect::baseArrayLayer,
                                   vulkan::fields::VkClearRect::layerCount>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkClearAttachment>
+struct Schema<vulkan::api_elements::VkClearAttachment>
 {
     using Fields = util::TypeList<vulkan::fields::VkClearAttachment::aspectMask,
                                   vulkan::fields::VkClearAttachment::colorAttachment,
@@ -2138,14 +2138,14 @@ struct Schema<vulkan::api_types::VkClearAttachment>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageBlit>
+struct Schema<vulkan::api_elements::VkImageBlit>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageBlit::srcSubresource, vulkan::fields::VkImageBlit::srcOffsets,
                                   vulkan::fields::VkImageBlit::dstSubresource, vulkan::fields::VkImageBlit::dstOffsets>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageResolve>
+struct Schema<vulkan::api_elements::VkImageResolve>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageResolve::srcSubresource,
                                   vulkan::fields::VkImageResolve::srcOffset,
@@ -2154,7 +2154,7 @@ struct Schema<vulkan::api_types::VkImageResolve>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderPassBeginInfo>
+struct Schema<vulkan::api_elements::VkRenderPassBeginInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderPassBeginInfo::sType,
                                   vulkan::fields::VkRenderPassBeginInfo::pNext,
@@ -2166,7 +2166,7 @@ struct Schema<vulkan::api_types::VkRenderPassBeginInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBindBufferMemoryInfo>
+struct Schema<vulkan::api_elements::VkBindBufferMemoryInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkBindBufferMemoryInfo::sType,
                                   vulkan::fields::VkBindBufferMemoryInfo::pNext,
@@ -2176,7 +2176,7 @@ struct Schema<vulkan::api_types::VkBindBufferMemoryInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBindImageMemoryInfo>
+struct Schema<vulkan::api_elements::VkBindImageMemoryInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkBindImageMemoryInfo::sType,
                                   vulkan::fields::VkBindImageMemoryInfo::pNext,
@@ -2186,7 +2186,7 @@ struct Schema<vulkan::api_types::VkBindImageMemoryInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryDedicatedRequirements>
+struct Schema<vulkan::api_elements::VkMemoryDedicatedRequirements>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryDedicatedRequirements::sType,
                                   vulkan::fields::VkMemoryDedicatedRequirements::pNext,
@@ -2195,7 +2195,7 @@ struct Schema<vulkan::api_types::VkMemoryDedicatedRequirements>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryDedicatedAllocateInfo>
+struct Schema<vulkan::api_elements::VkMemoryDedicatedAllocateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryDedicatedAllocateInfo::sType,
                                   vulkan::fields::VkMemoryDedicatedAllocateInfo::pNext,
@@ -2204,7 +2204,7 @@ struct Schema<vulkan::api_types::VkMemoryDedicatedAllocateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryAllocateFlagsInfo>
+struct Schema<vulkan::api_elements::VkMemoryAllocateFlagsInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryAllocateFlagsInfo::sType,
                                   vulkan::fields::VkMemoryAllocateFlagsInfo::pNext,
@@ -2213,7 +2213,7 @@ struct Schema<vulkan::api_types::VkMemoryAllocateFlagsInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceGroupCommandBufferBeginInfo>
+struct Schema<vulkan::api_elements::VkDeviceGroupCommandBufferBeginInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceGroupCommandBufferBeginInfo::sType,
                                   vulkan::fields::VkDeviceGroupCommandBufferBeginInfo::pNext,
@@ -2221,7 +2221,7 @@ struct Schema<vulkan::api_types::VkDeviceGroupCommandBufferBeginInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceGroupSubmitInfo>
+struct Schema<vulkan::api_elements::VkDeviceGroupSubmitInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceGroupSubmitInfo::sType,
                                   vulkan::fields::VkDeviceGroupSubmitInfo::pNext,
@@ -2234,7 +2234,7 @@ struct Schema<vulkan::api_types::VkDeviceGroupSubmitInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceGroupBindSparseInfo>
+struct Schema<vulkan::api_elements::VkDeviceGroupBindSparseInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceGroupBindSparseInfo::sType,
                                   vulkan::fields::VkDeviceGroupBindSparseInfo::pNext,
@@ -2243,7 +2243,7 @@ struct Schema<vulkan::api_types::VkDeviceGroupBindSparseInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBindBufferMemoryDeviceGroupInfo>
+struct Schema<vulkan::api_elements::VkBindBufferMemoryDeviceGroupInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkBindBufferMemoryDeviceGroupInfo::sType,
                                   vulkan::fields::VkBindBufferMemoryDeviceGroupInfo::pNext,
@@ -2252,7 +2252,7 @@ struct Schema<vulkan::api_types::VkBindBufferMemoryDeviceGroupInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBindImageMemoryDeviceGroupInfo>
+struct Schema<vulkan::api_elements::VkBindImageMemoryDeviceGroupInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkBindImageMemoryDeviceGroupInfo::sType,
                                   vulkan::fields::VkBindImageMemoryDeviceGroupInfo::pNext,
@@ -2263,7 +2263,7 @@ struct Schema<vulkan::api_types::VkBindImageMemoryDeviceGroupInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceGroupProperties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceGroupProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceGroupProperties::sType,
                                   vulkan::fields::VkPhysicalDeviceGroupProperties::pNext,
@@ -2273,7 +2273,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceGroupProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceGroupDeviceCreateInfo>
+struct Schema<vulkan::api_elements::VkDeviceGroupDeviceCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceGroupDeviceCreateInfo::sType,
                                   vulkan::fields::VkDeviceGroupDeviceCreateInfo::pNext,
@@ -2282,7 +2282,7 @@ struct Schema<vulkan::api_types::VkDeviceGroupDeviceCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBufferMemoryRequirementsInfo2>
+struct Schema<vulkan::api_elements::VkBufferMemoryRequirementsInfo2>
 {
     using Fields = util::TypeList<vulkan::fields::VkBufferMemoryRequirementsInfo2::sType,
                                   vulkan::fields::VkBufferMemoryRequirementsInfo2::pNext,
@@ -2290,7 +2290,7 @@ struct Schema<vulkan::api_types::VkBufferMemoryRequirementsInfo2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageMemoryRequirementsInfo2>
+struct Schema<vulkan::api_elements::VkImageMemoryRequirementsInfo2>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageMemoryRequirementsInfo2::sType,
                                   vulkan::fields::VkImageMemoryRequirementsInfo2::pNext,
@@ -2298,7 +2298,7 @@ struct Schema<vulkan::api_types::VkImageMemoryRequirementsInfo2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageSparseMemoryRequirementsInfo2>
+struct Schema<vulkan::api_elements::VkImageSparseMemoryRequirementsInfo2>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageSparseMemoryRequirementsInfo2::sType,
                                   vulkan::fields::VkImageSparseMemoryRequirementsInfo2::pNext,
@@ -2306,7 +2306,7 @@ struct Schema<vulkan::api_types::VkImageSparseMemoryRequirementsInfo2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryRequirements2>
+struct Schema<vulkan::api_elements::VkMemoryRequirements2>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryRequirements2::sType,
                                   vulkan::fields::VkMemoryRequirements2::pNext,
@@ -2314,7 +2314,7 @@ struct Schema<vulkan::api_types::VkMemoryRequirements2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSparseImageMemoryRequirements2>
+struct Schema<vulkan::api_elements::VkSparseImageMemoryRequirements2>
 {
     using Fields = util::TypeList<vulkan::fields::VkSparseImageMemoryRequirements2::sType,
                                   vulkan::fields::VkSparseImageMemoryRequirements2::pNext,
@@ -2322,7 +2322,7 @@ struct Schema<vulkan::api_types::VkSparseImageMemoryRequirements2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceFeatures2>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceFeatures2>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceFeatures2::sType,
                                   vulkan::fields::VkPhysicalDeviceFeatures2::pNext,
@@ -2330,7 +2330,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceFeatures2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceProperties2>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceProperties2>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceProperties2::sType,
                                   vulkan::fields::VkPhysicalDeviceProperties2::pNext,
@@ -2338,7 +2338,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceProperties2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkFormatProperties2>
+struct Schema<vulkan::api_elements::VkFormatProperties2>
 {
     using Fields = util::TypeList<vulkan::fields::VkFormatProperties2::sType,
                                   vulkan::fields::VkFormatProperties2::pNext,
@@ -2346,7 +2346,7 @@ struct Schema<vulkan::api_types::VkFormatProperties2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageFormatProperties2>
+struct Schema<vulkan::api_elements::VkImageFormatProperties2>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageFormatProperties2::sType,
                                   vulkan::fields::VkImageFormatProperties2::pNext,
@@ -2354,7 +2354,7 @@ struct Schema<vulkan::api_types::VkImageFormatProperties2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceImageFormatInfo2>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceImageFormatInfo2>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceImageFormatInfo2::sType,
                                   vulkan::fields::VkPhysicalDeviceImageFormatInfo2::pNext,
@@ -2366,7 +2366,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceImageFormatInfo2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkQueueFamilyProperties2>
+struct Schema<vulkan::api_elements::VkQueueFamilyProperties2>
 {
     using Fields = util::TypeList<vulkan::fields::VkQueueFamilyProperties2::sType,
                                   vulkan::fields::VkQueueFamilyProperties2::pNext,
@@ -2374,7 +2374,7 @@ struct Schema<vulkan::api_types::VkQueueFamilyProperties2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMemoryProperties2>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMemoryProperties2>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMemoryProperties2::sType,
                                   vulkan::fields::VkPhysicalDeviceMemoryProperties2::pNext,
@@ -2382,7 +2382,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMemoryProperties2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSparseImageFormatProperties2>
+struct Schema<vulkan::api_elements::VkSparseImageFormatProperties2>
 {
     using Fields = util::TypeList<vulkan::fields::VkSparseImageFormatProperties2::sType,
                                   vulkan::fields::VkSparseImageFormatProperties2::pNext,
@@ -2390,7 +2390,7 @@ struct Schema<vulkan::api_types::VkSparseImageFormatProperties2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceSparseImageFormatInfo2>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceSparseImageFormatInfo2>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceSparseImageFormatInfo2::sType,
                                   vulkan::fields::VkPhysicalDeviceSparseImageFormatInfo2::pNext,
@@ -2402,7 +2402,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceSparseImageFormatInfo2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageViewUsageCreateInfo>
+struct Schema<vulkan::api_elements::VkImageViewUsageCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageViewUsageCreateInfo::sType,
                                   vulkan::fields::VkImageViewUsageCreateInfo::pNext,
@@ -2410,7 +2410,7 @@ struct Schema<vulkan::api_types::VkImageViewUsageCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceProtectedMemoryFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceProtectedMemoryFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceProtectedMemoryFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceProtectedMemoryFeatures::pNext,
@@ -2418,7 +2418,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceProtectedMemoryFeatures>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceProtectedMemoryProperties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceProtectedMemoryProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceProtectedMemoryProperties::sType,
                                   vulkan::fields::VkPhysicalDeviceProtectedMemoryProperties::pNext,
@@ -2426,7 +2426,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceProtectedMemoryProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceQueueInfo2>
+struct Schema<vulkan::api_elements::VkDeviceQueueInfo2>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceQueueInfo2::sType, vulkan::fields::VkDeviceQueueInfo2::pNext,
                                   vulkan::fields::VkDeviceQueueInfo2::flags,
@@ -2435,7 +2435,7 @@ struct Schema<vulkan::api_types::VkDeviceQueueInfo2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkProtectedSubmitInfo>
+struct Schema<vulkan::api_elements::VkProtectedSubmitInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkProtectedSubmitInfo::sType,
                                   vulkan::fields::VkProtectedSubmitInfo::pNext,
@@ -2443,7 +2443,7 @@ struct Schema<vulkan::api_types::VkProtectedSubmitInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBindImagePlaneMemoryInfo>
+struct Schema<vulkan::api_elements::VkBindImagePlaneMemoryInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkBindImagePlaneMemoryInfo::sType,
                                   vulkan::fields::VkBindImagePlaneMemoryInfo::pNext,
@@ -2451,7 +2451,7 @@ struct Schema<vulkan::api_types::VkBindImagePlaneMemoryInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImagePlaneMemoryRequirementsInfo>
+struct Schema<vulkan::api_elements::VkImagePlaneMemoryRequirementsInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkImagePlaneMemoryRequirementsInfo::sType,
                                   vulkan::fields::VkImagePlaneMemoryRequirementsInfo::pNext,
@@ -2459,7 +2459,7 @@ struct Schema<vulkan::api_types::VkImagePlaneMemoryRequirementsInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkExternalMemoryProperties>
+struct Schema<vulkan::api_elements::VkExternalMemoryProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkExternalMemoryProperties::externalMemoryFeatures,
                                   vulkan::fields::VkExternalMemoryProperties::exportFromImportedHandleTypes,
@@ -2467,7 +2467,7 @@ struct Schema<vulkan::api_types::VkExternalMemoryProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceExternalImageFormatInfo>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceExternalImageFormatInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceExternalImageFormatInfo::sType,
                                   vulkan::fields::VkPhysicalDeviceExternalImageFormatInfo::pNext,
@@ -2475,7 +2475,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceExternalImageFormatInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkExternalImageFormatProperties>
+struct Schema<vulkan::api_elements::VkExternalImageFormatProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkExternalImageFormatProperties::sType,
                                   vulkan::fields::VkExternalImageFormatProperties::pNext,
@@ -2483,7 +2483,7 @@ struct Schema<vulkan::api_types::VkExternalImageFormatProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceExternalBufferInfo>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceExternalBufferInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceExternalBufferInfo::sType,
                                   vulkan::fields::VkPhysicalDeviceExternalBufferInfo::pNext,
@@ -2493,7 +2493,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceExternalBufferInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkExternalBufferProperties>
+struct Schema<vulkan::api_elements::VkExternalBufferProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkExternalBufferProperties::sType,
                                   vulkan::fields::VkExternalBufferProperties::pNext,
@@ -2501,7 +2501,7 @@ struct Schema<vulkan::api_types::VkExternalBufferProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceIDProperties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceIDProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceIDProperties::sType,
                                   vulkan::fields::VkPhysicalDeviceIDProperties::pNext,
@@ -2513,7 +2513,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceIDProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkExternalMemoryImageCreateInfo>
+struct Schema<vulkan::api_elements::VkExternalMemoryImageCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkExternalMemoryImageCreateInfo::sType,
                                   vulkan::fields::VkExternalMemoryImageCreateInfo::pNext,
@@ -2521,7 +2521,7 @@ struct Schema<vulkan::api_types::VkExternalMemoryImageCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkExternalMemoryBufferCreateInfo>
+struct Schema<vulkan::api_elements::VkExternalMemoryBufferCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkExternalMemoryBufferCreateInfo::sType,
                                   vulkan::fields::VkExternalMemoryBufferCreateInfo::pNext,
@@ -2529,7 +2529,7 @@ struct Schema<vulkan::api_types::VkExternalMemoryBufferCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkExportMemoryAllocateInfo>
+struct Schema<vulkan::api_elements::VkExportMemoryAllocateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkExportMemoryAllocateInfo::sType,
                                   vulkan::fields::VkExportMemoryAllocateInfo::pNext,
@@ -2537,7 +2537,7 @@ struct Schema<vulkan::api_types::VkExportMemoryAllocateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceExternalFenceInfo>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceExternalFenceInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceExternalFenceInfo::sType,
                                   vulkan::fields::VkPhysicalDeviceExternalFenceInfo::pNext,
@@ -2545,7 +2545,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceExternalFenceInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkExternalFenceProperties>
+struct Schema<vulkan::api_elements::VkExternalFenceProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkExternalFenceProperties::sType,
                                   vulkan::fields::VkExternalFenceProperties::pNext,
@@ -2555,7 +2555,7 @@ struct Schema<vulkan::api_types::VkExternalFenceProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkExportFenceCreateInfo>
+struct Schema<vulkan::api_elements::VkExportFenceCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkExportFenceCreateInfo::sType,
                                   vulkan::fields::VkExportFenceCreateInfo::pNext,
@@ -2563,7 +2563,7 @@ struct Schema<vulkan::api_types::VkExportFenceCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkExportSemaphoreCreateInfo>
+struct Schema<vulkan::api_elements::VkExportSemaphoreCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkExportSemaphoreCreateInfo::sType,
                                   vulkan::fields::VkExportSemaphoreCreateInfo::pNext,
@@ -2571,7 +2571,7 @@ struct Schema<vulkan::api_types::VkExportSemaphoreCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceExternalSemaphoreInfo>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceExternalSemaphoreInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceExternalSemaphoreInfo::sType,
                                   vulkan::fields::VkPhysicalDeviceExternalSemaphoreInfo::pNext,
@@ -2579,7 +2579,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceExternalSemaphoreInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkExternalSemaphoreProperties>
+struct Schema<vulkan::api_elements::VkExternalSemaphoreProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkExternalSemaphoreProperties::sType,
                                   vulkan::fields::VkExternalSemaphoreProperties::pNext,
@@ -2589,7 +2589,7 @@ struct Schema<vulkan::api_types::VkExternalSemaphoreProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceSubgroupProperties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceSubgroupProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceSubgroupProperties::sType,
                                   vulkan::fields::VkPhysicalDeviceSubgroupProperties::pNext,
@@ -2600,7 +2600,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceSubgroupProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevice16BitStorageFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDevice16BitStorageFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevice16BitStorageFeatures::sType,
                                   vulkan::fields::VkPhysicalDevice16BitStorageFeatures::pNext,
@@ -2611,7 +2611,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevice16BitStorageFeatures>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceVariablePointersFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceVariablePointersFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceVariablePointersFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceVariablePointersFeatures::pNext,
@@ -2620,7 +2620,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceVariablePointersFeatures>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDescriptorUpdateTemplateEntry>
+struct Schema<vulkan::api_elements::VkDescriptorUpdateTemplateEntry>
 {
     using Fields = util::TypeList<vulkan::fields::VkDescriptorUpdateTemplateEntry::dstBinding,
                                   vulkan::fields::VkDescriptorUpdateTemplateEntry::dstArrayElement,
@@ -2631,7 +2631,7 @@ struct Schema<vulkan::api_types::VkDescriptorUpdateTemplateEntry>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDescriptorUpdateTemplateCreateInfo>
+struct Schema<vulkan::api_elements::VkDescriptorUpdateTemplateCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkDescriptorUpdateTemplateCreateInfo::sType,
                                   vulkan::fields::VkDescriptorUpdateTemplateCreateInfo::pNext,
@@ -2646,7 +2646,7 @@ struct Schema<vulkan::api_types::VkDescriptorUpdateTemplateCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance3Properties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMaintenance3Properties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMaintenance3Properties::sType,
                                   vulkan::fields::VkPhysicalDeviceMaintenance3Properties::pNext,
@@ -2655,7 +2655,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance3Properties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDescriptorSetLayoutSupport>
+struct Schema<vulkan::api_elements::VkDescriptorSetLayoutSupport>
 {
     using Fields = util::TypeList<vulkan::fields::VkDescriptorSetLayoutSupport::sType,
                                   vulkan::fields::VkDescriptorSetLayoutSupport::pNext,
@@ -2663,7 +2663,7 @@ struct Schema<vulkan::api_types::VkDescriptorSetLayoutSupport>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSamplerYcbcrConversionCreateInfo>
+struct Schema<vulkan::api_elements::VkSamplerYcbcrConversionCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkSamplerYcbcrConversionCreateInfo::sType,
                                   vulkan::fields::VkSamplerYcbcrConversionCreateInfo::pNext,
@@ -2678,7 +2678,7 @@ struct Schema<vulkan::api_types::VkSamplerYcbcrConversionCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSamplerYcbcrConversionInfo>
+struct Schema<vulkan::api_elements::VkSamplerYcbcrConversionInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkSamplerYcbcrConversionInfo::sType,
                                   vulkan::fields::VkSamplerYcbcrConversionInfo::pNext,
@@ -2686,7 +2686,7 @@ struct Schema<vulkan::api_types::VkSamplerYcbcrConversionInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceSamplerYcbcrConversionFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceSamplerYcbcrConversionFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceSamplerYcbcrConversionFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceSamplerYcbcrConversionFeatures::pNext,
@@ -2694,7 +2694,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceSamplerYcbcrConversionFeatures>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSamplerYcbcrConversionImageFormatProperties>
+struct Schema<vulkan::api_elements::VkSamplerYcbcrConversionImageFormatProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkSamplerYcbcrConversionImageFormatProperties::sType,
                                   vulkan::fields::VkSamplerYcbcrConversionImageFormatProperties::pNext,
@@ -2702,7 +2702,7 @@ struct Schema<vulkan::api_types::VkSamplerYcbcrConversionImageFormatProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceGroupRenderPassBeginInfo>
+struct Schema<vulkan::api_elements::VkDeviceGroupRenderPassBeginInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceGroupRenderPassBeginInfo::sType,
                                   vulkan::fields::VkDeviceGroupRenderPassBeginInfo::pNext,
@@ -2712,7 +2712,7 @@ struct Schema<vulkan::api_types::VkDeviceGroupRenderPassBeginInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePointClippingProperties>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePointClippingProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePointClippingProperties::sType,
                                   vulkan::fields::VkPhysicalDevicePointClippingProperties::pNext,
@@ -2720,7 +2720,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePointClippingProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkInputAttachmentAspectReference>
+struct Schema<vulkan::api_elements::VkInputAttachmentAspectReference>
 {
     using Fields = util::TypeList<vulkan::fields::VkInputAttachmentAspectReference::subpass,
                                   vulkan::fields::VkInputAttachmentAspectReference::inputAttachmentIndex,
@@ -2728,7 +2728,7 @@ struct Schema<vulkan::api_types::VkInputAttachmentAspectReference>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderPassInputAttachmentAspectCreateInfo>
+struct Schema<vulkan::api_elements::VkRenderPassInputAttachmentAspectCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderPassInputAttachmentAspectCreateInfo::sType,
                                   vulkan::fields::VkRenderPassInputAttachmentAspectCreateInfo::pNext,
@@ -2737,7 +2737,7 @@ struct Schema<vulkan::api_types::VkRenderPassInputAttachmentAspectCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineTessellationDomainOriginStateCreateInfo>
+struct Schema<vulkan::api_elements::VkPipelineTessellationDomainOriginStateCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineTessellationDomainOriginStateCreateInfo::sType,
                                   vulkan::fields::VkPipelineTessellationDomainOriginStateCreateInfo::pNext,
@@ -2745,7 +2745,7 @@ struct Schema<vulkan::api_types::VkPipelineTessellationDomainOriginStateCreateIn
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderPassMultiviewCreateInfo>
+struct Schema<vulkan::api_elements::VkRenderPassMultiviewCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderPassMultiviewCreateInfo::sType,
                                   vulkan::fields::VkRenderPassMultiviewCreateInfo::pNext,
@@ -2758,7 +2758,7 @@ struct Schema<vulkan::api_types::VkRenderPassMultiviewCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMultiviewFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMultiviewFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMultiviewFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceMultiviewFeatures::pNext,
@@ -2768,7 +2768,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMultiviewFeatures>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMultiviewProperties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMultiviewProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMultiviewProperties::sType,
                                   vulkan::fields::VkPhysicalDeviceMultiviewProperties::pNext,
@@ -2777,7 +2777,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMultiviewProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderDrawParametersFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderDrawParametersFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderDrawParametersFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderDrawParametersFeatures::pNext,
@@ -2785,7 +2785,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderDrawParametersFeatures>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkConformanceVersion>
+struct Schema<vulkan::api_elements::VkConformanceVersion>
 {
     using Fields = util::TypeList<vulkan::fields::VkConformanceVersion::major,
                                   vulkan::fields::VkConformanceVersion::minor,
@@ -2794,7 +2794,7 @@ struct Schema<vulkan::api_types::VkConformanceVersion>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDriverProperties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDriverProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDriverProperties::sType,
                                   vulkan::fields::VkPhysicalDeviceDriverProperties::pNext,
@@ -2805,7 +2805,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDriverProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceVulkan11Features>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceVulkan11Features>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceVulkan11Features::sType,
                                   vulkan::fields::VkPhysicalDeviceVulkan11Features::pNext,
@@ -2824,7 +2824,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceVulkan11Features>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceVulkan11Properties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceVulkan11Properties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceVulkan11Properties::sType,
                                   vulkan::fields::VkPhysicalDeviceVulkan11Properties::pNext,
@@ -2846,7 +2846,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceVulkan11Properties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceVulkan12Features>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceVulkan12Features>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceVulkan12Features::sType,
                                   vulkan::fields::VkPhysicalDeviceVulkan12Features::pNext,
@@ -2900,7 +2900,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceVulkan12Features>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceVulkan12Properties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceVulkan12Properties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceVulkan12Properties::sType,
                                   vulkan::fields::VkPhysicalDeviceVulkan12Properties::pNext,
@@ -2959,7 +2959,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceVulkan12Properties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageFormatListCreateInfo>
+struct Schema<vulkan::api_elements::VkImageFormatListCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageFormatListCreateInfo::sType,
                                   vulkan::fields::VkImageFormatListCreateInfo::pNext,
@@ -2968,7 +2968,7 @@ struct Schema<vulkan::api_types::VkImageFormatListCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceVulkanMemoryModelFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceVulkanMemoryModelFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceVulkanMemoryModelFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceVulkanMemoryModelFeatures::pNext,
@@ -2978,7 +2978,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceVulkanMemoryModelFeatures>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceHostQueryResetFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceHostQueryResetFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceHostQueryResetFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceHostQueryResetFeatures::pNext,
@@ -2986,7 +2986,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceHostQueryResetFeatures>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceTimelineSemaphoreFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceTimelineSemaphoreFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceTimelineSemaphoreFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceTimelineSemaphoreFeatures::pNext,
@@ -2994,7 +2994,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceTimelineSemaphoreFeatures>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceTimelineSemaphoreProperties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceTimelineSemaphoreProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceTimelineSemaphoreProperties::sType,
                                   vulkan::fields::VkPhysicalDeviceTimelineSemaphoreProperties::pNext,
@@ -3002,7 +3002,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceTimelineSemaphoreProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSemaphoreTypeCreateInfo>
+struct Schema<vulkan::api_elements::VkSemaphoreTypeCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkSemaphoreTypeCreateInfo::sType,
                                   vulkan::fields::VkSemaphoreTypeCreateInfo::pNext,
@@ -3011,7 +3011,7 @@ struct Schema<vulkan::api_types::VkSemaphoreTypeCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkTimelineSemaphoreSubmitInfo>
+struct Schema<vulkan::api_elements::VkTimelineSemaphoreSubmitInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkTimelineSemaphoreSubmitInfo::sType,
                                   vulkan::fields::VkTimelineSemaphoreSubmitInfo::pNext,
@@ -3022,7 +3022,7 @@ struct Schema<vulkan::api_types::VkTimelineSemaphoreSubmitInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSemaphoreWaitInfo>
+struct Schema<vulkan::api_elements::VkSemaphoreWaitInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkSemaphoreWaitInfo::sType,
                                   vulkan::fields::VkSemaphoreWaitInfo::pNext,
@@ -3033,7 +3033,7 @@ struct Schema<vulkan::api_types::VkSemaphoreWaitInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSemaphoreSignalInfo>
+struct Schema<vulkan::api_elements::VkSemaphoreSignalInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkSemaphoreSignalInfo::sType,
                                   vulkan::fields::VkSemaphoreSignalInfo::pNext,
@@ -3042,7 +3042,7 @@ struct Schema<vulkan::api_types::VkSemaphoreSignalInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceBufferDeviceAddressFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceBufferDeviceAddressFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceBufferDeviceAddressFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceBufferDeviceAddressFeatures::pNext,
@@ -3052,7 +3052,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceBufferDeviceAddressFeatures>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBufferDeviceAddressInfo>
+struct Schema<vulkan::api_elements::VkBufferDeviceAddressInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkBufferDeviceAddressInfo::sType,
                                   vulkan::fields::VkBufferDeviceAddressInfo::pNext,
@@ -3060,7 +3060,7 @@ struct Schema<vulkan::api_types::VkBufferDeviceAddressInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBufferOpaqueCaptureAddressCreateInfo>
+struct Schema<vulkan::api_elements::VkBufferOpaqueCaptureAddressCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkBufferOpaqueCaptureAddressCreateInfo::sType,
                                   vulkan::fields::VkBufferOpaqueCaptureAddressCreateInfo::pNext,
@@ -3068,7 +3068,7 @@ struct Schema<vulkan::api_types::VkBufferOpaqueCaptureAddressCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryOpaqueCaptureAddressAllocateInfo>
+struct Schema<vulkan::api_elements::VkMemoryOpaqueCaptureAddressAllocateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryOpaqueCaptureAddressAllocateInfo::sType,
                                   vulkan::fields::VkMemoryOpaqueCaptureAddressAllocateInfo::pNext,
@@ -3076,7 +3076,7 @@ struct Schema<vulkan::api_types::VkMemoryOpaqueCaptureAddressAllocateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceMemoryOpaqueCaptureAddressInfo>
+struct Schema<vulkan::api_elements::VkDeviceMemoryOpaqueCaptureAddressInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceMemoryOpaqueCaptureAddressInfo::sType,
                                   vulkan::fields::VkDeviceMemoryOpaqueCaptureAddressInfo::pNext,
@@ -3084,7 +3084,7 @@ struct Schema<vulkan::api_types::VkDeviceMemoryOpaqueCaptureAddressInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevice8BitStorageFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDevice8BitStorageFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevice8BitStorageFeatures::sType,
                                   vulkan::fields::VkPhysicalDevice8BitStorageFeatures::pNext,
@@ -3094,7 +3094,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevice8BitStorageFeatures>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderAtomicInt64Features>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderAtomicInt64Features>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderAtomicInt64Features::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderAtomicInt64Features::pNext,
@@ -3103,7 +3103,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderAtomicInt64Features>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderFloat16Int8Features>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderFloat16Int8Features>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderFloat16Int8Features::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderFloat16Int8Features::pNext,
@@ -3112,7 +3112,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderFloat16Int8Features>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceFloatControlsProperties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceFloatControlsProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceFloatControlsProperties::sType,
                                   vulkan::fields::VkPhysicalDeviceFloatControlsProperties::pNext,
@@ -3136,7 +3136,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceFloatControlsProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDescriptorSetLayoutBindingFlagsCreateInfo>
+struct Schema<vulkan::api_elements::VkDescriptorSetLayoutBindingFlagsCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkDescriptorSetLayoutBindingFlagsCreateInfo::sType,
                                   vulkan::fields::VkDescriptorSetLayoutBindingFlagsCreateInfo::pNext,
@@ -3145,7 +3145,7 @@ struct Schema<vulkan::api_types::VkDescriptorSetLayoutBindingFlagsCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDescriptorIndexingFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDescriptorIndexingFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDescriptorIndexingFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceDescriptorIndexingFeatures::pNext,
@@ -3172,7 +3172,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDescriptorIndexingFeatures>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDescriptorIndexingProperties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDescriptorIndexingProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDescriptorIndexingProperties::sType,
                                   vulkan::fields::VkPhysicalDeviceDescriptorIndexingProperties::pNext,
@@ -3202,7 +3202,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDescriptorIndexingProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDescriptorSetVariableDescriptorCountAllocateInfo>
+struct Schema<vulkan::api_elements::VkDescriptorSetVariableDescriptorCountAllocateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkDescriptorSetVariableDescriptorCountAllocateInfo::sType,
                                   vulkan::fields::VkDescriptorSetVariableDescriptorCountAllocateInfo::pNext,
@@ -3211,7 +3211,7 @@ struct Schema<vulkan::api_types::VkDescriptorSetVariableDescriptorCountAllocateI
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDescriptorSetVariableDescriptorCountLayoutSupport>
+struct Schema<vulkan::api_elements::VkDescriptorSetVariableDescriptorCountLayoutSupport>
 {
     using Fields = util::TypeList<vulkan::fields::VkDescriptorSetVariableDescriptorCountLayoutSupport::sType,
                                   vulkan::fields::VkDescriptorSetVariableDescriptorCountLayoutSupport::pNext,
@@ -3219,7 +3219,7 @@ struct Schema<vulkan::api_types::VkDescriptorSetVariableDescriptorCountLayoutSup
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceScalarBlockLayoutFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceScalarBlockLayoutFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceScalarBlockLayoutFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceScalarBlockLayoutFeatures::pNext,
@@ -3227,7 +3227,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceScalarBlockLayoutFeatures>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSamplerReductionModeCreateInfo>
+struct Schema<vulkan::api_elements::VkSamplerReductionModeCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkSamplerReductionModeCreateInfo::sType,
                                   vulkan::fields::VkSamplerReductionModeCreateInfo::pNext,
@@ -3235,7 +3235,7 @@ struct Schema<vulkan::api_types::VkSamplerReductionModeCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceSamplerFilterMinmaxProperties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceSamplerFilterMinmaxProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceSamplerFilterMinmaxProperties::sType,
                                   vulkan::fields::VkPhysicalDeviceSamplerFilterMinmaxProperties::pNext,
@@ -3244,7 +3244,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceSamplerFilterMinmaxProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceUniformBufferStandardLayoutFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceUniformBufferStandardLayoutFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceUniformBufferStandardLayoutFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceUniformBufferStandardLayoutFeatures::pNext,
@@ -3252,7 +3252,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceUniformBufferStandardLayoutFeat
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures::pNext,
@@ -3260,7 +3260,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderSubgroupExtendedTypesFeat
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAttachmentDescription2>
+struct Schema<vulkan::api_elements::VkAttachmentDescription2>
 {
     using Fields = util::TypeList<vulkan::fields::VkAttachmentDescription2::sType,
                                   vulkan::fields::VkAttachmentDescription2::pNext,
@@ -3276,7 +3276,7 @@ struct Schema<vulkan::api_types::VkAttachmentDescription2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAttachmentReference2>
+struct Schema<vulkan::api_elements::VkAttachmentReference2>
 {
     using Fields = util::TypeList<vulkan::fields::VkAttachmentReference2::sType,
                                   vulkan::fields::VkAttachmentReference2::pNext,
@@ -3286,7 +3286,7 @@ struct Schema<vulkan::api_types::VkAttachmentReference2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSubpassDescription2>
+struct Schema<vulkan::api_elements::VkSubpassDescription2>
 {
     using Fields = util::TypeList<vulkan::fields::VkSubpassDescription2::sType,
                                   vulkan::fields::VkSubpassDescription2::pNext,
@@ -3304,7 +3304,7 @@ struct Schema<vulkan::api_types::VkSubpassDescription2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSubpassDependency2>
+struct Schema<vulkan::api_elements::VkSubpassDependency2>
 {
     using Fields = util::TypeList<vulkan::fields::VkSubpassDependency2::sType,
                                   vulkan::fields::VkSubpassDependency2::pNext,
@@ -3319,20 +3319,20 @@ struct Schema<vulkan::api_types::VkSubpassDependency2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSubpassBeginInfo>
+struct Schema<vulkan::api_elements::VkSubpassBeginInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkSubpassBeginInfo::sType, vulkan::fields::VkSubpassBeginInfo::pNext,
                                   vulkan::fields::VkSubpassBeginInfo::contents>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSubpassEndInfo>
+struct Schema<vulkan::api_elements::VkSubpassEndInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkSubpassEndInfo::sType, vulkan::fields::VkSubpassEndInfo::pNext>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderPassCreateInfo2>
+struct Schema<vulkan::api_elements::VkRenderPassCreateInfo2>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderPassCreateInfo2::sType,
                                   vulkan::fields::VkRenderPassCreateInfo2::pNext,
@@ -3348,7 +3348,7 @@ struct Schema<vulkan::api_types::VkRenderPassCreateInfo2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSubpassDescriptionDepthStencilResolve>
+struct Schema<vulkan::api_elements::VkSubpassDescriptionDepthStencilResolve>
 {
     using Fields = util::TypeList<vulkan::fields::VkSubpassDescriptionDepthStencilResolve::sType,
                                   vulkan::fields::VkSubpassDescriptionDepthStencilResolve::pNext,
@@ -3358,7 +3358,7 @@ struct Schema<vulkan::api_types::VkSubpassDescriptionDepthStencilResolve>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDepthStencilResolveProperties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDepthStencilResolveProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDepthStencilResolveProperties::sType,
                                   vulkan::fields::VkPhysicalDeviceDepthStencilResolveProperties::pNext,
@@ -3369,7 +3369,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDepthStencilResolveProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageStencilUsageCreateInfo>
+struct Schema<vulkan::api_elements::VkImageStencilUsageCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageStencilUsageCreateInfo::sType,
                                   vulkan::fields::VkImageStencilUsageCreateInfo::pNext,
@@ -3377,7 +3377,7 @@ struct Schema<vulkan::api_types::VkImageStencilUsageCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceImagelessFramebufferFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceImagelessFramebufferFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceImagelessFramebufferFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceImagelessFramebufferFeatures::pNext,
@@ -3385,7 +3385,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceImagelessFramebufferFeatures>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkFramebufferAttachmentImageInfo>
+struct Schema<vulkan::api_elements::VkFramebufferAttachmentImageInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkFramebufferAttachmentImageInfo::sType,
                                   vulkan::fields::VkFramebufferAttachmentImageInfo::pNext,
@@ -3399,7 +3399,7 @@ struct Schema<vulkan::api_types::VkFramebufferAttachmentImageInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderPassAttachmentBeginInfo>
+struct Schema<vulkan::api_elements::VkRenderPassAttachmentBeginInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderPassAttachmentBeginInfo::sType,
                                   vulkan::fields::VkRenderPassAttachmentBeginInfo::pNext,
@@ -3408,7 +3408,7 @@ struct Schema<vulkan::api_types::VkRenderPassAttachmentBeginInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkFramebufferAttachmentsCreateInfo>
+struct Schema<vulkan::api_elements::VkFramebufferAttachmentsCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkFramebufferAttachmentsCreateInfo::sType,
                                   vulkan::fields::VkFramebufferAttachmentsCreateInfo::pNext,
@@ -3417,7 +3417,7 @@ struct Schema<vulkan::api_types::VkFramebufferAttachmentsCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures::pNext,
@@ -3425,7 +3425,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceSeparateDepthStencilLayoutsFeat
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAttachmentReferenceStencilLayout>
+struct Schema<vulkan::api_elements::VkAttachmentReferenceStencilLayout>
 {
     using Fields = util::TypeList<vulkan::fields::VkAttachmentReferenceStencilLayout::sType,
                                   vulkan::fields::VkAttachmentReferenceStencilLayout::pNext,
@@ -3433,7 +3433,7 @@ struct Schema<vulkan::api_types::VkAttachmentReferenceStencilLayout>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAttachmentDescriptionStencilLayout>
+struct Schema<vulkan::api_elements::VkAttachmentDescriptionStencilLayout>
 {
     using Fields = util::TypeList<vulkan::fields::VkAttachmentDescriptionStencilLayout::sType,
                                   vulkan::fields::VkAttachmentDescriptionStencilLayout::pNext,
@@ -3442,7 +3442,7 @@ struct Schema<vulkan::api_types::VkAttachmentDescriptionStencilLayout>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceVulkan13Features>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceVulkan13Features>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceVulkan13Features::sType,
                                   vulkan::fields::VkPhysicalDeviceVulkan13Features::pNext,
@@ -3464,7 +3464,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceVulkan13Features>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceVulkan13Properties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceVulkan13Properties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceVulkan13Properties::sType,
                                   vulkan::fields::VkPhysicalDeviceVulkan13Properties::pNext,
@@ -3516,7 +3516,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceVulkan13Properties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceToolProperties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceToolProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceToolProperties::sType,
                                   vulkan::fields::VkPhysicalDeviceToolProperties::pNext,
@@ -3528,7 +3528,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceToolProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePrivateDataFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePrivateDataFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePrivateDataFeatures::sType,
                                   vulkan::fields::VkPhysicalDevicePrivateDataFeatures::pNext,
@@ -3536,7 +3536,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePrivateDataFeatures>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDevicePrivateDataCreateInfo>
+struct Schema<vulkan::api_elements::VkDevicePrivateDataCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkDevicePrivateDataCreateInfo::sType,
                                   vulkan::fields::VkDevicePrivateDataCreateInfo::pNext,
@@ -3544,7 +3544,7 @@ struct Schema<vulkan::api_types::VkDevicePrivateDataCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPrivateDataSlotCreateInfo>
+struct Schema<vulkan::api_elements::VkPrivateDataSlotCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPrivateDataSlotCreateInfo::sType,
                                   vulkan::fields::VkPrivateDataSlotCreateInfo::pNext,
@@ -3552,7 +3552,7 @@ struct Schema<vulkan::api_types::VkPrivateDataSlotCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryBarrier2>
+struct Schema<vulkan::api_elements::VkMemoryBarrier2>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryBarrier2::sType, vulkan::fields::VkMemoryBarrier2::pNext,
                                   vulkan::fields::VkMemoryBarrier2::srcStageMask,
@@ -3562,7 +3562,7 @@ struct Schema<vulkan::api_types::VkMemoryBarrier2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBufferMemoryBarrier2>
+struct Schema<vulkan::api_elements::VkBufferMemoryBarrier2>
 {
     using Fields = util::TypeList<vulkan::fields::VkBufferMemoryBarrier2::sType,
                                   vulkan::fields::VkBufferMemoryBarrier2::pNext,
@@ -3578,7 +3578,7 @@ struct Schema<vulkan::api_types::VkBufferMemoryBarrier2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageMemoryBarrier2>
+struct Schema<vulkan::api_elements::VkImageMemoryBarrier2>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageMemoryBarrier2::sType,
                                   vulkan::fields::VkImageMemoryBarrier2::pNext,
@@ -3595,7 +3595,7 @@ struct Schema<vulkan::api_types::VkImageMemoryBarrier2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDependencyInfo>
+struct Schema<vulkan::api_elements::VkDependencyInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkDependencyInfo::sType, vulkan::fields::VkDependencyInfo::pNext,
                                   vulkan::fields::VkDependencyInfo::dependencyFlags,
@@ -3608,7 +3608,7 @@ struct Schema<vulkan::api_types::VkDependencyInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSemaphoreSubmitInfo>
+struct Schema<vulkan::api_elements::VkSemaphoreSubmitInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkSemaphoreSubmitInfo::sType,
                                   vulkan::fields::VkSemaphoreSubmitInfo::pNext,
@@ -3619,7 +3619,7 @@ struct Schema<vulkan::api_types::VkSemaphoreSubmitInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCommandBufferSubmitInfo>
+struct Schema<vulkan::api_elements::VkCommandBufferSubmitInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkCommandBufferSubmitInfo::sType,
                                   vulkan::fields::VkCommandBufferSubmitInfo::pNext,
@@ -3628,7 +3628,7 @@ struct Schema<vulkan::api_types::VkCommandBufferSubmitInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSubmitInfo2>
+struct Schema<vulkan::api_elements::VkSubmitInfo2>
 {
     using Fields = util::TypeList<vulkan::fields::VkSubmitInfo2::sType, vulkan::fields::VkSubmitInfo2::pNext,
                                   vulkan::fields::VkSubmitInfo2::flags,
@@ -3641,7 +3641,7 @@ struct Schema<vulkan::api_types::VkSubmitInfo2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceSynchronization2Features>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceSynchronization2Features>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceSynchronization2Features::sType,
                                   vulkan::fields::VkPhysicalDeviceSynchronization2Features::pNext,
@@ -3649,7 +3649,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceSynchronization2Features>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBufferCopy2>
+struct Schema<vulkan::api_elements::VkBufferCopy2>
 {
     using Fields = util::TypeList<vulkan::fields::VkBufferCopy2::sType, vulkan::fields::VkBufferCopy2::pNext,
                                   vulkan::fields::VkBufferCopy2::srcOffset, vulkan::fields::VkBufferCopy2::dstOffset,
@@ -3657,7 +3657,7 @@ struct Schema<vulkan::api_types::VkBufferCopy2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCopyBufferInfo2>
+struct Schema<vulkan::api_elements::VkCopyBufferInfo2>
 {
     using Fields = util::TypeList<vulkan::fields::VkCopyBufferInfo2::sType, vulkan::fields::VkCopyBufferInfo2::pNext,
                                   vulkan::fields::VkCopyBufferInfo2::srcBuffer,
@@ -3667,7 +3667,7 @@ struct Schema<vulkan::api_types::VkCopyBufferInfo2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageCopy2>
+struct Schema<vulkan::api_elements::VkImageCopy2>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageCopy2::sType, vulkan::fields::VkImageCopy2::pNext,
                                   vulkan::fields::VkImageCopy2::srcSubresource, vulkan::fields::VkImageCopy2::srcOffset,
@@ -3676,7 +3676,7 @@ struct Schema<vulkan::api_types::VkImageCopy2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCopyImageInfo2>
+struct Schema<vulkan::api_elements::VkCopyImageInfo2>
 {
     using Fields = util::TypeList<vulkan::fields::VkCopyImageInfo2::sType, vulkan::fields::VkCopyImageInfo2::pNext,
                                   vulkan::fields::VkCopyImageInfo2::srcImage,
@@ -3688,7 +3688,7 @@ struct Schema<vulkan::api_types::VkCopyImageInfo2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBufferImageCopy2>
+struct Schema<vulkan::api_elements::VkBufferImageCopy2>
 {
     using Fields = util::TypeList<vulkan::fields::VkBufferImageCopy2::sType, vulkan::fields::VkBufferImageCopy2::pNext,
                                   vulkan::fields::VkBufferImageCopy2::bufferOffset,
@@ -3700,7 +3700,7 @@ struct Schema<vulkan::api_types::VkBufferImageCopy2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCopyBufferToImageInfo2>
+struct Schema<vulkan::api_elements::VkCopyBufferToImageInfo2>
 {
     using Fields = util::TypeList<vulkan::fields::VkCopyBufferToImageInfo2::sType,
                                   vulkan::fields::VkCopyBufferToImageInfo2::pNext,
@@ -3712,7 +3712,7 @@ struct Schema<vulkan::api_types::VkCopyBufferToImageInfo2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCopyImageToBufferInfo2>
+struct Schema<vulkan::api_elements::VkCopyImageToBufferInfo2>
 {
     using Fields = util::TypeList<vulkan::fields::VkCopyImageToBufferInfo2::sType,
                                   vulkan::fields::VkCopyImageToBufferInfo2::pNext,
@@ -3724,7 +3724,7 @@ struct Schema<vulkan::api_types::VkCopyImageToBufferInfo2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceTextureCompressionASTCHDRFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceTextureCompressionASTCHDRFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceTextureCompressionASTCHDRFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceTextureCompressionASTCHDRFeatures::pNext,
@@ -3732,7 +3732,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceTextureCompressionASTCHDRFeatur
 };
 
 template <>
-struct Schema<vulkan::api_types::VkFormatProperties3>
+struct Schema<vulkan::api_elements::VkFormatProperties3>
 {
     using Fields = util::TypeList<vulkan::fields::VkFormatProperties3::sType,
                                   vulkan::fields::VkFormatProperties3::pNext,
@@ -3742,7 +3742,7 @@ struct Schema<vulkan::api_types::VkFormatProperties3>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance4Features>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMaintenance4Features>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMaintenance4Features::sType,
                                   vulkan::fields::VkPhysicalDeviceMaintenance4Features::pNext,
@@ -3750,7 +3750,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance4Features>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance4Properties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMaintenance4Properties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMaintenance4Properties::sType,
                                   vulkan::fields::VkPhysicalDeviceMaintenance4Properties::pNext,
@@ -3758,7 +3758,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance4Properties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceBufferMemoryRequirements>
+struct Schema<vulkan::api_elements::VkDeviceBufferMemoryRequirements>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceBufferMemoryRequirements::sType,
                                   vulkan::fields::VkDeviceBufferMemoryRequirements::pNext,
@@ -3766,7 +3766,7 @@ struct Schema<vulkan::api_types::VkDeviceBufferMemoryRequirements>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceImageMemoryRequirements>
+struct Schema<vulkan::api_elements::VkDeviceImageMemoryRequirements>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceImageMemoryRequirements::sType,
                                   vulkan::fields::VkDeviceImageMemoryRequirements::pNext,
@@ -3775,14 +3775,14 @@ struct Schema<vulkan::api_types::VkDeviceImageMemoryRequirements>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineCreationFeedback>
+struct Schema<vulkan::api_elements::VkPipelineCreationFeedback>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineCreationFeedback::flags,
                                   vulkan::fields::VkPipelineCreationFeedback::duration>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineCreationFeedbackCreateInfo>
+struct Schema<vulkan::api_elements::VkPipelineCreationFeedbackCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineCreationFeedbackCreateInfo::sType,
                                   vulkan::fields::VkPipelineCreationFeedbackCreateInfo::pNext,
@@ -3792,7 +3792,7 @@ struct Schema<vulkan::api_types::VkPipelineCreationFeedbackCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderTerminateInvocationFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderTerminateInvocationFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderTerminateInvocationFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderTerminateInvocationFeatures::pNext,
@@ -3800,7 +3800,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderTerminateInvocationFeatur
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures::pNext,
@@ -3808,7 +3808,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderDemoteToHelperInvocationF
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePipelineCreationCacheControlFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePipelineCreationCacheControlFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePipelineCreationCacheControlFeatures::sType,
                                   vulkan::fields::VkPhysicalDevicePipelineCreationCacheControlFeatures::pNext,
@@ -3816,7 +3816,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePipelineCreationCacheControlFea
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures::pNext,
@@ -3824,7 +3824,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceZeroInitializeWorkgroupMemoryFe
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceImageRobustnessFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceImageRobustnessFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceImageRobustnessFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceImageRobustnessFeatures::pNext,
@@ -3832,7 +3832,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceImageRobustnessFeatures>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceSubgroupSizeControlFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceSubgroupSizeControlFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceSubgroupSizeControlFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceSubgroupSizeControlFeatures::pNext,
@@ -3841,7 +3841,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceSubgroupSizeControlFeatures>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceSubgroupSizeControlProperties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceSubgroupSizeControlProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceSubgroupSizeControlProperties::sType,
                                   vulkan::fields::VkPhysicalDeviceSubgroupSizeControlProperties::pNext,
@@ -3852,7 +3852,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceSubgroupSizeControlProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineShaderStageRequiredSubgroupSizeCreateInfo>
+struct Schema<vulkan::api_elements::VkPipelineShaderStageRequiredSubgroupSizeCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineShaderStageRequiredSubgroupSizeCreateInfo::sType,
                                   vulkan::fields::VkPipelineShaderStageRequiredSubgroupSizeCreateInfo::pNext,
@@ -3860,7 +3860,7 @@ struct Schema<vulkan::api_types::VkPipelineShaderStageRequiredSubgroupSizeCreate
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceInlineUniformBlockFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceInlineUniformBlockFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceInlineUniformBlockFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceInlineUniformBlockFeatures::pNext,
@@ -3869,7 +3869,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceInlineUniformBlockFeatures>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceInlineUniformBlockProperties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceInlineUniformBlockProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceInlineUniformBlockProperties::sType,
                                   vulkan::fields::VkPhysicalDeviceInlineUniformBlockProperties::pNext,
@@ -3881,7 +3881,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceInlineUniformBlockProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkWriteDescriptorSetInlineUniformBlock>
+struct Schema<vulkan::api_elements::VkWriteDescriptorSetInlineUniformBlock>
 {
     using Fields = util::TypeList<vulkan::fields::VkWriteDescriptorSetInlineUniformBlock::sType,
                                   vulkan::fields::VkWriteDescriptorSetInlineUniformBlock::pNext,
@@ -3890,7 +3890,7 @@ struct Schema<vulkan::api_types::VkWriteDescriptorSetInlineUniformBlock>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDescriptorPoolInlineUniformBlockCreateInfo>
+struct Schema<vulkan::api_elements::VkDescriptorPoolInlineUniformBlockCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkDescriptorPoolInlineUniformBlockCreateInfo::sType,
                                   vulkan::fields::VkDescriptorPoolInlineUniformBlockCreateInfo::pNext,
@@ -3898,7 +3898,7 @@ struct Schema<vulkan::api_types::VkDescriptorPoolInlineUniformBlockCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderIntegerDotProductFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderIntegerDotProductFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderIntegerDotProductFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderIntegerDotProductFeatures::pNext,
@@ -3906,7 +3906,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderIntegerDotProductFeatures
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderIntegerDotProductProperties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderIntegerDotProductProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderIntegerDotProductProperties::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderIntegerDotProductProperties::pNext,
@@ -3943,7 +3943,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderIntegerDotProductProperti
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceTexelBufferAlignmentProperties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceTexelBufferAlignmentProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceTexelBufferAlignmentProperties::sType,
                                   vulkan::fields::VkPhysicalDeviceTexelBufferAlignmentProperties::pNext,
@@ -3954,7 +3954,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceTexelBufferAlignmentProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageBlit2>
+struct Schema<vulkan::api_elements::VkImageBlit2>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageBlit2::sType, vulkan::fields::VkImageBlit2::pNext,
                                   vulkan::fields::VkImageBlit2::srcSubresource,
@@ -3964,7 +3964,7 @@ struct Schema<vulkan::api_types::VkImageBlit2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBlitImageInfo2>
+struct Schema<vulkan::api_elements::VkBlitImageInfo2>
 {
     using Fields = util::TypeList<vulkan::fields::VkBlitImageInfo2::sType, vulkan::fields::VkBlitImageInfo2::pNext,
                                   vulkan::fields::VkBlitImageInfo2::srcImage,
@@ -3976,7 +3976,7 @@ struct Schema<vulkan::api_types::VkBlitImageInfo2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageResolve2>
+struct Schema<vulkan::api_elements::VkImageResolve2>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageResolve2::sType, vulkan::fields::VkImageResolve2::pNext,
                                   vulkan::fields::VkImageResolve2::srcSubresource,
@@ -3986,7 +3986,7 @@ struct Schema<vulkan::api_types::VkImageResolve2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkResolveImageInfo2>
+struct Schema<vulkan::api_elements::VkResolveImageInfo2>
 {
     using Fields = util::TypeList<vulkan::fields::VkResolveImageInfo2::sType,
                                   vulkan::fields::VkResolveImageInfo2::pNext,
@@ -3999,7 +3999,7 @@ struct Schema<vulkan::api_types::VkResolveImageInfo2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderingAttachmentInfo>
+struct Schema<vulkan::api_elements::VkRenderingAttachmentInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderingAttachmentInfo::sType,
                                   vulkan::fields::VkRenderingAttachmentInfo::pNext,
@@ -4014,7 +4014,7 @@ struct Schema<vulkan::api_types::VkRenderingAttachmentInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderingInfo>
+struct Schema<vulkan::api_elements::VkRenderingInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderingInfo::sType, vulkan::fields::VkRenderingInfo::pNext,
                                   vulkan::fields::VkRenderingInfo::flags, vulkan::fields::VkRenderingInfo::renderArea,
@@ -4027,7 +4027,7 @@ struct Schema<vulkan::api_types::VkRenderingInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineRenderingCreateInfo>
+struct Schema<vulkan::api_elements::VkPipelineRenderingCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineRenderingCreateInfo::sType,
                                   vulkan::fields::VkPipelineRenderingCreateInfo::pNext,
@@ -4039,7 +4039,7 @@ struct Schema<vulkan::api_types::VkPipelineRenderingCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDynamicRenderingFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDynamicRenderingFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDynamicRenderingFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceDynamicRenderingFeatures::pNext,
@@ -4047,7 +4047,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDynamicRenderingFeatures>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCommandBufferInheritanceRenderingInfo>
+struct Schema<vulkan::api_elements::VkCommandBufferInheritanceRenderingInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkCommandBufferInheritanceRenderingInfo::sType,
                                   vulkan::fields::VkCommandBufferInheritanceRenderingInfo::pNext,
@@ -4061,7 +4061,7 @@ struct Schema<vulkan::api_types::VkCommandBufferInheritanceRenderingInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceVulkan14Features>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceVulkan14Features>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceVulkan14Features::sType,
                                   vulkan::fields::VkPhysicalDeviceVulkan14Features::pNext,
@@ -4089,7 +4089,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceVulkan14Features>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceVulkan14Properties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceVulkan14Properties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceVulkan14Properties::sType,
                                   vulkan::fields::VkPhysicalDeviceVulkan14Properties::pNext,
@@ -4121,7 +4121,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceVulkan14Properties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceQueueGlobalPriorityCreateInfo>
+struct Schema<vulkan::api_elements::VkDeviceQueueGlobalPriorityCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceQueueGlobalPriorityCreateInfo::sType,
                                   vulkan::fields::VkDeviceQueueGlobalPriorityCreateInfo::pNext,
@@ -4129,7 +4129,7 @@ struct Schema<vulkan::api_types::VkDeviceQueueGlobalPriorityCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceGlobalPriorityQueryFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceGlobalPriorityQueryFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceGlobalPriorityQueryFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceGlobalPriorityQueryFeatures::pNext,
@@ -4137,7 +4137,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceGlobalPriorityQueryFeatures>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkQueueFamilyGlobalPriorityProperties>
+struct Schema<vulkan::api_elements::VkQueueFamilyGlobalPriorityProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkQueueFamilyGlobalPriorityProperties::sType,
                                   vulkan::fields::VkQueueFamilyGlobalPriorityProperties::pNext,
@@ -4146,7 +4146,7 @@ struct Schema<vulkan::api_types::VkQueueFamilyGlobalPriorityProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceIndexTypeUint8Features>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceIndexTypeUint8Features>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceIndexTypeUint8Features::sType,
                                   vulkan::fields::VkPhysicalDeviceIndexTypeUint8Features::pNext,
@@ -4154,7 +4154,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceIndexTypeUint8Features>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryMapInfo>
+struct Schema<vulkan::api_elements::VkMemoryMapInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryMapInfo::sType, vulkan::fields::VkMemoryMapInfo::pNext,
                                   vulkan::fields::VkMemoryMapInfo::flags, vulkan::fields::VkMemoryMapInfo::memory,
@@ -4162,14 +4162,14 @@ struct Schema<vulkan::api_types::VkMemoryMapInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryUnmapInfo>
+struct Schema<vulkan::api_elements::VkMemoryUnmapInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryUnmapInfo::sType, vulkan::fields::VkMemoryUnmapInfo::pNext,
                                   vulkan::fields::VkMemoryUnmapInfo::flags, vulkan::fields::VkMemoryUnmapInfo::memory>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance5Features>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMaintenance5Features>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMaintenance5Features::sType,
                                   vulkan::fields::VkPhysicalDeviceMaintenance5Features::pNext,
@@ -4177,7 +4177,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance5Features>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance5Properties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMaintenance5Properties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMaintenance5Properties::sType,
                                   vulkan::fields::VkPhysicalDeviceMaintenance5Properties::pNext,
@@ -4190,7 +4190,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance5Properties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSubresourceLayout2>
+struct Schema<vulkan::api_elements::VkSubresourceLayout2>
 {
     using Fields = util::TypeList<vulkan::fields::VkSubresourceLayout2::sType,
                                   vulkan::fields::VkSubresourceLayout2::pNext,
@@ -4198,7 +4198,7 @@ struct Schema<vulkan::api_types::VkSubresourceLayout2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageSubresource2>
+struct Schema<vulkan::api_elements::VkImageSubresource2>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageSubresource2::sType,
                                   vulkan::fields::VkImageSubresource2::pNext,
@@ -4206,7 +4206,7 @@ struct Schema<vulkan::api_types::VkImageSubresource2>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceImageSubresourceInfo>
+struct Schema<vulkan::api_elements::VkDeviceImageSubresourceInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceImageSubresourceInfo::sType,
                                   vulkan::fields::VkDeviceImageSubresourceInfo::pNext,
@@ -4215,7 +4215,7 @@ struct Schema<vulkan::api_types::VkDeviceImageSubresourceInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBufferUsageFlags2CreateInfo>
+struct Schema<vulkan::api_elements::VkBufferUsageFlags2CreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkBufferUsageFlags2CreateInfo::sType,
                                   vulkan::fields::VkBufferUsageFlags2CreateInfo::pNext,
@@ -4223,7 +4223,7 @@ struct Schema<vulkan::api_types::VkBufferUsageFlags2CreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance6Features>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMaintenance6Features>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMaintenance6Features::sType,
                                   vulkan::fields::VkPhysicalDeviceMaintenance6Features::pNext,
@@ -4231,7 +4231,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance6Features>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance6Properties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMaintenance6Properties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMaintenance6Properties::sType,
                                   vulkan::fields::VkPhysicalDeviceMaintenance6Properties::pNext,
@@ -4241,14 +4241,14 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance6Properties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBindMemoryStatus>
+struct Schema<vulkan::api_elements::VkBindMemoryStatus>
 {
     using Fields = util::TypeList<vulkan::fields::VkBindMemoryStatus::sType, vulkan::fields::VkBindMemoryStatus::pNext,
                                   vulkan::fields::VkBindMemoryStatus::pResult>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceHostImageCopyFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceHostImageCopyFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceHostImageCopyFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceHostImageCopyFeatures::pNext,
@@ -4256,7 +4256,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceHostImageCopyFeatures>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceHostImageCopyProperties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceHostImageCopyProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceHostImageCopyProperties::sType,
                                   vulkan::fields::VkPhysicalDeviceHostImageCopyProperties::pNext,
@@ -4269,7 +4269,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceHostImageCopyProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryToImageCopy>
+struct Schema<vulkan::api_elements::VkMemoryToImageCopy>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryToImageCopy::sType,
                                   vulkan::fields::VkMemoryToImageCopy::pNext,
@@ -4282,7 +4282,7 @@ struct Schema<vulkan::api_types::VkMemoryToImageCopy>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageToMemoryCopy>
+struct Schema<vulkan::api_elements::VkImageToMemoryCopy>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageToMemoryCopy::sType,
                                   vulkan::fields::VkImageToMemoryCopy::pNext,
@@ -4295,7 +4295,7 @@ struct Schema<vulkan::api_types::VkImageToMemoryCopy>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCopyMemoryToImageInfo>
+struct Schema<vulkan::api_elements::VkCopyMemoryToImageInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkCopyMemoryToImageInfo::sType,
                                   vulkan::fields::VkCopyMemoryToImageInfo::pNext,
@@ -4307,7 +4307,7 @@ struct Schema<vulkan::api_types::VkCopyMemoryToImageInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCopyImageToMemoryInfo>
+struct Schema<vulkan::api_elements::VkCopyImageToMemoryInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkCopyImageToMemoryInfo::sType,
                                   vulkan::fields::VkCopyImageToMemoryInfo::pNext,
@@ -4319,7 +4319,7 @@ struct Schema<vulkan::api_types::VkCopyImageToMemoryInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCopyImageToImageInfo>
+struct Schema<vulkan::api_elements::VkCopyImageToImageInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkCopyImageToImageInfo::sType,
                                   vulkan::fields::VkCopyImageToImageInfo::pNext,
@@ -4333,7 +4333,7 @@ struct Schema<vulkan::api_types::VkCopyImageToImageInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkHostImageLayoutTransitionInfo>
+struct Schema<vulkan::api_elements::VkHostImageLayoutTransitionInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkHostImageLayoutTransitionInfo::sType,
                                   vulkan::fields::VkHostImageLayoutTransitionInfo::pNext,
@@ -4344,7 +4344,7 @@ struct Schema<vulkan::api_types::VkHostImageLayoutTransitionInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSubresourceHostMemcpySize>
+struct Schema<vulkan::api_elements::VkSubresourceHostMemcpySize>
 {
     using Fields = util::TypeList<vulkan::fields::VkSubresourceHostMemcpySize::sType,
                                   vulkan::fields::VkSubresourceHostMemcpySize::pNext,
@@ -4352,7 +4352,7 @@ struct Schema<vulkan::api_types::VkSubresourceHostMemcpySize>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkHostImageCopyDevicePerformanceQuery>
+struct Schema<vulkan::api_elements::VkHostImageCopyDevicePerformanceQuery>
 {
     using Fields = util::TypeList<vulkan::fields::VkHostImageCopyDevicePerformanceQuery::sType,
                                   vulkan::fields::VkHostImageCopyDevicePerformanceQuery::pNext,
@@ -4361,7 +4361,7 @@ struct Schema<vulkan::api_types::VkHostImageCopyDevicePerformanceQuery>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderSubgroupRotateFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderSubgroupRotateFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderSubgroupRotateFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderSubgroupRotateFeatures::pNext,
@@ -4370,7 +4370,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderSubgroupRotateFeatures>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderFloatControls2Features>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderFloatControls2Features>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderFloatControls2Features::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderFloatControls2Features::pNext,
@@ -4378,7 +4378,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderFloatControls2Features>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderExpectAssumeFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderExpectAssumeFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderExpectAssumeFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderExpectAssumeFeatures::pNext,
@@ -4386,7 +4386,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderExpectAssumeFeatures>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineCreateFlags2CreateInfo>
+struct Schema<vulkan::api_elements::VkPipelineCreateFlags2CreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineCreateFlags2CreateInfo::sType,
                                   vulkan::fields::VkPipelineCreateFlags2CreateInfo::pNext,
@@ -4394,7 +4394,7 @@ struct Schema<vulkan::api_types::VkPipelineCreateFlags2CreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePushDescriptorProperties>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePushDescriptorProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePushDescriptorProperties::sType,
                                   vulkan::fields::VkPhysicalDevicePushDescriptorProperties::pNext,
@@ -4402,7 +4402,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePushDescriptorProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBindDescriptorSetsInfo>
+struct Schema<vulkan::api_elements::VkBindDescriptorSetsInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkBindDescriptorSetsInfo::sType,
                                   vulkan::fields::VkBindDescriptorSetsInfo::pNext,
@@ -4416,7 +4416,7 @@ struct Schema<vulkan::api_types::VkBindDescriptorSetsInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPushConstantsInfo>
+struct Schema<vulkan::api_elements::VkPushConstantsInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPushConstantsInfo::sType,
                                   vulkan::fields::VkPushConstantsInfo::pNext,
@@ -4428,7 +4428,7 @@ struct Schema<vulkan::api_types::VkPushConstantsInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPushDescriptorSetInfo>
+struct Schema<vulkan::api_elements::VkPushDescriptorSetInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPushDescriptorSetInfo::sType,
                                   vulkan::fields::VkPushDescriptorSetInfo::pNext,
@@ -4440,7 +4440,7 @@ struct Schema<vulkan::api_types::VkPushDescriptorSetInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPushDescriptorSetWithTemplateInfo>
+struct Schema<vulkan::api_elements::VkPushDescriptorSetWithTemplateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPushDescriptorSetWithTemplateInfo::sType,
                                   vulkan::fields::VkPushDescriptorSetWithTemplateInfo::pNext,
@@ -4451,7 +4451,7 @@ struct Schema<vulkan::api_types::VkPushDescriptorSetWithTemplateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePipelineProtectedAccessFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePipelineProtectedAccessFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePipelineProtectedAccessFeatures::sType,
                                   vulkan::fields::VkPhysicalDevicePipelineProtectedAccessFeatures::pNext,
@@ -4459,7 +4459,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePipelineProtectedAccessFeatures
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePipelineRobustnessFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePipelineRobustnessFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePipelineRobustnessFeatures::sType,
                                   vulkan::fields::VkPhysicalDevicePipelineRobustnessFeatures::pNext,
@@ -4467,7 +4467,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePipelineRobustnessFeatures>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePipelineRobustnessProperties>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePipelineRobustnessProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePipelineRobustnessProperties::sType,
                                   vulkan::fields::VkPhysicalDevicePipelineRobustnessProperties::pNext,
@@ -4478,7 +4478,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePipelineRobustnessProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineRobustnessCreateInfo>
+struct Schema<vulkan::api_elements::VkPipelineRobustnessCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineRobustnessCreateInfo::sType,
                                   vulkan::fields::VkPipelineRobustnessCreateInfo::pNext,
@@ -4489,7 +4489,7 @@ struct Schema<vulkan::api_types::VkPipelineRobustnessCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceLineRasterizationFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceLineRasterizationFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceLineRasterizationFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceLineRasterizationFeatures::pNext,
@@ -4502,7 +4502,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceLineRasterizationFeatures>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceLineRasterizationProperties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceLineRasterizationProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceLineRasterizationProperties::sType,
                                   vulkan::fields::VkPhysicalDeviceLineRasterizationProperties::pNext,
@@ -4510,7 +4510,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceLineRasterizationProperties>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineRasterizationLineStateCreateInfo>
+struct Schema<vulkan::api_elements::VkPipelineRasterizationLineStateCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineRasterizationLineStateCreateInfo::sType,
                                   vulkan::fields::VkPipelineRasterizationLineStateCreateInfo::pNext,
@@ -4521,7 +4521,7 @@ struct Schema<vulkan::api_types::VkPipelineRasterizationLineStateCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceVertexAttributeDivisorProperties>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceVertexAttributeDivisorProperties>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceVertexAttributeDivisorProperties::sType,
                                   vulkan::fields::VkPhysicalDeviceVertexAttributeDivisorProperties::pNext,
@@ -4530,14 +4530,14 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceVertexAttributeDivisorPropertie
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVertexInputBindingDivisorDescription>
+struct Schema<vulkan::api_elements::VkVertexInputBindingDivisorDescription>
 {
     using Fields = util::TypeList<vulkan::fields::VkVertexInputBindingDivisorDescription::binding,
                                   vulkan::fields::VkVertexInputBindingDivisorDescription::divisor>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineVertexInputDivisorStateCreateInfo>
+struct Schema<vulkan::api_elements::VkPipelineVertexInputDivisorStateCreateInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineVertexInputDivisorStateCreateInfo::sType,
                                   vulkan::fields::VkPipelineVertexInputDivisorStateCreateInfo::pNext,
@@ -4546,7 +4546,7 @@ struct Schema<vulkan::api_types::VkPipelineVertexInputDivisorStateCreateInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceVertexAttributeDivisorFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceVertexAttributeDivisorFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceVertexAttributeDivisorFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceVertexAttributeDivisorFeatures::pNext,
@@ -4555,7 +4555,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceVertexAttributeDivisorFeatures>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderingAreaInfo>
+struct Schema<vulkan::api_elements::VkRenderingAreaInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderingAreaInfo::sType,
                                   vulkan::fields::VkRenderingAreaInfo::pNext,
@@ -4567,7 +4567,7 @@ struct Schema<vulkan::api_types::VkRenderingAreaInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDynamicRenderingLocalReadFeatures>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDynamicRenderingLocalReadFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDynamicRenderingLocalReadFeatures::sType,
                                   vulkan::fields::VkPhysicalDeviceDynamicRenderingLocalReadFeatures::pNext,
@@ -4575,7 +4575,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDynamicRenderingLocalReadFeatur
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderingAttachmentLocationInfo>
+struct Schema<vulkan::api_elements::VkRenderingAttachmentLocationInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderingAttachmentLocationInfo::sType,
                                   vulkan::fields::VkRenderingAttachmentLocationInfo::pNext,
@@ -4584,7 +4584,7 @@ struct Schema<vulkan::api_types::VkRenderingAttachmentLocationInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderingInputAttachmentIndexInfo>
+struct Schema<vulkan::api_elements::VkRenderingInputAttachmentIndexInfo>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderingInputAttachmentIndexInfo::sType,
                                   vulkan::fields::VkRenderingInputAttachmentIndexInfo::pNext,
@@ -4595,7 +4595,7 @@ struct Schema<vulkan::api_types::VkRenderingInputAttachmentIndexInfo>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSurfaceCapabilitiesKHR>
+struct Schema<vulkan::api_elements::VkSurfaceCapabilitiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkSurfaceCapabilitiesKHR::minImageCount,
                                   vulkan::fields::VkSurfaceCapabilitiesKHR::maxImageCount,
@@ -4610,14 +4610,14 @@ struct Schema<vulkan::api_types::VkSurfaceCapabilitiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSurfaceFormatKHR>
+struct Schema<vulkan::api_elements::VkSurfaceFormatKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkSurfaceFormatKHR::format,
                                   vulkan::fields::VkSurfaceFormatKHR::colorSpace>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSwapchainCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkSwapchainCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkSwapchainCreateInfoKHR::sType,
                                   vulkan::fields::VkSwapchainCreateInfoKHR::pNext,
@@ -4640,7 +4640,7 @@ struct Schema<vulkan::api_types::VkSwapchainCreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPresentInfoKHR>
+struct Schema<vulkan::api_elements::VkPresentInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPresentInfoKHR::sType, vulkan::fields::VkPresentInfoKHR::pNext,
                                   vulkan::fields::VkPresentInfoKHR::waitSemaphoreCount,
@@ -4652,7 +4652,7 @@ struct Schema<vulkan::api_types::VkPresentInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageSwapchainCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkImageSwapchainCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageSwapchainCreateInfoKHR::sType,
                                   vulkan::fields::VkImageSwapchainCreateInfoKHR::pNext,
@@ -4660,7 +4660,7 @@ struct Schema<vulkan::api_types::VkImageSwapchainCreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBindImageMemorySwapchainInfoKHR>
+struct Schema<vulkan::api_elements::VkBindImageMemorySwapchainInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkBindImageMemorySwapchainInfoKHR::sType,
                                   vulkan::fields::VkBindImageMemorySwapchainInfoKHR::pNext,
@@ -4669,7 +4669,7 @@ struct Schema<vulkan::api_types::VkBindImageMemorySwapchainInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAcquireNextImageInfoKHR>
+struct Schema<vulkan::api_elements::VkAcquireNextImageInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkAcquireNextImageInfoKHR::sType,
                                   vulkan::fields::VkAcquireNextImageInfoKHR::pNext,
@@ -4681,7 +4681,7 @@ struct Schema<vulkan::api_types::VkAcquireNextImageInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceGroupPresentCapabilitiesKHR>
+struct Schema<vulkan::api_elements::VkDeviceGroupPresentCapabilitiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceGroupPresentCapabilitiesKHR::sType,
                                   vulkan::fields::VkDeviceGroupPresentCapabilitiesKHR::pNext,
@@ -4690,7 +4690,7 @@ struct Schema<vulkan::api_types::VkDeviceGroupPresentCapabilitiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceGroupPresentInfoKHR>
+struct Schema<vulkan::api_elements::VkDeviceGroupPresentInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceGroupPresentInfoKHR::sType,
                                   vulkan::fields::VkDeviceGroupPresentInfoKHR::pNext,
@@ -4700,7 +4700,7 @@ struct Schema<vulkan::api_types::VkDeviceGroupPresentInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceGroupSwapchainCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkDeviceGroupSwapchainCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceGroupSwapchainCreateInfoKHR::sType,
                                   vulkan::fields::VkDeviceGroupSwapchainCreateInfoKHR::pNext,
@@ -4708,14 +4708,14 @@ struct Schema<vulkan::api_types::VkDeviceGroupSwapchainCreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDisplayModeParametersKHR>
+struct Schema<vulkan::api_elements::VkDisplayModeParametersKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDisplayModeParametersKHR::visibleRegion,
                                   vulkan::fields::VkDisplayModeParametersKHR::refreshRate>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDisplayModeCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkDisplayModeCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDisplayModeCreateInfoKHR::sType,
                                   vulkan::fields::VkDisplayModeCreateInfoKHR::pNext,
@@ -4724,14 +4724,14 @@ struct Schema<vulkan::api_types::VkDisplayModeCreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDisplayModePropertiesKHR>
+struct Schema<vulkan::api_elements::VkDisplayModePropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDisplayModePropertiesKHR::displayMode,
                                   vulkan::fields::VkDisplayModePropertiesKHR::parameters>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDisplayPlaneCapabilitiesKHR>
+struct Schema<vulkan::api_elements::VkDisplayPlaneCapabilitiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDisplayPlaneCapabilitiesKHR::supportedAlpha,
                                   vulkan::fields::VkDisplayPlaneCapabilitiesKHR::minSrcPosition,
@@ -4745,14 +4745,14 @@ struct Schema<vulkan::api_types::VkDisplayPlaneCapabilitiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDisplayPlanePropertiesKHR>
+struct Schema<vulkan::api_elements::VkDisplayPlanePropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDisplayPlanePropertiesKHR::currentDisplay,
                                   vulkan::fields::VkDisplayPlanePropertiesKHR::currentStackIndex>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDisplayPropertiesKHR>
+struct Schema<vulkan::api_elements::VkDisplayPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDisplayPropertiesKHR::display,
                                   vulkan::fields::VkDisplayPropertiesKHR::displayName,
@@ -4764,7 +4764,7 @@ struct Schema<vulkan::api_types::VkDisplayPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDisplaySurfaceCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkDisplaySurfaceCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDisplaySurfaceCreateInfoKHR::sType,
                                   vulkan::fields::VkDisplaySurfaceCreateInfoKHR::pNext,
@@ -4779,7 +4779,7 @@ struct Schema<vulkan::api_types::VkDisplaySurfaceCreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDisplayPresentInfoKHR>
+struct Schema<vulkan::api_elements::VkDisplayPresentInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDisplayPresentInfoKHR::sType,
                                   vulkan::fields::VkDisplayPresentInfoKHR::pNext,
@@ -4789,7 +4789,7 @@ struct Schema<vulkan::api_types::VkDisplayPresentInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkXlibSurfaceCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkXlibSurfaceCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkXlibSurfaceCreateInfoKHR::sType,
                                   vulkan::fields::VkXlibSurfaceCreateInfoKHR::pNext,
@@ -4799,7 +4799,7 @@ struct Schema<vulkan::api_types::VkXlibSurfaceCreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkXcbSurfaceCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkXcbSurfaceCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkXcbSurfaceCreateInfoKHR::sType,
                                   vulkan::fields::VkXcbSurfaceCreateInfoKHR::pNext,
@@ -4809,7 +4809,7 @@ struct Schema<vulkan::api_types::VkXcbSurfaceCreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkWaylandSurfaceCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkWaylandSurfaceCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkWaylandSurfaceCreateInfoKHR::sType,
                                   vulkan::fields::VkWaylandSurfaceCreateInfoKHR::pNext,
@@ -4819,7 +4819,7 @@ struct Schema<vulkan::api_types::VkWaylandSurfaceCreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAndroidSurfaceCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkAndroidSurfaceCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkAndroidSurfaceCreateInfoKHR::sType,
                                   vulkan::fields::VkAndroidSurfaceCreateInfoKHR::pNext,
@@ -4828,7 +4828,7 @@ struct Schema<vulkan::api_types::VkAndroidSurfaceCreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkWin32SurfaceCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkWin32SurfaceCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkWin32SurfaceCreateInfoKHR::sType,
                                   vulkan::fields::VkWin32SurfaceCreateInfoKHR::pNext,
@@ -4838,7 +4838,7 @@ struct Schema<vulkan::api_types::VkWin32SurfaceCreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkQueueFamilyQueryResultStatusPropertiesKHR>
+struct Schema<vulkan::api_elements::VkQueueFamilyQueryResultStatusPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkQueueFamilyQueryResultStatusPropertiesKHR::sType,
                                   vulkan::fields::VkQueueFamilyQueryResultStatusPropertiesKHR::pNext,
@@ -4846,7 +4846,7 @@ struct Schema<vulkan::api_types::VkQueueFamilyQueryResultStatusPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkQueueFamilyVideoPropertiesKHR>
+struct Schema<vulkan::api_elements::VkQueueFamilyVideoPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkQueueFamilyVideoPropertiesKHR::sType,
                                   vulkan::fields::VkQueueFamilyVideoPropertiesKHR::pNext,
@@ -4854,7 +4854,7 @@ struct Schema<vulkan::api_types::VkQueueFamilyVideoPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoProfileInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoProfileInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoProfileInfoKHR::sType,
                                   vulkan::fields::VkVideoProfileInfoKHR::pNext,
@@ -4865,7 +4865,7 @@ struct Schema<vulkan::api_types::VkVideoProfileInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoProfileListInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoProfileListInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoProfileListInfoKHR::sType,
                                   vulkan::fields::VkVideoProfileListInfoKHR::pNext,
@@ -4874,7 +4874,7 @@ struct Schema<vulkan::api_types::VkVideoProfileListInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoCapabilitiesKHR>
+struct Schema<vulkan::api_elements::VkVideoCapabilitiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoCapabilitiesKHR::sType,
                                   vulkan::fields::VkVideoCapabilitiesKHR::pNext,
@@ -4890,7 +4890,7 @@ struct Schema<vulkan::api_types::VkVideoCapabilitiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceVideoFormatInfoKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceVideoFormatInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceVideoFormatInfoKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceVideoFormatInfoKHR::pNext,
@@ -4898,7 +4898,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceVideoFormatInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoFormatPropertiesKHR>
+struct Schema<vulkan::api_elements::VkVideoFormatPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoFormatPropertiesKHR::sType,
                                   vulkan::fields::VkVideoFormatPropertiesKHR::pNext,
@@ -4911,7 +4911,7 @@ struct Schema<vulkan::api_types::VkVideoFormatPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoPictureResourceInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoPictureResourceInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoPictureResourceInfoKHR::sType,
                                   vulkan::fields::VkVideoPictureResourceInfoKHR::pNext,
@@ -4922,7 +4922,7 @@ struct Schema<vulkan::api_types::VkVideoPictureResourceInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoReferenceSlotInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoReferenceSlotInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoReferenceSlotInfoKHR::sType,
                                   vulkan::fields::VkVideoReferenceSlotInfoKHR::pNext,
@@ -4931,7 +4931,7 @@ struct Schema<vulkan::api_types::VkVideoReferenceSlotInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoSessionMemoryRequirementsKHR>
+struct Schema<vulkan::api_elements::VkVideoSessionMemoryRequirementsKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoSessionMemoryRequirementsKHR::sType,
                                   vulkan::fields::VkVideoSessionMemoryRequirementsKHR::pNext,
@@ -4940,7 +4940,7 @@ struct Schema<vulkan::api_types::VkVideoSessionMemoryRequirementsKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBindVideoSessionMemoryInfoKHR>
+struct Schema<vulkan::api_elements::VkBindVideoSessionMemoryInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkBindVideoSessionMemoryInfoKHR::sType,
                                   vulkan::fields::VkBindVideoSessionMemoryInfoKHR::pNext,
@@ -4951,7 +4951,7 @@ struct Schema<vulkan::api_types::VkBindVideoSessionMemoryInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoSessionCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoSessionCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoSessionCreateInfoKHR::sType,
                                   vulkan::fields::VkVideoSessionCreateInfoKHR::pNext,
@@ -4967,7 +4967,7 @@ struct Schema<vulkan::api_types::VkVideoSessionCreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoSessionParametersCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoSessionParametersCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoSessionParametersCreateInfoKHR::sType,
                                   vulkan::fields::VkVideoSessionParametersCreateInfoKHR::pNext,
@@ -4977,7 +4977,7 @@ struct Schema<vulkan::api_types::VkVideoSessionParametersCreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoSessionParametersUpdateInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoSessionParametersUpdateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoSessionParametersUpdateInfoKHR::sType,
                                   vulkan::fields::VkVideoSessionParametersUpdateInfoKHR::pNext,
@@ -4985,7 +4985,7 @@ struct Schema<vulkan::api_types::VkVideoSessionParametersUpdateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoBeginCodingInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoBeginCodingInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoBeginCodingInfoKHR::sType,
                                   vulkan::fields::VkVideoBeginCodingInfoKHR::pNext,
@@ -4997,7 +4997,7 @@ struct Schema<vulkan::api_types::VkVideoBeginCodingInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEndCodingInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEndCodingInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEndCodingInfoKHR::sType,
                                   vulkan::fields::VkVideoEndCodingInfoKHR::pNext,
@@ -5005,7 +5005,7 @@ struct Schema<vulkan::api_types::VkVideoEndCodingInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoCodingControlInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoCodingControlInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoCodingControlInfoKHR::sType,
                                   vulkan::fields::VkVideoCodingControlInfoKHR::pNext,
@@ -5013,7 +5013,7 @@ struct Schema<vulkan::api_types::VkVideoCodingControlInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoDecodeCapabilitiesKHR>
+struct Schema<vulkan::api_elements::VkVideoDecodeCapabilitiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoDecodeCapabilitiesKHR::sType,
                                   vulkan::fields::VkVideoDecodeCapabilitiesKHR::pNext,
@@ -5021,7 +5021,7 @@ struct Schema<vulkan::api_types::VkVideoDecodeCapabilitiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoDecodeUsageInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoDecodeUsageInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoDecodeUsageInfoKHR::sType,
                                   vulkan::fields::VkVideoDecodeUsageInfoKHR::pNext,
@@ -5029,7 +5029,7 @@ struct Schema<vulkan::api_types::VkVideoDecodeUsageInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoDecodeInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoDecodeInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoDecodeInfoKHR::sType,
                                   vulkan::fields::VkVideoDecodeInfoKHR::pNext,
@@ -5044,7 +5044,7 @@ struct Schema<vulkan::api_types::VkVideoDecodeInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeH264CapabilitiesKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeH264CapabilitiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeH264CapabilitiesKHR::sType,
                                   vulkan::fields::VkVideoEncodeH264CapabilitiesKHR::pNext,
@@ -5064,7 +5064,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeH264CapabilitiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeH264QpKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeH264QpKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeH264QpKHR::qpI,
                                   vulkan::fields::VkVideoEncodeH264QpKHR::qpP,
@@ -5072,7 +5072,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeH264QpKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeH264QualityLevelPropertiesKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeH264QualityLevelPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeH264QualityLevelPropertiesKHR::sType,
                                   vulkan::fields::VkVideoEncodeH264QualityLevelPropertiesKHR::pNext,
@@ -5088,7 +5088,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeH264QualityLevelPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeH264SessionCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeH264SessionCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeH264SessionCreateInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeH264SessionCreateInfoKHR::pNext,
@@ -5097,7 +5097,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeH264SessionCreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeH264SessionParametersAddInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeH264SessionParametersAddInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeH264SessionParametersAddInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeH264SessionParametersAddInfoKHR::pNext,
@@ -5108,7 +5108,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeH264SessionParametersAddInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeH264SessionParametersCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeH264SessionParametersCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeH264SessionParametersCreateInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeH264SessionParametersCreateInfoKHR::pNext,
@@ -5118,7 +5118,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeH264SessionParametersCreateInfoKHR
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeH264SessionParametersGetInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeH264SessionParametersGetInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeH264SessionParametersGetInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeH264SessionParametersGetInfoKHR::pNext,
@@ -5129,7 +5129,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeH264SessionParametersGetInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeH264SessionParametersFeedbackInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeH264SessionParametersFeedbackInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeH264SessionParametersFeedbackInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeH264SessionParametersFeedbackInfoKHR::pNext,
@@ -5138,7 +5138,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeH264SessionParametersFeedbackInfoK
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeH264NaluSliceInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeH264NaluSliceInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeH264NaluSliceInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeH264NaluSliceInfoKHR::pNext,
@@ -5147,7 +5147,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeH264NaluSliceInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeH264PictureInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeH264PictureInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeH264PictureInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeH264PictureInfoKHR::pNext,
@@ -5158,7 +5158,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeH264PictureInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeH264DpbSlotInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeH264DpbSlotInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeH264DpbSlotInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeH264DpbSlotInfoKHR::pNext,
@@ -5166,7 +5166,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeH264DpbSlotInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeH264ProfileInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeH264ProfileInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeH264ProfileInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeH264ProfileInfoKHR::pNext,
@@ -5174,7 +5174,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeH264ProfileInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeH264RateControlInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeH264RateControlInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeH264RateControlInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeH264RateControlInfoKHR::pNext,
@@ -5186,7 +5186,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeH264RateControlInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeH264FrameSizeKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeH264FrameSizeKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeH264FrameSizeKHR::frameISize,
                                   vulkan::fields::VkVideoEncodeH264FrameSizeKHR::framePSize,
@@ -5194,7 +5194,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeH264FrameSizeKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeH264RateControlLayerInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeH264RateControlLayerInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeH264RateControlLayerInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeH264RateControlLayerInfoKHR::pNext,
@@ -5207,7 +5207,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeH264RateControlLayerInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeH264GopRemainingFrameInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeH264GopRemainingFrameInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeH264GopRemainingFrameInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeH264GopRemainingFrameInfoKHR::pNext,
@@ -5218,7 +5218,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeH264GopRemainingFrameInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoDecodeH264ProfileInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoDecodeH264ProfileInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoDecodeH264ProfileInfoKHR::sType,
                                   vulkan::fields::VkVideoDecodeH264ProfileInfoKHR::pNext,
@@ -5227,7 +5227,7 @@ struct Schema<vulkan::api_types::VkVideoDecodeH264ProfileInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoDecodeH264CapabilitiesKHR>
+struct Schema<vulkan::api_elements::VkVideoDecodeH264CapabilitiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoDecodeH264CapabilitiesKHR::sType,
                                   vulkan::fields::VkVideoDecodeH264CapabilitiesKHR::pNext,
@@ -5236,7 +5236,7 @@ struct Schema<vulkan::api_types::VkVideoDecodeH264CapabilitiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoDecodeH264SessionParametersAddInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoDecodeH264SessionParametersAddInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoDecodeH264SessionParametersAddInfoKHR::sType,
                                   vulkan::fields::VkVideoDecodeH264SessionParametersAddInfoKHR::pNext,
@@ -5247,7 +5247,7 @@ struct Schema<vulkan::api_types::VkVideoDecodeH264SessionParametersAddInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoDecodeH264SessionParametersCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoDecodeH264SessionParametersCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoDecodeH264SessionParametersCreateInfoKHR::sType,
                                   vulkan::fields::VkVideoDecodeH264SessionParametersCreateInfoKHR::pNext,
@@ -5257,7 +5257,7 @@ struct Schema<vulkan::api_types::VkVideoDecodeH264SessionParametersCreateInfoKHR
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoDecodeH264PictureInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoDecodeH264PictureInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoDecodeH264PictureInfoKHR::sType,
                                   vulkan::fields::VkVideoDecodeH264PictureInfoKHR::pNext,
@@ -5267,7 +5267,7 @@ struct Schema<vulkan::api_types::VkVideoDecodeH264PictureInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoDecodeH264DpbSlotInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoDecodeH264DpbSlotInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoDecodeH264DpbSlotInfoKHR::sType,
                                   vulkan::fields::VkVideoDecodeH264DpbSlotInfoKHR::pNext,
@@ -5275,7 +5275,7 @@ struct Schema<vulkan::api_types::VkVideoDecodeH264DpbSlotInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImportMemoryWin32HandleInfoKHR>
+struct Schema<vulkan::api_elements::VkImportMemoryWin32HandleInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkImportMemoryWin32HandleInfoKHR::sType,
                                   vulkan::fields::VkImportMemoryWin32HandleInfoKHR::pNext,
@@ -5285,7 +5285,7 @@ struct Schema<vulkan::api_types::VkImportMemoryWin32HandleInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkExportMemoryWin32HandleInfoKHR>
+struct Schema<vulkan::api_elements::VkExportMemoryWin32HandleInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkExportMemoryWin32HandleInfoKHR::sType,
                                   vulkan::fields::VkExportMemoryWin32HandleInfoKHR::pNext,
@@ -5295,7 +5295,7 @@ struct Schema<vulkan::api_types::VkExportMemoryWin32HandleInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryWin32HandlePropertiesKHR>
+struct Schema<vulkan::api_elements::VkMemoryWin32HandlePropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryWin32HandlePropertiesKHR::sType,
                                   vulkan::fields::VkMemoryWin32HandlePropertiesKHR::pNext,
@@ -5303,7 +5303,7 @@ struct Schema<vulkan::api_types::VkMemoryWin32HandlePropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryGetWin32HandleInfoKHR>
+struct Schema<vulkan::api_elements::VkMemoryGetWin32HandleInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryGetWin32HandleInfoKHR::sType,
                                   vulkan::fields::VkMemoryGetWin32HandleInfoKHR::pNext,
@@ -5312,7 +5312,7 @@ struct Schema<vulkan::api_types::VkMemoryGetWin32HandleInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImportMemoryFdInfoKHR>
+struct Schema<vulkan::api_elements::VkImportMemoryFdInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkImportMemoryFdInfoKHR::sType,
                                   vulkan::fields::VkImportMemoryFdInfoKHR::pNext,
@@ -5321,7 +5321,7 @@ struct Schema<vulkan::api_types::VkImportMemoryFdInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryFdPropertiesKHR>
+struct Schema<vulkan::api_elements::VkMemoryFdPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryFdPropertiesKHR::sType,
                                   vulkan::fields::VkMemoryFdPropertiesKHR::pNext,
@@ -5329,7 +5329,7 @@ struct Schema<vulkan::api_types::VkMemoryFdPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryGetFdInfoKHR>
+struct Schema<vulkan::api_elements::VkMemoryGetFdInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryGetFdInfoKHR::sType,
                                   vulkan::fields::VkMemoryGetFdInfoKHR::pNext,
@@ -5338,7 +5338,7 @@ struct Schema<vulkan::api_types::VkMemoryGetFdInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkWin32KeyedMutexAcquireReleaseInfoKHR>
+struct Schema<vulkan::api_elements::VkWin32KeyedMutexAcquireReleaseInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkWin32KeyedMutexAcquireReleaseInfoKHR::sType,
                                   vulkan::fields::VkWin32KeyedMutexAcquireReleaseInfoKHR::pNext,
@@ -5352,7 +5352,7 @@ struct Schema<vulkan::api_types::VkWin32KeyedMutexAcquireReleaseInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImportSemaphoreWin32HandleInfoKHR>
+struct Schema<vulkan::api_elements::VkImportSemaphoreWin32HandleInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkImportSemaphoreWin32HandleInfoKHR::sType,
                                   vulkan::fields::VkImportSemaphoreWin32HandleInfoKHR::pNext,
@@ -5364,7 +5364,7 @@ struct Schema<vulkan::api_types::VkImportSemaphoreWin32HandleInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkExportSemaphoreWin32HandleInfoKHR>
+struct Schema<vulkan::api_elements::VkExportSemaphoreWin32HandleInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkExportSemaphoreWin32HandleInfoKHR::sType,
                                   vulkan::fields::VkExportSemaphoreWin32HandleInfoKHR::pNext,
@@ -5374,7 +5374,7 @@ struct Schema<vulkan::api_types::VkExportSemaphoreWin32HandleInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkD3D12FenceSubmitInfoKHR>
+struct Schema<vulkan::api_elements::VkD3D12FenceSubmitInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkD3D12FenceSubmitInfoKHR::sType,
                                   vulkan::fields::VkD3D12FenceSubmitInfoKHR::pNext,
@@ -5385,7 +5385,7 @@ struct Schema<vulkan::api_types::VkD3D12FenceSubmitInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSemaphoreGetWin32HandleInfoKHR>
+struct Schema<vulkan::api_elements::VkSemaphoreGetWin32HandleInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkSemaphoreGetWin32HandleInfoKHR::sType,
                                   vulkan::fields::VkSemaphoreGetWin32HandleInfoKHR::pNext,
@@ -5394,7 +5394,7 @@ struct Schema<vulkan::api_types::VkSemaphoreGetWin32HandleInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImportSemaphoreFdInfoKHR>
+struct Schema<vulkan::api_elements::VkImportSemaphoreFdInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkImportSemaphoreFdInfoKHR::sType,
                                   vulkan::fields::VkImportSemaphoreFdInfoKHR::pNext,
@@ -5405,7 +5405,7 @@ struct Schema<vulkan::api_types::VkImportSemaphoreFdInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSemaphoreGetFdInfoKHR>
+struct Schema<vulkan::api_elements::VkSemaphoreGetFdInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkSemaphoreGetFdInfoKHR::sType,
                                   vulkan::fields::VkSemaphoreGetFdInfoKHR::pNext,
@@ -5414,21 +5414,21 @@ struct Schema<vulkan::api_types::VkSemaphoreGetFdInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRectLayerKHR>
+struct Schema<vulkan::api_elements::VkRectLayerKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkRectLayerKHR::offset, vulkan::fields::VkRectLayerKHR::extent,
                                   vulkan::fields::VkRectLayerKHR::layer>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPresentRegionKHR>
+struct Schema<vulkan::api_elements::VkPresentRegionKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPresentRegionKHR::rectangleCount,
                                   vulkan::fields::VkPresentRegionKHR::pRectangles>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPresentRegionsKHR>
+struct Schema<vulkan::api_elements::VkPresentRegionsKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPresentRegionsKHR::sType,
                                   vulkan::fields::VkPresentRegionsKHR::pNext,
@@ -5437,7 +5437,7 @@ struct Schema<vulkan::api_types::VkPresentRegionsKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSharedPresentSurfaceCapabilitiesKHR>
+struct Schema<vulkan::api_elements::VkSharedPresentSurfaceCapabilitiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkSharedPresentSurfaceCapabilitiesKHR::sType,
                                   vulkan::fields::VkSharedPresentSurfaceCapabilitiesKHR::pNext,
@@ -5445,7 +5445,7 @@ struct Schema<vulkan::api_types::VkSharedPresentSurfaceCapabilitiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImportFenceWin32HandleInfoKHR>
+struct Schema<vulkan::api_elements::VkImportFenceWin32HandleInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkImportFenceWin32HandleInfoKHR::sType,
                                   vulkan::fields::VkImportFenceWin32HandleInfoKHR::pNext,
@@ -5457,7 +5457,7 @@ struct Schema<vulkan::api_types::VkImportFenceWin32HandleInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkExportFenceWin32HandleInfoKHR>
+struct Schema<vulkan::api_elements::VkExportFenceWin32HandleInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkExportFenceWin32HandleInfoKHR::sType,
                                   vulkan::fields::VkExportFenceWin32HandleInfoKHR::pNext,
@@ -5467,7 +5467,7 @@ struct Schema<vulkan::api_types::VkExportFenceWin32HandleInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkFenceGetWin32HandleInfoKHR>
+struct Schema<vulkan::api_elements::VkFenceGetWin32HandleInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkFenceGetWin32HandleInfoKHR::sType,
                                   vulkan::fields::VkFenceGetWin32HandleInfoKHR::pNext,
@@ -5476,7 +5476,7 @@ struct Schema<vulkan::api_types::VkFenceGetWin32HandleInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImportFenceFdInfoKHR>
+struct Schema<vulkan::api_elements::VkImportFenceFdInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkImportFenceFdInfoKHR::sType,
                                   vulkan::fields::VkImportFenceFdInfoKHR::pNext,
@@ -5487,7 +5487,7 @@ struct Schema<vulkan::api_types::VkImportFenceFdInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkFenceGetFdInfoKHR>
+struct Schema<vulkan::api_elements::VkFenceGetFdInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkFenceGetFdInfoKHR::sType,
                                   vulkan::fields::VkFenceGetFdInfoKHR::pNext,
@@ -5496,7 +5496,7 @@ struct Schema<vulkan::api_types::VkFenceGetFdInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePerformanceQueryFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePerformanceQueryFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePerformanceQueryFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDevicePerformanceQueryFeaturesKHR::pNext,
@@ -5505,7 +5505,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePerformanceQueryFeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePerformanceQueryPropertiesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePerformanceQueryPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePerformanceQueryPropertiesKHR::sType,
                                   vulkan::fields::VkPhysicalDevicePerformanceQueryPropertiesKHR::pNext,
@@ -5513,7 +5513,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePerformanceQueryPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPerformanceCounterKHR>
+struct Schema<vulkan::api_elements::VkPerformanceCounterKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPerformanceCounterKHR::sType,
                                   vulkan::fields::VkPerformanceCounterKHR::pNext,
@@ -5524,7 +5524,7 @@ struct Schema<vulkan::api_types::VkPerformanceCounterKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPerformanceCounterDescriptionKHR>
+struct Schema<vulkan::api_elements::VkPerformanceCounterDescriptionKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPerformanceCounterDescriptionKHR::sType,
                                   vulkan::fields::VkPerformanceCounterDescriptionKHR::pNext,
@@ -5535,7 +5535,7 @@ struct Schema<vulkan::api_types::VkPerformanceCounterDescriptionKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkQueryPoolPerformanceCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkQueryPoolPerformanceCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkQueryPoolPerformanceCreateInfoKHR::sType,
                                   vulkan::fields::VkQueryPoolPerformanceCreateInfoKHR::pNext,
@@ -5545,7 +5545,7 @@ struct Schema<vulkan::api_types::VkQueryPoolPerformanceCreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAcquireProfilingLockInfoKHR>
+struct Schema<vulkan::api_elements::VkAcquireProfilingLockInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkAcquireProfilingLockInfoKHR::sType,
                                   vulkan::fields::VkAcquireProfilingLockInfoKHR::pNext,
@@ -5554,7 +5554,7 @@ struct Schema<vulkan::api_types::VkAcquireProfilingLockInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPerformanceQuerySubmitInfoKHR>
+struct Schema<vulkan::api_elements::VkPerformanceQuerySubmitInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPerformanceQuerySubmitInfoKHR::sType,
                                   vulkan::fields::VkPerformanceQuerySubmitInfoKHR::pNext,
@@ -5562,7 +5562,7 @@ struct Schema<vulkan::api_types::VkPerformanceQuerySubmitInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceSurfaceInfo2KHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceSurfaceInfo2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceSurfaceInfo2KHR::sType,
                                   vulkan::fields::VkPhysicalDeviceSurfaceInfo2KHR::pNext,
@@ -5570,7 +5570,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceSurfaceInfo2KHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSurfaceCapabilities2KHR>
+struct Schema<vulkan::api_elements::VkSurfaceCapabilities2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkSurfaceCapabilities2KHR::sType,
                                   vulkan::fields::VkSurfaceCapabilities2KHR::pNext,
@@ -5578,7 +5578,7 @@ struct Schema<vulkan::api_types::VkSurfaceCapabilities2KHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSurfaceFormat2KHR>
+struct Schema<vulkan::api_elements::VkSurfaceFormat2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkSurfaceFormat2KHR::sType,
                                   vulkan::fields::VkSurfaceFormat2KHR::pNext,
@@ -5586,7 +5586,7 @@ struct Schema<vulkan::api_types::VkSurfaceFormat2KHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDisplayProperties2KHR>
+struct Schema<vulkan::api_elements::VkDisplayProperties2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDisplayProperties2KHR::sType,
                                   vulkan::fields::VkDisplayProperties2KHR::pNext,
@@ -5594,7 +5594,7 @@ struct Schema<vulkan::api_types::VkDisplayProperties2KHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDisplayPlaneProperties2KHR>
+struct Schema<vulkan::api_elements::VkDisplayPlaneProperties2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDisplayPlaneProperties2KHR::sType,
                                   vulkan::fields::VkDisplayPlaneProperties2KHR::pNext,
@@ -5602,7 +5602,7 @@ struct Schema<vulkan::api_types::VkDisplayPlaneProperties2KHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDisplayModeProperties2KHR>
+struct Schema<vulkan::api_elements::VkDisplayModeProperties2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDisplayModeProperties2KHR::sType,
                                   vulkan::fields::VkDisplayModeProperties2KHR::pNext,
@@ -5610,7 +5610,7 @@ struct Schema<vulkan::api_types::VkDisplayModeProperties2KHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDisplayPlaneInfo2KHR>
+struct Schema<vulkan::api_elements::VkDisplayPlaneInfo2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDisplayPlaneInfo2KHR::sType,
                                   vulkan::fields::VkDisplayPlaneInfo2KHR::pNext,
@@ -5619,7 +5619,7 @@ struct Schema<vulkan::api_types::VkDisplayPlaneInfo2KHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDisplayPlaneCapabilities2KHR>
+struct Schema<vulkan::api_elements::VkDisplayPlaneCapabilities2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDisplayPlaneCapabilities2KHR::sType,
                                   vulkan::fields::VkDisplayPlaneCapabilities2KHR::pNext,
@@ -5627,7 +5627,7 @@ struct Schema<vulkan::api_types::VkDisplayPlaneCapabilities2KHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderBfloat16FeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderBfloat16FeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderBfloat16FeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderBfloat16FeaturesKHR::pNext,
@@ -5637,7 +5637,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderBfloat16FeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePortabilitySubsetFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePortabilitySubsetFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePortabilitySubsetFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDevicePortabilitySubsetFeaturesKHR::pNext,
@@ -5659,7 +5659,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePortabilitySubsetFeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePortabilitySubsetPropertiesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePortabilitySubsetPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePortabilitySubsetPropertiesKHR::sType,
                                   vulkan::fields::VkPhysicalDevicePortabilitySubsetPropertiesKHR::pNext,
@@ -5667,7 +5667,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePortabilitySubsetPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderClockFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderClockFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderClockFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderClockFeaturesKHR::pNext,
@@ -5676,7 +5676,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderClockFeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkFragmentShadingRateAttachmentInfoKHR>
+struct Schema<vulkan::api_elements::VkFragmentShadingRateAttachmentInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkFragmentShadingRateAttachmentInfoKHR::sType,
                                   vulkan::fields::VkFragmentShadingRateAttachmentInfoKHR::pNext,
@@ -5685,7 +5685,7 @@ struct Schema<vulkan::api_types::VkFragmentShadingRateAttachmentInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineFragmentShadingRateStateCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkPipelineFragmentShadingRateStateCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineFragmentShadingRateStateCreateInfoKHR::sType,
                                   vulkan::fields::VkPipelineFragmentShadingRateStateCreateInfoKHR::pNext,
@@ -5694,7 +5694,7 @@ struct Schema<vulkan::api_types::VkPipelineFragmentShadingRateStateCreateInfoKHR
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentShadingRateFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceFragmentShadingRateFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceFragmentShadingRateFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceFragmentShadingRateFeaturesKHR::pNext,
@@ -5704,7 +5704,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentShadingRateFeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentShadingRatePropertiesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceFragmentShadingRatePropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceFragmentShadingRatePropertiesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceFragmentShadingRatePropertiesKHR::pNext,
@@ -5728,7 +5728,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentShadingRatePropertiesKH
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentShadingRateKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceFragmentShadingRateKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceFragmentShadingRateKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceFragmentShadingRateKHR::pNext,
@@ -5737,7 +5737,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentShadingRateKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderingFragmentShadingRateAttachmentInfoKHR>
+struct Schema<vulkan::api_elements::VkRenderingFragmentShadingRateAttachmentInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderingFragmentShadingRateAttachmentInfoKHR::sType,
                                   vulkan::fields::VkRenderingFragmentShadingRateAttachmentInfoKHR::pNext,
@@ -5747,7 +5747,7 @@ struct Schema<vulkan::api_types::VkRenderingFragmentShadingRateAttachmentInfoKHR
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderConstantDataFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderConstantDataFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderConstantDataFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderConstantDataFeaturesKHR::pNext,
@@ -5755,7 +5755,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderConstantDataFeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderAbortFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderAbortFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderAbortFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderAbortFeaturesKHR::pNext,
@@ -5763,7 +5763,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderAbortFeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceFaultShaderAbortMessageInfoKHR>
+struct Schema<vulkan::api_elements::VkDeviceFaultShaderAbortMessageInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceFaultShaderAbortMessageInfoKHR::sType,
                                   vulkan::fields::VkDeviceFaultShaderAbortMessageInfoKHR::pNext,
@@ -5772,7 +5772,7 @@ struct Schema<vulkan::api_types::VkDeviceFaultShaderAbortMessageInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderAbortPropertiesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderAbortPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderAbortPropertiesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderAbortPropertiesKHR::pNext,
@@ -5780,7 +5780,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderAbortPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderQuadControlFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderQuadControlFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderQuadControlFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderQuadControlFeaturesKHR::pNext,
@@ -5788,7 +5788,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderQuadControlFeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSurfaceProtectedCapabilitiesKHR>
+struct Schema<vulkan::api_elements::VkSurfaceProtectedCapabilitiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkSurfaceProtectedCapabilitiesKHR::sType,
                                   vulkan::fields::VkSurfaceProtectedCapabilitiesKHR::pNext,
@@ -5796,7 +5796,7 @@ struct Schema<vulkan::api_types::VkSurfaceProtectedCapabilitiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePresentWaitFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePresentWaitFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePresentWaitFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDevicePresentWaitFeaturesKHR::pNext,
@@ -5804,7 +5804,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePresentWaitFeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR::pNext,
@@ -5812,14 +5812,14 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePipelineExecutablePropertiesFea
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineInfoKHR>
+struct Schema<vulkan::api_elements::VkPipelineInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineInfoKHR::sType, vulkan::fields::VkPipelineInfoKHR::pNext,
                                   vulkan::fields::VkPipelineInfoKHR::pipeline>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineExecutablePropertiesKHR>
+struct Schema<vulkan::api_elements::VkPipelineExecutablePropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineExecutablePropertiesKHR::sType,
                                   vulkan::fields::VkPipelineExecutablePropertiesKHR::pNext,
@@ -5830,7 +5830,7 @@ struct Schema<vulkan::api_types::VkPipelineExecutablePropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineExecutableInfoKHR>
+struct Schema<vulkan::api_elements::VkPipelineExecutableInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineExecutableInfoKHR::sType,
                                   vulkan::fields::VkPipelineExecutableInfoKHR::pNext,
@@ -5839,7 +5839,7 @@ struct Schema<vulkan::api_types::VkPipelineExecutableInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineExecutableStatisticKHR>
+struct Schema<vulkan::api_elements::VkPipelineExecutableStatisticKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineExecutableStatisticKHR::sType,
                                   vulkan::fields::VkPipelineExecutableStatisticKHR::pNext,
@@ -5850,7 +5850,7 @@ struct Schema<vulkan::api_types::VkPipelineExecutableStatisticKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineExecutableInternalRepresentationKHR>
+struct Schema<vulkan::api_elements::VkPipelineExecutableInternalRepresentationKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineExecutableInternalRepresentationKHR::sType,
                                   vulkan::fields::VkPipelineExecutableInternalRepresentationKHR::pNext,
@@ -5862,7 +5862,7 @@ struct Schema<vulkan::api_types::VkPipelineExecutableInternalRepresentationKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineLibraryCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkPipelineLibraryCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineLibraryCreateInfoKHR::sType,
                                   vulkan::fields::VkPipelineLibraryCreateInfoKHR::pNext,
@@ -5871,7 +5871,7 @@ struct Schema<vulkan::api_types::VkPipelineLibraryCreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPresentIdKHR>
+struct Schema<vulkan::api_elements::VkPresentIdKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPresentIdKHR::sType, vulkan::fields::VkPresentIdKHR::pNext,
                                   vulkan::fields::VkPresentIdKHR::swapchainCount,
@@ -5879,7 +5879,7 @@ struct Schema<vulkan::api_types::VkPresentIdKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePresentIdFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePresentIdFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePresentIdFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDevicePresentIdFeaturesKHR::pNext,
@@ -5887,7 +5887,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePresentIdFeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeInfoKHR::pNext,
@@ -5903,7 +5903,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeCapabilitiesKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeCapabilitiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeCapabilitiesKHR::sType,
                                   vulkan::fields::VkVideoEncodeCapabilitiesKHR::pNext,
@@ -5917,7 +5917,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeCapabilitiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkQueryPoolVideoEncodeFeedbackCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkQueryPoolVideoEncodeFeedbackCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkQueryPoolVideoEncodeFeedbackCreateInfoKHR::sType,
                                   vulkan::fields::VkQueryPoolVideoEncodeFeedbackCreateInfoKHR::pNext,
@@ -5925,7 +5925,7 @@ struct Schema<vulkan::api_types::VkQueryPoolVideoEncodeFeedbackCreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeUsageInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeUsageInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeUsageInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeUsageInfoKHR::pNext,
@@ -5935,7 +5935,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeUsageInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeRateControlLayerInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeRateControlLayerInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeRateControlLayerInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeRateControlLayerInfoKHR::pNext,
@@ -5946,7 +5946,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeRateControlLayerInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeRateControlInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeRateControlInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeRateControlInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeRateControlInfoKHR::pNext,
@@ -5959,7 +5959,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeRateControlInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceVideoEncodeQualityLevelInfoKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceVideoEncodeQualityLevelInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceVideoEncodeQualityLevelInfoKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceVideoEncodeQualityLevelInfoKHR::pNext,
@@ -5968,7 +5968,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceVideoEncodeQualityLevelInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeQualityLevelPropertiesKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeQualityLevelPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeQualityLevelPropertiesKHR::sType,
                                   vulkan::fields::VkVideoEncodeQualityLevelPropertiesKHR::pNext,
@@ -5977,7 +5977,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeQualityLevelPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeQualityLevelInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeQualityLevelInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeQualityLevelInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeQualityLevelInfoKHR::pNext,
@@ -5985,7 +5985,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeQualityLevelInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeSessionParametersGetInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeSessionParametersGetInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeSessionParametersGetInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeSessionParametersGetInfoKHR::pNext,
@@ -5993,7 +5993,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeSessionParametersGetInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeSessionParametersFeedbackInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeSessionParametersFeedbackInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeSessionParametersFeedbackInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeSessionParametersFeedbackInfoKHR::pNext,
@@ -6001,14 +6001,14 @@ struct Schema<vulkan::api_types::VkVideoEncodeSessionParametersFeedbackInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceAddressRangeKHR>
+struct Schema<vulkan::api_elements::VkDeviceAddressRangeKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceAddressRangeKHR::address,
                                   vulkan::fields::VkDeviceAddressRangeKHR::size>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkStridedDeviceAddressRangeKHR>
+struct Schema<vulkan::api_elements::VkStridedDeviceAddressRangeKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkStridedDeviceAddressRangeKHR::address,
                                   vulkan::fields::VkStridedDeviceAddressRangeKHR::size,
@@ -6016,7 +6016,7 @@ struct Schema<vulkan::api_types::VkStridedDeviceAddressRangeKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceMemoryCopyKHR>
+struct Schema<vulkan::api_elements::VkDeviceMemoryCopyKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceMemoryCopyKHR::sType,
                                   vulkan::fields::VkDeviceMemoryCopyKHR::pNext,
@@ -6027,7 +6027,7 @@ struct Schema<vulkan::api_types::VkDeviceMemoryCopyKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCopyDeviceMemoryInfoKHR>
+struct Schema<vulkan::api_elements::VkCopyDeviceMemoryInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkCopyDeviceMemoryInfoKHR::sType,
                                   vulkan::fields::VkCopyDeviceMemoryInfoKHR::pNext,
@@ -6036,7 +6036,7 @@ struct Schema<vulkan::api_types::VkCopyDeviceMemoryInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceMemoryImageCopyKHR>
+struct Schema<vulkan::api_elements::VkDeviceMemoryImageCopyKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceMemoryImageCopyKHR::sType,
                                   vulkan::fields::VkDeviceMemoryImageCopyKHR::pNext,
@@ -6051,7 +6051,7 @@ struct Schema<vulkan::api_types::VkDeviceMemoryImageCopyKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCopyDeviceMemoryImageInfoKHR>
+struct Schema<vulkan::api_elements::VkCopyDeviceMemoryImageInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkCopyDeviceMemoryImageInfoKHR::sType,
                                   vulkan::fields::VkCopyDeviceMemoryImageInfoKHR::pNext,
@@ -6061,7 +6061,7 @@ struct Schema<vulkan::api_types::VkCopyDeviceMemoryImageInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryRangeBarrierKHR>
+struct Schema<vulkan::api_elements::VkMemoryRangeBarrierKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryRangeBarrierKHR::sType,
                                   vulkan::fields::VkMemoryRangeBarrierKHR::pNext,
@@ -6076,7 +6076,7 @@ struct Schema<vulkan::api_types::VkMemoryRangeBarrierKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryRangeBarriersInfoKHR>
+struct Schema<vulkan::api_elements::VkMemoryRangeBarriersInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryRangeBarriersInfoKHR::sType,
                                   vulkan::fields::VkMemoryRangeBarriersInfoKHR::pNext,
@@ -6085,7 +6085,7 @@ struct Schema<vulkan::api_types::VkMemoryRangeBarriersInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDeviceAddressCommandsFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDeviceAddressCommandsFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDeviceAddressCommandsFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceDeviceAddressCommandsFeaturesKHR::pNext,
@@ -6093,7 +6093,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDeviceAddressCommandsFeaturesKH
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBindIndexBuffer3InfoKHR>
+struct Schema<vulkan::api_elements::VkBindIndexBuffer3InfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkBindIndexBuffer3InfoKHR::sType,
                                   vulkan::fields::VkBindIndexBuffer3InfoKHR::pNext,
@@ -6103,7 +6103,7 @@ struct Schema<vulkan::api_types::VkBindIndexBuffer3InfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBindVertexBuffer3InfoKHR>
+struct Schema<vulkan::api_elements::VkBindVertexBuffer3InfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkBindVertexBuffer3InfoKHR::sType,
                                   vulkan::fields::VkBindVertexBuffer3InfoKHR::pNext,
@@ -6113,7 +6113,7 @@ struct Schema<vulkan::api_types::VkBindVertexBuffer3InfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDrawIndirect2InfoKHR>
+struct Schema<vulkan::api_elements::VkDrawIndirect2InfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDrawIndirect2InfoKHR::sType,
                                   vulkan::fields::VkDrawIndirect2InfoKHR::pNext,
@@ -6123,7 +6123,7 @@ struct Schema<vulkan::api_types::VkDrawIndirect2InfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDrawIndirectCount2InfoKHR>
+struct Schema<vulkan::api_elements::VkDrawIndirectCount2InfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDrawIndirectCount2InfoKHR::sType,
                                   vulkan::fields::VkDrawIndirectCount2InfoKHR::pNext,
@@ -6135,7 +6135,7 @@ struct Schema<vulkan::api_types::VkDrawIndirectCount2InfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDispatchIndirect2InfoKHR>
+struct Schema<vulkan::api_elements::VkDispatchIndirect2InfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDispatchIndirect2InfoKHR::sType,
                                   vulkan::fields::VkDispatchIndirect2InfoKHR::pNext,
@@ -6144,7 +6144,7 @@ struct Schema<vulkan::api_types::VkDispatchIndirect2InfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkConditionalRenderingBeginInfo2EXT>
+struct Schema<vulkan::api_elements::VkConditionalRenderingBeginInfo2EXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkConditionalRenderingBeginInfo2EXT::sType,
                                   vulkan::fields::VkConditionalRenderingBeginInfo2EXT::pNext,
@@ -6154,7 +6154,7 @@ struct Schema<vulkan::api_types::VkConditionalRenderingBeginInfo2EXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBindTransformFeedbackBuffer2InfoEXT>
+struct Schema<vulkan::api_elements::VkBindTransformFeedbackBuffer2InfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkBindTransformFeedbackBuffer2InfoEXT::sType,
                                   vulkan::fields::VkBindTransformFeedbackBuffer2InfoEXT::pNext,
@@ -6163,7 +6163,7 @@ struct Schema<vulkan::api_types::VkBindTransformFeedbackBuffer2InfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryMarkerInfoAMD>
+struct Schema<vulkan::api_elements::VkMemoryMarkerInfoAMD>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryMarkerInfoAMD::sType,
                                   vulkan::fields::VkMemoryMarkerInfoAMD::pNext,
@@ -6174,7 +6174,7 @@ struct Schema<vulkan::api_types::VkMemoryMarkerInfoAMD>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureCreateInfo2KHR>
+struct Schema<vulkan::api_elements::VkAccelerationStructureCreateInfo2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureCreateInfo2KHR::sType,
                                   vulkan::fields::VkAccelerationStructureCreateInfo2KHR::pNext,
@@ -6185,7 +6185,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureCreateInfo2KHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR::pNext,
@@ -6193,7 +6193,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentShaderBarycentricFeatur
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR::pNext,
@@ -6201,7 +6201,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentShaderBarycentricProper
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR::pNext,
@@ -6209,7 +6209,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderSubgroupUniformControlFlo
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR::pNext,
@@ -6220,7 +6220,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFe
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR::pNext,
@@ -6229,7 +6229,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceRayTracingMaintenance1FeaturesK
 };
 
 template <>
-struct Schema<vulkan::api_types::VkTraceRaysIndirectCommand2KHR>
+struct Schema<vulkan::api_elements::VkTraceRaysIndirectCommand2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkTraceRaysIndirectCommand2KHR::raygenShaderRecordAddress,
                                   vulkan::fields::VkTraceRaysIndirectCommand2KHR::raygenShaderRecordSize,
@@ -6248,7 +6248,7 @@ struct Schema<vulkan::api_types::VkTraceRaysIndirectCommand2KHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderUntypedPointersFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderUntypedPointersFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderUntypedPointersFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderUntypedPointersFeaturesKHR::pNext,
@@ -6256,7 +6256,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderUntypedPointersFeaturesKH
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR::pNext,
@@ -6264,7 +6264,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderMaximalReconvergenceFeatu
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSurfaceCapabilitiesPresentId2KHR>
+struct Schema<vulkan::api_elements::VkSurfaceCapabilitiesPresentId2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkSurfaceCapabilitiesPresentId2KHR::sType,
                                   vulkan::fields::VkSurfaceCapabilitiesPresentId2KHR::pNext,
@@ -6272,7 +6272,7 @@ struct Schema<vulkan::api_types::VkSurfaceCapabilitiesPresentId2KHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPresentId2KHR>
+struct Schema<vulkan::api_elements::VkPresentId2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPresentId2KHR::sType, vulkan::fields::VkPresentId2KHR::pNext,
                                   vulkan::fields::VkPresentId2KHR::swapchainCount,
@@ -6280,7 +6280,7 @@ struct Schema<vulkan::api_types::VkPresentId2KHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePresentId2FeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePresentId2FeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePresentId2FeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDevicePresentId2FeaturesKHR::pNext,
@@ -6288,7 +6288,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePresentId2FeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSurfaceCapabilitiesPresentWait2KHR>
+struct Schema<vulkan::api_elements::VkSurfaceCapabilitiesPresentWait2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkSurfaceCapabilitiesPresentWait2KHR::sType,
                                   vulkan::fields::VkSurfaceCapabilitiesPresentWait2KHR::pNext,
@@ -6296,7 +6296,7 @@ struct Schema<vulkan::api_types::VkSurfaceCapabilitiesPresentWait2KHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePresentWait2FeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePresentWait2FeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePresentWait2FeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDevicePresentWait2FeaturesKHR::pNext,
@@ -6304,7 +6304,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePresentWait2FeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPresentWait2InfoKHR>
+struct Schema<vulkan::api_elements::VkPresentWait2InfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPresentWait2InfoKHR::sType,
                                   vulkan::fields::VkPresentWait2InfoKHR::pNext,
@@ -6313,7 +6313,7 @@ struct Schema<vulkan::api_types::VkPresentWait2InfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR::pNext,
@@ -6321,7 +6321,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceRayTracingPositionFetchFeatures
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePipelineBinaryFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePipelineBinaryFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePipelineBinaryFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDevicePipelineBinaryFeaturesKHR::pNext,
@@ -6329,7 +6329,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePipelineBinaryFeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePipelineBinaryPropertiesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePipelineBinaryPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePipelineBinaryPropertiesKHR::sType,
                                   vulkan::fields::VkPhysicalDevicePipelineBinaryPropertiesKHR::pNext,
@@ -6341,7 +6341,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePipelineBinaryPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDevicePipelineBinaryInternalCacheControlKHR>
+struct Schema<vulkan::api_elements::VkDevicePipelineBinaryInternalCacheControlKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDevicePipelineBinaryInternalCacheControlKHR::sType,
                                   vulkan::fields::VkDevicePipelineBinaryInternalCacheControlKHR::pNext,
@@ -6349,7 +6349,7 @@ struct Schema<vulkan::api_types::VkDevicePipelineBinaryInternalCacheControlKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineBinaryKeyKHR>
+struct Schema<vulkan::api_elements::VkPipelineBinaryKeyKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineBinaryKeyKHR::sType,
                                   vulkan::fields::VkPipelineBinaryKeyKHR::pNext,
@@ -6358,14 +6358,14 @@ struct Schema<vulkan::api_types::VkPipelineBinaryKeyKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineBinaryDataKHR>
+struct Schema<vulkan::api_elements::VkPipelineBinaryDataKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineBinaryDataKHR::dataSize,
                                   vulkan::fields::VkPipelineBinaryDataKHR::pData>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineBinaryKeysAndDataKHR>
+struct Schema<vulkan::api_elements::VkPipelineBinaryKeysAndDataKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineBinaryKeysAndDataKHR::binaryCount,
                                   vulkan::fields::VkPipelineBinaryKeysAndDataKHR::pPipelineBinaryKeys,
@@ -6373,14 +6373,14 @@ struct Schema<vulkan::api_types::VkPipelineBinaryKeysAndDataKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkPipelineCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineCreateInfoKHR::sType,
                                   vulkan::fields::VkPipelineCreateInfoKHR::pNext>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineBinaryCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkPipelineBinaryCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineBinaryCreateInfoKHR::sType,
                                   vulkan::fields::VkPipelineBinaryCreateInfoKHR::pNext,
@@ -6390,7 +6390,7 @@ struct Schema<vulkan::api_types::VkPipelineBinaryCreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineBinaryInfoKHR>
+struct Schema<vulkan::api_elements::VkPipelineBinaryInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineBinaryInfoKHR::sType,
                                   vulkan::fields::VkPipelineBinaryInfoKHR::pNext,
@@ -6399,7 +6399,7 @@ struct Schema<vulkan::api_types::VkPipelineBinaryInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkReleaseCapturedPipelineDataInfoKHR>
+struct Schema<vulkan::api_elements::VkReleaseCapturedPipelineDataInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkReleaseCapturedPipelineDataInfoKHR::sType,
                                   vulkan::fields::VkReleaseCapturedPipelineDataInfoKHR::pNext,
@@ -6407,7 +6407,7 @@ struct Schema<vulkan::api_types::VkReleaseCapturedPipelineDataInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineBinaryDataInfoKHR>
+struct Schema<vulkan::api_elements::VkPipelineBinaryDataInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineBinaryDataInfoKHR::sType,
                                   vulkan::fields::VkPipelineBinaryDataInfoKHR::pNext,
@@ -6415,7 +6415,7 @@ struct Schema<vulkan::api_types::VkPipelineBinaryDataInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineBinaryHandlesInfoKHR>
+struct Schema<vulkan::api_elements::VkPipelineBinaryHandlesInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineBinaryHandlesInfoKHR::sType,
                                   vulkan::fields::VkPipelineBinaryHandlesInfoKHR::pNext,
@@ -6424,7 +6424,7 @@ struct Schema<vulkan::api_types::VkPipelineBinaryHandlesInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSurfacePresentModeKHR>
+struct Schema<vulkan::api_elements::VkSurfacePresentModeKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkSurfacePresentModeKHR::sType,
                                   vulkan::fields::VkSurfacePresentModeKHR::pNext,
@@ -6432,7 +6432,7 @@ struct Schema<vulkan::api_types::VkSurfacePresentModeKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSurfacePresentScalingCapabilitiesKHR>
+struct Schema<vulkan::api_elements::VkSurfacePresentScalingCapabilitiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkSurfacePresentScalingCapabilitiesKHR::sType,
                                   vulkan::fields::VkSurfacePresentScalingCapabilitiesKHR::pNext,
@@ -6444,7 +6444,7 @@ struct Schema<vulkan::api_types::VkSurfacePresentScalingCapabilitiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSurfacePresentModeCompatibilityKHR>
+struct Schema<vulkan::api_elements::VkSurfacePresentModeCompatibilityKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkSurfacePresentModeCompatibilityKHR::sType,
                                   vulkan::fields::VkSurfacePresentModeCompatibilityKHR::pNext,
@@ -6453,7 +6453,7 @@ struct Schema<vulkan::api_types::VkSurfacePresentModeCompatibilityKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR::pNext,
@@ -6461,7 +6461,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceSwapchainMaintenance1FeaturesKH
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSwapchainPresentFenceInfoKHR>
+struct Schema<vulkan::api_elements::VkSwapchainPresentFenceInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkSwapchainPresentFenceInfoKHR::sType,
                                   vulkan::fields::VkSwapchainPresentFenceInfoKHR::pNext,
@@ -6470,7 +6470,7 @@ struct Schema<vulkan::api_types::VkSwapchainPresentFenceInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSwapchainPresentModesCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkSwapchainPresentModesCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkSwapchainPresentModesCreateInfoKHR::sType,
                                   vulkan::fields::VkSwapchainPresentModesCreateInfoKHR::pNext,
@@ -6479,7 +6479,7 @@ struct Schema<vulkan::api_types::VkSwapchainPresentModesCreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSwapchainPresentModeInfoKHR>
+struct Schema<vulkan::api_elements::VkSwapchainPresentModeInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkSwapchainPresentModeInfoKHR::sType,
                                   vulkan::fields::VkSwapchainPresentModeInfoKHR::pNext,
@@ -6488,7 +6488,7 @@ struct Schema<vulkan::api_types::VkSwapchainPresentModeInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSwapchainPresentScalingCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkSwapchainPresentScalingCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkSwapchainPresentScalingCreateInfoKHR::sType,
                                   vulkan::fields::VkSwapchainPresentScalingCreateInfoKHR::pNext,
@@ -6498,7 +6498,7 @@ struct Schema<vulkan::api_types::VkSwapchainPresentScalingCreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkReleaseSwapchainImagesInfoKHR>
+struct Schema<vulkan::api_elements::VkReleaseSwapchainImagesInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkReleaseSwapchainImagesInfoKHR::sType,
                                   vulkan::fields::VkReleaseSwapchainImagesInfoKHR::pNext,
@@ -6508,7 +6508,7 @@ struct Schema<vulkan::api_types::VkReleaseSwapchainImagesInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceInternallySynchronizedQueuesFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceInternallySynchronizedQueuesFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceInternallySynchronizedQueuesFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceInternallySynchronizedQueuesFeaturesKHR::pNext,
@@ -6516,7 +6516,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceInternallySynchronizedQueuesFea
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCooperativeMatrixPropertiesKHR>
+struct Schema<vulkan::api_elements::VkCooperativeMatrixPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkCooperativeMatrixPropertiesKHR::sType,
                                   vulkan::fields::VkCooperativeMatrixPropertiesKHR::pNext,
@@ -6532,7 +6532,7 @@ struct Schema<vulkan::api_types::VkCooperativeMatrixPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceCooperativeMatrixFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceCooperativeMatrixFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceCooperativeMatrixFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceCooperativeMatrixFeaturesKHR::pNext,
@@ -6541,7 +6541,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceCooperativeMatrixFeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceCooperativeMatrixPropertiesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceCooperativeMatrixPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceCooperativeMatrixPropertiesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceCooperativeMatrixPropertiesKHR::pNext,
@@ -6549,7 +6549,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceCooperativeMatrixPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR::pNext,
@@ -6558,7 +6558,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceComputeShaderDerivativesFeature
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR::pNext,
@@ -6566,7 +6566,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceComputeShaderDerivativesPropert
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoDecodeAV1ProfileInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoDecodeAV1ProfileInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoDecodeAV1ProfileInfoKHR::sType,
                                   vulkan::fields::VkVideoDecodeAV1ProfileInfoKHR::pNext,
@@ -6575,7 +6575,7 @@ struct Schema<vulkan::api_types::VkVideoDecodeAV1ProfileInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoDecodeAV1CapabilitiesKHR>
+struct Schema<vulkan::api_elements::VkVideoDecodeAV1CapabilitiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoDecodeAV1CapabilitiesKHR::sType,
                                   vulkan::fields::VkVideoDecodeAV1CapabilitiesKHR::pNext,
@@ -6583,7 +6583,7 @@ struct Schema<vulkan::api_types::VkVideoDecodeAV1CapabilitiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoDecodeAV1SessionParametersCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoDecodeAV1SessionParametersCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoDecodeAV1SessionParametersCreateInfoKHR::sType,
                                   vulkan::fields::VkVideoDecodeAV1SessionParametersCreateInfoKHR::pNext,
@@ -6591,7 +6591,7 @@ struct Schema<vulkan::api_types::VkVideoDecodeAV1SessionParametersCreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoDecodeAV1PictureInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoDecodeAV1PictureInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoDecodeAV1PictureInfoKHR::sType,
                                   vulkan::fields::VkVideoDecodeAV1PictureInfoKHR::pNext,
@@ -6604,7 +6604,7 @@ struct Schema<vulkan::api_types::VkVideoDecodeAV1PictureInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoDecodeAV1DpbSlotInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoDecodeAV1DpbSlotInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoDecodeAV1DpbSlotInfoKHR::sType,
                                   vulkan::fields::VkVideoDecodeAV1DpbSlotInfoKHR::pNext,
@@ -6612,7 +6612,7 @@ struct Schema<vulkan::api_types::VkVideoDecodeAV1DpbSlotInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceVideoEncodeAV1FeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceVideoEncodeAV1FeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceVideoEncodeAV1FeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceVideoEncodeAV1FeaturesKHR::pNext,
@@ -6620,7 +6620,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceVideoEncodeAV1FeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeAV1CapabilitiesKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeAV1CapabilitiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeAV1CapabilitiesKHR::sType,
                                   vulkan::fields::VkVideoEncodeAV1CapabilitiesKHR::pNext,
@@ -6651,7 +6651,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeAV1CapabilitiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeAV1QIndexKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeAV1QIndexKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeAV1QIndexKHR::intraQIndex,
                                   vulkan::fields::VkVideoEncodeAV1QIndexKHR::predictiveQIndex,
@@ -6659,7 +6659,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeAV1QIndexKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeAV1QualityLevelPropertiesKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeAV1QualityLevelPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeAV1QualityLevelPropertiesKHR::sType,
                                   vulkan::fields::VkVideoEncodeAV1QualityLevelPropertiesKHR::pNext,
@@ -6681,7 +6681,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeAV1QualityLevelPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeAV1SessionCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeAV1SessionCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeAV1SessionCreateInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeAV1SessionCreateInfoKHR::pNext,
@@ -6690,7 +6690,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeAV1SessionCreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeAV1SessionParametersCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeAV1SessionParametersCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeAV1SessionParametersCreateInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeAV1SessionParametersCreateInfoKHR::pNext,
@@ -6701,7 +6701,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeAV1SessionParametersCreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeAV1PictureInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeAV1PictureInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeAV1PictureInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeAV1PictureInfoKHR::pNext,
@@ -6715,7 +6715,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeAV1PictureInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeAV1DpbSlotInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeAV1DpbSlotInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeAV1DpbSlotInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeAV1DpbSlotInfoKHR::pNext,
@@ -6723,7 +6723,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeAV1DpbSlotInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeAV1ProfileInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeAV1ProfileInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeAV1ProfileInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeAV1ProfileInfoKHR::pNext,
@@ -6731,7 +6731,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeAV1ProfileInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeAV1FrameSizeKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeAV1FrameSizeKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeAV1FrameSizeKHR::intraFrameSize,
                                   vulkan::fields::VkVideoEncodeAV1FrameSizeKHR::predictiveFrameSize,
@@ -6739,7 +6739,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeAV1FrameSizeKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeAV1GopRemainingFrameInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeAV1GopRemainingFrameInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeAV1GopRemainingFrameInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeAV1GopRemainingFrameInfoKHR::pNext,
@@ -6750,7 +6750,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeAV1GopRemainingFrameInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeAV1RateControlInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeAV1RateControlInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeAV1RateControlInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeAV1RateControlInfoKHR::pNext,
@@ -6762,7 +6762,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeAV1RateControlInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeAV1RateControlLayerInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeAV1RateControlLayerInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeAV1RateControlLayerInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeAV1RateControlLayerInfoKHR::pNext,
@@ -6775,7 +6775,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeAV1RateControlLayerInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceVideoDecodeVP9FeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceVideoDecodeVP9FeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceVideoDecodeVP9FeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceVideoDecodeVP9FeaturesKHR::pNext,
@@ -6783,7 +6783,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceVideoDecodeVP9FeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoDecodeVP9ProfileInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoDecodeVP9ProfileInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoDecodeVP9ProfileInfoKHR::sType,
                                   vulkan::fields::VkVideoDecodeVP9ProfileInfoKHR::pNext,
@@ -6791,7 +6791,7 @@ struct Schema<vulkan::api_types::VkVideoDecodeVP9ProfileInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoDecodeVP9CapabilitiesKHR>
+struct Schema<vulkan::api_elements::VkVideoDecodeVP9CapabilitiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoDecodeVP9CapabilitiesKHR::sType,
                                   vulkan::fields::VkVideoDecodeVP9CapabilitiesKHR::pNext,
@@ -6799,7 +6799,7 @@ struct Schema<vulkan::api_types::VkVideoDecodeVP9CapabilitiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoDecodeVP9PictureInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoDecodeVP9PictureInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoDecodeVP9PictureInfoKHR::sType,
                                   vulkan::fields::VkVideoDecodeVP9PictureInfoKHR::pNext,
@@ -6811,7 +6811,7 @@ struct Schema<vulkan::api_types::VkVideoDecodeVP9PictureInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceVideoMaintenance1FeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceVideoMaintenance1FeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceVideoMaintenance1FeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceVideoMaintenance1FeaturesKHR::pNext,
@@ -6819,7 +6819,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceVideoMaintenance1FeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoInlineQueryInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoInlineQueryInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoInlineQueryInfoKHR::sType,
                                   vulkan::fields::VkVideoInlineQueryInfoKHR::pNext,
@@ -6829,7 +6829,7 @@ struct Schema<vulkan::api_types::VkVideoInlineQueryInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR::pNext,
@@ -6838,7 +6838,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAttachmentFeedbackLoopInfoEXT>
+struct Schema<vulkan::api_elements::VkAttachmentFeedbackLoopInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkAttachmentFeedbackLoopInfoEXT::sType,
                                   vulkan::fields::VkAttachmentFeedbackLoopInfoEXT::pNext,
@@ -6846,7 +6846,7 @@ struct Schema<vulkan::api_types::VkAttachmentFeedbackLoopInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCalibratedTimestampInfoKHR>
+struct Schema<vulkan::api_elements::VkCalibratedTimestampInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkCalibratedTimestampInfoKHR::sType,
                                   vulkan::fields::VkCalibratedTimestampInfoKHR::pNext,
@@ -6854,7 +6854,7 @@ struct Schema<vulkan::api_types::VkCalibratedTimestampInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSetDescriptorBufferOffsetsInfoEXT>
+struct Schema<vulkan::api_elements::VkSetDescriptorBufferOffsetsInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkSetDescriptorBufferOffsetsInfoEXT::sType,
                                   vulkan::fields::VkSetDescriptorBufferOffsetsInfoEXT::pNext,
@@ -6867,7 +6867,7 @@ struct Schema<vulkan::api_types::VkSetDescriptorBufferOffsetsInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBindDescriptorBufferEmbeddedSamplersInfoEXT>
+struct Schema<vulkan::api_elements::VkBindDescriptorBufferEmbeddedSamplersInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkBindDescriptorBufferEmbeddedSamplersInfoEXT::sType,
                                   vulkan::fields::VkBindDescriptorBufferEmbeddedSamplersInfoEXT::pNext,
@@ -6877,7 +6877,7 @@ struct Schema<vulkan::api_types::VkBindDescriptorBufferEmbeddedSamplersInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCopyMemoryIndirectCommandKHR>
+struct Schema<vulkan::api_elements::VkCopyMemoryIndirectCommandKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkCopyMemoryIndirectCommandKHR::srcAddress,
                                   vulkan::fields::VkCopyMemoryIndirectCommandKHR::dstAddress,
@@ -6885,7 +6885,7 @@ struct Schema<vulkan::api_types::VkCopyMemoryIndirectCommandKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCopyMemoryIndirectInfoKHR>
+struct Schema<vulkan::api_elements::VkCopyMemoryIndirectInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkCopyMemoryIndirectInfoKHR::sType,
                                   vulkan::fields::VkCopyMemoryIndirectInfoKHR::pNext,
@@ -6896,7 +6896,7 @@ struct Schema<vulkan::api_types::VkCopyMemoryIndirectInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCopyMemoryToImageIndirectCommandKHR>
+struct Schema<vulkan::api_elements::VkCopyMemoryToImageIndirectCommandKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkCopyMemoryToImageIndirectCommandKHR::srcAddress,
                                   vulkan::fields::VkCopyMemoryToImageIndirectCommandKHR::bufferRowLength,
@@ -6907,7 +6907,7 @@ struct Schema<vulkan::api_types::VkCopyMemoryToImageIndirectCommandKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCopyMemoryToImageIndirectInfoKHR>
+struct Schema<vulkan::api_elements::VkCopyMemoryToImageIndirectInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkCopyMemoryToImageIndirectInfoKHR::sType,
                                   vulkan::fields::VkCopyMemoryToImageIndirectInfoKHR::pNext,
@@ -6920,7 +6920,7 @@ struct Schema<vulkan::api_types::VkCopyMemoryToImageIndirectInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR::pNext,
@@ -6929,7 +6929,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR::pNext,
@@ -6937,7 +6937,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeIntraRefreshCapabilitiesKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeIntraRefreshCapabilitiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeIntraRefreshCapabilitiesKHR::sType,
                                   vulkan::fields::VkVideoEncodeIntraRefreshCapabilitiesKHR::pNext,
@@ -6949,7 +6949,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeIntraRefreshCapabilitiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeSessionIntraRefreshCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeSessionIntraRefreshCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeSessionIntraRefreshCreateInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeSessionIntraRefreshCreateInfoKHR::pNext,
@@ -6957,7 +6957,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeSessionIntraRefreshCreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeIntraRefreshInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeIntraRefreshInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeIntraRefreshInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeIntraRefreshInfoKHR::pNext,
@@ -6966,7 +6966,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeIntraRefreshInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoReferenceIntraRefreshInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoReferenceIntraRefreshInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoReferenceIntraRefreshInfoKHR::sType,
                                   vulkan::fields::VkVideoReferenceIntraRefreshInfoKHR::pNext,
@@ -6974,7 +6974,7 @@ struct Schema<vulkan::api_types::VkVideoReferenceIntraRefreshInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR::pNext,
@@ -6982,7 +6982,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceVideoEncodeIntraRefreshFeatures
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeQuantizationMapCapabilitiesKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeQuantizationMapCapabilitiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeQuantizationMapCapabilitiesKHR::sType,
                                   vulkan::fields::VkVideoEncodeQuantizationMapCapabilitiesKHR::pNext,
@@ -6990,7 +6990,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeQuantizationMapCapabilitiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoFormatQuantizationMapPropertiesKHR>
+struct Schema<vulkan::api_elements::VkVideoFormatQuantizationMapPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoFormatQuantizationMapPropertiesKHR::sType,
                                   vulkan::fields::VkVideoFormatQuantizationMapPropertiesKHR::pNext,
@@ -6998,7 +6998,7 @@ struct Schema<vulkan::api_types::VkVideoFormatQuantizationMapPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeQuantizationMapInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeQuantizationMapInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeQuantizationMapInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeQuantizationMapInfoKHR::pNext,
@@ -7007,7 +7007,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeQuantizationMapInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeQuantizationMapSessionParametersCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeQuantizationMapSessionParametersCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeQuantizationMapSessionParametersCreateInfoKHR::sType,
                                   vulkan::fields::VkVideoEncodeQuantizationMapSessionParametersCreateInfoKHR::pNext,
@@ -7015,7 +7015,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeQuantizationMapSessionParametersCr
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR::pNext,
@@ -7023,7 +7023,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceVideoEncodeQuantizationMapFeatu
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeH264QuantizationMapCapabilitiesKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeH264QuantizationMapCapabilitiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeH264QuantizationMapCapabilitiesKHR::sType,
                                   vulkan::fields::VkVideoEncodeH264QuantizationMapCapabilitiesKHR::pNext,
@@ -7032,7 +7032,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeH264QuantizationMapCapabilitiesKHR
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeH265QuantizationMapCapabilitiesKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeH265QuantizationMapCapabilitiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeH265QuantizationMapCapabilitiesKHR::sType,
                                   vulkan::fields::VkVideoEncodeH265QuantizationMapCapabilitiesKHR::pNext,
@@ -7041,7 +7041,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeH265QuantizationMapCapabilitiesKHR
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoFormatH265QuantizationMapPropertiesKHR>
+struct Schema<vulkan::api_elements::VkVideoFormatH265QuantizationMapPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoFormatH265QuantizationMapPropertiesKHR::sType,
                                   vulkan::fields::VkVideoFormatH265QuantizationMapPropertiesKHR::pNext,
@@ -7049,7 +7049,7 @@ struct Schema<vulkan::api_types::VkVideoFormatH265QuantizationMapPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeAV1QuantizationMapCapabilitiesKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeAV1QuantizationMapCapabilitiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeAV1QuantizationMapCapabilitiesKHR::sType,
                                   vulkan::fields::VkVideoEncodeAV1QuantizationMapCapabilitiesKHR::pNext,
@@ -7058,7 +7058,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeAV1QuantizationMapCapabilitiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoFormatAV1QuantizationMapPropertiesKHR>
+struct Schema<vulkan::api_elements::VkVideoFormatAV1QuantizationMapPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoFormatAV1QuantizationMapPropertiesKHR::sType,
                                   vulkan::fields::VkVideoFormatAV1QuantizationMapPropertiesKHR::pNext,
@@ -7066,7 +7066,7 @@ struct Schema<vulkan::api_types::VkVideoFormatAV1QuantizationMapPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR::pNext,
@@ -7074,7 +7074,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderRelaxedExtendedInstructio
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance7FeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMaintenance7FeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMaintenance7FeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceMaintenance7FeaturesKHR::pNext,
@@ -7082,7 +7082,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance7FeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance7PropertiesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMaintenance7PropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMaintenance7PropertiesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceMaintenance7PropertiesKHR::pNext,
@@ -7097,7 +7097,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance7PropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceLayeredApiPropertiesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceLayeredApiPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceLayeredApiPropertiesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceLayeredApiPropertiesKHR::pNext,
@@ -7108,7 +7108,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceLayeredApiPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceLayeredApiPropertiesListKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceLayeredApiPropertiesListKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceLayeredApiPropertiesListKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceLayeredApiPropertiesListKHR::pNext,
@@ -7117,7 +7117,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceLayeredApiPropertiesListKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceLayeredApiVulkanPropertiesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceLayeredApiVulkanPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceLayeredApiVulkanPropertiesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceLayeredApiVulkanPropertiesKHR::pNext,
@@ -7125,7 +7125,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceLayeredApiVulkanPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceFaultFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceFaultFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceFaultFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceFaultFeaturesKHR::pNext,
@@ -7136,7 +7136,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceFaultFeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceFaultPropertiesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceFaultPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceFaultPropertiesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceFaultPropertiesKHR::pNext,
@@ -7144,7 +7144,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceFaultPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceFaultAddressInfoKHR>
+struct Schema<vulkan::api_elements::VkDeviceFaultAddressInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceFaultAddressInfoKHR::addressType,
                                   vulkan::fields::VkDeviceFaultAddressInfoKHR::reportedAddress,
@@ -7152,7 +7152,7 @@ struct Schema<vulkan::api_types::VkDeviceFaultAddressInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceFaultVendorInfoKHR>
+struct Schema<vulkan::api_elements::VkDeviceFaultVendorInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceFaultVendorInfoKHR::description,
                                   vulkan::fields::VkDeviceFaultVendorInfoKHR::vendorFaultCode,
@@ -7160,7 +7160,7 @@ struct Schema<vulkan::api_types::VkDeviceFaultVendorInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceFaultInfoKHR>
+struct Schema<vulkan::api_elements::VkDeviceFaultInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceFaultInfoKHR::sType,
                                   vulkan::fields::VkDeviceFaultInfoKHR::pNext,
@@ -7173,7 +7173,7 @@ struct Schema<vulkan::api_types::VkDeviceFaultInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceFaultDebugInfoKHR>
+struct Schema<vulkan::api_elements::VkDeviceFaultDebugInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceFaultDebugInfoKHR::sType,
                                   vulkan::fields::VkDeviceFaultDebugInfoKHR::pNext,
@@ -7182,7 +7182,7 @@ struct Schema<vulkan::api_types::VkDeviceFaultDebugInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceFaultVendorBinaryHeaderVersionOneKHR>
+struct Schema<vulkan::api_elements::VkDeviceFaultVendorBinaryHeaderVersionOneKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceFaultVendorBinaryHeaderVersionOneKHR::headerSize,
                                   vulkan::fields::VkDeviceFaultVendorBinaryHeaderVersionOneKHR::headerVersion,
@@ -7198,7 +7198,7 @@ struct Schema<vulkan::api_types::VkDeviceFaultVendorBinaryHeaderVersionOneKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryBarrierAccessFlags3KHR>
+struct Schema<vulkan::api_elements::VkMemoryBarrierAccessFlags3KHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryBarrierAccessFlags3KHR::sType,
                                   vulkan::fields::VkMemoryBarrierAccessFlags3KHR::pNext,
@@ -7207,7 +7207,7 @@ struct Schema<vulkan::api_types::VkMemoryBarrierAccessFlags3KHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance8FeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMaintenance8FeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMaintenance8FeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceMaintenance8FeaturesKHR::pNext,
@@ -7215,7 +7215,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance8FeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderFmaFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderFmaFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderFmaFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderFmaFeaturesKHR::pNext,
@@ -7225,7 +7225,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderFmaFeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance9FeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMaintenance9FeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMaintenance9FeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceMaintenance9FeaturesKHR::pNext,
@@ -7233,7 +7233,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance9FeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance9PropertiesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMaintenance9PropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMaintenance9PropertiesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceMaintenance9PropertiesKHR::pNext,
@@ -7242,7 +7242,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance9PropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkQueueFamilyOwnershipTransferPropertiesKHR>
+struct Schema<vulkan::api_elements::VkQueueFamilyOwnershipTransferPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkQueueFamilyOwnershipTransferPropertiesKHR::sType,
                                   vulkan::fields::VkQueueFamilyOwnershipTransferPropertiesKHR::pNext,
@@ -7250,7 +7250,7 @@ struct Schema<vulkan::api_types::VkQueueFamilyOwnershipTransferPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR::pNext,
@@ -7258,7 +7258,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeFeedback2CapabilitiesKHR>
+struct Schema<vulkan::api_elements::VkVideoEncodeFeedback2CapabilitiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeFeedback2CapabilitiesKHR::sType,
                                   vulkan::fields::VkVideoEncodeFeedback2CapabilitiesKHR::pNext,
@@ -7267,7 +7267,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeFeedback2CapabilitiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkQueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkQueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkQueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR::sType,
                                   vulkan::fields::VkQueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR::pNext,
@@ -7276,7 +7276,7 @@ struct Schema<vulkan::api_types::VkQueryPoolVideoEncodePerPartitionFeedbackCreat
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDepthClampZeroOneFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDepthClampZeroOneFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDepthClampZeroOneFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceDepthClampZeroOneFeaturesKHR::pNext,
@@ -7284,7 +7284,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDepthClampZeroOneFeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceRobustness2FeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceRobustness2FeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceRobustness2FeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceRobustness2FeaturesKHR::pNext,
@@ -7294,7 +7294,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceRobustness2FeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceRobustness2PropertiesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceRobustness2PropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceRobustness2PropertiesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceRobustness2PropertiesKHR::pNext,
@@ -7303,7 +7303,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceRobustness2PropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR::pNext,
@@ -7311,7 +7311,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePresentModeFifoLatestReadyFeatu
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMicromapUsageKHR>
+struct Schema<vulkan::api_elements::VkMicromapUsageKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkMicromapUsageKHR::count,
                                   vulkan::fields::VkMicromapUsageKHR::subdivisionLevel,
@@ -7319,7 +7319,7 @@ struct Schema<vulkan::api_types::VkMicromapUsageKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureGeometryMicromapDataKHR>
+struct Schema<vulkan::api_elements::VkAccelerationStructureGeometryMicromapDataKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureGeometryMicromapDataKHR::sType,
                                   vulkan::fields::VkAccelerationStructureGeometryMicromapDataKHR::pNext,
@@ -7332,7 +7332,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureGeometryMicromapDataKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceOpacityMicromapFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceOpacityMicromapFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceOpacityMicromapFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceOpacityMicromapFeaturesKHR::pNext,
@@ -7340,7 +7340,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceOpacityMicromapFeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceOpacityMicromapPropertiesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceOpacityMicromapPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceOpacityMicromapPropertiesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceOpacityMicromapPropertiesKHR::pNext,
@@ -7351,7 +7351,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceOpacityMicromapPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMicromapTriangleKHR>
+struct Schema<vulkan::api_elements::VkMicromapTriangleKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkMicromapTriangleKHR::dataOffset,
                                   vulkan::fields::VkMicromapTriangleKHR::subdivisionLevel,
@@ -7359,7 +7359,7 @@ struct Schema<vulkan::api_types::VkMicromapTriangleKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureTrianglesOpacityMicromapKHR>
+struct Schema<vulkan::api_elements::VkAccelerationStructureTrianglesOpacityMicromapKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureTrianglesOpacityMicromapKHR::sType,
                                   vulkan::fields::VkAccelerationStructureTrianglesOpacityMicromapKHR::pNext,
@@ -7371,7 +7371,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureTrianglesOpacityMicromap
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance10FeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMaintenance10FeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMaintenance10FeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceMaintenance10FeaturesKHR::pNext,
@@ -7379,7 +7379,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance10FeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance10PropertiesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMaintenance10PropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMaintenance10PropertiesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceMaintenance10PropertiesKHR::pNext,
@@ -7389,14 +7389,14 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance10PropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderingEndInfoKHR>
+struct Schema<vulkan::api_elements::VkRenderingEndInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderingEndInfoKHR::sType,
                                   vulkan::fields::VkRenderingEndInfoKHR::pNext>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderingAttachmentFlagsInfoKHR>
+struct Schema<vulkan::api_elements::VkRenderingAttachmentFlagsInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderingAttachmentFlagsInfoKHR::sType,
                                   vulkan::fields::VkRenderingAttachmentFlagsInfoKHR::pNext,
@@ -7404,7 +7404,7 @@ struct Schema<vulkan::api_types::VkRenderingAttachmentFlagsInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkResolveImageModeInfoKHR>
+struct Schema<vulkan::api_elements::VkResolveImageModeInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkResolveImageModeInfoKHR::sType,
                                   vulkan::fields::VkResolveImageModeInfoKHR::pNext,
@@ -7414,7 +7414,7 @@ struct Schema<vulkan::api_types::VkResolveImageModeInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR::pNext,
@@ -7422,7 +7422,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePipelineLibraryGroupHandlesFeat
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance11FeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMaintenance11FeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMaintenance11FeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceMaintenance11FeaturesKHR::pNext,
@@ -7430,7 +7430,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMaintenance11FeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR>
+struct Schema<vulkan::api_elements::VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR::sType,
                                   vulkan::fields::VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR::pNext,
@@ -7438,7 +7438,7 @@ struct Schema<vulkan::api_types::VkQueueFamilyOptimalImageTransferGranularityPro
 };
 
 template <>
-struct Schema<vulkan::api_types::VkFormatProperties4KHR>
+struct Schema<vulkan::api_elements::VkFormatProperties4KHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkFormatProperties4KHR::sType,
                                   vulkan::fields::VkFormatProperties4KHR::pNext,
@@ -7448,7 +7448,7 @@ struct Schema<vulkan::api_types::VkFormatProperties4KHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageUsageFlags2CreateInfoKHR>
+struct Schema<vulkan::api_elements::VkImageUsageFlags2CreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageUsageFlags2CreateInfoKHR::sType,
                                   vulkan::fields::VkImageUsageFlags2CreateInfoKHR::pNext,
@@ -7456,7 +7456,7 @@ struct Schema<vulkan::api_types::VkImageUsageFlags2CreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageCreateFlags2CreateInfoKHR>
+struct Schema<vulkan::api_elements::VkImageCreateFlags2CreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageCreateFlags2CreateInfoKHR::sType,
                                   vulkan::fields::VkImageCreateFlags2CreateInfoKHR::pNext,
@@ -7464,7 +7464,7 @@ struct Schema<vulkan::api_types::VkImageCreateFlags2CreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageViewUsage2CreateInfoKHR>
+struct Schema<vulkan::api_elements::VkImageViewUsage2CreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageViewUsage2CreateInfoKHR::sType,
                                   vulkan::fields::VkImageViewUsage2CreateInfoKHR::pNext,
@@ -7472,7 +7472,7 @@ struct Schema<vulkan::api_types::VkImageViewUsage2CreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceExtendedFlagsFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceExtendedFlagsFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceExtendedFlagsFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceExtendedFlagsFeaturesKHR::pNext,
@@ -7480,7 +7480,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceExtendedFlagsFeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageStencilUsage2CreateInfoKHR>
+struct Schema<vulkan::api_elements::VkImageStencilUsage2CreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageStencilUsage2CreateInfoKHR::sType,
                                   vulkan::fields::VkImageStencilUsage2CreateInfoKHR::pNext,
@@ -7488,7 +7488,7 @@ struct Schema<vulkan::api_types::VkImageStencilUsage2CreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSharedPresentSurfaceCapabilities2KHR>
+struct Schema<vulkan::api_elements::VkSharedPresentSurfaceCapabilities2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkSharedPresentSurfaceCapabilities2KHR::sType,
                                   vulkan::fields::VkSharedPresentSurfaceCapabilities2KHR::pNext,
@@ -7496,7 +7496,7 @@ struct Schema<vulkan::api_types::VkSharedPresentSurfaceCapabilities2KHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDebugReportCallbackCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkDebugReportCallbackCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDebugReportCallbackCreateInfoEXT::sType,
                                   vulkan::fields::VkDebugReportCallbackCreateInfoEXT::pNext,
@@ -7506,7 +7506,7 @@ struct Schema<vulkan::api_types::VkDebugReportCallbackCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineRasterizationStateRasterizationOrderAMD>
+struct Schema<vulkan::api_elements::VkPipelineRasterizationStateRasterizationOrderAMD>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineRasterizationStateRasterizationOrderAMD::sType,
                                   vulkan::fields::VkPipelineRasterizationStateRasterizationOrderAMD::pNext,
@@ -7514,7 +7514,7 @@ struct Schema<vulkan::api_types::VkPipelineRasterizationStateRasterizationOrderA
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDebugMarkerObjectNameInfoEXT>
+struct Schema<vulkan::api_elements::VkDebugMarkerObjectNameInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDebugMarkerObjectNameInfoEXT::sType,
                                   vulkan::fields::VkDebugMarkerObjectNameInfoEXT::pNext,
@@ -7524,7 +7524,7 @@ struct Schema<vulkan::api_types::VkDebugMarkerObjectNameInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDebugMarkerObjectTagInfoEXT>
+struct Schema<vulkan::api_elements::VkDebugMarkerObjectTagInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDebugMarkerObjectTagInfoEXT::sType,
                                   vulkan::fields::VkDebugMarkerObjectTagInfoEXT::pNext,
@@ -7536,7 +7536,7 @@ struct Schema<vulkan::api_types::VkDebugMarkerObjectTagInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDebugMarkerMarkerInfoEXT>
+struct Schema<vulkan::api_elements::VkDebugMarkerMarkerInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDebugMarkerMarkerInfoEXT::sType,
                                   vulkan::fields::VkDebugMarkerMarkerInfoEXT::pNext,
@@ -7545,7 +7545,7 @@ struct Schema<vulkan::api_types::VkDebugMarkerMarkerInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDedicatedAllocationImageCreateInfoNV>
+struct Schema<vulkan::api_elements::VkDedicatedAllocationImageCreateInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkDedicatedAllocationImageCreateInfoNV::sType,
                                   vulkan::fields::VkDedicatedAllocationImageCreateInfoNV::pNext,
@@ -7553,7 +7553,7 @@ struct Schema<vulkan::api_types::VkDedicatedAllocationImageCreateInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDedicatedAllocationBufferCreateInfoNV>
+struct Schema<vulkan::api_elements::VkDedicatedAllocationBufferCreateInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkDedicatedAllocationBufferCreateInfoNV::sType,
                                   vulkan::fields::VkDedicatedAllocationBufferCreateInfoNV::pNext,
@@ -7561,7 +7561,7 @@ struct Schema<vulkan::api_types::VkDedicatedAllocationBufferCreateInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDedicatedAllocationMemoryAllocateInfoNV>
+struct Schema<vulkan::api_elements::VkDedicatedAllocationMemoryAllocateInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkDedicatedAllocationMemoryAllocateInfoNV::sType,
                                   vulkan::fields::VkDedicatedAllocationMemoryAllocateInfoNV::pNext,
@@ -7570,7 +7570,7 @@ struct Schema<vulkan::api_types::VkDedicatedAllocationMemoryAllocateInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceTransformFeedbackFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceTransformFeedbackFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceTransformFeedbackFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceTransformFeedbackFeaturesEXT::pNext,
@@ -7579,7 +7579,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceTransformFeedbackFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceTransformFeedbackPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceTransformFeedbackPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceTransformFeedbackPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceTransformFeedbackPropertiesEXT::pNext,
@@ -7596,7 +7596,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceTransformFeedbackPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineRasterizationStateStreamCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkPipelineRasterizationStateStreamCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineRasterizationStateStreamCreateInfoEXT::sType,
                                   vulkan::fields::VkPipelineRasterizationStateStreamCreateInfoEXT::pNext,
@@ -7605,7 +7605,7 @@ struct Schema<vulkan::api_types::VkPipelineRasterizationStateStreamCreateInfoEXT
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageViewHandleInfoNVX>
+struct Schema<vulkan::api_elements::VkImageViewHandleInfoNVX>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageViewHandleInfoNVX::sType,
                                   vulkan::fields::VkImageViewHandleInfoNVX::pNext,
@@ -7615,7 +7615,7 @@ struct Schema<vulkan::api_types::VkImageViewHandleInfoNVX>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageViewAddressPropertiesNVX>
+struct Schema<vulkan::api_elements::VkImageViewAddressPropertiesNVX>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageViewAddressPropertiesNVX::sType,
                                   vulkan::fields::VkImageViewAddressPropertiesNVX::pNext,
@@ -7624,7 +7624,7 @@ struct Schema<vulkan::api_types::VkImageViewAddressPropertiesNVX>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkTextureLODGatherFormatPropertiesAMD>
+struct Schema<vulkan::api_elements::VkTextureLODGatherFormatPropertiesAMD>
 {
     using Fields = util::TypeList<vulkan::fields::VkTextureLODGatherFormatPropertiesAMD::sType,
                                   vulkan::fields::VkTextureLODGatherFormatPropertiesAMD::pNext,
@@ -7632,7 +7632,7 @@ struct Schema<vulkan::api_types::VkTextureLODGatherFormatPropertiesAMD>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkShaderResourceUsageAMD>
+struct Schema<vulkan::api_elements::VkShaderResourceUsageAMD>
 {
     using Fields = util::TypeList<vulkan::fields::VkShaderResourceUsageAMD::numUsedVgprs,
                                   vulkan::fields::VkShaderResourceUsageAMD::numUsedSgprs,
@@ -7642,7 +7642,7 @@ struct Schema<vulkan::api_types::VkShaderResourceUsageAMD>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkShaderStatisticsInfoAMD>
+struct Schema<vulkan::api_elements::VkShaderStatisticsInfoAMD>
 {
     using Fields = util::TypeList<vulkan::fields::VkShaderStatisticsInfoAMD::shaderStageMask,
                                   vulkan::fields::VkShaderStatisticsInfoAMD::resourceUsage,
@@ -7654,7 +7654,7 @@ struct Schema<vulkan::api_types::VkShaderStatisticsInfoAMD>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkStreamDescriptorSurfaceCreateInfoGGP>
+struct Schema<vulkan::api_elements::VkStreamDescriptorSurfaceCreateInfoGGP>
 {
     using Fields = util::TypeList<vulkan::fields::VkStreamDescriptorSurfaceCreateInfoGGP::sType,
                                   vulkan::fields::VkStreamDescriptorSurfaceCreateInfoGGP::pNext,
@@ -7663,7 +7663,7 @@ struct Schema<vulkan::api_types::VkStreamDescriptorSurfaceCreateInfoGGP>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceCornerSampledImageFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceCornerSampledImageFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceCornerSampledImageFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceCornerSampledImageFeaturesNV::pNext,
@@ -7671,7 +7671,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceCornerSampledImageFeaturesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkExternalImageFormatPropertiesNV>
+struct Schema<vulkan::api_elements::VkExternalImageFormatPropertiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkExternalImageFormatPropertiesNV::imageFormatProperties,
                                   vulkan::fields::VkExternalImageFormatPropertiesNV::externalMemoryFeatures,
@@ -7680,7 +7680,7 @@ struct Schema<vulkan::api_types::VkExternalImageFormatPropertiesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkExternalMemoryImageCreateInfoNV>
+struct Schema<vulkan::api_elements::VkExternalMemoryImageCreateInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkExternalMemoryImageCreateInfoNV::sType,
                                   vulkan::fields::VkExternalMemoryImageCreateInfoNV::pNext,
@@ -7688,7 +7688,7 @@ struct Schema<vulkan::api_types::VkExternalMemoryImageCreateInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkExportMemoryAllocateInfoNV>
+struct Schema<vulkan::api_elements::VkExportMemoryAllocateInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkExportMemoryAllocateInfoNV::sType,
                                   vulkan::fields::VkExportMemoryAllocateInfoNV::pNext,
@@ -7696,7 +7696,7 @@ struct Schema<vulkan::api_types::VkExportMemoryAllocateInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImportMemoryWin32HandleInfoNV>
+struct Schema<vulkan::api_elements::VkImportMemoryWin32HandleInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkImportMemoryWin32HandleInfoNV::sType,
                                   vulkan::fields::VkImportMemoryWin32HandleInfoNV::pNext,
@@ -7705,7 +7705,7 @@ struct Schema<vulkan::api_types::VkImportMemoryWin32HandleInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkExportMemoryWin32HandleInfoNV>
+struct Schema<vulkan::api_elements::VkExportMemoryWin32HandleInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkExportMemoryWin32HandleInfoNV::sType,
                                   vulkan::fields::VkExportMemoryWin32HandleInfoNV::pNext,
@@ -7714,7 +7714,7 @@ struct Schema<vulkan::api_types::VkExportMemoryWin32HandleInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkWin32KeyedMutexAcquireReleaseInfoNV>
+struct Schema<vulkan::api_elements::VkWin32KeyedMutexAcquireReleaseInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkWin32KeyedMutexAcquireReleaseInfoNV::sType,
                                   vulkan::fields::VkWin32KeyedMutexAcquireReleaseInfoNV::pNext,
@@ -7728,7 +7728,7 @@ struct Schema<vulkan::api_types::VkWin32KeyedMutexAcquireReleaseInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkValidationFlagsEXT>
+struct Schema<vulkan::api_elements::VkValidationFlagsEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkValidationFlagsEXT::sType,
                                   vulkan::fields::VkValidationFlagsEXT::pNext,
@@ -7737,7 +7737,7 @@ struct Schema<vulkan::api_types::VkValidationFlagsEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkViSurfaceCreateInfoNN>
+struct Schema<vulkan::api_elements::VkViSurfaceCreateInfoNN>
 {
     using Fields = util::TypeList<vulkan::fields::VkViSurfaceCreateInfoNN::sType,
                                   vulkan::fields::VkViSurfaceCreateInfoNN::pNext,
@@ -7746,7 +7746,7 @@ struct Schema<vulkan::api_types::VkViSurfaceCreateInfoNN>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageViewASTCDecodeModeEXT>
+struct Schema<vulkan::api_elements::VkImageViewASTCDecodeModeEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageViewASTCDecodeModeEXT::sType,
                                   vulkan::fields::VkImageViewASTCDecodeModeEXT::pNext,
@@ -7754,7 +7754,7 @@ struct Schema<vulkan::api_types::VkImageViewASTCDecodeModeEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceASTCDecodeFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceASTCDecodeFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceASTCDecodeFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceASTCDecodeFeaturesEXT::pNext,
@@ -7762,7 +7762,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceASTCDecodeFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkConditionalRenderingBeginInfoEXT>
+struct Schema<vulkan::api_elements::VkConditionalRenderingBeginInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkConditionalRenderingBeginInfoEXT::sType,
                                   vulkan::fields::VkConditionalRenderingBeginInfoEXT::pNext,
@@ -7772,7 +7772,7 @@ struct Schema<vulkan::api_types::VkConditionalRenderingBeginInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceConditionalRenderingFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceConditionalRenderingFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceConditionalRenderingFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceConditionalRenderingFeaturesEXT::pNext,
@@ -7781,7 +7781,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceConditionalRenderingFeaturesEXT
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCommandBufferInheritanceConditionalRenderingInfoEXT>
+struct Schema<vulkan::api_elements::VkCommandBufferInheritanceConditionalRenderingInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkCommandBufferInheritanceConditionalRenderingInfoEXT::sType,
                                   vulkan::fields::VkCommandBufferInheritanceConditionalRenderingInfoEXT::pNext,
@@ -7789,14 +7789,14 @@ struct Schema<vulkan::api_types::VkCommandBufferInheritanceConditionalRenderingI
 };
 
 template <>
-struct Schema<vulkan::api_types::VkViewportWScalingNV>
+struct Schema<vulkan::api_elements::VkViewportWScalingNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkViewportWScalingNV::xcoeff,
                                   vulkan::fields::VkViewportWScalingNV::ycoeff>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineViewportWScalingStateCreateInfoNV>
+struct Schema<vulkan::api_elements::VkPipelineViewportWScalingStateCreateInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineViewportWScalingStateCreateInfoNV::sType,
                                   vulkan::fields::VkPipelineViewportWScalingStateCreateInfoNV::pNext,
@@ -7806,7 +7806,7 @@ struct Schema<vulkan::api_types::VkPipelineViewportWScalingStateCreateInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSurfaceCapabilities2EXT>
+struct Schema<vulkan::api_elements::VkSurfaceCapabilities2EXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkSurfaceCapabilities2EXT::sType,
                                   vulkan::fields::VkSurfaceCapabilities2EXT::pNext,
@@ -7824,7 +7824,7 @@ struct Schema<vulkan::api_types::VkSurfaceCapabilities2EXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDisplayPowerInfoEXT>
+struct Schema<vulkan::api_elements::VkDisplayPowerInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDisplayPowerInfoEXT::sType,
                                   vulkan::fields::VkDisplayPowerInfoEXT::pNext,
@@ -7832,7 +7832,7 @@ struct Schema<vulkan::api_types::VkDisplayPowerInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceEventInfoEXT>
+struct Schema<vulkan::api_elements::VkDeviceEventInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceEventInfoEXT::sType,
                                   vulkan::fields::VkDeviceEventInfoEXT::pNext,
@@ -7840,7 +7840,7 @@ struct Schema<vulkan::api_types::VkDeviceEventInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDisplayEventInfoEXT>
+struct Schema<vulkan::api_elements::VkDisplayEventInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDisplayEventInfoEXT::sType,
                                   vulkan::fields::VkDisplayEventInfoEXT::pNext,
@@ -7848,7 +7848,7 @@ struct Schema<vulkan::api_types::VkDisplayEventInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSwapchainCounterCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkSwapchainCounterCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkSwapchainCounterCreateInfoEXT::sType,
                                   vulkan::fields::VkSwapchainCounterCreateInfoEXT::pNext,
@@ -7856,13 +7856,13 @@ struct Schema<vulkan::api_types::VkSwapchainCounterCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRefreshCycleDurationGOOGLE>
+struct Schema<vulkan::api_elements::VkRefreshCycleDurationGOOGLE>
 {
     using Fields = util::TypeList<vulkan::fields::VkRefreshCycleDurationGOOGLE::refreshDuration>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPastPresentationTimingGOOGLE>
+struct Schema<vulkan::api_elements::VkPastPresentationTimingGOOGLE>
 {
     using Fields = util::TypeList<vulkan::fields::VkPastPresentationTimingGOOGLE::presentID,
                                   vulkan::fields::VkPastPresentationTimingGOOGLE::desiredPresentTime,
@@ -7872,14 +7872,14 @@ struct Schema<vulkan::api_types::VkPastPresentationTimingGOOGLE>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPresentTimeGOOGLE>
+struct Schema<vulkan::api_elements::VkPresentTimeGOOGLE>
 {
     using Fields = util::TypeList<vulkan::fields::VkPresentTimeGOOGLE::presentID,
                                   vulkan::fields::VkPresentTimeGOOGLE::desiredPresentTime>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPresentTimesInfoGOOGLE>
+struct Schema<vulkan::api_elements::VkPresentTimesInfoGOOGLE>
 {
     using Fields = util::TypeList<vulkan::fields::VkPresentTimesInfoGOOGLE::sType,
                                   vulkan::fields::VkPresentTimesInfoGOOGLE::pNext,
@@ -7888,7 +7888,7 @@ struct Schema<vulkan::api_types::VkPresentTimesInfoGOOGLE>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX::sType,
                                   vulkan::fields::VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX::pNext,
@@ -7896,7 +7896,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMultiviewPerViewAttributesPrope
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMultiviewPerViewAttributesInfoNVX>
+struct Schema<vulkan::api_elements::VkMultiviewPerViewAttributesInfoNVX>
 {
     using Fields = util::TypeList<vulkan::fields::VkMultiviewPerViewAttributesInfoNVX::sType,
                                   vulkan::fields::VkMultiviewPerViewAttributesInfoNVX::pNext,
@@ -7905,14 +7905,14 @@ struct Schema<vulkan::api_types::VkMultiviewPerViewAttributesInfoNVX>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkViewportSwizzleNV>
+struct Schema<vulkan::api_elements::VkViewportSwizzleNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkViewportSwizzleNV::x, vulkan::fields::VkViewportSwizzleNV::y,
                                   vulkan::fields::VkViewportSwizzleNV::z, vulkan::fields::VkViewportSwizzleNV::w>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineViewportSwizzleStateCreateInfoNV>
+struct Schema<vulkan::api_elements::VkPipelineViewportSwizzleStateCreateInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineViewportSwizzleStateCreateInfoNV::sType,
                                   vulkan::fields::VkPipelineViewportSwizzleStateCreateInfoNV::pNext,
@@ -7922,7 +7922,7 @@ struct Schema<vulkan::api_types::VkPipelineViewportSwizzleStateCreateInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDiscardRectanglePropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDiscardRectanglePropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDiscardRectanglePropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceDiscardRectanglePropertiesEXT::pNext,
@@ -7930,7 +7930,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDiscardRectanglePropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineDiscardRectangleStateCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkPipelineDiscardRectangleStateCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineDiscardRectangleStateCreateInfoEXT::sType,
                                   vulkan::fields::VkPipelineDiscardRectangleStateCreateInfoEXT::pNext,
@@ -7941,7 +7941,7 @@ struct Schema<vulkan::api_types::VkPipelineDiscardRectangleStateCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceConservativeRasterizationPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceConservativeRasterizationPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceConservativeRasterizationPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceConservativeRasterizationPropertiesEXT::pNext,
@@ -7957,7 +7957,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceConservativeRasterizationProper
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineRasterizationConservativeStateCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkPipelineRasterizationConservativeStateCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineRasterizationConservativeStateCreateInfoEXT::sType,
                                   vulkan::fields::VkPipelineRasterizationConservativeStateCreateInfoEXT::pNext,
@@ -7967,7 +7967,7 @@ struct Schema<vulkan::api_types::VkPipelineRasterizationConservativeStateCreateI
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDepthClipEnableFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDepthClipEnableFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDepthClipEnableFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceDepthClipEnableFeaturesEXT::pNext,
@@ -7975,7 +7975,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDepthClipEnableFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineRasterizationDepthClipStateCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkPipelineRasterizationDepthClipStateCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineRasterizationDepthClipStateCreateInfoEXT::sType,
                                   vulkan::fields::VkPipelineRasterizationDepthClipStateCreateInfoEXT::pNext,
@@ -7984,13 +7984,13 @@ struct Schema<vulkan::api_types::VkPipelineRasterizationDepthClipStateCreateInfo
 };
 
 template <>
-struct Schema<vulkan::api_types::VkXYColorEXT>
+struct Schema<vulkan::api_elements::VkXYColorEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkXYColorEXT::x, vulkan::fields::VkXYColorEXT::y>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkHdrMetadataEXT>
+struct Schema<vulkan::api_elements::VkHdrMetadataEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkHdrMetadataEXT::sType, vulkan::fields::VkHdrMetadataEXT::pNext,
                                   vulkan::fields::VkHdrMetadataEXT::displayPrimaryRed,
@@ -8004,7 +8004,7 @@ struct Schema<vulkan::api_types::VkHdrMetadataEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG::sType,
                                   vulkan::fields::VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG::pNext,
@@ -8012,7 +8012,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceRelaxedLineRasterizationFeature
 };
 
 template <>
-struct Schema<vulkan::api_types::VkIOSSurfaceCreateInfoMVK>
+struct Schema<vulkan::api_elements::VkIOSSurfaceCreateInfoMVK>
 {
     using Fields = util::TypeList<vulkan::fields::VkIOSSurfaceCreateInfoMVK::sType,
                                   vulkan::fields::VkIOSSurfaceCreateInfoMVK::pNext,
@@ -8021,7 +8021,7 @@ struct Schema<vulkan::api_types::VkIOSSurfaceCreateInfoMVK>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMacOSSurfaceCreateInfoMVK>
+struct Schema<vulkan::api_elements::VkMacOSSurfaceCreateInfoMVK>
 {
     using Fields = util::TypeList<vulkan::fields::VkMacOSSurfaceCreateInfoMVK::sType,
                                   vulkan::fields::VkMacOSSurfaceCreateInfoMVK::pNext,
@@ -8030,7 +8030,7 @@ struct Schema<vulkan::api_types::VkMacOSSurfaceCreateInfoMVK>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDebugUtilsLabelEXT>
+struct Schema<vulkan::api_elements::VkDebugUtilsLabelEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDebugUtilsLabelEXT::sType,
                                   vulkan::fields::VkDebugUtilsLabelEXT::pNext,
@@ -8039,7 +8039,7 @@ struct Schema<vulkan::api_types::VkDebugUtilsLabelEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDebugUtilsObjectNameInfoEXT>
+struct Schema<vulkan::api_elements::VkDebugUtilsObjectNameInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDebugUtilsObjectNameInfoEXT::sType,
                                   vulkan::fields::VkDebugUtilsObjectNameInfoEXT::pNext,
@@ -8049,7 +8049,7 @@ struct Schema<vulkan::api_types::VkDebugUtilsObjectNameInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDebugUtilsMessengerCallbackDataEXT>
+struct Schema<vulkan::api_elements::VkDebugUtilsMessengerCallbackDataEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDebugUtilsMessengerCallbackDataEXT::sType,
                                   vulkan::fields::VkDebugUtilsMessengerCallbackDataEXT::pNext,
@@ -8066,7 +8066,7 @@ struct Schema<vulkan::api_types::VkDebugUtilsMessengerCallbackDataEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDebugUtilsMessengerCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkDebugUtilsMessengerCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDebugUtilsMessengerCreateInfoEXT::sType,
                                   vulkan::fields::VkDebugUtilsMessengerCreateInfoEXT::pNext,
@@ -8078,7 +8078,7 @@ struct Schema<vulkan::api_types::VkDebugUtilsMessengerCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDebugUtilsObjectTagInfoEXT>
+struct Schema<vulkan::api_elements::VkDebugUtilsObjectTagInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDebugUtilsObjectTagInfoEXT::sType,
                                   vulkan::fields::VkDebugUtilsObjectTagInfoEXT::pNext,
@@ -8090,7 +8090,7 @@ struct Schema<vulkan::api_types::VkDebugUtilsObjectTagInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAndroidHardwareBufferUsageANDROID>
+struct Schema<vulkan::api_elements::VkAndroidHardwareBufferUsageANDROID>
 {
     using Fields = util::TypeList<vulkan::fields::VkAndroidHardwareBufferUsageANDROID::sType,
                                   vulkan::fields::VkAndroidHardwareBufferUsageANDROID::pNext,
@@ -8098,7 +8098,7 @@ struct Schema<vulkan::api_types::VkAndroidHardwareBufferUsageANDROID>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAndroidHardwareBufferPropertiesANDROID>
+struct Schema<vulkan::api_elements::VkAndroidHardwareBufferPropertiesANDROID>
 {
     using Fields = util::TypeList<vulkan::fields::VkAndroidHardwareBufferPropertiesANDROID::sType,
                                   vulkan::fields::VkAndroidHardwareBufferPropertiesANDROID::pNext,
@@ -8107,7 +8107,7 @@ struct Schema<vulkan::api_types::VkAndroidHardwareBufferPropertiesANDROID>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAndroidHardwareBufferFormatPropertiesANDROID>
+struct Schema<vulkan::api_elements::VkAndroidHardwareBufferFormatPropertiesANDROID>
 {
     using Fields = util::TypeList<vulkan::fields::VkAndroidHardwareBufferFormatPropertiesANDROID::sType,
                                   vulkan::fields::VkAndroidHardwareBufferFormatPropertiesANDROID::pNext,
@@ -8122,7 +8122,7 @@ struct Schema<vulkan::api_types::VkAndroidHardwareBufferFormatPropertiesANDROID>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImportAndroidHardwareBufferInfoANDROID>
+struct Schema<vulkan::api_elements::VkImportAndroidHardwareBufferInfoANDROID>
 {
     using Fields = util::TypeList<vulkan::fields::VkImportAndroidHardwareBufferInfoANDROID::sType,
                                   vulkan::fields::VkImportAndroidHardwareBufferInfoANDROID::pNext,
@@ -8130,7 +8130,7 @@ struct Schema<vulkan::api_types::VkImportAndroidHardwareBufferInfoANDROID>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryGetAndroidHardwareBufferInfoANDROID>
+struct Schema<vulkan::api_elements::VkMemoryGetAndroidHardwareBufferInfoANDROID>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryGetAndroidHardwareBufferInfoANDROID::sType,
                                   vulkan::fields::VkMemoryGetAndroidHardwareBufferInfoANDROID::pNext,
@@ -8138,7 +8138,7 @@ struct Schema<vulkan::api_types::VkMemoryGetAndroidHardwareBufferInfoANDROID>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkExternalFormatANDROID>
+struct Schema<vulkan::api_elements::VkExternalFormatANDROID>
 {
     using Fields = util::TypeList<vulkan::fields::VkExternalFormatANDROID::sType,
                                   vulkan::fields::VkExternalFormatANDROID::pNext,
@@ -8146,7 +8146,7 @@ struct Schema<vulkan::api_types::VkExternalFormatANDROID>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAndroidHardwareBufferFormatProperties2ANDROID>
+struct Schema<vulkan::api_elements::VkAndroidHardwareBufferFormatProperties2ANDROID>
 {
     using Fields = util::TypeList<vulkan::fields::VkAndroidHardwareBufferFormatProperties2ANDROID::sType,
                                   vulkan::fields::VkAndroidHardwareBufferFormatProperties2ANDROID::pNext,
@@ -8161,7 +8161,7 @@ struct Schema<vulkan::api_types::VkAndroidHardwareBufferFormatProperties2ANDROID
 };
 
 template <>
-struct Schema<vulkan::api_types::VkGpaPerfBlockPropertiesAMD>
+struct Schema<vulkan::api_elements::VkGpaPerfBlockPropertiesAMD>
 {
     using Fields = util::TypeList<vulkan::fields::VkGpaPerfBlockPropertiesAMD::blockType,
                                   vulkan::fields::VkGpaPerfBlockPropertiesAMD::flags,
@@ -8173,7 +8173,7 @@ struct Schema<vulkan::api_types::VkGpaPerfBlockPropertiesAMD>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceGpaFeaturesAMD>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceGpaFeaturesAMD>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceGpaFeaturesAMD::sType,
                                   vulkan::fields::VkPhysicalDeviceGpaFeaturesAMD::pNext,
@@ -8184,7 +8184,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceGpaFeaturesAMD>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceGpaPropertiesAMD>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceGpaPropertiesAMD>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceGpaPropertiesAMD::sType,
                                   vulkan::fields::VkPhysicalDeviceGpaPropertiesAMD::pNext,
@@ -8196,7 +8196,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceGpaPropertiesAMD>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceGpaProperties2AMD>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceGpaProperties2AMD>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceGpaProperties2AMD::sType,
                                   vulkan::fields::VkPhysicalDeviceGpaProperties2AMD::pNext,
@@ -8204,7 +8204,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceGpaProperties2AMD>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkGpaPerfCounterAMD>
+struct Schema<vulkan::api_elements::VkGpaPerfCounterAMD>
 {
     using Fields = util::TypeList<vulkan::fields::VkGpaPerfCounterAMD::blockType,
                                   vulkan::fields::VkGpaPerfCounterAMD::blockInstance,
@@ -8212,7 +8212,7 @@ struct Schema<vulkan::api_types::VkGpaPerfCounterAMD>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkGpaSampleBeginInfoAMD>
+struct Schema<vulkan::api_elements::VkGpaSampleBeginInfoAMD>
 {
     using Fields = util::TypeList<vulkan::fields::VkGpaSampleBeginInfoAMD::sType,
                                   vulkan::fields::VkGpaSampleBeginInfoAMD::pNext,
@@ -8233,7 +8233,7 @@ struct Schema<vulkan::api_types::VkGpaSampleBeginInfoAMD>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkGpaDeviceClockModeInfoAMD>
+struct Schema<vulkan::api_elements::VkGpaDeviceClockModeInfoAMD>
 {
     using Fields = util::TypeList<vulkan::fields::VkGpaDeviceClockModeInfoAMD::sType,
                                   vulkan::fields::VkGpaDeviceClockModeInfoAMD::pNext,
@@ -8243,7 +8243,7 @@ struct Schema<vulkan::api_types::VkGpaDeviceClockModeInfoAMD>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkGpaDeviceGetClockInfoAMD>
+struct Schema<vulkan::api_elements::VkGpaDeviceGetClockInfoAMD>
 {
     using Fields = util::TypeList<vulkan::fields::VkGpaDeviceGetClockInfoAMD::sType,
                                   vulkan::fields::VkGpaDeviceGetClockInfoAMD::pNext,
@@ -8254,7 +8254,7 @@ struct Schema<vulkan::api_types::VkGpaDeviceGetClockInfoAMD>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkGpaSessionCreateInfoAMD>
+struct Schema<vulkan::api_elements::VkGpaSessionCreateInfoAMD>
 {
     using Fields = util::TypeList<vulkan::fields::VkGpaSessionCreateInfoAMD::sType,
                                   vulkan::fields::VkGpaSessionCreateInfoAMD::pNext,
@@ -8262,7 +8262,7 @@ struct Schema<vulkan::api_types::VkGpaSessionCreateInfoAMD>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAttachmentSampleCountInfoAMD>
+struct Schema<vulkan::api_elements::VkAttachmentSampleCountInfoAMD>
 {
     using Fields = util::TypeList<vulkan::fields::VkAttachmentSampleCountInfoAMD::sType,
                                   vulkan::fields::VkAttachmentSampleCountInfoAMD::pNext,
@@ -8272,13 +8272,13 @@ struct Schema<vulkan::api_types::VkAttachmentSampleCountInfoAMD>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSampleLocationEXT>
+struct Schema<vulkan::api_elements::VkSampleLocationEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkSampleLocationEXT::x, vulkan::fields::VkSampleLocationEXT::y>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSampleLocationsInfoEXT>
+struct Schema<vulkan::api_elements::VkSampleLocationsInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkSampleLocationsInfoEXT::sType,
                                   vulkan::fields::VkSampleLocationsInfoEXT::pNext,
@@ -8289,21 +8289,21 @@ struct Schema<vulkan::api_types::VkSampleLocationsInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAttachmentSampleLocationsEXT>
+struct Schema<vulkan::api_elements::VkAttachmentSampleLocationsEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkAttachmentSampleLocationsEXT::attachmentIndex,
                                   vulkan::fields::VkAttachmentSampleLocationsEXT::sampleLocationsInfo>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSubpassSampleLocationsEXT>
+struct Schema<vulkan::api_elements::VkSubpassSampleLocationsEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkSubpassSampleLocationsEXT::subpassIndex,
                                   vulkan::fields::VkSubpassSampleLocationsEXT::sampleLocationsInfo>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderPassSampleLocationsBeginInfoEXT>
+struct Schema<vulkan::api_elements::VkRenderPassSampleLocationsBeginInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderPassSampleLocationsBeginInfoEXT::sType,
                                   vulkan::fields::VkRenderPassSampleLocationsBeginInfoEXT::pNext,
@@ -8314,7 +8314,7 @@ struct Schema<vulkan::api_types::VkRenderPassSampleLocationsBeginInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineSampleLocationsStateCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkPipelineSampleLocationsStateCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineSampleLocationsStateCreateInfoEXT::sType,
                                   vulkan::fields::VkPipelineSampleLocationsStateCreateInfoEXT::pNext,
@@ -8323,7 +8323,7 @@ struct Schema<vulkan::api_types::VkPipelineSampleLocationsStateCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceSampleLocationsPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceSampleLocationsPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceSampleLocationsPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceSampleLocationsPropertiesEXT::pNext,
@@ -8335,7 +8335,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceSampleLocationsPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMultisamplePropertiesEXT>
+struct Schema<vulkan::api_elements::VkMultisamplePropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkMultisamplePropertiesEXT::sType,
                                   vulkan::fields::VkMultisamplePropertiesEXT::pNext,
@@ -8343,7 +8343,7 @@ struct Schema<vulkan::api_types::VkMultisamplePropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT::pNext,
@@ -8351,7 +8351,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceBlendOperationAdvancedFeaturesE
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT::pNext,
@@ -8364,7 +8364,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceBlendOperationAdvancedPropertie
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineColorBlendAdvancedStateCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkPipelineColorBlendAdvancedStateCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineColorBlendAdvancedStateCreateInfoEXT::sType,
                                   vulkan::fields::VkPipelineColorBlendAdvancedStateCreateInfoEXT::pNext,
@@ -8374,7 +8374,7 @@ struct Schema<vulkan::api_types::VkPipelineColorBlendAdvancedStateCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineCoverageToColorStateCreateInfoNV>
+struct Schema<vulkan::api_elements::VkPipelineCoverageToColorStateCreateInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineCoverageToColorStateCreateInfoNV::sType,
                                   vulkan::fields::VkPipelineCoverageToColorStateCreateInfoNV::pNext,
@@ -8384,7 +8384,7 @@ struct Schema<vulkan::api_types::VkPipelineCoverageToColorStateCreateInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineCoverageModulationStateCreateInfoNV>
+struct Schema<vulkan::api_elements::VkPipelineCoverageModulationStateCreateInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineCoverageModulationStateCreateInfoNV::sType,
                                   vulkan::fields::VkPipelineCoverageModulationStateCreateInfoNV::pNext,
@@ -8396,7 +8396,7 @@ struct Schema<vulkan::api_types::VkPipelineCoverageModulationStateCreateInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderSMBuiltinsPropertiesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderSMBuiltinsPropertiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderSMBuiltinsPropertiesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderSMBuiltinsPropertiesNV::pNext,
@@ -8405,7 +8405,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderSMBuiltinsPropertiesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderSMBuiltinsFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderSMBuiltinsFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderSMBuiltinsFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderSMBuiltinsFeaturesNV::pNext,
@@ -8413,7 +8413,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderSMBuiltinsFeaturesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDrmFormatModifierPropertiesEXT>
+struct Schema<vulkan::api_elements::VkDrmFormatModifierPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDrmFormatModifierPropertiesEXT::drmFormatModifier,
                                   vulkan::fields::VkDrmFormatModifierPropertiesEXT::drmFormatModifierPlaneCount,
@@ -8421,7 +8421,7 @@ struct Schema<vulkan::api_types::VkDrmFormatModifierPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDrmFormatModifierPropertiesListEXT>
+struct Schema<vulkan::api_elements::VkDrmFormatModifierPropertiesListEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDrmFormatModifierPropertiesListEXT::sType,
                                   vulkan::fields::VkDrmFormatModifierPropertiesListEXT::pNext,
@@ -8430,7 +8430,7 @@ struct Schema<vulkan::api_types::VkDrmFormatModifierPropertiesListEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceImageDrmFormatModifierInfoEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceImageDrmFormatModifierInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceImageDrmFormatModifierInfoEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceImageDrmFormatModifierInfoEXT::pNext,
@@ -8441,7 +8441,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceImageDrmFormatModifierInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageDrmFormatModifierListCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkImageDrmFormatModifierListCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageDrmFormatModifierListCreateInfoEXT::sType,
                                   vulkan::fields::VkImageDrmFormatModifierListCreateInfoEXT::pNext,
@@ -8450,7 +8450,7 @@ struct Schema<vulkan::api_types::VkImageDrmFormatModifierListCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageDrmFormatModifierExplicitCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkImageDrmFormatModifierExplicitCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageDrmFormatModifierExplicitCreateInfoEXT::sType,
                                   vulkan::fields::VkImageDrmFormatModifierExplicitCreateInfoEXT::pNext,
@@ -8460,7 +8460,7 @@ struct Schema<vulkan::api_types::VkImageDrmFormatModifierExplicitCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageDrmFormatModifierPropertiesEXT>
+struct Schema<vulkan::api_elements::VkImageDrmFormatModifierPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageDrmFormatModifierPropertiesEXT::sType,
                                   vulkan::fields::VkImageDrmFormatModifierPropertiesEXT::pNext,
@@ -8468,7 +8468,7 @@ struct Schema<vulkan::api_types::VkImageDrmFormatModifierPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDrmFormatModifierProperties2EXT>
+struct Schema<vulkan::api_elements::VkDrmFormatModifierProperties2EXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDrmFormatModifierProperties2EXT::drmFormatModifier,
                                   vulkan::fields::VkDrmFormatModifierProperties2EXT::drmFormatModifierPlaneCount,
@@ -8476,7 +8476,7 @@ struct Schema<vulkan::api_types::VkDrmFormatModifierProperties2EXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDrmFormatModifierPropertiesList2EXT>
+struct Schema<vulkan::api_elements::VkDrmFormatModifierPropertiesList2EXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDrmFormatModifierPropertiesList2EXT::sType,
                                   vulkan::fields::VkDrmFormatModifierPropertiesList2EXT::pNext,
@@ -8485,7 +8485,7 @@ struct Schema<vulkan::api_types::VkDrmFormatModifierPropertiesList2EXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkValidationCacheCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkValidationCacheCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkValidationCacheCreateInfoEXT::sType,
                                   vulkan::fields::VkValidationCacheCreateInfoEXT::pNext,
@@ -8495,7 +8495,7 @@ struct Schema<vulkan::api_types::VkValidationCacheCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkShaderModuleValidationCacheCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkShaderModuleValidationCacheCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkShaderModuleValidationCacheCreateInfoEXT::sType,
                                   vulkan::fields::VkShaderModuleValidationCacheCreateInfoEXT::pNext,
@@ -8503,14 +8503,14 @@ struct Schema<vulkan::api_types::VkShaderModuleValidationCacheCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkShadingRatePaletteNV>
+struct Schema<vulkan::api_elements::VkShadingRatePaletteNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkShadingRatePaletteNV::shadingRatePaletteEntryCount,
                                   vulkan::fields::VkShadingRatePaletteNV::pShadingRatePaletteEntries>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineViewportShadingRateImageStateCreateInfoNV>
+struct Schema<vulkan::api_elements::VkPipelineViewportShadingRateImageStateCreateInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineViewportShadingRateImageStateCreateInfoNV::sType,
                                   vulkan::fields::VkPipelineViewportShadingRateImageStateCreateInfoNV::pNext,
@@ -8520,7 +8520,7 @@ struct Schema<vulkan::api_types::VkPipelineViewportShadingRateImageStateCreateIn
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShadingRateImageFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShadingRateImageFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShadingRateImageFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceShadingRateImageFeaturesNV::pNext,
@@ -8529,7 +8529,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShadingRateImageFeaturesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShadingRateImagePropertiesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShadingRateImagePropertiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShadingRateImagePropertiesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceShadingRateImagePropertiesNV::pNext,
@@ -8539,7 +8539,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShadingRateImagePropertiesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCoarseSampleLocationNV>
+struct Schema<vulkan::api_elements::VkCoarseSampleLocationNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkCoarseSampleLocationNV::pixelX,
                                   vulkan::fields::VkCoarseSampleLocationNV::pixelY,
@@ -8547,7 +8547,7 @@ struct Schema<vulkan::api_types::VkCoarseSampleLocationNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCoarseSampleOrderCustomNV>
+struct Schema<vulkan::api_elements::VkCoarseSampleOrderCustomNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkCoarseSampleOrderCustomNV::shadingRate,
                                   vulkan::fields::VkCoarseSampleOrderCustomNV::sampleCount,
@@ -8556,7 +8556,7 @@ struct Schema<vulkan::api_types::VkCoarseSampleOrderCustomNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineViewportCoarseSampleOrderStateCreateInfoNV>
+struct Schema<vulkan::api_elements::VkPipelineViewportCoarseSampleOrderStateCreateInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineViewportCoarseSampleOrderStateCreateInfoNV::sType,
                                   vulkan::fields::VkPipelineViewportCoarseSampleOrderStateCreateInfoNV::pNext,
@@ -8566,7 +8566,7 @@ struct Schema<vulkan::api_types::VkPipelineViewportCoarseSampleOrderStateCreateI
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRayTracingShaderGroupCreateInfoNV>
+struct Schema<vulkan::api_elements::VkRayTracingShaderGroupCreateInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkRayTracingShaderGroupCreateInfoNV::sType,
                                   vulkan::fields::VkRayTracingShaderGroupCreateInfoNV::pNext,
@@ -8578,7 +8578,7 @@ struct Schema<vulkan::api_types::VkRayTracingShaderGroupCreateInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRayTracingPipelineCreateInfoNV>
+struct Schema<vulkan::api_elements::VkRayTracingPipelineCreateInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkRayTracingPipelineCreateInfoNV::sType,
                                   vulkan::fields::VkRayTracingPipelineCreateInfoNV::pNext,
@@ -8594,7 +8594,7 @@ struct Schema<vulkan::api_types::VkRayTracingPipelineCreateInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkGeometryTrianglesNV>
+struct Schema<vulkan::api_elements::VkGeometryTrianglesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkGeometryTrianglesNV::sType,
                                   vulkan::fields::VkGeometryTrianglesNV::pNext,
@@ -8612,7 +8612,7 @@ struct Schema<vulkan::api_types::VkGeometryTrianglesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkGeometryAABBNV>
+struct Schema<vulkan::api_elements::VkGeometryAABBNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkGeometryAABBNV::sType, vulkan::fields::VkGeometryAABBNV::pNext,
                                   vulkan::fields::VkGeometryAABBNV::aabbData,
@@ -8621,13 +8621,13 @@ struct Schema<vulkan::api_types::VkGeometryAABBNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkGeometryDataNV>
+struct Schema<vulkan::api_elements::VkGeometryDataNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkGeometryDataNV::triangles, vulkan::fields::VkGeometryDataNV::aabbs>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkGeometryNV>
+struct Schema<vulkan::api_elements::VkGeometryNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkGeometryNV::sType, vulkan::fields::VkGeometryNV::pNext,
                                   vulkan::fields::VkGeometryNV::geometryType, vulkan::fields::VkGeometryNV::geometry,
@@ -8635,7 +8635,7 @@ struct Schema<vulkan::api_types::VkGeometryNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureInfoNV>
+struct Schema<vulkan::api_elements::VkAccelerationStructureInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureInfoNV::sType,
                                   vulkan::fields::VkAccelerationStructureInfoNV::pNext,
@@ -8647,7 +8647,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureCreateInfoNV>
+struct Schema<vulkan::api_elements::VkAccelerationStructureCreateInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureCreateInfoNV::sType,
                                   vulkan::fields::VkAccelerationStructureCreateInfoNV::pNext,
@@ -8656,7 +8656,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureCreateInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBindAccelerationStructureMemoryInfoNV>
+struct Schema<vulkan::api_elements::VkBindAccelerationStructureMemoryInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkBindAccelerationStructureMemoryInfoNV::sType,
                                   vulkan::fields::VkBindAccelerationStructureMemoryInfoNV::pNext,
@@ -8668,7 +8668,7 @@ struct Schema<vulkan::api_types::VkBindAccelerationStructureMemoryInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkWriteDescriptorSetAccelerationStructureNV>
+struct Schema<vulkan::api_elements::VkWriteDescriptorSetAccelerationStructureNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkWriteDescriptorSetAccelerationStructureNV::sType,
                                   vulkan::fields::VkWriteDescriptorSetAccelerationStructureNV::pNext,
@@ -8677,7 +8677,7 @@ struct Schema<vulkan::api_types::VkWriteDescriptorSetAccelerationStructureNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureMemoryRequirementsInfoNV>
+struct Schema<vulkan::api_elements::VkAccelerationStructureMemoryRequirementsInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureMemoryRequirementsInfoNV::sType,
                                   vulkan::fields::VkAccelerationStructureMemoryRequirementsInfoNV::pNext,
@@ -8686,7 +8686,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureMemoryRequirementsInfoNV
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceRayTracingPropertiesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceRayTracingPropertiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceRayTracingPropertiesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceRayTracingPropertiesNV::pNext,
@@ -8701,13 +8701,13 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceRayTracingPropertiesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkTransformMatrixKHR>
+struct Schema<vulkan::api_elements::VkTransformMatrixKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkTransformMatrixKHR::matrix>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAabbPositionsKHR>
+struct Schema<vulkan::api_elements::VkAabbPositionsKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkAabbPositionsKHR::minX, vulkan::fields::VkAabbPositionsKHR::minY,
                                   vulkan::fields::VkAabbPositionsKHR::minZ, vulkan::fields::VkAabbPositionsKHR::maxX,
@@ -8715,7 +8715,7 @@ struct Schema<vulkan::api_types::VkAabbPositionsKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureInstanceKHR>
+struct Schema<vulkan::api_elements::VkAccelerationStructureInstanceKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureInstanceKHR::transform,
                                   vulkan::fields::VkAccelerationStructureInstanceKHR::instanceCustomIndex,
@@ -8726,7 +8726,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureInstanceKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV::pNext,
@@ -8734,7 +8734,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceRepresentativeFragmentTestFeatu
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineRepresentativeFragmentTestStateCreateInfoNV>
+struct Schema<vulkan::api_elements::VkPipelineRepresentativeFragmentTestStateCreateInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineRepresentativeFragmentTestStateCreateInfoNV::sType,
                                   vulkan::fields::VkPipelineRepresentativeFragmentTestStateCreateInfoNV::pNext,
@@ -8742,7 +8742,7 @@ struct Schema<vulkan::api_types::VkPipelineRepresentativeFragmentTestStateCreate
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceImageViewImageFormatInfoEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceImageViewImageFormatInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceImageViewImageFormatInfoEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceImageViewImageFormatInfoEXT::pNext,
@@ -8750,7 +8750,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceImageViewImageFormatInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkFilterCubicImageViewImageFormatPropertiesEXT>
+struct Schema<vulkan::api_elements::VkFilterCubicImageViewImageFormatPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkFilterCubicImageViewImageFormatPropertiesEXT::sType,
                                   vulkan::fields::VkFilterCubicImageViewImageFormatPropertiesEXT::pNext,
@@ -8759,7 +8759,7 @@ struct Schema<vulkan::api_types::VkFilterCubicImageViewImageFormatPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM::sType,
                                   vulkan::fields::VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM::pNext,
@@ -8767,7 +8767,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceCooperativeMatrixConversionFeat
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceElapsedTimerQueryFeaturesQCOM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceElapsedTimerQueryFeaturesQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceElapsedTimerQueryFeaturesQCOM::sType,
                                   vulkan::fields::VkPhysicalDeviceElapsedTimerQueryFeaturesQCOM::pNext,
@@ -8775,7 +8775,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceElapsedTimerQueryFeaturesQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImportMemoryHostPointerInfoEXT>
+struct Schema<vulkan::api_elements::VkImportMemoryHostPointerInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkImportMemoryHostPointerInfoEXT::sType,
                                   vulkan::fields::VkImportMemoryHostPointerInfoEXT::pNext,
@@ -8784,7 +8784,7 @@ struct Schema<vulkan::api_types::VkImportMemoryHostPointerInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryHostPointerPropertiesEXT>
+struct Schema<vulkan::api_elements::VkMemoryHostPointerPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryHostPointerPropertiesEXT::sType,
                                   vulkan::fields::VkMemoryHostPointerPropertiesEXT::pNext,
@@ -8792,7 +8792,7 @@ struct Schema<vulkan::api_types::VkMemoryHostPointerPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceExternalMemoryHostPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceExternalMemoryHostPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceExternalMemoryHostPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceExternalMemoryHostPropertiesEXT::pNext,
@@ -8800,7 +8800,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceExternalMemoryHostPropertiesEXT
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineCompilerControlCreateInfoAMD>
+struct Schema<vulkan::api_elements::VkPipelineCompilerControlCreateInfoAMD>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineCompilerControlCreateInfoAMD::sType,
                                   vulkan::fields::VkPipelineCompilerControlCreateInfoAMD::pNext,
@@ -8808,7 +8808,7 @@ struct Schema<vulkan::api_types::VkPipelineCompilerControlCreateInfoAMD>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderCorePropertiesAMD>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderCorePropertiesAMD>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderCorePropertiesAMD::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderCorePropertiesAMD::pNext,
@@ -8829,7 +8829,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderCorePropertiesAMD>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceMemoryOverallocationCreateInfoAMD>
+struct Schema<vulkan::api_elements::VkDeviceMemoryOverallocationCreateInfoAMD>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceMemoryOverallocationCreateInfoAMD::sType,
                                   vulkan::fields::VkDeviceMemoryOverallocationCreateInfoAMD::pNext,
@@ -8837,7 +8837,7 @@ struct Schema<vulkan::api_types::VkDeviceMemoryOverallocationCreateInfoAMD>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT::pNext,
@@ -8845,7 +8845,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceVertexAttributeDivisorPropertie
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPresentFrameTokenGGP>
+struct Schema<vulkan::api_elements::VkPresentFrameTokenGGP>
 {
     using Fields = util::TypeList<vulkan::fields::VkPresentFrameTokenGGP::sType,
                                   vulkan::fields::VkPresentFrameTokenGGP::pNext,
@@ -8853,7 +8853,7 @@ struct Schema<vulkan::api_types::VkPresentFrameTokenGGP>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMeshShaderFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMeshShaderFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMeshShaderFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceMeshShaderFeaturesNV::pNext,
@@ -8862,7 +8862,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMeshShaderFeaturesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMeshShaderPropertiesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMeshShaderPropertiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMeshShaderPropertiesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceMeshShaderPropertiesNV::pNext,
@@ -8882,14 +8882,14 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMeshShaderPropertiesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDrawMeshTasksIndirectCommandNV>
+struct Schema<vulkan::api_elements::VkDrawMeshTasksIndirectCommandNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkDrawMeshTasksIndirectCommandNV::taskCount,
                                   vulkan::fields::VkDrawMeshTasksIndirectCommandNV::firstTask>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderImageFootprintFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderImageFootprintFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderImageFootprintFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderImageFootprintFeaturesNV::pNext,
@@ -8897,7 +8897,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderImageFootprintFeaturesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineViewportExclusiveScissorStateCreateInfoNV>
+struct Schema<vulkan::api_elements::VkPipelineViewportExclusiveScissorStateCreateInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineViewportExclusiveScissorStateCreateInfoNV::sType,
                                   vulkan::fields::VkPipelineViewportExclusiveScissorStateCreateInfoNV::pNext,
@@ -8906,7 +8906,7 @@ struct Schema<vulkan::api_types::VkPipelineViewportExclusiveScissorStateCreateIn
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceExclusiveScissorFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceExclusiveScissorFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceExclusiveScissorFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceExclusiveScissorFeaturesNV::pNext,
@@ -8914,7 +8914,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceExclusiveScissorFeaturesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkQueueFamilyCheckpointPropertiesNV>
+struct Schema<vulkan::api_elements::VkQueueFamilyCheckpointPropertiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkQueueFamilyCheckpointPropertiesNV::sType,
                                   vulkan::fields::VkQueueFamilyCheckpointPropertiesNV::pNext,
@@ -8922,7 +8922,7 @@ struct Schema<vulkan::api_types::VkQueueFamilyCheckpointPropertiesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCheckpointDataNV>
+struct Schema<vulkan::api_elements::VkCheckpointDataNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkCheckpointDataNV::sType, vulkan::fields::VkCheckpointDataNV::pNext,
                                   vulkan::fields::VkCheckpointDataNV::stage,
@@ -8930,7 +8930,7 @@ struct Schema<vulkan::api_types::VkCheckpointDataNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkQueueFamilyCheckpointProperties2NV>
+struct Schema<vulkan::api_elements::VkQueueFamilyCheckpointProperties2NV>
 {
     using Fields = util::TypeList<vulkan::fields::VkQueueFamilyCheckpointProperties2NV::sType,
                                   vulkan::fields::VkQueueFamilyCheckpointProperties2NV::pNext,
@@ -8938,7 +8938,7 @@ struct Schema<vulkan::api_types::VkQueueFamilyCheckpointProperties2NV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCheckpointData2NV>
+struct Schema<vulkan::api_elements::VkCheckpointData2NV>
 {
     using Fields = util::TypeList<vulkan::fields::VkCheckpointData2NV::sType,
                                   vulkan::fields::VkCheckpointData2NV::pNext,
@@ -8947,7 +8947,7 @@ struct Schema<vulkan::api_types::VkCheckpointData2NV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePresentTimingFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePresentTimingFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePresentTimingFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDevicePresentTimingFeaturesEXT::pNext,
@@ -8957,7 +8957,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePresentTimingFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPresentTimingSurfaceCapabilitiesEXT>
+struct Schema<vulkan::api_elements::VkPresentTimingSurfaceCapabilitiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPresentTimingSurfaceCapabilitiesEXT::sType,
                                   vulkan::fields::VkPresentTimingSurfaceCapabilitiesEXT::pNext,
@@ -8968,7 +8968,7 @@ struct Schema<vulkan::api_types::VkPresentTimingSurfaceCapabilitiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSwapchainCalibratedTimestampInfoEXT>
+struct Schema<vulkan::api_elements::VkSwapchainCalibratedTimestampInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkSwapchainCalibratedTimestampInfoEXT::sType,
                                   vulkan::fields::VkSwapchainCalibratedTimestampInfoEXT::pNext,
@@ -8978,7 +8978,7 @@ struct Schema<vulkan::api_types::VkSwapchainCalibratedTimestampInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSwapchainTimingPropertiesEXT>
+struct Schema<vulkan::api_elements::VkSwapchainTimingPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkSwapchainTimingPropertiesEXT::sType,
                                   vulkan::fields::VkSwapchainTimingPropertiesEXT::pNext,
@@ -8987,7 +8987,7 @@ struct Schema<vulkan::api_types::VkSwapchainTimingPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSwapchainTimeDomainPropertiesEXT>
+struct Schema<vulkan::api_elements::VkSwapchainTimeDomainPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkSwapchainTimeDomainPropertiesEXT::sType,
                                   vulkan::fields::VkSwapchainTimeDomainPropertiesEXT::pNext,
@@ -8997,7 +8997,7 @@ struct Schema<vulkan::api_types::VkSwapchainTimeDomainPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPastPresentationTimingInfoEXT>
+struct Schema<vulkan::api_elements::VkPastPresentationTimingInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPastPresentationTimingInfoEXT::sType,
                                   vulkan::fields::VkPastPresentationTimingInfoEXT::pNext,
@@ -9006,14 +9006,14 @@ struct Schema<vulkan::api_types::VkPastPresentationTimingInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPresentStageTimeEXT>
+struct Schema<vulkan::api_elements::VkPresentStageTimeEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPresentStageTimeEXT::stage,
                                   vulkan::fields::VkPresentStageTimeEXT::time>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPastPresentationTimingEXT>
+struct Schema<vulkan::api_elements::VkPastPresentationTimingEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPastPresentationTimingEXT::sType,
                                   vulkan::fields::VkPastPresentationTimingEXT::pNext,
@@ -9027,7 +9027,7 @@ struct Schema<vulkan::api_types::VkPastPresentationTimingEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPastPresentationTimingPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPastPresentationTimingPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPastPresentationTimingPropertiesEXT::sType,
                                   vulkan::fields::VkPastPresentationTimingPropertiesEXT::pNext,
@@ -9038,7 +9038,7 @@ struct Schema<vulkan::api_types::VkPastPresentationTimingPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPresentTimingInfoEXT>
+struct Schema<vulkan::api_elements::VkPresentTimingInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPresentTimingInfoEXT::sType,
                                   vulkan::fields::VkPresentTimingInfoEXT::pNext,
@@ -9050,7 +9050,7 @@ struct Schema<vulkan::api_types::VkPresentTimingInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPresentTimingsInfoEXT>
+struct Schema<vulkan::api_elements::VkPresentTimingsInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPresentTimingsInfoEXT::sType,
                                   vulkan::fields::VkPresentTimingsInfoEXT::pNext,
@@ -9059,7 +9059,7 @@ struct Schema<vulkan::api_types::VkPresentTimingsInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL::pNext,
@@ -9067,14 +9067,14 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderIntegerFunctions2Features
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPerformanceValueINTEL>
+struct Schema<vulkan::api_elements::VkPerformanceValueINTEL>
 {
     using Fields = util::TypeList<vulkan::fields::VkPerformanceValueINTEL::type,
                                   vulkan::fields::VkPerformanceValueINTEL::data>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkInitializePerformanceApiInfoINTEL>
+struct Schema<vulkan::api_elements::VkInitializePerformanceApiInfoINTEL>
 {
     using Fields = util::TypeList<vulkan::fields::VkInitializePerformanceApiInfoINTEL::sType,
                                   vulkan::fields::VkInitializePerformanceApiInfoINTEL::pNext,
@@ -9082,7 +9082,7 @@ struct Schema<vulkan::api_types::VkInitializePerformanceApiInfoINTEL>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkQueryPoolPerformanceQueryCreateInfoINTEL>
+struct Schema<vulkan::api_elements::VkQueryPoolPerformanceQueryCreateInfoINTEL>
 {
     using Fields = util::TypeList<vulkan::fields::VkQueryPoolPerformanceQueryCreateInfoINTEL::sType,
                                   vulkan::fields::VkQueryPoolPerformanceQueryCreateInfoINTEL::pNext,
@@ -9090,7 +9090,7 @@ struct Schema<vulkan::api_types::VkQueryPoolPerformanceQueryCreateInfoINTEL>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPerformanceMarkerInfoINTEL>
+struct Schema<vulkan::api_elements::VkPerformanceMarkerInfoINTEL>
 {
     using Fields = util::TypeList<vulkan::fields::VkPerformanceMarkerInfoINTEL::sType,
                                   vulkan::fields::VkPerformanceMarkerInfoINTEL::pNext,
@@ -9098,7 +9098,7 @@ struct Schema<vulkan::api_types::VkPerformanceMarkerInfoINTEL>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPerformanceStreamMarkerInfoINTEL>
+struct Schema<vulkan::api_elements::VkPerformanceStreamMarkerInfoINTEL>
 {
     using Fields = util::TypeList<vulkan::fields::VkPerformanceStreamMarkerInfoINTEL::sType,
                                   vulkan::fields::VkPerformanceStreamMarkerInfoINTEL::pNext,
@@ -9106,7 +9106,7 @@ struct Schema<vulkan::api_types::VkPerformanceStreamMarkerInfoINTEL>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPerformanceOverrideInfoINTEL>
+struct Schema<vulkan::api_elements::VkPerformanceOverrideInfoINTEL>
 {
     using Fields = util::TypeList<vulkan::fields::VkPerformanceOverrideInfoINTEL::sType,
                                   vulkan::fields::VkPerformanceOverrideInfoINTEL::pNext,
@@ -9116,7 +9116,7 @@ struct Schema<vulkan::api_types::VkPerformanceOverrideInfoINTEL>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPerformanceConfigurationAcquireInfoINTEL>
+struct Schema<vulkan::api_elements::VkPerformanceConfigurationAcquireInfoINTEL>
 {
     using Fields = util::TypeList<vulkan::fields::VkPerformanceConfigurationAcquireInfoINTEL::sType,
                                   vulkan::fields::VkPerformanceConfigurationAcquireInfoINTEL::pNext,
@@ -9124,7 +9124,7 @@ struct Schema<vulkan::api_types::VkPerformanceConfigurationAcquireInfoINTEL>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePCIBusInfoPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePCIBusInfoPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePCIBusInfoPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDevicePCIBusInfoPropertiesEXT::pNext,
@@ -9135,7 +9135,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePCIBusInfoPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDisplayNativeHdrSurfaceCapabilitiesAMD>
+struct Schema<vulkan::api_elements::VkDisplayNativeHdrSurfaceCapabilitiesAMD>
 {
     using Fields = util::TypeList<vulkan::fields::VkDisplayNativeHdrSurfaceCapabilitiesAMD::sType,
                                   vulkan::fields::VkDisplayNativeHdrSurfaceCapabilitiesAMD::pNext,
@@ -9143,7 +9143,7 @@ struct Schema<vulkan::api_types::VkDisplayNativeHdrSurfaceCapabilitiesAMD>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSwapchainDisplayNativeHdrCreateInfoAMD>
+struct Schema<vulkan::api_elements::VkSwapchainDisplayNativeHdrCreateInfoAMD>
 {
     using Fields = util::TypeList<vulkan::fields::VkSwapchainDisplayNativeHdrCreateInfoAMD::sType,
                                   vulkan::fields::VkSwapchainDisplayNativeHdrCreateInfoAMD::pNext,
@@ -9151,7 +9151,7 @@ struct Schema<vulkan::api_types::VkSwapchainDisplayNativeHdrCreateInfoAMD>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImagePipeSurfaceCreateInfoFUCHSIA>
+struct Schema<vulkan::api_elements::VkImagePipeSurfaceCreateInfoFUCHSIA>
 {
     using Fields = util::TypeList<vulkan::fields::VkImagePipeSurfaceCreateInfoFUCHSIA::sType,
                                   vulkan::fields::VkImagePipeSurfaceCreateInfoFUCHSIA::pNext,
@@ -9160,7 +9160,7 @@ struct Schema<vulkan::api_types::VkImagePipeSurfaceCreateInfoFUCHSIA>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMetalSurfaceCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkMetalSurfaceCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkMetalSurfaceCreateInfoEXT::sType,
                                   vulkan::fields::VkMetalSurfaceCreateInfoEXT::pNext,
@@ -9169,7 +9169,7 @@ struct Schema<vulkan::api_types::VkMetalSurfaceCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentDensityMapFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceFragmentDensityMapFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceFragmentDensityMapFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceFragmentDensityMapFeaturesEXT::pNext,
@@ -9179,7 +9179,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentDensityMapFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentDensityMapPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceFragmentDensityMapPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceFragmentDensityMapPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceFragmentDensityMapPropertiesEXT::pNext,
@@ -9189,7 +9189,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentDensityMapPropertiesEXT
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderPassFragmentDensityMapCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkRenderPassFragmentDensityMapCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderPassFragmentDensityMapCreateInfoEXT::sType,
                                   vulkan::fields::VkRenderPassFragmentDensityMapCreateInfoEXT::pNext,
@@ -9197,7 +9197,7 @@ struct Schema<vulkan::api_types::VkRenderPassFragmentDensityMapCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderingFragmentDensityMapAttachmentInfoEXT>
+struct Schema<vulkan::api_elements::VkRenderingFragmentDensityMapAttachmentInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderingFragmentDensityMapAttachmentInfoEXT::sType,
                                   vulkan::fields::VkRenderingFragmentDensityMapAttachmentInfoEXT::pNext,
@@ -9206,7 +9206,7 @@ struct Schema<vulkan::api_types::VkRenderingFragmentDensityMapAttachmentInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderCoreProperties2AMD>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderCoreProperties2AMD>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderCoreProperties2AMD::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderCoreProperties2AMD::pNext,
@@ -9215,7 +9215,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderCoreProperties2AMD>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceCoherentMemoryFeaturesAMD>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceCoherentMemoryFeaturesAMD>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceCoherentMemoryFeaturesAMD::sType,
                                   vulkan::fields::VkPhysicalDeviceCoherentMemoryFeaturesAMD::pNext,
@@ -9223,7 +9223,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceCoherentMemoryFeaturesAMD>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT::pNext,
@@ -9232,7 +9232,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderImageAtomicInt64FeaturesE
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMemoryBudgetPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMemoryBudgetPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMemoryBudgetPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceMemoryBudgetPropertiesEXT::pNext,
@@ -9241,7 +9241,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMemoryBudgetPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMemoryPriorityFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMemoryPriorityFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMemoryPriorityFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceMemoryPriorityFeaturesEXT::pNext,
@@ -9249,7 +9249,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMemoryPriorityFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryPriorityAllocateInfoEXT>
+struct Schema<vulkan::api_elements::VkMemoryPriorityAllocateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryPriorityAllocateInfoEXT::sType,
                                   vulkan::fields::VkMemoryPriorityAllocateInfoEXT::pNext,
@@ -9257,7 +9257,7 @@ struct Schema<vulkan::api_types::VkMemoryPriorityAllocateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV::pNext,
@@ -9265,7 +9265,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDedicatedAllocationImageAliasin
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceBufferDeviceAddressFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceBufferDeviceAddressFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceBufferDeviceAddressFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceBufferDeviceAddressFeaturesEXT::pNext,
@@ -9275,7 +9275,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceBufferDeviceAddressFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBufferDeviceAddressCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkBufferDeviceAddressCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkBufferDeviceAddressCreateInfoEXT::sType,
                                   vulkan::fields::VkBufferDeviceAddressCreateInfoEXT::pNext,
@@ -9283,7 +9283,7 @@ struct Schema<vulkan::api_types::VkBufferDeviceAddressCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkValidationFeaturesEXT>
+struct Schema<vulkan::api_elements::VkValidationFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkValidationFeaturesEXT::sType,
                                   vulkan::fields::VkValidationFeaturesEXT::pNext,
@@ -9294,7 +9294,7 @@ struct Schema<vulkan::api_types::VkValidationFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCooperativeMatrixPropertiesNV>
+struct Schema<vulkan::api_elements::VkCooperativeMatrixPropertiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkCooperativeMatrixPropertiesNV::sType,
                                   vulkan::fields::VkCooperativeMatrixPropertiesNV::pNext,
@@ -9309,7 +9309,7 @@ struct Schema<vulkan::api_types::VkCooperativeMatrixPropertiesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceCooperativeMatrixFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceCooperativeMatrixFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceCooperativeMatrixFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceCooperativeMatrixFeaturesNV::pNext,
@@ -9318,7 +9318,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceCooperativeMatrixFeaturesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceCooperativeMatrixPropertiesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceCooperativeMatrixPropertiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceCooperativeMatrixPropertiesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceCooperativeMatrixPropertiesNV::pNext,
@@ -9326,7 +9326,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceCooperativeMatrixPropertiesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceCoverageReductionModeFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceCoverageReductionModeFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceCoverageReductionModeFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceCoverageReductionModeFeaturesNV::pNext,
@@ -9334,7 +9334,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceCoverageReductionModeFeaturesNV
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineCoverageReductionStateCreateInfoNV>
+struct Schema<vulkan::api_elements::VkPipelineCoverageReductionStateCreateInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineCoverageReductionStateCreateInfoNV::sType,
                                   vulkan::fields::VkPipelineCoverageReductionStateCreateInfoNV::pNext,
@@ -9343,7 +9343,7 @@ struct Schema<vulkan::api_types::VkPipelineCoverageReductionStateCreateInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkFramebufferMixedSamplesCombinationNV>
+struct Schema<vulkan::api_elements::VkFramebufferMixedSamplesCombinationNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkFramebufferMixedSamplesCombinationNV::sType,
                                   vulkan::fields::VkFramebufferMixedSamplesCombinationNV::pNext,
@@ -9354,7 +9354,7 @@ struct Schema<vulkan::api_types::VkFramebufferMixedSamplesCombinationNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT::pNext,
@@ -9364,7 +9364,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentShaderInterlockFeatures
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceYcbcrImageArraysFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceYcbcrImageArraysFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceYcbcrImageArraysFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceYcbcrImageArraysFeaturesEXT::pNext,
@@ -9372,7 +9372,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceYcbcrImageArraysFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceProvokingVertexFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceProvokingVertexFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceProvokingVertexFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceProvokingVertexFeaturesEXT::pNext,
@@ -9381,7 +9381,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceProvokingVertexFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceProvokingVertexPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceProvokingVertexPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceProvokingVertexPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceProvokingVertexPropertiesEXT::pNext,
@@ -9390,7 +9390,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceProvokingVertexPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineRasterizationProvokingVertexStateCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkPipelineRasterizationProvokingVertexStateCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineRasterizationProvokingVertexStateCreateInfoEXT::sType,
                                   vulkan::fields::VkPipelineRasterizationProvokingVertexStateCreateInfoEXT::pNext,
@@ -9398,7 +9398,7 @@ struct Schema<vulkan::api_types::VkPipelineRasterizationProvokingVertexStateCrea
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSurfaceFullScreenExclusiveInfoEXT>
+struct Schema<vulkan::api_elements::VkSurfaceFullScreenExclusiveInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkSurfaceFullScreenExclusiveInfoEXT::sType,
                                   vulkan::fields::VkSurfaceFullScreenExclusiveInfoEXT::pNext,
@@ -9406,7 +9406,7 @@ struct Schema<vulkan::api_types::VkSurfaceFullScreenExclusiveInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSurfaceCapabilitiesFullScreenExclusiveEXT>
+struct Schema<vulkan::api_elements::VkSurfaceCapabilitiesFullScreenExclusiveEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkSurfaceCapabilitiesFullScreenExclusiveEXT::sType,
                                   vulkan::fields::VkSurfaceCapabilitiesFullScreenExclusiveEXT::pNext,
@@ -9414,7 +9414,7 @@ struct Schema<vulkan::api_types::VkSurfaceCapabilitiesFullScreenExclusiveEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSurfaceFullScreenExclusiveWin32InfoEXT>
+struct Schema<vulkan::api_elements::VkSurfaceFullScreenExclusiveWin32InfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkSurfaceFullScreenExclusiveWin32InfoEXT::sType,
                                   vulkan::fields::VkSurfaceFullScreenExclusiveWin32InfoEXT::pNext,
@@ -9422,7 +9422,7 @@ struct Schema<vulkan::api_types::VkSurfaceFullScreenExclusiveWin32InfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkHeadlessSurfaceCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkHeadlessSurfaceCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkHeadlessSurfaceCreateInfoEXT::sType,
                                   vulkan::fields::VkHeadlessSurfaceCreateInfoEXT::pNext,
@@ -9430,7 +9430,7 @@ struct Schema<vulkan::api_types::VkHeadlessSurfaceCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderAtomicFloatFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderAtomicFloatFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderAtomicFloatFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderAtomicFloatFeaturesEXT::pNext,
@@ -9449,7 +9449,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderAtomicFloatFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceExtendedDynamicStateFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceExtendedDynamicStateFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceExtendedDynamicStateFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceExtendedDynamicStateFeaturesEXT::pNext,
@@ -9457,7 +9457,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceExtendedDynamicStateFeaturesEXT
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMapMemoryPlacedFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMapMemoryPlacedFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMapMemoryPlacedFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceMapMemoryPlacedFeaturesEXT::pNext,
@@ -9467,7 +9467,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMapMemoryPlacedFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMapMemoryPlacedPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMapMemoryPlacedPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMapMemoryPlacedPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceMapMemoryPlacedPropertiesEXT::pNext,
@@ -9475,7 +9475,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMapMemoryPlacedPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryMapPlacedInfoEXT>
+struct Schema<vulkan::api_elements::VkMemoryMapPlacedInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryMapPlacedInfoEXT::sType,
                                   vulkan::fields::VkMemoryMapPlacedInfoEXT::pNext,
@@ -9483,7 +9483,7 @@ struct Schema<vulkan::api_types::VkMemoryMapPlacedInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT::pNext,
@@ -9502,7 +9502,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV::pNext,
@@ -9518,7 +9518,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDeviceGeneratedCommandsProperti
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV::pNext,
@@ -9526,7 +9526,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDeviceGeneratedCommandsFeatures
 };
 
 template <>
-struct Schema<vulkan::api_types::VkGraphicsShaderGroupCreateInfoNV>
+struct Schema<vulkan::api_elements::VkGraphicsShaderGroupCreateInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkGraphicsShaderGroupCreateInfoNV::sType,
                                   vulkan::fields::VkGraphicsShaderGroupCreateInfoNV::pNext,
@@ -9537,7 +9537,7 @@ struct Schema<vulkan::api_types::VkGraphicsShaderGroupCreateInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkGraphicsPipelineShaderGroupsCreateInfoNV>
+struct Schema<vulkan::api_elements::VkGraphicsPipelineShaderGroupsCreateInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkGraphicsPipelineShaderGroupsCreateInfoNV::sType,
                                   vulkan::fields::VkGraphicsPipelineShaderGroupsCreateInfoNV::pNext,
@@ -9548,13 +9548,13 @@ struct Schema<vulkan::api_types::VkGraphicsPipelineShaderGroupsCreateInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBindShaderGroupIndirectCommandNV>
+struct Schema<vulkan::api_elements::VkBindShaderGroupIndirectCommandNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkBindShaderGroupIndirectCommandNV::groupIndex>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBindIndexBufferIndirectCommandNV>
+struct Schema<vulkan::api_elements::VkBindIndexBufferIndirectCommandNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkBindIndexBufferIndirectCommandNV::bufferAddress,
                                   vulkan::fields::VkBindIndexBufferIndirectCommandNV::size,
@@ -9562,7 +9562,7 @@ struct Schema<vulkan::api_types::VkBindIndexBufferIndirectCommandNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBindVertexBufferIndirectCommandNV>
+struct Schema<vulkan::api_elements::VkBindVertexBufferIndirectCommandNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkBindVertexBufferIndirectCommandNV::bufferAddress,
                                   vulkan::fields::VkBindVertexBufferIndirectCommandNV::size,
@@ -9570,20 +9570,20 @@ struct Schema<vulkan::api_types::VkBindVertexBufferIndirectCommandNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSetStateFlagsIndirectCommandNV>
+struct Schema<vulkan::api_elements::VkSetStateFlagsIndirectCommandNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkSetStateFlagsIndirectCommandNV::data>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkIndirectCommandsStreamNV>
+struct Schema<vulkan::api_elements::VkIndirectCommandsStreamNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkIndirectCommandsStreamNV::buffer,
                                   vulkan::fields::VkIndirectCommandsStreamNV::offset>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkIndirectCommandsLayoutTokenNV>
+struct Schema<vulkan::api_elements::VkIndirectCommandsLayoutTokenNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkIndirectCommandsLayoutTokenNV::sType,
                                   vulkan::fields::VkIndirectCommandsLayoutTokenNV::pNext,
@@ -9603,7 +9603,7 @@ struct Schema<vulkan::api_types::VkIndirectCommandsLayoutTokenNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkIndirectCommandsLayoutCreateInfoNV>
+struct Schema<vulkan::api_elements::VkIndirectCommandsLayoutCreateInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkIndirectCommandsLayoutCreateInfoNV::sType,
                                   vulkan::fields::VkIndirectCommandsLayoutCreateInfoNV::pNext,
@@ -9616,7 +9616,7 @@ struct Schema<vulkan::api_types::VkIndirectCommandsLayoutCreateInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkGeneratedCommandsInfoNV>
+struct Schema<vulkan::api_elements::VkGeneratedCommandsInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkGeneratedCommandsInfoNV::sType,
                                   vulkan::fields::VkGeneratedCommandsInfoNV::pNext,
@@ -9636,7 +9636,7 @@ struct Schema<vulkan::api_types::VkGeneratedCommandsInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkGeneratedCommandsMemoryRequirementsInfoNV>
+struct Schema<vulkan::api_elements::VkGeneratedCommandsMemoryRequirementsInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkGeneratedCommandsMemoryRequirementsInfoNV::sType,
                                   vulkan::fields::VkGeneratedCommandsMemoryRequirementsInfoNV::pNext,
@@ -9647,7 +9647,7 @@ struct Schema<vulkan::api_types::VkGeneratedCommandsMemoryRequirementsInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceInheritedViewportScissorFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceInheritedViewportScissorFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceInheritedViewportScissorFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceInheritedViewportScissorFeaturesNV::pNext,
@@ -9655,7 +9655,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceInheritedViewportScissorFeature
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCommandBufferInheritanceViewportScissorInfoNV>
+struct Schema<vulkan::api_elements::VkCommandBufferInheritanceViewportScissorInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkCommandBufferInheritanceViewportScissorInfoNV::sType,
                                   vulkan::fields::VkCommandBufferInheritanceViewportScissorInfoNV::pNext,
@@ -9665,7 +9665,7 @@ struct Schema<vulkan::api_types::VkCommandBufferInheritanceViewportScissorInfoNV
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT::pNext,
@@ -9673,7 +9673,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderPassTransformBeginInfoQCOM>
+struct Schema<vulkan::api_elements::VkRenderPassTransformBeginInfoQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderPassTransformBeginInfoQCOM::sType,
                                   vulkan::fields::VkRenderPassTransformBeginInfoQCOM::pNext,
@@ -9681,7 +9681,7 @@ struct Schema<vulkan::api_types::VkRenderPassTransformBeginInfoQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCommandBufferInheritanceRenderPassTransformInfoQCOM>
+struct Schema<vulkan::api_elements::VkCommandBufferInheritanceRenderPassTransformInfoQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkCommandBufferInheritanceRenderPassTransformInfoQCOM::sType,
                                   vulkan::fields::VkCommandBufferInheritanceRenderPassTransformInfoQCOM::pNext,
@@ -9690,7 +9690,7 @@ struct Schema<vulkan::api_types::VkCommandBufferInheritanceRenderPassTransformIn
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDepthBiasControlFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDepthBiasControlFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDepthBiasControlFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceDepthBiasControlFeaturesEXT::pNext,
@@ -9701,7 +9701,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDepthBiasControlFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDepthBiasInfoEXT>
+struct Schema<vulkan::api_elements::VkDepthBiasInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDepthBiasInfoEXT::sType, vulkan::fields::VkDepthBiasInfoEXT::pNext,
                                   vulkan::fields::VkDepthBiasInfoEXT::depthBiasConstantFactor,
@@ -9710,7 +9710,7 @@ struct Schema<vulkan::api_types::VkDepthBiasInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDepthBiasRepresentationInfoEXT>
+struct Schema<vulkan::api_elements::VkDepthBiasRepresentationInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDepthBiasRepresentationInfoEXT::sType,
                                   vulkan::fields::VkDepthBiasRepresentationInfoEXT::pNext,
@@ -9719,7 +9719,7 @@ struct Schema<vulkan::api_types::VkDepthBiasRepresentationInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDeviceMemoryReportFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDeviceMemoryReportFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDeviceMemoryReportFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceDeviceMemoryReportFeaturesEXT::pNext,
@@ -9727,7 +9727,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDeviceMemoryReportFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceMemoryReportCallbackDataEXT>
+struct Schema<vulkan::api_elements::VkDeviceMemoryReportCallbackDataEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceMemoryReportCallbackDataEXT::sType,
                                   vulkan::fields::VkDeviceMemoryReportCallbackDataEXT::pNext,
@@ -9741,7 +9741,7 @@ struct Schema<vulkan::api_types::VkDeviceMemoryReportCallbackDataEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceDeviceMemoryReportCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkDeviceDeviceMemoryReportCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceDeviceMemoryReportCreateInfoEXT::sType,
                                   vulkan::fields::VkDeviceDeviceMemoryReportCreateInfoEXT::pNext,
@@ -9751,7 +9751,7 @@ struct Schema<vulkan::api_types::VkDeviceDeviceMemoryReportCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSamplerCustomBorderColorCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkSamplerCustomBorderColorCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkSamplerCustomBorderColorCreateInfoEXT::sType,
                                   vulkan::fields::VkSamplerCustomBorderColorCreateInfoEXT::pNext,
@@ -9760,7 +9760,7 @@ struct Schema<vulkan::api_types::VkSamplerCustomBorderColorCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceCustomBorderColorPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceCustomBorderColorPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceCustomBorderColorPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceCustomBorderColorPropertiesEXT::pNext,
@@ -9768,7 +9768,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceCustomBorderColorPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceCustomBorderColorFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceCustomBorderColorFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceCustomBorderColorFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceCustomBorderColorFeaturesEXT::pNext,
@@ -9777,7 +9777,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceCustomBorderColorFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceTextureCompressionASTC3DFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceTextureCompressionASTC3DFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceTextureCompressionASTC3DFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceTextureCompressionASTC3DFeaturesEXT::pNext,
@@ -9785,7 +9785,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceTextureCompressionASTC3DFeature
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePresentBarrierFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePresentBarrierFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePresentBarrierFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDevicePresentBarrierFeaturesNV::pNext,
@@ -9793,7 +9793,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePresentBarrierFeaturesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSurfaceCapabilitiesPresentBarrierNV>
+struct Schema<vulkan::api_elements::VkSurfaceCapabilitiesPresentBarrierNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkSurfaceCapabilitiesPresentBarrierNV::sType,
                                   vulkan::fields::VkSurfaceCapabilitiesPresentBarrierNV::pNext,
@@ -9801,7 +9801,7 @@ struct Schema<vulkan::api_types::VkSurfaceCapabilitiesPresentBarrierNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSwapchainPresentBarrierCreateInfoNV>
+struct Schema<vulkan::api_elements::VkSwapchainPresentBarrierCreateInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkSwapchainPresentBarrierCreateInfoNV::sType,
                                   vulkan::fields::VkSwapchainPresentBarrierCreateInfoNV::pNext,
@@ -9809,7 +9809,7 @@ struct Schema<vulkan::api_types::VkSwapchainPresentBarrierCreateInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDiagnosticsConfigFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDiagnosticsConfigFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDiagnosticsConfigFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceDiagnosticsConfigFeaturesNV::pNext,
@@ -9817,7 +9817,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDiagnosticsConfigFeaturesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceDiagnosticsConfigCreateInfoNV>
+struct Schema<vulkan::api_elements::VkDeviceDiagnosticsConfigCreateInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceDiagnosticsConfigCreateInfoNV::sType,
                                   vulkan::fields::VkDeviceDiagnosticsConfigCreateInfoNV::pNext,
@@ -9825,14 +9825,14 @@ struct Schema<vulkan::api_types::VkDeviceDiagnosticsConfigCreateInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPerfHintInfoQCOM>
+struct Schema<vulkan::api_elements::VkPerfHintInfoQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPerfHintInfoQCOM::sType, vulkan::fields::VkPerfHintInfoQCOM::pNext,
                                   vulkan::fields::VkPerfHintInfoQCOM::type, vulkan::fields::VkPerfHintInfoQCOM::scale>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceQueuePerfHintFeaturesQCOM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceQueuePerfHintFeaturesQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceQueuePerfHintFeaturesQCOM::sType,
                                   vulkan::fields::VkPhysicalDeviceQueuePerfHintFeaturesQCOM::pNext,
@@ -9840,7 +9840,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceQueuePerfHintFeaturesQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceQueuePerfHintPropertiesQCOM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceQueuePerfHintPropertiesQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceQueuePerfHintPropertiesQCOM::sType,
                                   vulkan::fields::VkPhysicalDeviceQueuePerfHintPropertiesQCOM::pNext,
@@ -9848,7 +9848,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceQueuePerfHintPropertiesQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceImageProcessing3FeaturesQCOM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceImageProcessing3FeaturesQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceImageProcessing3FeaturesQCOM::sType,
                                   vulkan::fields::VkPhysicalDeviceImageProcessing3FeaturesQCOM::pNext,
@@ -9858,7 +9858,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceImageProcessing3FeaturesQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM::pNext,
@@ -9866,7 +9866,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderMultipleWaitQueuesFeature
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderMultipleWaitQueuesPropertiesQCOM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderMultipleWaitQueuesPropertiesQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderMultipleWaitQueuesPropertiesQCOM::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderMultipleWaitQueuesPropertiesQCOM::pNext,
@@ -9874,7 +9874,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderMultipleWaitQueuesPropert
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderSplitBarrierFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderSplitBarrierFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderSplitBarrierFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderSplitBarrierFeaturesEXT::pNext,
@@ -9882,7 +9882,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderSplitBarrierFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderSplitBarrierPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderSplitBarrierPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderSplitBarrierPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderSplitBarrierPropertiesEXT::pNext,
@@ -9890,7 +9890,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderSplitBarrierPropertiesEXT
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceTileShadingFeaturesQCOM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceTileShadingFeaturesQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceTileShadingFeaturesQCOM::sType,
                                   vulkan::fields::VkPhysicalDeviceTileShadingFeaturesQCOM::pNext,
@@ -9911,7 +9911,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceTileShadingFeaturesQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceTileShadingPropertiesQCOM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceTileShadingPropertiesQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceTileShadingPropertiesQCOM::sType,
                                   vulkan::fields::VkPhysicalDeviceTileShadingPropertiesQCOM::pNext,
@@ -9922,7 +9922,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceTileShadingPropertiesQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderPassTileShadingCreateInfoQCOM>
+struct Schema<vulkan::api_elements::VkRenderPassTileShadingCreateInfoQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderPassTileShadingCreateInfoQCOM::sType,
                                   vulkan::fields::VkRenderPassTileShadingCreateInfoQCOM::pNext,
@@ -9931,28 +9931,28 @@ struct Schema<vulkan::api_types::VkRenderPassTileShadingCreateInfoQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPerTileBeginInfoQCOM>
+struct Schema<vulkan::api_elements::VkPerTileBeginInfoQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPerTileBeginInfoQCOM::sType,
                                   vulkan::fields::VkPerTileBeginInfoQCOM::pNext>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPerTileEndInfoQCOM>
+struct Schema<vulkan::api_elements::VkPerTileEndInfoQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPerTileEndInfoQCOM::sType,
                                   vulkan::fields::VkPerTileEndInfoQCOM::pNext>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDispatchTileInfoQCOM>
+struct Schema<vulkan::api_elements::VkDispatchTileInfoQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDispatchTileInfoQCOM::sType,
                                   vulkan::fields::VkDispatchTileInfoQCOM::pNext>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDescriptorBufferPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDescriptorBufferPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDescriptorBufferPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceDescriptorBufferPropertiesEXT::pNext,
@@ -9992,7 +9992,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDescriptorBufferPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDescriptorBufferFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDescriptorBufferFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDescriptorBufferFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceDescriptorBufferFeaturesEXT::pNext,
@@ -10003,7 +10003,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDescriptorBufferFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDescriptorAddressInfoEXT>
+struct Schema<vulkan::api_elements::VkDescriptorAddressInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDescriptorAddressInfoEXT::sType,
                                   vulkan::fields::VkDescriptorAddressInfoEXT::pNext,
@@ -10013,7 +10013,7 @@ struct Schema<vulkan::api_types::VkDescriptorAddressInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDescriptorBufferBindingInfoEXT>
+struct Schema<vulkan::api_elements::VkDescriptorBufferBindingInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDescriptorBufferBindingInfoEXT::sType,
                                   vulkan::fields::VkDescriptorBufferBindingInfoEXT::pNext,
@@ -10022,7 +10022,7 @@ struct Schema<vulkan::api_types::VkDescriptorBufferBindingInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDescriptorBufferBindingPushDescriptorBufferHandleEXT>
+struct Schema<vulkan::api_elements::VkDescriptorBufferBindingPushDescriptorBufferHandleEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDescriptorBufferBindingPushDescriptorBufferHandleEXT::sType,
                                   vulkan::fields::VkDescriptorBufferBindingPushDescriptorBufferHandleEXT::pNext,
@@ -10030,7 +10030,7 @@ struct Schema<vulkan::api_types::VkDescriptorBufferBindingPushDescriptorBufferHa
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDescriptorGetInfoEXT>
+struct Schema<vulkan::api_elements::VkDescriptorGetInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDescriptorGetInfoEXT::sType,
                                   vulkan::fields::VkDescriptorGetInfoEXT::pNext,
@@ -10039,7 +10039,7 @@ struct Schema<vulkan::api_types::VkDescriptorGetInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBufferCaptureDescriptorDataInfoEXT>
+struct Schema<vulkan::api_elements::VkBufferCaptureDescriptorDataInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkBufferCaptureDescriptorDataInfoEXT::sType,
                                   vulkan::fields::VkBufferCaptureDescriptorDataInfoEXT::pNext,
@@ -10047,7 +10047,7 @@ struct Schema<vulkan::api_types::VkBufferCaptureDescriptorDataInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageCaptureDescriptorDataInfoEXT>
+struct Schema<vulkan::api_elements::VkImageCaptureDescriptorDataInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageCaptureDescriptorDataInfoEXT::sType,
                                   vulkan::fields::VkImageCaptureDescriptorDataInfoEXT::pNext,
@@ -10055,7 +10055,7 @@ struct Schema<vulkan::api_types::VkImageCaptureDescriptorDataInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageViewCaptureDescriptorDataInfoEXT>
+struct Schema<vulkan::api_elements::VkImageViewCaptureDescriptorDataInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageViewCaptureDescriptorDataInfoEXT::sType,
                                   vulkan::fields::VkImageViewCaptureDescriptorDataInfoEXT::pNext,
@@ -10063,7 +10063,7 @@ struct Schema<vulkan::api_types::VkImageViewCaptureDescriptorDataInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSamplerCaptureDescriptorDataInfoEXT>
+struct Schema<vulkan::api_elements::VkSamplerCaptureDescriptorDataInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkSamplerCaptureDescriptorDataInfoEXT::sType,
                                   vulkan::fields::VkSamplerCaptureDescriptorDataInfoEXT::pNext,
@@ -10071,7 +10071,7 @@ struct Schema<vulkan::api_types::VkSamplerCaptureDescriptorDataInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkOpaqueCaptureDescriptorDataCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkOpaqueCaptureDescriptorDataCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkOpaqueCaptureDescriptorDataCreateInfoEXT::sType,
                                   vulkan::fields::VkOpaqueCaptureDescriptorDataCreateInfoEXT::pNext,
@@ -10079,7 +10079,7 @@ struct Schema<vulkan::api_types::VkOpaqueCaptureDescriptorDataCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureCaptureDescriptorDataInfoEXT>
+struct Schema<vulkan::api_elements::VkAccelerationStructureCaptureDescriptorDataInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureCaptureDescriptorDataInfoEXT::sType,
                                   vulkan::fields::VkAccelerationStructureCaptureDescriptorDataInfoEXT::pNext,
@@ -10088,7 +10088,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureCaptureDescriptorDataInf
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT::pNext,
@@ -10096,7 +10096,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDescriptorBufferDensityMapPrope
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT::pNext,
@@ -10104,7 +10104,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceGraphicsPipelineLibraryFeatures
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT::pNext,
@@ -10113,7 +10113,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceGraphicsPipelineLibraryProperti
 };
 
 template <>
-struct Schema<vulkan::api_types::VkGraphicsPipelineLibraryCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkGraphicsPipelineLibraryCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkGraphicsPipelineLibraryCreateInfoEXT::sType,
                                   vulkan::fields::VkGraphicsPipelineLibraryCreateInfoEXT::pNext,
@@ -10121,7 +10121,7 @@ struct Schema<vulkan::api_types::VkGraphicsPipelineLibraryCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD::pNext,
@@ -10129,7 +10129,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderEarlyAndLateFragmentTests
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV::pNext,
@@ -10139,7 +10139,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentShadingRateEnumsFeature
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV::pNext,
@@ -10147,7 +10147,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentShadingRateEnumsPropert
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineFragmentShadingRateEnumStateCreateInfoNV>
+struct Schema<vulkan::api_elements::VkPipelineFragmentShadingRateEnumStateCreateInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineFragmentShadingRateEnumStateCreateInfoNV::sType,
                                   vulkan::fields::VkPipelineFragmentShadingRateEnumStateCreateInfoNV::pNext,
@@ -10157,7 +10157,7 @@ struct Schema<vulkan::api_types::VkPipelineFragmentShadingRateEnumStateCreateInf
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureGeometryMotionTrianglesDataNV>
+struct Schema<vulkan::api_elements::VkAccelerationStructureGeometryMotionTrianglesDataNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureGeometryMotionTrianglesDataNV::sType,
                                   vulkan::fields::VkAccelerationStructureGeometryMotionTrianglesDataNV::pNext,
@@ -10165,7 +10165,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureGeometryMotionTrianglesD
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureMotionInfoNV>
+struct Schema<vulkan::api_elements::VkAccelerationStructureMotionInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureMotionInfoNV::sType,
                                   vulkan::fields::VkAccelerationStructureMotionInfoNV::pNext,
@@ -10174,7 +10174,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureMotionInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureMatrixMotionInstanceNV>
+struct Schema<vulkan::api_elements::VkAccelerationStructureMatrixMotionInstanceNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureMatrixMotionInstanceNV::transformT0,
                                   vulkan::fields::VkAccelerationStructureMatrixMotionInstanceNV::transformT1,
@@ -10186,7 +10186,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureMatrixMotionInstanceNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSRTDataNV>
+struct Schema<vulkan::api_elements::VkSRTDataNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkSRTDataNV::sx, vulkan::fields::VkSRTDataNV::a,
                                   vulkan::fields::VkSRTDataNV::b, vulkan::fields::VkSRTDataNV::pvx,
@@ -10199,7 +10199,7 @@ struct Schema<vulkan::api_types::VkSRTDataNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureSRTMotionInstanceNV>
+struct Schema<vulkan::api_elements::VkAccelerationStructureSRTMotionInstanceNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureSRTMotionInstanceNV::transformT0,
                                   vulkan::fields::VkAccelerationStructureSRTMotionInstanceNV::transformT1,
@@ -10211,7 +10211,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureSRTMotionInstanceNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureMotionInstanceNV>
+struct Schema<vulkan::api_elements::VkAccelerationStructureMotionInstanceNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureMotionInstanceNV::type,
                                   vulkan::fields::VkAccelerationStructureMotionInstanceNV::flags,
@@ -10219,7 +10219,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureMotionInstanceNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceRayTracingMotionBlurFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceRayTracingMotionBlurFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceRayTracingMotionBlurFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceRayTracingMotionBlurFeaturesNV::pNext,
@@ -10228,7 +10228,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceRayTracingMotionBlurFeaturesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT::pNext,
@@ -10236,7 +10236,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEX
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentDensityMap2FeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceFragmentDensityMap2FeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceFragmentDensityMap2FeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceFragmentDensityMap2FeaturesEXT::pNext,
@@ -10244,7 +10244,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentDensityMap2FeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentDensityMap2PropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceFragmentDensityMap2PropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceFragmentDensityMap2PropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceFragmentDensityMap2PropertiesEXT::pNext,
@@ -10255,7 +10255,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentDensityMap2PropertiesEX
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCopyCommandTransformInfoQCOM>
+struct Schema<vulkan::api_elements::VkCopyCommandTransformInfoQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkCopyCommandTransformInfoQCOM::sType,
                                   vulkan::fields::VkCopyCommandTransformInfoQCOM::pNext,
@@ -10263,7 +10263,7 @@ struct Schema<vulkan::api_types::VkCopyCommandTransformInfoQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceImageCompressionControlFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceImageCompressionControlFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceImageCompressionControlFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceImageCompressionControlFeaturesEXT::pNext,
@@ -10271,7 +10271,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceImageCompressionControlFeatures
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageCompressionControlEXT>
+struct Schema<vulkan::api_elements::VkImageCompressionControlEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageCompressionControlEXT::sType,
                                   vulkan::fields::VkImageCompressionControlEXT::pNext,
@@ -10281,7 +10281,7 @@ struct Schema<vulkan::api_types::VkImageCompressionControlEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageCompressionPropertiesEXT>
+struct Schema<vulkan::api_elements::VkImageCompressionPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageCompressionPropertiesEXT::sType,
                                   vulkan::fields::VkImageCompressionPropertiesEXT::pNext,
@@ -10290,7 +10290,7 @@ struct Schema<vulkan::api_types::VkImageCompressionPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT::pNext,
@@ -10298,7 +10298,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceAttachmentFeedbackLoopLayoutFea
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevice4444FormatsFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDevice4444FormatsFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevice4444FormatsFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDevice4444FormatsFeaturesEXT::pNext,
@@ -10307,7 +10307,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevice4444FormatsFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceFaultFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceFaultFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceFaultFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceFaultFeaturesEXT::pNext,
@@ -10316,7 +10316,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceFaultFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceFaultCountsEXT>
+struct Schema<vulkan::api_elements::VkDeviceFaultCountsEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceFaultCountsEXT::sType,
                                   vulkan::fields::VkDeviceFaultCountsEXT::pNext,
@@ -10326,7 +10326,7 @@ struct Schema<vulkan::api_types::VkDeviceFaultCountsEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceFaultInfoEXT>
+struct Schema<vulkan::api_elements::VkDeviceFaultInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceFaultInfoEXT::sType,
                                   vulkan::fields::VkDeviceFaultInfoEXT::pNext,
@@ -10337,7 +10337,7 @@ struct Schema<vulkan::api_types::VkDeviceFaultInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT::pNext,
@@ -10347,7 +10347,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceRasterizationOrderAttachmentAcc
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT::pNext,
@@ -10355,7 +10355,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDirectFBSurfaceCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkDirectFBSurfaceCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDirectFBSurfaceCreateInfoEXT::sType,
                                   vulkan::fields::VkDirectFBSurfaceCreateInfoEXT::pNext,
@@ -10365,7 +10365,7 @@ struct Schema<vulkan::api_types::VkDirectFBSurfaceCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT::pNext,
@@ -10373,14 +10373,14 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMutableDescriptorTypeFeaturesEX
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMutableDescriptorTypeListEXT>
+struct Schema<vulkan::api_elements::VkMutableDescriptorTypeListEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkMutableDescriptorTypeListEXT::descriptorTypeCount,
                                   vulkan::fields::VkMutableDescriptorTypeListEXT::pDescriptorTypes>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMutableDescriptorTypeCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkMutableDescriptorTypeCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkMutableDescriptorTypeCreateInfoEXT::sType,
                                   vulkan::fields::VkMutableDescriptorTypeCreateInfoEXT::pNext,
@@ -10389,7 +10389,7 @@ struct Schema<vulkan::api_types::VkMutableDescriptorTypeCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT::pNext,
@@ -10397,7 +10397,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceVertexInputDynamicStateFeatures
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVertexInputBindingDescription2EXT>
+struct Schema<vulkan::api_elements::VkVertexInputBindingDescription2EXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkVertexInputBindingDescription2EXT::sType,
                                   vulkan::fields::VkVertexInputBindingDescription2EXT::pNext,
@@ -10408,7 +10408,7 @@ struct Schema<vulkan::api_types::VkVertexInputBindingDescription2EXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVertexInputAttributeDescription2EXT>
+struct Schema<vulkan::api_elements::VkVertexInputAttributeDescription2EXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkVertexInputAttributeDescription2EXT::sType,
                                   vulkan::fields::VkVertexInputAttributeDescription2EXT::pNext,
@@ -10419,7 +10419,7 @@ struct Schema<vulkan::api_types::VkVertexInputAttributeDescription2EXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDrmPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDrmPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDrmPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceDrmPropertiesEXT::pNext,
@@ -10432,7 +10432,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDrmPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceAddressBindingReportFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceAddressBindingReportFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceAddressBindingReportFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceAddressBindingReportFeaturesEXT::pNext,
@@ -10440,7 +10440,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceAddressBindingReportFeaturesEXT
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceAddressBindingCallbackDataEXT>
+struct Schema<vulkan::api_elements::VkDeviceAddressBindingCallbackDataEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceAddressBindingCallbackDataEXT::sType,
                                   vulkan::fields::VkDeviceAddressBindingCallbackDataEXT::pNext,
@@ -10451,7 +10451,7 @@ struct Schema<vulkan::api_types::VkDeviceAddressBindingCallbackDataEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDepthClipControlFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDepthClipControlFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDepthClipControlFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceDepthClipControlFeaturesEXT::pNext,
@@ -10459,7 +10459,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDepthClipControlFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineViewportDepthClipControlCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkPipelineViewportDepthClipControlCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineViewportDepthClipControlCreateInfoEXT::sType,
                                   vulkan::fields::VkPipelineViewportDepthClipControlCreateInfoEXT::pNext,
@@ -10467,7 +10467,7 @@ struct Schema<vulkan::api_types::VkPipelineViewportDepthClipControlCreateInfoEXT
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT::pNext,
@@ -10476,7 +10476,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePrimitiveTopologyListRestartFea
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImportMemoryZirconHandleInfoFUCHSIA>
+struct Schema<vulkan::api_elements::VkImportMemoryZirconHandleInfoFUCHSIA>
 {
     using Fields = util::TypeList<vulkan::fields::VkImportMemoryZirconHandleInfoFUCHSIA::sType,
                                   vulkan::fields::VkImportMemoryZirconHandleInfoFUCHSIA::pNext,
@@ -10485,7 +10485,7 @@ struct Schema<vulkan::api_types::VkImportMemoryZirconHandleInfoFUCHSIA>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryZirconHandlePropertiesFUCHSIA>
+struct Schema<vulkan::api_elements::VkMemoryZirconHandlePropertiesFUCHSIA>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryZirconHandlePropertiesFUCHSIA::sType,
                                   vulkan::fields::VkMemoryZirconHandlePropertiesFUCHSIA::pNext,
@@ -10493,7 +10493,7 @@ struct Schema<vulkan::api_types::VkMemoryZirconHandlePropertiesFUCHSIA>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryGetZirconHandleInfoFUCHSIA>
+struct Schema<vulkan::api_elements::VkMemoryGetZirconHandleInfoFUCHSIA>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryGetZirconHandleInfoFUCHSIA::sType,
                                   vulkan::fields::VkMemoryGetZirconHandleInfoFUCHSIA::pNext,
@@ -10502,7 +10502,7 @@ struct Schema<vulkan::api_types::VkMemoryGetZirconHandleInfoFUCHSIA>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImportSemaphoreZirconHandleInfoFUCHSIA>
+struct Schema<vulkan::api_elements::VkImportSemaphoreZirconHandleInfoFUCHSIA>
 {
     using Fields = util::TypeList<vulkan::fields::VkImportSemaphoreZirconHandleInfoFUCHSIA::sType,
                                   vulkan::fields::VkImportSemaphoreZirconHandleInfoFUCHSIA::pNext,
@@ -10513,7 +10513,7 @@ struct Schema<vulkan::api_types::VkImportSemaphoreZirconHandleInfoFUCHSIA>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSemaphoreGetZirconHandleInfoFUCHSIA>
+struct Schema<vulkan::api_elements::VkSemaphoreGetZirconHandleInfoFUCHSIA>
 {
     using Fields = util::TypeList<vulkan::fields::VkSemaphoreGetZirconHandleInfoFUCHSIA::sType,
                                   vulkan::fields::VkSemaphoreGetZirconHandleInfoFUCHSIA::pNext,
@@ -10522,7 +10522,7 @@ struct Schema<vulkan::api_types::VkSemaphoreGetZirconHandleInfoFUCHSIA>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceInvocationMaskFeaturesHUAWEI>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceInvocationMaskFeaturesHUAWEI>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceInvocationMaskFeaturesHUAWEI::sType,
                                   vulkan::fields::VkPhysicalDeviceInvocationMaskFeaturesHUAWEI::pNext,
@@ -10530,7 +10530,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceInvocationMaskFeaturesHUAWEI>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryGetRemoteAddressInfoNV>
+struct Schema<vulkan::api_elements::VkMemoryGetRemoteAddressInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryGetRemoteAddressInfoNV::sType,
                                   vulkan::fields::VkMemoryGetRemoteAddressInfoNV::pNext,
@@ -10539,7 +10539,7 @@ struct Schema<vulkan::api_types::VkMemoryGetRemoteAddressInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceExternalMemoryRDMAFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceExternalMemoryRDMAFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceExternalMemoryRDMAFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceExternalMemoryRDMAFeaturesNV::pNext,
@@ -10547,7 +10547,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceExternalMemoryRDMAFeaturesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceFrameBoundaryFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceFrameBoundaryFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceFrameBoundaryFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceFrameBoundaryFeaturesEXT::pNext,
@@ -10555,7 +10555,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceFrameBoundaryFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkFrameBoundaryEXT>
+struct Schema<vulkan::api_elements::VkFrameBoundaryEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkFrameBoundaryEXT::sType, vulkan::fields::VkFrameBoundaryEXT::pNext,
                                   vulkan::fields::VkFrameBoundaryEXT::flags,
@@ -10570,7 +10570,7 @@ struct Schema<vulkan::api_types::VkFrameBoundaryEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT::pNext,
@@ -10578,7 +10578,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMultisampledRenderToSingleSampl
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSubpassResolvePerformanceQueryEXT>
+struct Schema<vulkan::api_elements::VkSubpassResolvePerformanceQueryEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkSubpassResolvePerformanceQueryEXT::sType,
                                   vulkan::fields::VkSubpassResolvePerformanceQueryEXT::pNext,
@@ -10586,7 +10586,7 @@ struct Schema<vulkan::api_types::VkSubpassResolvePerformanceQueryEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMultisampledRenderToSingleSampledInfoEXT>
+struct Schema<vulkan::api_elements::VkMultisampledRenderToSingleSampledInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkMultisampledRenderToSingleSampledInfoEXT::sType,
                                   vulkan::fields::VkMultisampledRenderToSingleSampledInfoEXT::pNext,
@@ -10595,7 +10595,7 @@ struct Schema<vulkan::api_types::VkMultisampledRenderToSingleSampledInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceExtendedDynamicState2FeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceExtendedDynamicState2FeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceExtendedDynamicState2FeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceExtendedDynamicState2FeaturesEXT::pNext,
@@ -10605,7 +10605,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceExtendedDynamicState2FeaturesEX
 };
 
 template <>
-struct Schema<vulkan::api_types::VkScreenSurfaceCreateInfoQNX>
+struct Schema<vulkan::api_elements::VkScreenSurfaceCreateInfoQNX>
 {
     using Fields = util::TypeList<vulkan::fields::VkScreenSurfaceCreateInfoQNX::sType,
                                   vulkan::fields::VkScreenSurfaceCreateInfoQNX::pNext,
@@ -10615,7 +10615,7 @@ struct Schema<vulkan::api_types::VkScreenSurfaceCreateInfoQNX>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceColorWriteEnableFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceColorWriteEnableFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceColorWriteEnableFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceColorWriteEnableFeaturesEXT::pNext,
@@ -10623,7 +10623,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceColorWriteEnableFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineColorWriteCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkPipelineColorWriteCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineColorWriteCreateInfoEXT::sType,
                                   vulkan::fields::VkPipelineColorWriteCreateInfoEXT::pNext,
@@ -10632,7 +10632,7 @@ struct Schema<vulkan::api_types::VkPipelineColorWriteCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT::pNext,
@@ -10642,7 +10642,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePrimitivesGeneratedQueryFeature
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE::sType,
                                   vulkan::fields::VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE::pNext,
@@ -10650,7 +10650,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceVideoEncodeRgbConversionFeature
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeRgbConversionCapabilitiesVALVE>
+struct Schema<vulkan::api_elements::VkVideoEncodeRgbConversionCapabilitiesVALVE>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeRgbConversionCapabilitiesVALVE::sType,
                                   vulkan::fields::VkVideoEncodeRgbConversionCapabilitiesVALVE::pNext,
@@ -10661,7 +10661,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeRgbConversionCapabilitiesVALVE>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeProfileRgbConversionInfoVALVE>
+struct Schema<vulkan::api_elements::VkVideoEncodeProfileRgbConversionInfoVALVE>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeProfileRgbConversionInfoVALVE::sType,
                                   vulkan::fields::VkVideoEncodeProfileRgbConversionInfoVALVE::pNext,
@@ -10669,7 +10669,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeProfileRgbConversionInfoVALVE>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkVideoEncodeSessionRgbConversionCreateInfoVALVE>
+struct Schema<vulkan::api_elements::VkVideoEncodeSessionRgbConversionCreateInfoVALVE>
 {
     using Fields = util::TypeList<vulkan::fields::VkVideoEncodeSessionRgbConversionCreateInfoVALVE::sType,
                                   vulkan::fields::VkVideoEncodeSessionRgbConversionCreateInfoVALVE::pNext,
@@ -10680,7 +10680,7 @@ struct Schema<vulkan::api_types::VkVideoEncodeSessionRgbConversionCreateInfoVALV
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceImageViewMinLodFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceImageViewMinLodFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceImageViewMinLodFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceImageViewMinLodFeaturesEXT::pNext,
@@ -10688,7 +10688,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceImageViewMinLodFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageViewMinLodCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkImageViewMinLodCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageViewMinLodCreateInfoEXT::sType,
                                   vulkan::fields::VkImageViewMinLodCreateInfoEXT::pNext,
@@ -10696,7 +10696,7 @@ struct Schema<vulkan::api_types::VkImageViewMinLodCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMultiDrawFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMultiDrawFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMultiDrawFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceMultiDrawFeaturesEXT::pNext,
@@ -10704,7 +10704,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMultiDrawFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMultiDrawPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMultiDrawPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMultiDrawPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceMultiDrawPropertiesEXT::pNext,
@@ -10712,14 +10712,14 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMultiDrawPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMultiDrawInfoEXT>
+struct Schema<vulkan::api_elements::VkMultiDrawInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkMultiDrawInfoEXT::firstVertex,
                                   vulkan::fields::VkMultiDrawInfoEXT::vertexCount>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMultiDrawIndexedInfoEXT>
+struct Schema<vulkan::api_elements::VkMultiDrawIndexedInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkMultiDrawIndexedInfoEXT::firstIndex,
                                   vulkan::fields::VkMultiDrawIndexedInfoEXT::indexCount,
@@ -10727,7 +10727,7 @@ struct Schema<vulkan::api_types::VkMultiDrawIndexedInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceImage2DViewOf3DFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceImage2DViewOf3DFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceImage2DViewOf3DFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceImage2DViewOf3DFeaturesEXT::pNext,
@@ -10736,7 +10736,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceImage2DViewOf3DFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderTileImageFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderTileImageFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderTileImageFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderTileImageFeaturesEXT::pNext,
@@ -10746,7 +10746,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderTileImageFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderTileImagePropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderTileImagePropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderTileImagePropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderTileImagePropertiesEXT::pNext,
@@ -10756,7 +10756,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderTileImagePropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMicromapUsageEXT>
+struct Schema<vulkan::api_elements::VkMicromapUsageEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkMicromapUsageEXT::count,
                                   vulkan::fields::VkMicromapUsageEXT::subdivisionLevel,
@@ -10764,7 +10764,7 @@ struct Schema<vulkan::api_types::VkMicromapUsageEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMicromapBuildInfoEXT>
+struct Schema<vulkan::api_elements::VkMicromapBuildInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkMicromapBuildInfoEXT::sType,
                                   vulkan::fields::VkMicromapBuildInfoEXT::pNext,
@@ -10782,7 +10782,7 @@ struct Schema<vulkan::api_types::VkMicromapBuildInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMicromapCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkMicromapCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkMicromapCreateInfoEXT::sType,
                                   vulkan::fields::VkMicromapCreateInfoEXT::pNext,
@@ -10795,7 +10795,7 @@ struct Schema<vulkan::api_types::VkMicromapCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceOpacityMicromapFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceOpacityMicromapFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceOpacityMicromapFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceOpacityMicromapFeaturesEXT::pNext,
@@ -10805,7 +10805,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceOpacityMicromapFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceOpacityMicromapPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceOpacityMicromapPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceOpacityMicromapPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceOpacityMicromapPropertiesEXT::pNext,
@@ -10814,7 +10814,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceOpacityMicromapPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMicromapVersionInfoEXT>
+struct Schema<vulkan::api_elements::VkMicromapVersionInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkMicromapVersionInfoEXT::sType,
                                   vulkan::fields::VkMicromapVersionInfoEXT::pNext,
@@ -10822,7 +10822,7 @@ struct Schema<vulkan::api_types::VkMicromapVersionInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCopyMicromapToMemoryInfoEXT>
+struct Schema<vulkan::api_elements::VkCopyMicromapToMemoryInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkCopyMicromapToMemoryInfoEXT::sType,
                                   vulkan::fields::VkCopyMicromapToMemoryInfoEXT::pNext,
@@ -10832,7 +10832,7 @@ struct Schema<vulkan::api_types::VkCopyMicromapToMemoryInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCopyMemoryToMicromapInfoEXT>
+struct Schema<vulkan::api_elements::VkCopyMemoryToMicromapInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkCopyMemoryToMicromapInfoEXT::sType,
                                   vulkan::fields::VkCopyMemoryToMicromapInfoEXT::pNext,
@@ -10842,7 +10842,7 @@ struct Schema<vulkan::api_types::VkCopyMemoryToMicromapInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCopyMicromapInfoEXT>
+struct Schema<vulkan::api_elements::VkCopyMicromapInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkCopyMicromapInfoEXT::sType,
                                   vulkan::fields::VkCopyMicromapInfoEXT::pNext,
@@ -10852,7 +10852,7 @@ struct Schema<vulkan::api_types::VkCopyMicromapInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMicromapBuildSizesInfoEXT>
+struct Schema<vulkan::api_elements::VkMicromapBuildSizesInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkMicromapBuildSizesInfoEXT::sType,
                                   vulkan::fields::VkMicromapBuildSizesInfoEXT::pNext,
@@ -10862,7 +10862,7 @@ struct Schema<vulkan::api_types::VkMicromapBuildSizesInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureTrianglesOpacityMicromapEXT>
+struct Schema<vulkan::api_elements::VkAccelerationStructureTrianglesOpacityMicromapEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureTrianglesOpacityMicromapEXT::sType,
                                   vulkan::fields::VkAccelerationStructureTrianglesOpacityMicromapEXT::pNext,
@@ -10877,7 +10877,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureTrianglesOpacityMicromap
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDisplacementMicromapFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDisplacementMicromapFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDisplacementMicromapFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceDisplacementMicromapFeaturesNV::pNext,
@@ -10885,7 +10885,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDisplacementMicromapFeaturesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDisplacementMicromapPropertiesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDisplacementMicromapPropertiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDisplacementMicromapPropertiesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceDisplacementMicromapPropertiesNV::pNext,
@@ -10893,7 +10893,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDisplacementMicromapPropertiesN
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureTrianglesDisplacementMicromapNV>
+struct Schema<vulkan::api_elements::VkAccelerationStructureTrianglesDisplacementMicromapNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureTrianglesDisplacementMicromapNV::sType,
                                   vulkan::fields::VkAccelerationStructureTrianglesDisplacementMicromapNV::pNext,
@@ -10916,7 +10916,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureTrianglesDisplacementMic
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI::sType,
                                   vulkan::fields::VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI::pNext,
@@ -10925,7 +10925,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceClusterCullingShaderFeaturesHUA
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI::sType,
                                   vulkan::fields::VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI::pNext,
@@ -10936,7 +10936,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceClusterCullingShaderPropertiesH
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI::sType,
                                   vulkan::fields::VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI::pNext,
@@ -10944,7 +10944,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceClusterCullingShaderVrsFeatures
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceBorderColorSwizzleFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceBorderColorSwizzleFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceBorderColorSwizzleFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceBorderColorSwizzleFeaturesEXT::pNext,
@@ -10953,7 +10953,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceBorderColorSwizzleFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSamplerBorderColorComponentMappingCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkSamplerBorderColorComponentMappingCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkSamplerBorderColorComponentMappingCreateInfoEXT::sType,
                                   vulkan::fields::VkSamplerBorderColorComponentMappingCreateInfoEXT::pNext,
@@ -10962,7 +10962,7 @@ struct Schema<vulkan::api_types::VkSamplerBorderColorComponentMappingCreateInfoE
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT::pNext,
@@ -10970,7 +10970,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePageableDeviceLocalMemoryFeatur
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderCorePropertiesARM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderCorePropertiesARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderCorePropertiesARM::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderCorePropertiesARM::pNext,
@@ -10980,7 +10980,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderCorePropertiesARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceQueueShaderCoreControlCreateInfoARM>
+struct Schema<vulkan::api_elements::VkDeviceQueueShaderCoreControlCreateInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceQueueShaderCoreControlCreateInfoARM::sType,
                                   vulkan::fields::VkDeviceQueueShaderCoreControlCreateInfoARM::pNext,
@@ -10988,7 +10988,7 @@ struct Schema<vulkan::api_types::VkDeviceQueueShaderCoreControlCreateInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceSchedulingControlsFeaturesARM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceSchedulingControlsFeaturesARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceSchedulingControlsFeaturesARM::sType,
                                   vulkan::fields::VkPhysicalDeviceSchedulingControlsFeaturesARM::pNext,
@@ -10996,7 +10996,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceSchedulingControlsFeaturesARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceSchedulingControlsPropertiesARM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceSchedulingControlsPropertiesARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceSchedulingControlsPropertiesARM::sType,
                                   vulkan::fields::VkPhysicalDeviceSchedulingControlsPropertiesARM::pNext,
@@ -11004,7 +11004,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceSchedulingControlsPropertiesARM
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDispatchParametersARM>
+struct Schema<vulkan::api_elements::VkDispatchParametersARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDispatchParametersARM::sType,
                                   vulkan::fields::VkDispatchParametersARM::pNext,
@@ -11014,7 +11014,7 @@ struct Schema<vulkan::api_types::VkDispatchParametersARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceSchedulingControlsDispatchParametersPropertiesARM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceSchedulingControlsDispatchParametersPropertiesARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceSchedulingControlsDispatchParametersPropertiesARM::sType,
                                   vulkan::fields::VkPhysicalDeviceSchedulingControlsDispatchParametersPropertiesARM::pNext,
@@ -11024,7 +11024,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceSchedulingControlsDispatchParam
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT::pNext,
@@ -11032,7 +11032,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageViewSlicedCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkImageViewSlicedCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageViewSlicedCreateInfoEXT::sType,
                                   vulkan::fields::VkImageViewSlicedCreateInfoEXT::pNext,
@@ -11041,7 +11041,7 @@ struct Schema<vulkan::api_types::VkImageViewSlicedCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE::sType,
                                   vulkan::fields::VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE::pNext,
@@ -11049,7 +11049,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDescriptorSetHostMappingFeature
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDescriptorSetBindingReferenceVALVE>
+struct Schema<vulkan::api_elements::VkDescriptorSetBindingReferenceVALVE>
 {
     using Fields = util::TypeList<vulkan::fields::VkDescriptorSetBindingReferenceVALVE::sType,
                                   vulkan::fields::VkDescriptorSetBindingReferenceVALVE::pNext,
@@ -11058,7 +11058,7 @@ struct Schema<vulkan::api_types::VkDescriptorSetBindingReferenceVALVE>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDescriptorSetLayoutHostMappingInfoVALVE>
+struct Schema<vulkan::api_elements::VkDescriptorSetLayoutHostMappingInfoVALVE>
 {
     using Fields = util::TypeList<vulkan::fields::VkDescriptorSetLayoutHostMappingInfoVALVE::sType,
                                   vulkan::fields::VkDescriptorSetLayoutHostMappingInfoVALVE::pNext,
@@ -11067,7 +11067,7 @@ struct Schema<vulkan::api_types::VkDescriptorSetLayoutHostMappingInfoVALVE>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT::pNext,
@@ -11075,7 +11075,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceRenderPassStripedFeaturesARM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceRenderPassStripedFeaturesARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceRenderPassStripedFeaturesARM::sType,
                                   vulkan::fields::VkPhysicalDeviceRenderPassStripedFeaturesARM::pNext,
@@ -11083,7 +11083,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceRenderPassStripedFeaturesARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceRenderPassStripedPropertiesARM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceRenderPassStripedPropertiesARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceRenderPassStripedPropertiesARM::sType,
                                   vulkan::fields::VkPhysicalDeviceRenderPassStripedPropertiesARM::pNext,
@@ -11092,7 +11092,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceRenderPassStripedPropertiesARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderPassStripeInfoARM>
+struct Schema<vulkan::api_elements::VkRenderPassStripeInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderPassStripeInfoARM::sType,
                                   vulkan::fields::VkRenderPassStripeInfoARM::pNext,
@@ -11100,7 +11100,7 @@ struct Schema<vulkan::api_types::VkRenderPassStripeInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderPassStripeBeginInfoARM>
+struct Schema<vulkan::api_elements::VkRenderPassStripeBeginInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderPassStripeBeginInfoARM::sType,
                                   vulkan::fields::VkRenderPassStripeBeginInfoARM::pNext,
@@ -11109,7 +11109,7 @@ struct Schema<vulkan::api_types::VkRenderPassStripeBeginInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderPassStripeSubmitInfoARM>
+struct Schema<vulkan::api_elements::VkRenderPassStripeSubmitInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderPassStripeSubmitInfoARM::sType,
                                   vulkan::fields::VkRenderPassStripeSubmitInfoARM::pNext,
@@ -11118,7 +11118,7 @@ struct Schema<vulkan::api_types::VkRenderPassStripeSubmitInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT::pNext,
@@ -11126,7 +11126,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentDensityMapOffsetFeature
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT::pNext,
@@ -11134,7 +11134,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentDensityMapOffsetPropert
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderPassFragmentDensityMapOffsetEndInfoEXT>
+struct Schema<vulkan::api_elements::VkRenderPassFragmentDensityMapOffsetEndInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderPassFragmentDensityMapOffsetEndInfoEXT::sType,
                                   vulkan::fields::VkRenderPassFragmentDensityMapOffsetEndInfoEXT::pNext,
@@ -11143,7 +11143,7 @@ struct Schema<vulkan::api_types::VkRenderPassFragmentDensityMapOffsetEndInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV::pNext,
@@ -11153,7 +11153,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDeviceGeneratedCommandsComputeF
 };
 
 template <>
-struct Schema<vulkan::api_types::VkComputePipelineIndirectBufferInfoNV>
+struct Schema<vulkan::api_elements::VkComputePipelineIndirectBufferInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkComputePipelineIndirectBufferInfoNV::sType,
                                   vulkan::fields::VkComputePipelineIndirectBufferInfoNV::pNext,
@@ -11163,7 +11163,7 @@ struct Schema<vulkan::api_types::VkComputePipelineIndirectBufferInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineIndirectDeviceAddressInfoNV>
+struct Schema<vulkan::api_elements::VkPipelineIndirectDeviceAddressInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineIndirectDeviceAddressInfoNV::sType,
                                   vulkan::fields::VkPipelineIndirectDeviceAddressInfoNV::pNext,
@@ -11172,13 +11172,13 @@ struct Schema<vulkan::api_types::VkPipelineIndirectDeviceAddressInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBindPipelineIndirectCommandNV>
+struct Schema<vulkan::api_elements::VkBindPipelineIndirectCommandNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkBindPipelineIndirectCommandNV::pipelineAddress>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV::pNext,
@@ -11187,7 +11187,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceRayTracingLinearSweptSpheresFea
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureGeometryLinearSweptSpheresDataNV>
+struct Schema<vulkan::api_elements::VkAccelerationStructureGeometryLinearSweptSpheresDataNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureGeometryLinearSweptSpheresDataNV::sType,
                                   vulkan::fields::VkAccelerationStructureGeometryLinearSweptSpheresDataNV::pNext,
@@ -11205,7 +11205,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureGeometryLinearSweptSpher
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureGeometrySpheresDataNV>
+struct Schema<vulkan::api_elements::VkAccelerationStructureGeometrySpheresDataNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureGeometrySpheresDataNV::sType,
                                   vulkan::fields::VkAccelerationStructureGeometrySpheresDataNV::pNext,
@@ -11221,7 +11221,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureGeometrySpheresDataNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceLinearColorAttachmentFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceLinearColorAttachmentFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceLinearColorAttachmentFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceLinearColorAttachmentFeaturesNV::pNext,
@@ -11229,7 +11229,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceLinearColorAttachmentFeaturesNV
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT::pNext,
@@ -11237,7 +11237,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceImageCompressionControlSwapchai
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageViewSampleWeightCreateInfoQCOM>
+struct Schema<vulkan::api_elements::VkImageViewSampleWeightCreateInfoQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageViewSampleWeightCreateInfoQCOM::sType,
                                   vulkan::fields::VkImageViewSampleWeightCreateInfoQCOM::pNext,
@@ -11247,7 +11247,7 @@ struct Schema<vulkan::api_types::VkImageViewSampleWeightCreateInfoQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceImageProcessingFeaturesQCOM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceImageProcessingFeaturesQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceImageProcessingFeaturesQCOM::sType,
                                   vulkan::fields::VkPhysicalDeviceImageProcessingFeaturesQCOM::pNext,
@@ -11257,7 +11257,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceImageProcessingFeaturesQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceImageProcessingPropertiesQCOM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceImageProcessingPropertiesQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceImageProcessingPropertiesQCOM::sType,
                                   vulkan::fields::VkPhysicalDeviceImageProcessingPropertiesQCOM::pNext,
@@ -11268,7 +11268,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceImageProcessingPropertiesQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceNestedCommandBufferFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceNestedCommandBufferFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceNestedCommandBufferFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceNestedCommandBufferFeaturesEXT::pNext,
@@ -11278,7 +11278,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceNestedCommandBufferFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceNestedCommandBufferPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceNestedCommandBufferPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceNestedCommandBufferPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceNestedCommandBufferPropertiesEXT::pNext,
@@ -11286,7 +11286,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceNestedCommandBufferPropertiesEX
 };
 
 template <>
-struct Schema<vulkan::api_types::VkExternalMemoryAcquireUnmodifiedEXT>
+struct Schema<vulkan::api_elements::VkExternalMemoryAcquireUnmodifiedEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkExternalMemoryAcquireUnmodifiedEXT::sType,
                                   vulkan::fields::VkExternalMemoryAcquireUnmodifiedEXT::pNext,
@@ -11294,7 +11294,7 @@ struct Schema<vulkan::api_types::VkExternalMemoryAcquireUnmodifiedEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceExtendedDynamicState3FeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceExtendedDynamicState3FeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceExtendedDynamicState3FeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceExtendedDynamicState3FeaturesEXT::pNext,
@@ -11332,7 +11332,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceExtendedDynamicState3FeaturesEX
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceExtendedDynamicState3PropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceExtendedDynamicState3PropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceExtendedDynamicState3PropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceExtendedDynamicState3PropertiesEXT::pNext,
@@ -11340,7 +11340,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceExtendedDynamicState3Properties
 };
 
 template <>
-struct Schema<vulkan::api_types::VkColorBlendEquationEXT>
+struct Schema<vulkan::api_elements::VkColorBlendEquationEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkColorBlendEquationEXT::srcColorBlendFactor,
                                   vulkan::fields::VkColorBlendEquationEXT::dstColorBlendFactor,
@@ -11351,7 +11351,7 @@ struct Schema<vulkan::api_types::VkColorBlendEquationEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkColorBlendAdvancedEXT>
+struct Schema<vulkan::api_elements::VkColorBlendAdvancedEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkColorBlendAdvancedEXT::advancedBlendOp,
                                   vulkan::fields::VkColorBlendAdvancedEXT::srcPremultiplied,
@@ -11361,7 +11361,7 @@ struct Schema<vulkan::api_types::VkColorBlendAdvancedEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT::pNext,
@@ -11369,7 +11369,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderPassCreationControlEXT>
+struct Schema<vulkan::api_elements::VkRenderPassCreationControlEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderPassCreationControlEXT::sType,
                                   vulkan::fields::VkRenderPassCreationControlEXT::pNext,
@@ -11377,13 +11377,13 @@ struct Schema<vulkan::api_types::VkRenderPassCreationControlEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderPassCreationFeedbackInfoEXT>
+struct Schema<vulkan::api_elements::VkRenderPassCreationFeedbackInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderPassCreationFeedbackInfoEXT::postMergeSubpassCount>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderPassCreationFeedbackCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkRenderPassCreationFeedbackCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderPassCreationFeedbackCreateInfoEXT::sType,
                                   vulkan::fields::VkRenderPassCreationFeedbackCreateInfoEXT::pNext,
@@ -11391,7 +11391,7 @@ struct Schema<vulkan::api_types::VkRenderPassCreationFeedbackCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderPassSubpassFeedbackInfoEXT>
+struct Schema<vulkan::api_elements::VkRenderPassSubpassFeedbackInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderPassSubpassFeedbackInfoEXT::subpassMergeStatus,
                                   vulkan::fields::VkRenderPassSubpassFeedbackInfoEXT::description,
@@ -11399,7 +11399,7 @@ struct Schema<vulkan::api_types::VkRenderPassSubpassFeedbackInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderPassSubpassFeedbackCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkRenderPassSubpassFeedbackCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderPassSubpassFeedbackCreateInfoEXT::sType,
                                   vulkan::fields::VkRenderPassSubpassFeedbackCreateInfoEXT::pNext,
@@ -11407,7 +11407,7 @@ struct Schema<vulkan::api_types::VkRenderPassSubpassFeedbackCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDirectDriverLoadingInfoLUNARG>
+struct Schema<vulkan::api_elements::VkDirectDriverLoadingInfoLUNARG>
 {
     using Fields = util::TypeList<vulkan::fields::VkDirectDriverLoadingInfoLUNARG::sType,
                                   vulkan::fields::VkDirectDriverLoadingInfoLUNARG::pNext,
@@ -11416,7 +11416,7 @@ struct Schema<vulkan::api_types::VkDirectDriverLoadingInfoLUNARG>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDirectDriverLoadingListLUNARG>
+struct Schema<vulkan::api_elements::VkDirectDriverLoadingListLUNARG>
 {
     using Fields = util::TypeList<vulkan::fields::VkDirectDriverLoadingListLUNARG::sType,
                                   vulkan::fields::VkDirectDriverLoadingListLUNARG::pNext,
@@ -11426,7 +11426,7 @@ struct Schema<vulkan::api_types::VkDirectDriverLoadingListLUNARG>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkTensorDescriptionARM>
+struct Schema<vulkan::api_elements::VkTensorDescriptionARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkTensorDescriptionARM::sType,
                                   vulkan::fields::VkTensorDescriptionARM::pNext,
@@ -11439,7 +11439,7 @@ struct Schema<vulkan::api_types::VkTensorDescriptionARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkTensorCreateInfoARM>
+struct Schema<vulkan::api_elements::VkTensorCreateInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkTensorCreateInfoARM::sType,
                                   vulkan::fields::VkTensorCreateInfoARM::pNext,
@@ -11451,7 +11451,7 @@ struct Schema<vulkan::api_types::VkTensorCreateInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkTensorViewCreateInfoARM>
+struct Schema<vulkan::api_elements::VkTensorViewCreateInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkTensorViewCreateInfoARM::sType,
                                   vulkan::fields::VkTensorViewCreateInfoARM::pNext,
@@ -11461,7 +11461,7 @@ struct Schema<vulkan::api_types::VkTensorViewCreateInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkTensorMemoryRequirementsInfoARM>
+struct Schema<vulkan::api_elements::VkTensorMemoryRequirementsInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkTensorMemoryRequirementsInfoARM::sType,
                                   vulkan::fields::VkTensorMemoryRequirementsInfoARM::pNext,
@@ -11469,7 +11469,7 @@ struct Schema<vulkan::api_types::VkTensorMemoryRequirementsInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBindTensorMemoryInfoARM>
+struct Schema<vulkan::api_elements::VkBindTensorMemoryInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkBindTensorMemoryInfoARM::sType,
                                   vulkan::fields::VkBindTensorMemoryInfoARM::pNext,
@@ -11479,7 +11479,7 @@ struct Schema<vulkan::api_types::VkBindTensorMemoryInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkWriteDescriptorSetTensorARM>
+struct Schema<vulkan::api_elements::VkWriteDescriptorSetTensorARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkWriteDescriptorSetTensorARM::sType,
                                   vulkan::fields::VkWriteDescriptorSetTensorARM::pNext,
@@ -11488,7 +11488,7 @@ struct Schema<vulkan::api_types::VkWriteDescriptorSetTensorARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkTensorFormatPropertiesARM>
+struct Schema<vulkan::api_elements::VkTensorFormatPropertiesARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkTensorFormatPropertiesARM::sType,
                                   vulkan::fields::VkTensorFormatPropertiesARM::pNext,
@@ -11497,7 +11497,7 @@ struct Schema<vulkan::api_types::VkTensorFormatPropertiesARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceTensorPropertiesARM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceTensorPropertiesARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceTensorPropertiesARM::sType,
                                   vulkan::fields::VkPhysicalDeviceTensorPropertiesARM::pNext,
@@ -11517,7 +11517,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceTensorPropertiesARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkTensorMemoryBarrierARM>
+struct Schema<vulkan::api_elements::VkTensorMemoryBarrierARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkTensorMemoryBarrierARM::sType,
                                   vulkan::fields::VkTensorMemoryBarrierARM::pNext,
@@ -11531,7 +11531,7 @@ struct Schema<vulkan::api_types::VkTensorMemoryBarrierARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkTensorDependencyInfoARM>
+struct Schema<vulkan::api_elements::VkTensorDependencyInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkTensorDependencyInfoARM::sType,
                                   vulkan::fields::VkTensorDependencyInfoARM::pNext,
@@ -11540,7 +11540,7 @@ struct Schema<vulkan::api_types::VkTensorDependencyInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceTensorFeaturesARM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceTensorFeaturesARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceTensorFeaturesARM::sType,
                                   vulkan::fields::VkPhysicalDeviceTensorFeaturesARM::pNext,
@@ -11553,7 +11553,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceTensorFeaturesARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceTensorMemoryRequirementsARM>
+struct Schema<vulkan::api_elements::VkDeviceTensorMemoryRequirementsARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDeviceTensorMemoryRequirementsARM::sType,
                                   vulkan::fields::VkDeviceTensorMemoryRequirementsARM::pNext,
@@ -11561,7 +11561,7 @@ struct Schema<vulkan::api_types::VkDeviceTensorMemoryRequirementsARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkTensorCopyARM>
+struct Schema<vulkan::api_elements::VkTensorCopyARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkTensorCopyARM::sType, vulkan::fields::VkTensorCopyARM::pNext,
                                   vulkan::fields::VkTensorCopyARM::dimensionCount,
@@ -11571,7 +11571,7 @@ struct Schema<vulkan::api_types::VkTensorCopyARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCopyTensorInfoARM>
+struct Schema<vulkan::api_elements::VkCopyTensorInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkCopyTensorInfoARM::sType,
                                   vulkan::fields::VkCopyTensorInfoARM::pNext,
@@ -11582,7 +11582,7 @@ struct Schema<vulkan::api_types::VkCopyTensorInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryDedicatedAllocateInfoTensorARM>
+struct Schema<vulkan::api_elements::VkMemoryDedicatedAllocateInfoTensorARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryDedicatedAllocateInfoTensorARM::sType,
                                   vulkan::fields::VkMemoryDedicatedAllocateInfoTensorARM::pNext,
@@ -11590,7 +11590,7 @@ struct Schema<vulkan::api_types::VkMemoryDedicatedAllocateInfoTensorARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceExternalTensorInfoARM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceExternalTensorInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceExternalTensorInfoARM::sType,
                                   vulkan::fields::VkPhysicalDeviceExternalTensorInfoARM::pNext,
@@ -11600,7 +11600,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceExternalTensorInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkExternalTensorPropertiesARM>
+struct Schema<vulkan::api_elements::VkExternalTensorPropertiesARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkExternalTensorPropertiesARM::sType,
                                   vulkan::fields::VkExternalTensorPropertiesARM::pNext,
@@ -11608,7 +11608,7 @@ struct Schema<vulkan::api_types::VkExternalTensorPropertiesARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkExternalMemoryTensorCreateInfoARM>
+struct Schema<vulkan::api_elements::VkExternalMemoryTensorCreateInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkExternalMemoryTensorCreateInfoARM::sType,
                                   vulkan::fields::VkExternalMemoryTensorCreateInfoARM::pNext,
@@ -11616,7 +11616,7 @@ struct Schema<vulkan::api_types::VkExternalMemoryTensorCreateInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDescriptorBufferTensorFeaturesARM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDescriptorBufferTensorFeaturesARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDescriptorBufferTensorFeaturesARM::sType,
                                   vulkan::fields::VkPhysicalDeviceDescriptorBufferTensorFeaturesARM::pNext,
@@ -11624,7 +11624,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDescriptorBufferTensorFeaturesA
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDescriptorBufferTensorPropertiesARM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDescriptorBufferTensorPropertiesARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDescriptorBufferTensorPropertiesARM::sType,
                                   vulkan::fields::VkPhysicalDeviceDescriptorBufferTensorPropertiesARM::pNext,
@@ -11634,7 +11634,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDescriptorBufferTensorPropertie
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDescriptorGetTensorInfoARM>
+struct Schema<vulkan::api_elements::VkDescriptorGetTensorInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDescriptorGetTensorInfoARM::sType,
                                   vulkan::fields::VkDescriptorGetTensorInfoARM::pNext,
@@ -11642,7 +11642,7 @@ struct Schema<vulkan::api_types::VkDescriptorGetTensorInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkTensorCaptureDescriptorDataInfoARM>
+struct Schema<vulkan::api_elements::VkTensorCaptureDescriptorDataInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkTensorCaptureDescriptorDataInfoARM::sType,
                                   vulkan::fields::VkTensorCaptureDescriptorDataInfoARM::pNext,
@@ -11650,7 +11650,7 @@ struct Schema<vulkan::api_types::VkTensorCaptureDescriptorDataInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkTensorViewCaptureDescriptorDataInfoARM>
+struct Schema<vulkan::api_elements::VkTensorViewCaptureDescriptorDataInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkTensorViewCaptureDescriptorDataInfoARM::sType,
                                   vulkan::fields::VkTensorViewCaptureDescriptorDataInfoARM::pNext,
@@ -11658,7 +11658,7 @@ struct Schema<vulkan::api_types::VkTensorViewCaptureDescriptorDataInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkFrameBoundaryTensorsARM>
+struct Schema<vulkan::api_elements::VkFrameBoundaryTensorsARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkFrameBoundaryTensorsARM::sType,
                                   vulkan::fields::VkFrameBoundaryTensorsARM::pNext,
@@ -11667,7 +11667,7 @@ struct Schema<vulkan::api_types::VkFrameBoundaryTensorsARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT::pNext,
@@ -11675,7 +11675,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderModuleIdentifierFeaturesE
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT::pNext,
@@ -11683,7 +11683,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderModuleIdentifierPropertie
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineShaderStageModuleIdentifierCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkPipelineShaderStageModuleIdentifierCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineShaderStageModuleIdentifierCreateInfoEXT::sType,
                                   vulkan::fields::VkPipelineShaderStageModuleIdentifierCreateInfoEXT::pNext,
@@ -11692,7 +11692,7 @@ struct Schema<vulkan::api_types::VkPipelineShaderStageModuleIdentifierCreateInfo
 };
 
 template <>
-struct Schema<vulkan::api_types::VkShaderModuleIdentifierEXT>
+struct Schema<vulkan::api_elements::VkShaderModuleIdentifierEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkShaderModuleIdentifierEXT::sType,
                                   vulkan::fields::VkShaderModuleIdentifierEXT::pNext,
@@ -11701,7 +11701,7 @@ struct Schema<vulkan::api_types::VkShaderModuleIdentifierEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceOpticalFlowFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceOpticalFlowFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceOpticalFlowFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceOpticalFlowFeaturesNV::pNext,
@@ -11709,7 +11709,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceOpticalFlowFeaturesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceOpticalFlowPropertiesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceOpticalFlowPropertiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceOpticalFlowPropertiesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceOpticalFlowPropertiesNV::pNext,
@@ -11727,7 +11727,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceOpticalFlowPropertiesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkOpticalFlowImageFormatInfoNV>
+struct Schema<vulkan::api_elements::VkOpticalFlowImageFormatInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkOpticalFlowImageFormatInfoNV::sType,
                                   vulkan::fields::VkOpticalFlowImageFormatInfoNV::pNext,
@@ -11735,7 +11735,7 @@ struct Schema<vulkan::api_types::VkOpticalFlowImageFormatInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkOpticalFlowImageFormatPropertiesNV>
+struct Schema<vulkan::api_elements::VkOpticalFlowImageFormatPropertiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkOpticalFlowImageFormatPropertiesNV::sType,
                                   vulkan::fields::VkOpticalFlowImageFormatPropertiesNV::pNext,
@@ -11743,7 +11743,7 @@ struct Schema<vulkan::api_types::VkOpticalFlowImageFormatPropertiesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkOpticalFlowSessionCreateInfoNV>
+struct Schema<vulkan::api_elements::VkOpticalFlowSessionCreateInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkOpticalFlowSessionCreateInfoNV::sType,
                                   vulkan::fields::VkOpticalFlowSessionCreateInfoNV::pNext,
@@ -11759,7 +11759,7 @@ struct Schema<vulkan::api_types::VkOpticalFlowSessionCreateInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkOpticalFlowSessionCreatePrivateDataInfoNV>
+struct Schema<vulkan::api_elements::VkOpticalFlowSessionCreatePrivateDataInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkOpticalFlowSessionCreatePrivateDataInfoNV::sType,
                                   vulkan::fields::VkOpticalFlowSessionCreatePrivateDataInfoNV::pNext,
@@ -11769,7 +11769,7 @@ struct Schema<vulkan::api_types::VkOpticalFlowSessionCreatePrivateDataInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkOpticalFlowExecuteInfoNV>
+struct Schema<vulkan::api_elements::VkOpticalFlowExecuteInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkOpticalFlowExecuteInfoNV::sType,
                                   vulkan::fields::VkOpticalFlowExecuteInfoNV::pNext,
@@ -11779,7 +11779,7 @@ struct Schema<vulkan::api_types::VkOpticalFlowExecuteInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceLegacyDitheringFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceLegacyDitheringFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceLegacyDitheringFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceLegacyDitheringFeaturesEXT::pNext,
@@ -11787,7 +11787,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceLegacyDitheringFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceExternalFormatResolveFeaturesANDROID>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceExternalFormatResolveFeaturesANDROID>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceExternalFormatResolveFeaturesANDROID::sType,
                                   vulkan::fields::VkPhysicalDeviceExternalFormatResolveFeaturesANDROID::pNext,
@@ -11795,7 +11795,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceExternalFormatResolveFeaturesAN
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceExternalFormatResolvePropertiesANDROID>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceExternalFormatResolvePropertiesANDROID>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceExternalFormatResolvePropertiesANDROID::sType,
                                   vulkan::fields::VkPhysicalDeviceExternalFormatResolvePropertiesANDROID::pNext,
@@ -11805,7 +11805,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceExternalFormatResolveProperties
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAndroidHardwareBufferFormatResolvePropertiesANDROID>
+struct Schema<vulkan::api_elements::VkAndroidHardwareBufferFormatResolvePropertiesANDROID>
 {
     using Fields = util::TypeList<vulkan::fields::VkAndroidHardwareBufferFormatResolvePropertiesANDROID::sType,
                                   vulkan::fields::VkAndroidHardwareBufferFormatResolvePropertiesANDROID::pNext,
@@ -11813,7 +11813,7 @@ struct Schema<vulkan::api_types::VkAndroidHardwareBufferFormatResolvePropertiesA
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceAntiLagFeaturesAMD>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceAntiLagFeaturesAMD>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceAntiLagFeaturesAMD::sType,
                                   vulkan::fields::VkPhysicalDeviceAntiLagFeaturesAMD::pNext,
@@ -11821,7 +11821,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceAntiLagFeaturesAMD>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAntiLagPresentationInfoAMD>
+struct Schema<vulkan::api_elements::VkAntiLagPresentationInfoAMD>
 {
     using Fields = util::TypeList<vulkan::fields::VkAntiLagPresentationInfoAMD::sType,
                                   vulkan::fields::VkAntiLagPresentationInfoAMD::pNext,
@@ -11830,7 +11830,7 @@ struct Schema<vulkan::api_types::VkAntiLagPresentationInfoAMD>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAntiLagDataAMD>
+struct Schema<vulkan::api_elements::VkAntiLagDataAMD>
 {
     using Fields = util::TypeList<vulkan::fields::VkAntiLagDataAMD::sType, vulkan::fields::VkAntiLagDataAMD::pNext,
                                   vulkan::fields::VkAntiLagDataAMD::mode, vulkan::fields::VkAntiLagDataAMD::maxFPS,
@@ -11838,7 +11838,7 @@ struct Schema<vulkan::api_types::VkAntiLagDataAMD>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderObjectFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderObjectFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderObjectFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderObjectFeaturesEXT::pNext,
@@ -11846,7 +11846,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderObjectFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderObjectPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderObjectPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderObjectPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderObjectPropertiesEXT::pNext,
@@ -11855,7 +11855,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderObjectPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkShaderCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkShaderCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkShaderCreateInfoEXT::sType,
                                   vulkan::fields::VkShaderCreateInfoEXT::pNext,
@@ -11874,14 +11874,14 @@ struct Schema<vulkan::api_types::VkShaderCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDepthClampRangeEXT>
+struct Schema<vulkan::api_elements::VkDepthClampRangeEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDepthClampRangeEXT::minDepthClamp,
                                   vulkan::fields::VkDepthClampRangeEXT::maxDepthClamp>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceTilePropertiesFeaturesQCOM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceTilePropertiesFeaturesQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceTilePropertiesFeaturesQCOM::sType,
                                   vulkan::fields::VkPhysicalDeviceTilePropertiesFeaturesQCOM::pNext,
@@ -11889,7 +11889,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceTilePropertiesFeaturesQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkTilePropertiesQCOM>
+struct Schema<vulkan::api_elements::VkTilePropertiesQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkTilePropertiesQCOM::sType,
                                   vulkan::fields::VkTilePropertiesQCOM::pNext,
@@ -11899,7 +11899,7 @@ struct Schema<vulkan::api_types::VkTilePropertiesQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceAmigoProfilingFeaturesSEC>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceAmigoProfilingFeaturesSEC>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceAmigoProfilingFeaturesSEC::sType,
                                   vulkan::fields::VkPhysicalDeviceAmigoProfilingFeaturesSEC::pNext,
@@ -11907,7 +11907,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceAmigoProfilingFeaturesSEC>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAmigoProfilingSubmitInfoSEC>
+struct Schema<vulkan::api_elements::VkAmigoProfilingSubmitInfoSEC>
 {
     using Fields = util::TypeList<vulkan::fields::VkAmigoProfilingSubmitInfoSEC::sType,
                                   vulkan::fields::VkAmigoProfilingSubmitInfoSEC::pNext,
@@ -11916,7 +11916,7 @@ struct Schema<vulkan::api_types::VkAmigoProfilingSubmitInfoSEC>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM::sType,
                                   vulkan::fields::VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM::pNext,
@@ -11924,7 +11924,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMultiviewPerViewViewportsFeatur
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV::pNext,
@@ -11932,7 +11932,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceRayTracingInvocationReorderProp
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV::pNext,
@@ -11940,7 +11940,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceRayTracingInvocationReorderFeat
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceCooperativeVectorPropertiesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceCooperativeVectorPropertiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceCooperativeVectorPropertiesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceCooperativeVectorPropertiesNV::pNext,
@@ -11951,7 +11951,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceCooperativeVectorPropertiesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceCooperativeVectorFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceCooperativeVectorFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceCooperativeVectorFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceCooperativeVectorFeaturesNV::pNext,
@@ -11960,7 +11960,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceCooperativeVectorFeaturesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCooperativeVectorPropertiesNV>
+struct Schema<vulkan::api_elements::VkCooperativeVectorPropertiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkCooperativeVectorPropertiesNV::sType,
                                   vulkan::fields::VkCooperativeVectorPropertiesNV::pNext,
@@ -11973,7 +11973,7 @@ struct Schema<vulkan::api_types::VkCooperativeVectorPropertiesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkConvertCooperativeVectorMatrixInfoNV>
+struct Schema<vulkan::api_elements::VkConvertCooperativeVectorMatrixInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkConvertCooperativeVectorMatrixInfoNV::sType,
                                   vulkan::fields::VkConvertCooperativeVectorMatrixInfoNV::pNext,
@@ -11992,7 +11992,7 @@ struct Schema<vulkan::api_types::VkConvertCooperativeVectorMatrixInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV::pNext,
@@ -12000,7 +12000,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceExtendedSparseAddressSpaceFeatu
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV::pNext,
@@ -12010,7 +12010,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceExtendedSparseAddressSpacePrope
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT::pNext,
@@ -12018,7 +12018,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceLegacyVertexAttributesFeaturesE
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT::pNext,
@@ -12026,7 +12026,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceLegacyVertexAttributesPropertie
 };
 
 template <>
-struct Schema<vulkan::api_types::VkLayerSettingEXT>
+struct Schema<vulkan::api_elements::VkLayerSettingEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkLayerSettingEXT::pLayerName,
                                   vulkan::fields::VkLayerSettingEXT::pSettingName,
@@ -12036,7 +12036,7 @@ struct Schema<vulkan::api_types::VkLayerSettingEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkLayerSettingsCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkLayerSettingsCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkLayerSettingsCreateInfoEXT::sType,
                                   vulkan::fields::VkLayerSettingsCreateInfoEXT::pNext,
@@ -12045,7 +12045,7 @@ struct Schema<vulkan::api_types::VkLayerSettingsCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM::pNext,
@@ -12053,7 +12053,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM::pNext,
@@ -12063,7 +12063,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT::pNext,
@@ -12071,7 +12071,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDynamicRenderingUnusedAttachmen
 };
 
 template <>
-struct Schema<vulkan::api_types::VkLatencySleepModeInfoNV>
+struct Schema<vulkan::api_elements::VkLatencySleepModeInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkLatencySleepModeInfoNV::sType,
                                   vulkan::fields::VkLatencySleepModeInfoNV::pNext,
@@ -12081,7 +12081,7 @@ struct Schema<vulkan::api_types::VkLatencySleepModeInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkLatencySleepInfoNV>
+struct Schema<vulkan::api_elements::VkLatencySleepInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkLatencySleepInfoNV::sType,
                                   vulkan::fields::VkLatencySleepInfoNV::pNext,
@@ -12090,7 +12090,7 @@ struct Schema<vulkan::api_types::VkLatencySleepInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSetLatencyMarkerInfoNV>
+struct Schema<vulkan::api_elements::VkSetLatencyMarkerInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkSetLatencyMarkerInfoNV::sType,
                                   vulkan::fields::VkSetLatencyMarkerInfoNV::pNext,
@@ -12099,7 +12099,7 @@ struct Schema<vulkan::api_types::VkSetLatencyMarkerInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkLatencyTimingsFrameReportNV>
+struct Schema<vulkan::api_elements::VkLatencyTimingsFrameReportNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkLatencyTimingsFrameReportNV::sType,
                                   vulkan::fields::VkLatencyTimingsFrameReportNV::pNext,
@@ -12120,7 +12120,7 @@ struct Schema<vulkan::api_types::VkLatencyTimingsFrameReportNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkGetLatencyMarkerInfoNV>
+struct Schema<vulkan::api_elements::VkGetLatencyMarkerInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkGetLatencyMarkerInfoNV::sType,
                                   vulkan::fields::VkGetLatencyMarkerInfoNV::pNext,
@@ -12129,7 +12129,7 @@ struct Schema<vulkan::api_types::VkGetLatencyMarkerInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkLatencySubmissionPresentIdNV>
+struct Schema<vulkan::api_elements::VkLatencySubmissionPresentIdNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkLatencySubmissionPresentIdNV::sType,
                                   vulkan::fields::VkLatencySubmissionPresentIdNV::pNext,
@@ -12137,7 +12137,7 @@ struct Schema<vulkan::api_types::VkLatencySubmissionPresentIdNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSwapchainLatencyCreateInfoNV>
+struct Schema<vulkan::api_elements::VkSwapchainLatencyCreateInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkSwapchainLatencyCreateInfoNV::sType,
                                   vulkan::fields::VkSwapchainLatencyCreateInfoNV::pNext,
@@ -12145,7 +12145,7 @@ struct Schema<vulkan::api_types::VkSwapchainLatencyCreateInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkOutOfBandQueueTypeInfoNV>
+struct Schema<vulkan::api_elements::VkOutOfBandQueueTypeInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkOutOfBandQueueTypeInfoNV::sType,
                                   vulkan::fields::VkOutOfBandQueueTypeInfoNV::pNext,
@@ -12153,7 +12153,7 @@ struct Schema<vulkan::api_types::VkOutOfBandQueueTypeInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkLatencySurfaceCapabilitiesNV>
+struct Schema<vulkan::api_elements::VkLatencySurfaceCapabilitiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkLatencySurfaceCapabilitiesNV::sType,
                                   vulkan::fields::VkLatencySurfaceCapabilitiesNV::pNext,
@@ -12162,7 +12162,7 @@ struct Schema<vulkan::api_types::VkLatencySurfaceCapabilitiesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDataGraphFeaturesARM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDataGraphFeaturesARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDataGraphFeaturesARM::sType,
                                   vulkan::fields::VkPhysicalDeviceDataGraphFeaturesARM::pNext,
@@ -12174,7 +12174,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDataGraphFeaturesARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDataGraphPipelineConstantARM>
+struct Schema<vulkan::api_elements::VkDataGraphPipelineConstantARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDataGraphPipelineConstantARM::sType,
                                   vulkan::fields::VkDataGraphPipelineConstantARM::pNext,
@@ -12183,7 +12183,7 @@ struct Schema<vulkan::api_types::VkDataGraphPipelineConstantARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDataGraphPipelineResourceInfoARM>
+struct Schema<vulkan::api_elements::VkDataGraphPipelineResourceInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDataGraphPipelineResourceInfoARM::sType,
                                   vulkan::fields::VkDataGraphPipelineResourceInfoARM::pNext,
@@ -12193,7 +12193,7 @@ struct Schema<vulkan::api_types::VkDataGraphPipelineResourceInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDataGraphPipelineCompilerControlCreateInfoARM>
+struct Schema<vulkan::api_elements::VkDataGraphPipelineCompilerControlCreateInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDataGraphPipelineCompilerControlCreateInfoARM::sType,
                                   vulkan::fields::VkDataGraphPipelineCompilerControlCreateInfoARM::pNext,
@@ -12201,7 +12201,7 @@ struct Schema<vulkan::api_types::VkDataGraphPipelineCompilerControlCreateInfoARM
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDataGraphPipelineCreateInfoARM>
+struct Schema<vulkan::api_elements::VkDataGraphPipelineCreateInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDataGraphPipelineCreateInfoARM::sType,
                                   vulkan::fields::VkDataGraphPipelineCreateInfoARM::pNext,
@@ -12212,7 +12212,7 @@ struct Schema<vulkan::api_types::VkDataGraphPipelineCreateInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDataGraphPipelineShaderModuleCreateInfoARM>
+struct Schema<vulkan::api_elements::VkDataGraphPipelineShaderModuleCreateInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDataGraphPipelineShaderModuleCreateInfoARM::sType,
                                   vulkan::fields::VkDataGraphPipelineShaderModuleCreateInfoARM::pNext,
@@ -12224,7 +12224,7 @@ struct Schema<vulkan::api_types::VkDataGraphPipelineShaderModuleCreateInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDataGraphPipelineSessionCreateInfoARM>
+struct Schema<vulkan::api_elements::VkDataGraphPipelineSessionCreateInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDataGraphPipelineSessionCreateInfoARM::sType,
                                   vulkan::fields::VkDataGraphPipelineSessionCreateInfoARM::pNext,
@@ -12233,7 +12233,7 @@ struct Schema<vulkan::api_types::VkDataGraphPipelineSessionCreateInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDataGraphPipelineSessionBindPointRequirementsInfoARM>
+struct Schema<vulkan::api_elements::VkDataGraphPipelineSessionBindPointRequirementsInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDataGraphPipelineSessionBindPointRequirementsInfoARM::sType,
                                   vulkan::fields::VkDataGraphPipelineSessionBindPointRequirementsInfoARM::pNext,
@@ -12241,7 +12241,7 @@ struct Schema<vulkan::api_types::VkDataGraphPipelineSessionBindPointRequirements
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDataGraphPipelineSessionBindPointRequirementARM>
+struct Schema<vulkan::api_elements::VkDataGraphPipelineSessionBindPointRequirementARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDataGraphPipelineSessionBindPointRequirementARM::sType,
                                   vulkan::fields::VkDataGraphPipelineSessionBindPointRequirementARM::pNext,
@@ -12251,7 +12251,7 @@ struct Schema<vulkan::api_types::VkDataGraphPipelineSessionBindPointRequirementA
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDataGraphPipelineSessionMemoryRequirementsInfoARM>
+struct Schema<vulkan::api_elements::VkDataGraphPipelineSessionMemoryRequirementsInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDataGraphPipelineSessionMemoryRequirementsInfoARM::sType,
                                   vulkan::fields::VkDataGraphPipelineSessionMemoryRequirementsInfoARM::pNext,
@@ -12261,7 +12261,7 @@ struct Schema<vulkan::api_types::VkDataGraphPipelineSessionMemoryRequirementsInf
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBindDataGraphPipelineSessionMemoryInfoARM>
+struct Schema<vulkan::api_elements::VkBindDataGraphPipelineSessionMemoryInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkBindDataGraphPipelineSessionMemoryInfoARM::sType,
                                   vulkan::fields::VkBindDataGraphPipelineSessionMemoryInfoARM::pNext,
@@ -12273,7 +12273,7 @@ struct Schema<vulkan::api_types::VkBindDataGraphPipelineSessionMemoryInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDataGraphPipelineInfoARM>
+struct Schema<vulkan::api_elements::VkDataGraphPipelineInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDataGraphPipelineInfoARM::sType,
                                   vulkan::fields::VkDataGraphPipelineInfoARM::pNext,
@@ -12281,7 +12281,7 @@ struct Schema<vulkan::api_types::VkDataGraphPipelineInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDataGraphPipelinePropertyQueryResultARM>
+struct Schema<vulkan::api_elements::VkDataGraphPipelinePropertyQueryResultARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDataGraphPipelinePropertyQueryResultARM::sType,
                                   vulkan::fields::VkDataGraphPipelinePropertyQueryResultARM::pNext,
@@ -12292,7 +12292,7 @@ struct Schema<vulkan::api_types::VkDataGraphPipelinePropertyQueryResultARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDataGraphPipelineIdentifierCreateInfoARM>
+struct Schema<vulkan::api_elements::VkDataGraphPipelineIdentifierCreateInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDataGraphPipelineIdentifierCreateInfoARM::sType,
                                   vulkan::fields::VkDataGraphPipelineIdentifierCreateInfoARM::pNext,
@@ -12301,7 +12301,7 @@ struct Schema<vulkan::api_types::VkDataGraphPipelineIdentifierCreateInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDataGraphPipelineDispatchInfoARM>
+struct Schema<vulkan::api_elements::VkDataGraphPipelineDispatchInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDataGraphPipelineDispatchInfoARM::sType,
                                   vulkan::fields::VkDataGraphPipelineDispatchInfoARM::pNext,
@@ -12309,14 +12309,14 @@ struct Schema<vulkan::api_types::VkDataGraphPipelineDispatchInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDataGraphProcessingEngineARM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDataGraphProcessingEngineARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDataGraphProcessingEngineARM::type,
                                   vulkan::fields::VkPhysicalDeviceDataGraphProcessingEngineARM::isForeign>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDataGraphOperationSupportARM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDataGraphOperationSupportARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDataGraphOperationSupportARM::operationType,
                                   vulkan::fields::VkPhysicalDeviceDataGraphOperationSupportARM::name,
@@ -12324,7 +12324,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDataGraphOperationSupportARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkQueueFamilyDataGraphPropertiesARM>
+struct Schema<vulkan::api_elements::VkQueueFamilyDataGraphPropertiesARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkQueueFamilyDataGraphPropertiesARM::sType,
                                   vulkan::fields::VkQueueFamilyDataGraphPropertiesARM::pNext,
@@ -12333,7 +12333,7 @@ struct Schema<vulkan::api_types::VkQueueFamilyDataGraphPropertiesARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDataGraphProcessingEngineCreateInfoARM>
+struct Schema<vulkan::api_elements::VkDataGraphProcessingEngineCreateInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDataGraphProcessingEngineCreateInfoARM::sType,
                                   vulkan::fields::VkDataGraphProcessingEngineCreateInfoARM::pNext,
@@ -12342,7 +12342,7 @@ struct Schema<vulkan::api_types::VkDataGraphProcessingEngineCreateInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceQueueFamilyDataGraphProcessingEngineInfoARM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceQueueFamilyDataGraphProcessingEngineInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceQueueFamilyDataGraphProcessingEngineInfoARM::sType,
                                   vulkan::fields::VkPhysicalDeviceQueueFamilyDataGraphProcessingEngineInfoARM::pNext,
@@ -12351,7 +12351,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceQueueFamilyDataGraphProcessingE
 };
 
 template <>
-struct Schema<vulkan::api_types::VkQueueFamilyDataGraphProcessingEnginePropertiesARM>
+struct Schema<vulkan::api_elements::VkQueueFamilyDataGraphProcessingEnginePropertiesARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkQueueFamilyDataGraphProcessingEnginePropertiesARM::sType,
                                   vulkan::fields::VkQueueFamilyDataGraphProcessingEnginePropertiesARM::pNext,
@@ -12360,7 +12360,7 @@ struct Schema<vulkan::api_types::VkQueueFamilyDataGraphProcessingEnginePropertie
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDataGraphPipelineConstantTensorSemiStructuredSparsityInfoARM>
+struct Schema<vulkan::api_elements::VkDataGraphPipelineConstantTensorSemiStructuredSparsityInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDataGraphPipelineConstantTensorSemiStructuredSparsityInfoARM::sType,
                                   vulkan::fields::VkDataGraphPipelineConstantTensorSemiStructuredSparsityInfoARM::pNext,
@@ -12370,7 +12370,7 @@ struct Schema<vulkan::api_types::VkDataGraphPipelineConstantTensorSemiStructured
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM::sType,
                                   vulkan::fields::VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM::pNext,
@@ -12378,7 +12378,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMultiviewPerViewRenderAreasFeat
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM>
+struct Schema<vulkan::api_elements::VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM::sType,
                                   vulkan::fields::VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM::pNext,
@@ -12387,7 +12387,7 @@ struct Schema<vulkan::api_types::VkMultiviewPerViewRenderAreasRenderPassBeginInf
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePerStageDescriptorSetFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePerStageDescriptorSetFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePerStageDescriptorSetFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDevicePerStageDescriptorSetFeaturesNV::pNext,
@@ -12396,7 +12396,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePerStageDescriptorSetFeaturesNV
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceImageProcessing2FeaturesQCOM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceImageProcessing2FeaturesQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceImageProcessing2FeaturesQCOM::sType,
                                   vulkan::fields::VkPhysicalDeviceImageProcessing2FeaturesQCOM::pNext,
@@ -12404,7 +12404,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceImageProcessing2FeaturesQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceImageProcessing2PropertiesQCOM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceImageProcessing2PropertiesQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceImageProcessing2PropertiesQCOM::sType,
                                   vulkan::fields::VkPhysicalDeviceImageProcessing2PropertiesQCOM::pNext,
@@ -12412,7 +12412,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceImageProcessing2PropertiesQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSamplerBlockMatchWindowCreateInfoQCOM>
+struct Schema<vulkan::api_elements::VkSamplerBlockMatchWindowCreateInfoQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkSamplerBlockMatchWindowCreateInfoQCOM::sType,
                                   vulkan::fields::VkSamplerBlockMatchWindowCreateInfoQCOM::pNext,
@@ -12421,7 +12421,7 @@ struct Schema<vulkan::api_types::VkSamplerBlockMatchWindowCreateInfoQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceCubicWeightsFeaturesQCOM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceCubicWeightsFeaturesQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceCubicWeightsFeaturesQCOM::sType,
                                   vulkan::fields::VkPhysicalDeviceCubicWeightsFeaturesQCOM::pNext,
@@ -12429,7 +12429,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceCubicWeightsFeaturesQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSamplerCubicWeightsCreateInfoQCOM>
+struct Schema<vulkan::api_elements::VkSamplerCubicWeightsCreateInfoQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkSamplerCubicWeightsCreateInfoQCOM::sType,
                                   vulkan::fields::VkSamplerCubicWeightsCreateInfoQCOM::pNext,
@@ -12437,7 +12437,7 @@ struct Schema<vulkan::api_types::VkSamplerCubicWeightsCreateInfoQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBlitImageCubicWeightsInfoQCOM>
+struct Schema<vulkan::api_elements::VkBlitImageCubicWeightsInfoQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkBlitImageCubicWeightsInfoQCOM::sType,
                                   vulkan::fields::VkBlitImageCubicWeightsInfoQCOM::pNext,
@@ -12445,7 +12445,7 @@ struct Schema<vulkan::api_types::VkBlitImageCubicWeightsInfoQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceYcbcrDegammaFeaturesQCOM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceYcbcrDegammaFeaturesQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceYcbcrDegammaFeaturesQCOM::sType,
                                   vulkan::fields::VkPhysicalDeviceYcbcrDegammaFeaturesQCOM::pNext,
@@ -12453,7 +12453,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceYcbcrDegammaFeaturesQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM>
+struct Schema<vulkan::api_elements::VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM::sType,
                                   vulkan::fields::VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM::pNext,
@@ -12462,7 +12462,7 @@ struct Schema<vulkan::api_types::VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQ
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceCubicClampFeaturesQCOM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceCubicClampFeaturesQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceCubicClampFeaturesQCOM::sType,
                                   vulkan::fields::VkPhysicalDeviceCubicClampFeaturesQCOM::pNext,
@@ -12470,7 +12470,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceCubicClampFeaturesQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT::pNext,
@@ -12478,7 +12478,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceAttachmentFeedbackLoopDynamicSt
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceLayeredDriverPropertiesMSFT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceLayeredDriverPropertiesMSFT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceLayeredDriverPropertiesMSFT::sType,
                                   vulkan::fields::VkPhysicalDeviceLayeredDriverPropertiesMSFT::pNext,
@@ -12486,7 +12486,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceLayeredDriverPropertiesMSFT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV::pNext,
@@ -12494,7 +12494,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDescriptorPoolOverallocationFea
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceTileMemoryHeapFeaturesQCOM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceTileMemoryHeapFeaturesQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceTileMemoryHeapFeaturesQCOM::sType,
                                   vulkan::fields::VkPhysicalDeviceTileMemoryHeapFeaturesQCOM::pNext,
@@ -12502,7 +12502,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceTileMemoryHeapFeaturesQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceTileMemoryHeapPropertiesQCOM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceTileMemoryHeapPropertiesQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceTileMemoryHeapPropertiesQCOM::sType,
                                   vulkan::fields::VkPhysicalDeviceTileMemoryHeapPropertiesQCOM::pNext,
@@ -12511,7 +12511,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceTileMemoryHeapPropertiesQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkTileMemoryRequirementsQCOM>
+struct Schema<vulkan::api_elements::VkTileMemoryRequirementsQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkTileMemoryRequirementsQCOM::sType,
                                   vulkan::fields::VkTileMemoryRequirementsQCOM::pNext,
@@ -12520,7 +12520,7 @@ struct Schema<vulkan::api_types::VkTileMemoryRequirementsQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkTileMemoryBindInfoQCOM>
+struct Schema<vulkan::api_elements::VkTileMemoryBindInfoQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkTileMemoryBindInfoQCOM::sType,
                                   vulkan::fields::VkTileMemoryBindInfoQCOM::pNext,
@@ -12528,7 +12528,7 @@ struct Schema<vulkan::api_types::VkTileMemoryBindInfoQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkTileMemorySizeInfoQCOM>
+struct Schema<vulkan::api_elements::VkTileMemorySizeInfoQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkTileMemorySizeInfoQCOM::sType,
                                   vulkan::fields::VkTileMemorySizeInfoQCOM::pNext,
@@ -12536,7 +12536,7 @@ struct Schema<vulkan::api_types::VkTileMemorySizeInfoQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDecompressMemoryRegionEXT>
+struct Schema<vulkan::api_elements::VkDecompressMemoryRegionEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDecompressMemoryRegionEXT::srcAddress,
                                   vulkan::fields::VkDecompressMemoryRegionEXT::dstAddress,
@@ -12545,7 +12545,7 @@ struct Schema<vulkan::api_types::VkDecompressMemoryRegionEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDecompressMemoryInfoEXT>
+struct Schema<vulkan::api_elements::VkDecompressMemoryInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDecompressMemoryInfoEXT::sType,
                                   vulkan::fields::VkDecompressMemoryInfoEXT::pNext,
@@ -12555,7 +12555,7 @@ struct Schema<vulkan::api_types::VkDecompressMemoryInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMemoryDecompressionFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMemoryDecompressionFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMemoryDecompressionFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceMemoryDecompressionFeaturesEXT::pNext,
@@ -12563,7 +12563,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMemoryDecompressionFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMemoryDecompressionPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMemoryDecompressionPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMemoryDecompressionPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceMemoryDecompressionPropertiesEXT::pNext,
@@ -12572,7 +12572,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMemoryDecompressionPropertiesEX
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDisplaySurfaceStereoCreateInfoNV>
+struct Schema<vulkan::api_elements::VkDisplaySurfaceStereoCreateInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkDisplaySurfaceStereoCreateInfoNV::sType,
                                   vulkan::fields::VkDisplaySurfaceStereoCreateInfoNV::pNext,
@@ -12580,7 +12580,7 @@ struct Schema<vulkan::api_types::VkDisplaySurfaceStereoCreateInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDisplayModeStereoPropertiesNV>
+struct Schema<vulkan::api_elements::VkDisplayModeStereoPropertiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkDisplayModeStereoPropertiesNV::sType,
                                   vulkan::fields::VkDisplayModeStereoPropertiesNV::pNext,
@@ -12588,7 +12588,7 @@ struct Schema<vulkan::api_types::VkDisplayModeStereoPropertiesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceRawAccessChainsFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceRawAccessChainsFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceRawAccessChainsFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceRawAccessChainsFeaturesNV::pNext,
@@ -12596,7 +12596,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceRawAccessChainsFeaturesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceCommandBufferInheritanceFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceCommandBufferInheritanceFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceCommandBufferInheritanceFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceCommandBufferInheritanceFeaturesNV::pNext,
@@ -12604,7 +12604,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceCommandBufferInheritanceFeature
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV::pNext,
@@ -12612,7 +12612,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderAtomicFloat16VectorFeatur
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT::pNext,
@@ -12620,7 +12620,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderReplicatedCompositesFeatu
 };
 
 template <>
-struct Schema<vulkan::api_types::VkTensorRollingBackingCreateInfoARM>
+struct Schema<vulkan::api_elements::VkTensorRollingBackingCreateInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkTensorRollingBackingCreateInfoARM::sType,
                                   vulkan::fields::VkTensorRollingBackingCreateInfoARM::pNext,
@@ -12628,7 +12628,7 @@ struct Schema<vulkan::api_types::VkTensorRollingBackingCreateInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkTensorExplicitTilingFormatPropertiesARM>
+struct Schema<vulkan::api_elements::VkTensorExplicitTilingFormatPropertiesARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkTensorExplicitTilingFormatPropertiesARM::sType,
                                   vulkan::fields::VkTensorExplicitTilingFormatPropertiesARM::pNext,
@@ -12640,7 +12640,7 @@ struct Schema<vulkan::api_types::VkTensorExplicitTilingFormatPropertiesARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderFloat8FeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderFloat8FeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderFloat8FeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderFloat8FeaturesEXT::pNext,
@@ -12649,7 +12649,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderFloat8FeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceRayTracingValidationFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceRayTracingValidationFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceRayTracingValidationFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceRayTracingValidationFeaturesNV::pNext,
@@ -12657,7 +12657,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceRayTracingValidationFeaturesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePartitionedAccelerationStructureFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePartitionedAccelerationStructureFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePartitionedAccelerationStructureFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDevicePartitionedAccelerationStructureFeaturesNV::pNext,
@@ -12665,7 +12665,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePartitionedAccelerationStructur
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePartitionedAccelerationStructurePropertiesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePartitionedAccelerationStructurePropertiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePartitionedAccelerationStructurePropertiesNV::sType,
                                   vulkan::fields::VkPhysicalDevicePartitionedAccelerationStructurePropertiesNV::pNext,
@@ -12673,7 +12673,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePartitionedAccelerationStructur
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPartitionedAccelerationStructureFlagsNV>
+struct Schema<vulkan::api_elements::VkPartitionedAccelerationStructureFlagsNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPartitionedAccelerationStructureFlagsNV::sType,
                                   vulkan::fields::VkPartitionedAccelerationStructureFlagsNV::pNext,
@@ -12681,14 +12681,14 @@ struct Schema<vulkan::api_types::VkPartitionedAccelerationStructureFlagsNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkStridedDeviceAddressNV>
+struct Schema<vulkan::api_elements::VkStridedDeviceAddressNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkStridedDeviceAddressNV::startAddress,
                                   vulkan::fields::VkStridedDeviceAddressNV::strideInBytes>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBuildPartitionedAccelerationStructureIndirectCommandNV>
+struct Schema<vulkan::api_elements::VkBuildPartitionedAccelerationStructureIndirectCommandNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkBuildPartitionedAccelerationStructureIndirectCommandNV::opType,
                                   vulkan::fields::VkBuildPartitionedAccelerationStructureIndirectCommandNV::argCount,
@@ -12696,7 +12696,7 @@ struct Schema<vulkan::api_types::VkBuildPartitionedAccelerationStructureIndirect
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPartitionedAccelerationStructureWriteInstanceDataNV>
+struct Schema<vulkan::api_elements::VkPartitionedAccelerationStructureWriteInstanceDataNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPartitionedAccelerationStructureWriteInstanceDataNV::transform,
                                   vulkan::fields::VkPartitionedAccelerationStructureWriteInstanceDataNV::explicitAABB,
@@ -12710,7 +12710,7 @@ struct Schema<vulkan::api_types::VkPartitionedAccelerationStructureWriteInstance
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPartitionedAccelerationStructureUpdateInstanceDataNV>
+struct Schema<vulkan::api_elements::VkPartitionedAccelerationStructureUpdateInstanceDataNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPartitionedAccelerationStructureUpdateInstanceDataNV::instanceIndex,
                                   vulkan::fields::VkPartitionedAccelerationStructureUpdateInstanceDataNV::instanceContributionToHitGroupIndex,
@@ -12718,14 +12718,14 @@ struct Schema<vulkan::api_types::VkPartitionedAccelerationStructureUpdateInstanc
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPartitionedAccelerationStructureWritePartitionTranslationDataNV>
+struct Schema<vulkan::api_elements::VkPartitionedAccelerationStructureWritePartitionTranslationDataNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPartitionedAccelerationStructureWritePartitionTranslationDataNV::partitionIndex,
                                   vulkan::fields::VkPartitionedAccelerationStructureWritePartitionTranslationDataNV::partitionTranslation>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkWriteDescriptorSetPartitionedAccelerationStructureNV>
+struct Schema<vulkan::api_elements::VkWriteDescriptorSetPartitionedAccelerationStructureNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkWriteDescriptorSetPartitionedAccelerationStructureNV::sType,
                                   vulkan::fields::VkWriteDescriptorSetPartitionedAccelerationStructureNV::pNext,
@@ -12734,7 +12734,7 @@ struct Schema<vulkan::api_types::VkWriteDescriptorSetPartitionedAccelerationStru
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPartitionedAccelerationStructureInstancesInputNV>
+struct Schema<vulkan::api_elements::VkPartitionedAccelerationStructureInstancesInputNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPartitionedAccelerationStructureInstancesInputNV::sType,
                                   vulkan::fields::VkPartitionedAccelerationStructureInstancesInputNV::pNext,
@@ -12746,7 +12746,7 @@ struct Schema<vulkan::api_types::VkPartitionedAccelerationStructureInstancesInpu
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBuildPartitionedAccelerationStructureInfoNV>
+struct Schema<vulkan::api_elements::VkBuildPartitionedAccelerationStructureInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkBuildPartitionedAccelerationStructureInfoNV::sType,
                                   vulkan::fields::VkBuildPartitionedAccelerationStructureInfoNV::pNext,
@@ -12759,7 +12759,7 @@ struct Schema<vulkan::api_types::VkBuildPartitionedAccelerationStructureInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureBuildSizesInfoKHR>
+struct Schema<vulkan::api_elements::VkAccelerationStructureBuildSizesInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureBuildSizesInfoKHR::sType,
                                   vulkan::fields::VkAccelerationStructureBuildSizesInfoKHR::pNext,
@@ -12769,7 +12769,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureBuildSizesInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT::pNext,
@@ -12778,7 +12778,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDeviceGeneratedCommandsFeatures
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT::pNext,
@@ -12797,7 +12797,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDeviceGeneratedCommandsProperti
 };
 
 template <>
-struct Schema<vulkan::api_types::VkGeneratedCommandsMemoryRequirementsInfoEXT>
+struct Schema<vulkan::api_elements::VkGeneratedCommandsMemoryRequirementsInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkGeneratedCommandsMemoryRequirementsInfoEXT::sType,
                                   vulkan::fields::VkGeneratedCommandsMemoryRequirementsInfoEXT::pNext,
@@ -12808,7 +12808,7 @@ struct Schema<vulkan::api_types::VkGeneratedCommandsMemoryRequirementsInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkIndirectExecutionSetPipelineInfoEXT>
+struct Schema<vulkan::api_elements::VkIndirectExecutionSetPipelineInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkIndirectExecutionSetPipelineInfoEXT::sType,
                                   vulkan::fields::VkIndirectExecutionSetPipelineInfoEXT::pNext,
@@ -12817,7 +12817,7 @@ struct Schema<vulkan::api_types::VkIndirectExecutionSetPipelineInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkIndirectExecutionSetShaderLayoutInfoEXT>
+struct Schema<vulkan::api_elements::VkIndirectExecutionSetShaderLayoutInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkIndirectExecutionSetShaderLayoutInfoEXT::sType,
                                   vulkan::fields::VkIndirectExecutionSetShaderLayoutInfoEXT::pNext,
@@ -12826,7 +12826,7 @@ struct Schema<vulkan::api_types::VkIndirectExecutionSetShaderLayoutInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkIndirectExecutionSetShaderInfoEXT>
+struct Schema<vulkan::api_elements::VkIndirectExecutionSetShaderInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkIndirectExecutionSetShaderInfoEXT::sType,
                                   vulkan::fields::VkIndirectExecutionSetShaderInfoEXT::pNext,
@@ -12839,7 +12839,7 @@ struct Schema<vulkan::api_types::VkIndirectExecutionSetShaderInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkIndirectExecutionSetCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkIndirectExecutionSetCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkIndirectExecutionSetCreateInfoEXT::sType,
                                   vulkan::fields::VkIndirectExecutionSetCreateInfoEXT::pNext,
@@ -12848,7 +12848,7 @@ struct Schema<vulkan::api_types::VkIndirectExecutionSetCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkGeneratedCommandsInfoEXT>
+struct Schema<vulkan::api_elements::VkGeneratedCommandsInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkGeneratedCommandsInfoEXT::sType,
                                   vulkan::fields::VkGeneratedCommandsInfoEXT::pNext,
@@ -12865,7 +12865,7 @@ struct Schema<vulkan::api_types::VkGeneratedCommandsInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkWriteIndirectExecutionSetPipelineEXT>
+struct Schema<vulkan::api_elements::VkWriteIndirectExecutionSetPipelineEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkWriteIndirectExecutionSetPipelineEXT::sType,
                                   vulkan::fields::VkWriteIndirectExecutionSetPipelineEXT::pNext,
@@ -12874,32 +12874,32 @@ struct Schema<vulkan::api_types::VkWriteIndirectExecutionSetPipelineEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkIndirectCommandsPushConstantTokenEXT>
+struct Schema<vulkan::api_elements::VkIndirectCommandsPushConstantTokenEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkIndirectCommandsPushConstantTokenEXT::updateRange>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkIndirectCommandsVertexBufferTokenEXT>
+struct Schema<vulkan::api_elements::VkIndirectCommandsVertexBufferTokenEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkIndirectCommandsVertexBufferTokenEXT::vertexBindingUnit>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkIndirectCommandsIndexBufferTokenEXT>
+struct Schema<vulkan::api_elements::VkIndirectCommandsIndexBufferTokenEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkIndirectCommandsIndexBufferTokenEXT::mode>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkIndirectCommandsExecutionSetTokenEXT>
+struct Schema<vulkan::api_elements::VkIndirectCommandsExecutionSetTokenEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkIndirectCommandsExecutionSetTokenEXT::type,
                                   vulkan::fields::VkIndirectCommandsExecutionSetTokenEXT::shaderStages>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkIndirectCommandsLayoutTokenEXT>
+struct Schema<vulkan::api_elements::VkIndirectCommandsLayoutTokenEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkIndirectCommandsLayoutTokenEXT::sType,
                                   vulkan::fields::VkIndirectCommandsLayoutTokenEXT::pNext,
@@ -12909,7 +12909,7 @@ struct Schema<vulkan::api_types::VkIndirectCommandsLayoutTokenEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkIndirectCommandsLayoutCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkIndirectCommandsLayoutCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkIndirectCommandsLayoutCreateInfoEXT::sType,
                                   vulkan::fields::VkIndirectCommandsLayoutCreateInfoEXT::pNext,
@@ -12922,7 +12922,7 @@ struct Schema<vulkan::api_types::VkIndirectCommandsLayoutCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDrawIndirectCountIndirectCommandEXT>
+struct Schema<vulkan::api_elements::VkDrawIndirectCountIndirectCommandEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDrawIndirectCountIndirectCommandEXT::bufferAddress,
                                   vulkan::fields::VkDrawIndirectCountIndirectCommandEXT::stride,
@@ -12930,7 +12930,7 @@ struct Schema<vulkan::api_types::VkDrawIndirectCountIndirectCommandEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBindVertexBufferIndirectCommandEXT>
+struct Schema<vulkan::api_elements::VkBindVertexBufferIndirectCommandEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkBindVertexBufferIndirectCommandEXT::bufferAddress,
                                   vulkan::fields::VkBindVertexBufferIndirectCommandEXT::size,
@@ -12938,7 +12938,7 @@ struct Schema<vulkan::api_types::VkBindVertexBufferIndirectCommandEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBindIndexBufferIndirectCommandEXT>
+struct Schema<vulkan::api_elements::VkBindIndexBufferIndirectCommandEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkBindIndexBufferIndirectCommandEXT::bufferAddress,
                                   vulkan::fields::VkBindIndexBufferIndirectCommandEXT::size,
@@ -12946,7 +12946,7 @@ struct Schema<vulkan::api_types::VkBindIndexBufferIndirectCommandEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkGeneratedCommandsPipelineInfoEXT>
+struct Schema<vulkan::api_elements::VkGeneratedCommandsPipelineInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkGeneratedCommandsPipelineInfoEXT::sType,
                                   vulkan::fields::VkGeneratedCommandsPipelineInfoEXT::pNext,
@@ -12954,7 +12954,7 @@ struct Schema<vulkan::api_types::VkGeneratedCommandsPipelineInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkGeneratedCommandsShaderInfoEXT>
+struct Schema<vulkan::api_elements::VkGeneratedCommandsShaderInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkGeneratedCommandsShaderInfoEXT::sType,
                                   vulkan::fields::VkGeneratedCommandsShaderInfoEXT::pNext,
@@ -12963,7 +12963,7 @@ struct Schema<vulkan::api_types::VkGeneratedCommandsShaderInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkWriteIndirectExecutionSetShaderEXT>
+struct Schema<vulkan::api_elements::VkWriteIndirectExecutionSetShaderEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkWriteIndirectExecutionSetShaderEXT::sType,
                                   vulkan::fields::VkWriteIndirectExecutionSetShaderEXT::pNext,
@@ -12972,7 +12972,7 @@ struct Schema<vulkan::api_types::VkWriteIndirectExecutionSetShaderEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceImageAlignmentControlFeaturesMESA>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceImageAlignmentControlFeaturesMESA>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceImageAlignmentControlFeaturesMESA::sType,
                                   vulkan::fields::VkPhysicalDeviceImageAlignmentControlFeaturesMESA::pNext,
@@ -12980,7 +12980,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceImageAlignmentControlFeaturesME
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceImageAlignmentControlPropertiesMESA>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceImageAlignmentControlPropertiesMESA>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceImageAlignmentControlPropertiesMESA::sType,
                                   vulkan::fields::VkPhysicalDeviceImageAlignmentControlPropertiesMESA::pNext,
@@ -12988,7 +12988,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceImageAlignmentControlProperties
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageAlignmentControlCreateInfoMESA>
+struct Schema<vulkan::api_elements::VkImageAlignmentControlCreateInfoMESA>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageAlignmentControlCreateInfoMESA::sType,
                                   vulkan::fields::VkImageAlignmentControlCreateInfoMESA::pNext,
@@ -12996,7 +12996,7 @@ struct Schema<vulkan::api_types::VkImageAlignmentControlCreateInfoMESA>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPushConstantBankInfoNV>
+struct Schema<vulkan::api_elements::VkPushConstantBankInfoNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPushConstantBankInfoNV::sType,
                                   vulkan::fields::VkPushConstantBankInfoNV::pNext,
@@ -13004,7 +13004,7 @@ struct Schema<vulkan::api_types::VkPushConstantBankInfoNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePushConstantBankFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePushConstantBankFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePushConstantBankFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDevicePushConstantBankFeaturesNV::pNext,
@@ -13012,7 +13012,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePushConstantBankFeaturesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePushConstantBankPropertiesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePushConstantBankPropertiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePushConstantBankPropertiesNV::sType,
                                   vulkan::fields::VkPhysicalDevicePushConstantBankPropertiesNV::pNext,
@@ -13023,7 +13023,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePushConstantBankPropertiesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceRayTracingInvocationReorderPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceRayTracingInvocationReorderPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceRayTracingInvocationReorderPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceRayTracingInvocationReorderPropertiesEXT::pNext,
@@ -13032,7 +13032,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceRayTracingInvocationReorderProp
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT::pNext,
@@ -13040,7 +13040,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceRayTracingInvocationReorderFeat
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDepthClampControlFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDepthClampControlFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDepthClampControlFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceDepthClampControlFeaturesEXT::pNext,
@@ -13048,7 +13048,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDepthClampControlFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineViewportDepthClampControlCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkPipelineViewportDepthClampControlCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineViewportDepthClampControlCreateInfoEXT::sType,
                                   vulkan::fields::VkPipelineViewportDepthClampControlCreateInfoEXT::pNext,
@@ -13057,7 +13057,7 @@ struct Schema<vulkan::api_types::VkPipelineViewportDepthClampControlCreateInfoEX
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceHdrVividFeaturesHUAWEI>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceHdrVividFeaturesHUAWEI>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceHdrVividFeaturesHUAWEI::sType,
                                   vulkan::fields::VkPhysicalDeviceHdrVividFeaturesHUAWEI::pNext,
@@ -13065,7 +13065,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceHdrVividFeaturesHUAWEI>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkHdrVividDynamicMetadataHUAWEI>
+struct Schema<vulkan::api_elements::VkHdrVividDynamicMetadataHUAWEI>
 {
     using Fields = util::TypeList<vulkan::fields::VkHdrVividDynamicMetadataHUAWEI::sType,
                                   vulkan::fields::VkHdrVividDynamicMetadataHUAWEI::pNext,
@@ -13074,7 +13074,7 @@ struct Schema<vulkan::api_types::VkHdrVividDynamicMetadataHUAWEI>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCooperativeMatrixFlexibleDimensionsPropertiesNV>
+struct Schema<vulkan::api_elements::VkCooperativeMatrixFlexibleDimensionsPropertiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkCooperativeMatrixFlexibleDimensionsPropertiesNV::sType,
                                   vulkan::fields::VkCooperativeMatrixFlexibleDimensionsPropertiesNV::pNext,
@@ -13091,7 +13091,7 @@ struct Schema<vulkan::api_types::VkCooperativeMatrixFlexibleDimensionsProperties
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceCooperativeMatrix2FeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceCooperativeMatrix2FeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceCooperativeMatrix2FeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceCooperativeMatrix2FeaturesNV::pNext,
@@ -13105,7 +13105,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceCooperativeMatrix2FeaturesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceCooperativeMatrix2PropertiesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceCooperativeMatrix2PropertiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceCooperativeMatrix2PropertiesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceCooperativeMatrix2PropertiesNV::pNext,
@@ -13115,7 +13115,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceCooperativeMatrix2PropertiesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePipelineOpacityMicromapFeaturesARM>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePipelineOpacityMicromapFeaturesARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePipelineOpacityMicromapFeaturesARM::sType,
                                   vulkan::fields::VkPhysicalDevicePipelineOpacityMicromapFeaturesARM::pNext,
@@ -13123,7 +13123,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePipelineOpacityMicromapFeatures
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImportMemoryMetalHandleInfoEXT>
+struct Schema<vulkan::api_elements::VkImportMemoryMetalHandleInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkImportMemoryMetalHandleInfoEXT::sType,
                                   vulkan::fields::VkImportMemoryMetalHandleInfoEXT::pNext,
@@ -13132,7 +13132,7 @@ struct Schema<vulkan::api_types::VkImportMemoryMetalHandleInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryMetalHandlePropertiesEXT>
+struct Schema<vulkan::api_elements::VkMemoryMetalHandlePropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryMetalHandlePropertiesEXT::sType,
                                   vulkan::fields::VkMemoryMetalHandlePropertiesEXT::pNext,
@@ -13140,7 +13140,7 @@ struct Schema<vulkan::api_types::VkMemoryMetalHandlePropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkMemoryGetMetalHandleInfoEXT>
+struct Schema<vulkan::api_elements::VkMemoryGetMetalHandleInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkMemoryGetMetalHandleInfoEXT::sType,
                                   vulkan::fields::VkMemoryGetMetalHandleInfoEXT::pNext,
@@ -13149,7 +13149,7 @@ struct Schema<vulkan::api_types::VkMemoryGetMetalHandleInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePerformanceCountersByRegionFeaturesARM>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePerformanceCountersByRegionFeaturesARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePerformanceCountersByRegionFeaturesARM::sType,
                                   vulkan::fields::VkPhysicalDevicePerformanceCountersByRegionFeaturesARM::pNext,
@@ -13157,7 +13157,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePerformanceCountersByRegionFeat
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePerformanceCountersByRegionPropertiesARM>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePerformanceCountersByRegionPropertiesARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePerformanceCountersByRegionPropertiesARM::sType,
                                   vulkan::fields::VkPhysicalDevicePerformanceCountersByRegionPropertiesARM::pNext,
@@ -13169,7 +13169,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePerformanceCountersByRegionProp
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPerformanceCounterARM>
+struct Schema<vulkan::api_elements::VkPerformanceCounterARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPerformanceCounterARM::sType,
                                   vulkan::fields::VkPerformanceCounterARM::pNext,
@@ -13177,7 +13177,7 @@ struct Schema<vulkan::api_types::VkPerformanceCounterARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPerformanceCounterDescriptionARM>
+struct Schema<vulkan::api_elements::VkPerformanceCounterDescriptionARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPerformanceCounterDescriptionARM::sType,
                                   vulkan::fields::VkPerformanceCounterDescriptionARM::pNext,
@@ -13186,7 +13186,7 @@ struct Schema<vulkan::api_types::VkPerformanceCounterDescriptionARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRenderPassPerformanceCountersByRegionBeginInfoARM>
+struct Schema<vulkan::api_elements::VkRenderPassPerformanceCountersByRegionBeginInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkRenderPassPerformanceCountersByRegionBeginInfoARM::sType,
                                   vulkan::fields::VkRenderPassPerformanceCountersByRegionBeginInfoARM::pNext,
@@ -13198,7 +13198,7 @@ struct Schema<vulkan::api_types::VkRenderPassPerformanceCountersByRegionBeginInf
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT::pNext,
@@ -13206,7 +13206,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceVertexAttributeRobustnessFeatur
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceFormatPackFeaturesARM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceFormatPackFeaturesARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceFormatPackFeaturesARM::sType,
                                   vulkan::fields::VkPhysicalDeviceFormatPackFeaturesARM::pNext,
@@ -13214,7 +13214,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceFormatPackFeaturesARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE::sType,
                                   vulkan::fields::VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE::pNext,
@@ -13222,7 +13222,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentDensityMapLayeredFeatur
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentDensityMapLayeredPropertiesVALVE>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceFragmentDensityMapLayeredPropertiesVALVE>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceFragmentDensityMapLayeredPropertiesVALVE::sType,
                                   vulkan::fields::VkPhysicalDeviceFragmentDensityMapLayeredPropertiesVALVE::pNext,
@@ -13230,7 +13230,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceFragmentDensityMapLayeredProper
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineFragmentDensityMapLayeredCreateInfoVALVE>
+struct Schema<vulkan::api_elements::VkPipelineFragmentDensityMapLayeredCreateInfoVALVE>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineFragmentDensityMapLayeredCreateInfoVALVE::sType,
                                   vulkan::fields::VkPipelineFragmentDensityMapLayeredCreateInfoVALVE::pNext,
@@ -13238,7 +13238,7 @@ struct Schema<vulkan::api_types::VkPipelineFragmentDensityMapLayeredCreateInfoVA
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSetPresentConfigNV>
+struct Schema<vulkan::api_elements::VkSetPresentConfigNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkSetPresentConfigNV::sType,
                                   vulkan::fields::VkSetPresentConfigNV::pNext,
@@ -13247,7 +13247,7 @@ struct Schema<vulkan::api_types::VkSetPresentConfigNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePresentMeteringFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePresentMeteringFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePresentMeteringFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDevicePresentMeteringFeaturesNV::pNext,
@@ -13255,7 +13255,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePresentMeteringFeaturesNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT::pNext,
@@ -13263,7 +13263,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMultisampledRenderToSwapchainFe
 };
 
 template <>
-struct Schema<vulkan::api_types::VkSwapchainFlagsSurfaceCapabilitiesEXT>
+struct Schema<vulkan::api_elements::VkSwapchainFlagsSurfaceCapabilitiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkSwapchainFlagsSurfaceCapabilitiesEXT::sType,
                                   vulkan::fields::VkSwapchainFlagsSurfaceCapabilitiesEXT::pNext,
@@ -13271,7 +13271,7 @@ struct Schema<vulkan::api_types::VkSwapchainFlagsSurfaceCapabilitiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT::pNext,
@@ -13279,7 +13279,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceZeroInitializeDeviceMemoryFeatu
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShader64BitIndexingFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShader64BitIndexingFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShader64BitIndexingFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceShader64BitIndexingFeaturesEXT::pNext,
@@ -13287,7 +13287,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShader64BitIndexingFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceCustomResolveFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceCustomResolveFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceCustomResolveFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceCustomResolveFeaturesEXT::pNext,
@@ -13295,14 +13295,14 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceCustomResolveFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBeginCustomResolveInfoEXT>
+struct Schema<vulkan::api_elements::VkBeginCustomResolveInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkBeginCustomResolveInfoEXT::sType,
                                   vulkan::fields::VkBeginCustomResolveInfoEXT::pNext>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCustomResolveCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkCustomResolveCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkCustomResolveCreateInfoEXT::sType,
                                   vulkan::fields::VkCustomResolveCreateInfoEXT::pNext,
@@ -13314,7 +13314,7 @@ struct Schema<vulkan::api_types::VkCustomResolveCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineCacheHeaderVersionDataGraphQCOM>
+struct Schema<vulkan::api_elements::VkPipelineCacheHeaderVersionDataGraphQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPipelineCacheHeaderVersionDataGraphQCOM::headerSize,
                                   vulkan::fields::VkPipelineCacheHeaderVersionDataGraphQCOM::headerVersion,
@@ -13324,7 +13324,7 @@ struct Schema<vulkan::api_types::VkPipelineCacheHeaderVersionDataGraphQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDataGraphPipelineBuiltinModelCreateInfoQCOM>
+struct Schema<vulkan::api_elements::VkDataGraphPipelineBuiltinModelCreateInfoQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDataGraphPipelineBuiltinModelCreateInfoQCOM::sType,
                                   vulkan::fields::VkDataGraphPipelineBuiltinModelCreateInfoQCOM::pNext,
@@ -13332,7 +13332,7 @@ struct Schema<vulkan::api_types::VkDataGraphPipelineBuiltinModelCreateInfoQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDataGraphModelFeaturesQCOM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDataGraphModelFeaturesQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDataGraphModelFeaturesQCOM::sType,
                                   vulkan::fields::VkPhysicalDeviceDataGraphModelFeaturesQCOM::pNext,
@@ -13340,7 +13340,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDataGraphModelFeaturesQCOM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM::sType,
                                   vulkan::fields::VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM::pNext,
@@ -13348,7 +13348,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM
 };
 
 template <>
-struct Schema<vulkan::api_types::VkQueueFamilyDataGraphOpticalFlowPropertiesARM>
+struct Schema<vulkan::api_elements::VkQueueFamilyDataGraphOpticalFlowPropertiesARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkQueueFamilyDataGraphOpticalFlowPropertiesARM::sType,
                                   vulkan::fields::VkQueueFamilyDataGraphOpticalFlowPropertiesARM::pNext,
@@ -13363,7 +13363,7 @@ struct Schema<vulkan::api_types::VkQueueFamilyDataGraphOpticalFlowPropertiesARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDataGraphPipelineOpticalFlowCreateInfoARM>
+struct Schema<vulkan::api_elements::VkDataGraphPipelineOpticalFlowCreateInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDataGraphPipelineOpticalFlowCreateInfoARM::sType,
                                   vulkan::fields::VkDataGraphPipelineOpticalFlowCreateInfoARM::pNext,
@@ -13379,7 +13379,7 @@ struct Schema<vulkan::api_types::VkDataGraphPipelineOpticalFlowCreateInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDataGraphOpticalFlowImageFormatPropertiesARM>
+struct Schema<vulkan::api_elements::VkDataGraphOpticalFlowImageFormatPropertiesARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDataGraphOpticalFlowImageFormatPropertiesARM::sType,
                                   vulkan::fields::VkDataGraphOpticalFlowImageFormatPropertiesARM::pNext,
@@ -13387,7 +13387,7 @@ struct Schema<vulkan::api_types::VkDataGraphOpticalFlowImageFormatPropertiesARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDataGraphOpticalFlowImageFormatInfoARM>
+struct Schema<vulkan::api_elements::VkDataGraphOpticalFlowImageFormatInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDataGraphOpticalFlowImageFormatInfoARM::sType,
                                   vulkan::fields::VkDataGraphOpticalFlowImageFormatInfoARM::pNext,
@@ -13395,7 +13395,7 @@ struct Schema<vulkan::api_types::VkDataGraphOpticalFlowImageFormatInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDataGraphPipelineOpticalFlowDispatchInfoARM>
+struct Schema<vulkan::api_elements::VkDataGraphPipelineOpticalFlowDispatchInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDataGraphPipelineOpticalFlowDispatchInfoARM::sType,
                                   vulkan::fields::VkDataGraphPipelineOpticalFlowDispatchInfoARM::pNext,
@@ -13404,7 +13404,7 @@ struct Schema<vulkan::api_types::VkDataGraphPipelineOpticalFlowDispatchInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDataGraphPipelineResourceInfoImageLayoutARM>
+struct Schema<vulkan::api_elements::VkDataGraphPipelineResourceInfoImageLayoutARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDataGraphPipelineResourceInfoImageLayoutARM::sType,
                                   vulkan::fields::VkDataGraphPipelineResourceInfoImageLayoutARM::pNext,
@@ -13412,7 +13412,7 @@ struct Schema<vulkan::api_types::VkDataGraphPipelineResourceInfoImageLayoutARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDataGraphPipelineSingleNodeConnectionARM>
+struct Schema<vulkan::api_elements::VkDataGraphPipelineSingleNodeConnectionARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDataGraphPipelineSingleNodeConnectionARM::sType,
                                   vulkan::fields::VkDataGraphPipelineSingleNodeConnectionARM::pNext,
@@ -13422,7 +13422,7 @@ struct Schema<vulkan::api_types::VkDataGraphPipelineSingleNodeConnectionARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDataGraphPipelineSingleNodeCreateInfoARM>
+struct Schema<vulkan::api_elements::VkDataGraphPipelineSingleNodeCreateInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDataGraphPipelineSingleNodeCreateInfoARM::sType,
                                   vulkan::fields::VkDataGraphPipelineSingleNodeCreateInfoARM::pNext,
@@ -13432,7 +13432,7 @@ struct Schema<vulkan::api_types::VkDataGraphPipelineSingleNodeCreateInfoARM>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderLongVectorFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderLongVectorFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderLongVectorFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderLongVectorFeaturesEXT::pNext,
@@ -13440,7 +13440,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderLongVectorFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderLongVectorPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderLongVectorPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderLongVectorPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderLongVectorPropertiesEXT::pNext,
@@ -13448,7 +13448,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderLongVectorPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC::sType,
                                   vulkan::fields::VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC::pNext,
@@ -13456,7 +13456,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePipelineCacheIncrementalModeFea
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderUniformBufferUnsizedArrayFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderUniformBufferUnsizedArrayFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderUniformBufferUnsizedArrayFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderUniformBufferUnsizedArrayFeaturesEXT::pNext,
@@ -13464,7 +13464,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderUniformBufferUnsizedArray
 };
 
 template <>
-struct Schema<vulkan::api_types::VkComputeOccupancyPriorityParametersNV>
+struct Schema<vulkan::api_elements::VkComputeOccupancyPriorityParametersNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkComputeOccupancyPriorityParametersNV::sType,
                                   vulkan::fields::VkComputeOccupancyPriorityParametersNV::pNext,
@@ -13473,7 +13473,7 @@ struct Schema<vulkan::api_types::VkComputeOccupancyPriorityParametersNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV::pNext,
@@ -13481,7 +13481,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceComputeOccupancyPriorityFeature
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCooperativeMatrixProperties2EXT>
+struct Schema<vulkan::api_elements::VkCooperativeMatrixProperties2EXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkCooperativeMatrixProperties2EXT::sType,
                                   vulkan::fields::VkCooperativeMatrixProperties2EXT::pNext,
@@ -13495,7 +13495,7 @@ struct Schema<vulkan::api_types::VkCooperativeMatrixProperties2EXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceCooperativeMatrixInfo2EXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceCooperativeMatrixInfo2EXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceCooperativeMatrixInfo2EXT::sType,
                                   vulkan::fields::VkPhysicalDeviceCooperativeMatrixInfo2EXT::pNext,
@@ -13506,7 +13506,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceCooperativeMatrixInfo2EXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT::pNext,
@@ -13518,7 +13518,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceCooperativeMatrixMaintenance1Fe
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT::pNext,
@@ -13526,7 +13526,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderSubgroupPartitionedFeatur
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT::pNext,
@@ -13537,7 +13537,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderOCPMicroscalingTypesFeatu
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE::sType,
                                   vulkan::fields::VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE::pNext,
@@ -13548,7 +13548,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceShaderMixedFloatDotProductFeatu
 };
 
 template <>
-struct Schema<vulkan::api_types::VkThrottleHintSubmitInfoSEC>
+struct Schema<vulkan::api_elements::VkThrottleHintSubmitInfoSEC>
 {
     using Fields = util::TypeList<vulkan::fields::VkThrottleHintSubmitInfoSEC::sType,
                                   vulkan::fields::VkThrottleHintSubmitInfoSEC::pNext,
@@ -13556,7 +13556,7 @@ struct Schema<vulkan::api_types::VkThrottleHintSubmitInfoSEC>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceThrottleHintFeaturesSEC>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceThrottleHintFeaturesSEC>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceThrottleHintFeaturesSEC::sType,
                                   vulkan::fields::VkPhysicalDeviceThrottleHintFeaturesSEC::pNext,
@@ -13564,7 +13564,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceThrottleHintFeaturesSEC>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM::sType,
                                   vulkan::fields::VkPhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM::pNext,
@@ -13572,7 +13572,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceDataGraphNeuralAcceleratorStati
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDataGraphPipelineNeuralStatisticsCreateInfoARM>
+struct Schema<vulkan::api_elements::VkDataGraphPipelineNeuralStatisticsCreateInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDataGraphPipelineNeuralStatisticsCreateInfoARM::sType,
                                   vulkan::fields::VkDataGraphPipelineNeuralStatisticsCreateInfoARM::pNext,
@@ -13580,7 +13580,7 @@ struct Schema<vulkan::api_types::VkDataGraphPipelineNeuralStatisticsCreateInfoAR
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDataGraphPipelineSessionNeuralStatisticsCreateInfoARM>
+struct Schema<vulkan::api_elements::VkDataGraphPipelineSessionNeuralStatisticsCreateInfoARM>
 {
     using Fields = util::TypeList<vulkan::fields::VkDataGraphPipelineSessionNeuralStatisticsCreateInfoARM::sType,
                                   vulkan::fields::VkDataGraphPipelineSessionNeuralStatisticsCreateInfoARM::pNext,
@@ -13588,7 +13588,7 @@ struct Schema<vulkan::api_types::VkDataGraphPipelineSessionNeuralStatisticsCreat
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT::pNext,
@@ -13596,7 +13596,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePrimitiveRestartIndexFeaturesEX
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceImageTilingControlFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceImageTilingControlFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceImageTilingControlFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceImageTilingControlFeaturesEXT::pNext,
@@ -13604,7 +13604,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceImageTilingControlFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkImageTilingControlCreateInfoEXT>
+struct Schema<vulkan::api_elements::VkImageTilingControlCreateInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkImageTilingControlCreateInfoEXT::sType,
                                   vulkan::fields::VkImageTilingControlCreateInfoEXT::pNext,
@@ -13612,7 +13612,7 @@ struct Schema<vulkan::api_types::VkImageTilingControlCreateInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV::pNext,
@@ -13620,7 +13620,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceCooperativeMatrixDecodeVectorFe
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDevicePrivateDataBaseHandleFeaturesNV>
+struct Schema<vulkan::api_elements::VkPhysicalDevicePrivateDataBaseHandleFeaturesNV>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDevicePrivateDataBaseHandleFeaturesNV::sType,
                                   vulkan::fields::VkPhysicalDevicePrivateDataBaseHandleFeaturesNV::pNext,
@@ -13628,7 +13628,7 @@ struct Schema<vulkan::api_types::VkPhysicalDevicePrivateDataBaseHandleFeaturesNV
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceInfoPropertiesINTEL>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceInfoPropertiesINTEL>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceInfoPropertiesINTEL::sType,
                                   vulkan::fields::VkPhysicalDeviceInfoPropertiesINTEL::pNext,
@@ -13638,7 +13638,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceInfoPropertiesINTEL>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE::sType,
                                   vulkan::fields::VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE::pNext,
@@ -13646,7 +13646,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceBufferDeviceAddressAllocationAl
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE::sType,
                                   vulkan::fields::VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE::pNext,
@@ -13654,7 +13654,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceBufferDeviceAddressAllocationAl
 };
 
 template <>
-struct Schema<vulkan::api_types::VkBufferDeviceAddressAlignmentAllocateInfoVALVE>
+struct Schema<vulkan::api_elements::VkBufferDeviceAddressAlignmentAllocateInfoVALVE>
 {
     using Fields = util::TypeList<vulkan::fields::VkBufferDeviceAddressAlignmentAllocateInfoVALVE::sType,
                                   vulkan::fields::VkBufferDeviceAddressAlignmentAllocateInfoVALVE::pNext,
@@ -13662,7 +13662,7 @@ struct Schema<vulkan::api_types::VkBufferDeviceAddressAlignmentAllocateInfoVALVE
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureBuildRangeInfoKHR>
+struct Schema<vulkan::api_elements::VkAccelerationStructureBuildRangeInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureBuildRangeInfoKHR::primitiveCount,
                                   vulkan::fields::VkAccelerationStructureBuildRangeInfoKHR::primitiveOffset,
@@ -13671,7 +13671,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureBuildRangeInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureGeometryTrianglesDataKHR>
+struct Schema<vulkan::api_elements::VkAccelerationStructureGeometryTrianglesDataKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureGeometryTrianglesDataKHR::sType,
                                   vulkan::fields::VkAccelerationStructureGeometryTrianglesDataKHR::pNext,
@@ -13685,7 +13685,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureGeometryTrianglesDataKHR
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureGeometryAabbsDataKHR>
+struct Schema<vulkan::api_elements::VkAccelerationStructureGeometryAabbsDataKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureGeometryAabbsDataKHR::sType,
                                   vulkan::fields::VkAccelerationStructureGeometryAabbsDataKHR::pNext,
@@ -13694,7 +13694,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureGeometryAabbsDataKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureGeometryInstancesDataKHR>
+struct Schema<vulkan::api_elements::VkAccelerationStructureGeometryInstancesDataKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureGeometryInstancesDataKHR::sType,
                                   vulkan::fields::VkAccelerationStructureGeometryInstancesDataKHR::pNext,
@@ -13703,7 +13703,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureGeometryInstancesDataKHR
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureGeometryKHR>
+struct Schema<vulkan::api_elements::VkAccelerationStructureGeometryKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureGeometryKHR::sType,
                                   vulkan::fields::VkAccelerationStructureGeometryKHR::pNext,
@@ -13713,7 +13713,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureGeometryKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureBuildGeometryInfoKHR>
+struct Schema<vulkan::api_elements::VkAccelerationStructureBuildGeometryInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureBuildGeometryInfoKHR::sType,
                                   vulkan::fields::VkAccelerationStructureBuildGeometryInfoKHR::pNext,
@@ -13729,7 +13729,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureBuildGeometryInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkAccelerationStructureCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureCreateInfoKHR::sType,
                                   vulkan::fields::VkAccelerationStructureCreateInfoKHR::pNext,
@@ -13742,7 +13742,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureCreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkWriteDescriptorSetAccelerationStructureKHR>
+struct Schema<vulkan::api_elements::VkWriteDescriptorSetAccelerationStructureKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkWriteDescriptorSetAccelerationStructureKHR::sType,
                                   vulkan::fields::VkWriteDescriptorSetAccelerationStructureKHR::pNext,
@@ -13751,7 +13751,7 @@ struct Schema<vulkan::api_types::VkWriteDescriptorSetAccelerationStructureKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceAccelerationStructureFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceAccelerationStructureFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceAccelerationStructureFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceAccelerationStructureFeaturesKHR::pNext,
@@ -13763,7 +13763,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceAccelerationStructureFeaturesKH
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceAccelerationStructurePropertiesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceAccelerationStructurePropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceAccelerationStructurePropertiesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceAccelerationStructurePropertiesKHR::pNext,
@@ -13778,7 +13778,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceAccelerationStructureProperties
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureDeviceAddressInfoKHR>
+struct Schema<vulkan::api_elements::VkAccelerationStructureDeviceAddressInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureDeviceAddressInfoKHR::sType,
                                   vulkan::fields::VkAccelerationStructureDeviceAddressInfoKHR::pNext,
@@ -13786,7 +13786,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureDeviceAddressInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureVersionInfoKHR>
+struct Schema<vulkan::api_elements::VkAccelerationStructureVersionInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkAccelerationStructureVersionInfoKHR::sType,
                                   vulkan::fields::VkAccelerationStructureVersionInfoKHR::pNext,
@@ -13794,7 +13794,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureVersionInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCopyAccelerationStructureToMemoryInfoKHR>
+struct Schema<vulkan::api_elements::VkCopyAccelerationStructureToMemoryInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkCopyAccelerationStructureToMemoryInfoKHR::sType,
                                   vulkan::fields::VkCopyAccelerationStructureToMemoryInfoKHR::pNext,
@@ -13804,7 +13804,7 @@ struct Schema<vulkan::api_types::VkCopyAccelerationStructureToMemoryInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCopyMemoryToAccelerationStructureInfoKHR>
+struct Schema<vulkan::api_elements::VkCopyMemoryToAccelerationStructureInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkCopyMemoryToAccelerationStructureInfoKHR::sType,
                                   vulkan::fields::VkCopyMemoryToAccelerationStructureInfoKHR::pNext,
@@ -13814,7 +13814,7 @@ struct Schema<vulkan::api_types::VkCopyMemoryToAccelerationStructureInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkCopyAccelerationStructureInfoKHR>
+struct Schema<vulkan::api_elements::VkCopyAccelerationStructureInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkCopyAccelerationStructureInfoKHR::sType,
                                   vulkan::fields::VkCopyAccelerationStructureInfoKHR::pNext,
@@ -13824,7 +13824,7 @@ struct Schema<vulkan::api_types::VkCopyAccelerationStructureInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRayTracingShaderGroupCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkRayTracingShaderGroupCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkRayTracingShaderGroupCreateInfoKHR::sType,
                                   vulkan::fields::VkRayTracingShaderGroupCreateInfoKHR::pNext,
@@ -13837,7 +13837,7 @@ struct Schema<vulkan::api_types::VkRayTracingShaderGroupCreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRayTracingPipelineInterfaceCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkRayTracingPipelineInterfaceCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkRayTracingPipelineInterfaceCreateInfoKHR::sType,
                                   vulkan::fields::VkRayTracingPipelineInterfaceCreateInfoKHR::pNext,
@@ -13846,7 +13846,7 @@ struct Schema<vulkan::api_types::VkRayTracingPipelineInterfaceCreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkRayTracingPipelineCreateInfoKHR>
+struct Schema<vulkan::api_elements::VkRayTracingPipelineCreateInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkRayTracingPipelineCreateInfoKHR::sType,
                                   vulkan::fields::VkRayTracingPipelineCreateInfoKHR::pNext,
@@ -13865,7 +13865,7 @@ struct Schema<vulkan::api_types::VkRayTracingPipelineCreateInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceRayTracingPipelineFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceRayTracingPipelineFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceRayTracingPipelineFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceRayTracingPipelineFeaturesKHR::pNext,
@@ -13877,7 +13877,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceRayTracingPipelineFeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceRayTracingPipelinePropertiesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceRayTracingPipelinePropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceRayTracingPipelinePropertiesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceRayTracingPipelinePropertiesKHR::pNext,
@@ -13892,7 +13892,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceRayTracingPipelinePropertiesKHR
 };
 
 template <>
-struct Schema<vulkan::api_types::VkStridedDeviceAddressRegionKHR>
+struct Schema<vulkan::api_elements::VkStridedDeviceAddressRegionKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkStridedDeviceAddressRegionKHR::deviceAddress,
                                   vulkan::fields::VkStridedDeviceAddressRegionKHR::stride,
@@ -13900,7 +13900,7 @@ struct Schema<vulkan::api_types::VkStridedDeviceAddressRegionKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkTraceRaysIndirectCommandKHR>
+struct Schema<vulkan::api_elements::VkTraceRaysIndirectCommandKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkTraceRaysIndirectCommandKHR::width,
                                   vulkan::fields::VkTraceRaysIndirectCommandKHR::height,
@@ -13908,7 +13908,7 @@ struct Schema<vulkan::api_types::VkTraceRaysIndirectCommandKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceRayQueryFeaturesKHR>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceRayQueryFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceRayQueryFeaturesKHR::sType,
                                   vulkan::fields::VkPhysicalDeviceRayQueryFeaturesKHR::pNext,
@@ -13916,7 +13916,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceRayQueryFeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMeshShaderFeaturesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMeshShaderFeaturesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMeshShaderFeaturesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceMeshShaderFeaturesEXT::pNext,
@@ -13928,7 +13928,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMeshShaderFeaturesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPhysicalDeviceMeshShaderPropertiesEXT>
+struct Schema<vulkan::api_elements::VkPhysicalDeviceMeshShaderPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkPhysicalDeviceMeshShaderPropertiesEXT::sType,
                                   vulkan::fields::VkPhysicalDeviceMeshShaderPropertiesEXT::pNext,
@@ -13963,7 +13963,7 @@ struct Schema<vulkan::api_types::VkPhysicalDeviceMeshShaderPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDrawMeshTasksIndirectCommandEXT>
+struct Schema<vulkan::api_elements::VkDrawMeshTasksIndirectCommandEXT>
 {
     using Fields = util::TypeList<vulkan::fields::VkDrawMeshTasksIndirectCommandEXT::groupCountX,
                                   vulkan::fields::VkDrawMeshTasksIndirectCommandEXT::groupCountY,
@@ -13974,7 +13974,7 @@ struct Schema<vulkan::api_types::VkDrawMeshTasksIndirectCommandEXT>
 // selector's to say, so no field walk applies.
 
 template <>
-struct Schema<vulkan::api_types::VkClearColorValue>
+struct Schema<vulkan::api_elements::VkClearColorValue>
 {
     using Alternatives = util::TypeList<vulkan::fields::VkClearColorValue::float32,
                                         vulkan::fields::VkClearColorValue::int32,
@@ -13982,14 +13982,14 @@ struct Schema<vulkan::api_types::VkClearColorValue>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkClearValue>
+struct Schema<vulkan::api_elements::VkClearValue>
 {
     using Alternatives = util::TypeList<vulkan::fields::VkClearValue::color,
                                         vulkan::fields::VkClearValue::depthStencil>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPerformanceCounterResultKHR>
+struct Schema<vulkan::api_elements::VkPerformanceCounterResultKHR>
 {
     using Alternatives = util::TypeList<vulkan::fields::VkPerformanceCounterResultKHR::int32,
                                         vulkan::fields::VkPerformanceCounterResultKHR::int64,
@@ -14000,7 +14000,7 @@ struct Schema<vulkan::api_types::VkPerformanceCounterResultKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPipelineExecutableStatisticValueKHR>
+struct Schema<vulkan::api_elements::VkPipelineExecutableStatisticValueKHR>
 {
     using Alternatives = util::TypeList<vulkan::fields::VkPipelineExecutableStatisticValueKHR::b32,
                                         vulkan::fields::VkPipelineExecutableStatisticValueKHR::i64,
@@ -14009,7 +14009,7 @@ struct Schema<vulkan::api_types::VkPipelineExecutableStatisticValueKHR>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkPerformanceValueDataINTEL>
+struct Schema<vulkan::api_elements::VkPerformanceValueDataINTEL>
 {
     using Alternatives = util::TypeList<vulkan::fields::VkPerformanceValueDataINTEL::value32,
                                         vulkan::fields::VkPerformanceValueDataINTEL::value64,
@@ -14019,7 +14019,7 @@ struct Schema<vulkan::api_types::VkPerformanceValueDataINTEL>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDescriptorDataEXT>
+struct Schema<vulkan::api_elements::VkDescriptorDataEXT>
 {
     using Alternatives = util::TypeList<vulkan::fields::VkDescriptorDataEXT::pSampler,
                                         vulkan::fields::VkDescriptorDataEXT::pCombinedImageSampler,
@@ -14034,14 +14034,14 @@ struct Schema<vulkan::api_types::VkDescriptorDataEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceOrHostAddressConstKHR>
+struct Schema<vulkan::api_elements::VkDeviceOrHostAddressConstKHR>
 {
     using Alternatives = util::TypeList<vulkan::fields::VkDeviceOrHostAddressConstKHR::deviceAddress,
                                         vulkan::fields::VkDeviceOrHostAddressConstKHR::hostAddress>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureMotionInstanceDataNV>
+struct Schema<vulkan::api_elements::VkAccelerationStructureMotionInstanceDataNV>
 {
     using Alternatives = util::TypeList<vulkan::fields::VkAccelerationStructureMotionInstanceDataNV::staticInstance,
                                         vulkan::fields::VkAccelerationStructureMotionInstanceDataNV::matrixMotionInstance,
@@ -14049,21 +14049,21 @@ struct Schema<vulkan::api_types::VkAccelerationStructureMotionInstanceDataNV>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkDeviceOrHostAddressKHR>
+struct Schema<vulkan::api_elements::VkDeviceOrHostAddressKHR>
 {
     using Alternatives = util::TypeList<vulkan::fields::VkDeviceOrHostAddressKHR::deviceAddress,
                                         vulkan::fields::VkDeviceOrHostAddressKHR::hostAddress>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkIndirectExecutionSetInfoEXT>
+struct Schema<vulkan::api_elements::VkIndirectExecutionSetInfoEXT>
 {
     using Alternatives = util::TypeList<vulkan::fields::VkIndirectExecutionSetInfoEXT::pPipelineInfo,
                                         vulkan::fields::VkIndirectExecutionSetInfoEXT::pShaderInfo>;
 };
 
 template <>
-struct Schema<vulkan::api_types::VkIndirectCommandsTokenDataEXT>
+struct Schema<vulkan::api_elements::VkIndirectCommandsTokenDataEXT>
 {
     using Alternatives = util::TypeList<vulkan::fields::VkIndirectCommandsTokenDataEXT::pPushConstant,
                                         vulkan::fields::VkIndirectCommandsTokenDataEXT::pVertexBuffer,
@@ -14072,7 +14072,7 @@ struct Schema<vulkan::api_types::VkIndirectCommandsTokenDataEXT>
 };
 
 template <>
-struct Schema<vulkan::api_types::VkAccelerationStructureGeometryDataKHR>
+struct Schema<vulkan::api_elements::VkAccelerationStructureGeometryDataKHR>
 {
     using Alternatives = util::TypeList<vulkan::fields::VkAccelerationStructureGeometryDataKHR::triangles,
                                         vulkan::fields::VkAccelerationStructureGeometryDataKHR::aabbs,
@@ -14080,7 +14080,7 @@ struct Schema<vulkan::api_types::VkAccelerationStructureGeometryDataKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateInstance>
+struct Schema<vulkan::api_elements::CreateInstance>
 {
     using Fields = util::TypeList<vulkan::fields::CreateInstance::pCreateInfo,
                                   vulkan::fields::CreateInstance::pAllocator, vulkan::fields::CreateInstance::pInstance,
@@ -14088,14 +14088,14 @@ struct Schema<vulkan::commands::CreateInstance>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyInstance>
+struct Schema<vulkan::api_elements::DestroyInstance>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyInstance::instance,
                                   vulkan::fields::DestroyInstance::pAllocator, vulkan::fields::DestroyInstance::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::EnumeratePhysicalDevices>
+struct Schema<vulkan::api_elements::EnumeratePhysicalDevices>
 {
     using Fields = util::TypeList<vulkan::fields::EnumeratePhysicalDevices::instance,
                                   vulkan::fields::EnumeratePhysicalDevices::pPhysicalDeviceCount,
@@ -14104,7 +14104,7 @@ struct Schema<vulkan::commands::EnumeratePhysicalDevices>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceFeatures>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceFeatures::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceFeatures::pFeatures,
@@ -14112,7 +14112,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceFeatures>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceFormatProperties>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceFormatProperties>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceFormatProperties::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceFormatProperties::format,
@@ -14121,7 +14121,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceFormatProperties>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceImageFormatProperties>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceImageFormatProperties>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceImageFormatProperties::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceImageFormatProperties::format,
@@ -14134,7 +14134,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceImageFormatProperties>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceProperties>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceProperties>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceProperties::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceProperties::pProperties,
@@ -14142,7 +14142,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceProperties>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceQueueFamilyProperties>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceQueueFamilyProperties>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceQueueFamilyProperties::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceQueueFamilyProperties::pQueueFamilyPropertyCount,
@@ -14151,7 +14151,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceQueueFamilyProperties>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceMemoryProperties>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceMemoryProperties>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceMemoryProperties::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceMemoryProperties::pMemoryProperties,
@@ -14159,7 +14159,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceMemoryProperties>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateDevice>
+struct Schema<vulkan::api_elements::CreateDevice>
 {
     using Fields = util::TypeList<vulkan::fields::CreateDevice::physicalDevice,
                                   vulkan::fields::CreateDevice::pCreateInfo, vulkan::fields::CreateDevice::pAllocator,
@@ -14167,14 +14167,14 @@ struct Schema<vulkan::commands::CreateDevice>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyDevice>
+struct Schema<vulkan::api_elements::DestroyDevice>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyDevice::device, vulkan::fields::DestroyDevice::pAllocator,
                                   vulkan::fields::DestroyDevice::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::GetDeviceQueue>
+struct Schema<vulkan::api_elements::GetDeviceQueue>
 {
     using Fields = util::TypeList<vulkan::fields::GetDeviceQueue::device,
                                   vulkan::fields::GetDeviceQueue::queueFamilyIndex,
@@ -14183,7 +14183,7 @@ struct Schema<vulkan::commands::GetDeviceQueue>
 };
 
 template <>
-struct Schema<vulkan::commands::QueueSubmit>
+struct Schema<vulkan::api_elements::QueueSubmit>
 {
     using Fields = util::TypeList<vulkan::fields::QueueSubmit::queue, vulkan::fields::QueueSubmit::submitCount,
                                   vulkan::fields::QueueSubmit::pSubmits, vulkan::fields::QueueSubmit::fence,
@@ -14191,19 +14191,19 @@ struct Schema<vulkan::commands::QueueSubmit>
 };
 
 template <>
-struct Schema<vulkan::commands::QueueWaitIdle>
+struct Schema<vulkan::api_elements::QueueWaitIdle>
 {
     using Fields = util::TypeList<vulkan::fields::QueueWaitIdle::queue, vulkan::fields::QueueWaitIdle::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::DeviceWaitIdle>
+struct Schema<vulkan::api_elements::DeviceWaitIdle>
 {
     using Fields = util::TypeList<vulkan::fields::DeviceWaitIdle::device, vulkan::fields::DeviceWaitIdle::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::AllocateMemory>
+struct Schema<vulkan::api_elements::AllocateMemory>
 {
     using Fields = util::TypeList<vulkan::fields::AllocateMemory::device, vulkan::fields::AllocateMemory::pAllocateInfo,
                                   vulkan::fields::AllocateMemory::pAllocator, vulkan::fields::AllocateMemory::pMemory,
@@ -14211,14 +14211,14 @@ struct Schema<vulkan::commands::AllocateMemory>
 };
 
 template <>
-struct Schema<vulkan::commands::FreeMemory>
+struct Schema<vulkan::api_elements::FreeMemory>
 {
     using Fields = util::TypeList<vulkan::fields::FreeMemory::device, vulkan::fields::FreeMemory::memory,
                                   vulkan::fields::FreeMemory::pAllocator, vulkan::fields::FreeMemory::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::MapMemory>
+struct Schema<vulkan::api_elements::MapMemory>
 {
     using Fields = util::TypeList<vulkan::fields::MapMemory::device, vulkan::fields::MapMemory::memory,
                                   vulkan::fields::MapMemory::offset, vulkan::fields::MapMemory::size,
@@ -14227,14 +14227,14 @@ struct Schema<vulkan::commands::MapMemory>
 };
 
 template <>
-struct Schema<vulkan::commands::UnmapMemory>
+struct Schema<vulkan::api_elements::UnmapMemory>
 {
     using Fields = util::TypeList<vulkan::fields::UnmapMemory::device, vulkan::fields::UnmapMemory::memory,
                                   vulkan::fields::UnmapMemory::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::FlushMappedMemoryRanges>
+struct Schema<vulkan::api_elements::FlushMappedMemoryRanges>
 {
     using Fields = util::TypeList<vulkan::fields::FlushMappedMemoryRanges::device,
                                   vulkan::fields::FlushMappedMemoryRanges::memoryRangeCount,
@@ -14243,7 +14243,7 @@ struct Schema<vulkan::commands::FlushMappedMemoryRanges>
 };
 
 template <>
-struct Schema<vulkan::commands::InvalidateMappedMemoryRanges>
+struct Schema<vulkan::api_elements::InvalidateMappedMemoryRanges>
 {
     using Fields = util::TypeList<vulkan::fields::InvalidateMappedMemoryRanges::device,
                                   vulkan::fields::InvalidateMappedMemoryRanges::memoryRangeCount,
@@ -14252,7 +14252,7 @@ struct Schema<vulkan::commands::InvalidateMappedMemoryRanges>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDeviceMemoryCommitment>
+struct Schema<vulkan::api_elements::GetDeviceMemoryCommitment>
 {
     using Fields = util::TypeList<vulkan::fields::GetDeviceMemoryCommitment::device,
                                   vulkan::fields::GetDeviceMemoryCommitment::memory,
@@ -14261,7 +14261,7 @@ struct Schema<vulkan::commands::GetDeviceMemoryCommitment>
 };
 
 template <>
-struct Schema<vulkan::commands::BindBufferMemory>
+struct Schema<vulkan::api_elements::BindBufferMemory>
 {
     using Fields = util::TypeList<vulkan::fields::BindBufferMemory::device, vulkan::fields::BindBufferMemory::buffer,
                                   vulkan::fields::BindBufferMemory::memory,
@@ -14270,7 +14270,7 @@ struct Schema<vulkan::commands::BindBufferMemory>
 };
 
 template <>
-struct Schema<vulkan::commands::BindImageMemory>
+struct Schema<vulkan::api_elements::BindImageMemory>
 {
     using Fields = util::TypeList<vulkan::fields::BindImageMemory::device, vulkan::fields::BindImageMemory::image,
                                   vulkan::fields::BindImageMemory::memory,
@@ -14279,7 +14279,7 @@ struct Schema<vulkan::commands::BindImageMemory>
 };
 
 template <>
-struct Schema<vulkan::commands::GetBufferMemoryRequirements>
+struct Schema<vulkan::api_elements::GetBufferMemoryRequirements>
 {
     using Fields = util::TypeList<vulkan::fields::GetBufferMemoryRequirements::device,
                                   vulkan::fields::GetBufferMemoryRequirements::buffer,
@@ -14288,7 +14288,7 @@ struct Schema<vulkan::commands::GetBufferMemoryRequirements>
 };
 
 template <>
-struct Schema<vulkan::commands::GetImageMemoryRequirements>
+struct Schema<vulkan::api_elements::GetImageMemoryRequirements>
 {
     using Fields = util::TypeList<vulkan::fields::GetImageMemoryRequirements::device,
                                   vulkan::fields::GetImageMemoryRequirements::image,
@@ -14297,7 +14297,7 @@ struct Schema<vulkan::commands::GetImageMemoryRequirements>
 };
 
 template <>
-struct Schema<vulkan::commands::GetImageSparseMemoryRequirements>
+struct Schema<vulkan::api_elements::GetImageSparseMemoryRequirements>
 {
     using Fields = util::TypeList<vulkan::fields::GetImageSparseMemoryRequirements::device,
                                   vulkan::fields::GetImageSparseMemoryRequirements::image,
@@ -14307,7 +14307,7 @@ struct Schema<vulkan::commands::GetImageSparseMemoryRequirements>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceSparseImageFormatProperties>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceSparseImageFormatProperties>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceSparseImageFormatProperties::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceSparseImageFormatProperties::format,
@@ -14321,7 +14321,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceSparseImageFormatProperties>
 };
 
 template <>
-struct Schema<vulkan::commands::QueueBindSparse>
+struct Schema<vulkan::api_elements::QueueBindSparse>
 {
     using Fields = util::TypeList<vulkan::fields::QueueBindSparse::queue,
                                   vulkan::fields::QueueBindSparse::bindInfoCount,
@@ -14330,7 +14330,7 @@ struct Schema<vulkan::commands::QueueBindSparse>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateFence>
+struct Schema<vulkan::api_elements::CreateFence>
 {
     using Fields = util::TypeList<vulkan::fields::CreateFence::device, vulkan::fields::CreateFence::pCreateInfo,
                                   vulkan::fields::CreateFence::pAllocator, vulkan::fields::CreateFence::pFence,
@@ -14338,28 +14338,28 @@ struct Schema<vulkan::commands::CreateFence>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyFence>
+struct Schema<vulkan::api_elements::DestroyFence>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyFence::device, vulkan::fields::DestroyFence::fence,
                                   vulkan::fields::DestroyFence::pAllocator, vulkan::fields::DestroyFence::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::ResetFences>
+struct Schema<vulkan::api_elements::ResetFences>
 {
     using Fields = util::TypeList<vulkan::fields::ResetFences::device, vulkan::fields::ResetFences::fenceCount,
                                   vulkan::fields::ResetFences::pFences, vulkan::fields::ResetFences::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::GetFenceStatus>
+struct Schema<vulkan::api_elements::GetFenceStatus>
 {
     using Fields = util::TypeList<vulkan::fields::GetFenceStatus::device, vulkan::fields::GetFenceStatus::fence,
                                   vulkan::fields::GetFenceStatus::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::WaitForFences>
+struct Schema<vulkan::api_elements::WaitForFences>
 {
     using Fields = util::TypeList<vulkan::fields::WaitForFences::device, vulkan::fields::WaitForFences::fenceCount,
                                   vulkan::fields::WaitForFences::pFences, vulkan::fields::WaitForFences::waitAll,
@@ -14367,7 +14367,7 @@ struct Schema<vulkan::commands::WaitForFences>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateSemaphore>
+struct Schema<vulkan::api_elements::CreateSemaphore>
 {
     using Fields = util::TypeList<vulkan::fields::CreateSemaphore::device, vulkan::fields::CreateSemaphore::pCreateInfo,
                                   vulkan::fields::CreateSemaphore::pAllocator,
@@ -14375,7 +14375,7 @@ struct Schema<vulkan::commands::CreateSemaphore>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroySemaphore>
+struct Schema<vulkan::api_elements::DestroySemaphore>
 {
     using Fields = util::TypeList<vulkan::fields::DestroySemaphore::device, vulkan::fields::DestroySemaphore::semaphore,
                                   vulkan::fields::DestroySemaphore::pAllocator,
@@ -14383,7 +14383,7 @@ struct Schema<vulkan::commands::DestroySemaphore>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateQueryPool>
+struct Schema<vulkan::api_elements::CreateQueryPool>
 {
     using Fields = util::TypeList<vulkan::fields::CreateQueryPool::device, vulkan::fields::CreateQueryPool::pCreateInfo,
                                   vulkan::fields::CreateQueryPool::pAllocator,
@@ -14391,7 +14391,7 @@ struct Schema<vulkan::commands::CreateQueryPool>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyQueryPool>
+struct Schema<vulkan::api_elements::DestroyQueryPool>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyQueryPool::device, vulkan::fields::DestroyQueryPool::queryPool,
                                   vulkan::fields::DestroyQueryPool::pAllocator,
@@ -14399,7 +14399,7 @@ struct Schema<vulkan::commands::DestroyQueryPool>
 };
 
 template <>
-struct Schema<vulkan::commands::GetQueryPoolResults>
+struct Schema<vulkan::api_elements::GetQueryPoolResults>
 {
     using Fields = util::TypeList<vulkan::fields::GetQueryPoolResults::device,
                                   vulkan::fields::GetQueryPoolResults::queryPool,
@@ -14413,7 +14413,7 @@ struct Schema<vulkan::commands::GetQueryPoolResults>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateBuffer>
+struct Schema<vulkan::api_elements::CreateBuffer>
 {
     using Fields = util::TypeList<vulkan::fields::CreateBuffer::device, vulkan::fields::CreateBuffer::pCreateInfo,
                                   vulkan::fields::CreateBuffer::pAllocator, vulkan::fields::CreateBuffer::pBuffer,
@@ -14421,14 +14421,14 @@ struct Schema<vulkan::commands::CreateBuffer>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyBuffer>
+struct Schema<vulkan::api_elements::DestroyBuffer>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyBuffer::device, vulkan::fields::DestroyBuffer::buffer,
                                   vulkan::fields::DestroyBuffer::pAllocator, vulkan::fields::DestroyBuffer::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::CreateImage>
+struct Schema<vulkan::api_elements::CreateImage>
 {
     using Fields = util::TypeList<vulkan::fields::CreateImage::device, vulkan::fields::CreateImage::pCreateInfo,
                                   vulkan::fields::CreateImage::pAllocator, vulkan::fields::CreateImage::pImage,
@@ -14436,14 +14436,14 @@ struct Schema<vulkan::commands::CreateImage>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyImage>
+struct Schema<vulkan::api_elements::DestroyImage>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyImage::device, vulkan::fields::DestroyImage::image,
                                   vulkan::fields::DestroyImage::pAllocator, vulkan::fields::DestroyImage::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::GetImageSubresourceLayout>
+struct Schema<vulkan::api_elements::GetImageSubresourceLayout>
 {
     using Fields = util::TypeList<vulkan::fields::GetImageSubresourceLayout::device,
                                   vulkan::fields::GetImageSubresourceLayout::image,
@@ -14453,7 +14453,7 @@ struct Schema<vulkan::commands::GetImageSubresourceLayout>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateImageView>
+struct Schema<vulkan::api_elements::CreateImageView>
 {
     using Fields = util::TypeList<vulkan::fields::CreateImageView::device, vulkan::fields::CreateImageView::pCreateInfo,
                                   vulkan::fields::CreateImageView::pAllocator, vulkan::fields::CreateImageView::pView,
@@ -14461,7 +14461,7 @@ struct Schema<vulkan::commands::CreateImageView>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyImageView>
+struct Schema<vulkan::api_elements::DestroyImageView>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyImageView::device, vulkan::fields::DestroyImageView::imageView,
                                   vulkan::fields::DestroyImageView::pAllocator,
@@ -14469,7 +14469,7 @@ struct Schema<vulkan::commands::DestroyImageView>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateCommandPool>
+struct Schema<vulkan::api_elements::CreateCommandPool>
 {
     using Fields = util::TypeList<vulkan::fields::CreateCommandPool::device,
                                   vulkan::fields::CreateCommandPool::pCreateInfo,
@@ -14479,7 +14479,7 @@ struct Schema<vulkan::commands::CreateCommandPool>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyCommandPool>
+struct Schema<vulkan::api_elements::DestroyCommandPool>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyCommandPool::device,
                                   vulkan::fields::DestroyCommandPool::commandPool,
@@ -14488,7 +14488,7 @@ struct Schema<vulkan::commands::DestroyCommandPool>
 };
 
 template <>
-struct Schema<vulkan::commands::ResetCommandPool>
+struct Schema<vulkan::api_elements::ResetCommandPool>
 {
     using Fields = util::TypeList<vulkan::fields::ResetCommandPool::device,
                                   vulkan::fields::ResetCommandPool::commandPool,
@@ -14496,7 +14496,7 @@ struct Schema<vulkan::commands::ResetCommandPool>
 };
 
 template <>
-struct Schema<vulkan::commands::AllocateCommandBuffers>
+struct Schema<vulkan::api_elements::AllocateCommandBuffers>
 {
     using Fields = util::TypeList<vulkan::fields::AllocateCommandBuffers::device,
                                   vulkan::fields::AllocateCommandBuffers::pAllocateInfo,
@@ -14505,7 +14505,7 @@ struct Schema<vulkan::commands::AllocateCommandBuffers>
 };
 
 template <>
-struct Schema<vulkan::commands::FreeCommandBuffers>
+struct Schema<vulkan::api_elements::FreeCommandBuffers>
 {
     using Fields = util::TypeList<vulkan::fields::FreeCommandBuffers::device,
                                   vulkan::fields::FreeCommandBuffers::commandPool,
@@ -14515,7 +14515,7 @@ struct Schema<vulkan::commands::FreeCommandBuffers>
 };
 
 template <>
-struct Schema<vulkan::commands::BeginCommandBuffer>
+struct Schema<vulkan::api_elements::BeginCommandBuffer>
 {
     using Fields = util::TypeList<vulkan::fields::BeginCommandBuffer::commandBuffer,
                                   vulkan::fields::BeginCommandBuffer::pBeginInfo,
@@ -14523,14 +14523,14 @@ struct Schema<vulkan::commands::BeginCommandBuffer>
 };
 
 template <>
-struct Schema<vulkan::commands::EndCommandBuffer>
+struct Schema<vulkan::api_elements::EndCommandBuffer>
 {
     using Fields = util::TypeList<vulkan::fields::EndCommandBuffer::commandBuffer,
                                   vulkan::fields::EndCommandBuffer::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::ResetCommandBuffer>
+struct Schema<vulkan::api_elements::ResetCommandBuffer>
 {
     using Fields = util::TypeList<vulkan::fields::ResetCommandBuffer::commandBuffer,
                                   vulkan::fields::ResetCommandBuffer::flags,
@@ -14538,7 +14538,7 @@ struct Schema<vulkan::commands::ResetCommandBuffer>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyBuffer>
+struct Schema<vulkan::api_elements::CmdCopyBuffer>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyBuffer::commandBuffer,
                                   vulkan::fields::CmdCopyBuffer::srcBuffer, vulkan::fields::CmdCopyBuffer::dstBuffer,
@@ -14547,7 +14547,7 @@ struct Schema<vulkan::commands::CmdCopyBuffer>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyImage>
+struct Schema<vulkan::api_elements::CmdCopyImage>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyImage::commandBuffer, vulkan::fields::CmdCopyImage::srcImage,
                                   vulkan::fields::CmdCopyImage::srcImageLayout, vulkan::fields::CmdCopyImage::dstImage,
@@ -14557,7 +14557,7 @@ struct Schema<vulkan::commands::CmdCopyImage>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyBufferToImage>
+struct Schema<vulkan::api_elements::CmdCopyBufferToImage>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyBufferToImage::commandBuffer,
                                   vulkan::fields::CmdCopyBufferToImage::srcBuffer,
@@ -14569,7 +14569,7 @@ struct Schema<vulkan::commands::CmdCopyBufferToImage>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyImageToBuffer>
+struct Schema<vulkan::api_elements::CmdCopyImageToBuffer>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyImageToBuffer::commandBuffer,
                                   vulkan::fields::CmdCopyImageToBuffer::srcImage,
@@ -14581,7 +14581,7 @@ struct Schema<vulkan::commands::CmdCopyImageToBuffer>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdUpdateBuffer>
+struct Schema<vulkan::api_elements::CmdUpdateBuffer>
 {
     using Fields = util::TypeList<vulkan::fields::CmdUpdateBuffer::commandBuffer,
                                   vulkan::fields::CmdUpdateBuffer::dstBuffer,
@@ -14590,7 +14590,7 @@ struct Schema<vulkan::commands::CmdUpdateBuffer>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdFillBuffer>
+struct Schema<vulkan::api_elements::CmdFillBuffer>
 {
     using Fields = util::TypeList<vulkan::fields::CmdFillBuffer::commandBuffer,
                                   vulkan::fields::CmdFillBuffer::dstBuffer, vulkan::fields::CmdFillBuffer::dstOffset,
@@ -14599,7 +14599,7 @@ struct Schema<vulkan::commands::CmdFillBuffer>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdPipelineBarrier>
+struct Schema<vulkan::api_elements::CmdPipelineBarrier>
 {
     using Fields = util::TypeList<vulkan::fields::CmdPipelineBarrier::commandBuffer,
                                   vulkan::fields::CmdPipelineBarrier::srcStageMask,
@@ -14615,7 +14615,7 @@ struct Schema<vulkan::commands::CmdPipelineBarrier>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBeginQuery>
+struct Schema<vulkan::api_elements::CmdBeginQuery>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBeginQuery::commandBuffer,
                                   vulkan::fields::CmdBeginQuery::queryPool, vulkan::fields::CmdBeginQuery::query,
@@ -14623,14 +14623,14 @@ struct Schema<vulkan::commands::CmdBeginQuery>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdEndQuery>
+struct Schema<vulkan::api_elements::CmdEndQuery>
 {
     using Fields = util::TypeList<vulkan::fields::CmdEndQuery::commandBuffer, vulkan::fields::CmdEndQuery::queryPool,
                                   vulkan::fields::CmdEndQuery::query, vulkan::fields::CmdEndQuery::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::CmdResetQueryPool>
+struct Schema<vulkan::api_elements::CmdResetQueryPool>
 {
     using Fields = util::TypeList<vulkan::fields::CmdResetQueryPool::commandBuffer,
                                   vulkan::fields::CmdResetQueryPool::queryPool,
@@ -14640,7 +14640,7 @@ struct Schema<vulkan::commands::CmdResetQueryPool>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdWriteTimestamp>
+struct Schema<vulkan::api_elements::CmdWriteTimestamp>
 {
     using Fields = util::TypeList<vulkan::fields::CmdWriteTimestamp::commandBuffer,
                                   vulkan::fields::CmdWriteTimestamp::pipelineStage,
@@ -14649,7 +14649,7 @@ struct Schema<vulkan::commands::CmdWriteTimestamp>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyQueryPoolResults>
+struct Schema<vulkan::api_elements::CmdCopyQueryPoolResults>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyQueryPoolResults::commandBuffer,
                                   vulkan::fields::CmdCopyQueryPoolResults::queryPool,
@@ -14663,7 +14663,7 @@ struct Schema<vulkan::commands::CmdCopyQueryPoolResults>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdExecuteCommands>
+struct Schema<vulkan::api_elements::CmdExecuteCommands>
 {
     using Fields = util::TypeList<vulkan::fields::CmdExecuteCommands::commandBuffer,
                                   vulkan::fields::CmdExecuteCommands::commandBufferCount,
@@ -14672,7 +14672,7 @@ struct Schema<vulkan::commands::CmdExecuteCommands>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateEvent>
+struct Schema<vulkan::api_elements::CreateEvent>
 {
     using Fields = util::TypeList<vulkan::fields::CreateEvent::device, vulkan::fields::CreateEvent::pCreateInfo,
                                   vulkan::fields::CreateEvent::pAllocator, vulkan::fields::CreateEvent::pEvent,
@@ -14680,35 +14680,35 @@ struct Schema<vulkan::commands::CreateEvent>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyEvent>
+struct Schema<vulkan::api_elements::DestroyEvent>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyEvent::device, vulkan::fields::DestroyEvent::event,
                                   vulkan::fields::DestroyEvent::pAllocator, vulkan::fields::DestroyEvent::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::GetEventStatus>
+struct Schema<vulkan::api_elements::GetEventStatus>
 {
     using Fields = util::TypeList<vulkan::fields::GetEventStatus::device, vulkan::fields::GetEventStatus::event,
                                   vulkan::fields::GetEventStatus::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::SetEvent>
+struct Schema<vulkan::api_elements::SetEvent>
 {
     using Fields = util::TypeList<vulkan::fields::SetEvent::device, vulkan::fields::SetEvent::event,
                                   vulkan::fields::SetEvent::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::ResetEvent>
+struct Schema<vulkan::api_elements::ResetEvent>
 {
     using Fields = util::TypeList<vulkan::fields::ResetEvent::device, vulkan::fields::ResetEvent::event,
                                   vulkan::fields::ResetEvent::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::CreateBufferView>
+struct Schema<vulkan::api_elements::CreateBufferView>
 {
     using Fields = util::TypeList<vulkan::fields::CreateBufferView::device,
                                   vulkan::fields::CreateBufferView::pCreateInfo,
@@ -14717,7 +14717,7 @@ struct Schema<vulkan::commands::CreateBufferView>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyBufferView>
+struct Schema<vulkan::api_elements::DestroyBufferView>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyBufferView::device,
                                   vulkan::fields::DestroyBufferView::bufferView,
@@ -14726,7 +14726,7 @@ struct Schema<vulkan::commands::DestroyBufferView>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateShaderModule>
+struct Schema<vulkan::api_elements::CreateShaderModule>
 {
     using Fields = util::TypeList<vulkan::fields::CreateShaderModule::device,
                                   vulkan::fields::CreateShaderModule::pCreateInfo,
@@ -14736,7 +14736,7 @@ struct Schema<vulkan::commands::CreateShaderModule>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyShaderModule>
+struct Schema<vulkan::api_elements::DestroyShaderModule>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyShaderModule::device,
                                   vulkan::fields::DestroyShaderModule::shaderModule,
@@ -14745,7 +14745,7 @@ struct Schema<vulkan::commands::DestroyShaderModule>
 };
 
 template <>
-struct Schema<vulkan::commands::CreatePipelineCache>
+struct Schema<vulkan::api_elements::CreatePipelineCache>
 {
     using Fields = util::TypeList<vulkan::fields::CreatePipelineCache::device,
                                   vulkan::fields::CreatePipelineCache::pCreateInfo,
@@ -14755,7 +14755,7 @@ struct Schema<vulkan::commands::CreatePipelineCache>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyPipelineCache>
+struct Schema<vulkan::api_elements::DestroyPipelineCache>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyPipelineCache::device,
                                   vulkan::fields::DestroyPipelineCache::pipelineCache,
@@ -14764,7 +14764,7 @@ struct Schema<vulkan::commands::DestroyPipelineCache>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPipelineCacheData>
+struct Schema<vulkan::api_elements::GetPipelineCacheData>
 {
     using Fields = util::TypeList<vulkan::fields::GetPipelineCacheData::device,
                                   vulkan::fields::GetPipelineCacheData::pipelineCache,
@@ -14774,7 +14774,7 @@ struct Schema<vulkan::commands::GetPipelineCacheData>
 };
 
 template <>
-struct Schema<vulkan::commands::MergePipelineCaches>
+struct Schema<vulkan::api_elements::MergePipelineCaches>
 {
     using Fields = util::TypeList<vulkan::fields::MergePipelineCaches::device,
                                   vulkan::fields::MergePipelineCaches::dstCache,
@@ -14784,7 +14784,7 @@ struct Schema<vulkan::commands::MergePipelineCaches>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateComputePipelines>
+struct Schema<vulkan::api_elements::CreateComputePipelines>
 {
     using Fields = util::TypeList<vulkan::fields::CreateComputePipelines::device,
                                   vulkan::fields::CreateComputePipelines::pipelineCache,
@@ -14796,14 +14796,14 @@ struct Schema<vulkan::commands::CreateComputePipelines>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyPipeline>
+struct Schema<vulkan::api_elements::DestroyPipeline>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyPipeline::device, vulkan::fields::DestroyPipeline::pipeline,
                                   vulkan::fields::DestroyPipeline::pAllocator, vulkan::fields::DestroyPipeline::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::CreatePipelineLayout>
+struct Schema<vulkan::api_elements::CreatePipelineLayout>
 {
     using Fields = util::TypeList<vulkan::fields::CreatePipelineLayout::device,
                                   vulkan::fields::CreatePipelineLayout::pCreateInfo,
@@ -14813,7 +14813,7 @@ struct Schema<vulkan::commands::CreatePipelineLayout>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyPipelineLayout>
+struct Schema<vulkan::api_elements::DestroyPipelineLayout>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyPipelineLayout::device,
                                   vulkan::fields::DestroyPipelineLayout::pipelineLayout,
@@ -14822,7 +14822,7 @@ struct Schema<vulkan::commands::DestroyPipelineLayout>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateSampler>
+struct Schema<vulkan::api_elements::CreateSampler>
 {
     using Fields = util::TypeList<vulkan::fields::CreateSampler::device, vulkan::fields::CreateSampler::pCreateInfo,
                                   vulkan::fields::CreateSampler::pAllocator, vulkan::fields::CreateSampler::pSampler,
@@ -14830,14 +14830,14 @@ struct Schema<vulkan::commands::CreateSampler>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroySampler>
+struct Schema<vulkan::api_elements::DestroySampler>
 {
     using Fields = util::TypeList<vulkan::fields::DestroySampler::device, vulkan::fields::DestroySampler::sampler,
                                   vulkan::fields::DestroySampler::pAllocator, vulkan::fields::DestroySampler::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::CreateDescriptorSetLayout>
+struct Schema<vulkan::api_elements::CreateDescriptorSetLayout>
 {
     using Fields = util::TypeList<vulkan::fields::CreateDescriptorSetLayout::device,
                                   vulkan::fields::CreateDescriptorSetLayout::pCreateInfo,
@@ -14847,7 +14847,7 @@ struct Schema<vulkan::commands::CreateDescriptorSetLayout>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyDescriptorSetLayout>
+struct Schema<vulkan::api_elements::DestroyDescriptorSetLayout>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyDescriptorSetLayout::device,
                                   vulkan::fields::DestroyDescriptorSetLayout::descriptorSetLayout,
@@ -14856,7 +14856,7 @@ struct Schema<vulkan::commands::DestroyDescriptorSetLayout>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateDescriptorPool>
+struct Schema<vulkan::api_elements::CreateDescriptorPool>
 {
     using Fields = util::TypeList<vulkan::fields::CreateDescriptorPool::device,
                                   vulkan::fields::CreateDescriptorPool::pCreateInfo,
@@ -14866,7 +14866,7 @@ struct Schema<vulkan::commands::CreateDescriptorPool>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyDescriptorPool>
+struct Schema<vulkan::api_elements::DestroyDescriptorPool>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyDescriptorPool::device,
                                   vulkan::fields::DestroyDescriptorPool::descriptorPool,
@@ -14875,7 +14875,7 @@ struct Schema<vulkan::commands::DestroyDescriptorPool>
 };
 
 template <>
-struct Schema<vulkan::commands::ResetDescriptorPool>
+struct Schema<vulkan::api_elements::ResetDescriptorPool>
 {
     using Fields = util::TypeList<vulkan::fields::ResetDescriptorPool::device,
                                   vulkan::fields::ResetDescriptorPool::descriptorPool,
@@ -14884,7 +14884,7 @@ struct Schema<vulkan::commands::ResetDescriptorPool>
 };
 
 template <>
-struct Schema<vulkan::commands::AllocateDescriptorSets>
+struct Schema<vulkan::api_elements::AllocateDescriptorSets>
 {
     using Fields = util::TypeList<vulkan::fields::AllocateDescriptorSets::device,
                                   vulkan::fields::AllocateDescriptorSets::pAllocateInfo,
@@ -14893,7 +14893,7 @@ struct Schema<vulkan::commands::AllocateDescriptorSets>
 };
 
 template <>
-struct Schema<vulkan::commands::FreeDescriptorSets>
+struct Schema<vulkan::api_elements::FreeDescriptorSets>
 {
     using Fields = util::TypeList<vulkan::fields::FreeDescriptorSets::device,
                                   vulkan::fields::FreeDescriptorSets::descriptorPool,
@@ -14903,7 +14903,7 @@ struct Schema<vulkan::commands::FreeDescriptorSets>
 };
 
 template <>
-struct Schema<vulkan::commands::UpdateDescriptorSets>
+struct Schema<vulkan::api_elements::UpdateDescriptorSets>
 {
     using Fields = util::TypeList<vulkan::fields::UpdateDescriptorSets::device,
                                   vulkan::fields::UpdateDescriptorSets::descriptorWriteCount,
@@ -14914,7 +14914,7 @@ struct Schema<vulkan::commands::UpdateDescriptorSets>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBindPipeline>
+struct Schema<vulkan::api_elements::CmdBindPipeline>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBindPipeline::commandBuffer,
                                   vulkan::fields::CmdBindPipeline::pipelineBindPoint,
@@ -14922,7 +14922,7 @@ struct Schema<vulkan::commands::CmdBindPipeline>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBindDescriptorSets>
+struct Schema<vulkan::api_elements::CmdBindDescriptorSets>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBindDescriptorSets::commandBuffer,
                                   vulkan::fields::CmdBindDescriptorSets::pipelineBindPoint,
@@ -14936,7 +14936,7 @@ struct Schema<vulkan::commands::CmdBindDescriptorSets>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdClearColorImage>
+struct Schema<vulkan::api_elements::CmdClearColorImage>
 {
     using Fields = util::TypeList<vulkan::fields::CmdClearColorImage::commandBuffer,
                                   vulkan::fields::CmdClearColorImage::image,
@@ -14948,7 +14948,7 @@ struct Schema<vulkan::commands::CmdClearColorImage>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDispatch>
+struct Schema<vulkan::api_elements::CmdDispatch>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDispatch::commandBuffer, vulkan::fields::CmdDispatch::groupCountX,
                                   vulkan::fields::CmdDispatch::groupCountY, vulkan::fields::CmdDispatch::groupCountZ,
@@ -14956,7 +14956,7 @@ struct Schema<vulkan::commands::CmdDispatch>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDispatchIndirect>
+struct Schema<vulkan::api_elements::CmdDispatchIndirect>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDispatchIndirect::commandBuffer,
                                   vulkan::fields::CmdDispatchIndirect::buffer,
@@ -14965,21 +14965,21 @@ struct Schema<vulkan::commands::CmdDispatchIndirect>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetEvent>
+struct Schema<vulkan::api_elements::CmdSetEvent>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetEvent::commandBuffer, vulkan::fields::CmdSetEvent::event,
                                   vulkan::fields::CmdSetEvent::stageMask, vulkan::fields::CmdSetEvent::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::CmdResetEvent>
+struct Schema<vulkan::api_elements::CmdResetEvent>
 {
     using Fields = util::TypeList<vulkan::fields::CmdResetEvent::commandBuffer, vulkan::fields::CmdResetEvent::event,
                                   vulkan::fields::CmdResetEvent::stageMask, vulkan::fields::CmdResetEvent::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::CmdWaitEvents>
+struct Schema<vulkan::api_elements::CmdWaitEvents>
 {
     using Fields = util::TypeList<vulkan::fields::CmdWaitEvents::commandBuffer,
                                   vulkan::fields::CmdWaitEvents::eventCount, vulkan::fields::CmdWaitEvents::pEvents,
@@ -14995,7 +14995,7 @@ struct Schema<vulkan::commands::CmdWaitEvents>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdPushConstants>
+struct Schema<vulkan::api_elements::CmdPushConstants>
 {
     using Fields = util::TypeList<vulkan::fields::CmdPushConstants::commandBuffer,
                                   vulkan::fields::CmdPushConstants::layout,
@@ -15005,7 +15005,7 @@ struct Schema<vulkan::commands::CmdPushConstants>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateGraphicsPipelines>
+struct Schema<vulkan::api_elements::CreateGraphicsPipelines>
 {
     using Fields = util::TypeList<vulkan::fields::CreateGraphicsPipelines::device,
                                   vulkan::fields::CreateGraphicsPipelines::pipelineCache,
@@ -15017,7 +15017,7 @@ struct Schema<vulkan::commands::CreateGraphicsPipelines>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateFramebuffer>
+struct Schema<vulkan::api_elements::CreateFramebuffer>
 {
     using Fields = util::TypeList<vulkan::fields::CreateFramebuffer::device,
                                   vulkan::fields::CreateFramebuffer::pCreateInfo,
@@ -15027,7 +15027,7 @@ struct Schema<vulkan::commands::CreateFramebuffer>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyFramebuffer>
+struct Schema<vulkan::api_elements::DestroyFramebuffer>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyFramebuffer::device,
                                   vulkan::fields::DestroyFramebuffer::framebuffer,
@@ -15036,7 +15036,7 @@ struct Schema<vulkan::commands::DestroyFramebuffer>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateRenderPass>
+struct Schema<vulkan::api_elements::CreateRenderPass>
 {
     using Fields = util::TypeList<vulkan::fields::CreateRenderPass::device,
                                   vulkan::fields::CreateRenderPass::pCreateInfo,
@@ -15046,7 +15046,7 @@ struct Schema<vulkan::commands::CreateRenderPass>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyRenderPass>
+struct Schema<vulkan::api_elements::DestroyRenderPass>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyRenderPass::device,
                                   vulkan::fields::DestroyRenderPass::renderPass,
@@ -15055,7 +15055,7 @@ struct Schema<vulkan::commands::DestroyRenderPass>
 };
 
 template <>
-struct Schema<vulkan::commands::GetRenderAreaGranularity>
+struct Schema<vulkan::api_elements::GetRenderAreaGranularity>
 {
     using Fields = util::TypeList<vulkan::fields::GetRenderAreaGranularity::device,
                                   vulkan::fields::GetRenderAreaGranularity::renderPass,
@@ -15064,7 +15064,7 @@ struct Schema<vulkan::commands::GetRenderAreaGranularity>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetViewport>
+struct Schema<vulkan::api_elements::CmdSetViewport>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetViewport::commandBuffer,
                                   vulkan::fields::CmdSetViewport::firstViewport,
@@ -15073,7 +15073,7 @@ struct Schema<vulkan::commands::CmdSetViewport>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetScissor>
+struct Schema<vulkan::api_elements::CmdSetScissor>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetScissor::commandBuffer,
                                   vulkan::fields::CmdSetScissor::firstScissor,
@@ -15082,14 +15082,14 @@ struct Schema<vulkan::commands::CmdSetScissor>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetLineWidth>
+struct Schema<vulkan::api_elements::CmdSetLineWidth>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetLineWidth::commandBuffer,
                                   vulkan::fields::CmdSetLineWidth::lineWidth, vulkan::fields::CmdSetLineWidth::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetDepthBias>
+struct Schema<vulkan::api_elements::CmdSetDepthBias>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetDepthBias::commandBuffer,
                                   vulkan::fields::CmdSetDepthBias::depthBiasConstantFactor,
@@ -15099,7 +15099,7 @@ struct Schema<vulkan::commands::CmdSetDepthBias>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetBlendConstants>
+struct Schema<vulkan::api_elements::CmdSetBlendConstants>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetBlendConstants::commandBuffer,
                                   vulkan::fields::CmdSetBlendConstants::blendConstants,
@@ -15107,7 +15107,7 @@ struct Schema<vulkan::commands::CmdSetBlendConstants>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetDepthBounds>
+struct Schema<vulkan::api_elements::CmdSetDepthBounds>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetDepthBounds::commandBuffer,
                                   vulkan::fields::CmdSetDepthBounds::minDepthBounds,
@@ -15116,7 +15116,7 @@ struct Schema<vulkan::commands::CmdSetDepthBounds>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetStencilCompareMask>
+struct Schema<vulkan::api_elements::CmdSetStencilCompareMask>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetStencilCompareMask::commandBuffer,
                                   vulkan::fields::CmdSetStencilCompareMask::faceMask,
@@ -15125,7 +15125,7 @@ struct Schema<vulkan::commands::CmdSetStencilCompareMask>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetStencilWriteMask>
+struct Schema<vulkan::api_elements::CmdSetStencilWriteMask>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetStencilWriteMask::commandBuffer,
                                   vulkan::fields::CmdSetStencilWriteMask::faceMask,
@@ -15134,7 +15134,7 @@ struct Schema<vulkan::commands::CmdSetStencilWriteMask>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetStencilReference>
+struct Schema<vulkan::api_elements::CmdSetStencilReference>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetStencilReference::commandBuffer,
                                   vulkan::fields::CmdSetStencilReference::faceMask,
@@ -15143,7 +15143,7 @@ struct Schema<vulkan::commands::CmdSetStencilReference>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBindIndexBuffer>
+struct Schema<vulkan::api_elements::CmdBindIndexBuffer>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBindIndexBuffer::commandBuffer,
                                   vulkan::fields::CmdBindIndexBuffer::buffer,
@@ -15153,7 +15153,7 @@ struct Schema<vulkan::commands::CmdBindIndexBuffer>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBindVertexBuffers>
+struct Schema<vulkan::api_elements::CmdBindVertexBuffers>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBindVertexBuffers::commandBuffer,
                                   vulkan::fields::CmdBindVertexBuffers::firstBinding,
@@ -15164,7 +15164,7 @@ struct Schema<vulkan::commands::CmdBindVertexBuffers>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDraw>
+struct Schema<vulkan::api_elements::CmdDraw>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDraw::commandBuffer, vulkan::fields::CmdDraw::vertexCount,
                                   vulkan::fields::CmdDraw::instanceCount, vulkan::fields::CmdDraw::firstVertex,
@@ -15172,7 +15172,7 @@ struct Schema<vulkan::commands::CmdDraw>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDrawIndexed>
+struct Schema<vulkan::api_elements::CmdDrawIndexed>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDrawIndexed::commandBuffer,
                                   vulkan::fields::CmdDrawIndexed::indexCount,
@@ -15184,7 +15184,7 @@ struct Schema<vulkan::commands::CmdDrawIndexed>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDrawIndirect>
+struct Schema<vulkan::api_elements::CmdDrawIndirect>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDrawIndirect::commandBuffer,
                                   vulkan::fields::CmdDrawIndirect::buffer, vulkan::fields::CmdDrawIndirect::offset,
@@ -15193,7 +15193,7 @@ struct Schema<vulkan::commands::CmdDrawIndirect>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDrawIndexedIndirect>
+struct Schema<vulkan::api_elements::CmdDrawIndexedIndirect>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDrawIndexedIndirect::commandBuffer,
                                   vulkan::fields::CmdDrawIndexedIndirect::buffer,
@@ -15204,7 +15204,7 @@ struct Schema<vulkan::commands::CmdDrawIndexedIndirect>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBlitImage>
+struct Schema<vulkan::api_elements::CmdBlitImage>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBlitImage::commandBuffer, vulkan::fields::CmdBlitImage::srcImage,
                                   vulkan::fields::CmdBlitImage::srcImageLayout, vulkan::fields::CmdBlitImage::dstImage,
@@ -15214,7 +15214,7 @@ struct Schema<vulkan::commands::CmdBlitImage>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdClearDepthStencilImage>
+struct Schema<vulkan::api_elements::CmdClearDepthStencilImage>
 {
     using Fields = util::TypeList<vulkan::fields::CmdClearDepthStencilImage::commandBuffer,
                                   vulkan::fields::CmdClearDepthStencilImage::image,
@@ -15226,7 +15226,7 @@ struct Schema<vulkan::commands::CmdClearDepthStencilImage>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdClearAttachments>
+struct Schema<vulkan::api_elements::CmdClearAttachments>
 {
     using Fields = util::TypeList<vulkan::fields::CmdClearAttachments::commandBuffer,
                                   vulkan::fields::CmdClearAttachments::attachmentCount,
@@ -15237,7 +15237,7 @@ struct Schema<vulkan::commands::CmdClearAttachments>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdResolveImage>
+struct Schema<vulkan::api_elements::CmdResolveImage>
 {
     using Fields = util::TypeList<vulkan::fields::CmdResolveImage::commandBuffer,
                                   vulkan::fields::CmdResolveImage::srcImage,
@@ -15249,7 +15249,7 @@ struct Schema<vulkan::commands::CmdResolveImage>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBeginRenderPass>
+struct Schema<vulkan::api_elements::CmdBeginRenderPass>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBeginRenderPass::commandBuffer,
                                   vulkan::fields::CmdBeginRenderPass::pRenderPassBegin,
@@ -15258,21 +15258,21 @@ struct Schema<vulkan::commands::CmdBeginRenderPass>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdNextSubpass>
+struct Schema<vulkan::api_elements::CmdNextSubpass>
 {
     using Fields = util::TypeList<vulkan::fields::CmdNextSubpass::commandBuffer,
                                   vulkan::fields::CmdNextSubpass::contents, vulkan::fields::CmdNextSubpass::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::CmdEndRenderPass>
+struct Schema<vulkan::api_elements::CmdEndRenderPass>
 {
     using Fields = util::TypeList<vulkan::fields::CmdEndRenderPass::commandBuffer,
                                   vulkan::fields::CmdEndRenderPass::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::BindBufferMemory2>
+struct Schema<vulkan::api_elements::BindBufferMemory2>
 {
     using Fields = util::TypeList<vulkan::fields::BindBufferMemory2::device,
                                   vulkan::fields::BindBufferMemory2::bindInfoCount,
@@ -15281,7 +15281,7 @@ struct Schema<vulkan::commands::BindBufferMemory2>
 };
 
 template <>
-struct Schema<vulkan::commands::BindImageMemory2>
+struct Schema<vulkan::api_elements::BindImageMemory2>
 {
     using Fields = util::TypeList<vulkan::fields::BindImageMemory2::device,
                                   vulkan::fields::BindImageMemory2::bindInfoCount,
@@ -15290,7 +15290,7 @@ struct Schema<vulkan::commands::BindImageMemory2>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDeviceGroupPeerMemoryFeatures>
+struct Schema<vulkan::api_elements::GetDeviceGroupPeerMemoryFeatures>
 {
     using Fields = util::TypeList<vulkan::fields::GetDeviceGroupPeerMemoryFeatures::device,
                                   vulkan::fields::GetDeviceGroupPeerMemoryFeatures::heapIndex,
@@ -15301,7 +15301,7 @@ struct Schema<vulkan::commands::GetDeviceGroupPeerMemoryFeatures>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetDeviceMask>
+struct Schema<vulkan::api_elements::CmdSetDeviceMask>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetDeviceMask::commandBuffer,
                                   vulkan::fields::CmdSetDeviceMask::deviceMask,
@@ -15309,7 +15309,7 @@ struct Schema<vulkan::commands::CmdSetDeviceMask>
 };
 
 template <>
-struct Schema<vulkan::commands::EnumeratePhysicalDeviceGroups>
+struct Schema<vulkan::api_elements::EnumeratePhysicalDeviceGroups>
 {
     using Fields = util::TypeList<vulkan::fields::EnumeratePhysicalDeviceGroups::instance,
                                   vulkan::fields::EnumeratePhysicalDeviceGroups::pPhysicalDeviceGroupCount,
@@ -15318,7 +15318,7 @@ struct Schema<vulkan::commands::EnumeratePhysicalDeviceGroups>
 };
 
 template <>
-struct Schema<vulkan::commands::GetImageMemoryRequirements2>
+struct Schema<vulkan::api_elements::GetImageMemoryRequirements2>
 {
     using Fields = util::TypeList<vulkan::fields::GetImageMemoryRequirements2::device,
                                   vulkan::fields::GetImageMemoryRequirements2::pInfo,
@@ -15327,7 +15327,7 @@ struct Schema<vulkan::commands::GetImageMemoryRequirements2>
 };
 
 template <>
-struct Schema<vulkan::commands::GetBufferMemoryRequirements2>
+struct Schema<vulkan::api_elements::GetBufferMemoryRequirements2>
 {
     using Fields = util::TypeList<vulkan::fields::GetBufferMemoryRequirements2::device,
                                   vulkan::fields::GetBufferMemoryRequirements2::pInfo,
@@ -15336,7 +15336,7 @@ struct Schema<vulkan::commands::GetBufferMemoryRequirements2>
 };
 
 template <>
-struct Schema<vulkan::commands::GetImageSparseMemoryRequirements2>
+struct Schema<vulkan::api_elements::GetImageSparseMemoryRequirements2>
 {
     using Fields = util::TypeList<vulkan::fields::GetImageSparseMemoryRequirements2::device,
                                   vulkan::fields::GetImageSparseMemoryRequirements2::pInfo,
@@ -15346,7 +15346,7 @@ struct Schema<vulkan::commands::GetImageSparseMemoryRequirements2>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceFeatures2>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceFeatures2>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceFeatures2::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceFeatures2::pFeatures,
@@ -15354,7 +15354,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceFeatures2>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceProperties2>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceProperties2>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceProperties2::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceProperties2::pProperties,
@@ -15362,7 +15362,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceProperties2>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceFormatProperties2>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceFormatProperties2>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceFormatProperties2::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceFormatProperties2::format,
@@ -15371,7 +15371,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceFormatProperties2>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceImageFormatProperties2>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceImageFormatProperties2>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceImageFormatProperties2::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceImageFormatProperties2::pImageFormatInfo,
@@ -15380,7 +15380,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceImageFormatProperties2>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceQueueFamilyProperties2>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceQueueFamilyProperties2>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceQueueFamilyProperties2::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceQueueFamilyProperties2::pQueueFamilyPropertyCount,
@@ -15389,7 +15389,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceQueueFamilyProperties2>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceMemoryProperties2>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceMemoryProperties2>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceMemoryProperties2::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceMemoryProperties2::pMemoryProperties,
@@ -15397,7 +15397,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceMemoryProperties2>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceSparseImageFormatProperties2>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceSparseImageFormatProperties2>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceSparseImageFormatProperties2::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceSparseImageFormatProperties2::pFormatInfo,
@@ -15407,21 +15407,21 @@ struct Schema<vulkan::commands::GetPhysicalDeviceSparseImageFormatProperties2>
 };
 
 template <>
-struct Schema<vulkan::commands::TrimCommandPool>
+struct Schema<vulkan::api_elements::TrimCommandPool>
 {
     using Fields = util::TypeList<vulkan::fields::TrimCommandPool::device, vulkan::fields::TrimCommandPool::commandPool,
                                   vulkan::fields::TrimCommandPool::flags, vulkan::fields::TrimCommandPool::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::GetDeviceQueue2>
+struct Schema<vulkan::api_elements::GetDeviceQueue2>
 {
     using Fields = util::TypeList<vulkan::fields::GetDeviceQueue2::device, vulkan::fields::GetDeviceQueue2::pQueueInfo,
                                   vulkan::fields::GetDeviceQueue2::pQueue, vulkan::fields::GetDeviceQueue2::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceExternalBufferProperties>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceExternalBufferProperties>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceExternalBufferProperties::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceExternalBufferProperties::pExternalBufferInfo,
@@ -15430,7 +15430,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceExternalBufferProperties>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceExternalFenceProperties>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceExternalFenceProperties>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceExternalFenceProperties::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceExternalFenceProperties::pExternalFenceInfo,
@@ -15439,7 +15439,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceExternalFenceProperties>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceExternalSemaphoreProperties>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceExternalSemaphoreProperties>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceExternalSemaphoreProperties::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceExternalSemaphoreProperties::pExternalSemaphoreInfo,
@@ -15448,7 +15448,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceExternalSemaphoreProperties>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDispatchBase>
+struct Schema<vulkan::api_elements::CmdDispatchBase>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDispatchBase::commandBuffer,
                                   vulkan::fields::CmdDispatchBase::baseGroupX,
@@ -15461,7 +15461,7 @@ struct Schema<vulkan::commands::CmdDispatchBase>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateDescriptorUpdateTemplate>
+struct Schema<vulkan::api_elements::CreateDescriptorUpdateTemplate>
 {
     using Fields = util::TypeList<vulkan::fields::CreateDescriptorUpdateTemplate::device,
                                   vulkan::fields::CreateDescriptorUpdateTemplate::pCreateInfo,
@@ -15471,7 +15471,7 @@ struct Schema<vulkan::commands::CreateDescriptorUpdateTemplate>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyDescriptorUpdateTemplate>
+struct Schema<vulkan::api_elements::DestroyDescriptorUpdateTemplate>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyDescriptorUpdateTemplate::device,
                                   vulkan::fields::DestroyDescriptorUpdateTemplate::descriptorUpdateTemplate,
@@ -15480,7 +15480,7 @@ struct Schema<vulkan::commands::DestroyDescriptorUpdateTemplate>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDescriptorSetLayoutSupport>
+struct Schema<vulkan::api_elements::GetDescriptorSetLayoutSupport>
 {
     using Fields = util::TypeList<vulkan::fields::GetDescriptorSetLayoutSupport::device,
                                   vulkan::fields::GetDescriptorSetLayoutSupport::pCreateInfo,
@@ -15489,7 +15489,7 @@ struct Schema<vulkan::commands::GetDescriptorSetLayoutSupport>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateSamplerYcbcrConversion>
+struct Schema<vulkan::api_elements::CreateSamplerYcbcrConversion>
 {
     using Fields = util::TypeList<vulkan::fields::CreateSamplerYcbcrConversion::device,
                                   vulkan::fields::CreateSamplerYcbcrConversion::pCreateInfo,
@@ -15499,7 +15499,7 @@ struct Schema<vulkan::commands::CreateSamplerYcbcrConversion>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroySamplerYcbcrConversion>
+struct Schema<vulkan::api_elements::DestroySamplerYcbcrConversion>
 {
     using Fields = util::TypeList<vulkan::fields::DestroySamplerYcbcrConversion::device,
                                   vulkan::fields::DestroySamplerYcbcrConversion::ycbcrConversion,
@@ -15508,7 +15508,7 @@ struct Schema<vulkan::commands::DestroySamplerYcbcrConversion>
 };
 
 template <>
-struct Schema<vulkan::commands::ResetQueryPool>
+struct Schema<vulkan::api_elements::ResetQueryPool>
 {
     using Fields = util::TypeList<vulkan::fields::ResetQueryPool::device, vulkan::fields::ResetQueryPool::queryPool,
                                   vulkan::fields::ResetQueryPool::firstQuery,
@@ -15516,7 +15516,7 @@ struct Schema<vulkan::commands::ResetQueryPool>
 };
 
 template <>
-struct Schema<vulkan::commands::GetSemaphoreCounterValue>
+struct Schema<vulkan::api_elements::GetSemaphoreCounterValue>
 {
     using Fields = util::TypeList<vulkan::fields::GetSemaphoreCounterValue::device,
                                   vulkan::fields::GetSemaphoreCounterValue::semaphore,
@@ -15525,21 +15525,21 @@ struct Schema<vulkan::commands::GetSemaphoreCounterValue>
 };
 
 template <>
-struct Schema<vulkan::commands::WaitSemaphores>
+struct Schema<vulkan::api_elements::WaitSemaphores>
 {
     using Fields = util::TypeList<vulkan::fields::WaitSemaphores::device, vulkan::fields::WaitSemaphores::pWaitInfo,
                                   vulkan::fields::WaitSemaphores::timeout, vulkan::fields::WaitSemaphores::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::SignalSemaphore>
+struct Schema<vulkan::api_elements::SignalSemaphore>
 {
     using Fields = util::TypeList<vulkan::fields::SignalSemaphore::device, vulkan::fields::SignalSemaphore::pSignalInfo,
                                   vulkan::fields::SignalSemaphore::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::GetBufferDeviceAddress>
+struct Schema<vulkan::api_elements::GetBufferDeviceAddress>
 {
     using Fields = util::TypeList<vulkan::fields::GetBufferDeviceAddress::device,
                                   vulkan::fields::GetBufferDeviceAddress::pInfo,
@@ -15547,7 +15547,7 @@ struct Schema<vulkan::commands::GetBufferDeviceAddress>
 };
 
 template <>
-struct Schema<vulkan::commands::GetBufferOpaqueCaptureAddress>
+struct Schema<vulkan::api_elements::GetBufferOpaqueCaptureAddress>
 {
     using Fields = util::TypeList<vulkan::fields::GetBufferOpaqueCaptureAddress::device,
                                   vulkan::fields::GetBufferOpaqueCaptureAddress::pInfo,
@@ -15555,7 +15555,7 @@ struct Schema<vulkan::commands::GetBufferOpaqueCaptureAddress>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDeviceMemoryOpaqueCaptureAddress>
+struct Schema<vulkan::api_elements::GetDeviceMemoryOpaqueCaptureAddress>
 {
     using Fields = util::TypeList<vulkan::fields::GetDeviceMemoryOpaqueCaptureAddress::device,
                                   vulkan::fields::GetDeviceMemoryOpaqueCaptureAddress::pInfo,
@@ -15563,7 +15563,7 @@ struct Schema<vulkan::commands::GetDeviceMemoryOpaqueCaptureAddress>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDrawIndirectCount>
+struct Schema<vulkan::api_elements::CmdDrawIndirectCount>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDrawIndirectCount::commandBuffer,
                                   vulkan::fields::CmdDrawIndirectCount::buffer,
@@ -15576,7 +15576,7 @@ struct Schema<vulkan::commands::CmdDrawIndirectCount>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDrawIndexedIndirectCount>
+struct Schema<vulkan::api_elements::CmdDrawIndexedIndirectCount>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDrawIndexedIndirectCount::commandBuffer,
                                   vulkan::fields::CmdDrawIndexedIndirectCount::buffer,
@@ -15589,7 +15589,7 @@ struct Schema<vulkan::commands::CmdDrawIndexedIndirectCount>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateRenderPass2>
+struct Schema<vulkan::api_elements::CreateRenderPass2>
 {
     using Fields = util::TypeList<vulkan::fields::CreateRenderPass2::device,
                                   vulkan::fields::CreateRenderPass2::pCreateInfo,
@@ -15599,7 +15599,7 @@ struct Schema<vulkan::commands::CreateRenderPass2>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBeginRenderPass2>
+struct Schema<vulkan::api_elements::CmdBeginRenderPass2>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBeginRenderPass2::commandBuffer,
                                   vulkan::fields::CmdBeginRenderPass2::pRenderPassBegin,
@@ -15608,7 +15608,7 @@ struct Schema<vulkan::commands::CmdBeginRenderPass2>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdNextSubpass2>
+struct Schema<vulkan::api_elements::CmdNextSubpass2>
 {
     using Fields = util::TypeList<vulkan::fields::CmdNextSubpass2::commandBuffer,
                                   vulkan::fields::CmdNextSubpass2::pSubpassBeginInfo,
@@ -15617,7 +15617,7 @@ struct Schema<vulkan::commands::CmdNextSubpass2>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdEndRenderPass2>
+struct Schema<vulkan::api_elements::CmdEndRenderPass2>
 {
     using Fields = util::TypeList<vulkan::fields::CmdEndRenderPass2::commandBuffer,
                                   vulkan::fields::CmdEndRenderPass2::pSubpassEndInfo,
@@ -15625,7 +15625,7 @@ struct Schema<vulkan::commands::CmdEndRenderPass2>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceToolProperties>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceToolProperties>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceToolProperties::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceToolProperties::pToolCount,
@@ -15634,7 +15634,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceToolProperties>
 };
 
 template <>
-struct Schema<vulkan::commands::CreatePrivateDataSlot>
+struct Schema<vulkan::api_elements::CreatePrivateDataSlot>
 {
     using Fields = util::TypeList<vulkan::fields::CreatePrivateDataSlot::device,
                                   vulkan::fields::CreatePrivateDataSlot::pCreateInfo,
@@ -15644,7 +15644,7 @@ struct Schema<vulkan::commands::CreatePrivateDataSlot>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyPrivateDataSlot>
+struct Schema<vulkan::api_elements::DestroyPrivateDataSlot>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyPrivateDataSlot::device,
                                   vulkan::fields::DestroyPrivateDataSlot::privateDataSlot,
@@ -15653,7 +15653,7 @@ struct Schema<vulkan::commands::DestroyPrivateDataSlot>
 };
 
 template <>
-struct Schema<vulkan::commands::SetPrivateData>
+struct Schema<vulkan::api_elements::SetPrivateData>
 {
     using Fields = util::TypeList<vulkan::fields::SetPrivateData::device, vulkan::fields::SetPrivateData::objectType,
                                   vulkan::fields::SetPrivateData::objectHandle,
@@ -15662,7 +15662,7 @@ struct Schema<vulkan::commands::SetPrivateData>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPrivateData>
+struct Schema<vulkan::api_elements::GetPrivateData>
 {
     using Fields = util::TypeList<vulkan::fields::GetPrivateData::device, vulkan::fields::GetPrivateData::objectType,
                                   vulkan::fields::GetPrivateData::objectHandle,
@@ -15671,7 +15671,7 @@ struct Schema<vulkan::commands::GetPrivateData>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdPipelineBarrier2>
+struct Schema<vulkan::api_elements::CmdPipelineBarrier2>
 {
     using Fields = util::TypeList<vulkan::fields::CmdPipelineBarrier2::commandBuffer,
                                   vulkan::fields::CmdPipelineBarrier2::pDependencyInfo,
@@ -15679,7 +15679,7 @@ struct Schema<vulkan::commands::CmdPipelineBarrier2>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdWriteTimestamp2>
+struct Schema<vulkan::api_elements::CmdWriteTimestamp2>
 {
     using Fields = util::TypeList<vulkan::fields::CmdWriteTimestamp2::commandBuffer,
                                   vulkan::fields::CmdWriteTimestamp2::stage,
@@ -15689,7 +15689,7 @@ struct Schema<vulkan::commands::CmdWriteTimestamp2>
 };
 
 template <>
-struct Schema<vulkan::commands::QueueSubmit2>
+struct Schema<vulkan::api_elements::QueueSubmit2>
 {
     using Fields = util::TypeList<vulkan::fields::QueueSubmit2::queue, vulkan::fields::QueueSubmit2::submitCount,
                                   vulkan::fields::QueueSubmit2::pSubmits, vulkan::fields::QueueSubmit2::fence,
@@ -15697,7 +15697,7 @@ struct Schema<vulkan::commands::QueueSubmit2>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyBuffer2>
+struct Schema<vulkan::api_elements::CmdCopyBuffer2>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyBuffer2::commandBuffer,
                                   vulkan::fields::CmdCopyBuffer2::pCopyBufferInfo,
@@ -15705,14 +15705,14 @@ struct Schema<vulkan::commands::CmdCopyBuffer2>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyImage2>
+struct Schema<vulkan::api_elements::CmdCopyImage2>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyImage2::commandBuffer,
                                   vulkan::fields::CmdCopyImage2::pCopyImageInfo, vulkan::fields::CmdCopyImage2::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyBufferToImage2>
+struct Schema<vulkan::api_elements::CmdCopyBufferToImage2>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyBufferToImage2::commandBuffer,
                                   vulkan::fields::CmdCopyBufferToImage2::pCopyBufferToImageInfo,
@@ -15720,7 +15720,7 @@ struct Schema<vulkan::commands::CmdCopyBufferToImage2>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyImageToBuffer2>
+struct Schema<vulkan::api_elements::CmdCopyImageToBuffer2>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyImageToBuffer2::commandBuffer,
                                   vulkan::fields::CmdCopyImageToBuffer2::pCopyImageToBufferInfo,
@@ -15728,7 +15728,7 @@ struct Schema<vulkan::commands::CmdCopyImageToBuffer2>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDeviceBufferMemoryRequirements>
+struct Schema<vulkan::api_elements::GetDeviceBufferMemoryRequirements>
 {
     using Fields = util::TypeList<vulkan::fields::GetDeviceBufferMemoryRequirements::device,
                                   vulkan::fields::GetDeviceBufferMemoryRequirements::pInfo,
@@ -15737,7 +15737,7 @@ struct Schema<vulkan::commands::GetDeviceBufferMemoryRequirements>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDeviceImageMemoryRequirements>
+struct Schema<vulkan::api_elements::GetDeviceImageMemoryRequirements>
 {
     using Fields = util::TypeList<vulkan::fields::GetDeviceImageMemoryRequirements::device,
                                   vulkan::fields::GetDeviceImageMemoryRequirements::pInfo,
@@ -15746,7 +15746,7 @@ struct Schema<vulkan::commands::GetDeviceImageMemoryRequirements>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDeviceImageSparseMemoryRequirements>
+struct Schema<vulkan::api_elements::GetDeviceImageSparseMemoryRequirements>
 {
     using Fields = util::TypeList<vulkan::fields::GetDeviceImageSparseMemoryRequirements::device,
                                   vulkan::fields::GetDeviceImageSparseMemoryRequirements::pInfo,
@@ -15756,21 +15756,21 @@ struct Schema<vulkan::commands::GetDeviceImageSparseMemoryRequirements>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetEvent2>
+struct Schema<vulkan::api_elements::CmdSetEvent2>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetEvent2::commandBuffer, vulkan::fields::CmdSetEvent2::event,
                                   vulkan::fields::CmdSetEvent2::pDependencyInfo, vulkan::fields::CmdSetEvent2::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::CmdResetEvent2>
+struct Schema<vulkan::api_elements::CmdResetEvent2>
 {
     using Fields = util::TypeList<vulkan::fields::CmdResetEvent2::commandBuffer, vulkan::fields::CmdResetEvent2::event,
                                   vulkan::fields::CmdResetEvent2::stageMask, vulkan::fields::CmdResetEvent2::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::CmdWaitEvents2>
+struct Schema<vulkan::api_elements::CmdWaitEvents2>
 {
     using Fields = util::TypeList<vulkan::fields::CmdWaitEvents2::commandBuffer,
                                   vulkan::fields::CmdWaitEvents2::eventCount, vulkan::fields::CmdWaitEvents2::pEvents,
@@ -15779,14 +15779,14 @@ struct Schema<vulkan::commands::CmdWaitEvents2>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBlitImage2>
+struct Schema<vulkan::api_elements::CmdBlitImage2>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBlitImage2::commandBuffer,
                                   vulkan::fields::CmdBlitImage2::pBlitImageInfo, vulkan::fields::CmdBlitImage2::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::CmdResolveImage2>
+struct Schema<vulkan::api_elements::CmdResolveImage2>
 {
     using Fields = util::TypeList<vulkan::fields::CmdResolveImage2::commandBuffer,
                                   vulkan::fields::CmdResolveImage2::pResolveImageInfo,
@@ -15794,7 +15794,7 @@ struct Schema<vulkan::commands::CmdResolveImage2>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBeginRendering>
+struct Schema<vulkan::api_elements::CmdBeginRendering>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBeginRendering::commandBuffer,
                                   vulkan::fields::CmdBeginRendering::pRenderingInfo,
@@ -15802,28 +15802,28 @@ struct Schema<vulkan::commands::CmdBeginRendering>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdEndRendering>
+struct Schema<vulkan::api_elements::CmdEndRendering>
 {
     using Fields = util::TypeList<vulkan::fields::CmdEndRendering::commandBuffer,
                                   vulkan::fields::CmdEndRendering::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetCullMode>
+struct Schema<vulkan::api_elements::CmdSetCullMode>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetCullMode::commandBuffer,
                                   vulkan::fields::CmdSetCullMode::cullMode, vulkan::fields::CmdSetCullMode::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetFrontFace>
+struct Schema<vulkan::api_elements::CmdSetFrontFace>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetFrontFace::commandBuffer,
                                   vulkan::fields::CmdSetFrontFace::frontFace, vulkan::fields::CmdSetFrontFace::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetPrimitiveTopology>
+struct Schema<vulkan::api_elements::CmdSetPrimitiveTopology>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetPrimitiveTopology::commandBuffer,
                                   vulkan::fields::CmdSetPrimitiveTopology::primitiveTopology,
@@ -15831,7 +15831,7 @@ struct Schema<vulkan::commands::CmdSetPrimitiveTopology>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetViewportWithCount>
+struct Schema<vulkan::api_elements::CmdSetViewportWithCount>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetViewportWithCount::commandBuffer,
                                   vulkan::fields::CmdSetViewportWithCount::viewportCount,
@@ -15840,7 +15840,7 @@ struct Schema<vulkan::commands::CmdSetViewportWithCount>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetScissorWithCount>
+struct Schema<vulkan::api_elements::CmdSetScissorWithCount>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetScissorWithCount::commandBuffer,
                                   vulkan::fields::CmdSetScissorWithCount::scissorCount,
@@ -15849,7 +15849,7 @@ struct Schema<vulkan::commands::CmdSetScissorWithCount>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBindVertexBuffers2>
+struct Schema<vulkan::api_elements::CmdBindVertexBuffers2>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBindVertexBuffers2::commandBuffer,
                                   vulkan::fields::CmdBindVertexBuffers2::firstBinding,
@@ -15862,7 +15862,7 @@ struct Schema<vulkan::commands::CmdBindVertexBuffers2>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetDepthTestEnable>
+struct Schema<vulkan::api_elements::CmdSetDepthTestEnable>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetDepthTestEnable::commandBuffer,
                                   vulkan::fields::CmdSetDepthTestEnable::depthTestEnable,
@@ -15870,7 +15870,7 @@ struct Schema<vulkan::commands::CmdSetDepthTestEnable>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetDepthWriteEnable>
+struct Schema<vulkan::api_elements::CmdSetDepthWriteEnable>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetDepthWriteEnable::commandBuffer,
                                   vulkan::fields::CmdSetDepthWriteEnable::depthWriteEnable,
@@ -15878,7 +15878,7 @@ struct Schema<vulkan::commands::CmdSetDepthWriteEnable>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetDepthCompareOp>
+struct Schema<vulkan::api_elements::CmdSetDepthCompareOp>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetDepthCompareOp::commandBuffer,
                                   vulkan::fields::CmdSetDepthCompareOp::depthCompareOp,
@@ -15886,7 +15886,7 @@ struct Schema<vulkan::commands::CmdSetDepthCompareOp>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetDepthBoundsTestEnable>
+struct Schema<vulkan::api_elements::CmdSetDepthBoundsTestEnable>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetDepthBoundsTestEnable::commandBuffer,
                                   vulkan::fields::CmdSetDepthBoundsTestEnable::depthBoundsTestEnable,
@@ -15894,7 +15894,7 @@ struct Schema<vulkan::commands::CmdSetDepthBoundsTestEnable>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetStencilTestEnable>
+struct Schema<vulkan::api_elements::CmdSetStencilTestEnable>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetStencilTestEnable::commandBuffer,
                                   vulkan::fields::CmdSetStencilTestEnable::stencilTestEnable,
@@ -15902,7 +15902,7 @@ struct Schema<vulkan::commands::CmdSetStencilTestEnable>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetStencilOp>
+struct Schema<vulkan::api_elements::CmdSetStencilOp>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetStencilOp::commandBuffer,
                                   vulkan::fields::CmdSetStencilOp::faceMask, vulkan::fields::CmdSetStencilOp::failOp,
@@ -15911,7 +15911,7 @@ struct Schema<vulkan::commands::CmdSetStencilOp>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetRasterizerDiscardEnable>
+struct Schema<vulkan::api_elements::CmdSetRasterizerDiscardEnable>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetRasterizerDiscardEnable::commandBuffer,
                                   vulkan::fields::CmdSetRasterizerDiscardEnable::rasterizerDiscardEnable,
@@ -15919,7 +15919,7 @@ struct Schema<vulkan::commands::CmdSetRasterizerDiscardEnable>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetDepthBiasEnable>
+struct Schema<vulkan::api_elements::CmdSetDepthBiasEnable>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetDepthBiasEnable::commandBuffer,
                                   vulkan::fields::CmdSetDepthBiasEnable::depthBiasEnable,
@@ -15927,7 +15927,7 @@ struct Schema<vulkan::commands::CmdSetDepthBiasEnable>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetPrimitiveRestartEnable>
+struct Schema<vulkan::api_elements::CmdSetPrimitiveRestartEnable>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetPrimitiveRestartEnable::commandBuffer,
                                   vulkan::fields::CmdSetPrimitiveRestartEnable::primitiveRestartEnable,
@@ -15935,21 +15935,21 @@ struct Schema<vulkan::commands::CmdSetPrimitiveRestartEnable>
 };
 
 template <>
-struct Schema<vulkan::commands::MapMemory2>
+struct Schema<vulkan::api_elements::MapMemory2>
 {
     using Fields = util::TypeList<vulkan::fields::MapMemory2::device, vulkan::fields::MapMemory2::pMemoryMapInfo,
                                   vulkan::fields::MapMemory2::ppData, vulkan::fields::MapMemory2::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::UnmapMemory2>
+struct Schema<vulkan::api_elements::UnmapMemory2>
 {
     using Fields = util::TypeList<vulkan::fields::UnmapMemory2::device, vulkan::fields::UnmapMemory2::pMemoryUnmapInfo,
                                   vulkan::fields::UnmapMemory2::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::GetDeviceImageSubresourceLayout>
+struct Schema<vulkan::api_elements::GetDeviceImageSubresourceLayout>
 {
     using Fields = util::TypeList<vulkan::fields::GetDeviceImageSubresourceLayout::device,
                                   vulkan::fields::GetDeviceImageSubresourceLayout::pInfo,
@@ -15958,7 +15958,7 @@ struct Schema<vulkan::commands::GetDeviceImageSubresourceLayout>
 };
 
 template <>
-struct Schema<vulkan::commands::GetImageSubresourceLayout2>
+struct Schema<vulkan::api_elements::GetImageSubresourceLayout2>
 {
     using Fields = util::TypeList<vulkan::fields::GetImageSubresourceLayout2::device,
                                   vulkan::fields::GetImageSubresourceLayout2::image,
@@ -15968,7 +15968,7 @@ struct Schema<vulkan::commands::GetImageSubresourceLayout2>
 };
 
 template <>
-struct Schema<vulkan::commands::CopyMemoryToImage>
+struct Schema<vulkan::api_elements::CopyMemoryToImage>
 {
     using Fields = util::TypeList<vulkan::fields::CopyMemoryToImage::device,
                                   vulkan::fields::CopyMemoryToImage::pCopyMemoryToImageInfo,
@@ -15976,7 +15976,7 @@ struct Schema<vulkan::commands::CopyMemoryToImage>
 };
 
 template <>
-struct Schema<vulkan::commands::CopyImageToMemory>
+struct Schema<vulkan::api_elements::CopyImageToMemory>
 {
     using Fields = util::TypeList<vulkan::fields::CopyImageToMemory::device,
                                   vulkan::fields::CopyImageToMemory::pCopyImageToMemoryInfo,
@@ -15984,7 +15984,7 @@ struct Schema<vulkan::commands::CopyImageToMemory>
 };
 
 template <>
-struct Schema<vulkan::commands::CopyImageToImage>
+struct Schema<vulkan::api_elements::CopyImageToImage>
 {
     using Fields = util::TypeList<vulkan::fields::CopyImageToImage::device,
                                   vulkan::fields::CopyImageToImage::pCopyImageToImageInfo,
@@ -15992,7 +15992,7 @@ struct Schema<vulkan::commands::CopyImageToImage>
 };
 
 template <>
-struct Schema<vulkan::commands::TransitionImageLayout>
+struct Schema<vulkan::api_elements::TransitionImageLayout>
 {
     using Fields = util::TypeList<vulkan::fields::TransitionImageLayout::device,
                                   vulkan::fields::TransitionImageLayout::transitionCount,
@@ -16001,7 +16001,7 @@ struct Schema<vulkan::commands::TransitionImageLayout>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdPushDescriptorSet>
+struct Schema<vulkan::api_elements::CmdPushDescriptorSet>
 {
     using Fields = util::TypeList<vulkan::fields::CmdPushDescriptorSet::commandBuffer,
                                   vulkan::fields::CmdPushDescriptorSet::pipelineBindPoint,
@@ -16013,7 +16013,7 @@ struct Schema<vulkan::commands::CmdPushDescriptorSet>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBindDescriptorSets2>
+struct Schema<vulkan::api_elements::CmdBindDescriptorSets2>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBindDescriptorSets2::commandBuffer,
                                   vulkan::fields::CmdBindDescriptorSets2::pBindDescriptorSetsInfo,
@@ -16021,7 +16021,7 @@ struct Schema<vulkan::commands::CmdBindDescriptorSets2>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdPushConstants2>
+struct Schema<vulkan::api_elements::CmdPushConstants2>
 {
     using Fields = util::TypeList<vulkan::fields::CmdPushConstants2::commandBuffer,
                                   vulkan::fields::CmdPushConstants2::pPushConstantsInfo,
@@ -16029,7 +16029,7 @@ struct Schema<vulkan::commands::CmdPushConstants2>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdPushDescriptorSet2>
+struct Schema<vulkan::api_elements::CmdPushDescriptorSet2>
 {
     using Fields = util::TypeList<vulkan::fields::CmdPushDescriptorSet2::commandBuffer,
                                   vulkan::fields::CmdPushDescriptorSet2::pPushDescriptorSetInfo,
@@ -16037,7 +16037,7 @@ struct Schema<vulkan::commands::CmdPushDescriptorSet2>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetLineStipple>
+struct Schema<vulkan::api_elements::CmdSetLineStipple>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetLineStipple::commandBuffer,
                                   vulkan::fields::CmdSetLineStipple::lineStippleFactor,
@@ -16046,7 +16046,7 @@ struct Schema<vulkan::commands::CmdSetLineStipple>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBindIndexBuffer2>
+struct Schema<vulkan::api_elements::CmdBindIndexBuffer2>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBindIndexBuffer2::commandBuffer,
                                   vulkan::fields::CmdBindIndexBuffer2::buffer,
@@ -16057,7 +16057,7 @@ struct Schema<vulkan::commands::CmdBindIndexBuffer2>
 };
 
 template <>
-struct Schema<vulkan::commands::GetRenderingAreaGranularity>
+struct Schema<vulkan::api_elements::GetRenderingAreaGranularity>
 {
     using Fields = util::TypeList<vulkan::fields::GetRenderingAreaGranularity::device,
                                   vulkan::fields::GetRenderingAreaGranularity::pRenderingAreaInfo,
@@ -16066,7 +16066,7 @@ struct Schema<vulkan::commands::GetRenderingAreaGranularity>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetRenderingAttachmentLocations>
+struct Schema<vulkan::api_elements::CmdSetRenderingAttachmentLocations>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetRenderingAttachmentLocations::commandBuffer,
                                   vulkan::fields::CmdSetRenderingAttachmentLocations::pLocationInfo,
@@ -16074,7 +16074,7 @@ struct Schema<vulkan::commands::CmdSetRenderingAttachmentLocations>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetRenderingInputAttachmentIndices>
+struct Schema<vulkan::api_elements::CmdSetRenderingInputAttachmentIndices>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetRenderingInputAttachmentIndices::commandBuffer,
                                   vulkan::fields::CmdSetRenderingInputAttachmentIndices::pInputAttachmentIndexInfo,
@@ -16082,7 +16082,7 @@ struct Schema<vulkan::commands::CmdSetRenderingInputAttachmentIndices>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroySurfaceKHR>
+struct Schema<vulkan::api_elements::DestroySurfaceKHR>
 {
     using Fields = util::TypeList<vulkan::fields::DestroySurfaceKHR::instance,
                                   vulkan::fields::DestroySurfaceKHR::surface,
@@ -16091,7 +16091,7 @@ struct Schema<vulkan::commands::DestroySurfaceKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceSurfaceSupportKHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceSurfaceSupportKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceSurfaceSupportKHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceSurfaceSupportKHR::queueFamilyIndex,
@@ -16101,7 +16101,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceSurfaceSupportKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceSurfaceCapabilitiesKHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceSurfaceCapabilitiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceSurfaceCapabilitiesKHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceSurfaceCapabilitiesKHR::surface,
@@ -16110,7 +16110,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceSurfaceCapabilitiesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceSurfaceFormatsKHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceSurfaceFormatsKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceSurfaceFormatsKHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceSurfaceFormatsKHR::surface,
@@ -16120,7 +16120,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceSurfaceFormatsKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceSurfacePresentModesKHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceSurfacePresentModesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceSurfacePresentModesKHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceSurfacePresentModesKHR::surface,
@@ -16130,7 +16130,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceSurfacePresentModesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateSwapchainKHR>
+struct Schema<vulkan::api_elements::CreateSwapchainKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CreateSwapchainKHR::device,
                                   vulkan::fields::CreateSwapchainKHR::pCreateInfo,
@@ -16140,7 +16140,7 @@ struct Schema<vulkan::commands::CreateSwapchainKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroySwapchainKHR>
+struct Schema<vulkan::api_elements::DestroySwapchainKHR>
 {
     using Fields = util::TypeList<vulkan::fields::DestroySwapchainKHR::device,
                                   vulkan::fields::DestroySwapchainKHR::swapchain,
@@ -16149,7 +16149,7 @@ struct Schema<vulkan::commands::DestroySwapchainKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetSwapchainImagesKHR>
+struct Schema<vulkan::api_elements::GetSwapchainImagesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetSwapchainImagesKHR::device,
                                   vulkan::fields::GetSwapchainImagesKHR::swapchain,
@@ -16159,7 +16159,7 @@ struct Schema<vulkan::commands::GetSwapchainImagesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::AcquireNextImageKHR>
+struct Schema<vulkan::api_elements::AcquireNextImageKHR>
 {
     using Fields = util::TypeList<vulkan::fields::AcquireNextImageKHR::device,
                                   vulkan::fields::AcquireNextImageKHR::swapchain,
@@ -16171,14 +16171,14 @@ struct Schema<vulkan::commands::AcquireNextImageKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::QueuePresentKHR>
+struct Schema<vulkan::api_elements::QueuePresentKHR>
 {
     using Fields = util::TypeList<vulkan::fields::QueuePresentKHR::queue, vulkan::fields::QueuePresentKHR::pPresentInfo,
                                   vulkan::fields::QueuePresentKHR::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::GetDeviceGroupPresentCapabilitiesKHR>
+struct Schema<vulkan::api_elements::GetDeviceGroupPresentCapabilitiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetDeviceGroupPresentCapabilitiesKHR::device,
                                   vulkan::fields::GetDeviceGroupPresentCapabilitiesKHR::pDeviceGroupPresentCapabilities,
@@ -16186,7 +16186,7 @@ struct Schema<vulkan::commands::GetDeviceGroupPresentCapabilitiesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDeviceGroupSurfacePresentModesKHR>
+struct Schema<vulkan::api_elements::GetDeviceGroupSurfacePresentModesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetDeviceGroupSurfacePresentModesKHR::device,
                                   vulkan::fields::GetDeviceGroupSurfacePresentModesKHR::surface,
@@ -16195,7 +16195,7 @@ struct Schema<vulkan::commands::GetDeviceGroupSurfacePresentModesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDevicePresentRectanglesKHR>
+struct Schema<vulkan::api_elements::GetPhysicalDevicePresentRectanglesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDevicePresentRectanglesKHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDevicePresentRectanglesKHR::surface,
@@ -16205,7 +16205,7 @@ struct Schema<vulkan::commands::GetPhysicalDevicePresentRectanglesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::AcquireNextImage2KHR>
+struct Schema<vulkan::api_elements::AcquireNextImage2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::AcquireNextImage2KHR::device,
                                   vulkan::fields::AcquireNextImage2KHR::pAcquireInfo,
@@ -16214,7 +16214,7 @@ struct Schema<vulkan::commands::AcquireNextImage2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceDisplayPropertiesKHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceDisplayPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceDisplayPropertiesKHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceDisplayPropertiesKHR::pPropertyCount,
@@ -16223,7 +16223,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceDisplayPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceDisplayPlanePropertiesKHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceDisplayPlanePropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceDisplayPlanePropertiesKHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceDisplayPlanePropertiesKHR::pPropertyCount,
@@ -16232,7 +16232,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceDisplayPlanePropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDisplayPlaneSupportedDisplaysKHR>
+struct Schema<vulkan::api_elements::GetDisplayPlaneSupportedDisplaysKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetDisplayPlaneSupportedDisplaysKHR::physicalDevice,
                                   vulkan::fields::GetDisplayPlaneSupportedDisplaysKHR::planeIndex,
@@ -16242,7 +16242,7 @@ struct Schema<vulkan::commands::GetDisplayPlaneSupportedDisplaysKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDisplayModePropertiesKHR>
+struct Schema<vulkan::api_elements::GetDisplayModePropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetDisplayModePropertiesKHR::physicalDevice,
                                   vulkan::fields::GetDisplayModePropertiesKHR::display,
@@ -16252,7 +16252,7 @@ struct Schema<vulkan::commands::GetDisplayModePropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateDisplayModeKHR>
+struct Schema<vulkan::api_elements::CreateDisplayModeKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CreateDisplayModeKHR::physicalDevice,
                                   vulkan::fields::CreateDisplayModeKHR::display,
@@ -16263,7 +16263,7 @@ struct Schema<vulkan::commands::CreateDisplayModeKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDisplayPlaneCapabilitiesKHR>
+struct Schema<vulkan::api_elements::GetDisplayPlaneCapabilitiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetDisplayPlaneCapabilitiesKHR::physicalDevice,
                                   vulkan::fields::GetDisplayPlaneCapabilitiesKHR::mode,
@@ -16273,7 +16273,7 @@ struct Schema<vulkan::commands::GetDisplayPlaneCapabilitiesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateDisplayPlaneSurfaceKHR>
+struct Schema<vulkan::api_elements::CreateDisplayPlaneSurfaceKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CreateDisplayPlaneSurfaceKHR::instance,
                                   vulkan::fields::CreateDisplayPlaneSurfaceKHR::pCreateInfo,
@@ -16283,7 +16283,7 @@ struct Schema<vulkan::commands::CreateDisplayPlaneSurfaceKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateSharedSwapchainsKHR>
+struct Schema<vulkan::api_elements::CreateSharedSwapchainsKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CreateSharedSwapchainsKHR::device,
                                   vulkan::fields::CreateSharedSwapchainsKHR::swapchainCount,
@@ -16294,7 +16294,7 @@ struct Schema<vulkan::commands::CreateSharedSwapchainsKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateXlibSurfaceKHR>
+struct Schema<vulkan::api_elements::CreateXlibSurfaceKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CreateXlibSurfaceKHR::instance,
                                   vulkan::fields::CreateXlibSurfaceKHR::pCreateInfo,
@@ -16304,7 +16304,7 @@ struct Schema<vulkan::commands::CreateXlibSurfaceKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceXlibPresentationSupportKHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceXlibPresentationSupportKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceXlibPresentationSupportKHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceXlibPresentationSupportKHR::queueFamilyIndex,
@@ -16314,7 +16314,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceXlibPresentationSupportKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateXcbSurfaceKHR>
+struct Schema<vulkan::api_elements::CreateXcbSurfaceKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CreateXcbSurfaceKHR::instance,
                                   vulkan::fields::CreateXcbSurfaceKHR::pCreateInfo,
@@ -16324,7 +16324,7 @@ struct Schema<vulkan::commands::CreateXcbSurfaceKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceXcbPresentationSupportKHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceXcbPresentationSupportKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceXcbPresentationSupportKHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceXcbPresentationSupportKHR::queueFamilyIndex,
@@ -16334,7 +16334,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceXcbPresentationSupportKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateWaylandSurfaceKHR>
+struct Schema<vulkan::api_elements::CreateWaylandSurfaceKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CreateWaylandSurfaceKHR::instance,
                                   vulkan::fields::CreateWaylandSurfaceKHR::pCreateInfo,
@@ -16344,7 +16344,7 @@ struct Schema<vulkan::commands::CreateWaylandSurfaceKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceWaylandPresentationSupportKHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceWaylandPresentationSupportKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceWaylandPresentationSupportKHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceWaylandPresentationSupportKHR::queueFamilyIndex,
@@ -16353,7 +16353,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceWaylandPresentationSupportKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateAndroidSurfaceKHR>
+struct Schema<vulkan::api_elements::CreateAndroidSurfaceKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CreateAndroidSurfaceKHR::instance,
                                   vulkan::fields::CreateAndroidSurfaceKHR::pCreateInfo,
@@ -16363,7 +16363,7 @@ struct Schema<vulkan::commands::CreateAndroidSurfaceKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateWin32SurfaceKHR>
+struct Schema<vulkan::api_elements::CreateWin32SurfaceKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CreateWin32SurfaceKHR::instance,
                                   vulkan::fields::CreateWin32SurfaceKHR::pCreateInfo,
@@ -16373,7 +16373,7 @@ struct Schema<vulkan::commands::CreateWin32SurfaceKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceWin32PresentationSupportKHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceWin32PresentationSupportKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceWin32PresentationSupportKHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceWin32PresentationSupportKHR::queueFamilyIndex,
@@ -16381,7 +16381,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceWin32PresentationSupportKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceVideoCapabilitiesKHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceVideoCapabilitiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceVideoCapabilitiesKHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceVideoCapabilitiesKHR::pVideoProfile,
@@ -16390,7 +16390,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceVideoCapabilitiesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceVideoFormatPropertiesKHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceVideoFormatPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceVideoFormatPropertiesKHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceVideoFormatPropertiesKHR::pVideoFormatInfo,
@@ -16400,7 +16400,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceVideoFormatPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateVideoSessionKHR>
+struct Schema<vulkan::api_elements::CreateVideoSessionKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CreateVideoSessionKHR::device,
                                   vulkan::fields::CreateVideoSessionKHR::pCreateInfo,
@@ -16410,7 +16410,7 @@ struct Schema<vulkan::commands::CreateVideoSessionKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyVideoSessionKHR>
+struct Schema<vulkan::api_elements::DestroyVideoSessionKHR>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyVideoSessionKHR::device,
                                   vulkan::fields::DestroyVideoSessionKHR::videoSession,
@@ -16419,7 +16419,7 @@ struct Schema<vulkan::commands::DestroyVideoSessionKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetVideoSessionMemoryRequirementsKHR>
+struct Schema<vulkan::api_elements::GetVideoSessionMemoryRequirementsKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetVideoSessionMemoryRequirementsKHR::device,
                                   vulkan::fields::GetVideoSessionMemoryRequirementsKHR::videoSession,
@@ -16429,7 +16429,7 @@ struct Schema<vulkan::commands::GetVideoSessionMemoryRequirementsKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::BindVideoSessionMemoryKHR>
+struct Schema<vulkan::api_elements::BindVideoSessionMemoryKHR>
 {
     using Fields = util::TypeList<vulkan::fields::BindVideoSessionMemoryKHR::device,
                                   vulkan::fields::BindVideoSessionMemoryKHR::videoSession,
@@ -16439,7 +16439,7 @@ struct Schema<vulkan::commands::BindVideoSessionMemoryKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateVideoSessionParametersKHR>
+struct Schema<vulkan::api_elements::CreateVideoSessionParametersKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CreateVideoSessionParametersKHR::device,
                                   vulkan::fields::CreateVideoSessionParametersKHR::pCreateInfo,
@@ -16449,7 +16449,7 @@ struct Schema<vulkan::commands::CreateVideoSessionParametersKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::UpdateVideoSessionParametersKHR>
+struct Schema<vulkan::api_elements::UpdateVideoSessionParametersKHR>
 {
     using Fields = util::TypeList<vulkan::fields::UpdateVideoSessionParametersKHR::device,
                                   vulkan::fields::UpdateVideoSessionParametersKHR::videoSessionParameters,
@@ -16458,7 +16458,7 @@ struct Schema<vulkan::commands::UpdateVideoSessionParametersKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyVideoSessionParametersKHR>
+struct Schema<vulkan::api_elements::DestroyVideoSessionParametersKHR>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyVideoSessionParametersKHR::device,
                                   vulkan::fields::DestroyVideoSessionParametersKHR::videoSessionParameters,
@@ -16467,7 +16467,7 @@ struct Schema<vulkan::commands::DestroyVideoSessionParametersKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBeginVideoCodingKHR>
+struct Schema<vulkan::api_elements::CmdBeginVideoCodingKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBeginVideoCodingKHR::commandBuffer,
                                   vulkan::fields::CmdBeginVideoCodingKHR::pBeginInfo,
@@ -16475,7 +16475,7 @@ struct Schema<vulkan::commands::CmdBeginVideoCodingKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdEndVideoCodingKHR>
+struct Schema<vulkan::api_elements::CmdEndVideoCodingKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdEndVideoCodingKHR::commandBuffer,
                                   vulkan::fields::CmdEndVideoCodingKHR::pEndCodingInfo,
@@ -16483,7 +16483,7 @@ struct Schema<vulkan::commands::CmdEndVideoCodingKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdControlVideoCodingKHR>
+struct Schema<vulkan::api_elements::CmdControlVideoCodingKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdControlVideoCodingKHR::commandBuffer,
                                   vulkan::fields::CmdControlVideoCodingKHR::pCodingControlInfo,
@@ -16491,7 +16491,7 @@ struct Schema<vulkan::commands::CmdControlVideoCodingKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDecodeVideoKHR>
+struct Schema<vulkan::api_elements::CmdDecodeVideoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDecodeVideoKHR::commandBuffer,
                                   vulkan::fields::CmdDecodeVideoKHR::pDecodeInfo,
@@ -16499,7 +16499,7 @@ struct Schema<vulkan::commands::CmdDecodeVideoKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBeginRenderingKHR>
+struct Schema<vulkan::api_elements::CmdBeginRenderingKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBeginRenderingKHR::commandBuffer,
                                   vulkan::fields::CmdBeginRenderingKHR::pRenderingInfo,
@@ -16507,14 +16507,14 @@ struct Schema<vulkan::commands::CmdBeginRenderingKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdEndRenderingKHR>
+struct Schema<vulkan::api_elements::CmdEndRenderingKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdEndRenderingKHR::commandBuffer,
                                   vulkan::fields::CmdEndRenderingKHR::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceFeatures2KHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceFeatures2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceFeatures2KHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceFeatures2KHR::pFeatures,
@@ -16522,7 +16522,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceFeatures2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceProperties2KHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceProperties2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceProperties2KHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceProperties2KHR::pProperties,
@@ -16530,7 +16530,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceProperties2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceFormatProperties2KHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceFormatProperties2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceFormatProperties2KHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceFormatProperties2KHR::format,
@@ -16539,7 +16539,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceFormatProperties2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceImageFormatProperties2KHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceImageFormatProperties2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceImageFormatProperties2KHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceImageFormatProperties2KHR::pImageFormatInfo,
@@ -16548,7 +16548,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceImageFormatProperties2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceQueueFamilyProperties2KHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceQueueFamilyProperties2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceQueueFamilyProperties2KHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceQueueFamilyProperties2KHR::pQueueFamilyPropertyCount,
@@ -16557,7 +16557,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceQueueFamilyProperties2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceMemoryProperties2KHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceMemoryProperties2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceMemoryProperties2KHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceMemoryProperties2KHR::pMemoryProperties,
@@ -16565,7 +16565,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceMemoryProperties2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceSparseImageFormatProperties2KHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceSparseImageFormatProperties2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceSparseImageFormatProperties2KHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceSparseImageFormatProperties2KHR::pFormatInfo,
@@ -16575,7 +16575,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceSparseImageFormatProperties2KHR
 };
 
 template <>
-struct Schema<vulkan::commands::GetDeviceGroupPeerMemoryFeaturesKHR>
+struct Schema<vulkan::api_elements::GetDeviceGroupPeerMemoryFeaturesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetDeviceGroupPeerMemoryFeaturesKHR::device,
                                   vulkan::fields::GetDeviceGroupPeerMemoryFeaturesKHR::heapIndex,
@@ -16586,7 +16586,7 @@ struct Schema<vulkan::commands::GetDeviceGroupPeerMemoryFeaturesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetDeviceMaskKHR>
+struct Schema<vulkan::api_elements::CmdSetDeviceMaskKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetDeviceMaskKHR::commandBuffer,
                                   vulkan::fields::CmdSetDeviceMaskKHR::deviceMask,
@@ -16594,7 +16594,7 @@ struct Schema<vulkan::commands::CmdSetDeviceMaskKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDispatchBaseKHR>
+struct Schema<vulkan::api_elements::CmdDispatchBaseKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDispatchBaseKHR::commandBuffer,
                                   vulkan::fields::CmdDispatchBaseKHR::baseGroupX,
@@ -16607,7 +16607,7 @@ struct Schema<vulkan::commands::CmdDispatchBaseKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::TrimCommandPoolKHR>
+struct Schema<vulkan::api_elements::TrimCommandPoolKHR>
 {
     using Fields = util::TypeList<vulkan::fields::TrimCommandPoolKHR::device,
                                   vulkan::fields::TrimCommandPoolKHR::commandPool,
@@ -16616,7 +16616,7 @@ struct Schema<vulkan::commands::TrimCommandPoolKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::EnumeratePhysicalDeviceGroupsKHR>
+struct Schema<vulkan::api_elements::EnumeratePhysicalDeviceGroupsKHR>
 {
     using Fields = util::TypeList<vulkan::fields::EnumeratePhysicalDeviceGroupsKHR::instance,
                                   vulkan::fields::EnumeratePhysicalDeviceGroupsKHR::pPhysicalDeviceGroupCount,
@@ -16625,7 +16625,7 @@ struct Schema<vulkan::commands::EnumeratePhysicalDeviceGroupsKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceExternalBufferPropertiesKHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceExternalBufferPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceExternalBufferPropertiesKHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceExternalBufferPropertiesKHR::pExternalBufferInfo,
@@ -16634,7 +16634,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceExternalBufferPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetMemoryWin32HandleKHR>
+struct Schema<vulkan::api_elements::GetMemoryWin32HandleKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetMemoryWin32HandleKHR::device,
                                   vulkan::fields::GetMemoryWin32HandleKHR::pGetWin32HandleInfo,
@@ -16643,7 +16643,7 @@ struct Schema<vulkan::commands::GetMemoryWin32HandleKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetMemoryWin32HandlePropertiesKHR>
+struct Schema<vulkan::api_elements::GetMemoryWin32HandlePropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetMemoryWin32HandlePropertiesKHR::device,
                                   vulkan::fields::GetMemoryWin32HandlePropertiesKHR::handleType,
@@ -16653,14 +16653,14 @@ struct Schema<vulkan::commands::GetMemoryWin32HandlePropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetMemoryFdKHR>
+struct Schema<vulkan::api_elements::GetMemoryFdKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetMemoryFdKHR::device, vulkan::fields::GetMemoryFdKHR::pGetFdInfo,
                                   vulkan::fields::GetMemoryFdKHR::pFd, vulkan::fields::GetMemoryFdKHR::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::GetMemoryFdPropertiesKHR>
+struct Schema<vulkan::api_elements::GetMemoryFdPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetMemoryFdPropertiesKHR::device,
                                   vulkan::fields::GetMemoryFdPropertiesKHR::handleType,
@@ -16670,7 +16670,7 @@ struct Schema<vulkan::commands::GetMemoryFdPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceExternalSemaphorePropertiesKHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceExternalSemaphorePropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceExternalSemaphorePropertiesKHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceExternalSemaphorePropertiesKHR::pExternalSemaphoreInfo,
@@ -16679,7 +16679,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceExternalSemaphorePropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::ImportSemaphoreWin32HandleKHR>
+struct Schema<vulkan::api_elements::ImportSemaphoreWin32HandleKHR>
 {
     using Fields = util::TypeList<vulkan::fields::ImportSemaphoreWin32HandleKHR::device,
                                   vulkan::fields::ImportSemaphoreWin32HandleKHR::pImportSemaphoreWin32HandleInfo,
@@ -16687,7 +16687,7 @@ struct Schema<vulkan::commands::ImportSemaphoreWin32HandleKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetSemaphoreWin32HandleKHR>
+struct Schema<vulkan::api_elements::GetSemaphoreWin32HandleKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetSemaphoreWin32HandleKHR::device,
                                   vulkan::fields::GetSemaphoreWin32HandleKHR::pGetWin32HandleInfo,
@@ -16696,7 +16696,7 @@ struct Schema<vulkan::commands::GetSemaphoreWin32HandleKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::ImportSemaphoreFdKHR>
+struct Schema<vulkan::api_elements::ImportSemaphoreFdKHR>
 {
     using Fields = util::TypeList<vulkan::fields::ImportSemaphoreFdKHR::device,
                                   vulkan::fields::ImportSemaphoreFdKHR::pImportSemaphoreFdInfo,
@@ -16704,7 +16704,7 @@ struct Schema<vulkan::commands::ImportSemaphoreFdKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetSemaphoreFdKHR>
+struct Schema<vulkan::api_elements::GetSemaphoreFdKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetSemaphoreFdKHR::device,
                                   vulkan::fields::GetSemaphoreFdKHR::pGetFdInfo, vulkan::fields::GetSemaphoreFdKHR::pFd,
@@ -16712,7 +16712,7 @@ struct Schema<vulkan::commands::GetSemaphoreFdKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdPushDescriptorSetKHR>
+struct Schema<vulkan::api_elements::CmdPushDescriptorSetKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdPushDescriptorSetKHR::commandBuffer,
                                   vulkan::fields::CmdPushDescriptorSetKHR::pipelineBindPoint,
@@ -16724,7 +16724,7 @@ struct Schema<vulkan::commands::CmdPushDescriptorSetKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateDescriptorUpdateTemplateKHR>
+struct Schema<vulkan::api_elements::CreateDescriptorUpdateTemplateKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CreateDescriptorUpdateTemplateKHR::device,
                                   vulkan::fields::CreateDescriptorUpdateTemplateKHR::pCreateInfo,
@@ -16734,7 +16734,7 @@ struct Schema<vulkan::commands::CreateDescriptorUpdateTemplateKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyDescriptorUpdateTemplateKHR>
+struct Schema<vulkan::api_elements::DestroyDescriptorUpdateTemplateKHR>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyDescriptorUpdateTemplateKHR::device,
                                   vulkan::fields::DestroyDescriptorUpdateTemplateKHR::descriptorUpdateTemplate,
@@ -16743,7 +16743,7 @@ struct Schema<vulkan::commands::DestroyDescriptorUpdateTemplateKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateRenderPass2KHR>
+struct Schema<vulkan::api_elements::CreateRenderPass2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CreateRenderPass2KHR::device,
                                   vulkan::fields::CreateRenderPass2KHR::pCreateInfo,
@@ -16753,7 +16753,7 @@ struct Schema<vulkan::commands::CreateRenderPass2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBeginRenderPass2KHR>
+struct Schema<vulkan::api_elements::CmdBeginRenderPass2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBeginRenderPass2KHR::commandBuffer,
                                   vulkan::fields::CmdBeginRenderPass2KHR::pRenderPassBegin,
@@ -16762,7 +16762,7 @@ struct Schema<vulkan::commands::CmdBeginRenderPass2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdNextSubpass2KHR>
+struct Schema<vulkan::api_elements::CmdNextSubpass2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdNextSubpass2KHR::commandBuffer,
                                   vulkan::fields::CmdNextSubpass2KHR::pSubpassBeginInfo,
@@ -16771,7 +16771,7 @@ struct Schema<vulkan::commands::CmdNextSubpass2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdEndRenderPass2KHR>
+struct Schema<vulkan::api_elements::CmdEndRenderPass2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdEndRenderPass2KHR::commandBuffer,
                                   vulkan::fields::CmdEndRenderPass2KHR::pSubpassEndInfo,
@@ -16779,7 +16779,7 @@ struct Schema<vulkan::commands::CmdEndRenderPass2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetSwapchainStatusKHR>
+struct Schema<vulkan::api_elements::GetSwapchainStatusKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetSwapchainStatusKHR::device,
                                   vulkan::fields::GetSwapchainStatusKHR::swapchain,
@@ -16787,7 +16787,7 @@ struct Schema<vulkan::commands::GetSwapchainStatusKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceExternalFencePropertiesKHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceExternalFencePropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceExternalFencePropertiesKHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceExternalFencePropertiesKHR::pExternalFenceInfo,
@@ -16796,7 +16796,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceExternalFencePropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::ImportFenceWin32HandleKHR>
+struct Schema<vulkan::api_elements::ImportFenceWin32HandleKHR>
 {
     using Fields = util::TypeList<vulkan::fields::ImportFenceWin32HandleKHR::device,
                                   vulkan::fields::ImportFenceWin32HandleKHR::pImportFenceWin32HandleInfo,
@@ -16804,7 +16804,7 @@ struct Schema<vulkan::commands::ImportFenceWin32HandleKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetFenceWin32HandleKHR>
+struct Schema<vulkan::api_elements::GetFenceWin32HandleKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetFenceWin32HandleKHR::device,
                                   vulkan::fields::GetFenceWin32HandleKHR::pGetWin32HandleInfo,
@@ -16813,7 +16813,7 @@ struct Schema<vulkan::commands::GetFenceWin32HandleKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::ImportFenceFdKHR>
+struct Schema<vulkan::api_elements::ImportFenceFdKHR>
 {
     using Fields = util::TypeList<vulkan::fields::ImportFenceFdKHR::device,
                                   vulkan::fields::ImportFenceFdKHR::pImportFenceFdInfo,
@@ -16821,14 +16821,14 @@ struct Schema<vulkan::commands::ImportFenceFdKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetFenceFdKHR>
+struct Schema<vulkan::api_elements::GetFenceFdKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetFenceFdKHR::device, vulkan::fields::GetFenceFdKHR::pGetFdInfo,
                                   vulkan::fields::GetFenceFdKHR::pFd, vulkan::fields::GetFenceFdKHR::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR>
+struct Schema<vulkan::api_elements::EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR>
 {
     using Fields = util::TypeList<vulkan::fields::EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR::physicalDevice,
                                   vulkan::fields::EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR::queueFamilyIndex,
@@ -16839,7 +16839,7 @@ struct Schema<vulkan::commands::EnumeratePhysicalDeviceQueueFamilyPerformanceQue
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR::pPerformanceQueryCreateInfo,
@@ -16848,7 +16848,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceQueueFamilyPerformanceQueryPass
 };
 
 template <>
-struct Schema<vulkan::commands::AcquireProfilingLockKHR>
+struct Schema<vulkan::api_elements::AcquireProfilingLockKHR>
 {
     using Fields = util::TypeList<vulkan::fields::AcquireProfilingLockKHR::device,
                                   vulkan::fields::AcquireProfilingLockKHR::pInfo,
@@ -16856,14 +16856,14 @@ struct Schema<vulkan::commands::AcquireProfilingLockKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::ReleaseProfilingLockKHR>
+struct Schema<vulkan::api_elements::ReleaseProfilingLockKHR>
 {
     using Fields = util::TypeList<vulkan::fields::ReleaseProfilingLockKHR::device,
                                   vulkan::fields::ReleaseProfilingLockKHR::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceSurfaceCapabilities2KHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceSurfaceCapabilities2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceSurfaceCapabilities2KHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceSurfaceCapabilities2KHR::pSurfaceInfo,
@@ -16872,7 +16872,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceSurfaceCapabilities2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceSurfaceFormats2KHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceSurfaceFormats2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceSurfaceFormats2KHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceSurfaceFormats2KHR::pSurfaceInfo,
@@ -16882,7 +16882,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceSurfaceFormats2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceDisplayProperties2KHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceDisplayProperties2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceDisplayProperties2KHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceDisplayProperties2KHR::pPropertyCount,
@@ -16891,7 +16891,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceDisplayProperties2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceDisplayPlaneProperties2KHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceDisplayPlaneProperties2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceDisplayPlaneProperties2KHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceDisplayPlaneProperties2KHR::pPropertyCount,
@@ -16900,7 +16900,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceDisplayPlaneProperties2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDisplayModeProperties2KHR>
+struct Schema<vulkan::api_elements::GetDisplayModeProperties2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetDisplayModeProperties2KHR::physicalDevice,
                                   vulkan::fields::GetDisplayModeProperties2KHR::display,
@@ -16910,7 +16910,7 @@ struct Schema<vulkan::commands::GetDisplayModeProperties2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDisplayPlaneCapabilities2KHR>
+struct Schema<vulkan::api_elements::GetDisplayPlaneCapabilities2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetDisplayPlaneCapabilities2KHR::physicalDevice,
                                   vulkan::fields::GetDisplayPlaneCapabilities2KHR::pDisplayPlaneInfo,
@@ -16919,7 +16919,7 @@ struct Schema<vulkan::commands::GetDisplayPlaneCapabilities2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetImageMemoryRequirements2KHR>
+struct Schema<vulkan::api_elements::GetImageMemoryRequirements2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetImageMemoryRequirements2KHR::device,
                                   vulkan::fields::GetImageMemoryRequirements2KHR::pInfo,
@@ -16928,7 +16928,7 @@ struct Schema<vulkan::commands::GetImageMemoryRequirements2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetBufferMemoryRequirements2KHR>
+struct Schema<vulkan::api_elements::GetBufferMemoryRequirements2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetBufferMemoryRequirements2KHR::device,
                                   vulkan::fields::GetBufferMemoryRequirements2KHR::pInfo,
@@ -16937,7 +16937,7 @@ struct Schema<vulkan::commands::GetBufferMemoryRequirements2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetImageSparseMemoryRequirements2KHR>
+struct Schema<vulkan::api_elements::GetImageSparseMemoryRequirements2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetImageSparseMemoryRequirements2KHR::device,
                                   vulkan::fields::GetImageSparseMemoryRequirements2KHR::pInfo,
@@ -16947,7 +16947,7 @@ struct Schema<vulkan::commands::GetImageSparseMemoryRequirements2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateSamplerYcbcrConversionKHR>
+struct Schema<vulkan::api_elements::CreateSamplerYcbcrConversionKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CreateSamplerYcbcrConversionKHR::device,
                                   vulkan::fields::CreateSamplerYcbcrConversionKHR::pCreateInfo,
@@ -16957,7 +16957,7 @@ struct Schema<vulkan::commands::CreateSamplerYcbcrConversionKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroySamplerYcbcrConversionKHR>
+struct Schema<vulkan::api_elements::DestroySamplerYcbcrConversionKHR>
 {
     using Fields = util::TypeList<vulkan::fields::DestroySamplerYcbcrConversionKHR::device,
                                   vulkan::fields::DestroySamplerYcbcrConversionKHR::ycbcrConversion,
@@ -16966,7 +16966,7 @@ struct Schema<vulkan::commands::DestroySamplerYcbcrConversionKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::BindBufferMemory2KHR>
+struct Schema<vulkan::api_elements::BindBufferMemory2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::BindBufferMemory2KHR::device,
                                   vulkan::fields::BindBufferMemory2KHR::bindInfoCount,
@@ -16975,7 +16975,7 @@ struct Schema<vulkan::commands::BindBufferMemory2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::BindImageMemory2KHR>
+struct Schema<vulkan::api_elements::BindImageMemory2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::BindImageMemory2KHR::device,
                                   vulkan::fields::BindImageMemory2KHR::bindInfoCount,
@@ -16984,7 +16984,7 @@ struct Schema<vulkan::commands::BindImageMemory2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDescriptorSetLayoutSupportKHR>
+struct Schema<vulkan::api_elements::GetDescriptorSetLayoutSupportKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetDescriptorSetLayoutSupportKHR::device,
                                   vulkan::fields::GetDescriptorSetLayoutSupportKHR::pCreateInfo,
@@ -16993,7 +16993,7 @@ struct Schema<vulkan::commands::GetDescriptorSetLayoutSupportKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDrawIndirectCountKHR>
+struct Schema<vulkan::api_elements::CmdDrawIndirectCountKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDrawIndirectCountKHR::commandBuffer,
                                   vulkan::fields::CmdDrawIndirectCountKHR::buffer,
@@ -17006,7 +17006,7 @@ struct Schema<vulkan::commands::CmdDrawIndirectCountKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDrawIndexedIndirectCountKHR>
+struct Schema<vulkan::api_elements::CmdDrawIndexedIndirectCountKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDrawIndexedIndirectCountKHR::commandBuffer,
                                   vulkan::fields::CmdDrawIndexedIndirectCountKHR::buffer,
@@ -17019,7 +17019,7 @@ struct Schema<vulkan::commands::CmdDrawIndexedIndirectCountKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetSemaphoreCounterValueKHR>
+struct Schema<vulkan::api_elements::GetSemaphoreCounterValueKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetSemaphoreCounterValueKHR::device,
                                   vulkan::fields::GetSemaphoreCounterValueKHR::semaphore,
@@ -17028,7 +17028,7 @@ struct Schema<vulkan::commands::GetSemaphoreCounterValueKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::WaitSemaphoresKHR>
+struct Schema<vulkan::api_elements::WaitSemaphoresKHR>
 {
     using Fields = util::TypeList<vulkan::fields::WaitSemaphoresKHR::device,
                                   vulkan::fields::WaitSemaphoresKHR::pWaitInfo,
@@ -17037,7 +17037,7 @@ struct Schema<vulkan::commands::WaitSemaphoresKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::SignalSemaphoreKHR>
+struct Schema<vulkan::api_elements::SignalSemaphoreKHR>
 {
     using Fields = util::TypeList<vulkan::fields::SignalSemaphoreKHR::device,
                                   vulkan::fields::SignalSemaphoreKHR::pSignalInfo,
@@ -17045,7 +17045,7 @@ struct Schema<vulkan::commands::SignalSemaphoreKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceFragmentShadingRatesKHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceFragmentShadingRatesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceFragmentShadingRatesKHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceFragmentShadingRatesKHR::pFragmentShadingRateCount,
@@ -17054,7 +17054,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceFragmentShadingRatesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetFragmentShadingRateKHR>
+struct Schema<vulkan::api_elements::CmdSetFragmentShadingRateKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetFragmentShadingRateKHR::commandBuffer,
                                   vulkan::fields::CmdSetFragmentShadingRateKHR::pFragmentSize,
@@ -17063,7 +17063,7 @@ struct Schema<vulkan::commands::CmdSetFragmentShadingRateKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetRenderingAttachmentLocationsKHR>
+struct Schema<vulkan::api_elements::CmdSetRenderingAttachmentLocationsKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetRenderingAttachmentLocationsKHR::commandBuffer,
                                   vulkan::fields::CmdSetRenderingAttachmentLocationsKHR::pLocationInfo,
@@ -17071,7 +17071,7 @@ struct Schema<vulkan::commands::CmdSetRenderingAttachmentLocationsKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetRenderingInputAttachmentIndicesKHR>
+struct Schema<vulkan::api_elements::CmdSetRenderingInputAttachmentIndicesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetRenderingInputAttachmentIndicesKHR::commandBuffer,
                                   vulkan::fields::CmdSetRenderingInputAttachmentIndicesKHR::pInputAttachmentIndexInfo,
@@ -17079,7 +17079,7 @@ struct Schema<vulkan::commands::CmdSetRenderingInputAttachmentIndicesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::WaitForPresentKHR>
+struct Schema<vulkan::api_elements::WaitForPresentKHR>
 {
     using Fields = util::TypeList<vulkan::fields::WaitForPresentKHR::device,
                                   vulkan::fields::WaitForPresentKHR::swapchain,
@@ -17089,7 +17089,7 @@ struct Schema<vulkan::commands::WaitForPresentKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetBufferDeviceAddressKHR>
+struct Schema<vulkan::api_elements::GetBufferDeviceAddressKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetBufferDeviceAddressKHR::device,
                                   vulkan::fields::GetBufferDeviceAddressKHR::pInfo,
@@ -17097,7 +17097,7 @@ struct Schema<vulkan::commands::GetBufferDeviceAddressKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetBufferOpaqueCaptureAddressKHR>
+struct Schema<vulkan::api_elements::GetBufferOpaqueCaptureAddressKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetBufferOpaqueCaptureAddressKHR::device,
                                   vulkan::fields::GetBufferOpaqueCaptureAddressKHR::pInfo,
@@ -17105,7 +17105,7 @@ struct Schema<vulkan::commands::GetBufferOpaqueCaptureAddressKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDeviceMemoryOpaqueCaptureAddressKHR>
+struct Schema<vulkan::api_elements::GetDeviceMemoryOpaqueCaptureAddressKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetDeviceMemoryOpaqueCaptureAddressKHR::device,
                                   vulkan::fields::GetDeviceMemoryOpaqueCaptureAddressKHR::pInfo,
@@ -17113,7 +17113,7 @@ struct Schema<vulkan::commands::GetDeviceMemoryOpaqueCaptureAddressKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateDeferredOperationKHR>
+struct Schema<vulkan::api_elements::CreateDeferredOperationKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CreateDeferredOperationKHR::device,
                                   vulkan::fields::CreateDeferredOperationKHR::pAllocator,
@@ -17122,7 +17122,7 @@ struct Schema<vulkan::commands::CreateDeferredOperationKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyDeferredOperationKHR>
+struct Schema<vulkan::api_elements::DestroyDeferredOperationKHR>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyDeferredOperationKHR::device,
                                   vulkan::fields::DestroyDeferredOperationKHR::operation,
@@ -17131,7 +17131,7 @@ struct Schema<vulkan::commands::DestroyDeferredOperationKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDeferredOperationMaxConcurrencyKHR>
+struct Schema<vulkan::api_elements::GetDeferredOperationMaxConcurrencyKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetDeferredOperationMaxConcurrencyKHR::device,
                                   vulkan::fields::GetDeferredOperationMaxConcurrencyKHR::operation,
@@ -17139,7 +17139,7 @@ struct Schema<vulkan::commands::GetDeferredOperationMaxConcurrencyKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDeferredOperationResultKHR>
+struct Schema<vulkan::api_elements::GetDeferredOperationResultKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetDeferredOperationResultKHR::device,
                                   vulkan::fields::GetDeferredOperationResultKHR::operation,
@@ -17147,7 +17147,7 @@ struct Schema<vulkan::commands::GetDeferredOperationResultKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::DeferredOperationJoinKHR>
+struct Schema<vulkan::api_elements::DeferredOperationJoinKHR>
 {
     using Fields = util::TypeList<vulkan::fields::DeferredOperationJoinKHR::device,
                                   vulkan::fields::DeferredOperationJoinKHR::operation,
@@ -17155,7 +17155,7 @@ struct Schema<vulkan::commands::DeferredOperationJoinKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPipelineExecutablePropertiesKHR>
+struct Schema<vulkan::api_elements::GetPipelineExecutablePropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPipelineExecutablePropertiesKHR::device,
                                   vulkan::fields::GetPipelineExecutablePropertiesKHR::pPipelineInfo,
@@ -17165,7 +17165,7 @@ struct Schema<vulkan::commands::GetPipelineExecutablePropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPipelineExecutableStatisticsKHR>
+struct Schema<vulkan::api_elements::GetPipelineExecutableStatisticsKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPipelineExecutableStatisticsKHR::device,
                                   vulkan::fields::GetPipelineExecutableStatisticsKHR::pExecutableInfo,
@@ -17175,7 +17175,7 @@ struct Schema<vulkan::commands::GetPipelineExecutableStatisticsKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPipelineExecutableInternalRepresentationsKHR>
+struct Schema<vulkan::api_elements::GetPipelineExecutableInternalRepresentationsKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPipelineExecutableInternalRepresentationsKHR::device,
                                   vulkan::fields::GetPipelineExecutableInternalRepresentationsKHR::pExecutableInfo,
@@ -17185,14 +17185,14 @@ struct Schema<vulkan::commands::GetPipelineExecutableInternalRepresentationsKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::MapMemory2KHR>
+struct Schema<vulkan::api_elements::MapMemory2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::MapMemory2KHR::device, vulkan::fields::MapMemory2KHR::pMemoryMapInfo,
                                   vulkan::fields::MapMemory2KHR::ppData, vulkan::fields::MapMemory2KHR::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::UnmapMemory2KHR>
+struct Schema<vulkan::api_elements::UnmapMemory2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::UnmapMemory2KHR::device,
                                   vulkan::fields::UnmapMemory2KHR::pMemoryUnmapInfo,
@@ -17200,7 +17200,7 @@ struct Schema<vulkan::commands::UnmapMemory2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR::pQualityLevelInfo,
@@ -17209,7 +17209,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceVideoEncodeQualityLevelProperti
 };
 
 template <>
-struct Schema<vulkan::commands::GetEncodedVideoSessionParametersKHR>
+struct Schema<vulkan::api_elements::GetEncodedVideoSessionParametersKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetEncodedVideoSessionParametersKHR::device,
                                   vulkan::fields::GetEncodedVideoSessionParametersKHR::pVideoSessionParametersInfo,
@@ -17220,7 +17220,7 @@ struct Schema<vulkan::commands::GetEncodedVideoSessionParametersKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdEncodeVideoKHR>
+struct Schema<vulkan::api_elements::CmdEncodeVideoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdEncodeVideoKHR::commandBuffer,
                                   vulkan::fields::CmdEncodeVideoKHR::pEncodeInfo,
@@ -17228,7 +17228,7 @@ struct Schema<vulkan::commands::CmdEncodeVideoKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetEvent2KHR>
+struct Schema<vulkan::api_elements::CmdSetEvent2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetEvent2KHR::commandBuffer,
                                   vulkan::fields::CmdSetEvent2KHR::event,
@@ -17237,7 +17237,7 @@ struct Schema<vulkan::commands::CmdSetEvent2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdResetEvent2KHR>
+struct Schema<vulkan::api_elements::CmdResetEvent2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdResetEvent2KHR::commandBuffer,
                                   vulkan::fields::CmdResetEvent2KHR::event,
@@ -17246,7 +17246,7 @@ struct Schema<vulkan::commands::CmdResetEvent2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdWaitEvents2KHR>
+struct Schema<vulkan::api_elements::CmdWaitEvents2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdWaitEvents2KHR::commandBuffer,
                                   vulkan::fields::CmdWaitEvents2KHR::eventCount,
@@ -17256,7 +17256,7 @@ struct Schema<vulkan::commands::CmdWaitEvents2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdPipelineBarrier2KHR>
+struct Schema<vulkan::api_elements::CmdPipelineBarrier2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdPipelineBarrier2KHR::commandBuffer,
                                   vulkan::fields::CmdPipelineBarrier2KHR::pDependencyInfo,
@@ -17264,7 +17264,7 @@ struct Schema<vulkan::commands::CmdPipelineBarrier2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdWriteTimestamp2KHR>
+struct Schema<vulkan::api_elements::CmdWriteTimestamp2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdWriteTimestamp2KHR::commandBuffer,
                                   vulkan::fields::CmdWriteTimestamp2KHR::stage,
@@ -17274,7 +17274,7 @@ struct Schema<vulkan::commands::CmdWriteTimestamp2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::QueueSubmit2KHR>
+struct Schema<vulkan::api_elements::QueueSubmit2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::QueueSubmit2KHR::queue, vulkan::fields::QueueSubmit2KHR::submitCount,
                                   vulkan::fields::QueueSubmit2KHR::pSubmits, vulkan::fields::QueueSubmit2KHR::fence,
@@ -17282,7 +17282,7 @@ struct Schema<vulkan::commands::QueueSubmit2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBindIndexBuffer3KHR>
+struct Schema<vulkan::api_elements::CmdBindIndexBuffer3KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBindIndexBuffer3KHR::commandBuffer,
                                   vulkan::fields::CmdBindIndexBuffer3KHR::pInfo,
@@ -17290,7 +17290,7 @@ struct Schema<vulkan::commands::CmdBindIndexBuffer3KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBindVertexBuffers3KHR>
+struct Schema<vulkan::api_elements::CmdBindVertexBuffers3KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBindVertexBuffers3KHR::commandBuffer,
                                   vulkan::fields::CmdBindVertexBuffers3KHR::firstBinding,
@@ -17300,7 +17300,7 @@ struct Schema<vulkan::commands::CmdBindVertexBuffers3KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDrawIndirect2KHR>
+struct Schema<vulkan::api_elements::CmdDrawIndirect2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDrawIndirect2KHR::commandBuffer,
                                   vulkan::fields::CmdDrawIndirect2KHR::pInfo,
@@ -17308,7 +17308,7 @@ struct Schema<vulkan::commands::CmdDrawIndirect2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDrawIndexedIndirect2KHR>
+struct Schema<vulkan::api_elements::CmdDrawIndexedIndirect2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDrawIndexedIndirect2KHR::commandBuffer,
                                   vulkan::fields::CmdDrawIndexedIndirect2KHR::pInfo,
@@ -17316,7 +17316,7 @@ struct Schema<vulkan::commands::CmdDrawIndexedIndirect2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDispatchIndirect2KHR>
+struct Schema<vulkan::api_elements::CmdDispatchIndirect2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDispatchIndirect2KHR::commandBuffer,
                                   vulkan::fields::CmdDispatchIndirect2KHR::pInfo,
@@ -17324,7 +17324,7 @@ struct Schema<vulkan::commands::CmdDispatchIndirect2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyMemoryKHR>
+struct Schema<vulkan::api_elements::CmdCopyMemoryKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyMemoryKHR::commandBuffer,
                                   vulkan::fields::CmdCopyMemoryKHR::pCopyMemoryInfo,
@@ -17332,7 +17332,7 @@ struct Schema<vulkan::commands::CmdCopyMemoryKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyMemoryToImageKHR>
+struct Schema<vulkan::api_elements::CmdCopyMemoryToImageKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyMemoryToImageKHR::commandBuffer,
                                   vulkan::fields::CmdCopyMemoryToImageKHR::pCopyMemoryInfo,
@@ -17340,7 +17340,7 @@ struct Schema<vulkan::commands::CmdCopyMemoryToImageKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyImageToMemoryKHR>
+struct Schema<vulkan::api_elements::CmdCopyImageToMemoryKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyImageToMemoryKHR::commandBuffer,
                                   vulkan::fields::CmdCopyImageToMemoryKHR::pCopyMemoryInfo,
@@ -17348,7 +17348,7 @@ struct Schema<vulkan::commands::CmdCopyImageToMemoryKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdUpdateMemoryKHR>
+struct Schema<vulkan::api_elements::CmdUpdateMemoryKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdUpdateMemoryKHR::commandBuffer,
                                   vulkan::fields::CmdUpdateMemoryKHR::pDstRange,
@@ -17359,7 +17359,7 @@ struct Schema<vulkan::commands::CmdUpdateMemoryKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdFillMemoryKHR>
+struct Schema<vulkan::api_elements::CmdFillMemoryKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdFillMemoryKHR::commandBuffer,
                                   vulkan::fields::CmdFillMemoryKHR::pDstRange,
@@ -17368,7 +17368,7 @@ struct Schema<vulkan::commands::CmdFillMemoryKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyQueryPoolResultsToMemoryKHR>
+struct Schema<vulkan::api_elements::CmdCopyQueryPoolResultsToMemoryKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyQueryPoolResultsToMemoryKHR::commandBuffer,
                                   vulkan::fields::CmdCopyQueryPoolResultsToMemoryKHR::queryPool,
@@ -17381,7 +17381,7 @@ struct Schema<vulkan::commands::CmdCopyQueryPoolResultsToMemoryKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDrawIndirectCount2KHR>
+struct Schema<vulkan::api_elements::CmdDrawIndirectCount2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDrawIndirectCount2KHR::commandBuffer,
                                   vulkan::fields::CmdDrawIndirectCount2KHR::pInfo,
@@ -17389,7 +17389,7 @@ struct Schema<vulkan::commands::CmdDrawIndirectCount2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDrawIndexedIndirectCount2KHR>
+struct Schema<vulkan::api_elements::CmdDrawIndexedIndirectCount2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDrawIndexedIndirectCount2KHR::commandBuffer,
                                   vulkan::fields::CmdDrawIndexedIndirectCount2KHR::pInfo,
@@ -17397,7 +17397,7 @@ struct Schema<vulkan::commands::CmdDrawIndexedIndirectCount2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBeginConditionalRendering2EXT>
+struct Schema<vulkan::api_elements::CmdBeginConditionalRendering2EXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBeginConditionalRendering2EXT::commandBuffer,
                                   vulkan::fields::CmdBeginConditionalRendering2EXT::pConditionalRenderingBegin,
@@ -17405,7 +17405,7 @@ struct Schema<vulkan::commands::CmdBeginConditionalRendering2EXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBindTransformFeedbackBuffers2EXT>
+struct Schema<vulkan::api_elements::CmdBindTransformFeedbackBuffers2EXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBindTransformFeedbackBuffers2EXT::commandBuffer,
                                   vulkan::fields::CmdBindTransformFeedbackBuffers2EXT::firstBinding,
@@ -17415,7 +17415,7 @@ struct Schema<vulkan::commands::CmdBindTransformFeedbackBuffers2EXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBeginTransformFeedback2EXT>
+struct Schema<vulkan::api_elements::CmdBeginTransformFeedback2EXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBeginTransformFeedback2EXT::commandBuffer,
                                   vulkan::fields::CmdBeginTransformFeedback2EXT::firstCounterRange,
@@ -17425,7 +17425,7 @@ struct Schema<vulkan::commands::CmdBeginTransformFeedback2EXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdEndTransformFeedback2EXT>
+struct Schema<vulkan::api_elements::CmdEndTransformFeedback2EXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdEndTransformFeedback2EXT::commandBuffer,
                                   vulkan::fields::CmdEndTransformFeedback2EXT::firstCounterRange,
@@ -17435,7 +17435,7 @@ struct Schema<vulkan::commands::CmdEndTransformFeedback2EXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDrawIndirectByteCount2EXT>
+struct Schema<vulkan::api_elements::CmdDrawIndirectByteCount2EXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDrawIndirectByteCount2EXT::commandBuffer,
                                   vulkan::fields::CmdDrawIndirectByteCount2EXT::instanceCount,
@@ -17447,7 +17447,7 @@ struct Schema<vulkan::commands::CmdDrawIndirectByteCount2EXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDrawMeshTasksIndirect2EXT>
+struct Schema<vulkan::api_elements::CmdDrawMeshTasksIndirect2EXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDrawMeshTasksIndirect2EXT::commandBuffer,
                                   vulkan::fields::CmdDrawMeshTasksIndirect2EXT::pInfo,
@@ -17455,7 +17455,7 @@ struct Schema<vulkan::commands::CmdDrawMeshTasksIndirect2EXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDrawMeshTasksIndirectCount2EXT>
+struct Schema<vulkan::api_elements::CmdDrawMeshTasksIndirectCount2EXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDrawMeshTasksIndirectCount2EXT::commandBuffer,
                                   vulkan::fields::CmdDrawMeshTasksIndirectCount2EXT::pInfo,
@@ -17463,7 +17463,7 @@ struct Schema<vulkan::commands::CmdDrawMeshTasksIndirectCount2EXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdWriteMarkerToMemoryAMD>
+struct Schema<vulkan::api_elements::CmdWriteMarkerToMemoryAMD>
 {
     using Fields = util::TypeList<vulkan::fields::CmdWriteMarkerToMemoryAMD::commandBuffer,
                                   vulkan::fields::CmdWriteMarkerToMemoryAMD::pInfo,
@@ -17471,7 +17471,7 @@ struct Schema<vulkan::commands::CmdWriteMarkerToMemoryAMD>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateAccelerationStructure2KHR>
+struct Schema<vulkan::api_elements::CreateAccelerationStructure2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CreateAccelerationStructure2KHR::device,
                                   vulkan::fields::CreateAccelerationStructure2KHR::pCreateInfo,
@@ -17481,7 +17481,7 @@ struct Schema<vulkan::commands::CreateAccelerationStructure2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyBuffer2KHR>
+struct Schema<vulkan::api_elements::CmdCopyBuffer2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyBuffer2KHR::commandBuffer,
                                   vulkan::fields::CmdCopyBuffer2KHR::pCopyBufferInfo,
@@ -17489,7 +17489,7 @@ struct Schema<vulkan::commands::CmdCopyBuffer2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyImage2KHR>
+struct Schema<vulkan::api_elements::CmdCopyImage2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyImage2KHR::commandBuffer,
                                   vulkan::fields::CmdCopyImage2KHR::pCopyImageInfo,
@@ -17497,7 +17497,7 @@ struct Schema<vulkan::commands::CmdCopyImage2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyBufferToImage2KHR>
+struct Schema<vulkan::api_elements::CmdCopyBufferToImage2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyBufferToImage2KHR::commandBuffer,
                                   vulkan::fields::CmdCopyBufferToImage2KHR::pCopyBufferToImageInfo,
@@ -17505,7 +17505,7 @@ struct Schema<vulkan::commands::CmdCopyBufferToImage2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyImageToBuffer2KHR>
+struct Schema<vulkan::api_elements::CmdCopyImageToBuffer2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyImageToBuffer2KHR::commandBuffer,
                                   vulkan::fields::CmdCopyImageToBuffer2KHR::pCopyImageToBufferInfo,
@@ -17513,7 +17513,7 @@ struct Schema<vulkan::commands::CmdCopyImageToBuffer2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBlitImage2KHR>
+struct Schema<vulkan::api_elements::CmdBlitImage2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBlitImage2KHR::commandBuffer,
                                   vulkan::fields::CmdBlitImage2KHR::pBlitImageInfo,
@@ -17521,7 +17521,7 @@ struct Schema<vulkan::commands::CmdBlitImage2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdResolveImage2KHR>
+struct Schema<vulkan::api_elements::CmdResolveImage2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdResolveImage2KHR::commandBuffer,
                                   vulkan::fields::CmdResolveImage2KHR::pResolveImageInfo,
@@ -17529,7 +17529,7 @@ struct Schema<vulkan::commands::CmdResolveImage2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdTraceRaysIndirect2KHR>
+struct Schema<vulkan::api_elements::CmdTraceRaysIndirect2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdTraceRaysIndirect2KHR::commandBuffer,
                                   vulkan::fields::CmdTraceRaysIndirect2KHR::indirectDeviceAddress,
@@ -17537,7 +17537,7 @@ struct Schema<vulkan::commands::CmdTraceRaysIndirect2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDeviceBufferMemoryRequirementsKHR>
+struct Schema<vulkan::api_elements::GetDeviceBufferMemoryRequirementsKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetDeviceBufferMemoryRequirementsKHR::device,
                                   vulkan::fields::GetDeviceBufferMemoryRequirementsKHR::pInfo,
@@ -17546,7 +17546,7 @@ struct Schema<vulkan::commands::GetDeviceBufferMemoryRequirementsKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDeviceImageMemoryRequirementsKHR>
+struct Schema<vulkan::api_elements::GetDeviceImageMemoryRequirementsKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetDeviceImageMemoryRequirementsKHR::device,
                                   vulkan::fields::GetDeviceImageMemoryRequirementsKHR::pInfo,
@@ -17555,7 +17555,7 @@ struct Schema<vulkan::commands::GetDeviceImageMemoryRequirementsKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDeviceImageSparseMemoryRequirementsKHR>
+struct Schema<vulkan::api_elements::GetDeviceImageSparseMemoryRequirementsKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetDeviceImageSparseMemoryRequirementsKHR::device,
                                   vulkan::fields::GetDeviceImageSparseMemoryRequirementsKHR::pInfo,
@@ -17565,7 +17565,7 @@ struct Schema<vulkan::commands::GetDeviceImageSparseMemoryRequirementsKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBindIndexBuffer2KHR>
+struct Schema<vulkan::api_elements::CmdBindIndexBuffer2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBindIndexBuffer2KHR::commandBuffer,
                                   vulkan::fields::CmdBindIndexBuffer2KHR::buffer,
@@ -17576,7 +17576,7 @@ struct Schema<vulkan::commands::CmdBindIndexBuffer2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetRenderingAreaGranularityKHR>
+struct Schema<vulkan::api_elements::GetRenderingAreaGranularityKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetRenderingAreaGranularityKHR::device,
                                   vulkan::fields::GetRenderingAreaGranularityKHR::pRenderingAreaInfo,
@@ -17585,7 +17585,7 @@ struct Schema<vulkan::commands::GetRenderingAreaGranularityKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDeviceImageSubresourceLayoutKHR>
+struct Schema<vulkan::api_elements::GetDeviceImageSubresourceLayoutKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetDeviceImageSubresourceLayoutKHR::device,
                                   vulkan::fields::GetDeviceImageSubresourceLayoutKHR::pInfo,
@@ -17594,7 +17594,7 @@ struct Schema<vulkan::commands::GetDeviceImageSubresourceLayoutKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetImageSubresourceLayout2KHR>
+struct Schema<vulkan::api_elements::GetImageSubresourceLayout2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetImageSubresourceLayout2KHR::device,
                                   vulkan::fields::GetImageSubresourceLayout2KHR::image,
@@ -17604,7 +17604,7 @@ struct Schema<vulkan::commands::GetImageSubresourceLayout2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::WaitForPresent2KHR>
+struct Schema<vulkan::api_elements::WaitForPresent2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::WaitForPresent2KHR::device,
                                   vulkan::fields::WaitForPresent2KHR::swapchain,
@@ -17613,7 +17613,7 @@ struct Schema<vulkan::commands::WaitForPresent2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CreatePipelineBinariesKHR>
+struct Schema<vulkan::api_elements::CreatePipelineBinariesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CreatePipelineBinariesKHR::device,
                                   vulkan::fields::CreatePipelineBinariesKHR::pCreateInfo,
@@ -17623,7 +17623,7 @@ struct Schema<vulkan::commands::CreatePipelineBinariesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyPipelineBinaryKHR>
+struct Schema<vulkan::api_elements::DestroyPipelineBinaryKHR>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyPipelineBinaryKHR::device,
                                   vulkan::fields::DestroyPipelineBinaryKHR::pipelineBinary,
@@ -17632,7 +17632,7 @@ struct Schema<vulkan::commands::DestroyPipelineBinaryKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPipelineKeyKHR>
+struct Schema<vulkan::api_elements::GetPipelineKeyKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPipelineKeyKHR::device,
                                   vulkan::fields::GetPipelineKeyKHR::pPipelineCreateInfo,
@@ -17641,7 +17641,7 @@ struct Schema<vulkan::commands::GetPipelineKeyKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPipelineBinaryDataKHR>
+struct Schema<vulkan::api_elements::GetPipelineBinaryDataKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPipelineBinaryDataKHR::device,
                                   vulkan::fields::GetPipelineBinaryDataKHR::pInfo,
@@ -17652,7 +17652,7 @@ struct Schema<vulkan::commands::GetPipelineBinaryDataKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::ReleaseCapturedPipelineDataKHR>
+struct Schema<vulkan::api_elements::ReleaseCapturedPipelineDataKHR>
 {
     using Fields = util::TypeList<vulkan::fields::ReleaseCapturedPipelineDataKHR::device,
                                   vulkan::fields::ReleaseCapturedPipelineDataKHR::pInfo,
@@ -17661,7 +17661,7 @@ struct Schema<vulkan::commands::ReleaseCapturedPipelineDataKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::ReleaseSwapchainImagesKHR>
+struct Schema<vulkan::api_elements::ReleaseSwapchainImagesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::ReleaseSwapchainImagesKHR::device,
                                   vulkan::fields::ReleaseSwapchainImagesKHR::pReleaseInfo,
@@ -17669,7 +17669,7 @@ struct Schema<vulkan::commands::ReleaseSwapchainImagesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceCooperativeMatrixPropertiesKHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceCooperativeMatrixPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceCooperativeMatrixPropertiesKHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceCooperativeMatrixPropertiesKHR::pPropertyCount,
@@ -17678,7 +17678,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceCooperativeMatrixPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetLineStippleKHR>
+struct Schema<vulkan::api_elements::CmdSetLineStippleKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetLineStippleKHR::commandBuffer,
                                   vulkan::fields::CmdSetLineStippleKHR::lineStippleFactor,
@@ -17687,7 +17687,7 @@ struct Schema<vulkan::commands::CmdSetLineStippleKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceCalibrateableTimeDomainsKHR>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceCalibrateableTimeDomainsKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceCalibrateableTimeDomainsKHR::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceCalibrateableTimeDomainsKHR::pTimeDomainCount,
@@ -17696,7 +17696,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceCalibrateableTimeDomainsKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetCalibratedTimestampsKHR>
+struct Schema<vulkan::api_elements::GetCalibratedTimestampsKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetCalibratedTimestampsKHR::device,
                                   vulkan::fields::GetCalibratedTimestampsKHR::timestampCount,
@@ -17707,7 +17707,7 @@ struct Schema<vulkan::commands::GetCalibratedTimestampsKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBindDescriptorSets2KHR>
+struct Schema<vulkan::api_elements::CmdBindDescriptorSets2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBindDescriptorSets2KHR::commandBuffer,
                                   vulkan::fields::CmdBindDescriptorSets2KHR::pBindDescriptorSetsInfo,
@@ -17715,7 +17715,7 @@ struct Schema<vulkan::commands::CmdBindDescriptorSets2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdPushConstants2KHR>
+struct Schema<vulkan::api_elements::CmdPushConstants2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdPushConstants2KHR::commandBuffer,
                                   vulkan::fields::CmdPushConstants2KHR::pPushConstantsInfo,
@@ -17723,7 +17723,7 @@ struct Schema<vulkan::commands::CmdPushConstants2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdPushDescriptorSet2KHR>
+struct Schema<vulkan::api_elements::CmdPushDescriptorSet2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdPushDescriptorSet2KHR::commandBuffer,
                                   vulkan::fields::CmdPushDescriptorSet2KHR::pPushDescriptorSetInfo,
@@ -17731,7 +17731,7 @@ struct Schema<vulkan::commands::CmdPushDescriptorSet2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetDescriptorBufferOffsets2EXT>
+struct Schema<vulkan::api_elements::CmdSetDescriptorBufferOffsets2EXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetDescriptorBufferOffsets2EXT::commandBuffer,
                                   vulkan::fields::CmdSetDescriptorBufferOffsets2EXT::pSetDescriptorBufferOffsetsInfo,
@@ -17739,7 +17739,7 @@ struct Schema<vulkan::commands::CmdSetDescriptorBufferOffsets2EXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBindDescriptorBufferEmbeddedSamplers2EXT>
+struct Schema<vulkan::api_elements::CmdBindDescriptorBufferEmbeddedSamplers2EXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBindDescriptorBufferEmbeddedSamplers2EXT::commandBuffer,
                                   vulkan::fields::CmdBindDescriptorBufferEmbeddedSamplers2EXT::pBindDescriptorBufferEmbeddedSamplersInfo,
@@ -17747,7 +17747,7 @@ struct Schema<vulkan::commands::CmdBindDescriptorBufferEmbeddedSamplers2EXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyMemoryIndirectKHR>
+struct Schema<vulkan::api_elements::CmdCopyMemoryIndirectKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyMemoryIndirectKHR::commandBuffer,
                                   vulkan::fields::CmdCopyMemoryIndirectKHR::pCopyMemoryIndirectInfo,
@@ -17755,7 +17755,7 @@ struct Schema<vulkan::commands::CmdCopyMemoryIndirectKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyMemoryToImageIndirectKHR>
+struct Schema<vulkan::api_elements::CmdCopyMemoryToImageIndirectKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyMemoryToImageIndirectKHR::commandBuffer,
                                   vulkan::fields::CmdCopyMemoryToImageIndirectKHR::pCopyMemoryToImageIndirectInfo,
@@ -17763,7 +17763,7 @@ struct Schema<vulkan::commands::CmdCopyMemoryToImageIndirectKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDeviceFaultReportsKHR>
+struct Schema<vulkan::api_elements::GetDeviceFaultReportsKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetDeviceFaultReportsKHR::device,
                                   vulkan::fields::GetDeviceFaultReportsKHR::timeout,
@@ -17773,7 +17773,7 @@ struct Schema<vulkan::commands::GetDeviceFaultReportsKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDeviceFaultDebugInfoKHR>
+struct Schema<vulkan::api_elements::GetDeviceFaultDebugInfoKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetDeviceFaultDebugInfoKHR::device,
                                   vulkan::fields::GetDeviceFaultDebugInfoKHR::pDebugInfo,
@@ -17781,7 +17781,7 @@ struct Schema<vulkan::commands::GetDeviceFaultDebugInfoKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdEndRendering2KHR>
+struct Schema<vulkan::api_elements::CmdEndRendering2KHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdEndRendering2KHR::commandBuffer,
                                   vulkan::fields::CmdEndRendering2KHR::pRenderingEndInfo,
@@ -17789,7 +17789,7 @@ struct Schema<vulkan::commands::CmdEndRendering2KHR>
 };
 
 template <>
-struct Schema<vulkan::commands::FrameBoundaryANDROID>
+struct Schema<vulkan::api_elements::FrameBoundaryANDROID>
 {
     using Fields = util::TypeList<vulkan::fields::FrameBoundaryANDROID::device,
                                   vulkan::fields::FrameBoundaryANDROID::semaphore,
@@ -17798,7 +17798,7 @@ struct Schema<vulkan::commands::FrameBoundaryANDROID>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateDebugReportCallbackEXT>
+struct Schema<vulkan::api_elements::CreateDebugReportCallbackEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CreateDebugReportCallbackEXT::instance,
                                   vulkan::fields::CreateDebugReportCallbackEXT::pCreateInfo,
@@ -17808,7 +17808,7 @@ struct Schema<vulkan::commands::CreateDebugReportCallbackEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyDebugReportCallbackEXT>
+struct Schema<vulkan::api_elements::DestroyDebugReportCallbackEXT>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyDebugReportCallbackEXT::instance,
                                   vulkan::fields::DestroyDebugReportCallbackEXT::callback,
@@ -17817,7 +17817,7 @@ struct Schema<vulkan::commands::DestroyDebugReportCallbackEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::DebugReportMessageEXT>
+struct Schema<vulkan::api_elements::DebugReportMessageEXT>
 {
     using Fields = util::TypeList<vulkan::fields::DebugReportMessageEXT::instance,
                                   vulkan::fields::DebugReportMessageEXT::flags,
@@ -17831,7 +17831,7 @@ struct Schema<vulkan::commands::DebugReportMessageEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::DebugMarkerSetObjectTagEXT>
+struct Schema<vulkan::api_elements::DebugMarkerSetObjectTagEXT>
 {
     using Fields = util::TypeList<vulkan::fields::DebugMarkerSetObjectTagEXT::device,
                                   vulkan::fields::DebugMarkerSetObjectTagEXT::pTagInfo,
@@ -17839,7 +17839,7 @@ struct Schema<vulkan::commands::DebugMarkerSetObjectTagEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::DebugMarkerSetObjectNameEXT>
+struct Schema<vulkan::api_elements::DebugMarkerSetObjectNameEXT>
 {
     using Fields = util::TypeList<vulkan::fields::DebugMarkerSetObjectNameEXT::device,
                                   vulkan::fields::DebugMarkerSetObjectNameEXT::pNameInfo,
@@ -17847,7 +17847,7 @@ struct Schema<vulkan::commands::DebugMarkerSetObjectNameEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDebugMarkerBeginEXT>
+struct Schema<vulkan::api_elements::CmdDebugMarkerBeginEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDebugMarkerBeginEXT::commandBuffer,
                                   vulkan::fields::CmdDebugMarkerBeginEXT::pMarkerInfo,
@@ -17855,14 +17855,14 @@ struct Schema<vulkan::commands::CmdDebugMarkerBeginEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDebugMarkerEndEXT>
+struct Schema<vulkan::api_elements::CmdDebugMarkerEndEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDebugMarkerEndEXT::commandBuffer,
                                   vulkan::fields::CmdDebugMarkerEndEXT::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDebugMarkerInsertEXT>
+struct Schema<vulkan::api_elements::CmdDebugMarkerInsertEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDebugMarkerInsertEXT::commandBuffer,
                                   vulkan::fields::CmdDebugMarkerInsertEXT::pMarkerInfo,
@@ -17870,7 +17870,7 @@ struct Schema<vulkan::commands::CmdDebugMarkerInsertEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBindTransformFeedbackBuffersEXT>
+struct Schema<vulkan::api_elements::CmdBindTransformFeedbackBuffersEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBindTransformFeedbackBuffersEXT::commandBuffer,
                                   vulkan::fields::CmdBindTransformFeedbackBuffersEXT::firstBinding,
@@ -17882,7 +17882,7 @@ struct Schema<vulkan::commands::CmdBindTransformFeedbackBuffersEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBeginTransformFeedbackEXT>
+struct Schema<vulkan::api_elements::CmdBeginTransformFeedbackEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBeginTransformFeedbackEXT::commandBuffer,
                                   vulkan::fields::CmdBeginTransformFeedbackEXT::firstCounterBuffer,
@@ -17893,7 +17893,7 @@ struct Schema<vulkan::commands::CmdBeginTransformFeedbackEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdEndTransformFeedbackEXT>
+struct Schema<vulkan::api_elements::CmdEndTransformFeedbackEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdEndTransformFeedbackEXT::commandBuffer,
                                   vulkan::fields::CmdEndTransformFeedbackEXT::firstCounterBuffer,
@@ -17904,7 +17904,7 @@ struct Schema<vulkan::commands::CmdEndTransformFeedbackEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBeginQueryIndexedEXT>
+struct Schema<vulkan::api_elements::CmdBeginQueryIndexedEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBeginQueryIndexedEXT::commandBuffer,
                                   vulkan::fields::CmdBeginQueryIndexedEXT::queryPool,
@@ -17915,7 +17915,7 @@ struct Schema<vulkan::commands::CmdBeginQueryIndexedEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdEndQueryIndexedEXT>
+struct Schema<vulkan::api_elements::CmdEndQueryIndexedEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdEndQueryIndexedEXT::commandBuffer,
                                   vulkan::fields::CmdEndQueryIndexedEXT::queryPool,
@@ -17925,7 +17925,7 @@ struct Schema<vulkan::commands::CmdEndQueryIndexedEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDrawIndirectByteCountEXT>
+struct Schema<vulkan::api_elements::CmdDrawIndirectByteCountEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDrawIndirectByteCountEXT::commandBuffer,
                                   vulkan::fields::CmdDrawIndirectByteCountEXT::instanceCount,
@@ -17938,7 +17938,7 @@ struct Schema<vulkan::commands::CmdDrawIndirectByteCountEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetImageViewHandleNVX>
+struct Schema<vulkan::api_elements::GetImageViewHandleNVX>
 {
     using Fields = util::TypeList<vulkan::fields::GetImageViewHandleNVX::device,
                                   vulkan::fields::GetImageViewHandleNVX::pInfo,
@@ -17946,7 +17946,7 @@ struct Schema<vulkan::commands::GetImageViewHandleNVX>
 };
 
 template <>
-struct Schema<vulkan::commands::GetImageViewHandle64NVX>
+struct Schema<vulkan::api_elements::GetImageViewHandle64NVX>
 {
     using Fields = util::TypeList<vulkan::fields::GetImageViewHandle64NVX::device,
                                   vulkan::fields::GetImageViewHandle64NVX::pInfo,
@@ -17954,7 +17954,7 @@ struct Schema<vulkan::commands::GetImageViewHandle64NVX>
 };
 
 template <>
-struct Schema<vulkan::commands::GetImageViewAddressNVX>
+struct Schema<vulkan::api_elements::GetImageViewAddressNVX>
 {
     using Fields = util::TypeList<vulkan::fields::GetImageViewAddressNVX::device,
                                   vulkan::fields::GetImageViewAddressNVX::imageView,
@@ -17963,7 +17963,7 @@ struct Schema<vulkan::commands::GetImageViewAddressNVX>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDeviceCombinedImageSamplerIndexNVX>
+struct Schema<vulkan::api_elements::GetDeviceCombinedImageSamplerIndexNVX>
 {
     using Fields = util::TypeList<vulkan::fields::GetDeviceCombinedImageSamplerIndexNVX::device,
                                   vulkan::fields::GetDeviceCombinedImageSamplerIndexNVX::imageViewIndex,
@@ -17972,7 +17972,7 @@ struct Schema<vulkan::commands::GetDeviceCombinedImageSamplerIndexNVX>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDrawIndirectCountAMD>
+struct Schema<vulkan::api_elements::CmdDrawIndirectCountAMD>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDrawIndirectCountAMD::commandBuffer,
                                   vulkan::fields::CmdDrawIndirectCountAMD::buffer,
@@ -17985,7 +17985,7 @@ struct Schema<vulkan::commands::CmdDrawIndirectCountAMD>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDrawIndexedIndirectCountAMD>
+struct Schema<vulkan::api_elements::CmdDrawIndexedIndirectCountAMD>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDrawIndexedIndirectCountAMD::commandBuffer,
                                   vulkan::fields::CmdDrawIndexedIndirectCountAMD::buffer,
@@ -17998,7 +17998,7 @@ struct Schema<vulkan::commands::CmdDrawIndexedIndirectCountAMD>
 };
 
 template <>
-struct Schema<vulkan::commands::GetShaderInfoAMD>
+struct Schema<vulkan::api_elements::GetShaderInfoAMD>
 {
     using Fields = util::TypeList<vulkan::fields::GetShaderInfoAMD::device, vulkan::fields::GetShaderInfoAMD::pipeline,
                                   vulkan::fields::GetShaderInfoAMD::shaderStage,
@@ -18008,7 +18008,7 @@ struct Schema<vulkan::commands::GetShaderInfoAMD>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateStreamDescriptorSurfaceGGP>
+struct Schema<vulkan::api_elements::CreateStreamDescriptorSurfaceGGP>
 {
     using Fields = util::TypeList<vulkan::fields::CreateStreamDescriptorSurfaceGGP::instance,
                                   vulkan::fields::CreateStreamDescriptorSurfaceGGP::pCreateInfo,
@@ -18018,7 +18018,7 @@ struct Schema<vulkan::commands::CreateStreamDescriptorSurfaceGGP>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceExternalImageFormatPropertiesNV>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceExternalImageFormatPropertiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceExternalImageFormatPropertiesNV::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceExternalImageFormatPropertiesNV::format,
@@ -18032,7 +18032,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceExternalImageFormatPropertiesNV
 };
 
 template <>
-struct Schema<vulkan::commands::GetMemoryWin32HandleNV>
+struct Schema<vulkan::api_elements::GetMemoryWin32HandleNV>
 {
     using Fields = util::TypeList<vulkan::fields::GetMemoryWin32HandleNV::device,
                                   vulkan::fields::GetMemoryWin32HandleNV::memory,
@@ -18042,7 +18042,7 @@ struct Schema<vulkan::commands::GetMemoryWin32HandleNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateViSurfaceNN>
+struct Schema<vulkan::api_elements::CreateViSurfaceNN>
 {
     using Fields = util::TypeList<vulkan::fields::CreateViSurfaceNN::instance,
                                   vulkan::fields::CreateViSurfaceNN::pCreateInfo,
@@ -18052,7 +18052,7 @@ struct Schema<vulkan::commands::CreateViSurfaceNN>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBeginConditionalRenderingEXT>
+struct Schema<vulkan::api_elements::CmdBeginConditionalRenderingEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBeginConditionalRenderingEXT::commandBuffer,
                                   vulkan::fields::CmdBeginConditionalRenderingEXT::pConditionalRenderingBegin,
@@ -18060,14 +18060,14 @@ struct Schema<vulkan::commands::CmdBeginConditionalRenderingEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdEndConditionalRenderingEXT>
+struct Schema<vulkan::api_elements::CmdEndConditionalRenderingEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdEndConditionalRenderingEXT::commandBuffer,
                                   vulkan::fields::CmdEndConditionalRenderingEXT::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetViewportWScalingNV>
+struct Schema<vulkan::api_elements::CmdSetViewportWScalingNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetViewportWScalingNV::commandBuffer,
                                   vulkan::fields::CmdSetViewportWScalingNV::firstViewport,
@@ -18077,7 +18077,7 @@ struct Schema<vulkan::commands::CmdSetViewportWScalingNV>
 };
 
 template <>
-struct Schema<vulkan::commands::ReleaseDisplayEXT>
+struct Schema<vulkan::api_elements::ReleaseDisplayEXT>
 {
     using Fields = util::TypeList<vulkan::fields::ReleaseDisplayEXT::physicalDevice,
                                   vulkan::fields::ReleaseDisplayEXT::display,
@@ -18085,7 +18085,7 @@ struct Schema<vulkan::commands::ReleaseDisplayEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::AcquireXlibDisplayEXT>
+struct Schema<vulkan::api_elements::AcquireXlibDisplayEXT>
 {
     using Fields = util::TypeList<vulkan::fields::AcquireXlibDisplayEXT::physicalDevice,
                                   vulkan::fields::AcquireXlibDisplayEXT::dpy,
@@ -18094,7 +18094,7 @@ struct Schema<vulkan::commands::AcquireXlibDisplayEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetRandROutputDisplayEXT>
+struct Schema<vulkan::api_elements::GetRandROutputDisplayEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetRandROutputDisplayEXT::physicalDevice,
                                   vulkan::fields::GetRandROutputDisplayEXT::dpy,
@@ -18104,7 +18104,7 @@ struct Schema<vulkan::commands::GetRandROutputDisplayEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceSurfaceCapabilities2EXT>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceSurfaceCapabilities2EXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceSurfaceCapabilities2EXT::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceSurfaceCapabilities2EXT::surface,
@@ -18113,7 +18113,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceSurfaceCapabilities2EXT>
 };
 
 template <>
-struct Schema<vulkan::commands::DisplayPowerControlEXT>
+struct Schema<vulkan::api_elements::DisplayPowerControlEXT>
 {
     using Fields = util::TypeList<vulkan::fields::DisplayPowerControlEXT::device,
                                   vulkan::fields::DisplayPowerControlEXT::display,
@@ -18122,7 +18122,7 @@ struct Schema<vulkan::commands::DisplayPowerControlEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::RegisterDeviceEventEXT>
+struct Schema<vulkan::api_elements::RegisterDeviceEventEXT>
 {
     using Fields = util::TypeList<vulkan::fields::RegisterDeviceEventEXT::device,
                                   vulkan::fields::RegisterDeviceEventEXT::pDeviceEventInfo,
@@ -18132,7 +18132,7 @@ struct Schema<vulkan::commands::RegisterDeviceEventEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::RegisterDisplayEventEXT>
+struct Schema<vulkan::api_elements::RegisterDisplayEventEXT>
 {
     using Fields = util::TypeList<vulkan::fields::RegisterDisplayEventEXT::device,
                                   vulkan::fields::RegisterDisplayEventEXT::display,
@@ -18143,7 +18143,7 @@ struct Schema<vulkan::commands::RegisterDisplayEventEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetSwapchainCounterEXT>
+struct Schema<vulkan::api_elements::GetSwapchainCounterEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetSwapchainCounterEXT::device,
                                   vulkan::fields::GetSwapchainCounterEXT::swapchain,
@@ -18153,7 +18153,7 @@ struct Schema<vulkan::commands::GetSwapchainCounterEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetRefreshCycleDurationGOOGLE>
+struct Schema<vulkan::api_elements::GetRefreshCycleDurationGOOGLE>
 {
     using Fields = util::TypeList<vulkan::fields::GetRefreshCycleDurationGOOGLE::device,
                                   vulkan::fields::GetRefreshCycleDurationGOOGLE::swapchain,
@@ -18162,7 +18162,7 @@ struct Schema<vulkan::commands::GetRefreshCycleDurationGOOGLE>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPastPresentationTimingGOOGLE>
+struct Schema<vulkan::api_elements::GetPastPresentationTimingGOOGLE>
 {
     using Fields = util::TypeList<vulkan::fields::GetPastPresentationTimingGOOGLE::device,
                                   vulkan::fields::GetPastPresentationTimingGOOGLE::swapchain,
@@ -18172,7 +18172,7 @@ struct Schema<vulkan::commands::GetPastPresentationTimingGOOGLE>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetDiscardRectangleEXT>
+struct Schema<vulkan::api_elements::CmdSetDiscardRectangleEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetDiscardRectangleEXT::commandBuffer,
                                   vulkan::fields::CmdSetDiscardRectangleEXT::firstDiscardRectangle,
@@ -18182,7 +18182,7 @@ struct Schema<vulkan::commands::CmdSetDiscardRectangleEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetDiscardRectangleEnableEXT>
+struct Schema<vulkan::api_elements::CmdSetDiscardRectangleEnableEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetDiscardRectangleEnableEXT::commandBuffer,
                                   vulkan::fields::CmdSetDiscardRectangleEnableEXT::discardRectangleEnable,
@@ -18190,7 +18190,7 @@ struct Schema<vulkan::commands::CmdSetDiscardRectangleEnableEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetDiscardRectangleModeEXT>
+struct Schema<vulkan::api_elements::CmdSetDiscardRectangleModeEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetDiscardRectangleModeEXT::commandBuffer,
                                   vulkan::fields::CmdSetDiscardRectangleModeEXT::discardRectangleMode,
@@ -18198,7 +18198,7 @@ struct Schema<vulkan::commands::CmdSetDiscardRectangleModeEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::SetHdrMetadataEXT>
+struct Schema<vulkan::api_elements::SetHdrMetadataEXT>
 {
     using Fields = util::TypeList<vulkan::fields::SetHdrMetadataEXT::device,
                                   vulkan::fields::SetHdrMetadataEXT::swapchainCount,
@@ -18208,7 +18208,7 @@ struct Schema<vulkan::commands::SetHdrMetadataEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateIOSSurfaceMVK>
+struct Schema<vulkan::api_elements::CreateIOSSurfaceMVK>
 {
     using Fields = util::TypeList<vulkan::fields::CreateIOSSurfaceMVK::instance,
                                   vulkan::fields::CreateIOSSurfaceMVK::pCreateInfo,
@@ -18218,7 +18218,7 @@ struct Schema<vulkan::commands::CreateIOSSurfaceMVK>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateMacOSSurfaceMVK>
+struct Schema<vulkan::api_elements::CreateMacOSSurfaceMVK>
 {
     using Fields = util::TypeList<vulkan::fields::CreateMacOSSurfaceMVK::instance,
                                   vulkan::fields::CreateMacOSSurfaceMVK::pCreateInfo,
@@ -18228,7 +18228,7 @@ struct Schema<vulkan::commands::CreateMacOSSurfaceMVK>
 };
 
 template <>
-struct Schema<vulkan::commands::SetDebugUtilsObjectNameEXT>
+struct Schema<vulkan::api_elements::SetDebugUtilsObjectNameEXT>
 {
     using Fields = util::TypeList<vulkan::fields::SetDebugUtilsObjectNameEXT::device,
                                   vulkan::fields::SetDebugUtilsObjectNameEXT::pNameInfo,
@@ -18236,7 +18236,7 @@ struct Schema<vulkan::commands::SetDebugUtilsObjectNameEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::SetDebugUtilsObjectTagEXT>
+struct Schema<vulkan::api_elements::SetDebugUtilsObjectTagEXT>
 {
     using Fields = util::TypeList<vulkan::fields::SetDebugUtilsObjectTagEXT::device,
                                   vulkan::fields::SetDebugUtilsObjectTagEXT::pTagInfo,
@@ -18244,7 +18244,7 @@ struct Schema<vulkan::commands::SetDebugUtilsObjectTagEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::QueueBeginDebugUtilsLabelEXT>
+struct Schema<vulkan::api_elements::QueueBeginDebugUtilsLabelEXT>
 {
     using Fields = util::TypeList<vulkan::fields::QueueBeginDebugUtilsLabelEXT::queue,
                                   vulkan::fields::QueueBeginDebugUtilsLabelEXT::pLabelInfo,
@@ -18252,14 +18252,14 @@ struct Schema<vulkan::commands::QueueBeginDebugUtilsLabelEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::QueueEndDebugUtilsLabelEXT>
+struct Schema<vulkan::api_elements::QueueEndDebugUtilsLabelEXT>
 {
     using Fields = util::TypeList<vulkan::fields::QueueEndDebugUtilsLabelEXT::queue,
                                   vulkan::fields::QueueEndDebugUtilsLabelEXT::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::QueueInsertDebugUtilsLabelEXT>
+struct Schema<vulkan::api_elements::QueueInsertDebugUtilsLabelEXT>
 {
     using Fields = util::TypeList<vulkan::fields::QueueInsertDebugUtilsLabelEXT::queue,
                                   vulkan::fields::QueueInsertDebugUtilsLabelEXT::pLabelInfo,
@@ -18267,7 +18267,7 @@ struct Schema<vulkan::commands::QueueInsertDebugUtilsLabelEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBeginDebugUtilsLabelEXT>
+struct Schema<vulkan::api_elements::CmdBeginDebugUtilsLabelEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBeginDebugUtilsLabelEXT::commandBuffer,
                                   vulkan::fields::CmdBeginDebugUtilsLabelEXT::pLabelInfo,
@@ -18275,14 +18275,14 @@ struct Schema<vulkan::commands::CmdBeginDebugUtilsLabelEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdEndDebugUtilsLabelEXT>
+struct Schema<vulkan::api_elements::CmdEndDebugUtilsLabelEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdEndDebugUtilsLabelEXT::commandBuffer,
                                   vulkan::fields::CmdEndDebugUtilsLabelEXT::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::CmdInsertDebugUtilsLabelEXT>
+struct Schema<vulkan::api_elements::CmdInsertDebugUtilsLabelEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdInsertDebugUtilsLabelEXT::commandBuffer,
                                   vulkan::fields::CmdInsertDebugUtilsLabelEXT::pLabelInfo,
@@ -18290,7 +18290,7 @@ struct Schema<vulkan::commands::CmdInsertDebugUtilsLabelEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateDebugUtilsMessengerEXT>
+struct Schema<vulkan::api_elements::CreateDebugUtilsMessengerEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CreateDebugUtilsMessengerEXT::instance,
                                   vulkan::fields::CreateDebugUtilsMessengerEXT::pCreateInfo,
@@ -18300,7 +18300,7 @@ struct Schema<vulkan::commands::CreateDebugUtilsMessengerEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyDebugUtilsMessengerEXT>
+struct Schema<vulkan::api_elements::DestroyDebugUtilsMessengerEXT>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyDebugUtilsMessengerEXT::instance,
                                   vulkan::fields::DestroyDebugUtilsMessengerEXT::messenger,
@@ -18309,7 +18309,7 @@ struct Schema<vulkan::commands::DestroyDebugUtilsMessengerEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::SubmitDebugUtilsMessageEXT>
+struct Schema<vulkan::api_elements::SubmitDebugUtilsMessageEXT>
 {
     using Fields = util::TypeList<vulkan::fields::SubmitDebugUtilsMessageEXT::instance,
                                   vulkan::fields::SubmitDebugUtilsMessageEXT::messageSeverity,
@@ -18319,7 +18319,7 @@ struct Schema<vulkan::commands::SubmitDebugUtilsMessageEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetAndroidHardwareBufferPropertiesANDROID>
+struct Schema<vulkan::api_elements::GetAndroidHardwareBufferPropertiesANDROID>
 {
     using Fields = util::TypeList<vulkan::fields::GetAndroidHardwareBufferPropertiesANDROID::device,
                                   vulkan::fields::GetAndroidHardwareBufferPropertiesANDROID::buffer,
@@ -18328,7 +18328,7 @@ struct Schema<vulkan::commands::GetAndroidHardwareBufferPropertiesANDROID>
 };
 
 template <>
-struct Schema<vulkan::commands::GetMemoryAndroidHardwareBufferANDROID>
+struct Schema<vulkan::api_elements::GetMemoryAndroidHardwareBufferANDROID>
 {
     using Fields = util::TypeList<vulkan::fields::GetMemoryAndroidHardwareBufferANDROID::device,
                                   vulkan::fields::GetMemoryAndroidHardwareBufferANDROID::pInfo,
@@ -18337,7 +18337,7 @@ struct Schema<vulkan::commands::GetMemoryAndroidHardwareBufferANDROID>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateGpaSessionAMD>
+struct Schema<vulkan::api_elements::CreateGpaSessionAMD>
 {
     using Fields = util::TypeList<vulkan::fields::CreateGpaSessionAMD::device,
                                   vulkan::fields::CreateGpaSessionAMD::pCreateInfo,
@@ -18347,7 +18347,7 @@ struct Schema<vulkan::commands::CreateGpaSessionAMD>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyGpaSessionAMD>
+struct Schema<vulkan::api_elements::DestroyGpaSessionAMD>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyGpaSessionAMD::device,
                                   vulkan::fields::DestroyGpaSessionAMD::gpaSession,
@@ -18356,7 +18356,7 @@ struct Schema<vulkan::commands::DestroyGpaSessionAMD>
 };
 
 template <>
-struct Schema<vulkan::commands::SetGpaDeviceClockModeAMD>
+struct Schema<vulkan::api_elements::SetGpaDeviceClockModeAMD>
 {
     using Fields = util::TypeList<vulkan::fields::SetGpaDeviceClockModeAMD::device,
                                   vulkan::fields::SetGpaDeviceClockModeAMD::pInfo,
@@ -18364,7 +18364,7 @@ struct Schema<vulkan::commands::SetGpaDeviceClockModeAMD>
 };
 
 template <>
-struct Schema<vulkan::commands::GetGpaDeviceClockInfoAMD>
+struct Schema<vulkan::api_elements::GetGpaDeviceClockInfoAMD>
 {
     using Fields = util::TypeList<vulkan::fields::GetGpaDeviceClockInfoAMD::device,
                                   vulkan::fields::GetGpaDeviceClockInfoAMD::pInfo,
@@ -18372,7 +18372,7 @@ struct Schema<vulkan::commands::GetGpaDeviceClockInfoAMD>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBeginGpaSessionAMD>
+struct Schema<vulkan::api_elements::CmdBeginGpaSessionAMD>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBeginGpaSessionAMD::commandBuffer,
                                   vulkan::fields::CmdBeginGpaSessionAMD::gpaSession,
@@ -18380,7 +18380,7 @@ struct Schema<vulkan::commands::CmdBeginGpaSessionAMD>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdEndGpaSessionAMD>
+struct Schema<vulkan::api_elements::CmdEndGpaSessionAMD>
 {
     using Fields = util::TypeList<vulkan::fields::CmdEndGpaSessionAMD::commandBuffer,
                                   vulkan::fields::CmdEndGpaSessionAMD::gpaSession,
@@ -18388,7 +18388,7 @@ struct Schema<vulkan::commands::CmdEndGpaSessionAMD>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBeginGpaSampleAMD>
+struct Schema<vulkan::api_elements::CmdBeginGpaSampleAMD>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBeginGpaSampleAMD::commandBuffer,
                                   vulkan::fields::CmdBeginGpaSampleAMD::gpaSession,
@@ -18398,7 +18398,7 @@ struct Schema<vulkan::commands::CmdBeginGpaSampleAMD>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdEndGpaSampleAMD>
+struct Schema<vulkan::api_elements::CmdEndGpaSampleAMD>
 {
     using Fields = util::TypeList<vulkan::fields::CmdEndGpaSampleAMD::commandBuffer,
                                   vulkan::fields::CmdEndGpaSampleAMD::gpaSession,
@@ -18407,7 +18407,7 @@ struct Schema<vulkan::commands::CmdEndGpaSampleAMD>
 };
 
 template <>
-struct Schema<vulkan::commands::GetGpaSessionStatusAMD>
+struct Schema<vulkan::api_elements::GetGpaSessionStatusAMD>
 {
     using Fields = util::TypeList<vulkan::fields::GetGpaSessionStatusAMD::device,
                                   vulkan::fields::GetGpaSessionStatusAMD::gpaSession,
@@ -18415,7 +18415,7 @@ struct Schema<vulkan::commands::GetGpaSessionStatusAMD>
 };
 
 template <>
-struct Schema<vulkan::commands::GetGpaSessionResultsAMD>
+struct Schema<vulkan::api_elements::GetGpaSessionResultsAMD>
 {
     using Fields = util::TypeList<vulkan::fields::GetGpaSessionResultsAMD::device,
                                   vulkan::fields::GetGpaSessionResultsAMD::gpaSession,
@@ -18426,7 +18426,7 @@ struct Schema<vulkan::commands::GetGpaSessionResultsAMD>
 };
 
 template <>
-struct Schema<vulkan::commands::ResetGpaSessionAMD>
+struct Schema<vulkan::api_elements::ResetGpaSessionAMD>
 {
     using Fields = util::TypeList<vulkan::fields::ResetGpaSessionAMD::device,
                                   vulkan::fields::ResetGpaSessionAMD::gpaSession,
@@ -18434,7 +18434,7 @@ struct Schema<vulkan::commands::ResetGpaSessionAMD>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyGpaSessionResultsAMD>
+struct Schema<vulkan::api_elements::CmdCopyGpaSessionResultsAMD>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyGpaSessionResultsAMD::commandBuffer,
                                   vulkan::fields::CmdCopyGpaSessionResultsAMD::gpaSession,
@@ -18442,7 +18442,7 @@ struct Schema<vulkan::commands::CmdCopyGpaSessionResultsAMD>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetSampleLocationsEXT>
+struct Schema<vulkan::api_elements::CmdSetSampleLocationsEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetSampleLocationsEXT::commandBuffer,
                                   vulkan::fields::CmdSetSampleLocationsEXT::pSampleLocationsInfo,
@@ -18450,7 +18450,7 @@ struct Schema<vulkan::commands::CmdSetSampleLocationsEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceMultisamplePropertiesEXT>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceMultisamplePropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceMultisamplePropertiesEXT::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceMultisamplePropertiesEXT::samples,
@@ -18459,7 +18459,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceMultisamplePropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetImageDrmFormatModifierPropertiesEXT>
+struct Schema<vulkan::api_elements::GetImageDrmFormatModifierPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetImageDrmFormatModifierPropertiesEXT::device,
                                   vulkan::fields::GetImageDrmFormatModifierPropertiesEXT::image,
@@ -18468,7 +18468,7 @@ struct Schema<vulkan::commands::GetImageDrmFormatModifierPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateValidationCacheEXT>
+struct Schema<vulkan::api_elements::CreateValidationCacheEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CreateValidationCacheEXT::device,
                                   vulkan::fields::CreateValidationCacheEXT::pCreateInfo,
@@ -18478,7 +18478,7 @@ struct Schema<vulkan::commands::CreateValidationCacheEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyValidationCacheEXT>
+struct Schema<vulkan::api_elements::DestroyValidationCacheEXT>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyValidationCacheEXT::device,
                                   vulkan::fields::DestroyValidationCacheEXT::validationCache,
@@ -18487,7 +18487,7 @@ struct Schema<vulkan::commands::DestroyValidationCacheEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::MergeValidationCachesEXT>
+struct Schema<vulkan::api_elements::MergeValidationCachesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::MergeValidationCachesEXT::device,
                                   vulkan::fields::MergeValidationCachesEXT::dstCache,
@@ -18497,7 +18497,7 @@ struct Schema<vulkan::commands::MergeValidationCachesEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetValidationCacheDataEXT>
+struct Schema<vulkan::api_elements::GetValidationCacheDataEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetValidationCacheDataEXT::device,
                                   vulkan::fields::GetValidationCacheDataEXT::validationCache,
@@ -18507,7 +18507,7 @@ struct Schema<vulkan::commands::GetValidationCacheDataEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBindShadingRateImageNV>
+struct Schema<vulkan::api_elements::CmdBindShadingRateImageNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBindShadingRateImageNV::commandBuffer,
                                   vulkan::fields::CmdBindShadingRateImageNV::imageView,
@@ -18516,7 +18516,7 @@ struct Schema<vulkan::commands::CmdBindShadingRateImageNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetViewportShadingRatePaletteNV>
+struct Schema<vulkan::api_elements::CmdSetViewportShadingRatePaletteNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetViewportShadingRatePaletteNV::commandBuffer,
                                   vulkan::fields::CmdSetViewportShadingRatePaletteNV::firstViewport,
@@ -18526,7 +18526,7 @@ struct Schema<vulkan::commands::CmdSetViewportShadingRatePaletteNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetCoarseSampleOrderNV>
+struct Schema<vulkan::api_elements::CmdSetCoarseSampleOrderNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetCoarseSampleOrderNV::commandBuffer,
                                   vulkan::fields::CmdSetCoarseSampleOrderNV::sampleOrderType,
@@ -18536,7 +18536,7 @@ struct Schema<vulkan::commands::CmdSetCoarseSampleOrderNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateAccelerationStructureNV>
+struct Schema<vulkan::api_elements::CreateAccelerationStructureNV>
 {
     using Fields = util::TypeList<vulkan::fields::CreateAccelerationStructureNV::device,
                                   vulkan::fields::CreateAccelerationStructureNV::pCreateInfo,
@@ -18546,7 +18546,7 @@ struct Schema<vulkan::commands::CreateAccelerationStructureNV>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyAccelerationStructureNV>
+struct Schema<vulkan::api_elements::DestroyAccelerationStructureNV>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyAccelerationStructureNV::device,
                                   vulkan::fields::DestroyAccelerationStructureNV::accelerationStructure,
@@ -18555,7 +18555,7 @@ struct Schema<vulkan::commands::DestroyAccelerationStructureNV>
 };
 
 template <>
-struct Schema<vulkan::commands::GetAccelerationStructureMemoryRequirementsNV>
+struct Schema<vulkan::api_elements::GetAccelerationStructureMemoryRequirementsNV>
 {
     using Fields = util::TypeList<vulkan::fields::GetAccelerationStructureMemoryRequirementsNV::device,
                                   vulkan::fields::GetAccelerationStructureMemoryRequirementsNV::pInfo,
@@ -18564,7 +18564,7 @@ struct Schema<vulkan::commands::GetAccelerationStructureMemoryRequirementsNV>
 };
 
 template <>
-struct Schema<vulkan::commands::BindAccelerationStructureMemoryNV>
+struct Schema<vulkan::api_elements::BindAccelerationStructureMemoryNV>
 {
     using Fields = util::TypeList<vulkan::fields::BindAccelerationStructureMemoryNV::device,
                                   vulkan::fields::BindAccelerationStructureMemoryNV::bindInfoCount,
@@ -18573,7 +18573,7 @@ struct Schema<vulkan::commands::BindAccelerationStructureMemoryNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBuildAccelerationStructureNV>
+struct Schema<vulkan::api_elements::CmdBuildAccelerationStructureNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBuildAccelerationStructureNV::commandBuffer,
                                   vulkan::fields::CmdBuildAccelerationStructureNV::pInfo,
@@ -18588,7 +18588,7 @@ struct Schema<vulkan::commands::CmdBuildAccelerationStructureNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyAccelerationStructureNV>
+struct Schema<vulkan::api_elements::CmdCopyAccelerationStructureNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyAccelerationStructureNV::commandBuffer,
                                   vulkan::fields::CmdCopyAccelerationStructureNV::dst,
@@ -18598,7 +18598,7 @@ struct Schema<vulkan::commands::CmdCopyAccelerationStructureNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdTraceRaysNV>
+struct Schema<vulkan::api_elements::CmdTraceRaysNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdTraceRaysNV::commandBuffer,
                                   vulkan::fields::CmdTraceRaysNV::raygenShaderBindingTableBuffer,
@@ -18617,7 +18617,7 @@ struct Schema<vulkan::commands::CmdTraceRaysNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateRayTracingPipelinesNV>
+struct Schema<vulkan::api_elements::CreateRayTracingPipelinesNV>
 {
     using Fields = util::TypeList<vulkan::fields::CreateRayTracingPipelinesNV::device,
                                   vulkan::fields::CreateRayTracingPipelinesNV::pipelineCache,
@@ -18629,7 +18629,7 @@ struct Schema<vulkan::commands::CreateRayTracingPipelinesNV>
 };
 
 template <>
-struct Schema<vulkan::commands::GetRayTracingShaderGroupHandlesKHR>
+struct Schema<vulkan::api_elements::GetRayTracingShaderGroupHandlesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetRayTracingShaderGroupHandlesKHR::device,
                                   vulkan::fields::GetRayTracingShaderGroupHandlesKHR::pipeline,
@@ -18641,7 +18641,7 @@ struct Schema<vulkan::commands::GetRayTracingShaderGroupHandlesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetRayTracingShaderGroupHandlesNV>
+struct Schema<vulkan::api_elements::GetRayTracingShaderGroupHandlesNV>
 {
     using Fields = util::TypeList<vulkan::fields::GetRayTracingShaderGroupHandlesNV::device,
                                   vulkan::fields::GetRayTracingShaderGroupHandlesNV::pipeline,
@@ -18653,7 +18653,7 @@ struct Schema<vulkan::commands::GetRayTracingShaderGroupHandlesNV>
 };
 
 template <>
-struct Schema<vulkan::commands::GetAccelerationStructureHandleNV>
+struct Schema<vulkan::api_elements::GetAccelerationStructureHandleNV>
 {
     using Fields = util::TypeList<vulkan::fields::GetAccelerationStructureHandleNV::device,
                                   vulkan::fields::GetAccelerationStructureHandleNV::accelerationStructure,
@@ -18663,7 +18663,7 @@ struct Schema<vulkan::commands::GetAccelerationStructureHandleNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdWriteAccelerationStructuresPropertiesNV>
+struct Schema<vulkan::api_elements::CmdWriteAccelerationStructuresPropertiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdWriteAccelerationStructuresPropertiesNV::commandBuffer,
                                   vulkan::fields::CmdWriteAccelerationStructuresPropertiesNV::accelerationStructureCount,
@@ -18675,7 +18675,7 @@ struct Schema<vulkan::commands::CmdWriteAccelerationStructuresPropertiesNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CompileDeferredNV>
+struct Schema<vulkan::api_elements::CompileDeferredNV>
 {
     using Fields = util::TypeList<vulkan::fields::CompileDeferredNV::device,
                                   vulkan::fields::CompileDeferredNV::pipeline,
@@ -18683,7 +18683,7 @@ struct Schema<vulkan::commands::CompileDeferredNV>
 };
 
 template <>
-struct Schema<vulkan::commands::GetMemoryHostPointerPropertiesEXT>
+struct Schema<vulkan::api_elements::GetMemoryHostPointerPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetMemoryHostPointerPropertiesEXT::device,
                                   vulkan::fields::GetMemoryHostPointerPropertiesEXT::handleType,
@@ -18693,7 +18693,7 @@ struct Schema<vulkan::commands::GetMemoryHostPointerPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdWriteBufferMarkerAMD>
+struct Schema<vulkan::api_elements::CmdWriteBufferMarkerAMD>
 {
     using Fields = util::TypeList<vulkan::fields::CmdWriteBufferMarkerAMD::commandBuffer,
                                   vulkan::fields::CmdWriteBufferMarkerAMD::pipelineStage,
@@ -18704,7 +18704,7 @@ struct Schema<vulkan::commands::CmdWriteBufferMarkerAMD>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdWriteBufferMarker2AMD>
+struct Schema<vulkan::api_elements::CmdWriteBufferMarker2AMD>
 {
     using Fields = util::TypeList<vulkan::fields::CmdWriteBufferMarker2AMD::commandBuffer,
                                   vulkan::fields::CmdWriteBufferMarker2AMD::stage,
@@ -18715,7 +18715,7 @@ struct Schema<vulkan::commands::CmdWriteBufferMarker2AMD>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceCalibrateableTimeDomainsEXT>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceCalibrateableTimeDomainsEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceCalibrateableTimeDomainsEXT::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceCalibrateableTimeDomainsEXT::pTimeDomainCount,
@@ -18724,7 +18724,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceCalibrateableTimeDomainsEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetCalibratedTimestampsEXT>
+struct Schema<vulkan::api_elements::GetCalibratedTimestampsEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetCalibratedTimestampsEXT::device,
                                   vulkan::fields::GetCalibratedTimestampsEXT::timestampCount,
@@ -18735,7 +18735,7 @@ struct Schema<vulkan::commands::GetCalibratedTimestampsEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDrawMeshTasksNV>
+struct Schema<vulkan::api_elements::CmdDrawMeshTasksNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDrawMeshTasksNV::commandBuffer,
                                   vulkan::fields::CmdDrawMeshTasksNV::taskCount,
@@ -18744,7 +18744,7 @@ struct Schema<vulkan::commands::CmdDrawMeshTasksNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDrawMeshTasksIndirectNV>
+struct Schema<vulkan::api_elements::CmdDrawMeshTasksIndirectNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDrawMeshTasksIndirectNV::commandBuffer,
                                   vulkan::fields::CmdDrawMeshTasksIndirectNV::buffer,
@@ -18755,7 +18755,7 @@ struct Schema<vulkan::commands::CmdDrawMeshTasksIndirectNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDrawMeshTasksIndirectCountNV>
+struct Schema<vulkan::api_elements::CmdDrawMeshTasksIndirectCountNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDrawMeshTasksIndirectCountNV::commandBuffer,
                                   vulkan::fields::CmdDrawMeshTasksIndirectCountNV::buffer,
@@ -18768,7 +18768,7 @@ struct Schema<vulkan::commands::CmdDrawMeshTasksIndirectCountNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetExclusiveScissorEnableNV>
+struct Schema<vulkan::api_elements::CmdSetExclusiveScissorEnableNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetExclusiveScissorEnableNV::commandBuffer,
                                   vulkan::fields::CmdSetExclusiveScissorEnableNV::firstExclusiveScissor,
@@ -18778,7 +18778,7 @@ struct Schema<vulkan::commands::CmdSetExclusiveScissorEnableNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetExclusiveScissorNV>
+struct Schema<vulkan::api_elements::CmdSetExclusiveScissorNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetExclusiveScissorNV::commandBuffer,
                                   vulkan::fields::CmdSetExclusiveScissorNV::firstExclusiveScissor,
@@ -18788,7 +18788,7 @@ struct Schema<vulkan::commands::CmdSetExclusiveScissorNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetCheckpointNV>
+struct Schema<vulkan::api_elements::CmdSetCheckpointNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetCheckpointNV::commandBuffer,
                                   vulkan::fields::CmdSetCheckpointNV::pCheckpointMarker,
@@ -18796,7 +18796,7 @@ struct Schema<vulkan::commands::CmdSetCheckpointNV>
 };
 
 template <>
-struct Schema<vulkan::commands::GetQueueCheckpointDataNV>
+struct Schema<vulkan::api_elements::GetQueueCheckpointDataNV>
 {
     using Fields = util::TypeList<vulkan::fields::GetQueueCheckpointDataNV::queue,
                                   vulkan::fields::GetQueueCheckpointDataNV::pCheckpointDataCount,
@@ -18805,7 +18805,7 @@ struct Schema<vulkan::commands::GetQueueCheckpointDataNV>
 };
 
 template <>
-struct Schema<vulkan::commands::GetQueueCheckpointData2NV>
+struct Schema<vulkan::api_elements::GetQueueCheckpointData2NV>
 {
     using Fields = util::TypeList<vulkan::fields::GetQueueCheckpointData2NV::queue,
                                   vulkan::fields::GetQueueCheckpointData2NV::pCheckpointDataCount,
@@ -18814,7 +18814,7 @@ struct Schema<vulkan::commands::GetQueueCheckpointData2NV>
 };
 
 template <>
-struct Schema<vulkan::commands::SetSwapchainPresentTimingQueueSizeEXT>
+struct Schema<vulkan::api_elements::SetSwapchainPresentTimingQueueSizeEXT>
 {
     using Fields = util::TypeList<vulkan::fields::SetSwapchainPresentTimingQueueSizeEXT::device,
                                   vulkan::fields::SetSwapchainPresentTimingQueueSizeEXT::swapchain,
@@ -18823,7 +18823,7 @@ struct Schema<vulkan::commands::SetSwapchainPresentTimingQueueSizeEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetSwapchainTimingPropertiesEXT>
+struct Schema<vulkan::api_elements::GetSwapchainTimingPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetSwapchainTimingPropertiesEXT::device,
                                   vulkan::fields::GetSwapchainTimingPropertiesEXT::swapchain,
@@ -18833,7 +18833,7 @@ struct Schema<vulkan::commands::GetSwapchainTimingPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetSwapchainTimeDomainPropertiesEXT>
+struct Schema<vulkan::api_elements::GetSwapchainTimeDomainPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetSwapchainTimeDomainPropertiesEXT::device,
                                   vulkan::fields::GetSwapchainTimeDomainPropertiesEXT::swapchain,
@@ -18843,7 +18843,7 @@ struct Schema<vulkan::commands::GetSwapchainTimeDomainPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPastPresentationTimingEXT>
+struct Schema<vulkan::api_elements::GetPastPresentationTimingEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetPastPresentationTimingEXT::device,
                                   vulkan::fields::GetPastPresentationTimingEXT::pPastPresentationTimingInfo,
@@ -18852,7 +18852,7 @@ struct Schema<vulkan::commands::GetPastPresentationTimingEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::InitializePerformanceApiINTEL>
+struct Schema<vulkan::api_elements::InitializePerformanceApiINTEL>
 {
     using Fields = util::TypeList<vulkan::fields::InitializePerformanceApiINTEL::device,
                                   vulkan::fields::InitializePerformanceApiINTEL::pInitializeInfo,
@@ -18860,14 +18860,14 @@ struct Schema<vulkan::commands::InitializePerformanceApiINTEL>
 };
 
 template <>
-struct Schema<vulkan::commands::UninitializePerformanceApiINTEL>
+struct Schema<vulkan::api_elements::UninitializePerformanceApiINTEL>
 {
     using Fields = util::TypeList<vulkan::fields::UninitializePerformanceApiINTEL::device,
                                   vulkan::fields::UninitializePerformanceApiINTEL::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetPerformanceMarkerINTEL>
+struct Schema<vulkan::api_elements::CmdSetPerformanceMarkerINTEL>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetPerformanceMarkerINTEL::commandBuffer,
                                   vulkan::fields::CmdSetPerformanceMarkerINTEL::pMarkerInfo,
@@ -18875,7 +18875,7 @@ struct Schema<vulkan::commands::CmdSetPerformanceMarkerINTEL>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetPerformanceStreamMarkerINTEL>
+struct Schema<vulkan::api_elements::CmdSetPerformanceStreamMarkerINTEL>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetPerformanceStreamMarkerINTEL::commandBuffer,
                                   vulkan::fields::CmdSetPerformanceStreamMarkerINTEL::pMarkerInfo,
@@ -18883,7 +18883,7 @@ struct Schema<vulkan::commands::CmdSetPerformanceStreamMarkerINTEL>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetPerformanceOverrideINTEL>
+struct Schema<vulkan::api_elements::CmdSetPerformanceOverrideINTEL>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetPerformanceOverrideINTEL::commandBuffer,
                                   vulkan::fields::CmdSetPerformanceOverrideINTEL::pOverrideInfo,
@@ -18891,7 +18891,7 @@ struct Schema<vulkan::commands::CmdSetPerformanceOverrideINTEL>
 };
 
 template <>
-struct Schema<vulkan::commands::AcquirePerformanceConfigurationINTEL>
+struct Schema<vulkan::api_elements::AcquirePerformanceConfigurationINTEL>
 {
     using Fields = util::TypeList<vulkan::fields::AcquirePerformanceConfigurationINTEL::device,
                                   vulkan::fields::AcquirePerformanceConfigurationINTEL::pAcquireInfo,
@@ -18900,7 +18900,7 @@ struct Schema<vulkan::commands::AcquirePerformanceConfigurationINTEL>
 };
 
 template <>
-struct Schema<vulkan::commands::ReleasePerformanceConfigurationINTEL>
+struct Schema<vulkan::api_elements::ReleasePerformanceConfigurationINTEL>
 {
     using Fields = util::TypeList<vulkan::fields::ReleasePerformanceConfigurationINTEL::device,
                                   vulkan::fields::ReleasePerformanceConfigurationINTEL::configuration,
@@ -18908,7 +18908,7 @@ struct Schema<vulkan::commands::ReleasePerformanceConfigurationINTEL>
 };
 
 template <>
-struct Schema<vulkan::commands::QueueSetPerformanceConfigurationINTEL>
+struct Schema<vulkan::api_elements::QueueSetPerformanceConfigurationINTEL>
 {
     using Fields = util::TypeList<vulkan::fields::QueueSetPerformanceConfigurationINTEL::queue,
                                   vulkan::fields::QueueSetPerformanceConfigurationINTEL::configuration,
@@ -18916,7 +18916,7 @@ struct Schema<vulkan::commands::QueueSetPerformanceConfigurationINTEL>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPerformanceParameterINTEL>
+struct Schema<vulkan::api_elements::GetPerformanceParameterINTEL>
 {
     using Fields = util::TypeList<vulkan::fields::GetPerformanceParameterINTEL::device,
                                   vulkan::fields::GetPerformanceParameterINTEL::parameter,
@@ -18925,7 +18925,7 @@ struct Schema<vulkan::commands::GetPerformanceParameterINTEL>
 };
 
 template <>
-struct Schema<vulkan::commands::SetLocalDimmingAMD>
+struct Schema<vulkan::api_elements::SetLocalDimmingAMD>
 {
     using Fields = util::TypeList<vulkan::fields::SetLocalDimmingAMD::device,
                                   vulkan::fields::SetLocalDimmingAMD::swapChain,
@@ -18934,7 +18934,7 @@ struct Schema<vulkan::commands::SetLocalDimmingAMD>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateImagePipeSurfaceFUCHSIA>
+struct Schema<vulkan::api_elements::CreateImagePipeSurfaceFUCHSIA>
 {
     using Fields = util::TypeList<vulkan::fields::CreateImagePipeSurfaceFUCHSIA::instance,
                                   vulkan::fields::CreateImagePipeSurfaceFUCHSIA::pCreateInfo,
@@ -18944,7 +18944,7 @@ struct Schema<vulkan::commands::CreateImagePipeSurfaceFUCHSIA>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateMetalSurfaceEXT>
+struct Schema<vulkan::api_elements::CreateMetalSurfaceEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CreateMetalSurfaceEXT::instance,
                                   vulkan::fields::CreateMetalSurfaceEXT::pCreateInfo,
@@ -18954,7 +18954,7 @@ struct Schema<vulkan::commands::CreateMetalSurfaceEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetBufferDeviceAddressEXT>
+struct Schema<vulkan::api_elements::GetBufferDeviceAddressEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetBufferDeviceAddressEXT::device,
                                   vulkan::fields::GetBufferDeviceAddressEXT::pInfo,
@@ -18962,7 +18962,7 @@ struct Schema<vulkan::commands::GetBufferDeviceAddressEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceToolPropertiesEXT>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceToolPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceToolPropertiesEXT::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceToolPropertiesEXT::pToolCount,
@@ -18971,7 +18971,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceToolPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceCooperativeMatrixPropertiesNV>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceCooperativeMatrixPropertiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceCooperativeMatrixPropertiesNV::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceCooperativeMatrixPropertiesNV::pPropertyCount,
@@ -18980,7 +18980,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceCooperativeMatrixPropertiesNV>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV::pCombinationCount,
@@ -18989,7 +18989,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceSupportedFramebufferMixedSample
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceSurfacePresentModes2EXT>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceSurfacePresentModes2EXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceSurfacePresentModes2EXT::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceSurfacePresentModes2EXT::pSurfaceInfo,
@@ -18999,7 +18999,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceSurfacePresentModes2EXT>
 };
 
 template <>
-struct Schema<vulkan::commands::AcquireFullScreenExclusiveModeEXT>
+struct Schema<vulkan::api_elements::AcquireFullScreenExclusiveModeEXT>
 {
     using Fields = util::TypeList<vulkan::fields::AcquireFullScreenExclusiveModeEXT::device,
                                   vulkan::fields::AcquireFullScreenExclusiveModeEXT::swapchain,
@@ -19007,7 +19007,7 @@ struct Schema<vulkan::commands::AcquireFullScreenExclusiveModeEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::ReleaseFullScreenExclusiveModeEXT>
+struct Schema<vulkan::api_elements::ReleaseFullScreenExclusiveModeEXT>
 {
     using Fields = util::TypeList<vulkan::fields::ReleaseFullScreenExclusiveModeEXT::device,
                                   vulkan::fields::ReleaseFullScreenExclusiveModeEXT::swapchain,
@@ -19015,7 +19015,7 @@ struct Schema<vulkan::commands::ReleaseFullScreenExclusiveModeEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDeviceGroupSurfacePresentModes2EXT>
+struct Schema<vulkan::api_elements::GetDeviceGroupSurfacePresentModes2EXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetDeviceGroupSurfacePresentModes2EXT::device,
                                   vulkan::fields::GetDeviceGroupSurfacePresentModes2EXT::pSurfaceInfo,
@@ -19024,7 +19024,7 @@ struct Schema<vulkan::commands::GetDeviceGroupSurfacePresentModes2EXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateHeadlessSurfaceEXT>
+struct Schema<vulkan::api_elements::CreateHeadlessSurfaceEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CreateHeadlessSurfaceEXT::instance,
                                   vulkan::fields::CreateHeadlessSurfaceEXT::pCreateInfo,
@@ -19034,7 +19034,7 @@ struct Schema<vulkan::commands::CreateHeadlessSurfaceEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetLineStippleEXT>
+struct Schema<vulkan::api_elements::CmdSetLineStippleEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetLineStippleEXT::commandBuffer,
                                   vulkan::fields::CmdSetLineStippleEXT::lineStippleFactor,
@@ -19043,7 +19043,7 @@ struct Schema<vulkan::commands::CmdSetLineStippleEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::ResetQueryPoolEXT>
+struct Schema<vulkan::api_elements::ResetQueryPoolEXT>
 {
     using Fields = util::TypeList<vulkan::fields::ResetQueryPoolEXT::device,
                                   vulkan::fields::ResetQueryPoolEXT::queryPool,
@@ -19053,7 +19053,7 @@ struct Schema<vulkan::commands::ResetQueryPoolEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetCullModeEXT>
+struct Schema<vulkan::api_elements::CmdSetCullModeEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetCullModeEXT::commandBuffer,
                                   vulkan::fields::CmdSetCullModeEXT::cullMode,
@@ -19061,7 +19061,7 @@ struct Schema<vulkan::commands::CmdSetCullModeEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetFrontFaceEXT>
+struct Schema<vulkan::api_elements::CmdSetFrontFaceEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetFrontFaceEXT::commandBuffer,
                                   vulkan::fields::CmdSetFrontFaceEXT::frontFace,
@@ -19069,7 +19069,7 @@ struct Schema<vulkan::commands::CmdSetFrontFaceEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetPrimitiveTopologyEXT>
+struct Schema<vulkan::api_elements::CmdSetPrimitiveTopologyEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetPrimitiveTopologyEXT::commandBuffer,
                                   vulkan::fields::CmdSetPrimitiveTopologyEXT::primitiveTopology,
@@ -19077,7 +19077,7 @@ struct Schema<vulkan::commands::CmdSetPrimitiveTopologyEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetViewportWithCountEXT>
+struct Schema<vulkan::api_elements::CmdSetViewportWithCountEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetViewportWithCountEXT::commandBuffer,
                                   vulkan::fields::CmdSetViewportWithCountEXT::viewportCount,
@@ -19086,7 +19086,7 @@ struct Schema<vulkan::commands::CmdSetViewportWithCountEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetScissorWithCountEXT>
+struct Schema<vulkan::api_elements::CmdSetScissorWithCountEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetScissorWithCountEXT::commandBuffer,
                                   vulkan::fields::CmdSetScissorWithCountEXT::scissorCount,
@@ -19095,7 +19095,7 @@ struct Schema<vulkan::commands::CmdSetScissorWithCountEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBindVertexBuffers2EXT>
+struct Schema<vulkan::api_elements::CmdBindVertexBuffers2EXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBindVertexBuffers2EXT::commandBuffer,
                                   vulkan::fields::CmdBindVertexBuffers2EXT::firstBinding,
@@ -19108,7 +19108,7 @@ struct Schema<vulkan::commands::CmdBindVertexBuffers2EXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetDepthTestEnableEXT>
+struct Schema<vulkan::api_elements::CmdSetDepthTestEnableEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetDepthTestEnableEXT::commandBuffer,
                                   vulkan::fields::CmdSetDepthTestEnableEXT::depthTestEnable,
@@ -19116,7 +19116,7 @@ struct Schema<vulkan::commands::CmdSetDepthTestEnableEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetDepthWriteEnableEXT>
+struct Schema<vulkan::api_elements::CmdSetDepthWriteEnableEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetDepthWriteEnableEXT::commandBuffer,
                                   vulkan::fields::CmdSetDepthWriteEnableEXT::depthWriteEnable,
@@ -19124,7 +19124,7 @@ struct Schema<vulkan::commands::CmdSetDepthWriteEnableEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetDepthCompareOpEXT>
+struct Schema<vulkan::api_elements::CmdSetDepthCompareOpEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetDepthCompareOpEXT::commandBuffer,
                                   vulkan::fields::CmdSetDepthCompareOpEXT::depthCompareOp,
@@ -19132,7 +19132,7 @@ struct Schema<vulkan::commands::CmdSetDepthCompareOpEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetDepthBoundsTestEnableEXT>
+struct Schema<vulkan::api_elements::CmdSetDepthBoundsTestEnableEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetDepthBoundsTestEnableEXT::commandBuffer,
                                   vulkan::fields::CmdSetDepthBoundsTestEnableEXT::depthBoundsTestEnable,
@@ -19140,7 +19140,7 @@ struct Schema<vulkan::commands::CmdSetDepthBoundsTestEnableEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetStencilTestEnableEXT>
+struct Schema<vulkan::api_elements::CmdSetStencilTestEnableEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetStencilTestEnableEXT::commandBuffer,
                                   vulkan::fields::CmdSetStencilTestEnableEXT::stencilTestEnable,
@@ -19148,7 +19148,7 @@ struct Schema<vulkan::commands::CmdSetStencilTestEnableEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetStencilOpEXT>
+struct Schema<vulkan::api_elements::CmdSetStencilOpEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetStencilOpEXT::commandBuffer,
                                   vulkan::fields::CmdSetStencilOpEXT::faceMask,
@@ -19160,7 +19160,7 @@ struct Schema<vulkan::commands::CmdSetStencilOpEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CopyMemoryToImageEXT>
+struct Schema<vulkan::api_elements::CopyMemoryToImageEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CopyMemoryToImageEXT::device,
                                   vulkan::fields::CopyMemoryToImageEXT::pCopyMemoryToImageInfo,
@@ -19168,7 +19168,7 @@ struct Schema<vulkan::commands::CopyMemoryToImageEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CopyImageToMemoryEXT>
+struct Schema<vulkan::api_elements::CopyImageToMemoryEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CopyImageToMemoryEXT::device,
                                   vulkan::fields::CopyImageToMemoryEXT::pCopyImageToMemoryInfo,
@@ -19176,7 +19176,7 @@ struct Schema<vulkan::commands::CopyImageToMemoryEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CopyImageToImageEXT>
+struct Schema<vulkan::api_elements::CopyImageToImageEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CopyImageToImageEXT::device,
                                   vulkan::fields::CopyImageToImageEXT::pCopyImageToImageInfo,
@@ -19184,7 +19184,7 @@ struct Schema<vulkan::commands::CopyImageToImageEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::TransitionImageLayoutEXT>
+struct Schema<vulkan::api_elements::TransitionImageLayoutEXT>
 {
     using Fields = util::TypeList<vulkan::fields::TransitionImageLayoutEXT::device,
                                   vulkan::fields::TransitionImageLayoutEXT::transitionCount,
@@ -19193,7 +19193,7 @@ struct Schema<vulkan::commands::TransitionImageLayoutEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetImageSubresourceLayout2EXT>
+struct Schema<vulkan::api_elements::GetImageSubresourceLayout2EXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetImageSubresourceLayout2EXT::device,
                                   vulkan::fields::GetImageSubresourceLayout2EXT::image,
@@ -19203,7 +19203,7 @@ struct Schema<vulkan::commands::GetImageSubresourceLayout2EXT>
 };
 
 template <>
-struct Schema<vulkan::commands::ReleaseSwapchainImagesEXT>
+struct Schema<vulkan::api_elements::ReleaseSwapchainImagesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::ReleaseSwapchainImagesEXT::device,
                                   vulkan::fields::ReleaseSwapchainImagesEXT::pReleaseInfo,
@@ -19211,7 +19211,7 @@ struct Schema<vulkan::commands::ReleaseSwapchainImagesEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetGeneratedCommandsMemoryRequirementsNV>
+struct Schema<vulkan::api_elements::GetGeneratedCommandsMemoryRequirementsNV>
 {
     using Fields = util::TypeList<vulkan::fields::GetGeneratedCommandsMemoryRequirementsNV::device,
                                   vulkan::fields::GetGeneratedCommandsMemoryRequirementsNV::pInfo,
@@ -19220,7 +19220,7 @@ struct Schema<vulkan::commands::GetGeneratedCommandsMemoryRequirementsNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdPreprocessGeneratedCommandsNV>
+struct Schema<vulkan::api_elements::CmdPreprocessGeneratedCommandsNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdPreprocessGeneratedCommandsNV::commandBuffer,
                                   vulkan::fields::CmdPreprocessGeneratedCommandsNV::pGeneratedCommandsInfo,
@@ -19228,7 +19228,7 @@ struct Schema<vulkan::commands::CmdPreprocessGeneratedCommandsNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdExecuteGeneratedCommandsNV>
+struct Schema<vulkan::api_elements::CmdExecuteGeneratedCommandsNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdExecuteGeneratedCommandsNV::commandBuffer,
                                   vulkan::fields::CmdExecuteGeneratedCommandsNV::isPreprocessed,
@@ -19237,7 +19237,7 @@ struct Schema<vulkan::commands::CmdExecuteGeneratedCommandsNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBindPipelineShaderGroupNV>
+struct Schema<vulkan::api_elements::CmdBindPipelineShaderGroupNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBindPipelineShaderGroupNV::commandBuffer,
                                   vulkan::fields::CmdBindPipelineShaderGroupNV::pipelineBindPoint,
@@ -19247,7 +19247,7 @@ struct Schema<vulkan::commands::CmdBindPipelineShaderGroupNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateIndirectCommandsLayoutNV>
+struct Schema<vulkan::api_elements::CreateIndirectCommandsLayoutNV>
 {
     using Fields = util::TypeList<vulkan::fields::CreateIndirectCommandsLayoutNV::device,
                                   vulkan::fields::CreateIndirectCommandsLayoutNV::pCreateInfo,
@@ -19257,7 +19257,7 @@ struct Schema<vulkan::commands::CreateIndirectCommandsLayoutNV>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyIndirectCommandsLayoutNV>
+struct Schema<vulkan::api_elements::DestroyIndirectCommandsLayoutNV>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyIndirectCommandsLayoutNV::device,
                                   vulkan::fields::DestroyIndirectCommandsLayoutNV::indirectCommandsLayout,
@@ -19266,7 +19266,7 @@ struct Schema<vulkan::commands::DestroyIndirectCommandsLayoutNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetDepthBias2EXT>
+struct Schema<vulkan::api_elements::CmdSetDepthBias2EXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetDepthBias2EXT::commandBuffer,
                                   vulkan::fields::CmdSetDepthBias2EXT::pDepthBiasInfo,
@@ -19274,7 +19274,7 @@ struct Schema<vulkan::commands::CmdSetDepthBias2EXT>
 };
 
 template <>
-struct Schema<vulkan::commands::AcquireDrmDisplayEXT>
+struct Schema<vulkan::api_elements::AcquireDrmDisplayEXT>
 {
     using Fields = util::TypeList<vulkan::fields::AcquireDrmDisplayEXT::physicalDevice,
                                   vulkan::fields::AcquireDrmDisplayEXT::drmFd,
@@ -19283,7 +19283,7 @@ struct Schema<vulkan::commands::AcquireDrmDisplayEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDrmDisplayEXT>
+struct Schema<vulkan::api_elements::GetDrmDisplayEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetDrmDisplayEXT::physicalDevice,
                                   vulkan::fields::GetDrmDisplayEXT::drmFd,
@@ -19292,7 +19292,7 @@ struct Schema<vulkan::commands::GetDrmDisplayEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CreatePrivateDataSlotEXT>
+struct Schema<vulkan::api_elements::CreatePrivateDataSlotEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CreatePrivateDataSlotEXT::device,
                                   vulkan::fields::CreatePrivateDataSlotEXT::pCreateInfo,
@@ -19302,7 +19302,7 @@ struct Schema<vulkan::commands::CreatePrivateDataSlotEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyPrivateDataSlotEXT>
+struct Schema<vulkan::api_elements::DestroyPrivateDataSlotEXT>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyPrivateDataSlotEXT::device,
                                   vulkan::fields::DestroyPrivateDataSlotEXT::privateDataSlot,
@@ -19311,7 +19311,7 @@ struct Schema<vulkan::commands::DestroyPrivateDataSlotEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::SetPrivateDataEXT>
+struct Schema<vulkan::api_elements::SetPrivateDataEXT>
 {
     using Fields = util::TypeList<vulkan::fields::SetPrivateDataEXT::device,
                                   vulkan::fields::SetPrivateDataEXT::objectType,
@@ -19321,7 +19321,7 @@ struct Schema<vulkan::commands::SetPrivateDataEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPrivateDataEXT>
+struct Schema<vulkan::api_elements::GetPrivateDataEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetPrivateDataEXT::device,
                                   vulkan::fields::GetPrivateDataEXT::objectType,
@@ -19331,7 +19331,7 @@ struct Schema<vulkan::commands::GetPrivateDataEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::QueueSetPerfHintQCOM>
+struct Schema<vulkan::api_elements::QueueSetPerfHintQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::QueueSetPerfHintQCOM::queue,
                                   vulkan::fields::QueueSetPerfHintQCOM::pPerfHintInfo,
@@ -19339,7 +19339,7 @@ struct Schema<vulkan::commands::QueueSetPerfHintQCOM>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDispatchTileQCOM>
+struct Schema<vulkan::api_elements::CmdDispatchTileQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDispatchTileQCOM::commandBuffer,
                                   vulkan::fields::CmdDispatchTileQCOM::pDispatchTileInfo,
@@ -19347,7 +19347,7 @@ struct Schema<vulkan::commands::CmdDispatchTileQCOM>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBeginPerTileExecutionQCOM>
+struct Schema<vulkan::api_elements::CmdBeginPerTileExecutionQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBeginPerTileExecutionQCOM::commandBuffer,
                                   vulkan::fields::CmdBeginPerTileExecutionQCOM::pPerTileBeginInfo,
@@ -19355,7 +19355,7 @@ struct Schema<vulkan::commands::CmdBeginPerTileExecutionQCOM>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdEndPerTileExecutionQCOM>
+struct Schema<vulkan::api_elements::CmdEndPerTileExecutionQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::CmdEndPerTileExecutionQCOM::commandBuffer,
                                   vulkan::fields::CmdEndPerTileExecutionQCOM::pPerTileEndInfo,
@@ -19363,7 +19363,7 @@ struct Schema<vulkan::commands::CmdEndPerTileExecutionQCOM>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDescriptorSetLayoutSizeEXT>
+struct Schema<vulkan::api_elements::GetDescriptorSetLayoutSizeEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetDescriptorSetLayoutSizeEXT::device,
                                   vulkan::fields::GetDescriptorSetLayoutSizeEXT::layout,
@@ -19372,7 +19372,7 @@ struct Schema<vulkan::commands::GetDescriptorSetLayoutSizeEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDescriptorSetLayoutBindingOffsetEXT>
+struct Schema<vulkan::api_elements::GetDescriptorSetLayoutBindingOffsetEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetDescriptorSetLayoutBindingOffsetEXT::device,
                                   vulkan::fields::GetDescriptorSetLayoutBindingOffsetEXT::layout,
@@ -19382,7 +19382,7 @@ struct Schema<vulkan::commands::GetDescriptorSetLayoutBindingOffsetEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDescriptorEXT>
+struct Schema<vulkan::api_elements::GetDescriptorEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetDescriptorEXT::device,
                                   vulkan::fields::GetDescriptorEXT::pDescriptorInfo,
@@ -19392,7 +19392,7 @@ struct Schema<vulkan::commands::GetDescriptorEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBindDescriptorBuffersEXT>
+struct Schema<vulkan::api_elements::CmdBindDescriptorBuffersEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBindDescriptorBuffersEXT::commandBuffer,
                                   vulkan::fields::CmdBindDescriptorBuffersEXT::bufferCount,
@@ -19401,7 +19401,7 @@ struct Schema<vulkan::commands::CmdBindDescriptorBuffersEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetDescriptorBufferOffsetsEXT>
+struct Schema<vulkan::api_elements::CmdSetDescriptorBufferOffsetsEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetDescriptorBufferOffsetsEXT::commandBuffer,
                                   vulkan::fields::CmdSetDescriptorBufferOffsetsEXT::pipelineBindPoint,
@@ -19414,7 +19414,7 @@ struct Schema<vulkan::commands::CmdSetDescriptorBufferOffsetsEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBindDescriptorBufferEmbeddedSamplersEXT>
+struct Schema<vulkan::api_elements::CmdBindDescriptorBufferEmbeddedSamplersEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBindDescriptorBufferEmbeddedSamplersEXT::commandBuffer,
                                   vulkan::fields::CmdBindDescriptorBufferEmbeddedSamplersEXT::pipelineBindPoint,
@@ -19424,7 +19424,7 @@ struct Schema<vulkan::commands::CmdBindDescriptorBufferEmbeddedSamplersEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetFragmentShadingRateEnumNV>
+struct Schema<vulkan::api_elements::CmdSetFragmentShadingRateEnumNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetFragmentShadingRateEnumNV::commandBuffer,
                                   vulkan::fields::CmdSetFragmentShadingRateEnumNV::shadingRate,
@@ -19433,7 +19433,7 @@ struct Schema<vulkan::commands::CmdSetFragmentShadingRateEnumNV>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDeviceFaultInfoEXT>
+struct Schema<vulkan::api_elements::GetDeviceFaultInfoEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetDeviceFaultInfoEXT::device,
                                   vulkan::fields::GetDeviceFaultInfoEXT::pFaultCounts,
@@ -19442,7 +19442,7 @@ struct Schema<vulkan::commands::GetDeviceFaultInfoEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::AcquireWinrtDisplayNV>
+struct Schema<vulkan::api_elements::AcquireWinrtDisplayNV>
 {
     using Fields = util::TypeList<vulkan::fields::AcquireWinrtDisplayNV::physicalDevice,
                                   vulkan::fields::AcquireWinrtDisplayNV::display,
@@ -19450,7 +19450,7 @@ struct Schema<vulkan::commands::AcquireWinrtDisplayNV>
 };
 
 template <>
-struct Schema<vulkan::commands::GetWinrtDisplayNV>
+struct Schema<vulkan::api_elements::GetWinrtDisplayNV>
 {
     using Fields = util::TypeList<vulkan::fields::GetWinrtDisplayNV::physicalDevice,
                                   vulkan::fields::GetWinrtDisplayNV::deviceRelativeId,
@@ -19459,7 +19459,7 @@ struct Schema<vulkan::commands::GetWinrtDisplayNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateDirectFBSurfaceEXT>
+struct Schema<vulkan::api_elements::CreateDirectFBSurfaceEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CreateDirectFBSurfaceEXT::instance,
                                   vulkan::fields::CreateDirectFBSurfaceEXT::pCreateInfo,
@@ -19469,7 +19469,7 @@ struct Schema<vulkan::commands::CreateDirectFBSurfaceEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceDirectFBPresentationSupportEXT>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceDirectFBPresentationSupportEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceDirectFBPresentationSupportEXT::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceDirectFBPresentationSupportEXT::queueFamilyIndex,
@@ -19478,7 +19478,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceDirectFBPresentationSupportEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetVertexInputEXT>
+struct Schema<vulkan::api_elements::CmdSetVertexInputEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetVertexInputEXT::commandBuffer,
                                   vulkan::fields::CmdSetVertexInputEXT::vertexBindingDescriptionCount,
@@ -19489,7 +19489,7 @@ struct Schema<vulkan::commands::CmdSetVertexInputEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetMemoryZirconHandleFUCHSIA>
+struct Schema<vulkan::api_elements::GetMemoryZirconHandleFUCHSIA>
 {
     using Fields = util::TypeList<vulkan::fields::GetMemoryZirconHandleFUCHSIA::device,
                                   vulkan::fields::GetMemoryZirconHandleFUCHSIA::pGetZirconHandleInfo,
@@ -19498,7 +19498,7 @@ struct Schema<vulkan::commands::GetMemoryZirconHandleFUCHSIA>
 };
 
 template <>
-struct Schema<vulkan::commands::GetMemoryZirconHandlePropertiesFUCHSIA>
+struct Schema<vulkan::api_elements::GetMemoryZirconHandlePropertiesFUCHSIA>
 {
     using Fields = util::TypeList<vulkan::fields::GetMemoryZirconHandlePropertiesFUCHSIA::device,
                                   vulkan::fields::GetMemoryZirconHandlePropertiesFUCHSIA::handleType,
@@ -19508,7 +19508,7 @@ struct Schema<vulkan::commands::GetMemoryZirconHandlePropertiesFUCHSIA>
 };
 
 template <>
-struct Schema<vulkan::commands::ImportSemaphoreZirconHandleFUCHSIA>
+struct Schema<vulkan::api_elements::ImportSemaphoreZirconHandleFUCHSIA>
 {
     using Fields = util::TypeList<vulkan::fields::ImportSemaphoreZirconHandleFUCHSIA::device,
                                   vulkan::fields::ImportSemaphoreZirconHandleFUCHSIA::pImportSemaphoreZirconHandleInfo,
@@ -19516,7 +19516,7 @@ struct Schema<vulkan::commands::ImportSemaphoreZirconHandleFUCHSIA>
 };
 
 template <>
-struct Schema<vulkan::commands::GetSemaphoreZirconHandleFUCHSIA>
+struct Schema<vulkan::api_elements::GetSemaphoreZirconHandleFUCHSIA>
 {
     using Fields = util::TypeList<vulkan::fields::GetSemaphoreZirconHandleFUCHSIA::device,
                                   vulkan::fields::GetSemaphoreZirconHandleFUCHSIA::pGetZirconHandleInfo,
@@ -19525,7 +19525,7 @@ struct Schema<vulkan::commands::GetSemaphoreZirconHandleFUCHSIA>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBindInvocationMaskHUAWEI>
+struct Schema<vulkan::api_elements::CmdBindInvocationMaskHUAWEI>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBindInvocationMaskHUAWEI::commandBuffer,
                                   vulkan::fields::CmdBindInvocationMaskHUAWEI::imageView,
@@ -19534,7 +19534,7 @@ struct Schema<vulkan::commands::CmdBindInvocationMaskHUAWEI>
 };
 
 template <>
-struct Schema<vulkan::commands::GetMemoryRemoteAddressNV>
+struct Schema<vulkan::api_elements::GetMemoryRemoteAddressNV>
 {
     using Fields = util::TypeList<vulkan::fields::GetMemoryRemoteAddressNV::device,
                                   vulkan::fields::GetMemoryRemoteAddressNV::pMemoryGetRemoteAddressInfo,
@@ -19543,7 +19543,7 @@ struct Schema<vulkan::commands::GetMemoryRemoteAddressNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetPatchControlPointsEXT>
+struct Schema<vulkan::api_elements::CmdSetPatchControlPointsEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetPatchControlPointsEXT::commandBuffer,
                                   vulkan::fields::CmdSetPatchControlPointsEXT::patchControlPoints,
@@ -19551,7 +19551,7 @@ struct Schema<vulkan::commands::CmdSetPatchControlPointsEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetRasterizerDiscardEnableEXT>
+struct Schema<vulkan::api_elements::CmdSetRasterizerDiscardEnableEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetRasterizerDiscardEnableEXT::commandBuffer,
                                   vulkan::fields::CmdSetRasterizerDiscardEnableEXT::rasterizerDiscardEnable,
@@ -19559,7 +19559,7 @@ struct Schema<vulkan::commands::CmdSetRasterizerDiscardEnableEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetDepthBiasEnableEXT>
+struct Schema<vulkan::api_elements::CmdSetDepthBiasEnableEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetDepthBiasEnableEXT::commandBuffer,
                                   vulkan::fields::CmdSetDepthBiasEnableEXT::depthBiasEnable,
@@ -19567,14 +19567,14 @@ struct Schema<vulkan::commands::CmdSetDepthBiasEnableEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetLogicOpEXT>
+struct Schema<vulkan::api_elements::CmdSetLogicOpEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetLogicOpEXT::commandBuffer,
                                   vulkan::fields::CmdSetLogicOpEXT::logicOp, vulkan::fields::CmdSetLogicOpEXT::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetPrimitiveRestartEnableEXT>
+struct Schema<vulkan::api_elements::CmdSetPrimitiveRestartEnableEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetPrimitiveRestartEnableEXT::commandBuffer,
                                   vulkan::fields::CmdSetPrimitiveRestartEnableEXT::primitiveRestartEnable,
@@ -19582,7 +19582,7 @@ struct Schema<vulkan::commands::CmdSetPrimitiveRestartEnableEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateScreenSurfaceQNX>
+struct Schema<vulkan::api_elements::CreateScreenSurfaceQNX>
 {
     using Fields = util::TypeList<vulkan::fields::CreateScreenSurfaceQNX::instance,
                                   vulkan::fields::CreateScreenSurfaceQNX::pCreateInfo,
@@ -19592,7 +19592,7 @@ struct Schema<vulkan::commands::CreateScreenSurfaceQNX>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceScreenPresentationSupportQNX>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceScreenPresentationSupportQNX>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceScreenPresentationSupportQNX::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceScreenPresentationSupportQNX::queueFamilyIndex,
@@ -19601,7 +19601,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceScreenPresentationSupportQNX>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetColorWriteEnableEXT>
+struct Schema<vulkan::api_elements::CmdSetColorWriteEnableEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetColorWriteEnableEXT::commandBuffer,
                                   vulkan::fields::CmdSetColorWriteEnableEXT::attachmentCount,
@@ -19610,7 +19610,7 @@ struct Schema<vulkan::commands::CmdSetColorWriteEnableEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDrawMultiEXT>
+struct Schema<vulkan::api_elements::CmdDrawMultiEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDrawMultiEXT::commandBuffer,
                                   vulkan::fields::CmdDrawMultiEXT::drawCount,
@@ -19621,7 +19621,7 @@ struct Schema<vulkan::commands::CmdDrawMultiEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDrawMultiIndexedEXT>
+struct Schema<vulkan::api_elements::CmdDrawMultiIndexedEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDrawMultiIndexedEXT::commandBuffer,
                                   vulkan::fields::CmdDrawMultiIndexedEXT::drawCount,
@@ -19634,7 +19634,7 @@ struct Schema<vulkan::commands::CmdDrawMultiIndexedEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateMicromapEXT>
+struct Schema<vulkan::api_elements::CreateMicromapEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CreateMicromapEXT::device,
                                   vulkan::fields::CreateMicromapEXT::pCreateInfo,
@@ -19644,7 +19644,7 @@ struct Schema<vulkan::commands::CreateMicromapEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyMicromapEXT>
+struct Schema<vulkan::api_elements::DestroyMicromapEXT>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyMicromapEXT::device,
                                   vulkan::fields::DestroyMicromapEXT::micromap,
@@ -19653,7 +19653,7 @@ struct Schema<vulkan::commands::DestroyMicromapEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBuildMicromapsEXT>
+struct Schema<vulkan::api_elements::CmdBuildMicromapsEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBuildMicromapsEXT::commandBuffer,
                                   vulkan::fields::CmdBuildMicromapsEXT::infoCount,
@@ -19662,7 +19662,7 @@ struct Schema<vulkan::commands::CmdBuildMicromapsEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::BuildMicromapsEXT>
+struct Schema<vulkan::api_elements::BuildMicromapsEXT>
 {
     using Fields = util::TypeList<vulkan::fields::BuildMicromapsEXT::device,
                                   vulkan::fields::BuildMicromapsEXT::deferredOperation,
@@ -19671,7 +19671,7 @@ struct Schema<vulkan::commands::BuildMicromapsEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CopyMicromapEXT>
+struct Schema<vulkan::api_elements::CopyMicromapEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CopyMicromapEXT::device,
                                   vulkan::fields::CopyMicromapEXT::deferredOperation,
@@ -19679,7 +19679,7 @@ struct Schema<vulkan::commands::CopyMicromapEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CopyMicromapToMemoryEXT>
+struct Schema<vulkan::api_elements::CopyMicromapToMemoryEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CopyMicromapToMemoryEXT::device,
                                   vulkan::fields::CopyMicromapToMemoryEXT::deferredOperation,
@@ -19688,7 +19688,7 @@ struct Schema<vulkan::commands::CopyMicromapToMemoryEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CopyMemoryToMicromapEXT>
+struct Schema<vulkan::api_elements::CopyMemoryToMicromapEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CopyMemoryToMicromapEXT::device,
                                   vulkan::fields::CopyMemoryToMicromapEXT::deferredOperation,
@@ -19697,7 +19697,7 @@ struct Schema<vulkan::commands::CopyMemoryToMicromapEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::WriteMicromapsPropertiesEXT>
+struct Schema<vulkan::api_elements::WriteMicromapsPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::WriteMicromapsPropertiesEXT::device,
                                   vulkan::fields::WriteMicromapsPropertiesEXT::micromapCount,
@@ -19710,7 +19710,7 @@ struct Schema<vulkan::commands::WriteMicromapsPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyMicromapEXT>
+struct Schema<vulkan::api_elements::CmdCopyMicromapEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyMicromapEXT::commandBuffer,
                                   vulkan::fields::CmdCopyMicromapEXT::pInfo,
@@ -19718,7 +19718,7 @@ struct Schema<vulkan::commands::CmdCopyMicromapEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyMicromapToMemoryEXT>
+struct Schema<vulkan::api_elements::CmdCopyMicromapToMemoryEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyMicromapToMemoryEXT::commandBuffer,
                                   vulkan::fields::CmdCopyMicromapToMemoryEXT::pInfo,
@@ -19726,7 +19726,7 @@ struct Schema<vulkan::commands::CmdCopyMicromapToMemoryEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyMemoryToMicromapEXT>
+struct Schema<vulkan::api_elements::CmdCopyMemoryToMicromapEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyMemoryToMicromapEXT::commandBuffer,
                                   vulkan::fields::CmdCopyMemoryToMicromapEXT::pInfo,
@@ -19734,7 +19734,7 @@ struct Schema<vulkan::commands::CmdCopyMemoryToMicromapEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdWriteMicromapsPropertiesEXT>
+struct Schema<vulkan::api_elements::CmdWriteMicromapsPropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdWriteMicromapsPropertiesEXT::commandBuffer,
                                   vulkan::fields::CmdWriteMicromapsPropertiesEXT::micromapCount,
@@ -19746,7 +19746,7 @@ struct Schema<vulkan::commands::CmdWriteMicromapsPropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDeviceMicromapCompatibilityEXT>
+struct Schema<vulkan::api_elements::GetDeviceMicromapCompatibilityEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetDeviceMicromapCompatibilityEXT::device,
                                   vulkan::fields::GetDeviceMicromapCompatibilityEXT::pVersionInfo,
@@ -19755,7 +19755,7 @@ struct Schema<vulkan::commands::GetDeviceMicromapCompatibilityEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetMicromapBuildSizesEXT>
+struct Schema<vulkan::api_elements::GetMicromapBuildSizesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetMicromapBuildSizesEXT::device,
                                   vulkan::fields::GetMicromapBuildSizesEXT::buildType,
@@ -19765,7 +19765,7 @@ struct Schema<vulkan::commands::GetMicromapBuildSizesEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDrawClusterHUAWEI>
+struct Schema<vulkan::api_elements::CmdDrawClusterHUAWEI>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDrawClusterHUAWEI::commandBuffer,
                                   vulkan::fields::CmdDrawClusterHUAWEI::groupCountX,
@@ -19775,7 +19775,7 @@ struct Schema<vulkan::commands::CmdDrawClusterHUAWEI>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDrawClusterIndirectHUAWEI>
+struct Schema<vulkan::api_elements::CmdDrawClusterIndirectHUAWEI>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDrawClusterIndirectHUAWEI::commandBuffer,
                                   vulkan::fields::CmdDrawClusterIndirectHUAWEI::buffer,
@@ -19784,7 +19784,7 @@ struct Schema<vulkan::commands::CmdDrawClusterIndirectHUAWEI>
 };
 
 template <>
-struct Schema<vulkan::commands::SetDeviceMemoryPriorityEXT>
+struct Schema<vulkan::api_elements::SetDeviceMemoryPriorityEXT>
 {
     using Fields = util::TypeList<vulkan::fields::SetDeviceMemoryPriorityEXT::device,
                                   vulkan::fields::SetDeviceMemoryPriorityEXT::memory,
@@ -19793,7 +19793,7 @@ struct Schema<vulkan::commands::SetDeviceMemoryPriorityEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetDispatchParametersARM>
+struct Schema<vulkan::api_elements::CmdSetDispatchParametersARM>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetDispatchParametersARM::commandBuffer,
                                   vulkan::fields::CmdSetDispatchParametersARM::pDispatchParameters,
@@ -19801,7 +19801,7 @@ struct Schema<vulkan::commands::CmdSetDispatchParametersARM>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDescriptorSetLayoutHostMappingInfoVALVE>
+struct Schema<vulkan::api_elements::GetDescriptorSetLayoutHostMappingInfoVALVE>
 {
     using Fields = util::TypeList<vulkan::fields::GetDescriptorSetLayoutHostMappingInfoVALVE::device,
                                   vulkan::fields::GetDescriptorSetLayoutHostMappingInfoVALVE::pBindingReference,
@@ -19810,7 +19810,7 @@ struct Schema<vulkan::commands::GetDescriptorSetLayoutHostMappingInfoVALVE>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDescriptorSetHostMappingVALVE>
+struct Schema<vulkan::api_elements::GetDescriptorSetHostMappingVALVE>
 {
     using Fields = util::TypeList<vulkan::fields::GetDescriptorSetHostMappingVALVE::device,
                                   vulkan::fields::GetDescriptorSetHostMappingVALVE::descriptorSet,
@@ -19819,7 +19819,7 @@ struct Schema<vulkan::commands::GetDescriptorSetHostMappingVALVE>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPipelineIndirectMemoryRequirementsNV>
+struct Schema<vulkan::api_elements::GetPipelineIndirectMemoryRequirementsNV>
 {
     using Fields = util::TypeList<vulkan::fields::GetPipelineIndirectMemoryRequirementsNV::device,
                                   vulkan::fields::GetPipelineIndirectMemoryRequirementsNV::pCreateInfo,
@@ -19828,7 +19828,7 @@ struct Schema<vulkan::commands::GetPipelineIndirectMemoryRequirementsNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdUpdatePipelineIndirectBufferNV>
+struct Schema<vulkan::api_elements::CmdUpdatePipelineIndirectBufferNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdUpdatePipelineIndirectBufferNV::commandBuffer,
                                   vulkan::fields::CmdUpdatePipelineIndirectBufferNV::pipelineBindPoint,
@@ -19837,7 +19837,7 @@ struct Schema<vulkan::commands::CmdUpdatePipelineIndirectBufferNV>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPipelineIndirectDeviceAddressNV>
+struct Schema<vulkan::api_elements::GetPipelineIndirectDeviceAddressNV>
 {
     using Fields = util::TypeList<vulkan::fields::GetPipelineIndirectDeviceAddressNV::device,
                                   vulkan::fields::GetPipelineIndirectDeviceAddressNV::pInfo,
@@ -19845,7 +19845,7 @@ struct Schema<vulkan::commands::GetPipelineIndirectDeviceAddressNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetDepthClampEnableEXT>
+struct Schema<vulkan::api_elements::CmdSetDepthClampEnableEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetDepthClampEnableEXT::commandBuffer,
                                   vulkan::fields::CmdSetDepthClampEnableEXT::depthClampEnable,
@@ -19853,7 +19853,7 @@ struct Schema<vulkan::commands::CmdSetDepthClampEnableEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetPolygonModeEXT>
+struct Schema<vulkan::api_elements::CmdSetPolygonModeEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetPolygonModeEXT::commandBuffer,
                                   vulkan::fields::CmdSetPolygonModeEXT::polygonMode,
@@ -19861,7 +19861,7 @@ struct Schema<vulkan::commands::CmdSetPolygonModeEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetRasterizationSamplesEXT>
+struct Schema<vulkan::api_elements::CmdSetRasterizationSamplesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetRasterizationSamplesEXT::commandBuffer,
                                   vulkan::fields::CmdSetRasterizationSamplesEXT::rasterizationSamples,
@@ -19869,7 +19869,7 @@ struct Schema<vulkan::commands::CmdSetRasterizationSamplesEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetSampleMaskEXT>
+struct Schema<vulkan::api_elements::CmdSetSampleMaskEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetSampleMaskEXT::commandBuffer,
                                   vulkan::fields::CmdSetSampleMaskEXT::samples,
@@ -19878,7 +19878,7 @@ struct Schema<vulkan::commands::CmdSetSampleMaskEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetAlphaToCoverageEnableEXT>
+struct Schema<vulkan::api_elements::CmdSetAlphaToCoverageEnableEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetAlphaToCoverageEnableEXT::commandBuffer,
                                   vulkan::fields::CmdSetAlphaToCoverageEnableEXT::alphaToCoverageEnable,
@@ -19886,7 +19886,7 @@ struct Schema<vulkan::commands::CmdSetAlphaToCoverageEnableEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetAlphaToOneEnableEXT>
+struct Schema<vulkan::api_elements::CmdSetAlphaToOneEnableEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetAlphaToOneEnableEXT::commandBuffer,
                                   vulkan::fields::CmdSetAlphaToOneEnableEXT::alphaToOneEnable,
@@ -19894,7 +19894,7 @@ struct Schema<vulkan::commands::CmdSetAlphaToOneEnableEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetLogicOpEnableEXT>
+struct Schema<vulkan::api_elements::CmdSetLogicOpEnableEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetLogicOpEnableEXT::commandBuffer,
                                   vulkan::fields::CmdSetLogicOpEnableEXT::logicOpEnable,
@@ -19902,7 +19902,7 @@ struct Schema<vulkan::commands::CmdSetLogicOpEnableEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetColorBlendEnableEXT>
+struct Schema<vulkan::api_elements::CmdSetColorBlendEnableEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetColorBlendEnableEXT::commandBuffer,
                                   vulkan::fields::CmdSetColorBlendEnableEXT::firstAttachment,
@@ -19912,7 +19912,7 @@ struct Schema<vulkan::commands::CmdSetColorBlendEnableEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetColorBlendEquationEXT>
+struct Schema<vulkan::api_elements::CmdSetColorBlendEquationEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetColorBlendEquationEXT::commandBuffer,
                                   vulkan::fields::CmdSetColorBlendEquationEXT::firstAttachment,
@@ -19922,7 +19922,7 @@ struct Schema<vulkan::commands::CmdSetColorBlendEquationEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetColorWriteMaskEXT>
+struct Schema<vulkan::api_elements::CmdSetColorWriteMaskEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetColorWriteMaskEXT::commandBuffer,
                                   vulkan::fields::CmdSetColorWriteMaskEXT::firstAttachment,
@@ -19932,7 +19932,7 @@ struct Schema<vulkan::commands::CmdSetColorWriteMaskEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetTessellationDomainOriginEXT>
+struct Schema<vulkan::api_elements::CmdSetTessellationDomainOriginEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetTessellationDomainOriginEXT::commandBuffer,
                                   vulkan::fields::CmdSetTessellationDomainOriginEXT::domainOrigin,
@@ -19940,7 +19940,7 @@ struct Schema<vulkan::commands::CmdSetTessellationDomainOriginEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetRasterizationStreamEXT>
+struct Schema<vulkan::api_elements::CmdSetRasterizationStreamEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetRasterizationStreamEXT::commandBuffer,
                                   vulkan::fields::CmdSetRasterizationStreamEXT::rasterizationStream,
@@ -19948,7 +19948,7 @@ struct Schema<vulkan::commands::CmdSetRasterizationStreamEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetConservativeRasterizationModeEXT>
+struct Schema<vulkan::api_elements::CmdSetConservativeRasterizationModeEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetConservativeRasterizationModeEXT::commandBuffer,
                                   vulkan::fields::CmdSetConservativeRasterizationModeEXT::conservativeRasterizationMode,
@@ -19956,7 +19956,7 @@ struct Schema<vulkan::commands::CmdSetConservativeRasterizationModeEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetExtraPrimitiveOverestimationSizeEXT>
+struct Schema<vulkan::api_elements::CmdSetExtraPrimitiveOverestimationSizeEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetExtraPrimitiveOverestimationSizeEXT::commandBuffer,
                                   vulkan::fields::CmdSetExtraPrimitiveOverestimationSizeEXT::extraPrimitiveOverestimationSize,
@@ -19964,7 +19964,7 @@ struct Schema<vulkan::commands::CmdSetExtraPrimitiveOverestimationSizeEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetDepthClipEnableEXT>
+struct Schema<vulkan::api_elements::CmdSetDepthClipEnableEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetDepthClipEnableEXT::commandBuffer,
                                   vulkan::fields::CmdSetDepthClipEnableEXT::depthClipEnable,
@@ -19972,7 +19972,7 @@ struct Schema<vulkan::commands::CmdSetDepthClipEnableEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetSampleLocationsEnableEXT>
+struct Schema<vulkan::api_elements::CmdSetSampleLocationsEnableEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetSampleLocationsEnableEXT::commandBuffer,
                                   vulkan::fields::CmdSetSampleLocationsEnableEXT::sampleLocationsEnable,
@@ -19980,7 +19980,7 @@ struct Schema<vulkan::commands::CmdSetSampleLocationsEnableEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetColorBlendAdvancedEXT>
+struct Schema<vulkan::api_elements::CmdSetColorBlendAdvancedEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetColorBlendAdvancedEXT::commandBuffer,
                                   vulkan::fields::CmdSetColorBlendAdvancedEXT::firstAttachment,
@@ -19990,7 +19990,7 @@ struct Schema<vulkan::commands::CmdSetColorBlendAdvancedEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetProvokingVertexModeEXT>
+struct Schema<vulkan::api_elements::CmdSetProvokingVertexModeEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetProvokingVertexModeEXT::commandBuffer,
                                   vulkan::fields::CmdSetProvokingVertexModeEXT::provokingVertexMode,
@@ -19998,7 +19998,7 @@ struct Schema<vulkan::commands::CmdSetProvokingVertexModeEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetLineRasterizationModeEXT>
+struct Schema<vulkan::api_elements::CmdSetLineRasterizationModeEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetLineRasterizationModeEXT::commandBuffer,
                                   vulkan::fields::CmdSetLineRasterizationModeEXT::lineRasterizationMode,
@@ -20006,7 +20006,7 @@ struct Schema<vulkan::commands::CmdSetLineRasterizationModeEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetLineStippleEnableEXT>
+struct Schema<vulkan::api_elements::CmdSetLineStippleEnableEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetLineStippleEnableEXT::commandBuffer,
                                   vulkan::fields::CmdSetLineStippleEnableEXT::stippledLineEnable,
@@ -20014,7 +20014,7 @@ struct Schema<vulkan::commands::CmdSetLineStippleEnableEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetDepthClipNegativeOneToOneEXT>
+struct Schema<vulkan::api_elements::CmdSetDepthClipNegativeOneToOneEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetDepthClipNegativeOneToOneEXT::commandBuffer,
                                   vulkan::fields::CmdSetDepthClipNegativeOneToOneEXT::negativeOneToOne,
@@ -20022,7 +20022,7 @@ struct Schema<vulkan::commands::CmdSetDepthClipNegativeOneToOneEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetViewportWScalingEnableNV>
+struct Schema<vulkan::api_elements::CmdSetViewportWScalingEnableNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetViewportWScalingEnableNV::commandBuffer,
                                   vulkan::fields::CmdSetViewportWScalingEnableNV::viewportWScalingEnable,
@@ -20030,7 +20030,7 @@ struct Schema<vulkan::commands::CmdSetViewportWScalingEnableNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetViewportSwizzleNV>
+struct Schema<vulkan::api_elements::CmdSetViewportSwizzleNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetViewportSwizzleNV::commandBuffer,
                                   vulkan::fields::CmdSetViewportSwizzleNV::firstViewport,
@@ -20040,7 +20040,7 @@ struct Schema<vulkan::commands::CmdSetViewportSwizzleNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetCoverageToColorEnableNV>
+struct Schema<vulkan::api_elements::CmdSetCoverageToColorEnableNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetCoverageToColorEnableNV::commandBuffer,
                                   vulkan::fields::CmdSetCoverageToColorEnableNV::coverageToColorEnable,
@@ -20048,7 +20048,7 @@ struct Schema<vulkan::commands::CmdSetCoverageToColorEnableNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetCoverageToColorLocationNV>
+struct Schema<vulkan::api_elements::CmdSetCoverageToColorLocationNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetCoverageToColorLocationNV::commandBuffer,
                                   vulkan::fields::CmdSetCoverageToColorLocationNV::coverageToColorLocation,
@@ -20056,7 +20056,7 @@ struct Schema<vulkan::commands::CmdSetCoverageToColorLocationNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetCoverageModulationModeNV>
+struct Schema<vulkan::api_elements::CmdSetCoverageModulationModeNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetCoverageModulationModeNV::commandBuffer,
                                   vulkan::fields::CmdSetCoverageModulationModeNV::coverageModulationMode,
@@ -20064,7 +20064,7 @@ struct Schema<vulkan::commands::CmdSetCoverageModulationModeNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetCoverageModulationTableEnableNV>
+struct Schema<vulkan::api_elements::CmdSetCoverageModulationTableEnableNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetCoverageModulationTableEnableNV::commandBuffer,
                                   vulkan::fields::CmdSetCoverageModulationTableEnableNV::coverageModulationTableEnable,
@@ -20072,7 +20072,7 @@ struct Schema<vulkan::commands::CmdSetCoverageModulationTableEnableNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetCoverageModulationTableNV>
+struct Schema<vulkan::api_elements::CmdSetCoverageModulationTableNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetCoverageModulationTableNV::commandBuffer,
                                   vulkan::fields::CmdSetCoverageModulationTableNV::coverageModulationTableCount,
@@ -20081,7 +20081,7 @@ struct Schema<vulkan::commands::CmdSetCoverageModulationTableNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetShadingRateImageEnableNV>
+struct Schema<vulkan::api_elements::CmdSetShadingRateImageEnableNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetShadingRateImageEnableNV::commandBuffer,
                                   vulkan::fields::CmdSetShadingRateImageEnableNV::shadingRateImageEnable,
@@ -20089,7 +20089,7 @@ struct Schema<vulkan::commands::CmdSetShadingRateImageEnableNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetRepresentativeFragmentTestEnableNV>
+struct Schema<vulkan::api_elements::CmdSetRepresentativeFragmentTestEnableNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetRepresentativeFragmentTestEnableNV::commandBuffer,
                                   vulkan::fields::CmdSetRepresentativeFragmentTestEnableNV::representativeFragmentTestEnable,
@@ -20097,7 +20097,7 @@ struct Schema<vulkan::commands::CmdSetRepresentativeFragmentTestEnableNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetCoverageReductionModeNV>
+struct Schema<vulkan::api_elements::CmdSetCoverageReductionModeNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetCoverageReductionModeNV::commandBuffer,
                                   vulkan::fields::CmdSetCoverageReductionModeNV::coverageReductionMode,
@@ -20105,7 +20105,7 @@ struct Schema<vulkan::commands::CmdSetCoverageReductionModeNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateTensorARM>
+struct Schema<vulkan::api_elements::CreateTensorARM>
 {
     using Fields = util::TypeList<vulkan::fields::CreateTensorARM::device, vulkan::fields::CreateTensorARM::pCreateInfo,
                                   vulkan::fields::CreateTensorARM::pAllocator, vulkan::fields::CreateTensorARM::pTensor,
@@ -20113,7 +20113,7 @@ struct Schema<vulkan::commands::CreateTensorARM>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyTensorARM>
+struct Schema<vulkan::api_elements::DestroyTensorARM>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyTensorARM::device, vulkan::fields::DestroyTensorARM::tensor,
                                   vulkan::fields::DestroyTensorARM::pAllocator,
@@ -20121,7 +20121,7 @@ struct Schema<vulkan::commands::DestroyTensorARM>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateTensorViewARM>
+struct Schema<vulkan::api_elements::CreateTensorViewARM>
 {
     using Fields = util::TypeList<vulkan::fields::CreateTensorViewARM::device,
                                   vulkan::fields::CreateTensorViewARM::pCreateInfo,
@@ -20131,7 +20131,7 @@ struct Schema<vulkan::commands::CreateTensorViewARM>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyTensorViewARM>
+struct Schema<vulkan::api_elements::DestroyTensorViewARM>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyTensorViewARM::device,
                                   vulkan::fields::DestroyTensorViewARM::tensorView,
@@ -20140,7 +20140,7 @@ struct Schema<vulkan::commands::DestroyTensorViewARM>
 };
 
 template <>
-struct Schema<vulkan::commands::GetTensorMemoryRequirementsARM>
+struct Schema<vulkan::api_elements::GetTensorMemoryRequirementsARM>
 {
     using Fields = util::TypeList<vulkan::fields::GetTensorMemoryRequirementsARM::device,
                                   vulkan::fields::GetTensorMemoryRequirementsARM::pInfo,
@@ -20149,7 +20149,7 @@ struct Schema<vulkan::commands::GetTensorMemoryRequirementsARM>
 };
 
 template <>
-struct Schema<vulkan::commands::BindTensorMemoryARM>
+struct Schema<vulkan::api_elements::BindTensorMemoryARM>
 {
     using Fields = util::TypeList<vulkan::fields::BindTensorMemoryARM::device,
                                   vulkan::fields::BindTensorMemoryARM::bindInfoCount,
@@ -20158,7 +20158,7 @@ struct Schema<vulkan::commands::BindTensorMemoryARM>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDeviceTensorMemoryRequirementsARM>
+struct Schema<vulkan::api_elements::GetDeviceTensorMemoryRequirementsARM>
 {
     using Fields = util::TypeList<vulkan::fields::GetDeviceTensorMemoryRequirementsARM::device,
                                   vulkan::fields::GetDeviceTensorMemoryRequirementsARM::pInfo,
@@ -20167,7 +20167,7 @@ struct Schema<vulkan::commands::GetDeviceTensorMemoryRequirementsARM>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyTensorARM>
+struct Schema<vulkan::api_elements::CmdCopyTensorARM>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyTensorARM::commandBuffer,
                                   vulkan::fields::CmdCopyTensorARM::pCopyTensorInfo,
@@ -20175,7 +20175,7 @@ struct Schema<vulkan::commands::CmdCopyTensorARM>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceExternalTensorPropertiesARM>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceExternalTensorPropertiesARM>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceExternalTensorPropertiesARM::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceExternalTensorPropertiesARM::pExternalTensorInfo,
@@ -20184,7 +20184,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceExternalTensorPropertiesARM>
 };
 
 template <>
-struct Schema<vulkan::commands::GetShaderModuleIdentifierEXT>
+struct Schema<vulkan::api_elements::GetShaderModuleIdentifierEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetShaderModuleIdentifierEXT::device,
                                   vulkan::fields::GetShaderModuleIdentifierEXT::shaderModule,
@@ -20193,7 +20193,7 @@ struct Schema<vulkan::commands::GetShaderModuleIdentifierEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetShaderModuleCreateInfoIdentifierEXT>
+struct Schema<vulkan::api_elements::GetShaderModuleCreateInfoIdentifierEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetShaderModuleCreateInfoIdentifierEXT::device,
                                   vulkan::fields::GetShaderModuleCreateInfoIdentifierEXT::pCreateInfo,
@@ -20202,7 +20202,7 @@ struct Schema<vulkan::commands::GetShaderModuleCreateInfoIdentifierEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceOpticalFlowImageFormatsNV>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceOpticalFlowImageFormatsNV>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceOpticalFlowImageFormatsNV::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceOpticalFlowImageFormatsNV::pOpticalFlowImageFormatInfo,
@@ -20212,7 +20212,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceOpticalFlowImageFormatsNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateOpticalFlowSessionNV>
+struct Schema<vulkan::api_elements::CreateOpticalFlowSessionNV>
 {
     using Fields = util::TypeList<vulkan::fields::CreateOpticalFlowSessionNV::device,
                                   vulkan::fields::CreateOpticalFlowSessionNV::pCreateInfo,
@@ -20222,7 +20222,7 @@ struct Schema<vulkan::commands::CreateOpticalFlowSessionNV>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyOpticalFlowSessionNV>
+struct Schema<vulkan::api_elements::DestroyOpticalFlowSessionNV>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyOpticalFlowSessionNV::device,
                                   vulkan::fields::DestroyOpticalFlowSessionNV::session,
@@ -20231,7 +20231,7 @@ struct Schema<vulkan::commands::DestroyOpticalFlowSessionNV>
 };
 
 template <>
-struct Schema<vulkan::commands::BindOpticalFlowSessionImageNV>
+struct Schema<vulkan::api_elements::BindOpticalFlowSessionImageNV>
 {
     using Fields = util::TypeList<vulkan::fields::BindOpticalFlowSessionImageNV::device,
                                   vulkan::fields::BindOpticalFlowSessionImageNV::session,
@@ -20242,7 +20242,7 @@ struct Schema<vulkan::commands::BindOpticalFlowSessionImageNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdOpticalFlowExecuteNV>
+struct Schema<vulkan::api_elements::CmdOpticalFlowExecuteNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdOpticalFlowExecuteNV::commandBuffer,
                                   vulkan::fields::CmdOpticalFlowExecuteNV::session,
@@ -20251,14 +20251,14 @@ struct Schema<vulkan::commands::CmdOpticalFlowExecuteNV>
 };
 
 template <>
-struct Schema<vulkan::commands::AntiLagUpdateAMD>
+struct Schema<vulkan::api_elements::AntiLagUpdateAMD>
 {
     using Fields = util::TypeList<vulkan::fields::AntiLagUpdateAMD::device, vulkan::fields::AntiLagUpdateAMD::pData,
                                   vulkan::fields::AntiLagUpdateAMD::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::CreateShadersEXT>
+struct Schema<vulkan::api_elements::CreateShadersEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CreateShadersEXT::device,
                                   vulkan::fields::CreateShadersEXT::createInfoCount,
@@ -20268,7 +20268,7 @@ struct Schema<vulkan::commands::CreateShadersEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyShaderEXT>
+struct Schema<vulkan::api_elements::DestroyShaderEXT>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyShaderEXT::device, vulkan::fields::DestroyShaderEXT::shader,
                                   vulkan::fields::DestroyShaderEXT::pAllocator,
@@ -20276,7 +20276,7 @@ struct Schema<vulkan::commands::DestroyShaderEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetShaderBinaryDataEXT>
+struct Schema<vulkan::api_elements::GetShaderBinaryDataEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetShaderBinaryDataEXT::device,
                                   vulkan::fields::GetShaderBinaryDataEXT::shader,
@@ -20286,7 +20286,7 @@ struct Schema<vulkan::commands::GetShaderBinaryDataEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBindShadersEXT>
+struct Schema<vulkan::api_elements::CmdBindShadersEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBindShadersEXT::commandBuffer,
                                   vulkan::fields::CmdBindShadersEXT::stageCount,
@@ -20296,7 +20296,7 @@ struct Schema<vulkan::commands::CmdBindShadersEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetDepthClampRangeEXT>
+struct Schema<vulkan::api_elements::CmdSetDepthClampRangeEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetDepthClampRangeEXT::commandBuffer,
                                   vulkan::fields::CmdSetDepthClampRangeEXT::depthClampMode,
@@ -20305,7 +20305,7 @@ struct Schema<vulkan::commands::CmdSetDepthClampRangeEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetFramebufferTilePropertiesQCOM>
+struct Schema<vulkan::api_elements::GetFramebufferTilePropertiesQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::GetFramebufferTilePropertiesQCOM::device,
                                   vulkan::fields::GetFramebufferTilePropertiesQCOM::framebuffer,
@@ -20315,7 +20315,7 @@ struct Schema<vulkan::commands::GetFramebufferTilePropertiesQCOM>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDynamicRenderingTilePropertiesQCOM>
+struct Schema<vulkan::api_elements::GetDynamicRenderingTilePropertiesQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::GetDynamicRenderingTilePropertiesQCOM::device,
                                   vulkan::fields::GetDynamicRenderingTilePropertiesQCOM::pRenderingInfo,
@@ -20324,7 +20324,7 @@ struct Schema<vulkan::commands::GetDynamicRenderingTilePropertiesQCOM>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceCooperativeVectorPropertiesNV>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceCooperativeVectorPropertiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceCooperativeVectorPropertiesNV::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceCooperativeVectorPropertiesNV::pPropertyCount,
@@ -20333,7 +20333,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceCooperativeVectorPropertiesNV>
 };
 
 template <>
-struct Schema<vulkan::commands::ConvertCooperativeVectorMatrixNV>
+struct Schema<vulkan::api_elements::ConvertCooperativeVectorMatrixNV>
 {
     using Fields = util::TypeList<vulkan::fields::ConvertCooperativeVectorMatrixNV::device,
                                   vulkan::fields::ConvertCooperativeVectorMatrixNV::pInfo,
@@ -20341,7 +20341,7 @@ struct Schema<vulkan::commands::ConvertCooperativeVectorMatrixNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdConvertCooperativeVectorMatrixNV>
+struct Schema<vulkan::api_elements::CmdConvertCooperativeVectorMatrixNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdConvertCooperativeVectorMatrixNV::commandBuffer,
                                   vulkan::fields::CmdConvertCooperativeVectorMatrixNV::infoCount,
@@ -20350,7 +20350,7 @@ struct Schema<vulkan::commands::CmdConvertCooperativeVectorMatrixNV>
 };
 
 template <>
-struct Schema<vulkan::commands::SetLatencySleepModeNV>
+struct Schema<vulkan::api_elements::SetLatencySleepModeNV>
 {
     using Fields = util::TypeList<vulkan::fields::SetLatencySleepModeNV::device,
                                   vulkan::fields::SetLatencySleepModeNV::swapchain,
@@ -20359,14 +20359,14 @@ struct Schema<vulkan::commands::SetLatencySleepModeNV>
 };
 
 template <>
-struct Schema<vulkan::commands::LatencySleepNV>
+struct Schema<vulkan::api_elements::LatencySleepNV>
 {
     using Fields = util::TypeList<vulkan::fields::LatencySleepNV::device, vulkan::fields::LatencySleepNV::swapchain,
                                   vulkan::fields::LatencySleepNV::pSleepInfo, vulkan::fields::LatencySleepNV::result>;
 };
 
 template <>
-struct Schema<vulkan::commands::SetLatencyMarkerNV>
+struct Schema<vulkan::api_elements::SetLatencyMarkerNV>
 {
     using Fields = util::TypeList<vulkan::fields::SetLatencyMarkerNV::device,
                                   vulkan::fields::SetLatencyMarkerNV::swapchain,
@@ -20375,7 +20375,7 @@ struct Schema<vulkan::commands::SetLatencyMarkerNV>
 };
 
 template <>
-struct Schema<vulkan::commands::GetLatencyTimingsNV>
+struct Schema<vulkan::api_elements::GetLatencyTimingsNV>
 {
     using Fields = util::TypeList<vulkan::fields::GetLatencyTimingsNV::device,
                                   vulkan::fields::GetLatencyTimingsNV::swapchain,
@@ -20384,7 +20384,7 @@ struct Schema<vulkan::commands::GetLatencyTimingsNV>
 };
 
 template <>
-struct Schema<vulkan::commands::QueueNotifyOutOfBandNV>
+struct Schema<vulkan::api_elements::QueueNotifyOutOfBandNV>
 {
     using Fields = util::TypeList<vulkan::fields::QueueNotifyOutOfBandNV::queue,
                                   vulkan::fields::QueueNotifyOutOfBandNV::pQueueTypeInfo,
@@ -20392,7 +20392,7 @@ struct Schema<vulkan::commands::QueueNotifyOutOfBandNV>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateDataGraphPipelinesARM>
+struct Schema<vulkan::api_elements::CreateDataGraphPipelinesARM>
 {
     using Fields = util::TypeList<vulkan::fields::CreateDataGraphPipelinesARM::device,
                                   vulkan::fields::CreateDataGraphPipelinesARM::deferredOperation,
@@ -20405,7 +20405,7 @@ struct Schema<vulkan::commands::CreateDataGraphPipelinesARM>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateDataGraphPipelineSessionARM>
+struct Schema<vulkan::api_elements::CreateDataGraphPipelineSessionARM>
 {
     using Fields = util::TypeList<vulkan::fields::CreateDataGraphPipelineSessionARM::device,
                                   vulkan::fields::CreateDataGraphPipelineSessionARM::pCreateInfo,
@@ -20415,7 +20415,7 @@ struct Schema<vulkan::commands::CreateDataGraphPipelineSessionARM>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDataGraphPipelineSessionBindPointRequirementsARM>
+struct Schema<vulkan::api_elements::GetDataGraphPipelineSessionBindPointRequirementsARM>
 {
     using Fields = util::TypeList<vulkan::fields::GetDataGraphPipelineSessionBindPointRequirementsARM::device,
                                   vulkan::fields::GetDataGraphPipelineSessionBindPointRequirementsARM::pInfo,
@@ -20425,7 +20425,7 @@ struct Schema<vulkan::commands::GetDataGraphPipelineSessionBindPointRequirements
 };
 
 template <>
-struct Schema<vulkan::commands::GetDataGraphPipelineSessionMemoryRequirementsARM>
+struct Schema<vulkan::api_elements::GetDataGraphPipelineSessionMemoryRequirementsARM>
 {
     using Fields = util::TypeList<vulkan::fields::GetDataGraphPipelineSessionMemoryRequirementsARM::device,
                                   vulkan::fields::GetDataGraphPipelineSessionMemoryRequirementsARM::pInfo,
@@ -20434,7 +20434,7 @@ struct Schema<vulkan::commands::GetDataGraphPipelineSessionMemoryRequirementsARM
 };
 
 template <>
-struct Schema<vulkan::commands::BindDataGraphPipelineSessionMemoryARM>
+struct Schema<vulkan::api_elements::BindDataGraphPipelineSessionMemoryARM>
 {
     using Fields = util::TypeList<vulkan::fields::BindDataGraphPipelineSessionMemoryARM::device,
                                   vulkan::fields::BindDataGraphPipelineSessionMemoryARM::bindInfoCount,
@@ -20443,7 +20443,7 @@ struct Schema<vulkan::commands::BindDataGraphPipelineSessionMemoryARM>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyDataGraphPipelineSessionARM>
+struct Schema<vulkan::api_elements::DestroyDataGraphPipelineSessionARM>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyDataGraphPipelineSessionARM::device,
                                   vulkan::fields::DestroyDataGraphPipelineSessionARM::session,
@@ -20452,7 +20452,7 @@ struct Schema<vulkan::commands::DestroyDataGraphPipelineSessionARM>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDispatchDataGraphARM>
+struct Schema<vulkan::api_elements::CmdDispatchDataGraphARM>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDispatchDataGraphARM::commandBuffer,
                                   vulkan::fields::CmdDispatchDataGraphARM::session,
@@ -20461,7 +20461,7 @@ struct Schema<vulkan::commands::CmdDispatchDataGraphARM>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDataGraphPipelineAvailablePropertiesARM>
+struct Schema<vulkan::api_elements::GetDataGraphPipelineAvailablePropertiesARM>
 {
     using Fields = util::TypeList<vulkan::fields::GetDataGraphPipelineAvailablePropertiesARM::device,
                                   vulkan::fields::GetDataGraphPipelineAvailablePropertiesARM::pPipelineInfo,
@@ -20471,7 +20471,7 @@ struct Schema<vulkan::commands::GetDataGraphPipelineAvailablePropertiesARM>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDataGraphPipelinePropertiesARM>
+struct Schema<vulkan::api_elements::GetDataGraphPipelinePropertiesARM>
 {
     using Fields = util::TypeList<vulkan::fields::GetDataGraphPipelinePropertiesARM::device,
                                   vulkan::fields::GetDataGraphPipelinePropertiesARM::pPipelineInfo,
@@ -20481,7 +20481,7 @@ struct Schema<vulkan::commands::GetDataGraphPipelinePropertiesARM>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceQueueFamilyDataGraphPropertiesARM>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceQueueFamilyDataGraphPropertiesARM>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceQueueFamilyDataGraphPropertiesARM::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceQueueFamilyDataGraphPropertiesARM::queueFamilyIndex,
@@ -20491,7 +20491,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceQueueFamilyDataGraphPropertiesA
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM::pQueueFamilyDataGraphProcessingEngineInfo,
@@ -20500,7 +20500,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceQueueFamilyDataGraphProcessingE
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetAttachmentFeedbackLoopEnableEXT>
+struct Schema<vulkan::api_elements::CmdSetAttachmentFeedbackLoopEnableEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetAttachmentFeedbackLoopEnableEXT::commandBuffer,
                                   vulkan::fields::CmdSetAttachmentFeedbackLoopEnableEXT::aspectMask,
@@ -20508,7 +20508,7 @@ struct Schema<vulkan::commands::CmdSetAttachmentFeedbackLoopEnableEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBindTileMemoryQCOM>
+struct Schema<vulkan::api_elements::CmdBindTileMemoryQCOM>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBindTileMemoryQCOM::commandBuffer,
                                   vulkan::fields::CmdBindTileMemoryQCOM::pTileMemoryBindInfo,
@@ -20516,7 +20516,7 @@ struct Schema<vulkan::commands::CmdBindTileMemoryQCOM>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDecompressMemoryEXT>
+struct Schema<vulkan::api_elements::CmdDecompressMemoryEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDecompressMemoryEXT::commandBuffer,
                                   vulkan::fields::CmdDecompressMemoryEXT::pDecompressMemoryInfoEXT,
@@ -20524,7 +20524,7 @@ struct Schema<vulkan::commands::CmdDecompressMemoryEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDecompressMemoryIndirectCountEXT>
+struct Schema<vulkan::api_elements::CmdDecompressMemoryIndirectCountEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDecompressMemoryIndirectCountEXT::commandBuffer,
                                   vulkan::fields::CmdDecompressMemoryIndirectCountEXT::decompressionMethod,
@@ -20536,7 +20536,7 @@ struct Schema<vulkan::commands::CmdDecompressMemoryIndirectCountEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPartitionedAccelerationStructuresBuildSizesNV>
+struct Schema<vulkan::api_elements::GetPartitionedAccelerationStructuresBuildSizesNV>
 {
     using Fields = util::TypeList<vulkan::fields::GetPartitionedAccelerationStructuresBuildSizesNV::device,
                                   vulkan::fields::GetPartitionedAccelerationStructuresBuildSizesNV::pInfo,
@@ -20545,7 +20545,7 @@ struct Schema<vulkan::commands::GetPartitionedAccelerationStructuresBuildSizesNV
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBuildPartitionedAccelerationStructuresNV>
+struct Schema<vulkan::api_elements::CmdBuildPartitionedAccelerationStructuresNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBuildPartitionedAccelerationStructuresNV::commandBuffer,
                                   vulkan::fields::CmdBuildPartitionedAccelerationStructuresNV::pBuildInfo,
@@ -20553,7 +20553,7 @@ struct Schema<vulkan::commands::CmdBuildPartitionedAccelerationStructuresNV>
 };
 
 template <>
-struct Schema<vulkan::commands::GetGeneratedCommandsMemoryRequirementsEXT>
+struct Schema<vulkan::api_elements::GetGeneratedCommandsMemoryRequirementsEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetGeneratedCommandsMemoryRequirementsEXT::device,
                                   vulkan::fields::GetGeneratedCommandsMemoryRequirementsEXT::pInfo,
@@ -20562,7 +20562,7 @@ struct Schema<vulkan::commands::GetGeneratedCommandsMemoryRequirementsEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdPreprocessGeneratedCommandsEXT>
+struct Schema<vulkan::api_elements::CmdPreprocessGeneratedCommandsEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdPreprocessGeneratedCommandsEXT::commandBuffer,
                                   vulkan::fields::CmdPreprocessGeneratedCommandsEXT::pGeneratedCommandsInfo,
@@ -20571,7 +20571,7 @@ struct Schema<vulkan::commands::CmdPreprocessGeneratedCommandsEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdExecuteGeneratedCommandsEXT>
+struct Schema<vulkan::api_elements::CmdExecuteGeneratedCommandsEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdExecuteGeneratedCommandsEXT::commandBuffer,
                                   vulkan::fields::CmdExecuteGeneratedCommandsEXT::isPreprocessed,
@@ -20580,7 +20580,7 @@ struct Schema<vulkan::commands::CmdExecuteGeneratedCommandsEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateIndirectCommandsLayoutEXT>
+struct Schema<vulkan::api_elements::CreateIndirectCommandsLayoutEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CreateIndirectCommandsLayoutEXT::device,
                                   vulkan::fields::CreateIndirectCommandsLayoutEXT::pCreateInfo,
@@ -20590,7 +20590,7 @@ struct Schema<vulkan::commands::CreateIndirectCommandsLayoutEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyIndirectCommandsLayoutEXT>
+struct Schema<vulkan::api_elements::DestroyIndirectCommandsLayoutEXT>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyIndirectCommandsLayoutEXT::device,
                                   vulkan::fields::DestroyIndirectCommandsLayoutEXT::indirectCommandsLayout,
@@ -20599,7 +20599,7 @@ struct Schema<vulkan::commands::DestroyIndirectCommandsLayoutEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateIndirectExecutionSetEXT>
+struct Schema<vulkan::api_elements::CreateIndirectExecutionSetEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CreateIndirectExecutionSetEXT::device,
                                   vulkan::fields::CreateIndirectExecutionSetEXT::pCreateInfo,
@@ -20609,7 +20609,7 @@ struct Schema<vulkan::commands::CreateIndirectExecutionSetEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyIndirectExecutionSetEXT>
+struct Schema<vulkan::api_elements::DestroyIndirectExecutionSetEXT>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyIndirectExecutionSetEXT::device,
                                   vulkan::fields::DestroyIndirectExecutionSetEXT::indirectExecutionSet,
@@ -20618,7 +20618,7 @@ struct Schema<vulkan::commands::DestroyIndirectExecutionSetEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::UpdateIndirectExecutionSetPipelineEXT>
+struct Schema<vulkan::api_elements::UpdateIndirectExecutionSetPipelineEXT>
 {
     using Fields = util::TypeList<vulkan::fields::UpdateIndirectExecutionSetPipelineEXT::device,
                                   vulkan::fields::UpdateIndirectExecutionSetPipelineEXT::indirectExecutionSet,
@@ -20628,7 +20628,7 @@ struct Schema<vulkan::commands::UpdateIndirectExecutionSetPipelineEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::UpdateIndirectExecutionSetShaderEXT>
+struct Schema<vulkan::api_elements::UpdateIndirectExecutionSetShaderEXT>
 {
     using Fields = util::TypeList<vulkan::fields::UpdateIndirectExecutionSetShaderEXT::device,
                                   vulkan::fields::UpdateIndirectExecutionSetShaderEXT::indirectExecutionSet,
@@ -20638,7 +20638,7 @@ struct Schema<vulkan::commands::UpdateIndirectExecutionSetShaderEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV::pPropertyCount,
@@ -20647,7 +20647,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceCooperativeMatrixFlexibleDimens
 };
 
 template <>
-struct Schema<vulkan::commands::GetMemoryMetalHandleEXT>
+struct Schema<vulkan::api_elements::GetMemoryMetalHandleEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetMemoryMetalHandleEXT::device,
                                   vulkan::fields::GetMemoryMetalHandleEXT::pGetMetalHandleInfo,
@@ -20656,7 +20656,7 @@ struct Schema<vulkan::commands::GetMemoryMetalHandleEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetMemoryMetalHandlePropertiesEXT>
+struct Schema<vulkan::api_elements::GetMemoryMetalHandlePropertiesEXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetMemoryMetalHandlePropertiesEXT::device,
                                   vulkan::fields::GetMemoryMetalHandlePropertiesEXT::handleType,
@@ -20666,7 +20666,7 @@ struct Schema<vulkan::commands::GetMemoryMetalHandlePropertiesEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::EnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM>
+struct Schema<vulkan::api_elements::EnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM>
 {
     using Fields = util::TypeList<vulkan::fields::EnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM::physicalDevice,
                                   vulkan::fields::EnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM::queueFamilyIndex,
@@ -20677,7 +20677,7 @@ struct Schema<vulkan::commands::EnumeratePhysicalDeviceQueueFamilyPerformanceCou
 };
 
 template <>
-struct Schema<vulkan::commands::CmdEndRendering2EXT>
+struct Schema<vulkan::api_elements::CmdEndRendering2EXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdEndRendering2EXT::commandBuffer,
                                   vulkan::fields::CmdEndRendering2EXT::pRenderingEndInfo,
@@ -20685,7 +20685,7 @@ struct Schema<vulkan::commands::CmdEndRendering2EXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBeginCustomResolveEXT>
+struct Schema<vulkan::api_elements::CmdBeginCustomResolveEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBeginCustomResolveEXT::commandBuffer,
                                   vulkan::fields::CmdBeginCustomResolveEXT::pBeginCustomResolveInfo,
@@ -20693,7 +20693,7 @@ struct Schema<vulkan::commands::CmdBeginCustomResolveEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM::queueFamilyIndex,
@@ -20705,7 +20705,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceQueueFamilyDataGraphOpticalFlow
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM::queueFamilyIndex,
@@ -20715,7 +20715,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceQueueFamilyDataGraphEngineOpera
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetComputeOccupancyPriorityNV>
+struct Schema<vulkan::api_elements::CmdSetComputeOccupancyPriorityNV>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetComputeOccupancyPriorityNV::commandBuffer,
                                   vulkan::fields::CmdSetComputeOccupancyPriorityNV::pParameters,
@@ -20723,7 +20723,7 @@ struct Schema<vulkan::commands::CmdSetComputeOccupancyPriorityNV>
 };
 
 template <>
-struct Schema<vulkan::commands::GetPhysicalDeviceCooperativeMatrixProperties2EXT>
+struct Schema<vulkan::api_elements::GetPhysicalDeviceCooperativeMatrixProperties2EXT>
 {
     using Fields = util::TypeList<vulkan::fields::GetPhysicalDeviceCooperativeMatrixProperties2EXT::physicalDevice,
                                   vulkan::fields::GetPhysicalDeviceCooperativeMatrixProperties2EXT::pCooperativeMatrixInfo,
@@ -20733,7 +20733,7 @@ struct Schema<vulkan::commands::GetPhysicalDeviceCooperativeMatrixProperties2EXT
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetPrimitiveRestartIndexEXT>
+struct Schema<vulkan::api_elements::CmdSetPrimitiveRestartIndexEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetPrimitiveRestartIndexEXT::commandBuffer,
                                   vulkan::fields::CmdSetPrimitiveRestartIndexEXT::primitiveRestartIndex,
@@ -20741,7 +20741,7 @@ struct Schema<vulkan::commands::CmdSetPrimitiveRestartIndexEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CreateAccelerationStructureKHR>
+struct Schema<vulkan::api_elements::CreateAccelerationStructureKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CreateAccelerationStructureKHR::device,
                                   vulkan::fields::CreateAccelerationStructureKHR::pCreateInfo,
@@ -20751,7 +20751,7 @@ struct Schema<vulkan::commands::CreateAccelerationStructureKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::DestroyAccelerationStructureKHR>
+struct Schema<vulkan::api_elements::DestroyAccelerationStructureKHR>
 {
     using Fields = util::TypeList<vulkan::fields::DestroyAccelerationStructureKHR::device,
                                   vulkan::fields::DestroyAccelerationStructureKHR::accelerationStructure,
@@ -20760,7 +20760,7 @@ struct Schema<vulkan::commands::DestroyAccelerationStructureKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBuildAccelerationStructuresKHR>
+struct Schema<vulkan::api_elements::CmdBuildAccelerationStructuresKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBuildAccelerationStructuresKHR::commandBuffer,
                                   vulkan::fields::CmdBuildAccelerationStructuresKHR::infoCount,
@@ -20770,7 +20770,7 @@ struct Schema<vulkan::commands::CmdBuildAccelerationStructuresKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdBuildAccelerationStructuresIndirectKHR>
+struct Schema<vulkan::api_elements::CmdBuildAccelerationStructuresIndirectKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdBuildAccelerationStructuresIndirectKHR::commandBuffer,
                                   vulkan::fields::CmdBuildAccelerationStructuresIndirectKHR::infoCount,
@@ -20782,7 +20782,7 @@ struct Schema<vulkan::commands::CmdBuildAccelerationStructuresIndirectKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CopyAccelerationStructureToMemoryKHR>
+struct Schema<vulkan::api_elements::CopyAccelerationStructureToMemoryKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CopyAccelerationStructureToMemoryKHR::device,
                                   vulkan::fields::CopyAccelerationStructureToMemoryKHR::deferredOperation,
@@ -20791,7 +20791,7 @@ struct Schema<vulkan::commands::CopyAccelerationStructureToMemoryKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CopyMemoryToAccelerationStructureKHR>
+struct Schema<vulkan::api_elements::CopyMemoryToAccelerationStructureKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CopyMemoryToAccelerationStructureKHR::device,
                                   vulkan::fields::CopyMemoryToAccelerationStructureKHR::deferredOperation,
@@ -20800,7 +20800,7 @@ struct Schema<vulkan::commands::CopyMemoryToAccelerationStructureKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::WriteAccelerationStructuresPropertiesKHR>
+struct Schema<vulkan::api_elements::WriteAccelerationStructuresPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::WriteAccelerationStructuresPropertiesKHR::device,
                                   vulkan::fields::WriteAccelerationStructuresPropertiesKHR::accelerationStructureCount,
@@ -20813,7 +20813,7 @@ struct Schema<vulkan::commands::WriteAccelerationStructuresPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyAccelerationStructureKHR>
+struct Schema<vulkan::api_elements::CmdCopyAccelerationStructureKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyAccelerationStructureKHR::commandBuffer,
                                   vulkan::fields::CmdCopyAccelerationStructureKHR::pInfo,
@@ -20821,7 +20821,7 @@ struct Schema<vulkan::commands::CmdCopyAccelerationStructureKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyAccelerationStructureToMemoryKHR>
+struct Schema<vulkan::api_elements::CmdCopyAccelerationStructureToMemoryKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyAccelerationStructureToMemoryKHR::commandBuffer,
                                   vulkan::fields::CmdCopyAccelerationStructureToMemoryKHR::pInfo,
@@ -20829,7 +20829,7 @@ struct Schema<vulkan::commands::CmdCopyAccelerationStructureToMemoryKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdCopyMemoryToAccelerationStructureKHR>
+struct Schema<vulkan::api_elements::CmdCopyMemoryToAccelerationStructureKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdCopyMemoryToAccelerationStructureKHR::commandBuffer,
                                   vulkan::fields::CmdCopyMemoryToAccelerationStructureKHR::pInfo,
@@ -20837,7 +20837,7 @@ struct Schema<vulkan::commands::CmdCopyMemoryToAccelerationStructureKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetAccelerationStructureDeviceAddressKHR>
+struct Schema<vulkan::api_elements::GetAccelerationStructureDeviceAddressKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetAccelerationStructureDeviceAddressKHR::device,
                                   vulkan::fields::GetAccelerationStructureDeviceAddressKHR::pInfo,
@@ -20845,7 +20845,7 @@ struct Schema<vulkan::commands::GetAccelerationStructureDeviceAddressKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdWriteAccelerationStructuresPropertiesKHR>
+struct Schema<vulkan::api_elements::CmdWriteAccelerationStructuresPropertiesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdWriteAccelerationStructuresPropertiesKHR::commandBuffer,
                                   vulkan::fields::CmdWriteAccelerationStructuresPropertiesKHR::accelerationStructureCount,
@@ -20857,7 +20857,7 @@ struct Schema<vulkan::commands::CmdWriteAccelerationStructuresPropertiesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetDeviceAccelerationStructureCompatibilityKHR>
+struct Schema<vulkan::api_elements::GetDeviceAccelerationStructureCompatibilityKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetDeviceAccelerationStructureCompatibilityKHR::device,
                                   vulkan::fields::GetDeviceAccelerationStructureCompatibilityKHR::pVersionInfo,
@@ -20866,7 +20866,7 @@ struct Schema<vulkan::commands::GetDeviceAccelerationStructureCompatibilityKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetAccelerationStructureBuildSizesKHR>
+struct Schema<vulkan::api_elements::GetAccelerationStructureBuildSizesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetAccelerationStructureBuildSizesKHR::device,
                                   vulkan::fields::GetAccelerationStructureBuildSizesKHR::buildType,
@@ -20877,7 +20877,7 @@ struct Schema<vulkan::commands::GetAccelerationStructureBuildSizesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdTraceRaysKHR>
+struct Schema<vulkan::api_elements::CmdTraceRaysKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdTraceRaysKHR::commandBuffer,
                                   vulkan::fields::CmdTraceRaysKHR::pRaygenShaderBindingTable,
@@ -20889,7 +20889,7 @@ struct Schema<vulkan::commands::CmdTraceRaysKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetRayTracingCaptureReplayShaderGroupHandlesKHR>
+struct Schema<vulkan::api_elements::GetRayTracingCaptureReplayShaderGroupHandlesKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetRayTracingCaptureReplayShaderGroupHandlesKHR::device,
                                   vulkan::fields::GetRayTracingCaptureReplayShaderGroupHandlesKHR::pipeline,
@@ -20901,7 +20901,7 @@ struct Schema<vulkan::commands::GetRayTracingCaptureReplayShaderGroupHandlesKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdTraceRaysIndirectKHR>
+struct Schema<vulkan::api_elements::CmdTraceRaysIndirectKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdTraceRaysIndirectKHR::commandBuffer,
                                   vulkan::fields::CmdTraceRaysIndirectKHR::pRaygenShaderBindingTable,
@@ -20913,7 +20913,7 @@ struct Schema<vulkan::commands::CmdTraceRaysIndirectKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::GetRayTracingShaderGroupStackSizeKHR>
+struct Schema<vulkan::api_elements::GetRayTracingShaderGroupStackSizeKHR>
 {
     using Fields = util::TypeList<vulkan::fields::GetRayTracingShaderGroupStackSizeKHR::device,
                                   vulkan::fields::GetRayTracingShaderGroupStackSizeKHR::pipeline,
@@ -20923,7 +20923,7 @@ struct Schema<vulkan::commands::GetRayTracingShaderGroupStackSizeKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdSetRayTracingPipelineStackSizeKHR>
+struct Schema<vulkan::api_elements::CmdSetRayTracingPipelineStackSizeKHR>
 {
     using Fields = util::TypeList<vulkan::fields::CmdSetRayTracingPipelineStackSizeKHR::commandBuffer,
                                   vulkan::fields::CmdSetRayTracingPipelineStackSizeKHR::pipelineStackSize,
@@ -20931,7 +20931,7 @@ struct Schema<vulkan::commands::CmdSetRayTracingPipelineStackSizeKHR>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDrawMeshTasksEXT>
+struct Schema<vulkan::api_elements::CmdDrawMeshTasksEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDrawMeshTasksEXT::commandBuffer,
                                   vulkan::fields::CmdDrawMeshTasksEXT::groupCountX,
@@ -20941,7 +20941,7 @@ struct Schema<vulkan::commands::CmdDrawMeshTasksEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDrawMeshTasksIndirectEXT>
+struct Schema<vulkan::api_elements::CmdDrawMeshTasksIndirectEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDrawMeshTasksIndirectEXT::commandBuffer,
                                   vulkan::fields::CmdDrawMeshTasksIndirectEXT::buffer,
@@ -20952,7 +20952,7 @@ struct Schema<vulkan::commands::CmdDrawMeshTasksIndirectEXT>
 };
 
 template <>
-struct Schema<vulkan::commands::CmdDrawMeshTasksIndirectCountEXT>
+struct Schema<vulkan::api_elements::CmdDrawMeshTasksIndirectCountEXT>
 {
     using Fields = util::TypeList<vulkan::fields::CmdDrawMeshTasksIndirectCountEXT::commandBuffer,
                                   vulkan::fields::CmdDrawMeshTasksIndirectCountEXT::buffer,
