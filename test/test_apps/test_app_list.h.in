@@ -1,0 +1,20 @@
+// CMake generates this file from test/test_apps/TestAppList.cmake. Do not edit it. To add an
+// app, add one entry to that file.
+//
+// Each list below expands X(ident, name) once per app. ident is the C++ identifier of the app,
+// for the header <ident>_app.h and the class gfxrecon::test_app::<ident>::App. name is the
+// string that the launcher accepts.
+
+#pragma once
+
+// Every app in this build.
+#define GFXRECON_TEST_APP_LIST(X) \
+@GFXRECON_TEST_APP_LIST_ALL@    /* end of list */
+
+// The apps with a known-good capture in test/known_good.
+#define GFXRECON_TEST_APP_LIST_KNOWN_GOOD(X) \
+@GFXRECON_TEST_APP_LIST_KNOWN_GOOD@    /* end of list */
+
+// The apps with a replay-only case and no known-good capture.
+#define GFXRECON_TEST_APP_LIST_REPLAY_ONLY(X) \
+@GFXRECON_TEST_APP_LIST_REPLAY_ONLY@    /* end of list */

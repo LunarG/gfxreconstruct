@@ -31,8 +31,13 @@ GFXRECON_BEGIN_NAMESPACE(test_app)
 GFXRECON_BEGIN_NAMESPACE(sparse_resources)
 
 const size_t   MAX_FRAMES_IN_FLIGHT = 2;
-const size_t   FRAMES_UNTIL_EXIT    = 1000;
+const size_t   FRAMES_UNTIL_EXIT    = 10;
 const size_t   STAGING_BUFFER_SIZE  = 16 * 1024 * 1024;
+// The app writes the whole first block of the staging buffer on every upload, not only the few
+// bytes it needs. The capture layer records dirty memory in OS pages, and a page is 4 KiB on
+// Linux x86 and 16 KiB on Apple Silicon. A write that covers whole 64 KiB blocks gives the same
+// recorded range on every platform, so one known-good capture holds everywhere.
+const size_t   STAGING_WRITE_BLOCK  = 64 * 1024;
 const VkFormat IMAGE_FORMAT         = VK_FORMAT_R8G8B8A8_SRGB;
 
 struct Uniforms

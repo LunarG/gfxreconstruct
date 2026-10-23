@@ -22,14 +22,15 @@
 
 '''
 GFXReconstruct test script
+
+Runs one test executable. The build runs this script for each Catch2
+test target when RUN_TESTS is on. To run every unit test at once, use
+"ctest -L unit" in the build directory.
 '''
 
 import argparse
-import collections
-import copy
 import importlib
 import os
-import platform
 import subprocess
 import sys
 
@@ -44,17 +45,6 @@ def is_windows():
 # Repository root directory
 REPO_ROOT = os.path.abspath(os.path.join(
     os.path.split(os.path.abspath(__file__))[0], '..'))
-
-# List of tests to run when no test executable is passed to script
-ALL_TESTS = collections.OrderedDict({
-    'gfxrecon_application_test': [],
-    'gfxrecon_decode_test': [],
-    'gfxrecon_encode_test': [],
-    'gfxrecon_format_test': [],
-    'gfxrecon_util_test': [],
-    'VkLayer_gfxreconstruct_test': [],
-})
-
 
 class TestError(Exception):
     '''
@@ -81,28 +71,15 @@ def parse_args(build_script):
                             version=str(build_script.VERSION),
                             help='Print script version and exit')
     arg_parser.add_argument(
-        '--test-exe', default=None,
-        help='the name of a single internal test to run (one of: {}), or a '
-        'path to an external test to run.  If not specified, all internal '
-        'tests are run.'.format(', '.join(ALL_TESTS)))
+        '--test-exe', required=True,
+        help='Path of the test executable to run')
     arg_parser.add_argument(
         '--test-args', nargs='+',
         help='Test arguments passed to the test executable')
     arg_parser.add_argument(
         '--build-dir', dest='build_dir', metavar='BUILD_DIR',
-        action='store', default=None)
-    arg_parser.add_argument(
-        '-a', '--arch', dest='architecture',
-        metavar='ARCH', action='store', choices=build_script.ARCHITECTURES,
-        default=build_script.DEFAULT_ARCHITECTURE,
-        help='Build target architecture. Can be one of: {0}'.format(
-                ', '.join(build_script.ARCHITECTURES)))
-    arg_parser.add_argument(
-        '-c', '--config', dest='configuration',
-        metavar='CONFIG', action='store', choices=build_script.CONFIGURATIONS,
-        default=build_script.DEFAULT_CONFIGURATION,
-        help='Build target configuration. Can be one of: {0}'.format(
-            ', '.join(build_script.CONFIGURATIONS)))
+        action='store', default=None,
+        help='Accepted for compatibility with the CMake test targets. Unused.')
     return arg_parser.parse_args()
 
 
@@ -133,24 +110,5 @@ def run_test(test_exe, test_args):
 if '__main__' == __name__:
     build_script = import_build_script()
     args = parse_args(build_script)
-    tests = []
-    if args.test_exe is None:
-        for test in ALL_TESTS.items():
-            test_exe_dir = args.build_dir
-            if test_exe_dir is None:
-                test_exe_dir = os.path.join(
-                    build_script.BUILD_CONFIGS[args.configuration],
-                    platform.system().lower(),
-                    args.architecture,
-                    'output',
-                    'bin')
-            test_exe = os.path.join(test_exe_dir, test[0])
-            test_args = copy.deepcopy(test[1])
-            if args.test_args is not None:
-                test_args.extend(args.test_args)
-            tests.append((test_exe, test_args))
-    else:
-        tests = [(args.test_exe, args.test_args)]
-    for test_exe, test_args in tests:
-        run_test(test_exe, test_args)
+    run_test(args.test_exe, args.test_args)
     sys.exit(0)
