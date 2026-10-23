@@ -124,6 +124,7 @@ const char kSwapchainVirtual[]   = "virtual";
 const char kSwapchainCaptured[]  = "captured";
 const char kSwapchainOffscreen[] = "offscreen";
 
+const char kPresentModeAuto[]        = "auto";
 const char kPresentModeCapture[]     = "capture";
 const char kPresentModeImmediate[]   = "immediate";
 const char kPresentModeMailbox[]     = "mailbox";
@@ -136,7 +137,8 @@ const std::vector<std::string> kMemoryTranslationValues = {
 };
 const std::vector<std::string> kSwapchainValues   = { kSwapchainVirtual, kSwapchainCaptured, kSwapchainOffscreen };
 const std::vector<std::string> kPresentModeValues = {
-    kPresentModeCapture, kPresentModeImmediate, kPresentModeMailbox, kPresentModeFifo, kPresentModeFifoRelaxed
+    kPresentModeAuto,    kPresentModeCapture, kPresentModeImmediate,
+    kPresentModeMailbox, kPresentModeFifo,    kPresentModeFifoRelaxed
 };
 
 static void CheckActiveLayers(const std::string& list)
@@ -318,7 +320,11 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     }
 
     auto present_mode_option = arg_parser.GetArgumentValue(kPresentModeOption);
-    if (gfxrecon::util::platform::StringCompareNoCase(kPresentModeCapture, present_mode_option.c_str()) == 0)
+    if (gfxrecon::util::platform::StringCompareNoCase(kPresentModeAuto, present_mode_option.c_str()) == 0)
+    {
+        replay_options.present_mode_option = gfxrecon::util::PresentModeOption::kAuto;
+    }
+    else if (gfxrecon::util::platform::StringCompareNoCase(kPresentModeCapture, present_mode_option.c_str()) == 0)
     {
         replay_options.present_mode_option = gfxrecon::util::PresentModeOption::kCapture;
     }
@@ -580,7 +586,10 @@ std::vector<util::FeatureOptionDesc> ReplayVulkanFeature::GetOptionDescs() const
                kSwapchainValues },
              { "<mode>",
                { "Set the VkPresentModeKHR of the swapchain.",
-                 "    capture       The present mode from capture time.",
+                 "    auto          The present mode used at capture time if supported by",
+                 "                  the replay device. VK_PRESENT_MODE_FIFO_KHR if not.",
+                 "                  (default)",
+                 "    capture       The present mode used at capture time.",
                  "    immediate     VK_PRESENT_MODE_IMMEDIATE_KHR",
                  "    mailbox       VK_PRESENT_MODE_MAILBOX_KHR",
                  "    fifo          VK_PRESENT_MODE_FIFO_KHR",
