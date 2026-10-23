@@ -122,7 +122,7 @@ class VulkanSchemaBaseGeneratorOptions(VulkanBaseGeneratorOptions):
 class VulkanSchemaTypesGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
     """Options for the API elements and command API elements. This is the public face of the schema: an API element is
     the key every trait and Schema is looked up by, and a wrapper can name its own. It needs the API headers and the
-    kinds in format/format.h, and nothing else.
+    categories in format/format.h, and nothing else.
     """
 
     def add_part_headers(self, begin_end):
@@ -314,9 +314,9 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
     built here and write_part decides which of it that file carries.
     """
 
-    # Registry type to logical kind, for the primitive spellings the base generator does not already classify. The
+    # Registry type to logical category, for the primitive spellings the base generator does not already classify. The
     # fixed-width integers come from KhronosBaseGenerator.encode_types; these five are the ones it lacks.
-    PRIMITIVE_KINDS = {
+    PRIMITIVE_CATEGORIES = {
         'int': 'Int32',
         'float': 'Float',
         'double': 'Double',
@@ -325,29 +325,29 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
     }
 
     # The refinements. This is curated data about the API rather than generator logic: the registry does not say
-    # which types carry a kind of their own, so it comes from GFXReconstruct's hand-written encoder, and it is the
+    # which types carry a category of their own, so it comes from GFXReconstruct's hand-written encoder, and it is the
     # content a data file beside blacklists.json would hold.
     #
     # The three Vulkan entries stop the resolution the procedural decoders perform: those follow the registry's
     # basetype chain to a primitive, so VkDeviceSize decodes as DecodeUInt64. That is not a bug and not a width
     # difference -- VkDeviceSize is uint64_t and its wire type is uint64_t. The schema declines to resolve them so
-    # the kind survives into the field model, where a consumer can tell a device size from an arbitrary 64-bit
+    # the category survives into the field model, where a consumer can tell a device size from an arbitrary 64-bit
     # integer. size_t is here for the other reason: it really does vary, 4 or 8 bytes in memory against 8 on the
     # wire.
     #
-    # No width is stated here. A kind's wire type lives on the kind, in format/format.h, and the generated checks
-    # file asserts against it: every scalar API element's element is as wide as its kind's wire type, and every
+    # No width is stated here. A category's wire type lives on the category, in format/format.h, and the generated checks
+    # file asserts against it: every scalar API element's element is as wide as its category's wire type, and every
     # refinement here records the same bytes as the primitive the encoder resolves it to.
-    CURATED_KINDS = {
+    CURATED_CATEGORIES = {
         'size_t': 'SizeT',
         'VkDeviceSize': 'DeviceSize',
         'VkDeviceAddress': 'DeviceAddress',
         'VkSampleMask': 'SampleMask',
     }
 
-    # Kinds whose element is not a scalar, so the width check does not apply to them. Char and WChar have wire
+    # Categories whose element is not a scalar, so the width check does not apply to them. Char and WChar have wire
     # types, but text is reached through a string decoder and wchar_t is 2 or 4 bytes against 2 on the wire.
-    NON_SCALAR_KINDS = ('Char', 'WChar', 'Address', 'Handle', 'Struct', 'Void')
+    NON_SCALAR_CATEGORIES = ('Char', 'WChar', 'Address', 'Handle', 'Struct', 'Void')
 
     # Types the API headers do not declare with a distinct name of their own, so an API element cannot be named for
     # them and their element type needs no qualification.
@@ -401,8 +401,8 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
     EXTERNAL_OBJECT_DESCRIPTOR = 'ExternalObject'
 
     # A counted run of bytes the API declares as a void pointer. The capture stores the bytes and nothing else, so
-    # the element is uint8_t and the kind is UInt8, the same as a declared byte array; the API element's name is what
-    # keeps the two apart for anything that reads the schema. The Action constrains on kind, so one overload serves
+    # the element is uint8_t and the category is UInt8, the same as a declared byte array; the API element's name is what
+    # keeps the two apart for anything that reads the schema. The Action constrains on category, so one overload serves
     # both.
     OPAQUE_BYTES_DESCRIPTOR = 'OpaqueBytes'
 
@@ -429,7 +429,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         self.member_selectors = dict()
         self.member_selections = dict()
         self.may_reach_cache = dict()
-        self.api_type_kinds = dict()  # Element name to format::kind expression.
+        self.api_type_categories = dict()  # Element name to format::category expression.
         self.api_type_elements = dict()  # Element name to element type expression.
         self.defaulted_types = set()  # Registry types that reached the Scalar fallback without being classified.
         # Enum groups the registry declares type="bitmask", to the mask type their values compose into: the API's
@@ -520,18 +520,18 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         self.add_api_type('void')
 
         # One shared API element for the runtime-typed handle fields.
-        self.api_type_kinds[self.GENERIC_HANDLE_DESCRIPTOR] = 'Handle'
+        self.api_type_categories[self.GENERIC_HANDLE_DESCRIPTOR] = 'Handle'
         self.api_type_elements[self.GENERIC_HANDLE_DESCRIPTOR] = 'uint64_t'
 
         # One element is the address itself, not what it points at, the same way GenericHandle's element is the
         # uint64_t it stores rather than the object it names. So a Value-shaped field of this API element is a
         # void*, and a Pointer-shaped one is a void** -- which is what the declarations say.
-        self.api_type_kinds[self.EXTERNAL_OBJECT_DESCRIPTOR] = 'Address'
+        self.api_type_categories[self.EXTERNAL_OBJECT_DESCRIPTOR] = 'Address'
         self.api_type_elements[self.EXTERNAL_OBJECT_DESCRIPTOR] = 'void*'
 
         # The bytes a counted void pointer names. Registered here rather than through the member's declared type,
         # which is void.
-        self.api_type_kinds[self.OPAQUE_BYTES_DESCRIPTOR] = 'UInt8'
+        self.api_type_categories[self.OPAQUE_BYTES_DESCRIPTOR] = 'UInt8'
         self.api_type_elements[self.OPAQUE_BYTES_DESCRIPTOR] = 'uint8_t'
 
         for struct in self.schema_structs:
@@ -595,13 +595,13 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         self.may_reach_cache[name] = None
         generic_handles = self.get_generic_handles(name, False, members)
         result = any(
-            value.name in generic_handles or self.get_logical_kind(value.base_type) == 'Handle'
+            value.name in generic_handles or self.get_logical_category(value.base_type) == 'Handle'
             or self.is_extension_chain(value)
             for value in members
         )
         if not result:
             result = any(
-                self.get_logical_kind(value.base_type) == 'Struct'
+                self.get_logical_category(value.base_type) == 'Struct'
                 and self.may_reach_handles(self.resolve_type_alias(value.base_type))
                 for value in members
             )
@@ -739,20 +739,20 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         return None
 
-    def kind_for_type(self, name):
-        """The logical kind a registry type name carries of its own, or None when nothing names one."""
-        kind = self.CURATED_KINDS.get(name)
+    def category_for_type(self, name):
+        """The logical category a registry type name carries of its own, or None when nothing names one."""
+        category = self.CURATED_CATEGORIES.get(name)
 
-        if kind is None:
-            kind = self.PRIMITIVE_KINDS.get(name)
+        if category is None:
+            category = self.PRIMITIVE_CATEGORIES.get(name)
 
-        if kind is None:
-            kind = self.encode_types.get(name)
+        if category is None:
+            category = self.encode_types.get(name)
 
-        return kind
+        return category
 
-    def get_logical_kind(self, base_type):
-        """Select the logical kind that names the Encode and Decode operation for a registry type."""
+    def get_logical_category(self, base_type):
+        """Select the logical category that names the Encode and Decode operation for a registry type."""
         api_data = self.get_api_data()
         resolved = self.resolve_type_alias(base_type)
 
@@ -786,7 +786,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         if self.is_function_ptr(resolved):
             return 'Address'
 
-        curated = self.kind_for_type(resolved)
+        curated = self.category_for_type(resolved)
 
         if curated is not None:
             return curated
@@ -797,12 +797,12 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             if underlying == 'void':
                 return 'Address'
 
-            curated = self.kind_for_type(underlying)
+            curated = self.category_for_type(underlying)
 
             if curated is not None:
                 return curated
 
-        # Nothing classified this type. format::kind::Scalar has no wire type, so it satisfies the
+        # Nothing classified this type. format::category::Scalar has no wire type, so it satisfies the
         # scalar concepts but cannot be encoded, and the generator reports it.
         self.defaulted_types.add(resolved)
         return 'Scalar'
@@ -810,14 +810,14 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
     def add_api_type(self, base_type):
         name = self.get_api_element_name(base_type)
 
-        if name in self.api_type_kinds:
+        if name in self.api_type_categories:
             return
 
-        # A kind that format::kind does not declare fails the build at the symbol, and a kind narrower than its
+        # A category that format::category does not declare fails the build at the symbol, and a category narrower than its
         # element fails the width assertion the checks file carries. Neither is restated here.
-        kind = self.get_logical_kind(base_type)
+        category = self.get_logical_category(base_type)
 
-        self.api_type_kinds[name] = kind
+        self.api_type_categories[name] = category
         self.api_type_elements[name] = self.get_element_type(base_type)
 
     #
@@ -1229,7 +1229,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
     def write_api_elements(self):
         write(
-            '// API type api_elements. A API element carries the API\'s own type for one element and the logical kind',
+            '// API type api_elements. A API element carries the API\'s own type for one element and the logical category',
             file=self.outFile
         )
         write(
@@ -1237,7 +1237,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             file=self.outFile
         )
         write(
-            '// representation; each kind in format/format.h carries the wire type it is recorded as.',
+            '// representation; each category in format/format.h carries the wire type it is recorded as.',
             file=self.outFile
         )
         write('GFXRECON_BEGIN_NAMESPACE(vulkan)', file=self.outFile)
@@ -1251,9 +1251,9 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(api_elements)', file=self.outFile)
 
         bitvalues = self.get_bitvalues_of_bitmasks()
-        for name in sorted(self.api_type_kinds):
-            members = 'using element_type = {0}; using kind = format::kind::{1}; static constexpr std::string_view name = "{2}";'.format(
-                self.api_type_elements[name], self.api_type_kinds[name], self.api_type_elements[name].lstrip(':')
+        for name in sorted(self.api_type_categories):
+            members = 'using element_type = {0}; using category = format::category::{1}; static constexpr std::string_view name = "{2}";'.format(
+                self.api_type_elements[name], self.api_type_categories[name], self.api_type_elements[name].lstrip(':')
             )
             structure_type = self.get_structure_type(name)
             if structure_type is not None:
@@ -1284,13 +1284,13 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
     def get_native_enumerated_types(self):
         """The enumerated types that are C enums, by name: every enumerated type but the 64-bit flag-bits typedefs."""
-        return [enum for enum in self.get_enumerated_types() if self.api_type_kinds[self.get_api_element_name(enum)] == 'Enum']
+        return [enum for enum in self.get_enumerated_types() if self.api_type_categories[self.get_api_element_name(enum)] == 'Enum']
 
     def get_wide_bitmask_pairs(self):
         """(bits api_element, typedef api_element) for each 64-bit flag-bits type whose typedef has a api_element."""
         return sorted(
             (enum, flags) for flags, enum in self.get_bitvalues_of_bitmasks().items()
-            if flags in self.api_type_kinds and self.api_type_kinds[self.get_api_element_name(enum)] == 'Flags64'
+            if flags in self.api_type_categories and self.api_type_categories[self.get_api_element_name(enum)] == 'Flags64'
         )
 
     def get_bitvalues_of_bitmasks(self):
@@ -1306,16 +1306,16 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         return result
 
     def get_structure_api_elements(self):
-        """Every API element of kind Struct that is not a union, by name."""
+        """Every API element of category Struct that is not a union, by name."""
         return [
-            name for name in sorted(self.api_type_kinds)
-            if self.api_type_kinds[name] == 'Struct' and name not in self.all_union_members
+            name for name in sorted(self.api_type_categories)
+            if self.api_type_categories[name] == 'Struct' and name not in self.all_union_members
         ]
 
     def get_union_api_elements(self):
-        """Every union API element, by name. A union's kind is Struct: the encode and decode operations treat it as
+        """Every union API element, by name. A union's category is Struct: the encode and decode operations treat it as
         one, and its Schema of Alternatives is what tells it apart."""
-        return [name for name in sorted(self.api_type_kinds) if name in self.all_union_members]
+        return [name for name in sorted(self.api_type_categories) if name in self.all_union_members]
 
     # The catalog's selected lists, binding/vulkan_catalog.h, each read back from an inventory property: the list
     # name and the attribute holding the generator's input, for the size checks.
@@ -1442,8 +1442,8 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
     def get_inventory_handles(self):
         """Every handle API element but the generic handle, by name: the handles that have a capture wrapper."""
         return [
-            name for name in sorted(self.api_type_kinds)
-            if self.api_type_kinds[name] == 'Handle' and name != self.GENERIC_HANDLE_DESCRIPTOR
+            name for name in sorted(self.api_type_categories)
+            if self.api_type_categories[name] == 'Handle' and name != self.GENERIC_HANDLE_DESCRIPTOR
         ]
 
     def get_inventory_enums(self):
@@ -1473,7 +1473,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
     #   MAY_REACH_HANDLES      the registry: a handle member, a pNext, or a member that reaches one
     #   HAS_STRUCTURE_TYPE     the registry: a structure type
     #
-    # The first six are back-end inputs and the last three registry facts; the inventory carries both kinds, which
+    # The first six are back-end inputs and the last three registry facts; the inventory carries both categories, which
     # is why reading it is a binding act.
     INVENTORY_PROPERTIES = (
         ('HAS_DECODED_TYPE', 'binding::HasDecodedType',
@@ -1539,12 +1539,12 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             '// the result belongs in. The idiom is the X macro: Meyers, "The X Macro", Dr. Dobb\'s Journal, 2001.',
             '//',
             '// To use it:',
-            '//   1. Define the visit macros for the kinds you want:',
+            '//   1. Define the visit macros for the categories you want:',
             '//        GFXRECON_INVENTORY_VISIT_STRUCT(Name)      GFXRECON_INVENTORY_VISIT_UNION(Name)',
             '//        GFXRECON_INVENTORY_VISIT_HANDLE(Name, Stem)',
             '//        GFXRECON_INVENTORY_VISIT_ENUM(Name)        GFXRECON_INVENTORY_VISIT_FLAG_BITS(Name)',
             '//        GFXRECON_INVENTORY_VISIT_COMMAND(Name)',
-            '//      A kind you leave undefined expands to nothing. Defining none is an error.',
+            '//      A category you leave undefined expands to nothing. Defining none is an error.',
             '//   2. Optionally define GFXRECON_INVENTORY_REQUIRE and GFXRECON_INVENTORY_FORBID as masks of the row properties',
             '//      below. A structure or union row expands only if it has every REQUIRE property and no FORBID property.',
             '//      Both default to 0. Handles, enumerated types and commands carry no properties and are not filtered.',
@@ -1599,11 +1599,11 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         body = banner + prologue
 
-        for kind, macro, names in (
+        for category, macro, names in (
             ('Structures', 'GFXRECON_INVENTORY_VISIT_STRUCT', self.get_structure_api_elements()),
             ('Unions', 'GFXRECON_INVENTORY_VISIT_UNION', self.get_union_api_elements()),
         ):
-            body.append('// {}, by API element name, grouped by property set.'.format(kind))
+            body.append('// {}, by API element name, grouped by property set.'.format(category))
             for properties, rows in self.get_inventory_groups(names):
                 mask = ' | '.join(self.inventory_property_macro(suffix) for suffix in properties) or '0'
                 body.append('')
@@ -1739,37 +1739,37 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
                     )
 
         self.newline()
-        write('// A API element states a kind and the kind states the wire type, in format/format.h. A API element', file=self.outFile)
-        write('// whose element is narrower than its kind would compile and desynchronize the stream, so every', file=self.outFile)
+        write('// A API element states a category and the category states the wire type, in format/format.h. A API element', file=self.outFile)
+        write('// whose element is narrower than its category would compile and desynchronize the stream, so every', file=self.outFile)
         write('// scalar element is as wide as its wire type. size_t is the one exception, 4 or 8 bytes in memory', file=self.outFile)
         write('// against 8 on the wire, which ValueDecoder converts.', file=self.outFile)
 
-        for name in sorted(self.api_type_kinds):
-            kind = self.api_type_kinds[name]
+        for name in sorted(self.api_type_categories):
+            category = self.api_type_categories[name]
 
-            if kind in self.NON_SCALAR_KINDS or kind == 'SizeT':
+            if category in self.NON_SCALAR_CATEGORIES or category == 'SizeT':
                 continue
 
             write(
                 'static_assert(sizeof(schema::ElementType<schema::vulkan::api_elements::{name}>) == '
-                'sizeof(format::EncodeTypeFor<schema::vulkan::api_elements::{name}::kind>));'.format(name=name),
+                'sizeof(format::EncodeTypeFor<schema::vulkan::api_elements::{name}::category>));'.format(name=name),
                 file=self.outFile
             )
 
         self.newline()
         write('// The encoder captures a refined type by its basetype, so a refinement must record the same bytes', file=self.outFile)
-        write('// as the primitive kind it refines.', file=self.outFile)
+        write('// as the primitive category it refines.', file=self.outFile)
 
-        for type_name in sorted(self.CURATED_KINDS):
-            primitive_kind = self.encode_types.get(self.get_underlying_primitive(type_name))
+        for type_name in sorted(self.CURATED_CATEGORIES):
+            primitive_category = self.encode_types.get(self.get_underlying_primitive(type_name))
 
-            if primitive_kind is None:
+            if primitive_category is None:
                 continue
 
             write(
-                'static_assert(std::is_same_v<format::EncodeTypeFor<format::kind::{refined}>, '
-                'format::EncodeTypeFor<format::kind::{primitive}>>);'.format(
-                    refined=self.CURATED_KINDS[type_name], primitive=primitive_kind
+                'static_assert(std::is_same_v<format::EncodeTypeFor<format::category::{refined}>, '
+                'format::EncodeTypeFor<format::category::{primitive}>>);'.format(
+                    refined=self.CURATED_CATEGORIES[type_name], primitive=primitive_category
                 ),
                 file=self.outFile
             )
@@ -1839,7 +1839,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         write('// A mask typedef\'s own type is the type its bits compose into: the typedef\'s base type against the bits', file=self.outFile)
         write('// group\'s bitwidth, two places the registry states one width.', file=self.outFile)
         for flags, enum in sorted(self.get_bitvalues_of_bitmasks().items()):
-            if flags not in self.api_type_kinds:
+            if flags not in self.api_type_categories:
                 continue
             element = 'schema::{}'.format(self.get_api_element_path(flags))
             write(
@@ -1862,7 +1862,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             )
 
         self.newline()
-        write('// The inventory against the catalog and the model: one count per row kind. A row the generator dropped or', file=self.outFile)
+        write('// The inventory against the catalog and the model: one count per row category. A row the generator dropped or', file=self.outFile)
         write('// doubled fails here by count.', file=self.outFile)
         enums = self.get_inventory_enums()
         for name, macro, expected in (
@@ -1881,7 +1881,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         self.newline()
         write('// The one property with a second source: EXTERNAL comes from the platform list, and a Schema from the members', file=self.outFile)
-        write('// the registry gives, so an external structure has a API element and no Schema of either kind, and every other', file=self.outFile)
+        write('// the registry gives, so an external structure has a API element and no Schema of either category, and every other', file=self.outFile)
         write('// structure and union row has one. Every other property is read back into C++ by a visit and cannot disagree.', file=self.outFile)
         write('#define GFXRECON_INVENTORY_REQUIRE GFXRECON_INVENTORY_EXTERNAL', file=self.outFile)
         write('#define GFXRECON_INVENTORY_VISIT_STRUCT(Name) static_assert(!schema::HasSchemaFields<schema::vulkan::api_elements::Name> && !schema::HasSchemaAlternatives<schema::vulkan::api_elements::Name>);', file=self.outFile)

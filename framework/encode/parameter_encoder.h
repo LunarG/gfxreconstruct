@@ -145,18 +145,18 @@ class ParameterEncoder
     template<typename T>
     void EncodeFlags64Value(T value)                                                                                  { EncodeValue(static_cast<format::Flags64EncodeType>(value)); }
 
-    // Encode a value using the wire representation selected by its logical schema kind. Operation code that holds
-    // a Field can use this without restating the kind-to-wire-type mapping encoded in format::kind.
-    template <format::HasEncodeType Kind, typename T>
-    void Encode(Kind, T value)                                                                                        { EncodeValue(TypeCast<format::EncodeTypeFor<Kind>>(value)); }
+    // Encode a value using the wire representation selected by its logical schema category. Operation code that holds
+    // a Field can use this without restating the category-to-wire-type mapping encoded in format::category.
+    template <format::HasEncodeType Category, typename T>
+    void Encode(Category, T value)                                                                                        { EncodeValue(TypeCast<format::EncodeTypeFor<Category>>(value)); }
 
-    // Encode a run of values, or a pointer to one value, recorded as one logical kind. Each named entry point above
-    // fixes a wire type; these reach the same converting bodies from the kind, which write the wire type's bytes for
-    // every kind whether or not a conversion was needed. The omit flags default as the named entry points' do.
-    template <format::HasEncodeType Kind, typename T>
-    void EncodeArray(Kind, const T* arr, size_t len, bool omit_data = false, bool omit_addr = false)                  { EncodeArrayConverted<format::EncodeTypeFor<Kind>>(arr, len, omit_data, omit_addr); }
-    template <format::HasEncodeType Kind, typename T>
-    void EncodePointer(Kind, const T* ptr, bool omit_data = false, bool omit_addr = false)                            { EncodePointerConverted<format::EncodeTypeFor<Kind>>(ptr, omit_data, omit_addr); }
+    // Encode a run of values, or a pointer to one value, recorded as one logical category. Each named entry point above
+    // fixes a wire type; these reach the same converting bodies from the category, which write the wire type's bytes for
+    // every category whether or not a conversion was needed. The omit flags default as the named entry points' do.
+    template <format::HasEncodeType Category, typename T>
+    void EncodeArray(Category, const T* arr, size_t len, bool omit_data = false, bool omit_addr = false)                  { EncodeArrayConverted<format::EncodeTypeFor<Category>>(arr, len, omit_data, omit_addr); }
+    template <format::HasEncodeType Category, typename T>
+    void EncodePointer(Category, const T* ptr, bool omit_data = false, bool omit_addr = false)                            { EncodePointerConverted<format::EncodeTypeFor<Category>>(ptr, omit_data, omit_addr); }
 
     // Pointers
     void EncodeUInt8Ptr(const uint8_t* ptr, bool omit_data = false, bool omit_addr = false)                           { EncodePointer(ptr, omit_data, omit_addr); }
@@ -250,28 +250,28 @@ class ParameterEncoder
     template<typename T>
     void EncodeFlags64Array(const T* arr, size_t len, bool omit_data = false, bool omit_addr = false)                 { EncodeArrayConverted<format::Flags64EncodeType>(arr, len, omit_data, omit_addr); }
 
-    // Encode a string in the wire representation and with the text attribute its logical kind selects. The kind is
+    // Encode a string in the wire representation and with the text attribute its logical category selects. The category is
     // passed as a tag so it deduces like every other argument. The length runs to the terminator, as the named entry
     // points below do. The tagged forms take no omit flags: no caller passes them, and a bool beside a size_t
     // capacity makes an integer argument ambiguous. When a caller needs omit_data, add it in a form no integer selects.
-    template <format::IsTextKind Kind, typename T>
-    void EncodeString(Kind, const T* str)
+    template <format::IsTextCategory Category, typename T>
+    void EncodeString(Category, const T* str)
     {
-        EncodeBasicString<T, format::EncodeTypeFor<Kind>, Kind::text_attribute>(str, false, false);
+        EncodeBasicString<T, format::EncodeTypeFor<Category>, Category::text_attribute>(str, false, false);
     }
 
     // A fixed-extent string: capacity bounds the length count.
-    template <format::IsTextKind Kind, typename T>
-    void EncodeString(Kind, const T* str, size_t capacity)
+    template <format::IsTextCategory Category, typename T>
+    void EncodeString(Category, const T* str, size_t capacity)
     {
-        EncodeBasicString<T, format::EncodeTypeFor<Kind>, Kind::text_attribute>(str, capacity, false, false);
+        EncodeBasicString<T, format::EncodeTypeFor<Category>, Category::text_attribute>(str, capacity, false, false);
     }
 
-    // A run of strings, recorded as one text kind; the same tag form as EncodeString.
-    template <format::IsTextKind Kind, typename T>
-    void EncodeStringArray(Kind, const T* const* strings, size_t len)
+    // A run of strings, recorded as one text category; the same tag form as EncodeString.
+    template <format::IsTextCategory Category, typename T>
+    void EncodeStringArray(Category, const T* const* strings, size_t len)
     {
-        EncodeBasicStringArray<T, format::EncodeTypeFor<Kind>, Kind::text_attribute>(strings, len, false, false);
+        EncodeBasicStringArray<T, format::EncodeTypeFor<Category>, Category::text_attribute>(strings, len, false, false);
     }
 
     void EncodeString(const char* str, bool omit_data = false, bool omit_addr = false)                                { EncodeBasicString<char, format::CharEncodeType, format::PointerAttributes::kIsString>(str, omit_data, omit_addr); }

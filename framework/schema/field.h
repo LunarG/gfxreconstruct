@@ -41,8 +41,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(schema)
 
-// The logical kinds an API element names live in format/format.h, on the kind tags themselves, together with the wire
-// type each is recorded as. This layer declares no kind; it selects on them.
+// The logical categories an API element names live in format/format.h, on the category tags themselves, together with the wire
+// type each is recorded as. This layer declares no category; it selects on them.
 
 // How one field use packages its API type. Shape is a property of the use site, not of the type.
 GFXRECON_BEGIN_NAMESPACE(field_shape)
@@ -60,7 +60,7 @@ struct Array
 {};
 
 // An array of pointers, each to one element, with a sibling count field. The storage is count pointers and nothing
-// more; what the wire makes of each pointee is the adapter's decision by kind, a structure row of one or a
+// more; what the wire makes of each pointee is the adapter's decision by category, a structure row of one or a
 // null-terminated string.
 struct PointerArray
 {};
@@ -87,11 +87,11 @@ struct VoidReturn
 GFXRECON_END_NAMESPACE(field_shape)
 
 // The Field vocabulary. Every Field the schema generator emits is a struct of the members below
-// and no others; the members present depend on the field's shape and kind. An API element states what one use site
+// and no others; the members present depend on the field's shape and category. An API element states what one use site
 // is, never what an operation does with it, so nothing here names an operation, a wire type or a storage type.
 //
-//   api_element          Every field. The API element; its kind and element_type answer every type question, and
-//                     the kind concepts below select on it.
+//   api_element          Every field. The API element; its category and element_type answer every type question, and
+//                     the category concepts below select on it.
 //   shape             Every field. One of the field_shape tags above; the shape concepts below select on it.
 //   field_name        Every field. The registry's member or parameter name, for diagnostics. It is not `name`,
 //                     because Vulkan declares members called name and a member cannot share the name of its class.
@@ -120,7 +120,7 @@ GFXRECON_END_NAMESPACE(field_shape)
 //                     more; whether to trust, probe or ignore the pointer is the Action's policy, not the Field's.
 //
 // Storage facts, which member of which type holds a field, are MemberPointer specializations and never API element
-// members. Type facts, kind, element_type, capture_wrapper_type, are on the api_element and are not restated.
+// members. Type facts, category, element_type, capture_wrapper_type, are on the api_element and are not restated.
 
 // The API's own C++ type for one element of a field that names this API element. It is not the declared type of any
 // field: the shape supplies the packaging, so a pointer-array field naming this API element is declared as a pointer
@@ -131,15 +131,15 @@ using ElementType = typename ApiType::element_type;
 template <typename Field>
 using FieldElementType = ElementType<typename Field::api_element>;
 
-// The logical kind a Field's API type names. Every kind concept below asks format.h a question about this type
-// and never spells a kind tag itself.
+// The logical category a Field's API type names. Every category concept below asks format.h a question about this type
+// and never spells a category tag itself.
 template <typename Field>
-using FieldKind = typename Field::api_element::kind;
+using FieldCategory = typename Field::api_element::category;
 
-// The wire type a Field is recorded as. The join between a kind and its width is on the kind itself, in
+// The wire type a Field is recorded as. The join between a category and its width is on the category itself, in
 // format/format.h, so a change to the capture format touches that header and no schema content.
 template <typename Field>
-using FieldEncodeType = format::EncodeTypeFor<FieldKind<Field>>;
+using FieldEncodeType = format::EncodeTypeFor<FieldCategory<Field>>;
 
 // The count expression for an Array, PointerArray or StaticArray Field, if any: a FieldValue whose Get reads the
 // array's length from the owner's storage.
@@ -251,44 +251,44 @@ void Set(Storage& storage, Field field, ValueType&& value)
     }
 }
 
-// Shape concepts select action overloads from the API type's logical kind and the field use's shape.
+// Shape concepts select action overloads from the API type's logical category and the field use's shape.
 
 template <typename Field>
-concept HandleField = format::IsHandleKind<FieldKind<Field>>;
+concept HandleField = format::IsHandleCategory<FieldCategory<Field>>;
 
 template <typename Field>
 concept HandleValueField = HandleField<Field> && std::same_as<typename Field::shape, field_shape::Value>;
 
-// The kind alone, so a shape other than Value can select on it. ScalarValueField is the value-shaped case.
+// The category alone, so a shape other than Value can select on it. ScalarValueField is the value-shaped case.
 template <typename Field>
-concept ScalarField = format::IsScalarKind<FieldKind<Field>>;
+concept ScalarField = format::IsScalarCategory<FieldCategory<Field>>;
 
 template <typename Field>
 concept ScalarValueField = ScalarField<Field> && std::same_as<typename Field::shape, field_shape::Value>;
 
-// Text, of either width. The two kinds pick different decoder classes, and nothing else about them differs.
+// Text, of either width. The two categories pick different decoder classes, and nothing else about them differs.
 template <typename Field>
-concept TextField = format::IsTextKind<FieldKind<Field>>;
+concept TextField = format::IsTextCategory<FieldCategory<Field>>;
 
-// StructField constrains on logical kind alone, so it also matches a pointer-array or static-array of structures.
+// StructField constrains on logical category alone, so it also matches a pointer-array or static-array of structures.
 // An Action that wants those separately must order its overloads by subsumption, or constrain on shape as well.
 template <typename Field>
-concept StructField = format::IsStructKind<FieldKind<Field>>;
+concept StructField = format::IsStructCategory<FieldCategory<Field>>;
 
 // An opaque address: recorded as the value the capture saw rather than followed, so nothing is at the other end
 // to decode and the field is value-shaped whether or not the declaration writes a star.
 template <typename Field>
-concept AddressField = format::IsAddressKind<FieldKind<Field>>;
+concept AddressField = format::IsAddressCategory<FieldCategory<Field>>;
 
-// A kind that records an identifier rather than the thing itself: a handle's capture-file id, or the address the
+// A category that records an identifier rather than the thing itself: a handle's capture-file id, or the address the
 // capture saw. Nothing decodes into the API's own member for either; the identifier goes to the wrapper and the
-// member is nulled until replay resolves it. The two kinds share that pattern and nothing else, so one concept
+// member is nulled until replay resolves it. The two categories share that pattern and nothing else, so one concept
 // names the pair.
 template <typename Field>
 concept IdentifierField = HandleField<Field> || AddressField<Field>;
 
-// A scalar in the general sense that the member's own bits are the value recorded, in the kind's wire type. That
-// is the scalar family and the address kind, which format.h keeps off that family because the decoder treats an
+// A scalar in the general sense that the member's own bits are the value recorded, in the category's wire type. That
+// is the scalar family and the address category, which format.h keeps off that family because the decoder treats an
 // address as an identifier; for encode the distinction does not arise. A handle is not one, since it records the
 // wrapper's id.
 template <typename Field>

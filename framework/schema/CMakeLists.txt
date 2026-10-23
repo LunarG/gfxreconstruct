@@ -35,7 +35,7 @@ target_include_directories(gfxrecon_schema
                            INTERFACE
                                ${GFXRECON_SOURCE_DIR}/framework)
 
-# util supplies defines.h and the TypeList facility; format supplies the kinds a Field names and their widths.
+# util supplies defines.h and the TypeList facility; format supplies the categories a Field names and their widths.
 target_link_libraries(gfxrecon_schema
                       INTERFACE
                           gfxrecon_util

@@ -26,7 +26,7 @@
 // does not emit the operation. That is the whole point of the arrangement, so adding an operation family costs one
 // Action rather than one generated function for every structure.
 //
-// Twelve overloads cover every structure the schema drives. A field whose shape or kind none of them accepts makes
+// Twelve overloads cover every structure the schema drives. A field whose shape or category none of them accepts makes
 // WalkFields fail to compile and name the field, which is how the Action's coverage is bounded.
 //
 // Two access primitives, by one rule. schema::Set writes a value to the decoded member, and is what every overload
@@ -59,13 +59,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-// There is no table here joining a logical kind to a wire type, and no wire type is named. ValueDecoder and
-// PointerDecoder each take a kind, and format/format.h carries the width on the kind itself, so this operation says
-// only what a field's kind is -- which the schema already told it.
+// There is no table here joining a logical category to a wire type, and no wire type is named. ValueDecoder and
+// PointerDecoder each take a category, and format/format.h carries the width on the category itself, so this operation says
+// only what a field's category is -- which the schema already told it.
 //
 // Their named entry points -- DecodeVkDeviceSize, DecodeFlags and the rest -- each hardcode one wire type, which is
-// the same fact stated a second time. Going through the kind keeps one statement of it, and reaches the kinds no
-// named entry point covers: PointerDecoder has no DecodeFlags64, and Decode<format::kind::Flags64> needs none.
+// the same fact stated a second time. Going through the category keeps one statement of it, and reaches the categories no
+// named entry point covers: PointerDecoder has no DecodeFlags64, and Decode<format::category::Flags64> needs none.
 
 // The decode Action. It carries the read cursor, so one instance walks one structure.
 class DecodeStructAction
@@ -92,7 +92,7 @@ class DecodeStructAction
     {
         schema::FieldElementType<Field> value{};
 
-        bytes_read_ += ValueDecoder::Decode<schema::FieldKind<Field>>(Cursor(), Remaining(), &value);
+        bytes_read_ += ValueDecoder::Decode<schema::FieldCategory<Field>>(Cursor(), Remaining(), &value);
 
         schema::Set(DecodedValueRef(storage), field, value);
     }
@@ -110,7 +110,7 @@ class DecodeStructAction
     {
         auto& field_ref = schema::GetRef(storage, field);
 
-        bytes_read_ += field_ref.template Decode<schema::FieldKind<Field>>(Cursor(), Remaining());
+        bytes_read_ += field_ref.template Decode<schema::FieldCategory<Field>>(Cursor(), Remaining());
 
         schema::Set(DecodedValueRef(storage), field, field_ref.GetPointer());
     }
@@ -143,7 +143,7 @@ class DecodeStructAction
         using Member = std::remove_cvref_t<decltype(schema::GetRef(DecodedValueRef(storage), field))>;
 
         bytes_read_ +=
-            ValueDecoder::Decode<schema::FieldKind<Field>>(Cursor(), Remaining(), &schema::GetRef(storage, field));
+            ValueDecoder::Decode<schema::FieldCategory<Field>>(Cursor(), Remaining(), &schema::GetRef(storage, field));
 
         schema::Set(DecodedValueRef(storage), field, Member{});
     }
@@ -152,7 +152,7 @@ class DecodeStructAction
     // rather than pointed at it -- the same division a single handle gets, for the same reason: the wrapper holds
     // capture-file identities and replay maps them to handles of its own.
     //
-    // HandlePointerDecoder names no kind on its Decode, because the class is the kind: it is instantiated on the
+    // HandlePointerDecoder names no category on its Decode, because the class is the category: it is instantiated on the
     // handle type and reads HandleEncodeType by construction.
     template <typename Field, typename Storage>
     requires schema::HandleField<Field> && schema::ArrayField<Field> && schema::Addressable<Storage, Field> &&
@@ -168,8 +168,8 @@ class DecodeStructAction
     // wrapper declares -- StringDecoder or WStringDecoder for one, StringArrayDecoder for a run -- and all three
     // read their own length from the wire and hand back storage the decoded value can point at.
     //
-    // Unlike a scalar run, no kind is passed: each of those classes is instantiated on its character type and
-    // reads the matching encode type by construction, so the kind selects the member rather than the call.
+    // Unlike a scalar run, no category is passed: each of those classes is instantiated on its character type and
+    // reads the matching encode type by construction, so the category selects the member rather than the call.
     template <typename Field, typename Storage>
     requires schema::TextField<Field> && schema::AnyPointerField<Field> &&
         schema::Addressable<Storage, Field> && schema::Addressable<typename Storage::struct_type, Field>
@@ -262,13 +262,13 @@ class DecodeStructAction
             field_ref.SetExternalMemory(array_ref, std::extent_v<ArrayType, 0>);
         }
 
-        bytes_read_ += field_ref.template Decode<schema::FieldKind<Field>>(Cursor(), Remaining());
+        bytes_read_ += field_ref.template Decode<schema::FieldCategory<Field>>(Cursor(), Remaining());
     }
 
     // A pointer to a structure, or to a run of them. Both decode identically: StructPointerDecoder reads its own
     // length from the wire, so one element is a run of one and the shape does not change the body. Every
     // StructPointerDecoder member is an allocated pointer and every other decoder member is held by value, so the
-    // shape and kind that select this overload also settle which form to write; nothing here tests for it. If that
+    // shape and category that select this overload also settle which form to write; nothing here tests for it. If that
     // ever stops holding, this body fails to compile and names the field.
     //
     // The decoder descends into each element through DecodeStruct, so this is legacy descent like the embedded
@@ -327,7 +327,7 @@ class DecodeStructAction
     //
     // VkPhysicalDeviceGroupProperties::physicalDevices is the only field in the registry with this shape, and it
     // is the one the inversion found -- coverage measured by script had counted it as a scalar array, because a
-    // handle is not a scalar kind and the script did not model that. The extent below is VK_MAX_DEVICE_GROUP_SIZE,
+    // handle is not a scalar category and the script did not model that. The extent below is VK_MAX_DEVICE_GROUP_SIZE,
     // which is the capacity the generated body passed.
     template <typename Field, typename Storage>
     requires schema::HandleField<Field> && schema::StaticArrayField<Field> &&

@@ -65,7 +65,7 @@ typedef uint16_t WCharEncodeType; // Encoding type for LPCWSTR (UTF-16) strings.
 typedef uint32_t FormatEncodeType;
 typedef uint32_t D3D_FEATURE_LEVELEncodeType;
 
-// The primitives are recorded as themselves. They are named here anyway so that every logical kind below selects a
+// The primitives are recorded as themselves. They are named here anyway so that every logical category below selects a
 // type from this list, rather than some selecting a typedef and others naming a C type directly.
 typedef int8_t   Int8EncodeType;
 typedef int16_t  Int16EncodeType;
@@ -917,32 +917,32 @@ struct ResourceAliasingPropertyHeader
 
 #pragma pack(pop)
 
-// The logical kinds follow the wire structures above because the text kinds name PointerAttributes. Everything from
-// here to the end of the namespace is the kind vocabulary; nothing above it depends on it.
+// The logical categories follow the wire structures above because the text categories name PointerAttributes. Everything from
+// here to the end of the namespace is the category vocabulary; nothing above it depends on it.
 
-// Logical value kinds.
+// Logical value categories.
 //
-// Each name above is already a kind -- DeviceSizeEncodeType says there is a kind called DeviceSize and states its
-// width. These tags make that vocabulary addressable, so an operation can dispatch on a kind and read the width
-// from the kind itself rather than restating the join.
+// Each name above is already a category -- DeviceSizeEncodeType says there is a category called DeviceSize and states its
+// width. These tags make that vocabulary addressable, so an operation can dispatch on a category and read the width
+// from the category itself rather than restating the join.
 //
-// A kind is not the same question as a type. VkDeviceSize and uint64_t are the same width and the same bytes on the
-// wire; the kind is what lets a reader tell one from the other. That distinction is the reason these exist.
-GFXRECON_BEGIN_NAMESPACE(kind)
+// A category is not the same question as a type. VkDeviceSize and uint64_t are the same width and the same bytes on the
+// wire; the category is what lets a reader tell one from the other. That distinction is the reason these exist.
+GFXRECON_BEGIN_NAMESPACE(category)
 
-// Every kind derives from this, so an operation can require a kind rather than accept any type that happens to
-// carry an encode_type. It is what stops Decode<uint32_t> -- the wire type passed where the kind belongs, which is
+// Every category derives from this, so an operation can require a category rather than accept any type that happens to
+// carry an encode_type. It is what stops Decode<uint32_t> -- the wire type passed where the category belongs, which is
 // the mistake this vocabulary exists to prevent.
 struct Tag
 {};
 
-// Kinds sharing the scalar access pattern derive from this, so one concept can select the family while the exact
-// kind still selects the operation.
+// Categories sharing the scalar access pattern derive from this, so one concept can select the family while the exact
+// category still selects the operation.
 struct Scalar : Tag
 {};
 
-// Kinds sharing text access patterns derive from this.
-// Well formed Text kinds have a text_attribute and an encode_type
+// Categories sharing text access patterns derive from this.
+// Well formed Text categories have a text_attribute and an encode_type
 struct Text : Tag
 {};
 
@@ -988,49 +988,49 @@ struct D3D_FEATURE_LEVEL : Scalar { using encode_type = D3D_FEATURE_LEVELEncodeT
 
 // No encode_type on purpose. An aggregate is expanded field by field and a void has no bytes of its own, so naming
 // a width for either would be a lie. Asking one of these for its encode_type is a substitution failure, which is
-// how an operation declines a kind it has no wire form for.
+// how an operation declines a category it has no wire form for.
 struct Struct : Tag
 {};
 
 struct Void : Tag
 {};
 
-GFXRECON_END_NAMESPACE(kind)
+GFXRECON_END_NAMESPACE(category)
 
-template <typename Kind>
-concept IsKind = std::derived_from<Kind, kind::Tag>;
-template <typename Kind>
-concept IsScalarKind = std::derived_from<Kind, kind::Scalar>;
+template <typename Category>
+concept IsCategory = std::derived_from<Category, category::Tag>;
+template <typename Category>
+concept IsScalarCategory = std::derived_from<Category, category::Scalar>;
 
-// One predicate per kind or family, so a layer above asks which kind a field has without spelling the tag. The
-// single kinds are identity tests today; if one grows children, its predicate becomes a derived_from and no
+// One predicate per category or family, so a layer above asks which category a field has without spelling the tag. The
+// single categories are identity tests today; if one grows children, its predicate becomes a derived_from and no
 // consumer changes.
-template <typename Kind>
-concept IsHandleKind = std::same_as<Kind, kind::Handle>;
-template <typename Kind>
-concept IsStructKind = std::same_as<Kind, kind::Struct>;
-template <typename Kind>
-concept IsAddressKind = std::same_as<Kind, kind::Address>;
+template <typename Category>
+concept IsHandleCategory = std::same_as<Category, category::Handle>;
+template <typename Category>
+concept IsStructCategory = std::same_as<Category, category::Struct>;
+template <typename Category>
+concept IsAddressCategory = std::same_as<Category, category::Address>;
 
-// A kind with a wire form. Struct and Void are kinds and satisfy IsKind, but neither has bytes of its own, so an
+// A category with a wire form. Struct and Void are categories and satisfy IsCategory, but neither has bytes of its own, so an
 // operation that needs a width constrains on this and declines them by name rather than by a missing member.
-template <typename Kind>
-concept HasEncodeType = IsKind<Kind> && requires
+template <typename Category>
+concept HasEncodeType = IsCategory<Category> && requires
 {
-    typename Kind::encode_type;
+    typename Category::encode_type;
 };
 
-// A text kind has a wire form and a text_attribute that names the character type
-template <typename Kind>
-concept IsTextKind = std::derived_from<Kind, kind::Text> && HasEncodeType<Kind> && requires
+// A text category has a wire form and a text_attribute that names the character type
+template <typename Category>
+concept IsTextCategory = std::derived_from<Category, category::Text> && HasEncodeType<Category> && requires
 {
-    Kind::text_attribute;
+    Category::text_attribute;
 };
 
-// The wire type a kind is recorded as. Written this way so a dependent context reads EncodeTypeFor<K> rather than
+// The wire type a category is recorded as. Written this way so a dependent context reads EncodeTypeFor<K> rather than
 // typename K::encode_type; it adds nothing else.
-template <HasEncodeType Kind>
-using EncodeTypeFor = typename Kind::encode_type;
+template <HasEncodeType Category>
+using EncodeTypeFor = typename Category::encode_type;
 
 GFXRECON_END_NAMESPACE(format)
 GFXRECON_END_NAMESPACE(gfxrecon)

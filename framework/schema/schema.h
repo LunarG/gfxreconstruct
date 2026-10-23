@@ -126,7 +126,7 @@ concept FieldActionFor = requires(Action& action, Field field, Storage& storage)
 };
 
 // One field walk serves every operation family. The Action supplies one Apply overload set, and overload resolution
-// selects the implementation from the field's logical kind and shape.
+// selects the implementation from the field's logical category and shape.
 template <HasSchemaFields ApiElement, typename Action, typename Storage>
 void WalkFields(Action& action, Storage& storage)
 {

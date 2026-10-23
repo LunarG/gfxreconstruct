@@ -75,7 +75,7 @@ class FillContext
 template <typename ApiElement, typename Storage>
 void Fill(FillContext& context, Storage& storage);
 
-// One Apply per shape; the kind decides the value inside. Handles stay null, so no capture wrapper is needed and a
+// One Apply per shape; the category decides the value inside. Handles stay null, so no capture wrapper is needed and a
 // handle encodes as the null id. Extension chains stay null. Unions and structures without a schema stay
 // value-initialized.
 class FillAction

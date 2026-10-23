@@ -167,11 +167,11 @@ class ValueDecoder
         return DecodeArray(buffer, buffer_size, arr, len);
     }
 
-    // Decode a value recorded as one logical kind. See the note on PointerDecoder<T>::Decode.
-    template <format::HasEncodeType Kind, typename DstT>
+    // Decode a value recorded as one logical category. See the note on PointerDecoder<T>::Decode.
+    template <format::HasEncodeType Category, typename DstT>
     static size_t Decode(const uint8_t* buffer, size_t buffer_size, DstT* value)
     {
-        return DecodeValueFrom<format::EncodeTypeFor<Kind>>(buffer, buffer_size, value);
+        return DecodeValueFrom<format::EncodeTypeFor<Category>>(buffer, buffer_size, value);
     }
 
   private:

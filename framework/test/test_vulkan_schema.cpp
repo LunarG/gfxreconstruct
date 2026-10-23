@@ -100,30 +100,30 @@ static_assert(std::is_same_v<schema::ParameterFields<Command>,
 // A non-void command resolves its native return type from the same Return Field.
 static_assert(std::is_same_v<schema::ReturnType<schema::vulkan::api_elements::CreateBuffer>, VkResult>);
 
-// A kind names the logical Encode and Decode operation for a registry type, and carries the wire
+// A category names the logical Encode and Decode operation for a registry type, and carries the wire
 // representation.
 static_assert(
     std::is_same_v<schema::ElementType<schema::vulkan::api_elements::VkPipelineStageFlags>, VkPipelineStageFlags>);
-static_assert(std::is_same_v<schema::vulkan::api_elements::VkPipelineStageFlags::kind, format::kind::Flags>);
-static_assert(std::is_same_v<schema::vulkan::api_elements::VkAccessFlags2::kind, format::kind::Flags64>);
-static_assert(std::is_same_v<schema::vulkan::api_elements::VkResult::kind, format::kind::Enum>);
-static_assert(std::is_same_v<schema::vulkan::api_elements::VkSampleMask::kind, format::kind::SampleMask>);
-static_assert(std::is_same_v<schema::vulkan::api_elements::VkDeviceSize::kind, format::kind::DeviceSize>);
+static_assert(std::is_same_v<schema::vulkan::api_elements::VkPipelineStageFlags::category, format::category::Flags>);
+static_assert(std::is_same_v<schema::vulkan::api_elements::VkAccessFlags2::category, format::category::Flags64>);
+static_assert(std::is_same_v<schema::vulkan::api_elements::VkResult::category, format::category::Enum>);
+static_assert(std::is_same_v<schema::vulkan::api_elements::VkSampleMask::category, format::category::SampleMask>);
+static_assert(std::is_same_v<schema::vulkan::api_elements::VkDeviceSize::category, format::category::DeviceSize>);
 
 // Two registry names that share one C++ representation stay distinct, because the API element is the identity.
 static_assert(std::is_same_v<VkAccessFlags2, VkPipelineStageFlags2>);
 static_assert(
     !std::is_same_v<schema::vulkan::api_elements::VkAccessFlags2, schema::vulkan::api_elements::VkPipelineStageFlags2>);
 
-// A kind is specific, so each one maps to the ParameterEncoder and ValueDecoder function that already exists for
+// A category is specific, so each one maps to the ParameterEncoder and ValueDecoder function that already exists for
 // it. That restates part of what element_type says, and the generator checks the agreement in the one loop that
 // assigns both.
-static_assert(std::is_same_v<schema::vulkan::api_elements::UInt32::kind, format::kind::UInt32>);
-static_assert(std::is_same_v<schema::vulkan::api_elements::VkBool32::kind, format::kind::UInt32>);
+static_assert(std::is_same_v<schema::vulkan::api_elements::UInt32::category, format::category::UInt32>);
+static_assert(std::is_same_v<schema::vulkan::api_elements::VkBool32::category, format::category::UInt32>);
 static_assert(std::is_same_v<schema::ElementType<schema::vulkan::api_elements::UInt32>, uint32_t>);
 static_assert(schema::ScalarValueField<barrier_field::srcQueueFamilyIndex>);
 
-// Every scalar kind still selects the shared scalar access pattern.
+// Every scalar category still selects the shared scalar access pattern.
 static_assert(schema::ScalarValueField<barrier_field::srcAccessMask>);
 static_assert(schema::ScalarValueField<barrier_field::offset>);
 static_assert(schema::ScalarValueField<barrier_field::sType>);
@@ -135,7 +135,7 @@ static_assert(std::is_same_v<schema::FieldEncodeType<barrier_field::offset>, for
 static_assert(std::is_same_v<schema::FieldEncodeType<barrier_field::srcQueueFamilyIndex>, uint32_t>);
 static_assert(std::is_same_v<schema::FieldEncodeType<barrier_field::buffer>, format::HandleEncodeType>);
 
-// Shape concepts select on exactly the logical kind and the use-site shape.
+// Shape concepts select on exactly the logical category and the use-site shape.
 static_assert(schema::HandleValueField<barrier_field::buffer>);
 static_assert(schema::StructField<cmd_field::pBufferMemoryBarriers>);
 static_assert(schema::ArrayField<cmd_field::pBufferMemoryBarriers>);
@@ -809,7 +809,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL TestDebugUtilsCallback(VkDebugUtilsMessageSeverit
 
 TEST_CASE("Schema EncodeStruct matches address-value wire bytes", "[schema][encode]")
 {
-    // Four migrated structures cover the address kind's forms: two typed platform handles, a lone platform handle,
+    // Four migrated structures cover the address category's forms: two typed platform handles, a lone platform handle,
     // a platform HANDLE beside a flags value, and a function pointer beside a void pointer. Two retained partners
     // take a void pointer through their procedural bodies. The encoder records the pointer and nothing behind it,
     // so a chosen integer reinterpreted as each handle type stands in for a real window, monitor or allocation;
@@ -873,7 +873,7 @@ TEST_CASE("Schema EncodeStruct matches address-value wire bytes", "[schema][enco
             oracle.EncodeVoidPtr(import_handle.handle);
         }));
 
-        // Migrated: a function pointer and a void pointer, the two named entry points the address kind replaces.
+        // Migrated: a function pointer and a void pointer, the two named entry points the address category replaces.
         VkDebugUtilsMessengerCreateInfoEXT messenger{ VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
                                                       nullptr,
                                                       0u,
@@ -1234,7 +1234,7 @@ TEST_CASE("Schema EncodeStruct matches fixed-extent text wire bytes", "[schema][
     // string; the retained partner carries two fixed strings around two scalars. The string is empty, short, and
     // filled to the extent minus one, against the procedural body's pointer-form EncodeString. A fourth case fills
     // the whole extent with no terminator: the procedural form would read past the array there, so it is compared
-    // against the bounded kind-keyed form the Action calls, which proves the bound holds rather than the bytes.
+    // against the bounded category-keyed form the Action calls, which proves the bound holds rather than the bytes.
     auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
         return actual.GetDataSize() == oracle.GetDataSize() &&
                std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
@@ -1290,7 +1290,7 @@ TEST_CASE("Schema EncodeStruct matches fixed-extent text wire bytes", "[schema][
     unterminated.specVersion = 0x00010203u;
 
     CHECK(matches(unterminated, [&](encode::ParameterEncoder& oracle) {
-        oracle.EncodeString(format::kind::Char{}, unterminated.extensionName, VK_MAX_EXTENSION_NAME_SIZE);
+        oracle.EncodeString(format::category::Char{}, unterminated.extensionName, VK_MAX_EXTENSION_NAME_SIZE);
         oracle.EncodeUInt32Value(unterminated.specVersion);
     }));
 }
@@ -1298,7 +1298,7 @@ TEST_CASE("Schema EncodeStruct matches fixed-extent text wire bytes", "[schema][
 TEST_CASE("Schema EncodeStruct matches wide-text pointer wire bytes", "[schema][encode]")
 {
     // One migrated structure with an LPCWSTR beside a HANDLE, and a retained partner adding a semaphore handle. The
-    // WChar kind's wire type is 16-bit units on every platform, converted element by element where wchar_t is
+    // WChar category's wire type is 16-bit units on every platform, converted element by element where wchar_t is
     // wider, so the same bytes are expected on Windows and Linux. The name is null and set; the handle is a
     // chosen value reinterpreted as HANDLE, void* off Windows.
     using namespace gfxrecon::encode::vulkan_wrappers;
@@ -1664,7 +1664,7 @@ TEST_CASE("Schema EncodeStruct matches pointer-array wire bytes", "[schema][enco
     // The PointerArray shape: an array of count pointers, each to one element. The storage is the same for a run of
     // strings and a run of structures, and the wire is not: the adapter's text entry writes a one-dimensional array
     // of strings, its struct entry writes the two-dimensional structure array with every row of length one, which is
-    // the encoder's spelling of a pointer to one structure. Two migrated structures, one per kind: VkInstanceCreateInfo
+    // the encoder's spelling of a pointer to one structure. Two migrated structures, one per category: VkInstanceCreateInfo
     // carries two string runs beside a structure pointer, and VkAccelerationStructureGeometryMicromapDataKHR carries
     // a structure run and the pointer run over the same count beside address values. The retained partners
     // VkDeviceCreateInfo and VkMicromapBuildInfoEXT carry the same runs through their procedural bodies; the latter
@@ -2498,8 +2498,8 @@ TEST_CASE("A field walk keeps an opaque pointer in the wrapper and leaves the de
     // value and the decoded value's pointer is left null for replay to resolve through PreProcessExternalObject --
     // the same division a handle gets.
     //
-    // Its API element is vulkan::api_elements::ExternalObject, whose kind is Address, so the schema states the wire
-    // form and the overload reads it from the kind like every other. The API element exists because the declared
+    // Its API element is vulkan::api_elements::ExternalObject, whose category is Address, so the schema states the wire
+    // form and the overload reads it from the category like every other. The API element exists because the declared
     // type cannot state it: this is void*, and so is a counted run of bytes, and so is pNext.
     util::Log::Init(util::LoggingSeverity::kError);
 
@@ -2547,7 +2547,7 @@ TEST_CASE("A field walk decodes both address populations in one structure", "[sc
 
     // VkAllocationCallbacks is the densest address case: one pointer to something outside the API, and five
     // function pointers. The first names the ExternalObject API element and the rest name their own PFN_* ones,
-    // but every field has kind Address, so one overload takes all six and the schema needed no special case for
+    // but every field has category Address, so one overload takes all six and the schema needed no special case for
     // the function pointers.
     //
     // It also has no sType and no pNext.
@@ -2670,7 +2670,7 @@ TEST_CASE("A field walk decodes a string and points the decoded value at it", "[
     // value points at what it allocated, while color decodes straight into the decoded value's own array.
     //
     // One overload serves a single string and a run of them. StringDecoder, WStringDecoder and StringArrayDecoder
-    // all read their own length and hand back storage, so only the wrapper's member type differs, and the kind
+    // all read their own length and hand back storage, so only the wrapper's member type differs, and the category
     // picks that rather than picking a call.
     util::Log::Init(util::LoggingSeverity::kError);
 
@@ -2828,10 +2828,10 @@ TEST_CASE("One overload takes a scalar pointer and a scalar run in the same stru
     using namespace gfxrecon::decode;
 
     // VkRenderingInputAttachmentIndexInfo carries a run of uint32_t and two pointers to one uint32_t, all the same
-    // kind. No overload was added: the scalar-run constraint widened to either pointer shape, because
+    // category. No overload was added: the scalar-run constraint widened to either pointer shape, because
     // PointerDecoder reads its own length from the wire and one element is a run of one.
     //
-    // The reference exemplar VkBindMemoryStatus reaches the same overload with kind Enum, which is the half this
+    // The reference exemplar VkBindMemoryStatus reaches the same overload with category Enum, which is the half this
     // structure does not show.
     util::Log::Init(util::LoggingSeverity::kError);
 
