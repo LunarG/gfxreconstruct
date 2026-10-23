@@ -39,7 +39,9 @@
 
 #include "decode/block_parser.h"
 #include "decode/decode_allocator.h"
+#include "decode/json_writer.h"
 #include "decode/vulkan_pnext_node.h"
+#include "util/memory_output_stream.h"
 
 #include <vector>
 
@@ -725,4 +727,41 @@ TEST_CASE("DecodePNextStruct decodes a pNext value at an unaligned offset", "[pn
     CHECK(decoded->storageInputOutput16 == VK_FALSE);
 
     gfxrecon::decode::DecodeAllocator::End();
+}
+
+TEST_CASE("JsonWriter embeds JSON annotation data as JSON", "[convert]")
+{
+    using gfxrecon::format::AnnotationType;
+
+    // JsonWriter reads the output format, which must be set before it is read.
+    gfxrecon::util::JsonOptions::format = gfxrecon::util::JsonFormat::JSON;
+
+    // Writes one annotation and returns the "annotation" object of the block that holds it.
+    auto write_annotation = [](AnnotationType type, const std::string& data) {
+        gfxrecon::util::MemoryOutputStream stream;
+        gfxrecon::decode::JsonWriter       json_writer{ "test-version", "test.gfxr" };
+        json_writer.StartStream(&stream);
+        json_writer.ProcessAnnotation(1, type, "operation", data);
+        json_writer.Destroy();
+
+        const char*          output = reinterpret_cast<const char*>(stream.GetData());
+        const nlohmann::json blocks = nlohmann::json::parse(output, output + stream.GetDataSize());
+        REQUIRE(blocks.size() == 2);
+        return blocks[1].at("annotation");
+    };
+
+    const nlohmann::json json_annotation =
+        write_annotation(AnnotationType::kJson, "{\n    \"tool\": \"capture\",\n    \"file-flush\": true\n}");
+    CHECK(json_annotation.at("type") == "kJson");
+    CHECK(json_annotation.at("label") == "operation");
+    CHECK(json_annotation.at("data") == nlohmann::json({ { "tool", "capture" }, { "file-flush", true } }));
+
+    // Data that is not valid JSON is written as it was recorded.
+    const nlohmann::json invalid_json_annotation = write_annotation(AnnotationType::kJson, "{ \"tool\": ");
+    CHECK(invalid_json_annotation.at("data") == "{ \"tool\": ");
+
+    // Only kJson annotation data is interpreted as JSON.
+    const nlohmann::json text_annotation = write_annotation(AnnotationType::kText, "{ \"tool\": \"capture\" }");
+    CHECK(text_annotation.at("type") == "kText");
+    CHECK(text_annotation.at("data") == "{ \"tool\": \"capture\" }");
 }
