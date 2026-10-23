@@ -154,14 +154,14 @@ class PointerDecoder : public PointerDecoderBase
     size_t DecodeLUID(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<int64_t>(buffer, buffer_size); }
     // clang-format on
 
-    // Decode a run recorded as one logical kind. Each named entry point above fixes a wire type and adds nothing
-    // else, which states a second time what format's kind tags already say; a caller holding a kind says it here
-    // and the width follows from the kind. Reaches kinds no named entry point covers -- there is no DecodeFlags64,
-    // and Decode<format::kind::Flags64> needs none.
-    template <format::HasEncodeType Kind>
+    // Decode a run recorded as one logical category. Each named entry point above fixes a wire type and adds nothing
+    // else, which states a second time what format's category tags already say; a caller holding a category says it here
+    // and the width follows from the category. Reaches categories no named entry point covers -- there is no DecodeFlags64,
+    // and Decode<format::category::Flags64> needs none.
+    template <format::HasEncodeType Category>
     size_t Decode(const uint8_t* buffer, size_t buffer_size)
     {
-        return DecodeFrom<format::EncodeTypeFor<Kind>>(buffer, buffer_size);
+        return DecodeFrom<format::EncodeTypeFor<Category>>(buffer, buffer_size);
     }
 
   private:
@@ -307,14 +307,14 @@ class PointerDecoder<T*> : public PointerDecoderBase
     size_t DecodeSizeT(const uint8_t* buffer, size_t buffer_size)           { return DecodeFrom<format::SizeTEncodeType>(buffer, buffer_size); }
     // clang-format on
 
-    // Decode a run recorded as one logical kind. Each named entry point above fixes a wire type and adds nothing
-    // else, which states a second time what format's kind tags already say; a caller holding a kind says it here
-    // and the width follows from the kind. Reaches kinds no named entry point covers -- there is no DecodeFlags64,
-    // and Decode<format::kind::Flags64> needs none.
-    template <format::HasEncodeType Kind>
+    // Decode a run recorded as one logical category. Each named entry point above fixes a wire type and adds nothing
+    // else, which states a second time what format's category tags already say; a caller holding a category says it here
+    // and the width follows from the category. Reaches categories no named entry point covers -- there is no DecodeFlags64,
+    // and Decode<format::category::Flags64> needs none.
+    template <format::HasEncodeType Category>
     size_t Decode(const uint8_t* buffer, size_t buffer_size)
     {
-        return DecodeFrom<format::EncodeTypeFor<Kind>>(buffer, buffer_size);
+        return DecodeFrom<format::EncodeTypeFor<Category>>(buffer, buffer_size);
     }
 
   private:

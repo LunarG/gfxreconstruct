@@ -35,12 +35,12 @@
 // the result belongs in. The idiom is the X macro: Meyers, "The X Macro", Dr. Dobb's Journal, 2001.
 //
 // To use it:
-//   1. Define the visit macros for the kinds you want:
+//   1. Define the visit macros for the categories you want:
 //        GFXRECON_INVENTORY_VISIT_STRUCT(Name)      GFXRECON_INVENTORY_VISIT_UNION(Name)
 //        GFXRECON_INVENTORY_VISIT_HANDLE(Name, Stem)
 //        GFXRECON_INVENTORY_VISIT_ENUM(Name)        GFXRECON_INVENTORY_VISIT_FLAG_BITS(Name)
 //        GFXRECON_INVENTORY_VISIT_COMMAND(Name)
-//      A kind you leave undefined expands to nothing. Defining none is an error.
+//      A category you leave undefined expands to nothing. Defining none is an error.
 //   2. Optionally define GFXRECON_INVENTORY_REQUIRE and GFXRECON_INVENTORY_FORBID as masks of the row properties
 //      below. A structure or union row expands only if it has every REQUIRE property and no FORBID property.
 //      Both default to 0. Handles, enumerated types and commands carry no properties and are not filtered.
