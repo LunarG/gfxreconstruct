@@ -648,7 +648,7 @@ gfxrecon-replay         [-h | --help] [--version] [--cpu-mask <binary-mask>] [--
                         [--isolate-render-passes]
                         [--serialize-compute-and-transfer]
                         [--annotate-injected-commands]
-                        [--remote-connect <address>]
+                        [--remote-connect <address> | --remote-listen <address>]
 
 
 Required arguments:
@@ -948,6 +948,11 @@ Optional arguments:
               Address forms: tcp:host:port, unix:@name (abstract), or
               unix:/path. The unix: forms are not available on Windows.
               See [Remote Replay Control](#remote-replay-control).
+  --remote-listen <address>
+              Listen for a controller process to connect, instead of dialing
+              out. Same address forms as --remote-connect. Waits up to 30
+              seconds for a connection, then fails. Mutually exclusive with
+              --remote-connect.
 ```
 
 ### Frame Warm-Up
@@ -1071,24 +1076,34 @@ GFXReconstruct offers the capability to dump resources when replaying a capture 
 over a socket, instead of from the command line, and reports back to the
 controller over the same socket.
 
-`--remote-connect <address>` dials out to a controller that is already
-listening. If the connection is not established replay exits with an error
-rather than falling back to the command line. Addresses take the form `tcp:host:port`,
-`unix:@name` (an abstract socket, Linux and Android only), or `unix:/path`
-(POSIX only). Windows supports the `tcp:` form only.
+Either side may open the connection:
+
+* `--remote-connect <address>` dials out to a controller that is already
+  listening.
+* `--remote-listen <address>` binds and waits up to 30 seconds for a controller
+  to connect.
+
+The two are mutually exclusive, and if the requested connection is not
+established replay exits with an error rather than falling back to the command
+line. Addresses take the form `tcp:host:port`, `unix:@name` (an abstract socket,
+Linux and Android only), or `unix:/path` (POSIX only). Windows supports the
+`tcp:` form only.
 
 [scripts/replay_controller.py](./scripts/replay_controller.py) is a reference
-controller:
+controller. With it listening, replay dials out:
 
 ```bash
 # Terminal 1 - the controller, which also receives the streamed output.
-python3 scripts/replay_controller.py --port 9001 \
+python3 scripts/replay_controller.py --listen 127.0.0.1:9001 \
     --output-dir remote_output \
     -- --loop-count=3 --screenshot-all capture_file=capture.gfxr
 
 # Terminal 2 - replay needs no settings and no capture file on its command line.
 gfxrecon-replay --remote-connect tcp:127.0.0.1:9001
 ```
+
+Reversing the roles needs only the opposite options, `--remote-listen` on replay
+and `--connect` on the controller; nothing else about the session changes.
 
 Settings travel as `key=value` pairs rather than as a command line, so each
 option is joined to its value with `=` and the capture file is named by the

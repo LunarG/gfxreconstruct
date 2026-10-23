@@ -346,6 +346,10 @@ Optional arguments:
                         Connect out to a controller process, which supplies the replay settings and
                         receives replay's reports over the same socket. Address form is tcp:host:port.
                         See Remote Replay Control below.
+  --remote-listen <address>
+                        Listen for a controller process to connect instead of dialing out. Same address
+                        form as --remote-connect. Waits up to 30 seconds for a connection, then fails.
+                        Mutually exclusive with --remote-connect.
 ```
 
 ### Remote Replay Control

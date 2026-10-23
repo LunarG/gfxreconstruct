@@ -50,15 +50,16 @@ GFXRECON_BEGIN_NAMESPACE(replay)
 // Outcome of attempting to establish a remote-controller connection.
 enum class RemoteSetupResult
 {
-    kNotRequested, // --remote-connect was not specified; the channel is unused.
+    kNotRequested, // Neither --remote-connect nor --remote-listen was specified; the channel is unused.
     kConnected,    // Connected and handshake succeeded; arg_parser now holds the controller's settings.
-    kFailed        // --remote-connect was given but the connection or handshake failed (a fatal message was logged).
+    kFailed        // A remote mode was requested but the connection or handshake failed (a fatal message was logged).
 };
 
-// If arg_parser has --remote-connect set, connect channel to the controller, perform the handshake, replace arg_parser
-// with the controller-provided settings, and begin relaying log output to the controller. On failure the specific
-// reason is logged (by RemoteChannel) and kFailed is returned; the caller decides how to abort. Does nothing and
-// returns kNotRequested when --remote-connect is absent.
+// If arg_parser has --remote-connect or --remote-listen set, establish the channel to the controller (connecting out
+// or listening, respectively), perform the handshake, replace arg_parser with the controller-provided settings, and
+// begin relaying log output to the controller. On failure the specific reason is logged (by RemoteChannel) and
+// kFailed is returned; the caller decides how to abort. Does nothing and returns kNotRequested when neither mode is
+// set.
 // options and arguments are the tool's name lists with every loaded Feature's entries already
 // appended, the same lists the command-line parser was built from. Remote settings are parsed
 // against them so a Feature option means the same thing from a controller as from the command line.

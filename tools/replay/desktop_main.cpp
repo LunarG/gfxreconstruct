@@ -93,7 +93,7 @@ int main(int argc, const char** argv)
 
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, options, arguments);
 
-    // If --remote-connect is specified, connect to the controller, which supplies the replay settings. Because the
+    // If --remote-connect or --remote-listen is specified, the controller supplies the replay settings. Because the
     // user explicitly requested remote control, treat any failure to establish it as fatal rather than silently
     // falling back to the command-line arguments.
     gfxrecon::util::RemoteChannel remote_channel;
