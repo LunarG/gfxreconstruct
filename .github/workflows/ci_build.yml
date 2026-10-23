@@ -224,6 +224,15 @@ jobs:
     - name: Check generated code
       if: matrix.config.type == 'debug'
       run: |
+        # Generate from a pinned Windows SDK build. The runner image updates its 10.0.26100.0 SDK in place,
+        # and newer builds add enum values that change the generated code.
+        $sdkBuild = "10.0.26100.8249"
+        $sdkDir = "$env:RUNNER_TEMP\winsdk-$sdkBuild"
+        curl.exe -fsSL -o "$sdkDir.zip" "https://api.nuget.org/v3-flatcontainer/microsoft.windows.sdk.cpp/$sdkBuild/microsoft.windows.sdk.cpp.$sdkBuild.nupkg"
+        if ($LASTEXITCODE -ne 0) { Write-Error "Failed to download Windows SDK $sdkBuild"; exit 1 }
+        Expand-Archive "$sdkDir.zip" -DestinationPath $sdkDir
+        $env:WindowsSdkDir = "$sdkDir\c\"
+        $env:WindowsSDKVersion = "10.0.26100.0\"
         python3 framework/generated/generate_dx12.py # check generated code isn't out of date
         git diff --exit-code; if ($LASTEXITCODE -ne 0) { Write-Error "Generated code differs from branch contents"; exit 1 }
     - name: Run build script
