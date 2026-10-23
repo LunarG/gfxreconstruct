@@ -254,82 +254,82 @@ void Set(Storage& storage, Field field, ValueType&& value)
 // Shape concepts select action overloads from the API type's logical kind and the field use's shape.
 
 template <typename Field>
-concept HandleKindField = format::IsHandleKind<FieldKind<Field>>;
+concept HandleField = format::IsHandleKind<FieldKind<Field>>;
 
 template <typename Field>
-concept HandleValueField = HandleKindField<Field> && std::same_as<typename Field::shape, field_shape::Value>;
+concept HandleValueField = HandleField<Field> && std::same_as<typename Field::shape, field_shape::Value>;
 
 // The kind alone, so a shape other than Value can select on it. ScalarValueField is the value-shaped case.
 template <typename Field>
-concept ScalarKindField = format::IsScalarKind<FieldKind<Field>>;
+concept ScalarField = format::IsScalarKind<FieldKind<Field>>;
 
 template <typename Field>
-concept ScalarValueField = ScalarKindField<Field> && std::same_as<typename Field::shape, field_shape::Value>;
+concept ScalarValueField = ScalarField<Field> && std::same_as<typename Field::shape, field_shape::Value>;
 
 // Text, of either width. The two kinds pick different decoder classes, and nothing else about them differs.
 template <typename Field>
-concept TextKindField = format::IsTextKind<FieldKind<Field>>;
+concept TextField = format::IsTextKind<FieldKind<Field>>;
 
-// StructKindField constrains on logical kind alone, so it also matches a pointer-array or static-array of structures.
+// StructField constrains on logical kind alone, so it also matches a pointer-array or static-array of structures.
 // An Action that wants those separately must order its overloads by subsumption, or constrain on shape as well.
 template <typename Field>
-concept StructKindField = format::IsStructKind<FieldKind<Field>>;
+concept StructField = format::IsStructKind<FieldKind<Field>>;
 
 // An opaque address: recorded as the value the capture saw rather than followed, so nothing is at the other end
 // to decode and the field is value-shaped whether or not the declaration writes a star.
 template <typename Field>
-concept AddressKindField = format::IsAddressKind<FieldKind<Field>>;
+concept AddressField = format::IsAddressKind<FieldKind<Field>>;
 
 // A kind that records an identifier rather than the thing itself: a handle's capture-file id, or the address the
 // capture saw. Nothing decodes into the API's own member for either; the identifier goes to the wrapper and the
 // member is nulled until replay resolves it. The two kinds share that pattern and nothing else, so one concept
 // names the pair.
 template <typename Field>
-concept IdentifierKindField = HandleKindField<Field> || AddressKindField<Field>;
+concept IdentifierField = HandleField<Field> || AddressField<Field>;
 
 // A scalar in the general sense that the member's own bits are the value recorded, in the kind's wire type. That
 // is the scalar family and the address kind, which format.h keeps off that family because the decoder treats an
 // address as an identifier; for encode the distinction does not arise. A handle is not one, since it records the
 // wrapper's id.
 template <typename Field>
-concept GeneralScalarKindField = ScalarKindField<Field> || AddressKindField<Field>;
+concept GeneralScalarField = ScalarField<Field> || AddressField<Field>;
 
 template <typename Field>
-concept ValueShapeField = std::same_as<typename Field::shape, field_shape::Value>;
+concept ValueField = std::same_as<typename Field::shape, field_shape::Value>;
 
 template <typename Field>
-concept PointerShapeField = std::same_as<typename Field::shape, field_shape::Pointer>;
+concept PointerField = std::same_as<typename Field::shape, field_shape::Pointer>;
 
 template <typename Field>
-concept ArrayShapeField = std::same_as<typename Field::shape, field_shape::Array>;
+concept ArrayField = std::same_as<typename Field::shape, field_shape::Array>;
 
 template <typename Field>
-concept PointerArrayShapeField = std::same_as<typename Field::shape, field_shape::PointerArray>;
+concept PointerArrayField = std::same_as<typename Field::shape, field_shape::PointerArray>;
 
 // Any pointer shape. A decoder that reads its own length and depth from the wire cannot tell them apart -- a pointer
 // to one element is a run of one, and a run of pointers is one more level of the same -- so an operation whose body
 // does not consult the length constrains on this rather than on the shapes separately.
 template <typename Field>
-concept AnyPointerShapeField = PointerShapeField<Field> || ArrayShapeField<Field> || PointerArrayShapeField<Field>;
+concept AnyPointerField = PointerField<Field> || ArrayField<Field> || PointerArrayField<Field>;
 
 // Either counted run: a pointer to a run of elements, or a run of pointers. Both read a sibling count and hand the
 // member's pointer value to an operation with it.
 template <typename Field>
-concept AnyCountedShapeField = ArrayShapeField<Field> || PointerArrayShapeField<Field>;
+concept AnyCountedField = ArrayField<Field> || PointerArrayField<Field>;
 
 template <typename Field>
-concept StaticArrayShapeField = std::same_as<typename Field::shape, field_shape::StaticArray>;
+concept StaticArrayField = std::same_as<typename Field::shape, field_shape::StaticArray>;
 
 // A run of elements, counted or fixed. The adapter's array entries take either, since both hand over a pointer and a
 // count; the Action reads them differently.
 template <typename Field>
-concept AnyArrayShapeField = StaticArrayShapeField<Field> || ArrayShapeField<Field>;
+concept AnyArrayField = StaticArrayField<Field> || ArrayField<Field>;
 
 template <typename Field>
-concept ExtensionChainShapeField = std::same_as<typename Field::shape, field_shape::ExtensionChain>;
+concept ExtensionChainField = std::same_as<typename Field::shape, field_shape::ExtensionChain>;
 
 template <typename Field>
-concept VoidReturnShapeField = std::same_as<typename Field::shape, field_shape::VoidReturn>;
+concept VoidReturnField = std::same_as<typename Field::shape, field_shape::VoidReturn>;
 
 // Store values. A store value is a type with a static Get(store) that yields a value; an API element names one as its
 // field_count, and an Action evaluates it. The base marks the types that are one, so an operator can require it of
@@ -365,7 +365,7 @@ struct FieldValue<Field> : StoreValueBase
 template <typename Field, typename Member>
 struct FieldValue<Field, Member> : StoreValueBase
 {
-    static_assert(PointerShapeField<Field>,
+    static_assert(PointerField<Field>,
                   "Pointer Field only. Struct Field: add a GetRef branch in Get and FieldStore.");
 
     template <typename Store>

@@ -82,7 +82,7 @@ static_assert(!schema::HasCommandSchema<Barrier>);
 // A void command still carries one Return Field, shaped VoidReturn, and its ReturnType is void.
 static_assert(std::is_same_v<schema::Return<Command>, cmd_field::result>);
 static_assert(std::is_same_v<schema::ReturnType<Command>, void>);
-static_assert(schema::VoidReturnShapeField<cmd_field::result>);
+static_assert(schema::VoidReturnField<cmd_field::result>);
 
 // The parameter partition keeps registry order and drops only the return Field.
 static_assert(std::is_same_v<schema::ParameterFields<Command>,
@@ -137,11 +137,11 @@ static_assert(std::is_same_v<schema::FieldEncodeType<barrier_field::buffer>, for
 
 // Shape concepts select on exactly the logical kind and the use-site shape.
 static_assert(schema::HandleValueField<barrier_field::buffer>);
-static_assert(schema::StructKindField<cmd_field::pBufferMemoryBarriers>);
-static_assert(schema::ArrayShapeField<cmd_field::pBufferMemoryBarriers>);
+static_assert(schema::StructField<cmd_field::pBufferMemoryBarriers>);
+static_assert(schema::ArrayField<cmd_field::pBufferMemoryBarriers>);
 static_assert(std::is_same_v<cmd_field::pBufferMemoryBarriers::field_count,
                              schema::FieldValue<cmd_field::bufferMemoryBarrierCount>>);
-static_assert(schema::ExtensionChainShapeField<barrier_field::pNext>);
+static_assert(schema::ExtensionChainField<barrier_field::pNext>);
 
 // One Field reaches a member of every storage type that holds it.
 static_assert(schema::Addressable<VkBufferMemoryBarrier, barrier_field::buffer>);
@@ -1489,14 +1489,14 @@ TEST_CASE("Schema EncodeStruct matches counted fixed-extent array wire bytes", "
 
     namespace memory_field = schema::vulkan::fields::VkPhysicalDeviceMemoryProperties;
     namespace group_field  = schema::vulkan::fields::VkPhysicalDeviceGroupProperties;
-    static_assert(schema::StaticArrayShapeField<group_field::physicalDevices>);
-    static_assert(schema::HandleKindField<group_field::physicalDevices>);
+    static_assert(schema::StaticArrayField<group_field::physicalDevices>);
+    static_assert(schema::HandleField<group_field::physicalDevices>);
     static_assert(schema::HasFieldCount<VkPhysicalDeviceGroupProperties, group_field::physicalDevices>);
     static_assert(std::is_same_v<schema::FieldCount<group_field::physicalDevices>,
                                  schema::FieldValue<group_field::physicalDeviceCount>>);
     static_assert(encode::HasCaptureWrapper<schema::vulkan::api_elements::VkPhysicalDevice>);
-    static_assert(schema::StaticArrayShapeField<memory_field::memoryTypes>);
-    static_assert(schema::StaticArrayShapeField<memory_field::memoryHeaps>);
+    static_assert(schema::StaticArrayField<memory_field::memoryTypes>);
+    static_assert(schema::StaticArrayField<memory_field::memoryHeaps>);
     static_assert(schema::HasFieldCount<VkPhysicalDeviceMemoryProperties, memory_field::memoryTypes>);
     static_assert(schema::HasFieldCount<VkPhysicalDeviceMemoryProperties, memory_field::memoryHeaps>);
     static_assert(std::is_same_v<schema::FieldCount<memory_field::memoryTypes>,
@@ -1673,23 +1673,23 @@ TEST_CASE("Schema EncodeStruct matches pointer-array wire bytes", "[schema][enco
     namespace instance_field = schema::vulkan::fields::VkInstanceCreateInfo;
     namespace micromap_field = schema::vulkan::fields::VkAccelerationStructureGeometryMicromapDataKHR;
 
-    static_assert(schema::PointerArrayShapeField<instance_field::ppEnabledLayerNames>);
-    static_assert(schema::TextKindField<instance_field::ppEnabledLayerNames>);
+    static_assert(schema::PointerArrayField<instance_field::ppEnabledLayerNames>);
+    static_assert(schema::TextField<instance_field::ppEnabledLayerNames>);
     static_assert(instance_field::ppEnabledLayerNames::pointer_count == 2);
     static_assert(std::is_same_v<schema::FieldCount<instance_field::ppEnabledExtensionNames>,
                                  schema::FieldValue<instance_field::enabledExtensionCount>>);
 
-    static_assert(schema::PointerArrayShapeField<micromap_field::ppUsageCounts>);
-    static_assert(schema::StructKindField<micromap_field::ppUsageCounts>);
+    static_assert(schema::PointerArrayField<micromap_field::ppUsageCounts>);
+    static_assert(schema::StructField<micromap_field::ppUsageCounts>);
     static_assert(micromap_field::ppUsageCounts::pointer_count == 2);
     static_assert(std::is_same_v<schema::FieldCount<micromap_field::ppUsageCounts>,
                                  schema::FieldValue<micromap_field::usageCountsCount>>);
-    static_assert(schema::ArrayShapeField<micromap_field::pUsageCounts>);
+    static_assert(schema::ArrayField<micromap_field::pUsageCounts>);
 
     // Both counted shapes are pointer shapes to the decoder, which reads depth and length from the wire.
-    static_assert(schema::AnyPointerShapeField<micromap_field::ppUsageCounts>);
-    static_assert(schema::AnyCountedShapeField<micromap_field::ppUsageCounts>);
-    static_assert(!schema::AnyArrayShapeField<micromap_field::ppUsageCounts>);
+    static_assert(schema::AnyPointerField<micromap_field::ppUsageCounts>);
+    static_assert(schema::AnyCountedField<micromap_field::ppUsageCounts>);
+    static_assert(!schema::AnyArrayField<micromap_field::ppUsageCounts>);
 
     auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
         return actual.GetDataSize() == oracle.GetDataSize() &&
@@ -2048,7 +2048,7 @@ TEST_CASE("A field_count reads a length through a pointer sibling", "[schema]")
     namespace sizes_field      = schema::vulkan::fields::GetAccelerationStructureBuildSizesKHR;
     namespace build_field      = schema::vulkan::fields::VkAccelerationStructureBuildGeometryInfoKHR;
 
-    static_assert(schema::PointerShapeField<alloc_field::pAllocateInfo>);
+    static_assert(schema::PointerField<alloc_field::pAllocateInfo>);
     static_assert(std::is_same_v<schema::FieldCount<alloc_field::pCommandBuffers>,
                                  schema::FieldValue<alloc_field::pAllocateInfo, alloc_info_field::commandBufferCount>>);
     static_assert(std::is_same_v<schema::FieldCount<set_field::pDescriptorSets>,
@@ -2390,7 +2390,7 @@ TEST_CASE("A field walk decodes a pointer to a structure through the same overlo
 
     // VkDeviceBufferMemoryRequirements carries a pointer to one VkBufferCreateInfo. No overload was added for it:
     // StructPointerDecoder reads its own length from the wire, so one structure is a run of one and the body is the
-    // array case unchanged. Only the constraint widened, from ArrayShapeField to either pointer shape.
+    // array case unchanged. Only the constraint widened, from ArrayField to either pointer shape.
     //
     // The element is a large extensible structure, so this descends into a substantial second walk rather than a
     // leaf -- including that element's own pNext.
