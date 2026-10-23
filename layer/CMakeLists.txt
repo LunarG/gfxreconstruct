@@ -100,6 +100,18 @@ if (GFXRECON_ENABLE_VULKAN)
                            )
     endif()
 
+    if (GFXRECON_ENABLE_HEAP_ACCOUNTING AND (CMAKE_SYSTEM_NAME STREQUAL "Linux"))
+        # Route the malloc family used by everything linked into the layer through the counting impostor.
+        # libstdc++ is linked statically so that its operator new reaches the wrapped malloc as well;
+        # with the version script above it stays private to the layer.
+        target_sources(VkLayer_gfxreconstruct PRIVATE ${CMAKE_CURRENT_LIST_DIR}/heap_impostor.cpp)
+        target_link_options(VkLayer_gfxreconstruct
+                            PRIVATE
+                                LINKER:--wrap=malloc,--wrap=free,--wrap=calloc,--wrap=realloc,--wrap=posix_memalign,--wrap=memalign,--wrap=aligned_alloc
+                                -static-libstdc++
+                           )
+    endif()
+
     common_build_directives(VkLayer_gfxreconstruct)
 
     # The json output file needs Unix "/" separators or Windows "\" separators
