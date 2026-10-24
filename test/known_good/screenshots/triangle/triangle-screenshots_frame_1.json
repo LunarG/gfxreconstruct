@@ -1,7 +1,7 @@
-[
 {
   "header": {
-    "schemaVersion": 1,
+    "schemaVersion": 2,
+    "layout": "perFrame",
     "gfxreconVersion": "1.0.5-dev (json_for_screenshots:0946ce0*) Debug",
     "vulkanVersion": "1.4.363",
     "api": "vulkan",
@@ -22,9 +22,7 @@
       "applyPrerotation": false,
       "ignoreFrameBoundaryAndroid": false
     }
-  }
-},
-{
+  },
   "frame": 1,
   "blockIndex": 69,
   "boundary": {
@@ -78,71 +76,4 @@
     }
   ],
   "messages": []
-},
-{
-  "frame": 2,
-  "blockIndex": 88,
-  "boundary": {
-    "type": "vkQueuePresentKHR",
-    "call": "vkQueuePresentKHR",
-    "queueId": 9,
-    "captureResult": "VK_SUCCESS",
-    "replayResult": "VK_SUCCESS",
-    "swapchainCount": 1
-  },
-  "status": "written",
-  "outputs": [
-    {
-      "source": {
-        "kind": "swapchainImage",
-        "imageId": null,
-        "layer": 0,
-        "swapchainId": 6,
-        "swapchainIndex": 0,
-        "imageIndex": 0,
-        "format": "VK_FORMAT_B8G8R8A8_UNORM",
-        "extent": [
-          256,
-          256
-        ],
-        "preTransform": "VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR"
-      },
-      "present": {
-        "surfaceId": 3,
-        "surfaceExtension": null,
-        "replayWindowSize": null,
-        "swapchainExtent": [
-          256,
-          256
-        ],
-        "presentMode": null,
-        "regions": null,
-        "displayPresentInfo": null,
-        "deviceMask": null,
-        "deviceGroupPresentMode": null,
-        "presentId": null,
-        "presentTime": null,
-        "presentFenceId": null
-      },
-      "file": "triangle-screenshots_frame_2.bmp",
-      "status": "written",
-      "written": {
-        "width": 256,
-        "height": 256
-      }
-    }
-  ],
-  "messages": []
-},
-{
-  "summary": {
-    "framesSeen": 11,
-    "framesRequested": 2,
-    "framesWritten": 2,
-    "framesPartial": 0,
-    "framesSkipped": 0,
-    "framesFailed": 0,
-    "filesWritten": 2
-  }
 }
-]
