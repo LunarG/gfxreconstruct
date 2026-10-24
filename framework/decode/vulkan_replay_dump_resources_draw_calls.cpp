@@ -967,7 +967,8 @@ void DrawCallsDumpingContext::SnapshotState(DrawCallParams& dc_params)
 
 void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::DrawCallParams* dc_params)
 {
-    GFXRECON_ASSERT(!RP_indices_.empty());
+    // Secondaries that inherit the primary's render pass have no render pass ranges of their own
+    GFXRECON_ASSERT(!RP_indices_.empty() || command_buffer_level_ == DumpResourcesCommandBufferLevel::kSecondary);
     assert(current_cb_index_ < GetWindowCount());
     assert(device_table_.IsValid());
 
