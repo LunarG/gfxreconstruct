@@ -84,7 +84,7 @@ void BlockProcessor::InitializeFrameProcessing(const file_processor::FrameProces
 
     if (params_.async)
     {
-        GFXRECON_ASSERT(frame_number_ == file_processor::kFirstFrame);
+        GFXRECON_ASSERT(frame_tracker_.GetFrameNumber() == file_processor::kFirstFrame);
         block_parser_->SetOperationMode(BlockParser::OperationMode::kEnqueued);
     }
 }
@@ -144,8 +144,12 @@ bool BlockProcessor::NextBlockIsFrame() const
 
 file_processor::ProcessBlocksResult BlockProcessor::MakeResult(file_processor::ProcessBlockState state) const
 {
-    return file_processor::ProcessBlocksResult(
-        state, error_state_, frame_number_, bytes_read_, capture_uses_frame_markers_, file_supports_frame_markers_);
+    return file_processor::ProcessBlocksResult(state,
+                                               error_state_,
+                                               frame_tracker_.GetFrameNumber(),
+                                               bytes_read_,
+                                               frame_tracker_.UsesFrameMarkers(),
+                                               frame_tracker_.FileSupportsFrameMarkers());
 }
 
 template <typename Policy>
@@ -179,7 +183,7 @@ file_processor::ProcessBlockState BlockProcessor::ProcessBlock(Policy& policy, B
     if (!skip_block)
     {
         block_parser.SetBlockIndex(block_index_);
-        block_parser.SetFrameNumber(frame_number_);
+        block_parser.SetFrameNumber(frame_tracker_.GetFrameNumber());
         ParsedBlock& parsed_block = block_parser.ParseBlock(block_buffer);
 
         if (parsed_block.IsVisitable())
@@ -224,7 +228,7 @@ file_processor::ProcessBlockState BlockProcessor::ProcessBlocks(Policy& policy)
 
     if (process_state == file_processor::ProcessBlockState::kFrameBoundary)
     {
-        UpdateEndFrameState();
+        frame_tracker_.EndFrame();
     }
 
     return process_state;
@@ -243,12 +247,7 @@ bool BlockProcessor::ProcessFileHeader()
 
         if (success)
         {
-            auto file_version = GFXRECON_MAKE_FILE_VERSION(file_header_.major_version, file_header_.minor_version);
-            if (file_version >= GFXRECON_EXPLICIT_FRAME_MARKER_FILE_VERSION)
-            {
-                capture_uses_frame_markers_  = true;
-                file_supports_frame_markers_ = true;
-            }
+            frame_tracker_.ProcessFileHeader(file_header_);
 
             file_options_.resize(file_header_.num_options);
 
@@ -360,49 +359,20 @@ void BlockProcessor::HandleBlockReadError(BlockIOError error_code, const char* e
     }
     else
     {
-        GFXRECON_LOG_ERROR("%s (frame %u block %" PRIu64 ")", error_message, frame_number_, block_index_);
+        GFXRECON_LOG_ERROR(
+            "%s (frame %u block %" PRIu64 ")", error_message, frame_tracker_.GetFrameNumber(), block_index_);
         error_state_ = error_code;
     }
 }
 
-void BlockProcessor::UpdateEndFrameState()
-{
-    if (pending_capture_uses_frame_markers_)
-    {
-        GFXRECON_ASSERT(!capture_uses_frame_markers_);
-        capture_uses_frame_markers_         = true;
-        pending_capture_uses_frame_markers_ = false;
-        frame_number_                       = file_processor::kFirstFrame;
-        GFXRECON_LOG_WARNING("Explicit frame markers found in file format (0.0) file w/ gfxrecon-version < (1.0.1). "
-                             "Patch input file format with 'gfxrecon-file-version-patch'");
-    }
-
-    ++frame_number_;
-}
-
 bool BlockProcessor::ProcessFrameDelimiter(format::ApiCallId call_id)
 {
-    return IsFrameDelimiter(call_id);
+    return frame_tracker_.IsFrameDelimiter(call_id);
 }
 
 bool BlockProcessor::ProcessFrameDelimiter(const FrameEndMarkerArgs& end_frame)
 {
-    if (capture_uses_frame_markers_ && (frame_number_ != (end_frame.frame_number - first_frame_)))
-    {
-        GFXRECON_LOG_ERROR("Frame end marker frame number (%" PRIu64 ") does not match current frame number (%" PRIu64
-                           ")",
-                           end_frame.frame_number - first_frame_,
-                           frame_number_);
-    }
-    if (IsFrameDelimiter(format::BlockType::kFrameMarkerBlock, format::MarkerType::kEndMarker))
-    {
-        if (!capture_uses_frame_markers_)
-        {
-            pending_capture_uses_frame_markers_ = true;
-        }
-        return true;
-    }
-    return false;
+    return frame_tracker_.ProcessFrameEndMarker(end_frame);
 }
 
 bool BlockProcessor::ProcessExecuteBlocksFromFile(const ExecuteBlocksFromFileArgs& exec_from_file)
@@ -433,41 +403,12 @@ void BlockProcessor::ProcessStateBeginMarkerFrameState(const StateBeginMarkerArg
 void BlockProcessor::ProcessStateEndMarkerFrameState(const StateEndMarkerArgs& state_end)
 {
     in_state_setup_ = false;
-    first_frame_    = state_end.frame_number;
+    frame_tracker_.ProcessStateEndMarker(state_end);
 }
 
 void BlockProcessor::ProcessAnnotation(const AnnotationArgs& annotation)
 {
-    if (annotation.type == gfxrecon::format::AnnotationType::kJson &&
-        annotation.label.compare(gfxrecon::format::kAnnotationLabelOperation) == 0)
-    {
-        format::GfxrVersion version = format::ParseVersionFromOperations(annotation.annotation_data.c_str());
-        if (version.SupportsFrameMarkers())
-        {
-            GFXRECON_ASSERT(frame_number_ == file_processor::kFirstFrame);
-            capture_uses_frame_markers_  = true;
-            file_supports_frame_markers_ = true;
-        }
-    }
-}
-
-// static
-bool BlockProcessor::IsFrameDelimiter(format::BlockType block_type, format::MarkerType marker_type)
-{
-    return ((block_type == format::BlockType::kFrameMarkerBlock) && (marker_type == format::MarkerType::kEndMarker));
-}
-
-bool BlockProcessor::IsFrameDelimiter(format::ApiCallId call_id) const
-{
-    if (capture_uses_frame_markers_)
-    {
-        return false;
-    }
-    return ((call_id == format::ApiCallId::ApiCall_vkQueuePresentKHR) ||
-            (call_id == format::ApiCallId::ApiCall_vkFrameBoundaryANDROID) ||
-            (call_id == format::ApiCallId::ApiCall_IDXGISwapChain_Present) ||
-            (call_id == format::ApiCallId::ApiCall_IDXGISwapChain1_Present1) ||
-            (call_id == format::ApiCallId::ApiCall_xrEndFrame));
+    frame_tracker_.ProcessAnnotation(annotation);
 }
 
 void BlockProcessor::PrintBlockInfo() const
@@ -476,7 +417,9 @@ void BlockProcessor::PrintBlockInfo() const
                                      (params_.block_index_from <= static_cast<int64_t>(block_index_) &&
                                       params_.block_index_to >= static_cast<int64_t>(block_index_))))
     {
-        GFXRECON_LOG_INFO("block info: index: %" PRIu64 ", current frame: %" PRIu64 "", block_index_, frame_number_);
+        GFXRECON_LOG_INFO("block info: index: %" PRIu64 ", current frame: %" PRIu64 "",
+                          block_index_,
+                          frame_tracker_.GetFrameNumber());
     }
 }
 
@@ -487,8 +430,10 @@ file_processor::ProcessBlockState BlockProcessor::HandleBlockEof(const char* ope
     {
         if (report_frame_and_block)
         {
-            GFXRECON_LOG_ERROR(
-                "Failed to %s block header (frame %u block %" PRIu64 ")", operation, frame_number_, block_index_);
+            GFXRECON_LOG_ERROR("Failed to %s block header (frame %u block %" PRIu64 ")",
+                               operation,
+                               frame_tracker_.GetFrameNumber(),
+                               block_index_);
         }
         else
         {

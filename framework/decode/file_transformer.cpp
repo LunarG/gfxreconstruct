@@ -224,6 +224,8 @@ bool FileTransformer::ProcessFileHeader()
 
         if (success)
         {
+            frame_tracker_.ProcessFileHeader(file_header);
+
             file_options_.resize(file_header.num_options);
 
             size_t option_data_size = file_header.num_options * sizeof(format::FileOptionPair);
@@ -277,6 +279,32 @@ bool FileTransformer::ProcessNextBlock(ParsedBlock& parsed_block, const Args& /*
 
     bool success = true;
 
+    // Track loading state and frames for every block, whatever the hook below does with it.
+    // As in FileProcessor, the frame ends after the block is processed.
+    const Args& tracked_args = parsed_block.Get<Args>();
+    bool        frame_ends   = false;
+    if constexpr (std::is_same_v<FunctionCallArgs, Args> || std::is_same_v<MethodCallArgs, Args>)
+    {
+        frame_ends = frame_tracker_.IsFrameDelimiter(tracked_args.call_id);
+    }
+    else if constexpr (std::is_same_v<FrameEndMarkerArgs, Args>)
+    {
+        frame_ends = frame_tracker_.ProcessFrameEndMarker(tracked_args);
+    }
+    else if constexpr (std::is_same_v<StateBeginMarkerArgs, Args>)
+    {
+        loading_state_ = true;
+    }
+    else if constexpr (std::is_same_v<StateEndMarkerArgs, Args>)
+    {
+        loading_state_ = false;
+        frame_tracker_.ProcessStateEndMarker(tracked_args);
+    }
+    else if constexpr (std::is_same_v<AnnotationArgs, Args>)
+    {
+        frame_tracker_.ProcessAnnotation(tracked_args);
+    }
+
     // Dispatch to appropriate processing function based on Args type
     if constexpr (std::is_same_v<FunctionCallArgs, Args>)
     {
@@ -294,6 +322,10 @@ bool FileTransformer::ProcessNextBlock(ParsedBlock& parsed_block, const Args& /*
     {
         success = ProcessStateEndMarker(parsed_block);
     }
+    else if constexpr (std::is_same_v<FrameEndMarkerArgs, Args>)
+    {
+        success = ProcessFrameEndMarker(parsed_block);
+    }
     else if constexpr (DispatchTraits<Args>::kHasMetaDataId)
     {
         success = ProcessMetaData(parsed_block); // MetaData processing will revisit
@@ -302,6 +334,11 @@ bool FileTransformer::ProcessNextBlock(ParsedBlock& parsed_block, const Args& /*
     {
         // These block types have no transformation interface defined, pass them through directly
         success = WriteBytes(parsed_block);
+    }
+
+    if (success && frame_ends)
+    {
+        frame_tracker_.EndFrame();
     }
     return success;
 }
@@ -426,13 +463,16 @@ bool FileTransformer::ProcessMetaData(ParsedBlock& parsed_block)
 
 bool FileTransformer::ProcessStateBeginMarker(ParsedBlock& parsed_block)
 {
-    loading_state_ = true;
     return WriteBytes(parsed_block);
 }
 
 bool FileTransformer::ProcessStateEndMarker(ParsedBlock& parsed_block)
 {
-    loading_state_ = false;
+    return WriteBytes(parsed_block);
+}
+
+bool FileTransformer::ProcessFrameEndMarker(ParsedBlock& parsed_block)
+{
     return WriteBytes(parsed_block);
 }
 
