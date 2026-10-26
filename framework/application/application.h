@@ -90,6 +90,8 @@ class Application final
 
     void SetFpsInfo(graphics::FpsInfo* fps_info);
 
+    const graphics::FrameLoopInfo* GetFrameLoopInfo();
+
     void SetFrameLoopInfo(graphics::FrameLoopInfo* frame_loop_info);
 
     bool InitializeWsiContext(const char* surfaceExtensionName, void* pPlatformSpecificData = nullptr);
