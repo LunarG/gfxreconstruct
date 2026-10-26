@@ -1140,7 +1140,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue              queue,
         uint64_t sp = 0;
         if (slot.render_pass_context != nullptr)
         {
-            rp = slot.render_pass_context->ordinal;
+            rp = slot.render_pass_context->begin_block_index;
             sp = slot.subpass;
         }
         else
@@ -3293,7 +3293,7 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(uint64_t                     b
 
     auto& new_render_pass_context = render_pass_contexts_.emplace_back(
         std::make_shared<RenderPassContext>(render_pass_info, framebuffer_info, command_buffer_level_));
-    new_render_pass_context->ordinal = render_pass_contexts_.size() - 1;
+    new_render_pass_context->begin_block_index = block_index;
 
     VkResult res;
     if (render_pass_info->func_version == VulkanRenderPassInfo::kCreateRenderPass)
@@ -3986,7 +3986,7 @@ void DrawCallsDumpingContext::BeginRendering(uint64_t                           
 
     auto& new_render_pass_context    = render_pass_contexts_.emplace_back(std::make_shared<RenderPassContext>(
         color_attachments, color_attachment_layouts, depth_attachment, depth_attachment_layout, command_buffer_level_));
-    new_render_pass_context->ordinal = render_pass_contexts_.size() - 1;
+    new_render_pass_context->begin_block_index = block_index;
 
     CommandBufferIterator first, last;
     GetDrawCallActiveCommandBuffers(first, last);
