@@ -146,6 +146,23 @@ void ReplayEventSink::FrameEnd()
     last_submit_index_  = GFXR_REPLAY_INVALID_SUBMIT_INDEX;
 }
 
+void ReplayEventSink::WaitBegin(uint32_t requested_duration_ms)
+{
+    GfxrReplayWaitBeginEvent event = {};
+    event.header                   = CreateEventHeader(GFXR_REPLAY_EVENT_WAIT_BEGIN);
+    event.requested_duration_ms    = requested_duration_ms;
+
+    EmitWaitBegin(event);
+}
+
+void ReplayEventSink::WaitEnd()
+{
+    GfxrReplayWaitEndEvent event = {};
+    event.header                 = CreateEventHeader(GFXR_REPLAY_EVENT_WAIT_END);
+
+    EmitWaitEnd(event);
+}
+
 PluginReplayEventSink::PluginReplayEventSink(util::platform::LibraryHandle library,
                                              GfxrReplayPluginV1*           plugin,
                                              uint32_t                      abi_version,
@@ -198,6 +215,16 @@ void PluginReplayEventSink::EmitFrameBegin(const GfxrReplayFrameBeginEvent& even
 }
 
 void PluginReplayEventSink::EmitFrameEnd(const GfxrReplayFrameEndEvent& event)
+{
+    Forward(event.header);
+}
+
+void PluginReplayEventSink::EmitWaitBegin(const GfxrReplayWaitBeginEvent& event)
+{
+    Forward(event.header);
+}
+
+void PluginReplayEventSink::EmitWaitEnd(const GfxrReplayWaitEndEvent& event)
 {
     Forward(event.header);
 }
