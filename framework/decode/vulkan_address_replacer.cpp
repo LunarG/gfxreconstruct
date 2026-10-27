@@ -1533,31 +1533,86 @@ void VulkanAddressReplacer::ProcessCmdCopyAccelerationStructuresKHR(
 {
     if (info != nullptr)
     {
-        VkDeviceSize compact_size    = 0;
-        auto         compact_size_it = as_compact_sizes_.find(info->src);
-        if (compact_size_it != as_compact_sizes_.end())
-        {
-            compact_size = compact_size_it->second;
-            as_compact_sizes_.erase(info->src);
+        const VkAccelerationStructureKHR original_src = info->src;
 
-            auto* as_info = address_tracker.GetAccelerationStructureByHandle(info->dst);
-            GFXRECON_ASSERT(as_info != nullptr);
-            if (as_info != nullptr)
+        // correct in-place
+        swap_acceleration_structure_handle(info->src, address_tracker);
+
+        // determine replay-size of the copy, if known to differ from capture
+        VkDeviceSize required_size = 0;
+        if (info->mode == VK_COPY_ACCELERATION_STRUCTURE_MODE_COMPACT_KHR)
+        {
+            // compacted-sizes were queried for potentially swapped handles, see ProcessCmdWriteAccelerationStructures..
+            auto compact_size_it = as_compact_sizes_.find(info->src);
+            if (compact_size_it != as_compact_sizes_.end())
             {
-                auto* buffer_info = address_tracker.GetBufferByHandle(as_info->buffer);
-                GFXRECON_ASSERT(buffer_info != nullptr);
-                if (buffer_info != nullptr)
+                required_size = compact_size_it->second;
+                as_compact_sizes_.erase(compact_size_it);
+            }
+        }
+        else if (info->mode == VK_COPY_ACCELERATION_STRUCTURE_MODE_CLONE_KHR)
+        {
+            // a clone requires the replay-size of its source, which differs from capture-size for shadow-structures
+            if (const auto* src_info = address_tracker.GetAccelerationStructureByHandle(original_src))
+            {
+                auto shadow_as_it = shadow_as_map_.find(src_info->replay_address);
+                if (shadow_as_it != shadow_as_map_.end() && shadow_as_it->second.origin_handle == original_src)
                 {
-                    if (buffer_info->size < compact_size)
-                    {
-                        // TODO: need replacement AS
-                    }
+                    required_size = shadow_as_it->second.size;
                 }
             }
         }
 
-        // correct in-place
-        swap_acceleration_structure_handle(info->src, address_tracker);
+        const auto* dst_info = address_tracker.GetAccelerationStructureByHandle(info->dst);
+        GFXRECON_ASSERT(dst_info != nullptr);
+
+        if (required_size != 0 && dst_info != nullptr)
+        {
+            const auto* buffer_info   = address_tracker.GetBufferByHandle(dst_info->buffer);
+            const bool  dst_is_usable = dst_info->size >= required_size && buffer_info != nullptr &&
+                                       buffer_info->size >= dst_info->offset + required_size;
+
+            const VkDeviceAddress dst_replay_address = dst_info->replay_address;
+
+            if (!dst_is_usable && dst_replay_address != 0)
+            {
+                GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdCopyAccelerationStructuresKHR: Replay is "
+                                       "adjusting acceleration-structure copies using shadow-structures");
+
+                // drop stale or too small entries
+                auto shadow_as_it = shadow_as_map_.find(dst_replay_address);
+                if (shadow_as_it != shadow_as_map_.end() &&
+                    (shadow_as_it->second.origin_handle != info->dst || shadow_as_it->second.size < required_size))
+                {
+                    shadow_as_map_.erase(shadow_as_it);
+                }
+
+                auto& replacement_as = shadow_as_map_[dst_replay_address];
+
+                if (replacement_as.handle == VK_NULL_HANDLE)
+                {
+                    replacement_as.origin_handle = info->dst;
+
+                    if (!create_acceleration_asset(replacement_as, dst_info->type, required_size, 0))
+                    {
+                        GFXRECON_LOG_ERROR("ProcessCmdCopyAccelerationStructuresKHR: creation of shadow "
+                                           "acceleration-structure failed");
+
+                        // do not keep a half-initialized entry around
+                        shadow_as_map_.erase(dst_replay_address);
+                    }
+                }
+            }
+            else if (!dst_is_usable)
+            {
+                GFXRECON_LOG_WARNING("ProcessCmdCopyAccelerationStructuresKHR: replay-size (%" PRIu64
+                                     ") exceeds destination acceleration-structure size (%" PRIu64
+                                     "), but its device-address is unknown",
+                                     required_size,
+                                     dst_info->size);
+            }
+        }
+
         swap_acceleration_structure_handle(info->dst, address_tracker);
     }
 }
@@ -2301,6 +2356,8 @@ bool VulkanAddressReplacer::create_acceleration_asset(VulkanAddressReplacer::acc
                            "acceleration-structure creation failed");
         return false;
     }
+    as_asset.size = num_buffer_bytes;
+
     VkAccelerationStructureDeviceAddressInfoKHR acceleration_address_info = {};
     acceleration_address_info.sType                 = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR;
     acceleration_address_info.accelerationStructure = as_asset.handle;
