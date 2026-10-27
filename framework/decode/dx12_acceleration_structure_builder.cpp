@@ -431,6 +431,10 @@ void Dx12AccelerationStructureBuilder::SetupBuild2(
     {
         inputs_desc.InstanceDescs = (inputs_desc.NumDescs > 0) ? kDefaultGpuVa : 0;
 
+        // InitDx12AccelerationStructureCommands always store the InstanceDescs data as an ARRAY. DescsLayout holds the
+        // captured build's value and could be ARRAY_OF_POINTERS so it needs to be forced to ARRAY here.
+        inputs_desc.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
+
         // Map GPU VAs in instance desc input data.
         temp_instance_desc_input_data_.clear();
         temp_instance_desc_input_data_.insert(temp_instance_desc_input_data_.end(),
