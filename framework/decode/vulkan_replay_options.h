@@ -25,6 +25,7 @@
 #define GFXRECON_DECODE_VULKAN_REPLAY_OPTIONS_H
 
 #include "decode/replay_options.h"
+#include "decode/vulkan_replay_dump_resources_request.h"
 
 #include "decode/vulkan_resource_allocator.h"
 #include "format/format.h"
@@ -52,110 +53,6 @@ enum class SkipGetFenceStatus
     SkipAll,
     COUNT
 };
-
-using Index             = uint64_t;
-using CommandIndices    = std::vector<Index>;
-using RenderPassIndices = std::vector<std::vector<Index>>;
-using ExecuteCommands   = std::unordered_map<Index, CommandIndices>;
-
-struct DescriptorLocation
-{
-    DescriptorLocation() = delete;
-
-    DescriptorLocation(uint32_t s, uint32_t b, uint32_t ai) : set(s), binding(b), array_index(ai) {}
-
-    DescriptorLocation(const DescriptorLocation& other) :
-        set(other.set), binding(other.binding), array_index(other.array_index)
-    {}
-
-    bool const operator==(const DescriptorLocation& other) const
-    {
-        return (set == other.set) && (binding == other.binding) && (array_index == other.array_index);
-    }
-
-    bool const operator<(const DescriptorLocation& other) const
-    {
-        if (set == other.set)
-        {
-            if (binding == other.binding)
-            {
-                return array_index < other.array_index;
-            }
-            else
-            {
-                return binding < other.binding;
-            }
-        }
-        else
-        {
-            return set < other.set;
-        }
-    }
-
-    uint32_t set;
-    uint32_t binding;
-    uint32_t array_index;
-};
-
-struct CommandLocation
-{
-    CommandLocation() = delete;
-
-    CommandLocation(Index bcb, Index qs, Index cmd) :
-        begin_command_buffer_index(bcb), queue_submit_index(qs), cmd_index(cmd)
-    {}
-
-    CommandLocation(const CommandLocation& other) :
-        begin_command_buffer_index(other.begin_command_buffer_index), queue_submit_index(other.queue_submit_index),
-        cmd_index(other.cmd_index)
-    {}
-
-    bool const operator==(const CommandLocation& other) const
-    {
-        return (begin_command_buffer_index == other.begin_command_buffer_index) &&
-               (queue_submit_index == other.queue_submit_index) && (cmd_index == other.cmd_index);
-    }
-
-    bool const operator<(const CommandLocation& other) const
-    {
-        if (begin_command_buffer_index == other.begin_command_buffer_index)
-        {
-            if (queue_submit_index == other.queue_submit_index)
-            {
-                return cmd_index < other.cmd_index;
-            }
-            else
-            {
-                return queue_submit_index < other.queue_submit_index;
-            }
-        }
-        else
-        {
-            return begin_command_buffer_index < other.begin_command_buffer_index;
-        }
-    }
-
-    Index begin_command_buffer_index;
-    Index queue_submit_index;
-    Index cmd_index;
-};
-
-static constexpr uint32_t REMAINING_Z_INDICES = std::numeric_limits<uint32_t>::max();
-struct ImageSubresourceRanges
-{
-    VkImageAspectFlags aspect_mask{ VK_IMAGE_ASPECT_NONE };
-    uint32_t           base_mip_level{ 0 };
-    uint32_t           level_count{ 0 };
-    uint32_t           base_array_layer{ 0 };
-    uint32_t           layer_count{ 0 };
-    uint32_t           base_z{ 0 };
-    uint32_t           z_count{ 0 };
-};
-
-using DescriptorImageSubresourcesPair   = std::pair<DescriptorLocation, ImageSubresourceRanges>;
-using DescriptorImageSubresourcesVector = std::vector<DescriptorImageSubresourcesPair>;
-using CommandImageSubresource           = std::map<CommandLocation, DescriptorImageSubresourcesVector>;
-using BeginCmdBufQueueSubmitPair        = std::pair<decode::Index, decode::Index>;
 
 // Default color attachment index selection for dump resources feature.
 // This default value essentially defines to dump all attachments.
@@ -204,6 +101,10 @@ struct VulkanReplayOptions : public ReplayOptions
     // ExecuteCommands block index : vector or BeginCommandBuffer indices of secondary cbs.
     std::vector<ExecuteCommands> ExecuteCommands_Indices;
 
+    // The request as written in the tree-shaped input json, when that schema was used. The index vectors above are
+    // always filled, for both schemas.
+    std::optional<DumpResourcesRequest> dump_resources_request;
+
     std::string            dump_resources_block_indices;
     util::ScreenshotFormat dump_resources_image_format{ util::ScreenshotFormat::kBmp };
 
@@ -220,6 +121,11 @@ struct VulkanReplayOptions : public ReplayOptions
     bool  dump_resources_dump_separate_alpha{ false };
     bool  dump_resources_dump_unused_vertex_bindings{ false };
     bool  dump_resources_dump_build_AS_input_buffers{ false };
+
+    // Schema version of the --dump-resources input json: the "SchemaVersion" of a tree-shaped file (1.0 when the key
+    // is absent), 0.0 for the legacy flat schema. Reported in the header of the output json.
+    uint8_t input_json_schema_major{ 0 };
+    uint8_t input_json_schema_minor{ 0 };
 
     format::CompressionType dump_resources_binary_file_compression_type{ format::CompressionType::kNone };
 
