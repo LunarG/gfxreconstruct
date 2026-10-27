@@ -439,18 +439,42 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateBuffer(const ApiCallInfo& ca
 {
     VkBufferCreateInfo* create_info = args.pCreateInfo.GetPointer();
 
+    bool uses_device_address = false;
+
     // Ensure that buffers can be copied to and from so contents can be restored.
     if (create_info != nullptr)
     {
         create_info->usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
+        // VkBufferUsageFlags2CreateInfo replaces VkBufferCreateInfo::usage when it is present.
         if (auto* usage_flags2 = graphics::vulkan_struct_get_pnext<VkBufferUsageFlags2CreateInfo>(create_info))
         {
             usage_flags2->usage |= VK_BUFFER_USAGE_2_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_2_TRANSFER_DST_BIT;
+            uses_device_address = (usage_flags2->usage & VK_BUFFER_USAGE_2_SHADER_DEVICE_ADDRESS_BIT) != 0;
+        }
+        else
+        {
+            uses_device_address = (create_info->usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT) != 0;
         }
     }
 
     VulkanReplayFrameLoopConsumerBase::Process_vkCreateBuffer(call_info, args);
+
+    const format::HandleId* buffer_id = args.pBuffer.GetPointer();
+    if (uses_device_address && buffer_id != nullptr && *buffer_id != format::kNullHandleId)
+    {
+        device_address_buffers_.insert(*buffer_id);
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkDestroyBuffer(const ApiCallInfo& call_info, args::DestroyBuffer& args)
+{
+    VulkanReplayFrameLoopConsumerBase::Process_vkDestroyBuffer(call_info, args);
+
+    if (GetObjectInfoTable().GetVkBufferInfo(args.buffer) == nullptr)
+    {
+        device_address_buffers_.erase(args.buffer);
+    }
 }
 
 static bool CanRestoreImage(const VkImageCreateInfo* create_info)
@@ -815,7 +839,10 @@ void VulkanReplayFrameLoopConsumer::ShadowBufferWrites(const std::vector<format:
 {
     CommonObjectInfoTable& table = GetObjectInfoTable();
 
-    std::unordered_set<format::HandleId> written_buffers;
+    // Start with all buffers written through its device address.
+    std::unordered_set<format::HandleId> written_buffers(device_address_buffers_.begin(),
+                                                         device_address_buffers_.end());
+
     for (format::HandleId command_buffer_id : command_buffer_ids)
     {
         auto it = command_buffer_modified_buffers_.find(command_buffer_id);

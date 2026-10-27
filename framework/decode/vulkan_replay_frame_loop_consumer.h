@@ -54,6 +54,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     void Process_vkCreateBuffer(const ApiCallInfo& call_info, args::CreateBuffer& args) override;
 
+    void Process_vkDestroyBuffer(const ApiCallInfo& call_info, args::DestroyBuffer& args) override;
+
     void Process_vkCreateImage(const ApiCallInfo& call_info, args::CreateImage& args) override;
 
     void Process_vkCreateCommandPool(const ApiCallInfo& call_info, args::CreateCommandPool& args) override;
@@ -428,6 +430,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     std::unordered_map<format::HandleId, std::unordered_set<format::HandleId>> descriptor_set_storage_buffers_;
 
     std::unordered_map<format::HandleId, std::unordered_set<format::HandleId>> command_buffer_bound_descriptor_sets_;
+
+    std::unordered_set<format::HandleId> device_address_buffers_;
 
     // Support for vkMapMemory/vkUnMapMemory
     std::set<format::HandleId> mapped_loop_memory;
