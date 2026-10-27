@@ -433,6 +433,7 @@ class VulkanAddressReplacer
     {
         VkAccelerationStructureKHR handle  = VK_NULL_HANDLE;
         VkDeviceAddress            address = 0;
+        VkDeviceSize               size    = 0;
         buffer_context_t           storage = {};
         buffer_context_t           scratch = {};
 
