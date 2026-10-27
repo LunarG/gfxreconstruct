@@ -406,6 +406,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     std::unordered_map<format::HandleId, BufferTracking> per_device_buffer_tracking_;
 
+    std::unordered_set<format::HandleId> writable_buffers_;
+
     std::unordered_set<format::HandleId> restorable_images_;
 
     std::unordered_map<format::HandleId, ImageTracking> per_device_image_tracking_;
