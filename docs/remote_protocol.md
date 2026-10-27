@@ -93,6 +93,7 @@ replay     → controller:  {"type":"ready"}
 
 ```json
 {"type":"status","state":"running","frame":42,"block":1234}
+{"type":"progress","operation":"dump_resources","current":37,"total":90}
 {"type":"file","name":"dump/frame_0042.png","size":204800}
 <204800 raw bytes — separate binary frame, no encoding>
 {"type":"done","success":true}
@@ -134,7 +135,7 @@ re-normalized, and fails the handshake instead of printing usage text.
 The same payload shape will carry capture-side settings, whose native model is
 already a `<string, string>` map. The key sets are disjoint; the shape is not.
 
-## Status Messages
+## Status and Progress
 
 `{"type":"status","state":S,"frame":N,"block":B}` is a complete snapshot of
 replay's state, sent after each replayed frame and whenever `state` changes.
@@ -149,7 +150,13 @@ addition) or a full pre-scan, which is impossible for a streamed capture. Use
 `block` for a finer-grained position and rate than `frame` alone.
 
 Only state owned by the tool's main loop belongs in `status`. A subsystem
-reports through a message of its own.
+reports through a message of its own, such as `progress`.
+
+`{"type":"progress","operation":<op>,"current":X,"total":Y}` reports a bounded
+operation with a running total. Used by dump-resources, where `total` is the sum
+of all targeted commands (draw + dispatch + trace-rays + transfer). The count is
+a best-effort measure of work done against work targeted: a target that is never
+found or a dump that fails leaves `current` short of `total`.
 
 ## Playback Controls
 

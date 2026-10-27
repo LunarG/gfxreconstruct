@@ -284,6 +284,12 @@ def handle_session(conn, options, output_dir, hello=None):
 
     success = False
     prev_msg_type = None
+    last_state = None
+    last_frame = None
+    last_block = None
+    last_op = None
+    last_current = None
+    last_total = None
     while True:
         if commands is not None:
             # Poll so queued commands still go out while replay is quiet.
@@ -303,13 +309,29 @@ def handle_session(conn, options, output_dir, hello=None):
         msg = json.loads(frame)
         msg_type = msg.get('type')
 
-        if msg_type == 'status':
-            if prev_msg_type == 'status' and sys.stdout.isatty():
+        if msg_type in ('status', 'progress'):
+            # 'status' and bounded 'progress' share one in-place status line.
+            if msg_type == 'status':
+                last_state = msg.get('state')
+                last_frame = msg.get('frame')
+                last_block = msg.get('block')
+            else:
+                last_op = msg.get('operation', 'operation')
+                last_current = msg.get('current')
+                last_total = msg.get('total')
+            if prev_msg_type in ('status', 'progress') and sys.stdout.isatty():
                 # Move up a line and clear it, overwriting the previous status.
                 print('\033[F\033[K', end='')
-            print(
-                f"--- {msg.get('state')}: frame {msg.get('frame')}, block {msg.get('block')}"
-            )
+            # 'state' and 'frame' may be unknown if an operation reports before the first status.
+            parts = []
+            if last_frame is not None:
+                frame_part = f"frame {last_frame}"
+                if last_block is not None:
+                    frame_part += f", block {last_block}"
+                parts.append(frame_part)
+            if last_current is not None:
+                parts.append(f"{last_op} {last_current}/{last_total}")
+            print(f"--- {last_state or 'status'}: {', '.join(parts)}")
         elif msg_type == 'file':
             # A "file" message is always followed by a raw binary frame.
             name = msg.get('name', 'unnamed')

@@ -46,6 +46,26 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 using CommandBufferIterator = std::vector<VkCommandBuffer>::const_iterator;
 
+// Reports dump-resources progress on the active remote channel; the status frame can't advance during a submit's
+// dumps. Replay thread only.
+class DumpResourcesProgress
+{
+  public:
+    // Set the total and reset progress; emits nothing.
+    static void Begin(uint64_t total);
+
+    // Emit the start message (0 of total) the first time it's called after Begin(); later calls are no-ops.
+    static void Announce();
+
+    // Advance the completed count by one and report it.
+    static void Advance();
+
+  private:
+    static uint64_t total_;
+    static uint64_t completed_;
+    static bool     announced_;
+};
+
 template <typename T>
 static bool IsInsideRange(const std::vector<T>& vec, T value)
 {

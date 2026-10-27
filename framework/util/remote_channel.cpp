@@ -1065,5 +1065,15 @@ void RemoteChannel::SendActiveFile(const std::string& name, const void* data, si
     }
 }
 
+void RemoteChannel::SendActiveProgress(const char* operation, uint64_t current, uint64_t total)
+{
+    RemoteChannel* channel = active_channel_;
+    if (channel != nullptr && channel->IsConnected())
+    {
+        channel->SendJson(
+            { { "type", "progress" }, { "operation", operation }, { "current", current }, { "total", total } });
+    }
+}
+
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

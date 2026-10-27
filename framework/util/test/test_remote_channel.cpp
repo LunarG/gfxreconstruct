@@ -541,3 +541,27 @@ TEST_CASE("RemoteChannel reports when the controller closes", "[remote_channel]"
     CHECK(channel.IsControllerClosed());
     CHECK_FALSE(channel.IsConnected());
 }
+
+TEST_CASE("RemoteChannel reports progress on the active channel", "[remote_channel]")
+{
+    TestController                     controller;
+    util::RemoteChannel                channel;
+    std::map<std::string, std::string> settings;
+    ChannelRunner                      runner(channel, controller.Address(), settings);
+
+    AcceptAndReadHello(controller);
+    controller.SendJson(SettingsMessage());
+    REQUIRE(controller.RecvJson().at("type") == "ready");
+    REQUIRE(runner.Result());
+
+    {
+        ActiveChannelScope active(channel);
+        util::RemoteChannel::SendActiveProgress("dump_resources", 3, 7);
+    }
+
+    const json progress = controller.RecvJson();
+    CHECK(progress.at("type") == "progress");
+    CHECK(progress.at("operation") == "dump_resources");
+    CHECK(progress.at("current") == 3);
+    CHECK(progress.at("total") == 7);
+}

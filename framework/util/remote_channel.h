@@ -128,6 +128,10 @@ class RemoteChannel
     // decode layer.
     static void SendActiveFile(const std::string& name, const void* data, size_t size);
 
+    // Report progress of a bounded operation (with a total, unlike the frame in SendStatus) on the active channel; a
+    // no-op when no channel is connected. Emits {"type":"progress","operation":<op>,"current":X,"total":Y}.
+    static void SendActiveProgress(const char* operation, uint64_t current, uint64_t total);
+
   private:
     // Append a length-prefixed frame to buffer.
     static void AppendFrame(std::vector<uint8_t>& buffer, const void* data, uint32_t size);
