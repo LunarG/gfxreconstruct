@@ -1702,27 +1702,56 @@ void VulkanAddressReplacer::ProcessGetQueryPoolResults(VkDevice           device
                                                        VkQueryResultFlags flags)
 {
     GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(firstQuery);
-    GFXRECON_UNREFERENCED_PARAMETER(queryCount);
-    GFXRECON_UNREFERENCED_PARAMETER(dataSize);
 
     // intercept queries containing acceleration-structure compaction-sizes
-    if (!as_compact_queries_.empty() && stride == sizeof(VkDeviceSize))
+    auto it = as_compact_queries_.find(query_pool);
+    if (it == as_compact_queries_.end() || pData == nullptr)
     {
-        bool is_synced = flags & VK_QUERY_RESULT_WAIT_BIT;
+        return;
+    }
 
-        auto it = as_compact_queries_.find(query_pool);
-        if (is_synced && it != as_compact_queries_.end())
+    // results are only guaranteed to be written for all queries when waiting
+    if ((flags & VK_QUERY_RESULT_WAIT_BIT) == 0)
+    {
+        return;
+    }
+
+    const bool         is_64_bit   = flags & VK_QUERY_RESULT_64_BIT;
+    const VkDeviceSize result_size = is_64_bit ? sizeof(uint64_t) : sizeof(uint32_t);
+
+    // stride is ignored for a single query and may be zero
+    const VkDeviceSize result_stride = queryCount == 1 ? result_size : stride;
+
+    auto& queries = it->second;
+    for (auto query_it = queries.begin(); query_it != queries.end();)
+    {
+        const auto& [as, query_index] = *query_it;
+
+        if (query_index < firstQuery || query_index >= firstQuery + queryCount)
         {
-            // assuming post-processing here, pData was already written
-            auto* result_array = reinterpret_cast<const VkDeviceSize*>(pData);
-
-            for (const auto& [as, query_index] : it->second)
-            {
-                as_compact_sizes_[as] = result_array[query_index];
-            }
+            ++query_it;
+            continue;
         }
-        as_compact_queries_.erase(query_pool);
+
+        // assuming post-processing here, pData was already written
+        const VkDeviceSize result_offset = (query_index - firstQuery) * result_stride;
+        GFXRECON_ASSERT(result_offset + result_size <= dataSize);
+        if (result_offset + result_size > dataSize)
+        {
+            ++query_it;
+            continue;
+        }
+
+        const auto* result = static_cast<const uint8_t*>(pData) + result_offset;
+        as_compact_sizes_[as] =
+            is_64_bit ? *reinterpret_cast<const uint64_t*>(result) : *reinterpret_cast<const uint32_t*>(result);
+
+        query_it = queries.erase(query_it);
+    }
+
+    if (queries.empty())
+    {
+        as_compact_queries_.erase(it);
     }
 }
 
