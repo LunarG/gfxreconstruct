@@ -726,8 +726,27 @@ void VulkanReplayFrameLoopConsumer::ShadowBufferWrites(const std::vector<format:
 {
     CommonObjectInfoTable& table = GetObjectInfoTable();
 
+    // Walk the secondaries the submitted command buffers execute.
+    std::vector<format::HandleId>        pending_ids(command_buffer_ids.begin(), command_buffer_ids.end());
+    std::unordered_set<format::HandleId> visited_ids;
+    while (!pending_ids.empty())
+    {
+        const format::HandleId command_buffer_id = pending_ids.back();
+        pending_ids.pop_back();
+        if (!visited_ids.insert(command_buffer_id).second)
+        {
+            continue;
+        }
+
+        auto secondaries_it = command_buffer_executed_secondaries_.find(command_buffer_id);
+        if (secondaries_it != command_buffer_executed_secondaries_.end())
+        {
+            pending_ids.insert(pending_ids.end(), secondaries_it->second.begin(), secondaries_it->second.end());
+        }
+    }
+
     std::unordered_map<format::HandleId, std::unordered_set<format::HandleId>> device_buffers;
-    for (format::HandleId command_buffer_id : command_buffer_ids)
+    for (format::HandleId command_buffer_id : visited_ids)
     {
         auto it = command_buffer_modified_buffers_.find(command_buffer_id);
         if (it == command_buffer_modified_buffers_.end())
@@ -1130,6 +1149,10 @@ void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(const ApiCallIn
 {
     VulkanReplayConsumer::Process_vkBeginCommandBuffer(call_info, args);
 
+    // Beginning a command buffer implicitly resets it
+    command_buffer_modified_buffers_.erase(args.commandBuffer);
+    command_buffer_executed_secondaries_.erase(args.commandBuffer);
+
     if (frame_loop_info_.IsLooping())
     {
         // Record query pool reset commands
@@ -1150,6 +1173,27 @@ void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(const ApiCallIn
             // keep tracked query availability in sync with the injected reset
             cb_info->recorded_query_ops.push_back({ info->capture_id, 0, pool_size, false });
         });
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdExecuteCommands(const ApiCallInfo&        call_info,
+                                                                 args::CmdExecuteCommands& args)
+{
+    VulkanReplayFrameLoopConsumerBase::Process_vkCmdExecuteCommands(call_info, args);
+
+    const format::HandleId* secondary_ids = args.pCommandBuffers.GetPointer();
+    if (secondary_ids == nullptr)
+    {
+        return;
+    }
+
+    std::unordered_set<format::HandleId>& secondaries = command_buffer_executed_secondaries_[args.commandBuffer];
+    for (size_t i = 0; i < args.pCommandBuffers.GetLength(); ++i)
+    {
+        if (secondary_ids[i] != format::kNullHandleId)
+        {
+            secondaries.insert(secondary_ids[i]);
+        }
     }
 }
 
