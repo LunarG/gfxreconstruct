@@ -44,6 +44,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <filesystem>
 #include <future>
 #include <map>
 #include <memory>
@@ -618,4 +619,34 @@ TEST_CASE("RemoteChannel replaces invalid UTF-8 instead of failing", "[remote_ch
 
     channel.SendDone(true);
     CHECK(controller.RecvJson().at("type") == "done");
+}
+
+TEST_CASE("OpenOutputFile writes nothing to disk after the controller closes", "[remote_channel]")
+{
+    TestController                     controller;
+    util::RemoteChannel                channel;
+    std::map<std::string, std::string> settings;
+    ChannelRunner                      runner(channel, controller.Address(), settings);
+
+    AcceptAndReadHello(controller);
+    controller.SendJson(SettingsMessage());
+    REQUIRE(controller.RecvJson().at("type") == "ready");
+    REQUIRE(runner.Result());
+
+    controller.Close();
+    std::string action;
+    channel.WaitPopControl(&action, std::chrono::seconds(kSocketTimeoutSeconds));
+    REQUIRE(channel.IsControllerClosed());
+
+    const std::filesystem::path path =
+        std::filesystem::temp_directory_path() / "gfxrecon_test_remote_channel_discarded.bin";
+    std::filesystem::remove(path);
+
+    {
+        ActiveChannelScope                  active(channel);
+        std::unique_ptr<util::OutputStream> stream = util::OpenOutputFile(path.string());
+        util::Write(*stream, "dropped");
+    }
+
+    CHECK_FALSE(std::filesystem::exists(path));
 }

@@ -197,8 +197,8 @@ when it is destroyed:
 - Dump-resources buffers: `buffer_writer.cpp`.
 - Dump-resources JSON: `vulkan_replay_dump_resources_json.cpp`.
 
-If a send fails, `IsActive()` / `IsConnected()` become false and files opened
-afterward go to disk.
+Once a channel is registered, files are never written to disk. If the
+controller has gone, their contents are discarded.
 
 ## Threading Model
 

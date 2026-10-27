@@ -121,7 +121,8 @@ class RemoteChannel
     // shutdown, both on the main thread.
     static void SetActiveChannel(RemoteChannel* channel);
 
-    // Returns true when a connected channel is registered.
+    // Returns true when a channel is registered, even if its controller has since gone. File writers check this so a
+    // remote session never falls back to writing on the device.
     static bool IsActive();
 
     // Send data to the active channel as a "file" message; a no-op when no channel is registered or connected. Lets

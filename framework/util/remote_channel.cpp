@@ -1103,8 +1103,7 @@ void RemoteChannel::SetActiveChannel(RemoteChannel* channel)
 
 bool RemoteChannel::IsActive()
 {
-    RemoteChannel* channel = active_channel_;
-    return channel != nullptr && channel->IsConnected();
+    return active_channel_ != nullptr;
 }
 
 void RemoteChannel::SendActiveFile(const std::string& name, const void* data, size_t size)
