@@ -713,8 +713,7 @@ void Dx12ResourceValueMapper::PostProcessCreateStateObject(
                 export_local_root_sig_id = explicit_default_local_root_signature_id;
             }
 
-            // Check for explicit shader ID to LRS association from existing a state object dependency (from an existing
-            // collection or input to AddToStateObject).
+            // Check for explicit shader ID to LRS association from an existing collection.
             if (lrs_associations_map.find(export_name) != lrs_associations_map.end())
             {
                 export_local_root_sig_id = lrs_associations_map[export_name];
@@ -727,13 +726,28 @@ void Dx12ResourceValueMapper::PostProcessCreateStateObject(
                 auto explicit_import_lrs = format::kNullHandleId;
                 for (const auto& hit_group_import : hit_group_import_iter->second)
                 {
+                    auto import_lrs                = format::kNullHandleId;
                     auto explicit_association_pair = explicit_local_root_signature_associations.find(hit_group_import);
                     if (explicit_association_pair != explicit_local_root_signature_associations.end())
                     {
+                        import_lrs = explicit_association_pair->second;
+                    }
+                    else
+                    {
+                        // Check if a hit group import's LRS association was in an existing collection. If so, use
+                        // that LRS association for the hit group export.
+                        auto dependency_association_pair = lrs_associations_map.find(hit_group_import);
+                        if (dependency_association_pair != lrs_associations_map.end())
+                        {
+                            import_lrs = dependency_association_pair->second;
+                        }
+                    }
+                    if (import_lrs != format::kNullHandleId)
+                    {
                         GFXRECON_ASSERT((explicit_import_lrs == format::kNullHandleId) ||
-                                        (explicit_import_lrs == explicit_association_pair->second));
-                        explicit_import_lrs      = explicit_association_pair->second;
-                        export_local_root_sig_id = explicit_import_lrs;
+                                        (explicit_import_lrs == import_lrs));
+                        explicit_import_lrs      = import_lrs;
+                        export_local_root_sig_id = import_lrs;
                     }
                 }
             }
