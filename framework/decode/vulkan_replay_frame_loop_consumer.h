@@ -62,6 +62,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     void Process_vkBeginCommandBuffer(const ApiCallInfo& call_info, args::BeginCommandBuffer& args) override;
 
+    void Process_vkCmdExecuteCommands(const ApiCallInfo& call_info, args::CmdExecuteCommands& args) override;
+
     void Process_vkDestroyDescriptorPool(const ApiCallInfo& call_info, args::DestroyDescriptorPool& args) override;
 
     void Process_vkResetDescriptorPool(const ApiCallInfo& call_info, args::ResetDescriptorPool& args) override;
@@ -430,6 +432,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     std::unordered_map<format::HandleId, std::unordered_set<format::HandleId>> descriptor_set_storage_buffers_;
 
     std::unordered_map<format::HandleId, std::unordered_set<format::HandleId>> command_buffer_bound_descriptor_sets_;
+
+    std::unordered_map<format::HandleId, std::unordered_set<format::HandleId>> command_buffer_executed_secondaries_;
 
     std::unordered_set<format::HandleId> device_address_buffers_;
 
