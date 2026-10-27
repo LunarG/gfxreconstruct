@@ -238,6 +238,14 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         const ApiCallInfo&                          call_info,
         args::CreateDescriptorPool&                 args) override;
 
+    void Process_vkUpdateDescriptorSets(
+        const ApiCallInfo&                          call_info,
+        args::UpdateDescriptorSets&                 args) override;
+
+    void Process_vkCmdBindDescriptorSets(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindDescriptorSets&                args) override;
+
     void Process_vkCreateGraphicsPipelines(
         const ApiCallInfo&                          call_info,
         args::CreateGraphicsPipelines&              args) override;
@@ -314,6 +322,18 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         const ApiCallInfo&                          call_info,
         args::TransitionImageLayout&                args) override;
 
+    void Process_vkCmdPushDescriptorSet(
+        const ApiCallInfo&                          call_info,
+        args::CmdPushDescriptorSet&                 args) override;
+
+    void Process_vkCmdBindDescriptorSets2(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindDescriptorSets2&               args) override;
+
+    void Process_vkCmdPushDescriptorSet2(
+        const ApiCallInfo&                          call_info,
+        args::CmdPushDescriptorSet2&                args) override;
+
     void Process_vkDestroySurfaceKHR(
         const ApiCallInfo&                          call_info,
         args::DestroySurfaceKHR&                    args) override;
@@ -381,6 +401,10 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
     void Process_vkImportSemaphoreFdKHR(
         const ApiCallInfo&                          call_info,
         args::ImportSemaphoreFdKHR&                 args) override;
+
+    void Process_vkCmdPushDescriptorSetKHR(
+        const ApiCallInfo&                          call_info,
+        args::CmdPushDescriptorSetKHR&              args) override;
 
     void Process_vkCreateDescriptorUpdateTemplateKHR(
         const ApiCallInfo&                          call_info,
@@ -457,6 +481,14 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
     void Process_vkReleaseSwapchainImagesKHR(
         const ApiCallInfo&                          call_info,
         args::ReleaseSwapchainImagesKHR&            args) override;
+
+    void Process_vkCmdBindDescriptorSets2KHR(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindDescriptorSets2KHR&            args) override;
+
+    void Process_vkCmdPushDescriptorSet2KHR(
+        const ApiCallInfo&                          call_info,
+        args::CmdPushDescriptorSet2KHR&             args) override;
 
     void Process_vkCreateDebugReportCallbackEXT(
         const ApiCallInfo&                          call_info,

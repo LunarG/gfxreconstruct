@@ -111,6 +111,13 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
   private:
     void TrackBufferWrite(format::HandleId commandBuffer, format::HandleId buffer) override;
 
+    void TrackBoundDescriptorSets(format::HandleId                             commandBuffer,
+                                  const HandlePointerDecoder<VkDescriptorSet>& descriptorSets) override;
+    void TrackPushDescriptorWrites(format::HandleId                                          commandBuffer,
+                                   const StructPointerDecoder<Decoded_VkWriteDescriptorSet>* descriptorWrites) override;
+    void TrackDescriptorSetWrites(const StructPointerDecoder<Decoded_VkWriteDescriptorSet>* descriptorWrites) override;
+    void TrackDescriptorSetCopies(const StructPointerDecoder<Decoded_VkCopyDescriptorSet>* descriptorCopies) override;
+
     void RemovePoolDanglingCreateDescriptors(format::HandleId descriptorPool);
 
     struct FenceTracking
@@ -307,6 +314,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     void ShadowBufferWrites(const std::vector<format::HandleId>& command_buffer_ids);
 
+    void RemovePoolDescriptorSetBuffers(format::HandleId descriptor_pool);
+
     void FixupDeviceBuffers(format::HandleId device);
     void ResetBufferTracking();
     void ResetBufferTracking(format::HandleId device);
@@ -415,6 +424,10 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     std::unordered_map<format::HandleId, ImageTracking> per_device_image_tracking_;
 
     std::unordered_map<format::HandleId, std::unordered_set<format::HandleId>> command_buffer_modified_buffers_;
+
+    std::unordered_map<format::HandleId, std::unordered_set<format::HandleId>> descriptor_set_storage_buffers_;
+
+    std::unordered_map<format::HandleId, std::unordered_set<format::HandleId>> command_buffer_bound_descriptor_sets_;
 
     // Support for vkMapMemory/vkUnMapMemory
     std::set<format::HandleId> mapped_loop_memory;

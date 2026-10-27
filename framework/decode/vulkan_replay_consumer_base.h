@@ -344,6 +344,30 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         GFXRECON_UNREFERENCED_PARAMETER(buffer);
     }
 
+    virtual void TrackBoundDescriptorSets(format::HandleId                             commandBuffer,
+                                          const HandlePointerDecoder<VkDescriptorSet>& descriptorSets)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(commandBuffer);
+        GFXRECON_UNREFERENCED_PARAMETER(descriptorSets);
+    }
+
+    virtual void TrackPushDescriptorWrites(format::HandleId                                          commandBuffer,
+                                           const StructPointerDecoder<Decoded_VkWriteDescriptorSet>* descriptorWrites)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(commandBuffer);
+        GFXRECON_UNREFERENCED_PARAMETER(descriptorWrites);
+    }
+
+    virtual void TrackDescriptorSetWrites(const StructPointerDecoder<Decoded_VkWriteDescriptorSet>* descriptorWrites)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(descriptorWrites);
+    }
+
+    virtual void TrackDescriptorSetCopies(const StructPointerDecoder<Decoded_VkCopyDescriptorSet>* descriptorCopies)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(descriptorCopies);
+    }
+
     void* PreProcessExternalObject(uint64_t object_id, format::ApiCallId call_id, const char* call_name);
 
     void PostProcessExternalObject(

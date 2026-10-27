@@ -1227,6 +1227,26 @@ class KhronosBaseGenerator(OutputGenerator):
                         writes.append((value, member.name))
         return writes
 
+    def get_descriptor_set_params(self, command):
+        """Retrieves the descriptor sets that command binds, writes or copies."""
+        is_cmd = command.startswith('vkCmd')
+        params = []
+        for value in self.all_cmd_params[command][2]:
+            candidates = [(value, None)]
+            if value.base_type in self.all_struct_members:
+                candidates += [(value, member) for member in self.all_struct_members[value.base_type]]
+
+            for owner, member in candidates:
+                item = owner if member is None else member
+                member_name = None if member is None else member.name
+                if item.base_type == 'VkDescriptorSet' and item.is_array and is_cmd:
+                    params.append(('bind', owner, member_name))
+                elif item.base_type == 'VkWriteDescriptorSet':
+                    params.append(('push' if is_cmd else 'write', owner, member_name))
+                elif item.base_type == 'VkCopyDescriptorSet':
+                    params.append(('copy', owner, member_name))
+        return params
+
     def get_filtered_cmd_names(self):
         """Retrieves a filtered list of keys from self.feature_cmd_params with blacklisted items removed."""
         return [

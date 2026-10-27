@@ -70,7 +70,8 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
                  self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_MULTIPLE_BIND_MEMORY +
                  self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_NOT_FULLY_IMPLEMENTED +
                  self.REPLAY_FRAME_LOOP_RESOURCE_FREE_NOT_FULLY_IMPLEMENTED)
-                and not self.get_buffer_write_params(command))
+                and not self.get_buffer_write_params(command)
+                and not self.get_descriptor_set_params(command))
 
     def genCallReplayConsumer(self, return_type, name, values):
         return f'{self.platform_type}ReplayConsumer::Process_{name}(call_info, args);\n'
@@ -388,6 +389,13 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '    // Record the buffers this command writes.\n'
             body += self.make_buffer_write_tracking(name)
 
+        elif self.get_descriptor_set_params(name):
+
+            body += '    ' + self.genCallReplayConsumer(return_type, name, values)
+            body += '\n'
+            body += '    // Record the descriptor sets this command binds, writes or copies.\n'
+            body += self.make_descriptor_set_tracking(name)
+
         else:
             assert False, "Bad function name in make_replay_frame_loop_consumer_func_body"
 
@@ -416,6 +424,43 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '    if ({} != nullptr)\n'.format(meta_struct)
             body += '    {\n'
             body += '        TrackBufferWrite(args.commandBuffer, {}->{});\n'.format(meta_struct, member)
+            body += '    }\n'
+
+        return body
+
+    def make_descriptor_set_tracking(self, name):
+        """Emits a tracking call for each descriptor set parameter the command takes. Handle arrays
+        are decoded by value, while a struct array is decoded by value as a parameter but held by
+        pointer as a meta struct member, so only the parameter form takes its address."""
+
+        track_calls = {
+            'bind': 'TrackBoundDescriptorSets(args.commandBuffer, {})',
+            'push': 'TrackPushDescriptorWrites(args.commandBuffer, {})',
+            'write': 'TrackDescriptorSetWrites({})',
+            'copy': 'TrackDescriptorSetCopies({})',
+        }
+
+        body = ''
+        emitted_meta_structs = []
+
+        for kind, value, member in self.get_descriptor_set_params(name):
+            track_call = track_calls[kind]
+
+            if member is None:
+                arg = 'args.{}' if kind == 'bind' else '&args.{}'
+                body += '    {};\n'.format(track_call.format(arg.format(value.name)))
+                continue
+
+            meta_struct = '{}_meta'.format(value.name)
+            if value.name not in emitted_meta_structs:
+                body += '    const Decoded_{}* {} = args.{}.GetMetaStructPointer();\n'.format(
+                    value.base_type, meta_struct, value.name
+                )
+                emitted_meta_structs.append(value.name)
+
+            body += '    if ({} != nullptr)\n'.format(meta_struct)
+            body += '    {\n'
+            body += '        {};\n'.format(track_call.format('{}->{}'.format(meta_struct, member)))
             body += '    }\n'
 
         return body
