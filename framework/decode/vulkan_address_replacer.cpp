@@ -1572,7 +1572,26 @@ void VulkanAddressReplacer::ProcessCmdCopyAccelerationStructuresKHR(
             const bool  dst_is_usable = dst_info->size >= required_size && buffer_info != nullptr &&
                                        buffer_info->size >= dst_info->offset + required_size;
 
-            const VkDeviceAddress dst_replay_address = dst_info->replay_address;
+            VkDeviceAddress dst_replay_address = dst_info->replay_address;
+
+            // dst_replay_address could be 0 if the game doesn't call GetAccelerationStructureDeviceAddress before the
+            // copy.
+            if (!dst_is_usable && dst_replay_address == 0)
+            {
+                VkAccelerationStructureDeviceAddressInfoKHR address_info = {};
+                address_info.sType                 = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR;
+                address_info.accelerationStructure = info->dst;
+
+                auto injected      = device_table_->Open();
+                dst_replay_address = injected->GetAccelerationStructureDeviceAddressKHR(device_, &address_info);
+
+                auto* dst_info_mut = object_table_->GetVkAccelerationStructureKHRInfo(dst_info->capture_id);
+                GFXRECON_ASSERT(dst_info_mut != nullptr);
+                if (dst_info_mut != nullptr)
+                {
+                    dst_info_mut->replay_address = dst_replay_address;
+                }
+            }
 
             if (!dst_is_usable && dst_replay_address != 0)
             {
