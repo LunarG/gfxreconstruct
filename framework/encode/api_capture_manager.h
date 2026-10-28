@@ -137,16 +137,14 @@ class ApiCaptureManager
     bool ScreenshotsEnabled() { return common_manager_->ScreenshotsEnabled(); }
     bool ShouldTriggerScreenshot() { return common_manager_->ShouldTriggerScreenshot(); }
 
-    void CheckContinueCaptureForWriteMode(uint32_t                                               current_boundary_count,
-                                          std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock)
+    void CheckContinueCaptureForWriteMode(uint32_t current_boundary_count)
     {
-        common_manager_->CheckContinueCaptureForWriteMode(api_family_, current_boundary_count, current_lock);
+        common_manager_->CheckContinueCaptureForWriteMode(api_family_, current_boundary_count);
     }
 
-    void CheckStartCaptureForTrackMode(uint32_t                                               current_boundary_count,
-                                       std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock)
+    void CheckStartCaptureForTrackMode(uint32_t current_boundary_count)
     {
-        common_manager_->CheckStartCaptureForTrackMode(api_family_, current_boundary_count, current_lock);
+        common_manager_->CheckStartCaptureForTrackMode(api_family_, current_boundary_count);
     }
 
     bool IsTrimHotkeyPressed() { return common_manager_->IsTrimHotkeyPressed(); }
@@ -205,7 +203,6 @@ class ApiCaptureManager
     bool                              IsTrimEnabled() const { return common_manager_->IsTrimEnabled(); }
     uint32_t                          GetCurrentFrame() const { return common_manager_->GetCurrentFrame(); }
     CommonCaptureManager::CaptureMode GetCaptureMode() const { return common_manager_->GetCaptureMode(); }
-    void SetCaptureMode(CommonCaptureManager::CaptureMode mode) { common_manager_->SetCaptureMode(mode); }
     bool GetDebugLayerSetting() const { return common_manager_->GetDebugLayerSetting(); }
     bool GetDebugDeviceLostSetting() const { return common_manager_->GetDebugDeviceLostSetting(); }
     bool GetDisableDxrSetting() const { return common_manager_->GetDisableDxrSetting(); }

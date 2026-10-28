@@ -179,7 +179,6 @@ class OpenXrApiCallEncodersBodyGenerator(OpenXrBaseGenerator, KhronosApiCallEnco
                         ]
                     )
 
-                body += indent + 'CommonCaptureManager::CaptureMode save_capture_mode;\n'
                 top_indent = indent + ' ' * self.INDENT_SIZE
                 body += indent + '{\n'
 
@@ -228,10 +227,6 @@ class OpenXrApiCallEncodersBodyGenerator(OpenXrBaseGenerator, KhronosApiCallEnco
                     ]
                 )
 
-            # Disable capture for reentrance
-            body += top_indent + 'save_capture_mode = manager->GetCaptureMode();\n'
-            body += top_indent + 'manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);\n'
-
             # Unlock above (only !is_override)
             body += indent + '}\n\n'
 
@@ -246,18 +241,23 @@ class OpenXrApiCallEncodersBodyGenerator(OpenXrBaseGenerator, KhronosApiCallEnco
             if call_setup_expr:
                 for e in call_setup_expr:
                     body += indent + e + '\n'
+            # The runtime can call the Vulkan entry points of this layer during the dispatch.
+            # Suppress capture of those calls on this thread for the duration of the dispatch.
+            suppress_expr = 'CommonCaptureManager::ScopedReentrantCaptureSuppression suppress_reentrant_capture;'
             if return_type and return_type != 'void':
-                body += indent + '{} result = {};\n'.format(
-                    return_type, call_expr
-                )
+                body += indent + '{} result;\n'.format(return_type)
+                body += indent + '{\n'
+                body += top_indent + suppress_expr + '\n'
+                body += top_indent + 'result = {};\n'.format(call_expr)
+                body += indent + '}\n'
             else:
-                body += indent + '{};\n'.format(call_expr)
+                body += indent + '{\n'
+                body += top_indent + suppress_expr + '\n'
+                body += top_indent + '{};\n'.format(call_expr)
+                body += indent + '}\n'
 
             # Need to relock, since lock was released before dispatch
             body += '\n' + indent + lock_call
-
-            # Restore capture_mode
-            body += indent + 'manager->SetCaptureMode(save_capture_mode);\n'
 
             # Wrap newly created handles.
             wrap_expr = self.make_handle_wrapping(values, indent)
