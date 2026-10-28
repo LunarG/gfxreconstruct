@@ -23,6 +23,7 @@
 #ifndef GFXRECON_DECODE_VULKAN_REPLAY_FRAME_LOOP_CONSUMER_H
 #define GFXRECON_DECODE_VULKAN_REPLAY_FRAME_LOOP_CONSUMER_H
 
+#include "generated/generated_vulkan_decoder.h"
 #include "util/defines.h"
 #include "decode/vulkan_replay_consumer_base.h"
 #include "decode/vulkan_temporary_objects.h"
@@ -41,9 +42,10 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
   public:
     VulkanReplayFrameLoopConsumer(std::shared_ptr<application::Application> application,
                                   const VulkanReplayOptions&                options,
-                                  graphics::FrameLoopInfo&                  frame_loop_info) :
+                                  graphics::FrameLoopInfo&                  frame_loop_info,
+                                  VulkanDecoder*                            decoder) :
         VulkanReplayFrameLoopConsumerBase(application, options),
-        frame_loop_info_(frame_loop_info)
+        frame_loop_info_(frame_loop_info), decoder_(decoder)
     {}
 
     ~VulkanReplayFrameLoopConsumer() override;
@@ -382,6 +384,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     void           FixupDeviceImages(format::HandleId device, format::HandleId queue);
     void           ResetImageTracking();
     void           ResetImageTracking(format::HandleId device);
+
+    void FixupCommandBuffers();
 
     // Private data
   private:

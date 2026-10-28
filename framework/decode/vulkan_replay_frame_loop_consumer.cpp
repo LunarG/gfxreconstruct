@@ -21,7 +21,10 @@
 */
 
 #include "decode/custom_vulkan_struct_handle_mappers.h"
+#include "decode/vulkan_decoder_base.h"
+#include "decode/vulkan_object_info.h"
 #include "decode/vulkan_temporary_objects.h"
+#include "generated/generated_vulkan_decoder.h"
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_resources_util.h"
 #include "graphics/vulkan_struct_get_pnext.h"
@@ -30,6 +33,7 @@
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 #include "generated/generated_vulkan_replay_consumer.h"
 #include "generated/generated_vulkan_replay_frame_loop_consumer_base.h"
+#include "util/logging.h"
 #include "decode/vulkan_replay_frame_loop_consumer.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -2210,6 +2214,29 @@ void VulkanReplayFrameLoopConsumer::ImageTracking::DestroyShadowImages()
     restore_commands_ = {};
 }
 
+void VulkanReplayFrameLoopConsumer::FixupCommandBuffers()
+{
+    // Replay saved state commands for all command buffers
+    GetObjectInfoTable().VisitVkCommandBufferInfo([this](const VulkanCommandBufferInfo* info) {
+        auto& stored_commands = this->decoder_->GetStoredCommandBufferCommands();
+        if (stored_commands.contains(info->capture_id))
+        {
+            // Need to reset command buffer before reissuing commands
+            VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(info->parent_id);
+            VkResult          res         = GetDeviceTable(device_info->handle)->ResetCommandBuffer(info->handle, 0);
+            CHECK_VK_RESULT(res, "vkResetCommandBuffer");
+
+            std::vector<VulkanDecoderBase::StoredCommand>& commands = stored_commands[info->capture_id];
+            for (VulkanDecoderBase::StoredCommand& command : commands)
+            {
+                GFXRECON_LOG_DEBUG("Replaying command buffer API call with id %lu", command.call_id);
+                decoder_->DecodeFunctionCall(
+                    command.call_id, command.call_info, command.parameter_buffer.data(), command.buffer_size);
+            }
+        }
+    });
+}
+
 void VulkanReplayFrameLoopConsumer::FixupDeviceObjects(format::HandleId device, format::HandleId queue)
 {
     if (!frame_loop_info_.IsLooping() || frame_loop_info_.IsFinalIteration())
@@ -2221,6 +2248,7 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceObjects(format::HandleId device, 
     FixupDeviceFences(device, queue);
     FixupDeviceBuffers(device);
     GetSemaphoreTracking(device).FixupSemaphores(queue);
+    FixupCommandBuffers();
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkQueueBindSparse(const ApiCallInfo& call_info, args::QueueBindSparse& args)

@@ -30,6 +30,7 @@
 #include "format/format.h"
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_consumer.h"
+#include "graphics/frame_loop_info.h"
 #include "util/defines.h"
 #include "decoder_util.h"
 
@@ -210,6 +211,10 @@ class VulkanDecoderBase : public ApiDecoder
 
     virtual void SetCurrentFrameNumber(uint64_t frame_number) override;
 
+    // Should be virtual and apply to more classes?
+    graphics::FrameLoopInfo* GetFrameLoopInfo();
+    void                     SetFrameLoopInfo(graphics::FrameLoopInfo* info);
+
     void DispatchVulkanAccelerationStructuresBuildMetaCommand(const uint8_t* parameter_buffer,
                                                               size_t         buffer_size) override;
 
@@ -224,8 +229,19 @@ class VulkanDecoderBase : public ApiDecoder
                                                int64_t            offset,
                                                const std::string& filename) override;
 
+    struct StoredCommand
+    {
+        format::ApiCallId    call_id;
+        const ApiCallInfo&   call_info;
+        std::vector<uint8_t> parameter_buffer; // Copy of Block data
+        size_t               buffer_size;
+    };
+    std::unordered_map<format::HandleId, std::vector<StoredCommand>>& GetStoredCommandBufferCommands();
+
   protected:
     const std::vector<VulkanConsumer*>& GetConsumers() const { return consumers_; }
+
+    std::unordered_map<format::HandleId, std::vector<StoredCommand>> command_buffer_commands_;
 
   private:
     size_t Decode_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo& call_info,
@@ -270,6 +286,7 @@ class VulkanDecoderBase : public ApiDecoder
 
   private:
     std::vector<VulkanConsumer*> consumers_;
+    graphics::FrameLoopInfo*     frame_loop_info_ = nullptr;
 
     struct DeferredOperationFunctionCallData
     {
