@@ -435,14 +435,14 @@ void VulkanReplayFrameLoopConsumer::Process_vkFreeMemory(const ApiCallInfo& call
     }
 }
 
-// Only these usages let the device write to a buffer.
+// Only these usages let the device write to a buffer. Transfer writes are tracked by command instead.
 static bool CanWriteBuffer(const VkBufferCreateInfo* create_info)
 {
     if (const auto* usage_flags2 = graphics::vulkan_struct_get_pnext<VkBufferUsageFlags2CreateInfo>(create_info))
     {
         constexpr VkBufferUsageFlags2 kWritableUsage2 =
-            VK_BUFFER_USAGE_2_TRANSFER_DST_BIT | VK_BUFFER_USAGE_2_STORAGE_TEXEL_BUFFER_BIT |
-            VK_BUFFER_USAGE_2_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_2_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT |
+            VK_BUFFER_USAGE_2_STORAGE_TEXEL_BUFFER_BIT | VK_BUFFER_USAGE_2_STORAGE_BUFFER_BIT |
+            VK_BUFFER_USAGE_2_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT |
             VK_BUFFER_USAGE_2_TRANSFORM_FEEDBACK_COUNTER_BUFFER_BIT_EXT | VK_BUFFER_USAGE_2_SHADER_DEVICE_ADDRESS_BIT |
             VK_BUFFER_USAGE_2_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_2_MICROMAP_STORAGE_BIT_EXT |
             VK_BUFFER_USAGE_2_VIDEO_ENCODE_DST_BIT_KHR;
@@ -451,7 +451,7 @@ static bool CanWriteBuffer(const VkBufferCreateInfo* create_info)
     }
 
     constexpr VkBufferUsageFlags kWritableUsage =
-        VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
+        VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
         VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT | VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_COUNTER_BUFFER_BIT_EXT |
         VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR |
         VK_BUFFER_USAGE_MICROMAP_STORAGE_BIT_EXT | VK_BUFFER_USAGE_VIDEO_ENCODE_DST_BIT_KHR;
