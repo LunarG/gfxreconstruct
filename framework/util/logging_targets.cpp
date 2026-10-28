@@ -181,49 +181,50 @@ void LoggingTargetFile::SetStringExtendedOption(LoggingExtendedOption option, st
     if (option == kOption_FileName)
     {
         bool succeeded = true;
-        if (log_stream_.is_open() && value != log_file_name_)
-        {
-            CloseFile();
-        }
-
         if (value != log_file_name_ || create_new_)
         {
+            CloseFile();
             log_file_name_ = value;
-            succeeded      = succeeded && OpenFile();
+            succeeded      = OpenFile(create_new_);
+            if (succeeded && !leave_open_)
+            {
+                CloseFile();
+            }
         }
         enabled_ = succeeded;
     }
 }
 
-bool LoggingTargetFile::OpenFile()
+// The file target runs under LoggingManager's lock, so it cannot report through GFXRECON_LOG_*.
+static void ReportFileTargetError(const std::string& message)
+{
+#if defined(__ANDROID__)
+    __android_log_print(ANDROID_LOG_ERROR, "gfxrecon", "%s", message.c_str());
+#else
+    fprintf(stderr, "[gfxrecon] ERROR - %s\n", message.c_str());
+#endif
+}
+
+bool LoggingTargetFile::OpenFile(bool truncate)
 {
     bool success = false;
 
     const std::lock_guard<std::mutex> lock(file_mut_);
 
-    // Erase any previous contents
-    std::ofstream::openmode open_mode = std::ofstream::out;
-    if (!create_new_)
-    {
-        open_mode |= std::ofstream::app;
-    }
-    else
-    {
-        open_mode |= std::ofstream::trunc;
-    }
+    const std::ofstream::openmode open_mode =
+        std::ofstream::out | (truncate ? std::ofstream::trunc : std::ofstream::app);
 
     log_stream_.open(log_file_name_, open_mode);
     if (log_stream_.is_open())
     {
-        if (!leave_open_)
-        {
-            CloseFile();
-        }
         success = true;
     }
-    else
+    else if (!open_failure_reported_)
     {
-        GFXRECON_LOG_ERROR("Failed opening log file %s with returned result %d", log_file_name_.c_str(), errno);
+        // Once: with leave_open_ false, every message reopens the file.
+        open_failure_reported_ = true;
+        ReportFileTargetError("Failed opening log file " + log_file_name_ + " with returned result " +
+                              std::to_string(errno));
     }
 
     return success;
@@ -246,13 +247,10 @@ void LoggingTargetFile::LogMessage(LoggingSeverity severity, const std::string& 
         return;
     }
 
-    if (!leave_open_)
+    // Appends: only setting the file name honors create_new_.
+    if (!leave_open_ && !OpenFile(false))
     {
-        if (!OpenFile())
-        {
-            GFXRECON_LOG_ERROR_ONCE("Failed to open log file %s", log_file_name_.c_str());
-            return;
-        }
+        return;
     }
 
     {

@@ -192,13 +192,14 @@ class LoggingTargetFile : public LoggingTargetBase
     void Flush() override;
 
   private:
-    bool OpenFile();
+    bool OpenFile(bool truncate);
     void CloseFile();
 
     std::string              log_file_name_;
     std::ofstream            log_stream_;
     bool                     create_new_{ true };
     bool                     leave_open_{ false };
+    bool                     open_failure_reported_{ false };
     inline static std::mutex file_mut_;
 };
 
