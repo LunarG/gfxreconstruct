@@ -146,6 +146,14 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         const ApiCallInfo&                          call_info,
         args::FreeCommandBuffers&                   args) override;
 
+    void Process_vkCmdCopyImage(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyImage&                         args) override;
+
+    void Process_vkCmdCopyBufferToImage(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyBufferToImage&                 args) override;
+
     void Process_vkCreateEvent(
         const ApiCallInfo&                          call_info,
         args::CreateEvent&                          args) override;
@@ -218,6 +226,10 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         const ApiCallInfo&                          call_info,
         args::CreateDescriptorPool&                 args) override;
 
+    void Process_vkCmdClearColorImage(
+        const ApiCallInfo&                          call_info,
+        args::CmdClearColorImage&                   args) override;
+
     void Process_vkCreateGraphicsPipelines(
         const ApiCallInfo&                          call_info,
         args::CreateGraphicsPipelines&              args) override;
@@ -237,6 +249,18 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
     void Process_vkDestroyRenderPass(
         const ApiCallInfo&                          call_info,
         args::DestroyRenderPass&                    args) override;
+
+    void Process_vkCmdBlitImage(
+        const ApiCallInfo&                          call_info,
+        args::CmdBlitImage&                         args) override;
+
+    void Process_vkCmdClearDepthStencilImage(
+        const ApiCallInfo&                          call_info,
+        args::CmdClearDepthStencilImage&            args) override;
+
+    void Process_vkCmdResolveImage(
+        const ApiCallInfo&                          call_info,
+        args::CmdResolveImage&                      args) override;
 
     void Process_vkBindBufferMemory2(
         const ApiCallInfo&                          call_info,
@@ -273,6 +297,22 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
     void Process_vkDestroyPrivateDataSlot(
         const ApiCallInfo&                          call_info,
         args::DestroyPrivateDataSlot&               args) override;
+
+    void Process_vkCmdCopyImage2(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyImage2&                        args) override;
+
+    void Process_vkCmdCopyBufferToImage2(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyBufferToImage2&                args) override;
+
+    void Process_vkCmdBlitImage2(
+        const ApiCallInfo&                          call_info,
+        args::CmdBlitImage2&                        args) override;
+
+    void Process_vkCmdResolveImage2(
+        const ApiCallInfo&                          call_info,
+        args::CmdResolveImage2&                     args) override;
 
     void Process_vkMapMemory2(
         const ApiCallInfo&                          call_info,
@@ -402,6 +442,22 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         const ApiCallInfo&                          call_info,
         args::UnmapMemory2KHR&                      args) override;
 
+    void Process_vkCmdCopyImage2KHR(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyImage2KHR&                     args) override;
+
+    void Process_vkCmdCopyBufferToImage2KHR(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyBufferToImage2KHR&             args) override;
+
+    void Process_vkCmdBlitImage2KHR(
+        const ApiCallInfo&                          call_info,
+        args::CmdBlitImage2KHR&                     args) override;
+
+    void Process_vkCmdResolveImage2KHR(
+        const ApiCallInfo&                          call_info,
+        args::CmdResolveImage2KHR&                  args) override;
+
     void Process_vkCreatePipelineBinariesKHR(
         const ApiCallInfo&                          call_info,
         args::CreatePipelineBinariesKHR&            args) override;
@@ -417,6 +473,10 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
     void Process_vkReleaseSwapchainImagesKHR(
         const ApiCallInfo&                          call_info,
         args::ReleaseSwapchainImagesKHR&            args) override;
+
+    void Process_vkCmdCopyMemoryToImageIndirectKHR(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyMemoryToImageIndirectKHR&      args) override;
 
     void Process_vkCreateDebugReportCallbackEXT(
         const ApiCallInfo&                          call_info,

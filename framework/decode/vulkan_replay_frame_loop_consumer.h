@@ -60,6 +60,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     void Process_vkBeginCommandBuffer(const ApiCallInfo& call_info, args::BeginCommandBuffer& args) override;
 
+    void Process_vkCmdExecuteCommands(const ApiCallInfo& call_info, args::CmdExecuteCommands& args) override;
+
     void Process_vkDestroyDescriptorPool(const ApiCallInfo& call_info, args::DestroyDescriptorPool& args) override;
 
     void Process_vkResetDescriptorPool(const ApiCallInfo& call_info, args::ResetDescriptorPool& args) override;
@@ -109,6 +111,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     // Private declarations
   private:
+    void TrackImageWrite(format::HandleId commandBuffer, format::HandleId image) override;
+
     void RemovePoolDanglingCreateDescriptors(format::HandleId descriptorPool);
 
     struct FenceTracking
@@ -336,6 +340,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
             VkImageSubresourceRange shadow_range{};
 
+            bool contents_recorded{ false };
+
             bool HasShadow() const { return shadow_image != VK_NULL_HANDLE; }
         };
 
@@ -358,6 +364,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
         void RecordInitialState(const std::vector<format::HandleId>& image_ids,
                                 const std::vector<format::HandleId>& restorable_image_ids);
 
+        void RecordInitialContents(const std::vector<format::HandleId>& image_ids);
+
         void Restore(format::HandleId queue);
 
         void DestroyShadowImages();
@@ -379,6 +387,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     ImageTracking& GetImageTracking(format::HandleId device);
     bool           CanSnapshotImageContents(const VulkanImageInfo* image_info) const;
     void           TrackImageStates();
+    void           ShadowImageWrites(const std::vector<format::HandleId>& command_buffer_ids);
     void           FixupDeviceImages(format::HandleId device, format::HandleId queue);
     void           ResetImageTracking();
     void           ResetImageTracking(format::HandleId device);
@@ -408,7 +417,13 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     std::unordered_set<format::HandleId> restorable_images_;
 
+    std::unordered_set<format::HandleId> writable_images_;
+
     std::unordered_map<format::HandleId, ImageTracking> per_device_image_tracking_;
+
+    std::unordered_map<format::HandleId, std::unordered_set<format::HandleId>> command_buffer_modified_images_;
+
+    std::unordered_map<format::HandleId, std::unordered_set<format::HandleId>> command_buffer_executed_secondaries_;
 
     // Support for vkMapMemory/vkUnMapMemory
     std::set<format::HandleId> mapped_loop_memory;

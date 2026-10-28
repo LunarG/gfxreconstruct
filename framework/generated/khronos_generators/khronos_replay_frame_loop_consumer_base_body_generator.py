@@ -69,7 +69,8 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
                  self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_SINGLE_BIND_MEMORY +
                  self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_MULTIPLE_BIND_MEMORY +
                  self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_NOT_FULLY_IMPLEMENTED +
-                 self.REPLAY_FRAME_LOOP_RESOURCE_FREE_NOT_FULLY_IMPLEMENTED))
+                 self.REPLAY_FRAME_LOOP_RESOURCE_FREE_NOT_FULLY_IMPLEMENTED)
+                and not self.get_image_write_params(command))
 
     def genCallReplayConsumer(self, return_type, name, values):
         return f'{self.platform_type}ReplayConsumer::Process_{name}(call_info, args);\n'
@@ -380,8 +381,42 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '    }\n'
             body += '    ' + self.genCallReplayConsumer(return_type, name, values)
 
+        elif self.get_image_write_params(name):
+
+            body += '    ' + self.genCallReplayConsumer(return_type, name, values)
+            body += '\n'
+            body += '    // Record the images this command writes.\n'
+            body += self.make_image_write_tracking(name)
+
         else:
             assert False, "Bad function name in make_replay_frame_loop_consumer_func_body"
+
+        return body
+
+    def make_image_write_tracking(self, name):
+        """Emits the TrackImageWrite() call for each image the command writes. An image
+        reached through a struct parameter is read from the decoded meta struct, which carries
+        the capture id that TrackImageWrite() expects."""
+
+        body = ''
+        emitted_meta_structs = []
+
+        for value, member in self.get_image_write_params(name):
+            if member is None:
+                body += '    TrackImageWrite(args.commandBuffer, args.{});\n'.format(value.name)
+                continue
+
+            meta_struct = '{}_meta'.format(value.name)
+            if value.name not in emitted_meta_structs:
+                body += '    const Decoded_{}* {} = args.{}.GetMetaStructPointer();\n'.format(
+                    value.base_type, meta_struct, value.name
+                )
+                emitted_meta_structs.append(value.name)
+
+            body += '    if ({} != nullptr)\n'.format(meta_struct)
+            body += '    {\n'
+            body += '        TrackImageWrite(args.commandBuffer, {}->{});\n'.format(meta_struct, member)
+            body += '    }\n'
 
         return body
 

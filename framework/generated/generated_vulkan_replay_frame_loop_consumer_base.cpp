@@ -723,6 +723,26 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkFreeCommandBuffers(
     VulkanReplayConsumer::Process_vkFreeCommandBuffers(call_info, args);
 }
 
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyImage(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyImage&                         args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyImage(call_info, args);
+
+    // Record the images this command writes.
+    TrackImageWrite(args.commandBuffer, args.dstImage);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyBufferToImage(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyBufferToImage&                 args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyBufferToImage(call_info, args);
+
+    // Record the images this command writes.
+    TrackImageWrite(args.commandBuffer, args.dstImage);
+}
+
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateEvent(
     const ApiCallInfo&                          call_info,
     args::CreateEvent&                          args)
@@ -1379,6 +1399,16 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDescriptorPool(
     }
 }
 
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdClearColorImage(
+    const ApiCallInfo&                          call_info,
+    args::CmdClearColorImage&                   args)
+{
+    VulkanReplayConsumer::Process_vkCmdClearColorImage(call_info, args);
+
+    // Record the images this command writes.
+    TrackImageWrite(args.commandBuffer, args.image);
+}
+
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateGraphicsPipelines(
     const ApiCallInfo&                          call_info,
     args::CreateGraphicsPipelines&              args)
@@ -1614,6 +1644,36 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyRenderPass(
         // If this resource binds to memory, remove it from bound memory set
         boundMemory.erase(args.renderPass);
     }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdBlitImage(
+    const ApiCallInfo&                          call_info,
+    args::CmdBlitImage&                         args)
+{
+    VulkanReplayConsumer::Process_vkCmdBlitImage(call_info, args);
+
+    // Record the images this command writes.
+    TrackImageWrite(args.commandBuffer, args.dstImage);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdClearDepthStencilImage(
+    const ApiCallInfo&                          call_info,
+    args::CmdClearDepthStencilImage&            args)
+{
+    VulkanReplayConsumer::Process_vkCmdClearDepthStencilImage(call_info, args);
+
+    // Record the images this command writes.
+    TrackImageWrite(args.commandBuffer, args.image);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdResolveImage(
+    const ApiCallInfo&                          call_info,
+    args::CmdResolveImage&                      args)
+{
+    VulkanReplayConsumer::Process_vkCmdResolveImage(call_info, args);
+
+    // Record the images this command writes.
+    TrackImageWrite(args.commandBuffer, args.dstImage);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkBindBufferMemory2(
@@ -1935,6 +1995,62 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPrivateDataSlot(
 
         // If this resource binds to memory, remove it from bound memory set
         boundMemory.erase(args.privateDataSlot);
+    }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyImage2(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyImage2&                        args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyImage2(call_info, args);
+
+    // Record the images this command writes.
+    const Decoded_VkCopyImageInfo2* pCopyImageInfo_meta = args.pCopyImageInfo.GetMetaStructPointer();
+    if (pCopyImageInfo_meta != nullptr)
+    {
+        TrackImageWrite(args.commandBuffer, pCopyImageInfo_meta->dstImage);
+    }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyBufferToImage2(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyBufferToImage2&                args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyBufferToImage2(call_info, args);
+
+    // Record the images this command writes.
+    const Decoded_VkCopyBufferToImageInfo2* pCopyBufferToImageInfo_meta = args.pCopyBufferToImageInfo.GetMetaStructPointer();
+    if (pCopyBufferToImageInfo_meta != nullptr)
+    {
+        TrackImageWrite(args.commandBuffer, pCopyBufferToImageInfo_meta->dstImage);
+    }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdBlitImage2(
+    const ApiCallInfo&                          call_info,
+    args::CmdBlitImage2&                        args)
+{
+    VulkanReplayConsumer::Process_vkCmdBlitImage2(call_info, args);
+
+    // Record the images this command writes.
+    const Decoded_VkBlitImageInfo2* pBlitImageInfo_meta = args.pBlitImageInfo.GetMetaStructPointer();
+    if (pBlitImageInfo_meta != nullptr)
+    {
+        TrackImageWrite(args.commandBuffer, pBlitImageInfo_meta->dstImage);
+    }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdResolveImage2(
+    const ApiCallInfo&                          call_info,
+    args::CmdResolveImage2&                     args)
+{
+    VulkanReplayConsumer::Process_vkCmdResolveImage2(call_info, args);
+
+    // Record the images this command writes.
+    const Decoded_VkResolveImageInfo2* pResolveImageInfo_meta = args.pResolveImageInfo.GetMetaStructPointer();
+    if (pResolveImageInfo_meta != nullptr)
+    {
+        TrackImageWrite(args.commandBuffer, pResolveImageInfo_meta->dstImage);
     }
 }
 
@@ -2877,6 +2993,62 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkUnmapMemory2KHR(
     VulkanReplayConsumer::Process_vkUnmapMemory2KHR(call_info, args);
 }
 
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyImage2KHR(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyImage2KHR&                     args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyImage2KHR(call_info, args);
+
+    // Record the images this command writes.
+    const Decoded_VkCopyImageInfo2* pCopyImageInfo_meta = args.pCopyImageInfo.GetMetaStructPointer();
+    if (pCopyImageInfo_meta != nullptr)
+    {
+        TrackImageWrite(args.commandBuffer, pCopyImageInfo_meta->dstImage);
+    }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyBufferToImage2KHR(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyBufferToImage2KHR&             args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyBufferToImage2KHR(call_info, args);
+
+    // Record the images this command writes.
+    const Decoded_VkCopyBufferToImageInfo2* pCopyBufferToImageInfo_meta = args.pCopyBufferToImageInfo.GetMetaStructPointer();
+    if (pCopyBufferToImageInfo_meta != nullptr)
+    {
+        TrackImageWrite(args.commandBuffer, pCopyBufferToImageInfo_meta->dstImage);
+    }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdBlitImage2KHR(
+    const ApiCallInfo&                          call_info,
+    args::CmdBlitImage2KHR&                     args)
+{
+    VulkanReplayConsumer::Process_vkCmdBlitImage2KHR(call_info, args);
+
+    // Record the images this command writes.
+    const Decoded_VkBlitImageInfo2* pBlitImageInfo_meta = args.pBlitImageInfo.GetMetaStructPointer();
+    if (pBlitImageInfo_meta != nullptr)
+    {
+        TrackImageWrite(args.commandBuffer, pBlitImageInfo_meta->dstImage);
+    }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdResolveImage2KHR(
+    const ApiCallInfo&                          call_info,
+    args::CmdResolveImage2KHR&                  args)
+{
+    VulkanReplayConsumer::Process_vkCmdResolveImage2KHR(call_info, args);
+
+    // Record the images this command writes.
+    const Decoded_VkResolveImageInfo2* pResolveImageInfo_meta = args.pResolveImageInfo.GetMetaStructPointer();
+    if (pResolveImageInfo_meta != nullptr)
+    {
+        TrackImageWrite(args.commandBuffer, pResolveImageInfo_meta->dstImage);
+    }
+}
+
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreatePipelineBinariesKHR(
     const ApiCallInfo&                          call_info,
     args::CreatePipelineBinariesKHR&            args)
@@ -2956,6 +3128,20 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkReleaseSwapchainImagesKHR(
         return;
     }
     VulkanReplayConsumer::Process_vkReleaseSwapchainImagesKHR(call_info, args);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyMemoryToImageIndirectKHR(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyMemoryToImageIndirectKHR&      args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyMemoryToImageIndirectKHR(call_info, args);
+
+    // Record the images this command writes.
+    const Decoded_VkCopyMemoryToImageIndirectInfoKHR* pCopyMemoryToImageIndirectInfo_meta = args.pCopyMemoryToImageIndirectInfo.GetMetaStructPointer();
+    if (pCopyMemoryToImageIndirectInfo_meta != nullptr)
+    {
+        TrackImageWrite(args.commandBuffer, pCopyMemoryToImageIndirectInfo_meta->dstImage);
+    }
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDebugReportCallbackEXT(
