@@ -345,6 +345,7 @@ def handle_session(conn, options, output_dir, hello=None):
         elif msg_type == 'done':
             success = bool(msg.get('success'))
             print(f'Replay finished (success={success})')
+            # Replay waits for us to close first; run_session closes on return.
             break
         else:
             print(f'Unknown message: {msg}', file=sys.stderr)

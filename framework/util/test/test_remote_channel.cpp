@@ -104,7 +104,7 @@ void SetTestRecvTimeout(TestSocket sock)
 #endif
 
 // The controller half of the connection: binds an ephemeral loopback port, accepts one RemoteChannel, and reads and
-// writes length-prefixed frames directly.
+// writes length-prefixed frames directly. Declared after the channel, so it closes first as Disconnect() expects.
 class TestController
 {
   public:
@@ -282,6 +282,16 @@ json SettingsMessage()
     return json{ { "type", "settings" }, { "options", { { "capture_file", "capture.gfxr" } } } };
 }
 
+// SendDone() waits for the controller to close, so it runs off the test thread while the test reads "done" and closes.
+json SendDoneAndClose(util::RemoteChannel& channel, TestController& controller, bool success)
+{
+    auto       sent = std::async(std::launch::async, [&channel, success]() { channel.SendDone(success); });
+    const json done = controller.RecvJson();
+    controller.Close();
+    REQUIRE(sent.wait_for(std::chrono::seconds(kSocketTimeoutSeconds)) == std::future_status::ready);
+    return done;
+}
+
 // Clears the process-wide channel even when a failed REQUIRE unwinds the test, so later tests never see a dead one.
 class ActiveChannelScope
 {
@@ -297,8 +307,8 @@ class ActiveChannelScope
 
 TEST_CASE("RemoteChannel hello announces the protocol version", "[remote_channel]")
 {
-    TestController                     controller;
     util::RemoteChannel                channel;
+    TestController                     controller;
     std::map<std::string, std::string> settings;
     ChannelRunner                      runner(channel, controller.Address(), settings);
 
@@ -322,8 +332,8 @@ TEST_CASE("RemoteChannel handshake rejects a malformed opening turn", "[remote_c
     // Every case here must fail the handshake rather than degrade silently, so a controller bug surfaces at startup.
     SECTION("settings carrying a non-string value")
     {
-        TestController                     controller;
         util::RemoteChannel                channel;
+        TestController                     controller;
         std::map<std::string, std::string> settings;
         ChannelRunner                      runner(channel, controller.Address(), settings);
 
@@ -335,8 +345,8 @@ TEST_CASE("RemoteChannel handshake rejects a malformed opening turn", "[remote_c
 
     SECTION("settings with no options at all")
     {
-        TestController                     controller;
         util::RemoteChannel                channel;
+        TestController                     controller;
         std::map<std::string, std::string> settings;
         ChannelRunner                      runner(channel, controller.Address(), settings);
 
@@ -348,8 +358,8 @@ TEST_CASE("RemoteChannel handshake rejects a malformed opening turn", "[remote_c
 
     SECTION("an unparseable frame")
     {
-        TestController                     controller;
         util::RemoteChannel                channel;
+        TestController                     controller;
         std::map<std::string, std::string> settings;
         ChannelRunner                      runner(channel, controller.Address(), settings);
 
@@ -363,8 +373,8 @@ TEST_CASE("RemoteChannel handshake rejects a malformed opening turn", "[remote_c
 
 TEST_CASE("RemoteChannel sends a file as a header frame followed by its payload", "[remote_channel]")
 {
-    TestController                     controller;
     util::RemoteChannel                channel;
+    TestController                     controller;
     std::map<std::string, std::string> settings;
     ChannelRunner                      runner(channel, controller.Address(), settings);
 
@@ -394,8 +404,8 @@ TEST_CASE("RemoteChannel sends a file as a header frame followed by its payload"
 
 TEST_CASE("OpenOutputFile sends the whole file to the active channel when the stream is destroyed", "[remote_channel]")
 {
-    TestController                     controller;
     util::RemoteChannel                channel;
+    TestController                     controller;
     std::map<std::string, std::string> settings;
     ChannelRunner                      runner(channel, controller.Address(), settings);
 
@@ -429,8 +439,8 @@ TEST_CASE("OpenOutputFile sends the whole file to the active channel when the st
 
 TEST_CASE("RemoteChannel reports status and completion", "[remote_channel]")
 {
-    TestController                     controller;
     util::RemoteChannel                channel;
+    TestController                     controller;
     std::map<std::string, std::string> settings;
     ChannelRunner                      runner(channel, controller.Address(), settings);
 
@@ -446,16 +456,40 @@ TEST_CASE("RemoteChannel reports status and completion", "[remote_channel]")
     CHECK(status.at("frame") == 42);
     CHECK(status.at("block") == 1337);
 
-    channel.SendDone(true);
-    const json done = controller.RecvJson();
+    const json done = SendDoneAndClose(channel, controller, true);
     CHECK(done.at("type") == "done");
     CHECK(done.at("success") == true);
 }
 
+TEST_CASE("RemoteChannel waits for the controller to close after done", "[remote_channel]")
+{
+    util::RemoteChannel                channel;
+    TestController                     controller;
+    std::map<std::string, std::string> settings;
+    ChannelRunner                      runner(channel, controller.Address(), settings);
+
+    AcceptAndReadHello(controller);
+    controller.SendJson(SettingsMessage());
+    REQUIRE(controller.RecvJson().at("type") == "ready");
+    REQUIRE(runner.Result());
+
+    auto sent = std::async(std::launch::async, [&channel]() { channel.SendDone(true); });
+    CHECK(controller.RecvJson().at("type") == "done");
+
+    // The half-close follows "done" while SendDone() still waits for the controller.
+    std::vector<uint8_t> frame;
+    CHECK_FALSE(controller.RecvFrame(frame));
+    CHECK(sent.wait_for(std::chrono::milliseconds(200)) == std::future_status::timeout);
+
+    // Well under the close timeout, so the controller's close ended the wait.
+    controller.Close();
+    CHECK(sent.wait_for(std::chrono::seconds(1)) == std::future_status::ready);
+}
+
 TEST_CASE("RemoteChannel queues control actions from the controller", "[remote_channel]")
 {
-    TestController                     controller;
     util::RemoteChannel                channel;
+    TestController                     controller;
     std::map<std::string, std::string> settings;
     ChannelRunner                      runner(channel, controller.Address(), settings);
 
@@ -482,8 +516,8 @@ TEST_CASE("RemoteChannel queues control actions from the controller", "[remote_c
 
 TEST_CASE("RemoteChannel ignores malformed control messages", "[remote_channel]")
 {
-    TestController                     controller;
     util::RemoteChannel                channel;
+    TestController                     controller;
     std::map<std::string, std::string> settings;
     ChannelRunner                      runner(channel, controller.Address(), settings);
 
@@ -509,8 +543,8 @@ TEST_CASE("RemoteChannel ignores malformed control messages", "[remote_channel]"
 
 TEST_CASE("RemoteChannel rejects an oversized frame from the controller", "[remote_channel]")
 {
-    TestController                     controller;
     util::RemoteChannel                channel;
+    TestController                     controller;
     std::map<std::string, std::string> settings;
     ChannelRunner                      runner(channel, controller.Address(), settings);
 
@@ -522,8 +556,8 @@ TEST_CASE("RemoteChannel rejects an oversized frame from the controller", "[remo
 
 TEST_CASE("RemoteChannel reports when the controller closes", "[remote_channel]")
 {
-    TestController                     controller;
     util::RemoteChannel                channel;
+    TestController                     controller;
     std::map<std::string, std::string> settings;
     ChannelRunner                      runner(channel, controller.Address(), settings);
 
@@ -546,8 +580,8 @@ TEST_CASE("RemoteChannel reports when the controller closes", "[remote_channel]"
 
 TEST_CASE("RemoteChannel reports progress on the active channel", "[remote_channel]")
 {
-    TestController                     controller;
     util::RemoteChannel                channel;
+    TestController                     controller;
     std::map<std::string, std::string> settings;
     ChannelRunner                      runner(channel, controller.Address(), settings);
 
@@ -570,8 +604,8 @@ TEST_CASE("RemoteChannel reports progress on the active channel", "[remote_chann
 
 TEST_CASE("RemoteChannel relays log output from the logging target", "[remote_channel]")
 {
-    TestController                     controller;
     util::RemoteChannel                channel;
+    TestController                     controller;
     std::map<std::string, std::string> settings;
     ChannelRunner                      runner(channel, controller.Address(), settings);
 
@@ -603,8 +637,8 @@ TEST_CASE("RemoteChannel relays log output from the logging target", "[remote_ch
 
 TEST_CASE("RemoteChannel replaces invalid UTF-8 instead of failing", "[remote_channel]")
 {
-    TestController                     controller;
     util::RemoteChannel                channel;
+    TestController                     controller;
     std::map<std::string, std::string> settings;
     ChannelRunner                      runner(channel, controller.Address(), settings);
 
@@ -617,14 +651,13 @@ TEST_CASE("RemoteChannel replaces invalid UTF-8 instead of failing", "[remote_ch
     const json log = controller.RecvJson();
     CHECK(log.at("message") == "bad \xEF\xBF\xBD byte");
 
-    channel.SendDone(true);
-    CHECK(controller.RecvJson().at("type") == "done");
+    CHECK(SendDoneAndClose(channel, controller, true).at("type") == "done");
 }
 
 TEST_CASE("OpenOutputFile writes nothing to disk after the controller closes", "[remote_channel]")
 {
-    TestController                     controller;
     util::RemoteChannel                channel;
+    TestController                     controller;
     std::map<std::string, std::string> settings;
     ChannelRunner                      runner(channel, controller.Address(), settings);
 

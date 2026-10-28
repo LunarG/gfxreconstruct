@@ -105,8 +105,9 @@ class RemoteChannel
 
     // The following are thread-safe and no-ops when disconnected. Messages are queued and delivered in order by a
     // background sender thread; if a send fails, queued messages are dropped and the channel reports disconnected.
-    // Disconnect() flushes any queued messages before closing the socket. All are non-blocking except SendFile, which
-    // applies backpressure once the queue is full (see kSendQueueLimit).
+    // Disconnect() flushes any queued messages, then waits briefly for the controller to close before closing the
+    // socket. All are non-blocking except SendFile, which applies backpressure once the queue is full (see
+    // kSendQueueLimit).
     void SendJson(const nlohmann::json& msg);
     void SendFile(const std::string& name, const void* data, size_t size);
     void SendLog(LoggingSeverity severity, const std::string& message);
@@ -181,6 +182,7 @@ class RemoteChannel
     std::deque<std::string> control_queue_; // Guarded by control_mutex_.
     std::atomic<bool>       controller_closed_{ false };
     std::atomic<bool>       receiver_stop_requested_{ false }; // Set by Disconnect() so its own wakeup isn't a close.
+    bool                    receiver_exited_{ false };         // Guarded by control_mutex_.
 
     // Process-wide channel behind the static helpers, for callers that cannot be handed a pointer to it. Only one
     // controller connection exists per process.

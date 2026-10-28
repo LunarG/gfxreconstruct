@@ -62,6 +62,9 @@ constexpr int kAcceptTimeoutSeconds = 30;
 
 constexpr int kHandshakeTimeoutSeconds = 5;
 
+// How long Disconnect() waits for the controller to close its end before closing anyway.
+constexpr int kCloseTimeoutSeconds = 2;
+
 // The controller only sends small JSON messages; a larger length prefix is a protocol error, not an allocation request.
 constexpr uint32_t kMaxRecvFrameSize = 1024 * 1024;
 
@@ -147,7 +150,12 @@ void CloseSocket(SocketHandle& fd)
     fd = kInvalidSocket;
 }
 
-// Winsock's shutdown() leaves an in-progress recv() parked; only closesocket() cancels it.
+void ShutdownSend(SocketHandle fd)
+{
+    shutdown(fd, SD_SEND);
+}
+
+// Winsock's shutdown() leaves an in-progress recv() parked; only closesocket() cancels it, resetting the connection.
 void WakeReceiver(SocketHandle& fd)
 {
     CloseSocket(fd);
@@ -219,6 +227,11 @@ void CloseSocket(SocketHandle& fd)
 {
     close(fd);
     fd = kInvalidSocket;
+}
+
+void ShutdownSend(SocketHandle fd)
+{
+    shutdown(fd, SHUT_WR);
 }
 
 // shutdown() unblocks a parked recv() without closing, so fd stays valid for the caller.
@@ -700,13 +713,22 @@ void RemoteChannel::Disconnect()
     }
 
     receiver_stop_requested_ = true;
-    if (fd_ != kInvalidSocket)
-    {
-        // Wake the receiver thread out of a blocking recv; on Windows that closes the socket, clearing fd_.
-        WakeReceiver(fd_);
-    }
     if (receiver_thread_.joinable())
     {
+        // Let the controller close first: closing under a pending recv() resets the connection on Windows, and a reset
+        // discards whatever the controller has not yet read.
+        ShutdownSend(fd_);
+        bool receiver_exited = false;
+        {
+            std::unique_lock<std::mutex> lock(control_mutex_);
+            receiver_exited = control_cv_.wait_for(
+                lock, std::chrono::seconds(kCloseTimeoutSeconds), [this] { return receiver_exited_; });
+        }
+        if (!receiver_exited)
+        {
+            // Wake the receiver thread out of a blocking recv; on Windows that closes the socket, clearing fd_.
+            WakeReceiver(fd_);
+        }
         receiver_thread_.join();
     }
 
@@ -727,6 +749,7 @@ void RemoteChannel::Disconnect()
         const std::lock_guard<std::mutex> lock(control_mutex_);
         control_queue_.clear();
         controller_closed_ = false;
+        receiver_exited_   = false;
     }
     receiver_stop_requested_ = false;
 }
@@ -973,15 +996,16 @@ void RemoteChannel::ReceiverThread(SocketHandle fd)
         }
     }
 
-    if (!receiver_stop_requested_)
+    // Under the lock so a waiter checking its predicate cannot miss the wakeup.
     {
-        // Under the lock so a WaitPopControl() checking its predicate cannot miss the wakeup.
+        const std::lock_guard<std::mutex> lock(control_mutex_);
+        if (!receiver_stop_requested_)
         {
-            const std::lock_guard<std::mutex> lock(control_mutex_);
             controller_closed_ = true;
         }
-        control_cv_.notify_all();
+        receiver_exited_ = true;
     }
+    control_cv_.notify_all();
 }
 
 void RemoteChannel::SenderThread()

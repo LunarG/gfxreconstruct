@@ -109,7 +109,10 @@ the controller sent. `level` is one of `verbose`, `debug`, `info`, `warning`,
 usage text, is sent as `info` regardless of `--log-level`; a controller that
 filters by level will hide it.
 
-`done` is the final message; replay disconnects after sending it. `success`
+`done` is the final message. Replay then half-closes the connection and waits up
+to 2 seconds for the controller to close its end before closing its own; the
+controller should close once it has read `done`. Closing first could reset the
+connection and discard a `done` the controller has not read yet. `success`
 reports whether replay ran without error; a `stop` from the controller is not a
 failure.
 
@@ -210,7 +213,9 @@ controller has gone, their contents are discarded.
   message.
 - The receiver thread demultiplexes incoming frames into the control queue.
 - `Disconnect()` drains and joins the sender (flushing queued messages), then
-  `shutdown()`s the socket to wake the receiver, joins it, and closes.
+  half-closes the socket and waits for the receiver to see the controller close.
+  If the controller does not close in time, it wakes the receiver itself. It
+  then joins the receiver and closes.
 
 ## Reference Controller
 
