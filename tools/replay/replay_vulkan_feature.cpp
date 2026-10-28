@@ -768,8 +768,10 @@ void ReplayVulkanFeature::CreateConsumer(decode::FileProcessor*                 
 
         if (frame_loop_info)
         {
+            // THIS BREAKS UNIQUE POINTER SEMANTICS!!!
+            decoder_->SetFrameLoopInfo(frame_loop_info);
             replay_consumer_ = std::make_unique<gfxrecon::decode::VulkanReplayFrameLoopConsumer>(
-                application_, replay_options_, *frame_loop_info);
+                application_, replay_options_, *frame_loop_info, decoder_.get());
         }
         else
         {

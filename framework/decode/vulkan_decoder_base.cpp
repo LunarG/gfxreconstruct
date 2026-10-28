@@ -635,6 +635,22 @@ void VulkanDecoderBase::SetCurrentFrameNumber(uint64_t frame_number)
     }
 }
 
+graphics::FrameLoopInfo* VulkanDecoderBase::GetFrameLoopInfo()
+{
+    return frame_loop_info_;
+}
+
+void VulkanDecoderBase::SetFrameLoopInfo(graphics::FrameLoopInfo* info)
+{
+    frame_loop_info_ = info;
+}
+
+std::unordered_map<format::HandleId, std::vector<VulkanDecoderBase::StoredCommand>>&
+VulkanDecoderBase::GetStoredCommandBufferCommands()
+{
+    return command_buffer_commands_;
+}
+
 void VulkanDecoderBase::DispatchVulkanAccelerationStructuresBuildMetaCommand(const uint8_t* parameter_buffer,
                                                                              size_t         buffer_size)
 {
