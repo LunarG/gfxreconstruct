@@ -61,6 +61,7 @@ const char kDeniedMessages[]                   = "--denied-messages";
 const char kAllowedMessages[]                  = "--allowed-messages";
 const char kDxTwoPassReplay[]                  = "--dx12-two-pass-replay";
 const char kDxOverrideObjectNames[]            = "--dx12-override-object-names";
+const char kDx12SwapchainArgument[]            = "--dx12-swapchain";
 const char kDxAgsMarkRenderPasses[]            = "--dx12-ags-inject-markers";
 const char kBatchingMemoryUsageArgument[]      = "--batching-memory-usage";
 const char kBatchingHeapSizeArgument[]         = "--batching-heap-size";
@@ -189,6 +190,11 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
                                  gfxrecon::decode::kDefaultBatchingHeapSize);
         }
     }
+
+    const auto& swapchain_mode = arg_parser.GetArgumentValue(kDx12SwapchainArgument);
+    replay_options.use_composition_swapchain =
+        util::platform::StringCompareNoCase("composition", swapchain_mode.c_str()) == 0;
+
     return replay_options;
 }
 
@@ -234,6 +240,12 @@ std::vector<util::FeatureOptionDesc> ReplayD3d12Feature::GetOptionDescs() const
                  "memory and the value of --batching-memory-usage." },
                true,
                kBatchingHeapSizeArgument },
+             { "<mode>",
+               { "Select the DXGI swapchain type used for replay. The 'composition' mode",
+                 "avoids creating a replay window." },
+               true,
+               kDx12SwapchainArgument,
+               { "composition" } },
              // The entries below have no description, so they stay out of the usage text. They keep
              // the same undocumented behavior that the shared option strings gave them.
              { "", {}, false, AliasNames(kDiscardCachedPsosShortOption, kDiscardCachedPsosLongOption) },

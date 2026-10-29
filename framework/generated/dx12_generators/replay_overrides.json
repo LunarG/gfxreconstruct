@@ -146,10 +146,13 @@
       "GetBuffer": "OverrideGetBuffer",
       "ResizeBuffers": "OverrideResizeBuffers",
       "Present": "OverridePresent",
-      "SetFullscreenState": "OverrideSetFullscreenState"
+      "SetFullscreenState": "OverrideSetFullscreenState",
+      "GetContainingOutput": "OverrideGetContainingOutput"
     },
     "IDXGISwapChain1": {
-      "Present1": "OverridePresent1"
+      "Present1": "OverridePresent1",
+      "GetFullscreenDesc": "OverrideGetFullscreenDesc",
+      "GetHwnd": "OverrideGetHwnd"
     },
     "IDXGISwapChain3": {
       "ResizeBuffers1": "OverrideResizeBuffers1"
