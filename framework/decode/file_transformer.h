@@ -24,6 +24,7 @@
 #define GFXRECON_DECODE_FILE_TRANSFORMER_H
 
 #include "decode/block_parser.h"
+#include "decode/frame_boundary_tracker.h"
 #include "format/format.h"
 #include "util/defines.h"
 #include "util/compressor.h"
@@ -101,8 +102,12 @@ class FileTransformer
     virtual bool ProcessMetaData(ParsedBlock& parsed_block);
     virtual bool ProcessStateBeginMarker(ParsedBlock& parsed_block);
     virtual bool ProcessStateEndMarker(ParsedBlock& parsed_block);
+    virtual bool ProcessFrameEndMarker(ParsedBlock& parsed_block);
 
     uint64_t GetCurrentBlockIndex() { return block_index_; }
+
+    // Counts frames with the same rule as FileProcessor.
+    uint64_t GetCurrentFrameNumber() const { return frame_tracker_.GetFrameNumber(); }
 
     BlockParser& GetBlockParser() { return *block_parser_; }
 
@@ -128,6 +133,7 @@ class FileTransformer
     std::unique_ptr<util::Compressor>    compressor_;
     std::unique_ptr<decode::BlockParser> block_parser_;
     uint64_t                             block_index_{ 0 };
+    FrameBoundaryTracker                 frame_tracker_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
