@@ -368,7 +368,7 @@ struct DumpedResourceBase
     // The QueueSubmit index
     Index qs_index{ UNDEFINED_INDEX };
 
-    // The render pass index in which this resource is dumped
+    // Block index of the vkCmdBeginRenderPass/vkCmdBeginRendering in which this resource is dumped
     Index render_pass{ UNDEFINED_INDEX };
 
     // The sub pass index in which this resource is dumped
