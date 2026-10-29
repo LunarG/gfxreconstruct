@@ -29,6 +29,7 @@ import os
 import platform
 import re
 import shutil
+import stat
 import subprocess
 import sys
 
@@ -51,8 +52,9 @@ if is_mac():
 DEFAULT_ARCHITECTURE = ARCHITECTURES[0]
 BUILD_ROOT = os.path.abspath(
     os.path.join(os.path.split(os.path.abspath(__file__))[0], '..'))
-BUILD_CONFIGS = {'debug': 'dbuild', 'release': 'build'}
-CONFIGURATIONS = ['release', 'debug']
+BUILD_CONFIGS = {'debug': 'dbuild', 'release': 'build', 'profile': 'pbuild'}
+CMAKE_CONFIGS = {'debug': 'Debug', 'release': 'Release', 'profile': 'RelWithDebInfo'}
+CONFIGURATIONS = ['release', 'debug', 'profile']
 DEFAULT_CONFIGURATION = CONFIGURATIONS[0]
 VERSION = '0.0.0'
 
@@ -93,6 +95,10 @@ def parse_args():
     arg_parser.add_argument('-j', '--parallel', dest='jobs',
             action='store', default=None,
             help='Specify a parallel build level. Level 0 is equivalent to the use of all logical CPUs')
+    arg_parser.add_argument(
+        '-t', '--target', dest='targets', metavar='TARGET',
+        action='append', default=[],
+        help='Build only this CMake target (repeatable). The install step is skipped')
     arg_parser.add_argument(
         '--clean', dest='clean', action='store_true', default=False,
         help='Clean the build targets')
@@ -147,15 +153,28 @@ def parse_args():
     return arg_parser.parse_args()
 
 
+def run_echoing(command, on_line, cwd=None, env=None):
+    '''
+    Run a command, echoing its output and handing each line to on_line; return its exit code
+    '''
+    process = subprocess.Popen(command, cwd=cwd, env=env, stdout=subprocess.PIPE,
+                               stderr=subprocess.STDOUT, text=True, errors='replace')
+    for line in process.stdout:
+        sys.stdout.write(line)
+        on_line(line)
+    return process.wait()
+
+
 def update_external_dependencies(args):
     '''
     Update git submodules
     '''
-    if not args.skip_update_deps:
-        update_git_submodule_result = subprocess.run(
-            ['git', 'submodule', 'update', '--init'], cwd=BUILD_ROOT)
-        if 0 != update_git_submodule_result.returncode:
-            raise BuildError('failed to update git submodules')
+    if args.skip_update_deps:
+        return
+    update_git_submodule_result = subprocess.run(
+        ['git', 'submodule', 'update', '--init'], cwd=BUILD_ROOT)
+    if 0 != update_git_submodule_result.returncode:
+        raise BuildError('git submodule update failed (see output above)')
 
 
 def prefix_dir(configuration, architecture):
@@ -211,7 +230,10 @@ def cmake_generate_options(args):
     '''
     generate_options = []
     if args.clean or args.clobber:
+        # A clean needs no tools of its own; without this a cached CHECK_CPP_CODE_STYLE=ON
+        # made clean and clobber fail on a missing formatter
         generate_options.append('-DAPPLY_CPP_CODE_STYLE=OFF')
+        generate_options.append('-DCHECK_CPP_CODE_STYLE=OFF')
         generate_options.append('-DRUN_TESTS=OFF')
         generate_options.append('-DGENERATE_TEST_ARCHIVE=OFF')
     else:
@@ -267,10 +289,7 @@ def cmake_generate_build_files(args):
         elif 'arm64' == args.architecture:
             cmake_generate_args.extend(['-A', 'ARM64'])
     elif 'darwin' == system:
-        if 'debug' == args.configuration:
-            cmake_generate_args.append('-DCMAKE_BUILD_TYPE=Debug')
-        else:
-            cmake_generate_args.append('-DCMAKE_BUILD_TYPE=Release')
+        cmake_generate_args.append('-DCMAKE_BUILD_TYPE=' + CMAKE_CONFIGS[args.configuration])
         if 'universal' == args.architecture:
             cmake_generate_args.append('-DCMAKE_OSX_ARCHITECTURES=x86_64;arm64')
         elif 'x64' == args.architecture:
@@ -278,10 +297,7 @@ def cmake_generate_build_files(args):
         elif 'arm64' == args.architecture:
             cmake_generate_args.append('-DCMAKE_OSX_ARCHITECTURES=arm64')
     else:
-        if 'debug' == args.configuration:
-            cmake_generate_args.append('-DCMAKE_BUILD_TYPE=Debug')
-        else:
-            cmake_generate_args.append('-DCMAKE_BUILD_TYPE=Release')
+        cmake_generate_args.append('-DCMAKE_BUILD_TYPE=' + CMAKE_CONFIGS[args.configuration])
         if 'x86' == args.architecture:
             toolchain_path = os.path.join(BUILD_ROOT, "cmake", "toolchain", "linux_x86_32.cmake")
             cmake_generate_args.append('-DCMAKE_TOOLCHAIN_FILE={}'.format(toolchain_path))
@@ -298,10 +314,25 @@ def cmake_generate_build_files(args):
         '-S', '.',
         '-B', get_build_dir(args.build_dir, args.configuration, args.architecture)])
     os.makedirs(work_dir, mode=0o744, exist_ok=True)
-    cmake_generate_result = subprocess.run(
-        cmake_generate_args, cwd=work_dir, env=cmake_generate_env)
-    if 0 != cmake_generate_result.returncode:
-        raise BuildError('failed to generate build files')
+    # Every fatal error in CMake's code-style module is a missing tool the check needs;
+    # the error header line is watched because CMake wraps the message text itself.
+    code_style_errors = []
+    returncode = run_echoing(
+        cmake_generate_args,
+        lambda line: 'Error at cmake/CodeStyle.cmake' in line and code_style_errors.append(line),
+        cwd=work_dir, env=cmake_generate_env)
+    if 0 != returncode:
+        if code_style_errors:
+            # CMake's message names the cache variables that turn the tool use off; the
+            # build.py user needs the flag, which CMake does not know about.
+            if args.code_style:
+                advice = 'install it, or drop --code-style'
+            else:
+                advice = 'install it, or pass --skip-check-code-style'
+            raise BuildError('configure failed: the code-style {} needs clang-format '
+                             '(see CMake error above); {}'.format(
+                                 'apply' if args.code_style else 'check', advice))
+        raise BuildError('configure failed (see CMake error above)')
 
 
 def cmake_build(args):
@@ -316,29 +347,43 @@ def cmake_build(args):
         cmake_build_args.extend(['--parallel', args.jobs])
     if is_windows():
         cmake_build_args.extend(
-            ['--config', args.configuration.capitalize()])
+            ['--config', CMAKE_CONFIGS[args.configuration]])
     if args.clean or args.clobber:
         cmake_build_args.extend(['--target', 'clean'])
+    elif args.targets:
+        cmake_build_args.append('--target')
+        cmake_build_args.extend(args.targets)
     cmake_build_result = subprocess.run(
         cmake_build_args,
         cwd=get_build_dir(args.build_dir, args.configuration, args.architecture))
     if 0 != cmake_build_result.returncode:
-        raise BuildError('cmake build failed')
-    if not (args.clean or args.clobber):
+        raise BuildError('build failed (see compiler output above)')
+    # Install assembles the full package; with explicit targets there is no full build to install
+    if not (args.clean or args.clobber) and not args.targets:
         cmake_install_args = ['cmake', '--install', '.']
         if is_windows():
             cmake_install_args.extend(
-                ['--config', args.configuration.capitalize()])
+                ['--config', CMAKE_CONFIGS[args.configuration]])
         cmake_install_result = subprocess.run(
             cmake_install_args,
             cwd=get_build_dir(args.build_dir, args.configuration, args.architecture))
         if 0 != cmake_install_result.returncode:
-            raise BuildError('cmake install failed')
+            raise BuildError('install failed (see output above)')
 
 
 # Main entry point
-if '__main__' == __name__:
-    args = parse_args()
+def remove_tree(path):
+    '''
+    Remove a directory tree, clearing the read-only bit that stops Windows from
+    deleting files such as git pack files of dependencies fetched into the build tree
+    '''
+    def clear_readonly_and_retry(func, failed_path, _exc_info):
+        os.chmod(failed_path, stat.S_IWRITE)
+        func(failed_path)
+    shutil.rmtree(path, onerror=clear_readonly_and_retry)
+
+
+def main(args):
     clean = args.clean or args.clobber
     if not clean:
         update_external_dependencies(args)
@@ -349,8 +394,17 @@ if '__main__' == __name__:
         cmake_build(args)
     if args.clobber:
         if build_dir_exists:
-            shutil.rmtree(build_dir)
+            remove_tree(build_dir)
         install_dir = get_install_dir(args.install_dir, args.configuration, args.architecture)
         if os.path.exists(install_dir):
-            shutil.rmtree(install_dir)
+            remove_tree(install_dir)
+
+
+if '__main__' == __name__:
+    try:
+        main(parse_args())
+    except BuildError as error:
+        # One line; the tool that failed has already printed why
+        print('build.py: {}'.format(error), file=sys.stderr)
+        sys.exit(1)
     sys.exit(0)

@@ -29,7 +29,7 @@ import sys
 import argparse
 import os
 
-def check_code_style(file_list, compare_base, style_script=None, style_config_dir=None):
+def check_code_style(file_list, compare_base, style_script=None, style_config_dir=None, binary=None):
     """
     Run clang format diff on the changed source file(s)
     against current branch. If branch retrieved failed, 
@@ -47,6 +47,8 @@ def check_code_style(file_list, compare_base, style_script=None, style_config_di
         style_config_dir = os.path.join(os.path.dirname(style_script), os.pardir)
     diff_cmd = ["git", "diff", "-U0", str(git_branch, 'utf-8'), "--"] + file_list
     style_cmd = [sys.executable, style_script,"-p1","-style=file"]
+    if binary:
+        style_cmd.extend(["-binary", binary])
     try:
         diff_process = subprocess.Popen(diff_cmd, stdout=subprocess.PIPE)
         style_output = subprocess.check_output(style_cmd, stdin=diff_process.stdout, cwd=style_config_dir)
@@ -65,6 +67,8 @@ if '__main__' == __name__:
     parser.add_argument('--sourcefile', nargs='+', dest='file_list', help="The source file(s)")
     parser.add_argument('--base', dest='compare_base', metavar='BASE', action='store', default='HEAD',
         help='Git branch name or commit ID to use as the base for C++ code style comparison')
+    parser.add_argument('--binary', dest='binary', metavar='PATH', action='store', default=None,
+        help='clang-format executable to use (default: clang-format-14 on PATH)')
     args = parser.parse_args()
-    check_code_style(args.file_list, args.compare_base)
+    check_code_style(args.file_list, args.compare_base, binary=args.binary)
     sys.exit(0)
