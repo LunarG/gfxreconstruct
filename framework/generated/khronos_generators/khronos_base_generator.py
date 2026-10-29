@@ -1209,6 +1209,24 @@ class KhronosBaseGenerator(OutputGenerator):
             if not self.is_cmd_black_listed(key)
         ]
 
+    def get_image_write_params(self, command):
+        """Retrieves the images that command writes, derived from the registry."""
+        params = self.all_cmd_params[command][2]
+        if not params or params[0].base_type != 'VkCommandBuffer':
+            return []
+
+        writes = []
+        for value in params:
+            if value.base_type == 'VkImage':
+                if (value.name.startswith('dst') or value.name == 'image') and not value.is_array:
+                    writes.append((value, None))
+            elif value.base_type in self.all_struct_members:
+                for member in self.all_struct_members[value.base_type]:
+                    if (member.base_type == 'VkImage' and member.name.startswith('dst')
+                            and not member.is_array):
+                        writes.append((value, member.name))
+        return writes
+
     def get_filtered_cmd_names(self):
         """Retrieves a filtered list of keys from self.feature_cmd_params with blacklisted items removed."""
         return [

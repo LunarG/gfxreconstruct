@@ -498,6 +498,44 @@ static bool CanRestoreImage(const VkImageCreateInfo* create_info)
     return true;
 }
 
+// Only these usages let the device write to an image. Transfer writes are tracked by command instead.
+static bool CanWriteImage(const VkImageCreateInfo* create_info)
+{
+    constexpr VkImageUsageFlags kWritableUsage =
+        VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT |
+        VK_IMAGE_USAGE_HOST_TRANSFER_BIT | VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR |
+        VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR | VK_IMAGE_USAGE_VIDEO_ENCODE_DPB_BIT_KHR;
+
+    constexpr VkImageUsageFlags2KHR kWritableUsage2 =
+        VK_IMAGE_USAGE_2_STORAGE_BIT_KHR | VK_IMAGE_USAGE_2_COLOR_ATTACHMENT_BIT_KHR |
+        VK_IMAGE_USAGE_2_DEPTH_STENCIL_ATTACHMENT_BIT_KHR | VK_IMAGE_USAGE_2_HOST_TRANSFER_BIT_KHR |
+        VK_IMAGE_USAGE_2_VIDEO_DECODE_DST_BIT_KHR | VK_IMAGE_USAGE_2_VIDEO_DECODE_DPB_BIT_KHR |
+        VK_IMAGE_USAGE_2_VIDEO_ENCODE_DPB_BIT_KHR;
+
+    if (const auto* usage_flags2 = graphics::vulkan_struct_get_pnext<VkImageUsageFlags2CreateInfoKHR>(create_info))
+    {
+        if ((usage_flags2->usage & kWritableUsage2) != 0)
+        {
+            return true;
+        }
+    }
+    else if ((create_info->usage & kWritableUsage) != 0)
+    {
+        return true;
+    }
+
+    if (const auto* stencil_usage2 = graphics::vulkan_struct_get_pnext<VkImageStencilUsage2CreateInfoKHR>(create_info))
+    {
+        return (stencil_usage2->stencilUsage & kWritableUsage2) != 0;
+    }
+    if (const auto* stencil_usage = graphics::vulkan_struct_get_pnext<VkImageStencilUsageCreateInfo>(create_info))
+    {
+        return (stencil_usage->stencilUsage & kWritableUsage) != 0;
+    }
+
+    return false;
+}
+
 void VulkanReplayFrameLoopConsumer::Process_vkCreateImage(const ApiCallInfo& call_info, args::CreateImage& args)
 {
     VkImageCreateInfo*      create_info = args.pCreateInfo.GetPointer();
@@ -512,6 +550,11 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateImage(const ApiCallInfo& cal
                                                              VK_FORMAT_FEATURE_TRANSFER_DST_BIT,
                                                          create_info))
     {
+        if (CanWriteImage(create_info))
+        {
+            writable_images_.insert(*args.pImage.GetPointer());
+        }
+
         create_info->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
         if (auto* usage_flags2 = graphics::vulkan_struct_get_pnext<VkImageUsageFlags2CreateInfoKHR>(create_info))
@@ -1028,6 +1071,10 @@ void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(const ApiCallIn
 {
     VulkanReplayConsumer::Process_vkBeginCommandBuffer(call_info, args);
 
+    // Beginning a command buffer implicitly resets it
+    command_buffer_modified_images_.erase(args.commandBuffer);
+    command_buffer_executed_secondaries_.erase(args.commandBuffer);
+
     if (frame_loop_info_.IsLooping())
     {
         // Record query pool reset commands
@@ -1049,6 +1096,37 @@ void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(const ApiCallIn
             cb_info->recorded_query_ops.push_back({ info->capture_id, 0, pool_size, false });
         });
     }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdExecuteCommands(const ApiCallInfo&        call_info,
+                                                                 args::CmdExecuteCommands& args)
+{
+    VulkanReplayFrameLoopConsumerBase::Process_vkCmdExecuteCommands(call_info, args);
+
+    const format::HandleId* secondary_ids = args.pCommandBuffers.GetPointer();
+    if (secondary_ids == nullptr)
+    {
+        return;
+    }
+
+    std::unordered_set<format::HandleId>& secondaries = command_buffer_executed_secondaries_[args.commandBuffer];
+    for (size_t i = 0; i < args.pCommandBuffers.GetLength(); ++i)
+    {
+        if (secondary_ids[i] != format::kNullHandleId)
+        {
+            secondaries.insert(secondary_ids[i]);
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::TrackImageWrite(format::HandleId commandBuffer, format::HandleId image)
+{
+    if (image == format::kNullHandleId)
+    {
+        return;
+    }
+
+    command_buffer_modified_images_[commandBuffer].insert(image);
 }
 
 void VulkanReplayFrameLoopConsumer::RemovePoolDanglingCreateDescriptors(format::HandleId descriptorPool)
@@ -1810,7 +1888,7 @@ void VulkanReplayFrameLoopConsumer::TrackImageStates()
 
             device_images[image_info->parent_id].push_back(image_info->capture_id);
 
-            if (CanSnapshotImageContents(image_info))
+            if (writable_images_.contains(image_info->capture_id) && CanSnapshotImageContents(image_info))
             {
                 device_restorable_images[image_info->parent_id].push_back(image_info->capture_id);
             }
@@ -1819,6 +1897,61 @@ void VulkanReplayFrameLoopConsumer::TrackImageStates()
     for (const auto& [device_id, image_ids] : device_images)
     {
         GetImageTracking(device_id).RecordInitialState(image_ids, device_restorable_images[device_id]);
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::ShadowImageWrites(const std::vector<format::HandleId>& command_buffer_ids)
+{
+    CommonObjectInfoTable& table = GetObjectInfoTable();
+
+    // Walk the secondaries the submitted command buffers execute.
+    std::vector<format::HandleId>        pending_ids(command_buffer_ids.begin(), command_buffer_ids.end());
+    std::unordered_set<format::HandleId> visited_ids;
+    while (!pending_ids.empty())
+    {
+        const format::HandleId command_buffer_id = pending_ids.back();
+        pending_ids.pop_back();
+        if (!visited_ids.insert(command_buffer_id).second)
+        {
+            continue;
+        }
+
+        auto secondaries_it = command_buffer_executed_secondaries_.find(command_buffer_id);
+        if (secondaries_it != command_buffer_executed_secondaries_.end())
+        {
+            pending_ids.insert(pending_ids.end(), secondaries_it->second.begin(), secondaries_it->second.end());
+        }
+    }
+
+    std::unordered_map<format::HandleId, std::vector<format::HandleId>> device_images;
+    for (format::HandleId command_buffer_id : visited_ids)
+    {
+        auto it = command_buffer_modified_images_.find(command_buffer_id);
+        if (it == command_buffer_modified_images_.end())
+        {
+            continue;
+        }
+
+        for (format::HandleId image_id : it->second)
+        {
+            const VulkanImageInfo* image_info = table.GetVkImageInfo(image_id);
+            if (image_info == nullptr || image_info->handle == VK_NULL_HANDLE || !CanSnapshotImageContents(image_info))
+            {
+                continue;
+            }
+
+            // An image should never outlive the device that created it in the object info table.
+            GFXRECON_ASSERT(table.GetVkDeviceInfo(image_info->parent_id) != nullptr);
+
+            device_images[image_info->parent_id].push_back(image_id);
+        }
+
+        command_buffer_modified_images_.erase(it);
+    }
+
+    for (const auto& [device_id, image_ids] : device_images)
+    {
+        GetImageTracking(device_id).RecordInitialContents(image_ids);
     }
 }
 
@@ -1972,7 +2105,29 @@ void VulkanReplayFrameLoopConsumer::ImageTracking::RecordInitialState(
         image_states_[image_id].initial_layouts = image_info->subresource_layouts;
     }
 
-    if (allocator_ == nullptr || restorable_image_ids.empty())
+    RecordInitialContents(restorable_image_ids);
+}
+
+void VulkanReplayFrameLoopConsumer::ImageTracking::RecordInitialContents(const std::vector<format::HandleId>& image_ids)
+{
+    if (allocator_ == nullptr || image_ids.empty())
+    {
+        return;
+    }
+
+    // A later submit can reach an image that an earlier one already shadowed, through a different
+    // command buffer that writes it too. Images created inside the loop range have no initial state.
+    std::vector<format::HandleId> unrecorded_image_ids;
+    for (format::HandleId image_id : image_ids)
+    {
+        auto it = image_states_.find(image_id);
+        if (it != image_states_.end() && !it->second.contents_recorded)
+        {
+            it->second.contents_recorded = true;
+            unrecorded_image_ids.push_back(image_id);
+        }
+    }
+    if (unrecorded_image_ids.empty())
     {
         return;
     }
@@ -1988,7 +2143,7 @@ void VulkanReplayFrameLoopConsumer::ImageTracking::RecordInitialState(
 
     std::vector<format::HandleId> recorded_ids;
 
-    for (format::HandleId image_id : restorable_image_ids)
+    for (format::HandleId image_id : unrecorded_image_ids)
     {
         const VulkanImageInfo* image_info = object_table_.GetVkImageInfo(image_id);
         if (image_info == nullptr || image_info->handle == VK_NULL_HANDLE)
@@ -1996,7 +2151,7 @@ void VulkanReplayFrameLoopConsumer::ImageTracking::RecordInitialState(
             continue;
         }
 
-        ImageState& state = image_states_[image_id];
+        ImageState& state = image_states_.at(image_id);
 
         BuildCopyableSubresourceRanges(image_info, state.initial_layouts, state.copyable_ranges, state.excluded_ranges);
 
@@ -2026,6 +2181,8 @@ void VulkanReplayFrameLoopConsumer::ImageTracking::RecordInitialState(
     {
         return;
     }
+
+    restore_commands_ = {};
 
     // Puts every copyable subresource of each source image into VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL.
     std::vector<VkImageMemoryBarrier> pre_barriers;
@@ -2075,7 +2232,7 @@ void VulkanReplayFrameLoopConsumer::ImageTracking::RecordInitialState(
                                    state.copy_regions.data());
     }
 
-    // Transition images back to their initial layouts and shadows to VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL.
+    // Transition images back to their current layouts and shadows to VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL.
     CmdImageLayoutBarriers(device_table_, temp_cmd_buff.command_buffer, post_barriers);
 
     CHECK_VK_RESULT(temp_cmd_buff.SubmitAndDestroy(), "TemporaryCommandBuffer::SubmitAndDestroy");
@@ -2238,6 +2395,22 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueBindSparse(const ApiCallInfo&
 
 void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit(const ApiCallInfo& call_info, args::QueueSubmit& args)
 {
+    // Shadow before the submit runs, while the images it writes still hold their pre-write contents.
+    if (frame_loop_info_.IsFirstIteration() && !args.pSubmits.IsNull() && args.pSubmits.HasData())
+    {
+        std::vector<format::HandleId> command_buffer_ids;
+        const auto                    submits = args.pSubmits.GetMetaStructPointer();
+        for (size_t i = 0; i < args.pSubmits.GetLength(); ++i)
+        {
+            const auto ids = submits[i].pCommandBuffers.GetPointer();
+            if (ids != nullptr)
+            {
+                command_buffer_ids.insert(command_buffer_ids.end(), ids, ids + submits[i].pCommandBuffers.GetLength());
+            }
+        }
+        ShadowImageWrites(command_buffer_ids);
+    }
+
     VulkanReplayConsumer::Process_vkQueueSubmit(call_info, args);
 
     if (frame_loop_info_.IsLooping())
@@ -2257,6 +2430,28 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit(const ApiCallInfo& cal
 
 void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit2(const ApiCallInfo& call_info, args::QueueSubmit2& args)
 {
+    // Shadow before the submit runs, while the images it writes still hold their pre-write contents.
+    if (frame_loop_info_.IsFirstIteration() && !args.pSubmits.IsNull() && args.pSubmits.HasData())
+    {
+        std::vector<format::HandleId> command_buffer_ids;
+        const auto                    submits = args.pSubmits.GetMetaStructPointer();
+        for (size_t i = 0; i < args.pSubmits.GetLength(); ++i)
+        {
+            const auto* command_buffer_infos = submits[i].pCommandBufferInfos;
+            if (command_buffer_infos == nullptr)
+            {
+                continue;
+            }
+
+            const auto infos = command_buffer_infos->GetMetaStructPointer();
+            for (size_t j = 0; j < command_buffer_infos->GetLength(); ++j)
+            {
+                command_buffer_ids.push_back(infos[j].commandBuffer);
+            }
+        }
+        ShadowImageWrites(command_buffer_ids);
+    }
+
     VulkanReplayConsumer::Process_vkQueueSubmit2(call_info, args);
 
     if (frame_loop_info_.IsLooping())
@@ -2276,6 +2471,28 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit2(const ApiCallInfo& ca
 
 void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit2KHR(const ApiCallInfo& call_info, args::QueueSubmit2KHR& args)
 {
+    // Shadow before the submit runs, while the images it writes still hold their pre-write contents.
+    if (frame_loop_info_.IsFirstIteration() && !args.pSubmits.IsNull() && args.pSubmits.HasData())
+    {
+        std::vector<format::HandleId> command_buffer_ids;
+        const auto                    submits = args.pSubmits.GetMetaStructPointer();
+        for (size_t i = 0; i < args.pSubmits.GetLength(); ++i)
+        {
+            const auto* command_buffer_infos = submits[i].pCommandBufferInfos;
+            if (command_buffer_infos == nullptr)
+            {
+                continue;
+            }
+
+            const auto infos = command_buffer_infos->GetMetaStructPointer();
+            for (size_t j = 0; j < command_buffer_infos->GetLength(); ++j)
+            {
+                command_buffer_ids.push_back(infos[j].commandBuffer);
+            }
+        }
+        ShadowImageWrites(command_buffer_ids);
+    }
+
     VulkanReplayConsumer::Process_vkQueueSubmit2KHR(call_info, args);
 
     if (frame_loop_info_.IsLooping())

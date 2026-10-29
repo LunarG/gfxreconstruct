@@ -37,7 +37,8 @@ class KhronosFrameLoopConsumerBaseHeaderGenerator():
                  self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_SINGLE_BIND_MEMORY +
                  self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_MULTIPLE_BIND_MEMORY +
                  self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_NOT_FULLY_IMPLEMENTED +
-                 self.REPLAY_FRAME_LOOP_RESOURCE_FREE_NOT_FULLY_IMPLEMENTED))
+                 self.REPLAY_FRAME_LOOP_RESOURCE_FREE_NOT_FULLY_IMPLEMENTED)
+                and not self.get_image_write_params(command))
 
     def write_class_setup(self, class_name, constructor_args):
         write(
