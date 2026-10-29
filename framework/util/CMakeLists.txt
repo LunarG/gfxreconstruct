@@ -71,6 +71,8 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/heap_buffer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/hybrid_linear_allocator.h
                     ${CMAKE_CURRENT_LIST_DIR}/hybrid_linear_allocator.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/heap_accounting.h
+                    ${CMAKE_CURRENT_LIST_DIR}/heap_accounting.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/image_writer.h
                     ${CMAKE_CURRENT_LIST_DIR}/image_writer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/json_util.h
@@ -258,6 +260,15 @@ endif()
 option(GFXRECON_ENABLE_USERFAULTFD "If the target platform supports it, build userfaultfd memory tracking functionality" ON)
 if (((NOT WIN32) AND (NOT APPLE) AND GFXRECON_ENABLE_USERFAULTFD))
     target_compile_definitions(gfxrecon_util PUBLIC GFXRECON_ENABLE_USERFAULTFD=1)
+endif()
+
+option(GFXRECON_ENABLE_HEAP_ACCOUNTING "Count the capture layer's own heap allocations and log them after every frame (Linux and Android only)" OFF)
+if (GFXRECON_ENABLE_HEAP_ACCOUNTING)
+    if (ANDROID OR (CMAKE_SYSTEM_NAME STREQUAL "Linux"))
+        target_compile_definitions(gfxrecon_util PUBLIC GFXRECON_ENABLE_HEAP_ACCOUNTING=1)
+    else()
+        message(WARNING "GFXRECON_ENABLE_HEAP_ACCOUNTING is only supported on Linux and Android and is ignored on this platform")
+    endif()
 endif()
 
 option(GFXRECON_PLATFORM_SUPPORTS_GETTID "Indicate whether or not the platform supports SYS_gettid" ON)
