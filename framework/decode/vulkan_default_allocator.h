@@ -354,9 +354,12 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
     struct MemoryAllocInfo
     {
         format::HandleId      capture_id{ format::kNullHandleId };
+        VkDeviceMemory        memory{ VK_NULL_HANDLE };
+        VkDeviceSize          allocation_size{ 0 };
         uint32_t              memory_type_index{ std::numeric_limits<uint32_t>::max() };
         VkMemoryPropertyFlags property_flags{ 0 };
         uint8_t*              mapped_pointer{ nullptr };
+        VkDeviceSize          mapped_offset{ 0 };
     };
 
   protected:
@@ -380,6 +383,9 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
     VkResult AllocateImportedMemory(const VkMemoryAllocateInfo*  allocate_info,
                                     const VkAllocationCallbacks* allocation_callbacks,
                                     VkDeviceMemory*              memory);
+
+    // Flush a host write of size bytes at offset from the mapped pointer, for memory that is not host coherent.
+    VkResult FlushWrittenRange(const MemoryAllocInfo* memory_alloc_info, uint64_t offset, uint64_t size);
 
     void ReportBindIncompatibility(const VkMemoryRequirements* requirements,
                                    const MemoryData*           allocator_memory_datas,

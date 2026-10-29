@@ -2268,6 +2268,23 @@ void VulkanRebindAllocator::WriteBoundResource(ResourceAllocInfo* resource_alloc
         {
             WriteBoundResourceDirect(
                 resource_alloc_info, bound_memory_info, copy_src_offset, copy_dst_offset, copy_size, data);
+
+            // Make the write visible to the device
+            util::MarkInjectedCommandsHelper injected;
+            VkDeviceSize                     flush_offset = copy_dst_offset;
+            VkDeviceSize                     flush_size   = copy_size;
+            if (resource_alloc_info->object_type == VK_OBJECT_TYPE_IMAGE)
+            {
+                flush_offset = 0;
+                flush_size   = VK_WHOLE_SIZE;
+            }
+
+            result = vmaFlushAllocation(allocator_, bound_memory_info->allocation, flush_offset, flush_size);
+            if (result != VK_SUCCESS)
+            {
+                GFXRECON_LOG_ERROR("Failed to flush mapped memory write: vmaFlushAllocation returned %s",
+                                   util::ToString<VkResult>(result).c_str());
+            }
         }
         else
         {

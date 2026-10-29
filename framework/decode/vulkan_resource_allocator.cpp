@@ -148,9 +148,10 @@ VkResult VulkanResourceAllocator::Initialize(const VulkanPhysicalDeviceInfo*    
     auto replay_device_info = physical_device_info->replay_device_info;
     GFXRECON_ASSERT(replay_device_info->memory_properties.has_value());
 
-    device_                   = device;
-    replay_memory_properties_ = replay_device_info->memory_properties.value();
-    device_table_             = graphics::VulkanInjectedDeviceCalls(device_table);
+    device_                        = device;
+    replay_memory_properties_      = replay_device_info->memory_properties.value();
+    replay_non_coherent_atom_size_ = replay_device_info->properties->limits.nonCoherentAtomSize;
+    device_table_                  = graphics::VulkanInjectedDeviceCalls(device_table);
 
     return VK_SUCCESS;
 }
