@@ -82,6 +82,7 @@ const char kScreenshotDirEnvVar[]                            = GFXRECON_OPTION_S
 const char kScreenshotFormatEnvVar[]                         = GFXRECON_OPTION_STR(SCREENSHOT_FORMAT);
 const char kScreenshotFramesEnvVar[]                         = GFXRECON_OPTION_STR(SCREENSHOT_FRAMES);
 const char kScreenshotIntervalEnvVar[]                       = GFXRECON_OPTION_STR(SCREENSHOT_INTERVAL);
+const char kScreenshotTriggerEnvVar[]                        = GFXRECON_OPTION_STR(SCREENSHOT_TRIGGER);
 const char kCaptureFramesEnvVar[]                            = GFXRECON_OPTION_STR(CAPTURE_FRAMES);
 const char kCaptureDrawCallsEnvVar[]                         = GFXRECON_OPTION_STR(CAPTURE_DRAW_CALLS);
 const char kQuitAfterFramesEnvVar[]                          = GFXRECON_OPTION_STR(QUIT_AFTER_CAPTURE_FRAMES);
@@ -147,6 +148,7 @@ const std::string kOptionKeyScreenshotDir                            = std::stri
 const std::string kOptionKeyScreenshotFormat                         = std::string(kSettingsFilter) + std::string(SCREENSHOT_FORMAT_LOWER);
 const std::string kOptionKeyScreenshotFrames                         = std::string(kSettingsFilter) + std::string(SCREENSHOT_FRAMES_LOWER);
 const std::string kOptionKeyScreenshotInterval                       = std::string(kSettingsFilter) + std::string(SCREENSHOT_INTERVAL_LOWER);
+const std::string kOptionKeyScreenshotTrigger                        = std::string(kSettingsFilter) + std::string(SCREENSHOT_TRIGGER_LOWER);
 const std::string kOptionKeyCaptureFrames                            = std::string(kSettingsFilter) + std::string(CAPTURE_FRAMES_LOWER);
 const std::string kOptionKeyCaptureDrawCalls                         = std::string(kSettingsFilter) + std::string(CAPTURE_DRAW_CALLS_LOWER);
 const std::string kOptionKeyQuitAfterCaptureFrames                   = std::string(kSettingsFilter) + std::string(QUIT_AFTER_CAPTURE_FRAMES_LOWER);
@@ -340,6 +342,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options, bool load_log_setti
     LoadSingleOptionEnvVar(options, kScreenshotFormatEnvVar, kOptionKeyScreenshotFormat);
     LoadSingleOptionEnvVar(options, kScreenshotFramesEnvVar, kOptionKeyScreenshotFrames);
     LoadSingleOptionEnvVar(options, kScreenshotIntervalEnvVar, kOptionKeyScreenshotInterval);
+    LoadSingleOptionEnvVar(options, kScreenshotTriggerEnvVar, kOptionKeyScreenshotTrigger);
 
     // DirectX environment variables
     LoadSingleOptionEnvVar(options, kDisableDxrEnvVar, kOptionDisableDxr);
@@ -566,6 +569,21 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     }
     settings->trace_settings_.screenshot_format = ParseScreenshotFormatString(
         FindOption(options, kOptionKeyScreenshotFormat), settings->trace_settings_.screenshot_format);
+    std::string screenshot_key_option = FindOption(options, kOptionKeyScreenshotTrigger);
+    if (!screenshot_key_option.empty())
+    {
+        settings->trace_settings_.screenshot_key = ParseTrimKeyString(screenshot_key_option);
+
+        // Sharing a key with the capture trigger is not supported.
+        if (!settings->trace_settings_.screenshot_key.empty() &&
+            util::strings::CaseInsensitiveEqual{}(settings->trace_settings_.screenshot_key,
+                                                  settings->trace_settings_.trim_key))
+        {
+            GFXRECON_LOG_WARNING(
+                "Settings Loader: Ignoring screenshot trigger key because it matches the trim trigger key.");
+            settings->trace_settings_.screenshot_key.clear();
+        }
+    }
 
     // DirectX options
     settings->trace_settings_.disable_dxr =
