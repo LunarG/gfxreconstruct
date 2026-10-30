@@ -1267,8 +1267,13 @@ TEST_CASE("FrameLoopLifetimeTracker replays a call depending on whether its hand
         }
     }
 
-    SECTION("allocated before the loop, freed within it, then freed with its pool: the free never replays")
+    SECTION("allocated before the loop, freed within it, then freed with its pool: the free and the reset replay on "
+            "the final iteration")
     {
+        // Repetitions keep using the set before freeing it, so the reset has to keep it alive as the free does.
+        const HandlesPerIteration expected_freed             = { {}, {}, { kSet } };
+        const bool                expected_reset[kLoopCount] = { false, false, true };
+
         Allocate(tracker, sets); // Before the loop starts
         pool_sets.insert(kSet);
 
@@ -1277,11 +1282,19 @@ TEST_CASE("FrameLoopLifetimeTracker replays a call depending on whether its hand
         {
             CAPTURE(iteration);
 
-            // The free is deferred, then the reset frees the set for real, so the final iteration must not free it
-            // again.
-            CHECK(Free(tracker, sets).empty());    // vkFreeDescriptorSets
-            CHECK(tracker.OnPoolReset(pool_sets)); // vkResetDescriptorPool
-            pool_sets.clear();
+            const std::vector<HandleId> freed = Free(tracker, sets); // vkFreeDescriptorSets
+            CHECK(freed == expected_freed[iteration]);
+            for (HandleId handle : freed)
+            {
+                pool_sets.erase(handle);
+            }
+
+            const bool reset = tracker.OnPoolReset(pool_sets); // vkResetDescriptorPool
+            CHECK(reset == expected_reset[iteration]);
+            if (reset)
+            {
+                pool_sets.clear();
+            }
 
             EndIteration(frame_loop_info, tracker);
         }

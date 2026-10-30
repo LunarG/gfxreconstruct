@@ -122,7 +122,8 @@ bool FrameLoopLifetimeTracker::OnPoolReset(const std::unordered_set<format::Hand
     {
         for (auto handle : handles)
         {
-            if ((pending_.count(handle) > 0) || (persistent_.count(handle) > 0))
+            if ((pending_.count(handle) > 0) || (persistent_.count(handle) > 0) ||
+                (deferred_destroy_.count(handle) > 0))
             {
                 // Repetitions keep using this handle without allocating it again,
                 // so the reset is deferred to the final iteration.
