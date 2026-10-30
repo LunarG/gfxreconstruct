@@ -1961,6 +1961,8 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
         };
 
         delegate_.DumpDrawCallInfo(transfer_info);
+
+        DumpResourcesProgress::Advance();
     }
 
     if (!qs_index_ && !options_.dump_resources_json_per_command)

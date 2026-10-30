@@ -51,6 +51,7 @@ class LoggingManager
     bool UpdateFileTarget(
         bool write_to_file, const std::string& file_name, bool create_new, bool leave_open, bool flush_after_write);
     void UpdateDebugViewTarget(bool enabled);
+    void UpdateRemoteTarget(bool enabled, LoggingSeverity min_severity);
 
     // Logging functions
     void LogMessage(LoggingSeverity severity, const std::string& message);
@@ -66,7 +67,6 @@ class LoggingManager
 
     bool                                                          indent_supported_{ false };
     std::array<std::unique_ptr<LoggingTargetBase>, kTarget_Count> logging_targets_;
-    LoggingSeverity                                               minimum_severity_{ LoggingSeverity::kError };
 };
 
 GFXRECON_END_NAMESPACE(logging)
@@ -106,6 +106,10 @@ class Log
 
     // NOTE: not thread-safe. must be called before any concurrent logging.
     static void SetFatalCallback(FatalCallback callback);
+
+    // Enable or disable relaying log output to the active RemoteChannel. Called by
+    // RemoteChannel::SetActiveChannel(), so the channel and this target cannot fall out of sync.
+    static void UpdateRemoteTarget(bool enabled);
 
     static void Release() { fatal_callback_ = {}; }
 

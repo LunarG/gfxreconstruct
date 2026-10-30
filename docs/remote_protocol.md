@@ -54,8 +54,12 @@ Every frame is a length-prefixed byte string:
 ```
 
 - All target devices are little-endian; no byte-swapping is performed.
-- No maximum frame size is enforced.
+- Frames from the controller are limited to 1 MiB; a larger length prefix is
+  treated as the controller closing the connection. Frames from replay have no
+  size limit.
 - Structured messages are UTF-8 JSON payloads. These could be migrated to a binary format such as protobuf or even GFXR's own encode/decode machinery.
+- Replay replaces invalid UTF-8 in a string value it sends, such as a log line
+  or a non-UTF-8 file name, with U+FFFD.
 - Binary file payloads are sent as a JSON `"file"` metadata frame **immediately
   followed** by a separate raw binary frame (no base64). After a `"file"`
   message the receiver treats the next frame as raw bytes.
@@ -84,17 +88,33 @@ replay     → controller:  {"type":"ready"}
 
 ```json
 {"type":"settings","options":{"<key>":"<value>", ...}}
+{"type":"control","action":"pause"}   // "pause" | "resume" | "step" | "stop"
 ```
 
 ### Replay → controller
 
 ```json
+{"type":"log","level":"info","message":"..."}
+{"type":"status","state":"running","frame":42,"block":1234}
+{"type":"progress","operation":"dump_resources","current":37,"total":90}
 {"type":"file","name":"dump/frame_0042.png","size":204800}
 <204800 raw bytes — separate binary frame, no encoding>
 {"type":"done","success":true}
 ```
 
-`done` is the final message; replay disconnects after sending it.
+`log` carries one line of replay's log output. `message` is the line exactly as
+replay writes it to its console, prefix included, so it follows the log settings
+the controller sent. `level` is one of `verbose`, `debug`, `info`, `warning`,
+`error`, or `fatal`. Console output that the log level does not filter, such as
+usage text, is sent as `info` regardless of `--log-level`; a controller that
+filters by level will hide it.
+
+`done` is the final message. Replay then half-closes the connection and waits up
+to 2 seconds for the controller to close its end before closing its own; the
+controller should close once it has read `done`. Closing first could reset the
+connection and discard a `done` the controller has not read yet. `success`
+reports whether replay ran without error; a `stop` from the controller is not a
+failure.
 
 ## Settings Keys
 
@@ -128,6 +148,44 @@ re-normalized, and fails the handshake instead of printing usage text.
 The same payload shape will carry capture-side settings, whose native model is
 already a `<string, string>` map. The key sets are disjoint; the shape is not.
 
+## Status and Progress
+
+`{"type":"status","state":S,"frame":N,"block":B}` is a complete snapshot of
+replay's state, sent after each replayed frame and whenever `state` changes.
+`state` is `running` or `paused`, whatever caused the change (keyboard,
+controller, or Android focus); controllers should tolerate values they do not
+recognize.
+
+`frame` and `block` are monotonic positions, not fractions: the capture file
+carries no total frame or block count, so no percentage is reported. A
+percentage would require a total stamped at capture time (a future capture-side
+addition) or a full pre-scan, which is impossible for a streamed capture. Use
+`block` for a finer-grained position and rate than `frame` alone.
+
+Only state owned by the tool's main loop belongs in `status`. A subsystem
+reports through a message of its own, such as `progress`.
+
+`{"type":"progress","operation":<op>,"current":X,"total":Y}` reports a bounded
+operation with a running total. Used by dump-resources, where `total` is the sum
+of all targeted commands (draw + dispatch + trace-rays + transfer). The count is
+a best-effort measure of work done against work targeted: a target that is never
+found or a dump that fails leaves `current` short of `total`.
+
+## Playback Controls
+
+Control actions (`pause` / `resume` / `step` / `stop`) are received on replay's
+receiver thread and queued. The replay thread applies them at replayed-frame
+boundaries, so an action arriving mid-frame takes effect when that frame
+finishes; a frame with dump-resources targets can take a long time. `step`
+replays one frame and is ignored unless replay is paused. While paused, replay
+waits on the control queue in 10 ms intervals rather than blocking on window
+events, since a remote session may have nobody at the device. Each pause,
+resume, and step is reflected in the next `status` message.
+
+Closing the connection, including closing only the controller's write side,
+ends the session: replay stops at the next replayed-frame boundary and exits
+with failure.
+
 ## File Streaming
 
 When a channel is active (`RemoteChannel::IsActive()`), file writers stream their
@@ -142,19 +200,22 @@ when it is destroyed:
 - Dump-resources buffers: `buffer_writer.cpp`.
 - Dump-resources JSON: `vulkan_replay_dump_resources_json.cpp`.
 
-If a send fails, `IsActive()` / `IsConnected()` become false and files opened
-afterward go to disk.
+Once a channel is registered, files are never written to disk. If the
+controller has gone, their contents are discarded.
 
 ## Threading Model
 
-`RemoteChannel` runs a sender thread:
+`RemoteChannel` runs a sender thread and a receiver thread:
 
 - All `Send*` calls serialize their message into a single buffer and enqueue it;
   the sender thread drains the queue in order. `SendFile` packs the JSON header
   and binary data into one buffer so they are never interleaved with another
   message.
+- The receiver thread demultiplexes incoming frames into the control queue.
 - `Disconnect()` drains and joins the sender (flushing queued messages), then
-  closes the socket.
+  half-closes the socket and waits for the receiver to see the controller close.
+  If the controller does not close in time, it wakes the receiver itself. It
+  then joins the receiver and closes.
 
 ## Reference Controller
 
@@ -171,6 +232,7 @@ controller implementation:
   familiar spelling. Deliberately *not* a replay command line: which options take
   a value is not knowable from the tokens alone, so requiring `=` removes the
   guesswork rather than inferring it.
+- Reads `p` / `r` / `s` / `q` from stdin to send pause/resume/step/stop controls.
 - `--self-test` runs the script's doctests.
 
 ```

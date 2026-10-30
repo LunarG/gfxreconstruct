@@ -78,6 +78,9 @@ RemoteSetupResult SetupRemoteChannel(util::RemoteChannel&  channel,
         return RemoteSetupResult::kFailed;
     }
 
+    // Before parsing the settings, so errors in them reach the controller that sent them.
+    util::RemoteChannel::SetActiveChannel(&channel);
+
     // Replace the local arguments with the settings provided by the controller.
     arg_parser = util::ArgumentParser(settings, options, arguments, kRemoteCaptureFileKey);
 
@@ -95,9 +98,6 @@ RemoteSetupResult SetupRemoteChannel(util::RemoteChannel&  channel,
         ShutdownRemoteChannel(channel, false);
         return RemoteSetupResult::kFailed;
     }
-
-    // Make the channel reachable process-wide, for components that cannot be handed a pointer to it.
-    util::RemoteChannel::SetActiveChannel(&channel);
 
     return RemoteSetupResult::kConnected;
 }
@@ -152,7 +152,8 @@ bool RunReplay(std::unique_ptr<decode::FileProcessor>&                          
                std::vector<std::unique_ptr<ReplayFeatureBase>>&                                 features,
                util::ArgumentParser&                                                            arg_parser,
                const std::string&                                                               filename,
-               std::function<std::shared_ptr<application::Application>(decode::FileProcessor*)> make_application)
+               std::function<std::shared_ptr<application::Application>(decode::FileProcessor*)> make_application,
+               util::RemoteChannel*                                                             remote_channel)
 {
     uint32_t loop_frame        = 0;
     uint32_t loop_count        = graphics::FrameLoopInfo::INFINITE_ITERATIONS;
@@ -285,9 +286,13 @@ bool RunReplay(std::unique_ptr<decode::FileProcessor>&                          
 
     application->SetFpsInfo(&fps_info);
     application->SetAsyncProcessing(arg_parser.IsOptionSet(kAsyncProcessingOption));
+    application->SetRemoteChannel(remote_channel);
 
     fps_info.BeginFile();
     application->Run();
+
+    // Nobody receives "done" once the controller has gone, but the exit code still reports the abandoned session.
+    const bool controller_closed = (remote_channel != nullptr) && remote_channel->IsControllerClosed();
 
     // Add one so that it matches the trim range frame number semantic.
     fps_info.EndFile(file_processor_out->GetCurrentFrameNumber() + 1);
@@ -322,7 +327,7 @@ bool RunReplay(std::unique_ptr<decode::FileProcessor>&                          
         feature->Destroy();
     }
 
-    return true;
+    return !controller_closed;
 }
 
 GFXRECON_END_NAMESPACE(replay)

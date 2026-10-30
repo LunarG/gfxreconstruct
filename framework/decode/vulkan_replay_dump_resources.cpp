@@ -82,6 +82,26 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
         return;
     }
 
+    // Total targeted commands across the operation; each is counted once as it is dumped (DumpResourcesProgress).
+    uint64_t dump_total = 0;
+    for (const auto& indices : options.Draw_Indices)
+    {
+        dump_total += indices.size();
+    }
+    for (const auto& indices : options.Dispatch_Indices)
+    {
+        dump_total += indices.size();
+    }
+    for (const auto& indices : options.TraceRays_Indices)
+    {
+        dump_total += indices.size();
+    }
+    for (const auto& indices : options.Transfer_Indices)
+    {
+        dump_total += indices.size();
+    }
+    DumpResourcesProgress::Begin(dump_total);
+
     if (user_delegate_ != nullptr)
     {
         active_delegate_ = user_delegate_;
@@ -2024,6 +2044,9 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit2(std::span<const VkSubmitInf
 
     const VulkanDeviceInfo* device_info = object_info_table_->GetVkDeviceInfo(queue_info->parent_id);
     GFXRECON_ASSERT(device_info != nullptr);
+
+    // Before the mode-specific DumpStart below, so the operation start is reported in both output modes.
+    DumpResourcesProgress::Announce();
 
     if (!output_json_per_command)
     {
