@@ -102,6 +102,8 @@ class HandlePointerDecoder
 
     const T* GetHandlePointer() const { return handle_data_; }
 
+    std::span<const T> GetHandleSpan() const { return std::span<const T>(GetHandlePointer(), GetHandleLength()); }
+
     size_t Decode(const uint8_t* buffer, size_t buffer_size)
     {
         size_t bytes_read = decoder_.DecodeHandleId(buffer, buffer_size);
