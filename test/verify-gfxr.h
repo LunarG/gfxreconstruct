@@ -102,17 +102,25 @@ void replay_and_record_draw_states(const char*                 test_name,
 
 /**
  * Run an application with capture enabled, replay the resulting gfxr with screenshots and --screenshot-results, and
- * compare the json that replay writes about those screenshots to known_good/screenshots/<test_name>.json.
+ * compare the json files that replay writes about those screenshots to the files of the same names in
+ * known_good/screenshots/<reference_name>/.
  *
- * Replay runs offscreen in the test directory with the screenshot prefix "<test_name>-screenshots", so the json is
- * "<test_name>-screenshots.json" and the images "<test_name>-screenshots_frame_N...". The json header, which holds
- * versions and the capture path, is left out of the comparison. Every image the json reports as written must exist.
+ * Replay runs offscreen in the test directory with the screenshot prefix "<test_name>-screenshots", so the images are
+ * "<test_name>-screenshots_frame_N...", each frame's json "<test_name>-screenshots_frame_N.json" and the summary
+ * "<test_name>-screenshots.json"; with --screenshot-results-single-file among the arguments there is only
+ * "<test_name>-screenshots.json". Replay must write exactly the files the reference directory holds. The header of
+ * each json, which holds versions and the capture path, is left out of the comparison. Every image a json reports as
+ * written must exist.
  *
  * @param test_name        - the name of the test app to launch and capture
- * @param screenshot_args  - which frames to screenshot, e.g. {"--screenshot-all"} or {"--screenshots", "1-2"}
+ * @param screenshot_args  - which frames to screenshot, e.g. {"--screenshot-all"} or {"--screenshots", "1-2"}, and any
+ *                           other screenshot option the test wants
+ * @param reference_name   - the reference directory under known_good/screenshots; test_name when null
  *
  * @note expects the same environment variables as verify_gfxr().
  */
-void capture_and_verify_screenshots(const char* test_name, std::vector<std::string> screenshot_args);
+void capture_and_verify_screenshots(const char*              test_name,
+                                    std::vector<std::string> screenshot_args,
+                                    const char*              reference_name = nullptr);
 
 #endif // GFXRECONSTRUCT_VERIFY_GFXR_H

@@ -1,0 +1,70 @@
+{
+  "header": {
+    "schemaVersion": 2,
+    "layout": "perFrame",
+    "gfxreconVersion": "1.0.5-dev (json_for_screenshots:0946ce0*) Debug",
+    "vulkanVersion": "1.4.363",
+    "api": "vulkan",
+    "captureFile": "screenshot-frame-boundary-ext.gfxr",
+    "options": {
+      "ranges": [
+        {
+          "first": 1,
+          "last": 4294967295
+        }
+      ],
+      "interval": 1,
+      "format": "bmp",
+      "dir": "",
+      "prefix": "screenshot-frame-boundary-ext-screenshots",
+      "scale": null,
+      "size": null,
+      "applyPrerotation": false,
+      "ignoreFrameBoundaryAndroid": false
+    }
+  },
+  "frame": 1,
+  "blockIndex": 47,
+  "boundary": {
+    "type": "VkFrameBoundaryEXT",
+    "call": "vkQueueSubmit",
+    "queueId": 5,
+    "captureResult": "VK_SUCCESS",
+    "replayResult": "VK_SUCCESS",
+    "frameBoundaryEXT": {
+      "flags": "VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT",
+      "frameID": 0,
+      "imageCount": 1,
+      "images": [
+        7
+      ],
+      "bufferCount": 0,
+      "tagName": 0,
+      "tagSize": 0
+    }
+  },
+  "status": "written",
+  "outputs": [
+    {
+      "source": {
+        "kind": "frameBoundaryImage",
+        "imageId": 7,
+        "layer": 0,
+        "imageIndex": 0,
+        "format": "VK_FORMAT_B8G8R8A8_UNORM",
+        "extent": [
+          64,
+          64
+        ],
+        "preTransform": "VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR"
+      },
+      "file": "screenshot-frame-boundary-ext-screenshots_frame_1.bmp",
+      "status": "written",
+      "written": {
+        "width": 64,
+        "height": 64
+      }
+    }
+  ],
+  "messages": []
+}
