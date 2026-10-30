@@ -435,6 +435,31 @@ void VulkanReplayFrameLoopConsumer::Process_vkFreeMemory(const ApiCallInfo& call
     }
 }
 
+// Only these usages let the device write to a buffer.
+static bool CanWriteBuffer(const VkBufferCreateInfo* create_info)
+{
+    if (const auto* usage_flags2 = graphics::vulkan_struct_get_pnext<VkBufferUsageFlags2CreateInfo>(create_info))
+    {
+        constexpr VkBufferUsageFlags2 kWritableUsage2 =
+            VK_BUFFER_USAGE_2_TRANSFER_DST_BIT | VK_BUFFER_USAGE_2_STORAGE_TEXEL_BUFFER_BIT |
+            VK_BUFFER_USAGE_2_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_2_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT |
+            VK_BUFFER_USAGE_2_TRANSFORM_FEEDBACK_COUNTER_BUFFER_BIT_EXT | VK_BUFFER_USAGE_2_SHADER_DEVICE_ADDRESS_BIT |
+            VK_BUFFER_USAGE_2_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_2_MICROMAP_STORAGE_BIT_EXT |
+            VK_BUFFER_USAGE_2_VIDEO_ENCODE_DST_BIT_KHR;
+
+        return (usage_flags2->usage & kWritableUsage2) != 0;
+    }
+
+    constexpr VkBufferUsageFlags kWritableUsage =
+        VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT |
+        VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT |
+        VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_COUNTER_BUFFER_BIT_EXT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT |
+        VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_MICROMAP_STORAGE_BIT_EXT |
+        VK_BUFFER_USAGE_VIDEO_ENCODE_DST_BIT_KHR;
+
+    return (create_info->usage & kWritableUsage) != 0;
+}
+
 void VulkanReplayFrameLoopConsumer::Process_vkCreateBuffer(const ApiCallInfo& call_info, args::CreateBuffer& args)
 {
     VkBufferCreateInfo* create_info = args.pCreateInfo.GetPointer();
@@ -442,6 +467,11 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateBuffer(const ApiCallInfo& ca
     // Ensure that buffers can be copied to and from so contents can be restored.
     if (create_info != nullptr)
     {
+        if (!args.pBuffer.IsNull() && CanWriteBuffer(create_info))
+        {
+            writable_buffers_.insert(*args.pBuffer.GetPointer());
+        }
+
         create_info->usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
         if (auto* usage_flags2 = graphics::vulkan_struct_get_pnext<VkBufferUsageFlags2CreateInfo>(create_info))
@@ -649,8 +679,13 @@ void VulkanReplayFrameLoopConsumer::RecordBufferStates()
     CommonObjectInfoTable& table = GetObjectInfoTable();
 
     std::unordered_map<format::HandleId, std::vector<format::HandleId>> device_buffers;
-    table.VisitVkBufferInfo([&table, &device_buffers](const VulkanBufferInfo* buffer_info) {
+    table.VisitVkBufferInfo([this, &table, &device_buffers](const VulkanBufferInfo* buffer_info) {
         if (buffer_info == nullptr || buffer_info->handle == VK_NULL_HANDLE || buffer_info->size == 0)
+        {
+            return;
+        }
+
+        if (!writable_buffers_.contains(buffer_info->capture_id))
         {
             return;
         }
