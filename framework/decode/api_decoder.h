@@ -89,6 +89,8 @@ class ApiDecoder
 
     virtual void DispatchExeFileInfo(format::ThreadId thread_id, const format::ExeFileInfoBlock& info) {}
 
+    virtual void DispatchCaptureStartQueueSubmitIndexCommand(format::ThreadId thread_id, uint64_t queue_submit_index) {}
+
     virtual void DispatchFillMemoryCommand(
         format::ThreadId thread_id, uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data)
     {}

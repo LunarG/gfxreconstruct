@@ -39,6 +39,7 @@ class MetadataConsumerBase
 {
   public:
     virtual void Process_ExeFileInfo(const util::filepath::FileInfo& info_record) {}
+    virtual void ProcessCaptureStartQueueSubmitIndexCommand(uint64_t queue_submit_index) {}
     virtual void ProcessDisplayMessageCommand(const std::string& message) {}
     virtual void ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) {}
     virtual void

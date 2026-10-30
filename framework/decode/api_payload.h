@@ -179,6 +179,15 @@ struct ExeFileArgs
 
     auto GetTuple() const { return std::tie(thread_id, info); }
 };
+struct CaptureStartQueueSubmitIndexArgs
+{
+    format::MetaDataId meta_data_id; // Needed by DispatchVisitor, but not ApiDecoder
+
+    format::ThreadId thread_id;
+    uint64_t         queue_submit_index;
+
+    auto GetTuple() const { return std::tie(thread_id, queue_submit_index); }
+};
 struct FillMemoryArgs
 {
     format::MetaDataId meta_data_id; // Needed by DispatchVisitor, but not ApiDecoder
@@ -663,6 +672,12 @@ struct DispatchTraits<ExeFileArgs> : DispatchFlagTraits<ExeFileArgs>
 };
 
 template <>
+struct DispatchTraits<CaptureStartQueueSubmitIndexArgs> : DispatchFlagTraits<CaptureStartQueueSubmitIndexArgs>
+{
+    static constexpr auto kDecoderMethod = &ApiDecoder::DispatchCaptureStartQueueSubmitIndexCommand;
+};
+
+template <>
 struct DispatchTraits<FillMemoryArgs> : DispatchFlagTraits<FillMemoryArgs>
 {
     static constexpr auto kDecoderMethod = &ApiDecoder::DispatchFillMemoryCommand;
@@ -900,6 +915,7 @@ using DispatchArgs = std::variant<std::monostate,
                                   DisplayMessageArgs*,
                                   DriverArgs*,
                                   ExeFileArgs*,
+                                  CaptureStartQueueSubmitIndexArgs*,
                                   FillMemoryArgs*,
                                   FillMemoryResourceValueArgs*,
                                   ResizeWindowArgs*,

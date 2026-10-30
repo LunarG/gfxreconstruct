@@ -96,6 +96,13 @@ class MetadataJsonConsumer : public Base
         WriteBlockEnd();
     }
 
+    virtual void ProcessCaptureStartQueueSubmitIndexCommand(uint64_t queue_submit_index) override
+    {
+        auto& jdata                 = WriteMetaCommandStart("CaptureStartQueueSubmitIndexCommand");
+        jdata["queue_submit_index"] = queue_submit_index;
+        WriteBlockEnd();
+    }
+
     virtual void ProcessResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height) override
     {
         using namespace util;

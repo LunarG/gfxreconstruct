@@ -106,6 +106,15 @@ class Dx12DecoderBase : public ApiDecoder
         }
     }
 
+    virtual void DispatchCaptureStartQueueSubmitIndexCommand(format::ThreadId thread_id,
+                                                             uint64_t         queue_submit_index) override
+    {
+        for (auto consumer : consumers_)
+        {
+            consumer->ProcessCaptureStartQueueSubmitIndexCommand(queue_submit_index);
+        }
+    }
+
     virtual void DispatchFillMemoryCommand(
         format::ThreadId thread_id, uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
 

@@ -37,6 +37,7 @@
 #include "graphics/vulkan_submit_info_util.h"
 #include "graphics/vulkan_struct_get_pnext.h"
 
+#include "decode/block_buffer.h"
 #include "decode/block_parser.h"
 #include "decode/decode_allocator.h"
 #include "decode/vulkan_pnext_node.h"
@@ -176,6 +177,35 @@ TEST_CASE("BlockParser basic usage", "[wrapper]")
     // this should trigger some error
     block_parser.HandleBlockReadError(gfxrecon::decode::BlockIOError::kErrorReadingBlockData, "fatal fake error");
     REQUIRE(err_triggered);
+}
+
+TEST_CASE("BlockParser reads the queue submit index a capture file starts at", "[block_parser]")
+{
+    gfxrecon::format::CaptureStartQueueSubmitIndexCommand command{};
+    command.meta_header.block_header.type = gfxrecon::format::BlockType::kMetaDataBlock;
+    command.meta_header.block_header.size = gfxrecon::format::GetMetaDataBlockBaseSize(command);
+    command.meta_header.meta_data_id =
+        gfxrecon::format::MakeMetaDataId(gfxrecon::format::ApiFamilyId::ApiFamily_Vulkan,
+                                         gfxrecon::format::MetaDataType::kCaptureStartQueueSubmitIndexCommand);
+    command.thread_id          = 7;
+    command.queue_submit_index = 560;
+
+    bool err_triggered = false;
+    auto err_handler   = [&err_triggered](gfxrecon::decode::BlockIOError, const char*) { err_triggered = true; };
+
+    gfxrecon::decode::BlockParser block_parser(err_handler, nullptr);
+    gfxrecon::decode::BlockBuffer block_buffer;
+    block_buffer.Reset(reinterpret_cast<uint8_t*>(&command), sizeof(command));
+
+    auto& parsed_block = block_parser.ParseBlock(block_buffer);
+
+    REQUIRE_FALSE(err_triggered);
+    REQUIRE(parsed_block.IsReady());
+    REQUIRE(parsed_block.Holds<gfxrecon::decode::CaptureStartQueueSubmitIndexArgs>());
+
+    const auto& args = parsed_block.Get<gfxrecon::decode::CaptureStartQueueSubmitIndexArgs>();
+    REQUIRE(args.thread_id == 7);
+    REQUIRE(args.queue_submit_index == 560);
 }
 
 TEST_CASE("Test a roundtrip between SubmitInfo2Translator and SubmitInfoTranslator", "[]")

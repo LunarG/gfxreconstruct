@@ -104,6 +104,17 @@ void VulkanDecoderBase::DispatchExeFileInfo(format::ThreadId thread_id, const fo
     }
 }
 
+void VulkanDecoderBase::DispatchCaptureStartQueueSubmitIndexCommand(format::ThreadId thread_id,
+                                                                    uint64_t         queue_submit_index)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessCaptureStartQueueSubmitIndexCommand(queue_submit_index);
+    }
+}
+
 void VulkanDecoderBase::DispatchFillMemoryResourceValueCommand(
     const format::FillMemoryResourceValueCommandHeader& command_header, const uint8_t* data)
 {

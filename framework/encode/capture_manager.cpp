@@ -120,7 +120,7 @@ void CommonCaptureManager::ClearUniqueIds()
 }
 
 CommonCaptureManager::CommonCaptureManager() :
-    force_file_flush_(false), timestamp_filename_(true),
+    capture_file_api_family_(format::ApiFamilyId::ApiFamily_None), force_file_flush_(false), timestamp_filename_(true),
     memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), page_guard_align_buffer_sizes_(false),
     page_guard_track_ahb_memory_(false), page_guard_unblock_sigsegv_(false), page_guard_signal_handler_watcher_(false),
     page_guard_memory_mode_(kMemoryModeShadowInternal), page_guard_external_memory_(false), trim_enabled_(false),
@@ -1293,6 +1293,7 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
         WriteFileHeader();
 
         WriteExeFileInfo(api_family, info);
+        capture_file_api_family_ = api_family;
 
         // Save parameters of the capture in an annotation.
         std::string operation_annotation = "{\n"
@@ -1386,6 +1387,10 @@ void CommonCaptureManager::ActivateTrimming(std::shared_lock<ApiCallMutexT>& cur
 
         auto* thread_data = GetThreadData();
         GFXRECON_ASSERT(thread_data != nullptr);
+
+        // Files without trim state always start at queue submission 0, so they need no block.
+        WriteCaptureStartQueueSubmitIndex(capture_file_api_family_);
+
         if (use_asset_file_)
         {
             std::unique_ptr<util::FileOutputStream> asset_file_stream = CreateAssetFile();
@@ -1505,6 +1510,21 @@ void CommonCaptureManager::WriteExeFileInfo(format::ApiFamilyId                 
     exe_info_header.thread_id = thread_data->thread_id_;
 
     WriteToFile(&exe_info_header, sizeof(exe_info_header));
+}
+
+void CommonCaptureManager::WriteCaptureStartQueueSubmitIndex(format::ApiFamilyId api_family)
+{
+    auto                                        thread_data = GetThreadData();
+    format::CaptureStartQueueSubmitIndexCommand command     = {};
+
+    command.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    command.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(command);
+    command.meta_header.meta_data_id =
+        format::MakeMetaDataId(api_family, format::MetaDataType::kCaptureStartQueueSubmitIndexCommand);
+    command.thread_id          = thread_data->thread_id_;
+    command.queue_submit_index = queue_submit_count_;
+
+    WriteToFile(&command, sizeof(command));
 }
 
 void CommonCaptureManager::ForcedWriteAnnotation(const format::AnnotationType type, const char* label, const char* data)

@@ -281,6 +281,8 @@ class CommonCaptureManager
 
     void WriteExeFileInfo(format::ApiFamilyId api_family, const gfxrecon::util::filepath::FileInfo& info);
 
+    void WriteCaptureStartQueueSubmitIndex(format::ApiFamilyId api_family);
+
     void ForcedWriteAnnotation(const format::AnnotationType type, const char* label, const char* data);
 
     /// @brief Inject an Annotation block into the capture file.
@@ -609,6 +611,7 @@ class CommonCaptureManager
     format::EnabledOptions                  file_options_;
     std::string                             base_filename_;
     std::string                             capture_filename_;
+    format::ApiFamilyId                     capture_file_api_family_;
     std::string                             asset_file_name_;
     bool                                    timestamp_filename_;
     bool                                    force_file_flush_;

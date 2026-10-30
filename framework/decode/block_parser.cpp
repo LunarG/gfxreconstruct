@@ -646,6 +646,25 @@ ParsedBlock& BlockParser::ParseMetaData(BlockBuffer& block_buffer)
             return MakeIncompressibleParsedBlock(block_buffer, payload);
         }
     }
+    else if (meta_data_type == format::MetaDataType::kCaptureStartQueueSubmitIndexCommand)
+    {
+        format::CaptureStartQueueSubmitIndexCommand command;
+        success = block_buffer.Read(command.thread_id);
+        success = success && block_buffer.Read(command.queue_submit_index);
+
+        if (success)
+        {
+            // This command does not support compression.
+            auto* payload =
+                Emplace<CaptureStartQueueSubmitIndexArgs>(meta_data_id, command.thread_id, command.queue_submit_index);
+            return MakeIncompressibleParsedBlock(block_buffer, payload);
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockData,
+                                 "Failed to read capture start queue submit index meta-data block");
+        }
+    }
     else if (meta_data_type == format::MetaDataType::kDriverInfoCommand)
     {
         format::DriverInfoBlock header;

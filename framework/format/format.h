@@ -185,6 +185,7 @@ enum class MetaDataType : uint16_t
     kReserved46                                         = 46, // LunarG internal use
     kReserved47                                         = 47, // LunarG internal use
     kResourceAliasingGroupsCommand                      = 48,
+    kCaptureStartQueueSubmitIndexCommand                = 49,
 
     //! reserve values with highest-bit for special purposes
     kBeginExperimentalReservedRange = 1U << 15U
@@ -409,6 +410,15 @@ struct ExeFileInfoBlock
     MetaDataHeader           meta_header;
     format::ThreadId         thread_id;
     util::filepath::FileInfo info_record;
+};
+
+// Written before the trim state of each file that has one. queue_submit_index is the number of
+// application queue submissions before the first captured one.
+struct CaptureStartQueueSubmitIndexCommand
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    uint64_t         queue_submit_index;
 };
 
 // Not a header because this command does not include a variable length data payload.
