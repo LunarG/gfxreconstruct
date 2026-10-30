@@ -196,6 +196,8 @@ uint32_t FindGraphicsOrComputeQueueFamilyIndex(const VulkanQueueFamilyFlags& fam
  */
 std::vector<VkPipelineBindPoint> ShaderStageFlagsToPipelineBindPoints(VkShaderStageFlags flags);
 
+bool ArePipelineRenderingFormatsIgnored(const VkGraphicsPipelineCreateInfo& create_info);
+
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
