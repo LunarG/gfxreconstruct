@@ -23,9 +23,10 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import json,os,re,shutil,sys,tempfile
+import json,os,re,sys,tempfile
 
 from collections import OrderedDict
+from generated_file_util import finish_output_file
 
 try:
     from pathlib import Path
@@ -534,30 +535,7 @@ class Dx12BaseGenerator():
         if (self.genOpts.protect_file and self.genOpts.filename):
             self.newline()
             write('#endif', file=self.outFile)
-        if self.errFile:
-            self.errFile.flush()
-        if self.warnFile:
-            self.warnFile.flush()
-        if self.diagFile:
-            self.diagFile.flush()
-        if self.outFile:
-            self.outFile.flush()
-            if self.outFile != sys.stdout and self.outFile != sys.stderr:
-                self.outFile.close()
-
-            if self.genOpts is None:
-                raise MissingGeneratorOptionsError()
-
-            # On successfully generating output, move the temporary file to the
-            # target file.
-            if self.genOpts.filename is not None:
-                directory = Path(self.genOpts.directory)
-                if sys.platform == 'win32':
-                    if not Path.exists(directory):
-                        os.makedirs(directory)
-                shutil.copy(self.outFile.name, directory / self.genOpts.filename)
-                os.remove(self.outFile.name)
-        self.genOpts = None
+        finish_output_file(self)
 
     def beginFeature(self, interface, emit):
         """Write interface for a feature and tag generated features as having been done.
