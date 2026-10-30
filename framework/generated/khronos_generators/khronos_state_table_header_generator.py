@@ -73,6 +73,9 @@ class KhronosStateTableHeaderGenerator():
         self.api_map_code += '    std::unordered_map<{}, {}*> {};\n'.format(
             name, handle_wrapper_type, handle_map
         )
+        self.api_count_code += '        visitor("{}", {}.size());\n'.format(
+            name, handle_map
+        )
 
     def generate_state_table_content(self):
 
@@ -88,6 +91,7 @@ class KhronosStateTableHeaderGenerator():
         self.api_const_get_code = ''
         self.api_get_code = ''
         self.api_map_code = ''
+        self.api_count_code = ''
 
         api_data = self.get_api_data()
 
@@ -146,6 +150,12 @@ class KhronosStateTableHeaderGenerator():
         code += '    template<typename Wrapper> const Wrapper* GetWrapper(typename Wrapper::HandleType handle) const { return nullptr; }\n'
         code += '\n'
         code += '    template<typename Wrapper> Wrapper* GetWrapper(typename Wrapper::HandleType handle) { return nullptr; }\n'
+        code += '\n'
+        code += '    // Calls visitor with the name of each handle type and the number of its wrappers in the table.\n'
+        code += '    void VisitWrapperCounts(std::function<void(const char*, size_t)> visitor) const\n'
+        code += '    {\n'
+        code += self.api_count_code
+        code += '    }\n'
         code += '\n'
         code += '  private:\n'
         code += self.api_map_code
