@@ -32,6 +32,7 @@
 #include "util/logging.h"
 #include "util/platform.h"
 
+#include <algorithm>
 #include <cassert>
 #include <vulkan/vulkan_core.h>
 
@@ -483,6 +484,7 @@ VkResult VulkanDefaultAllocator::MapMemory(VkDeviceMemory   memory,
             {
                 auto memory_alloc_info            = reinterpret_cast<MemoryAllocInfo*>(allocator_data);
                 memory_alloc_info->mapped_pointer = static_cast<uint8_t*>(*data);
+                memory_alloc_info->mapped_offset  = offset;
             }
             else
             {
@@ -511,6 +513,7 @@ VulkanDefaultAllocator::MapMemory2(const VkMemoryMapInfo* memory_map_info, void*
             {
                 auto memory_alloc_info            = reinterpret_cast<MemoryAllocInfo*>(allocator_data);
                 memory_alloc_info->mapped_pointer = static_cast<uint8_t*>(*data);
+                memory_alloc_info->mapped_offset  = memory_map_info->offset;
             }
             else
             {
@@ -528,6 +531,7 @@ void VulkanDefaultAllocator::UnmapMemory(VkDeviceMemory memory, MemoryData alloc
     {
         auto memory_alloc_info            = reinterpret_cast<MemoryAllocInfo*>(allocator_data);
         memory_alloc_info->mapped_pointer = nullptr;
+        memory_alloc_info->mapped_offset  = 0;
     }
 
     functions_.unmap_memory(device_, memory);
@@ -541,6 +545,7 @@ VkResult VulkanDefaultAllocator::UnmapMemory2(const VkMemoryUnmapInfo* memory_un
     {
         auto memory_alloc_info            = reinterpret_cast<MemoryAllocInfo*>(allocator_data);
         memory_alloc_info->mapped_pointer = nullptr;
+        memory_alloc_info->mapped_offset  = 0;
     }
 
     return functions_.unmap_memory2(device_, memory_unmap_info);
@@ -597,7 +602,15 @@ VkResult VulkanDefaultAllocator::WriteMappedMemoryRange(MemoryData     allocator
 
             util::platform::MemoryCopy(memory_alloc_info->mapped_pointer + offset, copy_size, data, copy_size);
 
-            result = VK_SUCCESS;
+            // Make the write visible to the device
+            if ((memory_alloc_info->property_flags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == 0)
+            {
+                result = FlushWrittenRange(memory_alloc_info, offset, size);
+            }
+            else
+            {
+                result = VK_SUCCESS;
+            }
         }
         else
         {
@@ -606,6 +619,40 @@ VkResult VulkanDefaultAllocator::WriteMappedMemoryRange(MemoryData     allocator
     }
 
     return result;
+}
+
+VkResult
+VulkanDefaultAllocator::FlushWrittenRange(const MemoryAllocInfo* memory_alloc_info, uint64_t offset, uint64_t size)
+{
+    assert(memory_alloc_info != nullptr);
+
+    if (memory_alloc_info->memory == VK_NULL_HANDLE)
+    {
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
+
+    // Offset must be a multiple of nonCoherentAtomSize, and size must be a multiple of it or reach the end of the
+    // allocation. nonCoherentAtomSize is not guaranteed to be a power of two.
+    const VkDeviceSize atom_size = std::max<VkDeviceSize>(replay_non_coherent_atom_size_, 1);
+
+    VkDeviceSize start = memory_alloc_info->mapped_offset + offset;
+    VkDeviceSize end   = start + size;
+
+    start -= start % atom_size;
+    end = ((end + atom_size - 1) / atom_size) * atom_size;
+
+    if (memory_alloc_info->allocation_size != 0)
+    {
+        end = std::min(end, memory_alloc_info->allocation_size);
+    }
+
+    const VkMappedMemoryRange range = {
+        VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE, nullptr, memory_alloc_info->memory, start, end - start
+    };
+
+    // The flush has no block in the capture file.
+    auto injected = device_table_.Open();
+    return injected->FlushMappedMemoryRanges(device_, 1, &range);
 }
 
 void VulkanDefaultAllocator::ReportAllocateMemoryIncompatibility(const VkMemoryAllocateInfo* allocate_info)
@@ -960,6 +1007,8 @@ VkResult VulkanDefaultAllocator::Allocate(const VkMemoryAllocateInfo*  allocate_
 
         auto memory_alloc_info               = new MemoryAllocInfo;
         memory_alloc_info->capture_id        = capture_id;
+        memory_alloc_info->memory            = *memory;
+        memory_alloc_info->allocation_size   = allocate_info->allocationSize;
         memory_alloc_info->memory_type_index = allocate_info->memoryTypeIndex;
         memory_alloc_info->property_flags =
             replay_memory_properties_.memoryTypes[allocate_info->memoryTypeIndex].propertyFlags;

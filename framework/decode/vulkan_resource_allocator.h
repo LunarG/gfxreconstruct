@@ -603,6 +603,7 @@ class VulkanResourceAllocator
     Functions                           functions_;
     graphics::VulkanInjectedDeviceCalls device_table_;
     VkPhysicalDeviceMemoryProperties    replay_memory_properties_{};
+    VkDeviceSize                        replay_non_coherent_atom_size_{ 0 };
 };
 
 GFXRECON_END_NAMESPACE(decode)
