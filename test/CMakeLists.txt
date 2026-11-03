@@ -60,6 +60,7 @@ if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
         test_cases/deep-pnext-chain.cpp
         test_cases/screenshot-results.cpp
         test_cases/replay-wait-options.cpp
+        replay-event-recorder-utils.cpp
         verify-gfxr.cpp)
 
     if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|GNU")
