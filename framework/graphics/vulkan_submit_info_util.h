@@ -28,8 +28,6 @@
 #include "vulkan/vulkan.h"
 
 #include <span>
-#include <unordered_map>
-#include <unordered_set>
 #include <vector>
 #include <cstdint>
 
@@ -106,28 +104,6 @@ class SubmitInfoTranslator
     std::vector<VkDeviceGroupSubmitInfo>       device_group_submit_infos_;
     std::vector<VkProtectedSubmitInfo>         protected_submit_infos_;
 };
-
-// Wait and signal semaphores to omit from one submission.
-struct SemaphoreFilter
-{
-    std::unordered_set<VkSemaphore> waits;
-    std::unordered_set<VkSemaphore> signals;
-};
-
-// Removes the semaphores named by the filters from the wait and signal arrays of the submissions they target.
-//
-// Replay needs this because some semaphores that were signaled at capture are never signaled at replay, and waiting on
-// them would hang the queue:
-//   - Imported semaphores: the external handle import is skipped, so the external signaler does not exist at replay.
-//   - Shadow semaphores: vkAcquireNextImageKHR is skipped for swapchains whose surface was not created (e.g. a
-//     --surface-index replay), so the acquire never signals its semaphore.
-// Once such a wait is removed, the semaphore is never unsignaled, so a later signal of it would signal a binary
-// semaphore that is already signaled. Those redundant signals are removed too.
-template <typename SubmitInfo, typename SemaphoreEntry>
-void FilterSemaphores(std::vector<SubmitInfo>&                                            submit_infos,
-                      const std::unordered_map<uint32_t, SemaphoreFilter>&                filters,
-                      std::unordered_map<const SubmitInfo*, std::vector<SemaphoreEntry>>& wait_semaphores,
-                      std::unordered_map<const SubmitInfo*, std::vector<SemaphoreEntry>>& signal_semaphores);
 
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)

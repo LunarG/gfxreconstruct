@@ -44,6 +44,7 @@
 #include "graphics/vulkan_feature_util.h"
 #include "decode/vulkan_descriptor_utils.h"
 #include "decode/vulkan_object_cleanup_util.h"
+#include "decode/vulkan_submit_info_helper.h"
 #include "decode/vulkan_submit_job.h"
 #include "decode/vulkan_swapchain_format.h"
 #include "format/format.h"
@@ -5360,7 +5361,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
 
     // Check for semaphores to remove from the current submission list, mapping the pSubmits array index to the
     // removed semaphores.
-    std::unordered_map<uint32_t, graphics::SemaphoreFilter> altered_submits;
+    std::unordered_map<uint32_t, SemaphoreFilter> altered_submits;
 
     // Only attempt to filter imported semaphores if we know at least one has been imported.
     // If rendering is restricted to a specific surface, shadow semaphore and forward progress state will need to be
@@ -5371,7 +5372,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
         {
             for (uint32_t i = 0; i < submitCount; i++)
             {
-                graphics::SemaphoreFilter removed_semaphores;
+                SemaphoreFilter removed_semaphores;
 
                 GetImportedSemaphores(submit_info_data[i].pWaitSemaphores, &removed_semaphores.waits);
                 GetShadowSemaphores(submit_info_data[i].pWaitSemaphores, &removed_semaphores.waits);
@@ -5391,18 +5392,15 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
         }
     }
 
-    std::vector<VkSubmitInfo> modified_submit_infos;
-
-    std::unordered_map<const VkSubmitInfo*, std::vector<VkSemaphore>> per_submit_wait_semaphores;
-    std::unordered_map<const VkSubmitInfo*, std::vector<VkSemaphore>> per_submit_signal_semaphores;
+    std::vector<VkSubmitInfo>                            modified_submit_infos;
+    std::vector<std::unique_ptr<VulkanSubmitInfoHelper>> submit_info_helpers;
 
     if (!altered_submits.empty())
     {
-        // Make shallow copies of the VkSubmit info structures and change pWaitSemaphores to reference a copy of the
-        // original semaphore array with the removed semaphores omitted.
+        // Make shallow copies of the VkSubmitInfo structures and rewrite the altered ones to reference copies of their
+        // semaphore arrays with the removed semaphores omitted.
         modified_submit_infos = std::vector<VkSubmitInfo>(current_submits_span.begin(), current_submits_span.end());
-        graphics::FilterSemaphores(
-            modified_submit_infos, altered_submits, per_submit_wait_semaphores, per_submit_signal_semaphores);
+        FilterSemaphores(modified_submit_infos, altered_submits, submit_info_helpers);
 
         // Update current submits span to reference modified submit info vector.
         current_submits_span = std::span(modified_submit_infos.data(), modified_submit_infos.size());
@@ -5602,7 +5600,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
 
     // Check for semaphores to remove from the current submission list, mapping the pSubmits array index to the
     // removed semaphores.
-    std::unordered_map<uint32_t, graphics::SemaphoreFilter> altered_submits;
+    std::unordered_map<uint32_t, SemaphoreFilter> altered_submits;
 
     // Only attempt to filter imported semaphores if we know at least one has been imported.
     // If rendering is restricted to a specific surface, shadow semaphore and forward progress state will need to be
@@ -5613,7 +5611,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
         {
             for (uint32_t i = 0; i < submitCount; i++)
             {
-                graphics::SemaphoreFilter removed_semaphores;
+                SemaphoreFilter removed_semaphores;
 
                 GetImportedSemaphores(submit_info_data[i].pWaitSemaphoreInfos, &removed_semaphores.waits);
                 GetShadowSemaphores(submit_info_data[i].pWaitSemaphoreInfos, &removed_semaphores.waits);
@@ -5633,18 +5631,15 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
         }
     }
 
-    std::vector<VkSubmitInfo2> modified_submit_infos;
-
-    std::unordered_map<const VkSubmitInfo2*, std::vector<VkSemaphoreSubmitInfo>> per_submit_wait_semaphore_infos;
-    std::unordered_map<const VkSubmitInfo2*, std::vector<VkSemaphoreSubmitInfo>> per_submit_signal_semaphore_infos;
+    std::vector<VkSubmitInfo2>                            modified_submit_infos;
+    std::vector<std::unique_ptr<VulkanSubmitInfo2Helper>> submit_info_helpers;
 
     if (!altered_submits.empty())
     {
-        // Make shallow copies of the VkSubmit info structures and change pWaitSemaphores to reference a copy of the
-        // original semaphore array with the removed semaphores omitted.
+        // Make shallow copies of the VkSubmitInfo2 structures and rewrite the altered ones to reference copies of their
+        // semaphore info arrays with the removed semaphores omitted.
         modified_submit_infos = std::vector<VkSubmitInfo2>(current_submits_span.begin(), current_submits_span.end());
-        graphics::FilterSemaphores(
-            modified_submit_infos, altered_submits, per_submit_wait_semaphore_infos, per_submit_signal_semaphore_infos);
+        FilterSemaphores(modified_submit_infos, altered_submits, submit_info_helpers);
 
         current_submits_span = std::span(modified_submit_infos.data(), modified_submit_infos.size());
     }
@@ -5934,14 +5929,14 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
     {
         // Check for semaphores to remove from the current bind info list, mapping the pBindInfo array index to the
         // removed semaphores.
-        std::unordered_map<uint32_t, graphics::SemaphoreFilter> altered_submits;
+        std::unordered_map<uint32_t, SemaphoreFilter> altered_submits;
 
         auto bind_info_data = pBindInfo->GetMetaStructPointer();
         if (bind_info_data != nullptr)
         {
             for (uint32_t i = 0; i < bindInfoCount; i++)
             {
-                graphics::SemaphoreFilter removed_semaphores;
+                SemaphoreFilter removed_semaphores;
 
                 GetImportedSemaphores(bind_info_data[i].pWaitSemaphores, &removed_semaphores.waits);
                 GetShadowSemaphores(bind_info_data[i].pWaitSemaphores, &removed_semaphores.waits);
@@ -5978,13 +5973,10 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
         }
         else
         {
-            // Make shallow copies of the VkBindSparseInfo structures and change pWaitSemaphores to reference a copy of
-            // the original semaphore array with the imported semaphores omitted.
-            std::unordered_map<const VkBindSparseInfo*, std::vector<VkSemaphore>> per_bind_wait_semaphores;
-            std::unordered_map<const VkBindSparseInfo*, std::vector<VkSemaphore>> per_bind_signal_semaphores;
-
-            graphics::FilterSemaphores(
-                modified_bind_infos, altered_submits, per_bind_wait_semaphores, per_bind_signal_semaphores);
+            // Rewrite the altered bind infos to reference copies of their semaphore arrays with the removed semaphores
+            // omitted.
+            std::vector<std::unique_ptr<VulkanBindSparseInfoHelper>> bind_info_helpers;
+            FilterSemaphores(modified_bind_infos, altered_submits, bind_info_helpers);
 
             result = allocator->QueueBindSparse(queue_info->handle,
                                                 static_cast<uint32_t>(modified_bind_infos.size()),

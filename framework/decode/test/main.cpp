@@ -31,6 +31,7 @@
 #include "decode/vulkan_screenshot_handler.h"
 #include "decode/vulkan_handle_mapping_util.h"
 #include "decode/vulkan_object_info.h"
+#include "decode/vulkan_submit_info_helper.h"
 #include "decode/common_object_info_table.h"
 #include "format/format.h"
 #include "format/format_util.h"
@@ -337,7 +338,7 @@ TEST_CASE("FilterSemaphores omits the filtered semaphores", "[semaphore]")
     const VkSemaphore entry_waits[2][3] = { { kept_waits[0], removed_a, removed_b },
                                             { removed_b, kept_waits[1], removed_a } };
 
-    std::unordered_map<uint32_t, gfxrecon::graphics::SemaphoreFilter> filters;
+    std::unordered_map<uint32_t, gfxrecon::decode::SemaphoreFilter> filters;
     filters[0].waits = { removed_a, removed_b };
     filters[1].waits = { removed_a, removed_b };
 
@@ -354,9 +355,8 @@ TEST_CASE("FilterSemaphores omits the filtered semaphores", "[semaphore]")
             submit_infos[i].pWaitSemaphores    = entry_waits[i];
         }
 
-        std::unordered_map<const VkSubmitInfo*, std::vector<VkSemaphore>> wait_semaphores;
-        std::unordered_map<const VkSubmitInfo*, std::vector<VkSemaphore>> signal_semaphores;
-        gfxrecon::graphics::FilterSemaphores(submit_infos, filters, wait_semaphores, signal_semaphores);
+        std::vector<std::unique_ptr<gfxrecon::decode::VulkanSubmitInfoHelper>> helpers;
+        gfxrecon::decode::FilterSemaphores(submit_infos, filters, helpers);
 
         for (uint32_t i = 0; i < 2; ++i)
         {
@@ -386,9 +386,8 @@ TEST_CASE("FilterSemaphores omits the filtered semaphores", "[semaphore]")
             submit_infos[i].pWaitSemaphoreInfos    = wait_infos[i];
         }
 
-        std::unordered_map<const VkSubmitInfo2*, std::vector<VkSemaphoreSubmitInfo>> wait_semaphores;
-        std::unordered_map<const VkSubmitInfo2*, std::vector<VkSemaphoreSubmitInfo>> signal_semaphores;
-        gfxrecon::graphics::FilterSemaphores(submit_infos, filters, wait_semaphores, signal_semaphores);
+        std::vector<std::unique_ptr<gfxrecon::decode::VulkanSubmitInfo2Helper>> helpers;
+        gfxrecon::decode::FilterSemaphores(submit_infos, filters, helpers);
 
         for (uint32_t i = 0; i < 2; ++i)
         {
@@ -408,9 +407,8 @@ TEST_CASE("FilterSemaphores omits the filtered semaphores", "[semaphore]")
             bind_infos[i].pWaitSemaphores    = entry_waits[i];
         }
 
-        std::unordered_map<const VkBindSparseInfo*, std::vector<VkSemaphore>> wait_semaphores;
-        std::unordered_map<const VkBindSparseInfo*, std::vector<VkSemaphore>> signal_semaphores;
-        gfxrecon::graphics::FilterSemaphores(bind_infos, filters, wait_semaphores, signal_semaphores);
+        std::vector<std::unique_ptr<gfxrecon::decode::VulkanBindSparseInfoHelper>> helpers;
+        gfxrecon::decode::FilterSemaphores(bind_infos, filters, helpers);
 
         for (uint32_t i = 0; i < 2; ++i)
         {
