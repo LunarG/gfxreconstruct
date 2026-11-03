@@ -114,6 +114,15 @@ struct SemaphoreFilter
     std::unordered_set<VkSemaphore> signals;
 };
 
+// Removes the semaphores named by the filters from the wait and signal arrays of the submissions they target.
+//
+// Replay needs this because some semaphores that were signaled at capture are never signaled at replay, and waiting on
+// them would hang the queue:
+//   - Imported semaphores: the external handle import is skipped, so the external signaler does not exist at replay.
+//   - Shadow semaphores: vkAcquireNextImageKHR is skipped for swapchains whose surface was not created (e.g. a
+//     --surface-index replay), so the acquire never signals its semaphore.
+// Once such a wait is removed, the semaphore is never unsignaled, so a later signal of it would signal a binary
+// semaphore that is already signaled. Those redundant signals are removed too.
 template <typename SubmitInfo, typename SemaphoreEntry>
 void FilterSemaphores(std::vector<SubmitInfo>&                                            submit_infos,
                       const std::unordered_map<uint32_t, SemaphoreFilter>&                filters,
