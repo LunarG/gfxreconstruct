@@ -3487,16 +3487,17 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
             // Remove enabled extensions that are not available from the replay instance.
             graphics::feature_util::RemoveUnsupportedExtensions(available_extensions, &modified_extensions);
         }
-        else if (options_.use_colorspace_fallback)
-        {
-            for (auto& extension_name : kColorSpaceExtensionNames)
-            {
-                graphics::feature_util::RemoveExtensionIfUnsupported(
-                    available_extensions, &modified_extensions, extension_name);
-            }
-        }
         else
         {
+            if (options_.use_colorspace_fallback)
+            {
+                for (auto& extension_name : kColorSpaceExtensionNames)
+                {
+                    graphics::feature_util::RemoveExtensionIfUnsupported(
+                        available_extensions, &modified_extensions, extension_name);
+                }
+            }
+
             // Remove enabled extensions that are ignorable from the replay instance.
             graphics::feature_util::RemoveIgnorableExtensions(available_extensions, &modified_extensions);
         }
@@ -3985,6 +3986,15 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
         }
         else
         {
+            if (options_.use_colorspace_fallback)
+            {
+                for (auto& extension_name : kColorSpaceExtensionNames)
+                {
+                    graphics::feature_util::RemoveExtensionIfUnsupported(
+                        available_extensions, &modified_extensions, extension_name);
+                }
+            }
+
             // Remove enabled extensions that are not available on the replay device, but
             // that can still be safely ignored.
             graphics::feature_util::RemoveIgnorableExtensions(available_extensions, &modified_extensions);
