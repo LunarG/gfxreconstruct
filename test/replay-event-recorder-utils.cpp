@@ -17,6 +17,19 @@ static std::string quoted(const std::filesystem::path& path)
     return "\"" + path.string() + "\"";
 }
 
+static std::filesystem::path recorded_events_path(const char* test_name)
+{
+    std::string name{ test_name };
+
+    const auto* test_info = ::testing::UnitTest::GetInstance()->current_test_info();
+    if (test_info != nullptr)
+    {
+        name += std::string{ "_" } + test_info->test_suite_name() + "_" + test_info->name();
+    }
+
+    return std::filesystem::current_path() / (name + "_replay_events.txt");
+}
+
 static void read_recorded_events(const std::filesystem::path& path, std::vector<RecordedEvent>& events)
 {
     std::ifstream stream(path);
@@ -56,8 +69,7 @@ void replay_and_record_events(const char*                 test_name,
                               std::vector<std::string>    extra_replay_args,
                               std::vector<RecordedEvent>& events)
 {
-    std::filesystem::path events_path =
-        std::filesystem::current_path() / (std::string(test_name) + "_replay_events.txt");
+    const std::filesystem::path events_path = recorded_events_path(test_name);
     std::filesystem::remove(events_path);
 
     extra_replay_args.push_back("--replay-event-plugin-path");
