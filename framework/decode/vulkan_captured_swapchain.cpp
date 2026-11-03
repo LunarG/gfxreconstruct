@@ -92,6 +92,13 @@ VkResult VulkanCapturedSwapchain::GetSwapchainImagesKHR(VkResult                
 
     auto result = func(device, swapchain, image_count, images);
 
+    // The count tells OverrideGetSwapchainImagesKHR that the application queried it.
+    if ((swapchain_info != nullptr) && (image_count != nullptr) && (images == nullptr) &&
+        ((result == VK_SUCCESS) || (result == VK_INCOMPLETE)))
+    {
+        swapchain_info->replay_image_count = *image_count;
+    }
+
     if ((image_count != nullptr) && (capture_image_count != *image_count))
     {
         GFXRECON_LOG_WARNING("The number of images returned by vkGetSwapchainImageKHR is different than the number "
