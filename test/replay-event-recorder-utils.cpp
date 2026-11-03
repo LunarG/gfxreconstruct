@@ -81,7 +81,8 @@ static void read_recorded_events(const std::filesystem::path& path, std::vector<
 
 void replay_and_record_events(const char*                 test_name,
                               std::vector<std::string>    extra_replay_args,
-                              std::vector<RecordedEvent>& events)
+                              std::vector<RecordedEvent>& events,
+                              const char*                 trimming_frames)
 {
     const std::filesystem::path events_path = recorded_events_path(test_name);
     std::filesystem::remove(events_path);
@@ -91,7 +92,7 @@ void replay_and_record_events(const char*                 test_name,
     extra_replay_args.push_back("--replay-event-plugin-params");
     extra_replay_args.push_back(quoted(events_path));
 
-    ASSERT_NO_FATAL_FAILURE(capture_and_replay(test_name, extra_replay_args));
+    ASSERT_NO_FATAL_FAILURE(capture_and_replay(test_name, extra_replay_args, trimming_frames));
     ASSERT_NO_FATAL_FAILURE(read_recorded_events(events_path, events));
 }
 
@@ -111,6 +112,24 @@ uint64_t unsigned_field(const RecordedEvent& event, const std::string& key)
 {
     const std::string* value = find_field(event, key);
     return (value == nullptr) ? 0 : std::stoull(*value);
+}
+
+int64_t signed_field(const RecordedEvent& event, const std::string& key)
+{
+    const std::string* value = find_field(event, key);
+    return (value == nullptr) ? 0 : std::stoll(*value);
+}
+
+size_t index_of_first_event(const std::vector<RecordedEvent>& events, GfxrReplayEventType type)
+{
+    for (size_t i = 0; i < events.size(); ++i)
+    {
+        if (events[i].type == type)
+        {
+            return i;
+        }
+    }
+    return kEventNotFound;
 }
 
 std::vector<RecordedEvent> events_of_type(const std::vector<RecordedEvent>& events, GfxrReplayEventType type)
