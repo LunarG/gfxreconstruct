@@ -89,14 +89,19 @@ class FillAction
     {
         using Element = schema::FieldElementType<Field>;
 
-        if constexpr (schema::StructField<Field>)
+        if constexpr (schema::StructElement<Field>)
         {
             if constexpr (schema::HasSchemaFields<typename Field::api_element> && schema::Addressable<Storage, Field>)
             {
                 Fill<typename Field::api_element>(context_, schema::GetRef(storage, field));
             }
         }
-        else if constexpr (!schema::HandleField<Field> && IsPatternable<Element>)
+        else if constexpr (schema::TextElement<Field>)
+        {
+            // A text typedef held by value, LPCWSTR: the element is the pointer type the header spells.
+            schema::Set(storage, field, context_.MakeText<std::remove_cv_t<std::remove_pointer_t<Element>>>());
+        }
+        else if constexpr (!schema::HandleElement<Field> && IsPatternable<Element>)
         {
             schema::Set(storage, field, static_cast<Element>(kPattern));
         }
@@ -108,9 +113,13 @@ class FillAction
     {
         using Element = schema::FieldElementType<Field>;
 
-        if constexpr (schema::TextField<Field>)
+        if constexpr (schema::TextElement<Field>)
         {
             schema::Set(storage, field, context_.MakeText<Element>());
+        }
+        else if constexpr (schema::OpaqueElement<Field> || schema::VoidElement<Field>)
+        {
+            // A pointer to an opaque object or to void: nothing to allocate, the address is the value and stays null.
         }
         else if constexpr (!std::is_void_v<Element>)
         {
@@ -133,7 +142,7 @@ class FillAction
             const Element** rows = context_.Make<const Element*>(count);
             for (size_t i = 0; i < count; ++i)
             {
-                if constexpr (schema::TextField<Field>)
+                if constexpr (schema::TextElement<Field>)
                 {
                     rows[i] = context_.MakeText<Element>();
                 }
@@ -145,6 +154,16 @@ class FillAction
                 }
             }
             schema::Set(storage, field, rows);
+        }
+        else if constexpr (schema::VoidElement<Field>)
+        {
+            // A counted run of bytes the API declares as void.
+            uint8_t* bytes = context_.Make<uint8_t>(count);
+            for (size_t i = 0; i < count; ++i)
+            {
+                bytes[i] = static_cast<uint8_t>(kPattern + i);
+            }
+            schema::Set(storage, field, bytes);
         }
         else
         {
@@ -164,7 +183,7 @@ class FillAction
         auto& array     = schema::GetRef(storage, field);
         using ArrayType = std::remove_cvref_t<decltype(array)>;
 
-        if constexpr (schema::TextField<Field>)
+        if constexpr (schema::TextElement<Field>)
         {
             constexpr size_t extent = std::extent_v<ArrayType, 0>;
             using Char              = std::remove_extent_t<ArrayType>;
@@ -207,14 +226,14 @@ class FillAction
     template <typename Field, typename Element>
     void FillElement(Element& element)
     {
-        if constexpr (schema::StructField<Field>)
+        if constexpr (schema::StructElement<Field>)
         {
             if constexpr (schema::HasSchemaFields<typename Field::api_element>)
             {
                 Fill<typename Field::api_element>(context_, element);
             }
         }
-        else if constexpr (!schema::HandleField<Field> && IsPatternable<Element>)
+        else if constexpr (!schema::HandleElement<Field> && IsPatternable<Element>)
         {
             element = static_cast<Element>(kPattern);
         }
