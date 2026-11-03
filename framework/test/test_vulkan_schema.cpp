@@ -137,9 +137,9 @@ static_assert(std::is_same_v<schema::FieldEncodeType<barrier_field::buffer>, for
 
 // Shape concepts select on exactly the logical category and the use-site shape.
 static_assert(schema::HandleValueField<barrier_field::buffer>);
-static_assert(schema::StructField<cmd_field::pBufferMemoryBarriers>);
+static_assert(schema::StructElement<cmd_field::pBufferMemoryBarriers>);
 static_assert(schema::ArrayField<cmd_field::pBufferMemoryBarriers>);
-static_assert(std::is_same_v<cmd_field::pBufferMemoryBarriers::length,
+static_assert(std::is_same_v<schema::FieldLength<cmd_field::pBufferMemoryBarriers>,
                              schema::FieldValue<cmd_field::bufferMemoryBarrierCount>>);
 static_assert(schema::ExtensionChainField<barrier_field::pNext>);
 
@@ -1490,7 +1490,7 @@ TEST_CASE("Schema EncodeStruct matches counted fixed-extent array wire bytes", "
     namespace memory_field = schema::vulkan::fields::VkPhysicalDeviceMemoryProperties;
     namespace group_field  = schema::vulkan::fields::VkPhysicalDeviceGroupProperties;
     static_assert(schema::StaticArrayField<group_field::physicalDevices>);
-    static_assert(schema::HandleField<group_field::physicalDevices>);
+    static_assert(schema::HandleElement<group_field::physicalDevices>);
     static_assert(schema::HasFieldLength<VkPhysicalDeviceGroupProperties, group_field::physicalDevices>);
     static_assert(std::is_same_v<schema::FieldLength<group_field::physicalDevices>,
                                  schema::FieldValue<group_field::physicalDeviceCount>>);
@@ -1674,14 +1674,16 @@ TEST_CASE("Schema EncodeStruct matches pointer-array wire bytes", "[schema][enco
     namespace micromap_field = schema::vulkan::fields::VkAccelerationStructureGeometryMicromapDataKHR;
 
     static_assert(schema::PointerArrayField<instance_field::ppEnabledLayerNames>);
-    static_assert(schema::TextField<instance_field::ppEnabledLayerNames>);
-    static_assert(instance_field::ppEnabledLayerNames::pointer_count == 2);
+    static_assert(schema::TextElement<instance_field::ppEnabledLayerNames>);
+    static_assert(
+        std::is_pointer_v<std::remove_pointer_t<schema::ApiTypeOf<instance_field::ppEnabledLayerNames::declaration>>>);
     static_assert(std::is_same_v<schema::FieldLength<instance_field::ppEnabledExtensionNames>,
                                  schema::FieldValue<instance_field::enabledExtensionCount>>);
 
     static_assert(schema::PointerArrayField<micromap_field::ppUsageCounts>);
-    static_assert(schema::StructField<micromap_field::ppUsageCounts>);
-    static_assert(micromap_field::ppUsageCounts::pointer_count == 2);
+    static_assert(schema::StructElement<micromap_field::ppUsageCounts>);
+    static_assert(
+        std::is_pointer_v<std::remove_pointer_t<schema::ApiTypeOf<micromap_field::ppUsageCounts::declaration>>>);
     static_assert(std::is_same_v<schema::FieldLength<micromap_field::ppUsageCounts>,
                                  schema::FieldValue<micromap_field::usageCountsCount>>);
     static_assert(schema::ArrayField<micromap_field::pUsageCounts>);
@@ -2498,9 +2500,9 @@ TEST_CASE("A field walk keeps an opaque pointer in the wrapper and leaves the de
     // value and the decoded value's pointer is left null for replay to resolve through PreProcessExternalObject --
     // the same division a handle gets.
     //
-    // Its API element is vulkan::api_elements::ExternalObject, whose category is Address, so the schema states the wire
-    // form and the overload reads it from the category like every other. The API element exists because the declared
-    // type cannot state it: this is void*, and so is a counted run of bytes, and so is pNext.
+    // Its declaration is Pointer<Void>, and the pointer-to-void entry records the address, so the schema states the
+    // wire form and the overload reads it from the category like every other. The API element exists because the
+    // declared type cannot state it: this is void*, and so is a counted run of bytes, and so is pNext.
     util::Log::Init(util::LoggingSeverity::kError);
 
     auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
@@ -2546,7 +2548,7 @@ TEST_CASE("A field walk decodes both address populations in one structure", "[sc
     using namespace gfxrecon::decode;
 
     // VkAllocationCallbacks is the densest address case: one pointer to something outside the API, and five
-    // function pointers. The first names the ExternalObject API element and the rest name their own PFN_* ones,
+    // function pointers. The first is Pointer<Void> and the rest name their own PFN_* callback elements,
     // but every field has category Address, so one overload takes all six and the schema needed no special case for
     // the function pointers.
     //

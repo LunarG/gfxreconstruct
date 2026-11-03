@@ -972,10 +972,13 @@ struct DeviceSize    : Scalar { using encode_type = DeviceSizeEncodeType; };
 struct DeviceAddress : Scalar { using encode_type = DeviceAddressEncodeType; };
 struct Format        : Scalar { using encode_type = FormatEncodeType; };
 
-// An opaque address recorded as a 64-bit value: a function pointer, or a pointer to a non-API object. Like a
-// handle, it records an identifier rather than the thing itself, so its access pattern differs from a scalar's and
-// it does not derive from Scalar.
-struct Address : Tag { using encode_type = AddressEncodeType; };
+// An opaque type: one the API declares and never describes, a platform structure such as ANativeWindow or a platform
+// handle typedef such as HWND. A member of one, or a pointer to one, is recorded as a 64-bit address and never
+// followed. Like a handle it records an identifier, so it does not derive from Scalar.
+struct Opaque   : Tag { using encode_type = AddressEncodeType; };
+
+// A function pointer, the registry's funcpointer category: recorded as a 64-bit address.
+struct Callback : Tag { using encode_type = AddressEncodeType; };
 
 // A handle records the capture-file identifier rather than the handle itself, so its access pattern differs from a
 // scalar's and it does not derive from Scalar.
@@ -1010,7 +1013,9 @@ concept IsHandleCategory = std::same_as<Category, category::Handle>;
 template <typename Category>
 concept IsStructCategory = std::same_as<Category, category::Struct>;
 template <typename Category>
-concept IsAddressCategory = std::same_as<Category, category::Address>;
+concept IsOpaqueCategory = std::same_as<Category, category::Opaque>;
+template <typename Category>
+concept IsCallbackCategory = std::same_as<Category, category::Callback>;
 
 // A category with a wire form. Struct and Void are categories and satisfy IsCategory, but neither has bytes of its own, so an
 // operation that needs a width constrains on this and declines them by name rather than by a missing member.

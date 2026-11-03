@@ -104,8 +104,8 @@ class DecodeStructAction
     // The sibling count field is decoded as its own scalar in its own position, and the array's length travels
     // with the array, so nothing here reads across fields.
     template <typename Field, typename Storage>
-    requires schema::ScalarField<Field> && schema::AnyPointerField<Field> &&
-        schema::Addressable<Storage, Field> && schema::Addressable<typename Storage::struct_type, Field>
+    requires schema::ScalarElement<Field> && schema::AnyPointerField<Field> && schema::Addressable<Storage, Field> &&
+        schema::Addressable<typename Storage::struct_type, Field>
     void Apply(Field field, Storage& storage)
     {
         auto& field_ref = schema::GetRef(storage, field);
@@ -115,29 +115,14 @@ class DecodeStructAction
         schema::Set(DecodedValueRef(storage), field, field_ref.GetPointer());
     }
 
-    // A value-shaped identifier -- a handle, or an opaque address -- decodes as what the capture recorded, into the
-    // decoded wrapper. The decoded value's member is nulled, and stays null until replay resolves the identifier:
-    // a handle through the mapping to a handle from this run, an address through PreProcessExternalObject for the
-    // fields the ExternalObject API element names. Both halves are the invariant: the wrapper carries the captured
-    // identifier, the decoded value carries nothing from another run.
-    //
-    // The null is written as a value-initialized member -- the decoded value's own declared type -- rather than as
-    // VK_NULL_HANDLE, nullptr, or the field's element type, so that one body serves every spelling. VK_NULL_HANDLE
-    // follows the build's handle representation -- a null pointer where handles are pointers, 0 where they are
-    // integers -- so for a member declared as a handle type this writes exactly what that macro would. A handle the
-    // API declares as a plain integer, with a sibling field naming its type at run time, is uint64_t in either
-    // build, and gets the 0 its generated body wrote; VK_NULL_HANDLE is a null pointer in the builds where handles
-    // are pointers, and would not convert there. A function pointer or a pointer to something outside the API
-    // value-initializes to nullptr, which is what its generated body wrote. The element type would not do for the
-    // last of those: every address outside the API names the one ExternalObject API element, whose element type is
-    // void*, while the member itself may be a typed platform pointer such as HMONITOR, to which a null void* does
-    // not convert.
-    //
-    // The address case reaches this whether or not the declaration writes a star: the schema shapes it as a value,
-    // because that is what the capture recorded.
+    // An identifier held by value: a handle, an opaque element, a callback. The captured identifier goes to the
+    // wrapper member; the decoded value's member is set to Member{}, the null of its own declared type, and replay
+    // resolves the identifier later: a handle through the handle map, an address through PreProcessExternalObject.
+    // Member{} serves every spelling of null: VK_NULL_HANDLE for a handle, pointer or integer by build; 0 for a
+    // generic handle declared uint64_t; nullptr for a function pointer or a platform handle typedef such as HMONITOR.
     template <typename Field, typename Storage>
-    requires schema::IdentifierField<Field> && schema::ValueField<Field> &&
-        schema::Addressable<Storage, Field> && schema::Addressable<typename Storage::struct_type, Field>
+    requires schema::IdentifierElement<Field> && schema::ValueField<Field> && schema::Addressable<Storage, Field> &&
+        schema::Addressable<typename Storage::struct_type, Field>
     void Apply(Field field, Storage& storage)
     {
         using Member = std::remove_cvref_t<decltype(schema::GetRef(DecodedValueRef(storage), field))>;
@@ -148,6 +133,34 @@ class DecodeStructAction
         schema::Set(DecodedValueRef(storage), field, Member{});
     }
 
+    // A pointer to an opaque object, Pointer<ANativeWindow>, or to void, Pointer<Void>: the record is the pointer's
+    // value, an address, read into the wrapper's uint64_t member; the decoded value's pointer is nulled as above.
+    template <typename Field, typename Storage>
+    requires(schema::OpaqueElement<Field> || schema::VoidElement<Field>) && schema::PointerField<Field> &&
+        (!schema::IndirectPointerField<Field>)&&schema::Addressable<Storage, Field>&& schema::
+            Addressable<typename Storage::struct_type, Field> void Apply(Field field, Storage& storage)
+    {
+        using Member = std::remove_cvref_t<decltype(schema::GetRef(DecodedValueRef(storage), field))>;
+
+        bytes_read_ += ValueDecoder::DecodeAddress(Cursor(), Remaining(), &schema::GetRef(storage, field));
+
+        schema::Set(DecodedValueRef(storage), field, Member{});
+    }
+
+    // A counted run of bytes the API declares as void, Array<Const<Void>, n>: decodes into the wrapper's
+    // PointerDecoder<uint8_t>, and the decoded value's pointer follows.
+    template <typename Field, typename Storage>
+    requires schema::VoidElement<Field> && schema::ArrayField<Field> && schema::Addressable<Storage, Field> &&
+        schema::Addressable<typename Storage::struct_type, Field>
+    void Apply(Field field, Storage& storage)
+    {
+        auto& field_ref = schema::GetRef(storage, field);
+
+        bytes_read_ += field_ref.DecodeUInt8(Cursor(), Remaining());
+
+        schema::Set(DecodedValueRef(storage), field, field_ref.GetPointer());
+    }
+
     // A run of handles decodes into the wrapper's HandlePointerDecoder, and the decoded value's pointer is nulled
     // rather than pointed at it -- the same division a single handle gets, for the same reason: the wrapper holds
     // capture-file identities and replay maps them to handles of its own.
@@ -155,7 +168,7 @@ class DecodeStructAction
     // HandlePointerDecoder names no category on its Decode, because the class is the category: it is instantiated on the
     // handle type and reads HandleEncodeType by construction.
     template <typename Field, typename Storage>
-    requires schema::HandleField<Field> && schema::ArrayField<Field> && schema::Addressable<Storage, Field> &&
+    requires schema::HandleElement<Field> && schema::ArrayField<Field> && schema::Addressable<Storage, Field> &&
         schema::Addressable<typename Storage::struct_type, Field>
     void Apply(Field field, Storage& storage)
     {
@@ -170,10 +183,12 @@ class DecodeStructAction
     //
     // Unlike a scalar run, no category is passed: each of those classes is instantiated on its character type and
     // reads the matching encode type by construction, so the category selects the member rather than the call.
+    // A text typedef held by value, LPCWSTR, is the same read: the wrapper holds the string decoder and the native
+    // member takes the pointer.
     template <typename Field, typename Storage>
-    requires schema::TextField<Field> && schema::AnyPointerField<Field> &&
-        schema::Addressable<Storage, Field> && schema::Addressable<typename Storage::struct_type, Field>
-    void Apply(Field field, Storage& storage)
+    requires schema::TextElement<Field> &&
+        (schema::AnyPointerField<Field> || schema::ValueField<Field>)&&schema::Addressable<Storage, Field>&& schema::
+            Addressable<typename Storage::struct_type, Field> void Apply(Field field, Storage& storage)
     {
         auto& field_ref = schema::GetRef(storage, field);
 
@@ -186,8 +201,8 @@ class DecodeStructAction
     // value's own storage and writes straight into it, so nothing is assigned afterwards. The extent comes from
     // the API member's declared type, for the reason the scalar case gives.
     template <typename Field, typename Storage>
-    requires schema::TextField<Field> && schema::StaticArrayField<Field> &&
-        schema::Addressable<Storage, Field> && schema::Addressable<typename Storage::struct_type, Field>
+    requires schema::TextElement<Field> && schema::StaticArrayField<Field> && schema::Addressable<Storage, Field> &&
+        schema::Addressable<typename Storage::struct_type, Field>
     void Apply(Field field, Storage& storage)
     {
         auto& field_ref = schema::GetRef(storage, field);
@@ -212,7 +227,7 @@ class DecodeStructAction
     // The decoded type comes from the storage rather than from the decoded-type binding, because the wrapper's own
     // member already declares it, so nothing here names a trait; the call resolves at instantiation.
     template <typename Field, typename Storage>
-    requires schema::StructField<Field> && schema::ValueField<Field> && schema::Addressable<Storage, Field> &&
+    requires schema::StructElement<Field> && schema::ValueField<Field> && schema::Addressable<Storage, Field> &&
         schema::Addressable<typename Storage::struct_type, Field>
     void Apply(Field field, Storage& storage)
     {
@@ -234,8 +249,8 @@ class DecodeStructAction
     // static_assert below holds the two to agree, so either source would serve; the declared type is the one the
     // compiler laid the storage out from.
     template <typename Field, typename Storage>
-    requires schema::ScalarField<Field> && schema::StaticArrayField<Field> &&
-        schema::Addressable<Storage, Field> && schema::Addressable<typename Storage::struct_type, Field>
+    requires schema::ScalarElement<Field> && schema::StaticArrayField<Field> && schema::Addressable<Storage, Field> &&
+        schema::Addressable<typename Storage::struct_type, Field>
     void Apply(Field field, Storage& storage)
     {
         auto& field_ref = schema::GetRef(storage, field);
@@ -275,8 +290,8 @@ class DecodeStructAction
     // structure case, once per element. Whether an element type is itself a field walk is that structure's
     // business.
     template <typename Field, typename Storage>
-    requires schema::StructField<Field> && schema::AnyPointerField<Field> &&
-        schema::Addressable<Storage, Field> && schema::Addressable<typename Storage::struct_type, Field>
+    requires schema::StructElement<Field> && schema::AnyPointerField<Field> && schema::Addressable<Storage, Field> &&
+        schema::Addressable<typename Storage::struct_type, Field>
     void Apply(Field field, Storage& storage)
     {
         auto& field_ref = schema::GetRef(storage, field);
@@ -295,8 +310,8 @@ class DecodeStructAction
     //
     // Each element still descends through DecodeStruct, so this is legacy descent once per element.
     template <typename Field, typename Storage>
-    requires schema::StructField<Field> && schema::StaticArrayField<Field> &&
-        schema::Addressable<Storage, Field> && schema::Addressable<typename Storage::struct_type, Field>
+    requires schema::StructElement<Field> && schema::StaticArrayField<Field> && schema::Addressable<Storage, Field> &&
+        schema::Addressable<typename Storage::struct_type, Field>
     void Apply(Field field, Storage& storage)
     {
         auto& field_ref = schema::GetRef(storage, field);
@@ -330,8 +345,8 @@ class DecodeStructAction
     // handle is not a scalar category and the script did not model that. The extent below is VK_MAX_DEVICE_GROUP_SIZE,
     // which is the capacity the generated body passed.
     template <typename Field, typename Storage>
-    requires schema::HandleField<Field> && schema::StaticArrayField<Field> &&
-        schema::Addressable<Storage, Field> && schema::Addressable<typename Storage::struct_type, Field>
+    requires schema::HandleElement<Field> && schema::StaticArrayField<Field> && schema::Addressable<Storage, Field> &&
+        schema::Addressable<typename Storage::struct_type, Field>
     void Apply(Field field, Storage& storage)
     {
         auto& field_ref = schema::GetRef(storage, field);
