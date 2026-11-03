@@ -1107,6 +1107,18 @@ void Dx12StateTracker::TrackGetShaderIdentifier(ID3D12StateObjectProperties_Wrap
     std::wstring export_name_wstring          = export_name;
     state_object_properties_info->get_shader_identifier_call_parameters[export_name_wstring] =
         std::make_shared<util::MemoryOutputStream>(parameter_buffer->GetData(), parameter_buffer->GetDataSize());
+
+    // Keep the properties with the state object they were queried from, so a trim that recreates a state object
+    // released after AddToStateObject grew a child from it can retrieve its identifiers again.
+    std::unique_lock<std::mutex> lock(state_table_mutex_);
+    auto                         state_object_wrapper =
+        state_table_.GetID3D12StateObject_Wrapper(state_object_properties_info->create_object_id);
+    if (state_object_wrapper != nullptr)
+    {
+        GFXRECON_ASSERT(state_object_wrapper->GetObjectInfo() != nullptr);
+        state_object_wrapper->GetObjectInfo()
+            ->properties_wrapper_infos[state_object_properties_wrapper->GetCaptureId()] = state_object_properties_info;
+    }
 }
 
 bool Dx12StateTracker::IsAccelerationStructureResource(format::HandleId id)
