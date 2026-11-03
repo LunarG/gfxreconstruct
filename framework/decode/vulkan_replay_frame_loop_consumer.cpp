@@ -27,6 +27,7 @@
 #include "graphics/vulkan_struct_get_pnext.h"
 #include "graphics/vulkan_util.h"
 #include "util/alignment_utils.h"
+#include "util/callbacks.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 #include "generated/generated_vulkan_replay_consumer.h"
 #include "generated/generated_vulkan_replay_frame_loop_consumer_base.h"
@@ -338,6 +339,9 @@ VulkanReplayFrameLoopConsumer::~VulkanReplayFrameLoopConsumer()
 
 void VulkanReplayFrameLoopConsumer::ResetBufferTracking()
 {
+    // Destroying the shadow resources of the loop is not a call of the application.
+    util::MarkInjectedCommandsHelper injected_commands_scope;
+
     for (auto& [device_id, buffer_tracking] : per_device_buffer_tracking_)
     {
         buffer_tracking.DestroyShadowBuffers();
@@ -347,6 +351,9 @@ void VulkanReplayFrameLoopConsumer::ResetBufferTracking()
 
 void VulkanReplayFrameLoopConsumer::ResetBufferTracking(format::HandleId device)
 {
+    // Destroying the shadow resources of the loop is not a call of the application.
+    util::MarkInjectedCommandsHelper injected_commands_scope;
+
     auto it = per_device_buffer_tracking_.find(device);
     if (it != per_device_buffer_tracking_.end())
     {
@@ -554,6 +561,9 @@ VulkanReplayFrameLoopConsumer::GetSemaphoreTracking(format::HandleId device)
 
 void VulkanReplayFrameLoopConsumer::StartLooping()
 {
+    // The calls that save the state of the loop are not calls of the application.
+    util::MarkInjectedCommandsHelper injected_commands_scope;
+
     WaitDevicesIdle();
     GFXRECON_LOG_DEBUG("VulkanReplayFrameLoopConsumer::StartLooping()");
     TrackFenceStates();
@@ -1030,6 +1040,9 @@ void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(const ApiCallIn
 
     if (frame_loop_info_.IsLooping())
     {
+        // The query pool resets are not commands of the application.
+        util::MarkInjectedCommandsHelper injected_commands_scope;
+
         // Record query pool reset commands
         VulkanCommandBufferInfo* cb_info       = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer);
         format::HandleId         device        = cb_info->parent_id;
@@ -1325,6 +1338,9 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateEvent(const ApiCallInfo& cal
         // Ignore device only events.
         if (!device_only)
         {
+            // The status query is not a call of the application.
+            util::MarkInjectedCommandsHelper injected_commands_scope;
+
             // Record the initial state of the new event
             EventTracking&                     t               = per_device_event_tracking_[args.device];
             VulkanObjectInfoTable&             table           = GetObjectInfoTable();
@@ -1441,6 +1457,9 @@ void VulkanReplayFrameLoopConsumer::FrameBoundaryEndOfFrame(format::HandleId que
             GFXRECON_ASSERT(device != 0);
             const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device);
             GFXRECON_ASSERT(device_table != nullptr);
+
+            // The calls that restore the state of the loop are not calls of the application.
+            util::MarkInjectedCommandsHelper injected_commands_scope;
 
             GFXRECON_LOG_DEBUG("Waiting for device to idle...");
             VkResult result = device_table->DeviceWaitIdle(device);
@@ -1835,6 +1854,9 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceImages(format::HandleId device, f
 
 void VulkanReplayFrameLoopConsumer::ResetImageTracking()
 {
+    // Destroying the shadow resources of the loop is not a call of the application.
+    util::MarkInjectedCommandsHelper injected_commands_scope;
+
     for (auto& [device_id, image_tracking] : per_device_image_tracking_)
     {
         image_tracking.DestroyShadowImages();
@@ -1844,6 +1866,9 @@ void VulkanReplayFrameLoopConsumer::ResetImageTracking()
 
 void VulkanReplayFrameLoopConsumer::ResetImageTracking(format::HandleId device)
 {
+    // Destroying the shadow resources of the loop is not a call of the application.
+    util::MarkInjectedCommandsHelper injected_commands_scope;
+
     auto it = per_device_image_tracking_.find(device);
     if (it != per_device_image_tracking_.end())
     {
@@ -2332,6 +2357,9 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(const ApiCallInfo&
         {
             GetSemaphoreTracking(queue_info->parent_id).TrackSemaphores(args);
         }
+
+        // The calls that restore the state of the loop are not calls of the application.
+        util::MarkInjectedCommandsHelper injected_commands_scope;
 
         GFXRECON_LOG_DEBUG("Waiting for device to idle...");
         VkResult result = device_table->DeviceWaitIdle(device);
