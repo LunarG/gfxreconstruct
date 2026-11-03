@@ -30,6 +30,7 @@
 #include "encode/vulkan_capture_common.h"
 #include "format/format.h"
 #include "format/format_util.h"
+#include "util/callbacks.h"
 #include "util/logging.h"
 #include "util/to_string.h"
 #include "custom_vulkan_array_size_2d.h"
@@ -114,6 +115,9 @@ VulkanStateWriter::VulkanStateWriter(
 
 uint64_t VulkanStateWriter::WriteAssets(const VulkanStateTable& state_table)
 {
+    // The driver calls of the state writer are not calls of the application.
+    util::MarkInjectedCommandsHelper injected_commands_scope;
+
     blocks_written_ = 0;
 
     WriteResourceMemoryState(state_table, false);
@@ -124,6 +128,9 @@ uint64_t VulkanStateWriter::WriteAssets(const VulkanStateTable& state_table)
 
 uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint64_t frame_number)
 {
+    // The driver calls of the state writer are not calls of the application.
+    util::MarkInjectedCommandsHelper injected_commands_scope;
+
     // clang-format off
     blocks_written_ = 0;
 
