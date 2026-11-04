@@ -29,6 +29,7 @@
 #include "graphics/vulkan_injected_calls.h"
 #include "util/defines.h"
 
+#include <optional>
 #include <unordered_map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -94,6 +95,9 @@ class VulkanCommandBufferAssociatedInfo
     VulkanCommandBufferAssociatedInfo(VulkanCommandBufferAssociatedInfo&&)                 = default;
     VulkanCommandBufferAssociatedInfo& operator=(VulkanCommandBufferAssociatedInfo&&)      = default;
     ~VulkanCommandBufferAssociatedInfo()                                                   = default;
+
+    /// @return The original handle of the split info.
+    [[nodiscard]] VkCommandBuffer GetOriginalHandle() const { return original_handle_; }
 
     /// @brief Sets the handle of the command buffer info to the next associated handle.
     ///
@@ -192,11 +196,16 @@ class VulkanCommandBufferUtil
                                         const std::span<VkSubmitInfo2>             current_submits_span,
                                         const std::span<graphics::VulkanSemaphore> wait_semaphores = {});
 
+    /// @brief Removes any state associated with the command buffers allocated from the specified command pool.
+    /// The caller is responsible for freeing the command pool and its command buffers.
+    void DestroyCommandPool(const VulkanCommandPoolInfo* pool_info);
+
     /// @brief Removes the split state of command buffers that the application frees.
     ///
     /// When replay frees command buffers, call this function. The function clears the
     /// recorded state of each command buffer. If a command buffer was split, the function
     /// frees its associated handles and restores its original handle.
+    /// The caller is responsible for freeing the restored handle.
     /// @param command_pool Pool that owns the command buffers.
     /// @param command_buffer_ids Capture IDs of the command buffers.
     void FreeCommandBuffers(VkCommandPool command_pool, const std::span<const format::HandleId> command_buffer_ids);
@@ -231,6 +240,12 @@ class VulkanCommandBufferUtil
     GetCommandBuffersFromSubmitInfos(const std::span<VkSubmitInfo> submits_span);
     std::vector<std::vector<VkCommandBuffer>>
     GetCommandBuffersFromSubmitInfos(const std::span<VkSubmitInfo2> submits_span);
+
+    /// @brief Removes any state associated with the command buffer ID.
+    /// @param command_buffer_id Command buffer ID whose split info should be removed.
+    /// @return The removed split info, or no value if the command buffer was not split.
+    ///         The caller decides whether to free its associated handles.
+    std::optional<VulkanCommandBufferAssociatedInfo> RemoveSplitInfo(format::HandleId command_buffer_id);
 
     /// Returns the split info of the command buffer. Creates it on first use.
     VulkanCommandBufferAssociatedInfo& GetOrCreateAssociatedInfo(format::HandleId command_buffer_id);

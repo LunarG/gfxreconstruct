@@ -29,6 +29,7 @@
 
 #include <cassert>
 #include <memory>
+#include <span>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -101,6 +102,8 @@ class HandlePointerDecoder
     T* GetHandlePointer() { return handle_data_; }
 
     const T* GetHandlePointer() const { return handle_data_; }
+
+    std::span<const T> GetHandleSpan() const { return std::span<const T>(GetHandlePointer(), GetHandleLength()); }
 
     size_t Decode(const uint8_t* buffer, size_t buffer_size)
     {

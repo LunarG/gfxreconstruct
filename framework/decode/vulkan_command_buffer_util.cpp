@@ -361,29 +361,55 @@ VulkanCommandBufferUtil::GetCommandBuffersFromSubmitInfos(const std::span<VkSubm
     return submits_command_buffers;
 }
 
+std::optional<VulkanCommandBufferAssociatedInfo>
+VulkanCommandBufferUtil::RemoveSplitInfo(format::HandleId command_buffer_id)
+{
+    // Make sure to clear the recorded state for this command buffer.
+    decoder_->ClearRecordedState(command_buffer_id);
+
+    auto it = split_infos_.find(command_buffer_id);
+    if (it == split_infos_.end())
+    {
+        return std::nullopt;
+    }
+
+    std::optional<VulkanCommandBufferAssociatedInfo> split_info(std::move(it->second));
+    split_infos_.erase(it);
+
+    for (VkCommandBuffer handle : split_info->GetAssociatedHandles())
+    {
+        original_command_buffer_id_.erase(handle);
+    }
+    original_command_buffer_id_.erase(split_info->GetOriginalHandle());
+
+    return split_info;
+}
+
+void VulkanCommandBufferUtil::DestroyCommandPool(const VulkanCommandPoolInfo* pool_info)
+{
+    GFXRECON_ASSERT(pool_info != nullptr);
+
+    for (format::HandleId command_buffer_id : pool_info->child_ids)
+    {
+        // When destroying a command pool, all command buffers allocated from it are implicitly freed.
+        // Therefore, we just need to remove any split state associated with those command buffers.
+        RemoveSplitInfo(command_buffer_id);
+    }
+}
+
 void VulkanCommandBufferUtil::FreeCommandBuffers(VkCommandPool                           command_pool,
                                                  const std::span<const format::HandleId> command_buffer_ids)
 {
-    // Check whether any of the command buffers being freed are split command buffers.
     for (format::HandleId command_buffer_id : command_buffer_ids)
     {
-        // Make sure to clear the recorded state for this command buffer.
-        decoder_->ClearRecordedState(command_buffer_id);
-
-        auto* split_info = GetAssociatedInfo(command_buffer_id);
-        if (split_info != nullptr)
+        std::optional<VulkanCommandBufferAssociatedInfo> split_info = RemoveSplitInfo(command_buffer_id);
+        if (split_info.has_value())
         {
-            // Remove the associated handles from the tracking maps.
-            for (VkCommandBuffer handle : split_info->GetAssociatedHandles())
-            {
-                original_command_buffer_id_.erase(handle);
-            }
-
-            // Update the command buffer info to use the original handle for subsequent calls.
             VulkanCommandBufferInfo* command_buffer_info = object_table_->GetVkCommandBufferInfo(command_buffer_id);
-            command_buffer_info->handle                  = split_info->FreeAssociatedHandles(command_pool);
+            GFXRECON_ASSERT(command_buffer_info != nullptr);
 
-            split_infos_.erase(command_buffer_id);
+            // Free the associated handles and restore the original handle.
+            command_buffer_info->handle = split_info->FreeAssociatedHandles(command_pool);
         }
     }
 }
