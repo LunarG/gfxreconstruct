@@ -463,14 +463,12 @@ static bool CanWriteBuffer(const VkBufferCreateInfo* create_info)
 void VulkanReplayFrameLoopConsumer::Process_vkCreateBuffer(const ApiCallInfo& call_info, args::CreateBuffer& args)
 {
     VkBufferCreateInfo* create_info = args.pCreateInfo.GetPointer();
+    bool                writable    = false;
 
     // Ensure that buffers can be copied to and from so contents can be restored.
     if (create_info != nullptr)
     {
-        if (!args.pBuffer.IsNull() && CanWriteBuffer(create_info))
-        {
-            writable_buffers_.insert(*args.pBuffer.GetPointer());
-        }
+        writable = CanWriteBuffer(create_info);
 
         create_info->usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
@@ -481,6 +479,14 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateBuffer(const ApiCallInfo& ca
     }
 
     VulkanReplayFrameLoopConsumerBase::Process_vkCreateBuffer(call_info, args);
+
+    if (writable && !args.pBuffer.IsNull())
+    {
+        if (VulkanBufferInfo* buffer_info = GetObjectInfoTable().GetVkBufferInfo(*args.pBuffer.GetPointer()))
+        {
+            buffer_info->writable = true;
+        }
+    }
 }
 
 static bool CanRestoreImage(const VkImageCreateInfo* create_info)
@@ -685,7 +691,7 @@ void VulkanReplayFrameLoopConsumer::RecordBufferStates()
             return;
         }
 
-        if (!writable_buffers_.contains(buffer_info->capture_id))
+        if (!buffer_info->writable)
         {
             return;
         }
