@@ -121,13 +121,17 @@ class PageGuardManager
     // allocation will be created.  Unless copy-on-map is disabled, the content of the mapped_range portion of
     // mapped_memory will be copied to the shadow allocation.  The shadow allocation will be freed by
     // RemoveTrackedMemory.
+    //
+    // When use_streaming_loads is true, copies from mapped memory to shadow memory use streaming loads, which are much
+    // faster for memory that is not host-cached, such as write-combined memory.
     void* AddTrackedMemory(uint64_t  memory_id,
                            void*     mapped_memory,
                            size_t    mapped_offset,
                            size_t    mapped_range,
                            uintptr_t shadow_memory_handle,
                            bool      use_shadow_memory,
-                           bool      use_write_watch);
+                           bool      use_write_watch,
+                           bool      use_streaming_loads = false);
 
     void RemoveTrackedMemory(uint64_t memory_id);
 
@@ -167,11 +171,12 @@ class PageGuardManager
                    const void* sa,
                    const void* ea,
                    bool        ww,
-                   bool        os) :
+                   bool        os,
+                   bool        sl) :
             status_tracker(tp),
             mapped_memory(mm), mapped_range(mr), shadow_memory(sm), shadow_range(sr), aligned_address(aa),
             aligned_offset(ao), total_pages(tp), last_segment_size(lss), start_address(sa), end_address(ea),
-            use_write_watch(ww), is_modified(false), own_shadow_memory(os), ref_count(0)
+            use_write_watch(ww), is_modified(false), own_shadow_memory(os), use_streaming_loads(sl), ref_count(0)
         {
 #if defined(_WIN32)
             if (shadow_memory == nullptr)
@@ -198,6 +203,7 @@ class PageGuardManager
         bool        use_write_watch;
         bool        is_modified;
         bool        own_shadow_memory;
+        bool        use_streaming_loads; // Read the mapped memory with streaming loads.
         uint32_t    ref_count;
 
 #if defined(_WIN32)

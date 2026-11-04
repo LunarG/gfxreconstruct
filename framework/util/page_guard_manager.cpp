@@ -798,7 +798,7 @@ static uint64_t ReadXcr0()
 #endif
 }
 
-static CopyFunction SelectCopyFromMappedMemory()
+static CopyFunction SelectStreamingLoadCopy()
 {
     unsigned int leaf0[4];
     Cpuid(0, 0, leaf0);
@@ -826,16 +826,16 @@ static CopyFunction SelectCopyFromMappedMemory()
     return sse41 ? StreamingLoadCopySse41 : PlainCopy;
 }
 #else
-static CopyFunction SelectCopyFromMappedMemory()
+static CopyFunction SelectStreamingLoadCopy()
 {
     return PlainCopy;
 }
 #endif
 
-static void CopyFromMappedMemory(void* destination, const void* source, size_t size)
+static void CopyFromMappedMemory(void* destination, const void* source, size_t size, bool use_streaming_loads)
 {
-    static const CopyFunction copy = SelectCopyFromMappedMemory();
-    copy(destination, source, size);
+    static const CopyFunction streaming_load_copy = SelectStreamingLoadCopy();
+    (use_streaming_loads ? streaming_load_copy : PlainCopy)(destination, source, size);
 }
 
 bool PageGuardManager::FindMemory(void* address, MemoryInfo** watched_memory_info)
@@ -1198,7 +1198,8 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
                                          size_t    mapped_range,
                                          uintptr_t shadow_memory_handle,
                                          bool      use_shadow_memory,
-                                         bool      use_write_watch)
+                                         bool      use_write_watch,
+                                         bool      use_streaming_loads)
 {
     void*  aligned_address = nullptr;
     void*  shadow_memory   = nullptr;
@@ -1230,7 +1231,7 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
 
                 if (enable_copy_on_map_ && kUserFaultFdMode != protection_mode_)
                 {
-                    CopyFromMappedMemory(shadow_memory, mapped_memory, mapped_range);
+                    CopyFromMappedMemory(shadow_memory, mapped_memory, mapped_range, use_streaming_loads);
                 }
             }
         }
@@ -1328,7 +1329,7 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
                         shadow_memory_info->page_loaded[page_index] = true;
                     }
 
-                    CopyFromMappedMemory(dst_page, src_page, copy_size);
+                    CopyFromMappedMemory(dst_page, src_page, copy_size, use_streaming_loads);
 
                     dst_page += copy_size;
                     src_page += copy_size;
@@ -1386,7 +1387,8 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
                                                            start_address,
                                                            static_cast<const uint8_t*>(start_address) + mapped_range,
                                                            use_write_watch,
-                                                           shadow_memory_handle == kNullShadowHandle));
+                                                           shadow_memory_handle == kNullShadowHandle,
+                                                           use_streaming_loads));
             ++(entry.first->second.ref_count);
 
             if (!entry.second)
@@ -1639,7 +1641,7 @@ bool PageGuardManager::HandleGuardPageViolation(void* address, bool is_write, bo
 
             uint8_t* source_address      = static_cast<uint8_t*>(memory_info->mapped_memory) + page_offset;
             uint8_t* destination_address = static_cast<uint8_t*>(memory_info->shadow_memory) + page_offset;
-            CopyFromMappedMemory(destination_address, source_address, segment_size);
+            CopyFromMappedMemory(destination_address, source_address, segment_size, memory_info->use_streaming_loads);
 
             memory_info->status_tracker.SetActiveReadBlock(page_index, true);
 
