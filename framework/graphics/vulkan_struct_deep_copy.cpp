@@ -37,7 +37,7 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
     GFXRECON_ASSERT(pNext != nullptr);
     const auto s_type = reinterpret_cast<const VkBaseInStructure*>(pNext)->sType;
 
-    auto on_find = [pNext, out_data]<schema::HasStructureType Element>() {
+    auto on_find = [pNext, out_data]<schema::TypedStructApiElement Element>() {
         return vulkan_struct_deep_copy(binding::StructureTypeCast<Element>(pNext), 1, out_data);
     };
     auto on_miss = [s_type]() {

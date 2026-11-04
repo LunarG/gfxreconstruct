@@ -43,29 +43,29 @@ GFXRECON_BEGIN_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(detail)
 
 template <typename Table>
-std::string EnumerantToString(typename binding::EnumerantApiElementOf<Table>::element_type value)
+std::string EnumerantToString(typename binding::EnumerantApiElementOf_t<Table>::element_type value)
 {
     const std::string_view name = binding::NameIn<Table>(value);
-    return name.empty() ? "Unhandled " + std::string(binding::EnumerantApiElementOf<Table>::name) : std::string(name);
+    return name.empty() ? "Unhandled " + std::string(binding::EnumerantApiElementOf_t<Table>::name) : std::string(name);
 }
 
 // Each set bit by name, in bit order, joined with '|'; zero by the table's name for zero.
 template <typename Table, typename Flags>
 std::string EnumerantMaskToString(Flags flags)
 {
-    using Bit = typename binding::EnumerantApiElementOf<Table>::element_type;
+    using Bit = typename binding::EnumerantApiElementOf_t<Table>::element_type;
     return BitmaskToString<Bit>(flags, [](Bit bit) { return EnumerantToString<Table>(bit); });
 }
 
 GFXRECON_END_NAMESPACE(detail)
 
-template <schema::HasEnumerants Element>
+template <schema::EnumApiElement Element>
 std::string ToString(typename Element::element_type value, ToStringFlags, uint32_t, uint32_t)
 {
     return detail::EnumerantToString<typename Element::enumerants>(value);
 }
 
-template <schema::HasBitvalues Element>
+template <schema::BitmaskApiElement Element>
 std::string ToString(VkFlags64 flags, ToStringFlags, uint32_t, uint32_t)
 {
     return detail::EnumerantMaskToString<typename Element::bitvalues::enumerants>(flags);

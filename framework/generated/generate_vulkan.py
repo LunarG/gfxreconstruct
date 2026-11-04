@@ -94,7 +94,7 @@ generate_targets = [
     'generated_vulkan_schema_fields.h',
     'generated_vulkan_schema.h',
     'generated_vulkan_inventory.h',
-    'generated_vulkan_schema_native_struct_members.h',
+    'generated_vulkan_schema_api_struct_members.h',
     'generated_vulkan_schema_decoded_struct_members.h',
     'generated_vulkan_schema_decoded_command_members.h',
     'generated_vulkan_schema_checks.cpp',

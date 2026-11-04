@@ -72,7 +72,7 @@ struct Declaration : DeclarationBase
 };
 
 template <typename T>
-concept IsDeclaration = ApiElement<T> || std::is_base_of_v<DeclarationBase, T>;
+inline constexpr bool IsDeclaration_v = ApiElement<T> || std::is_base_of_v<DeclarationBase, T>;
 
 struct ConstDeclaration
 {};
@@ -94,21 +94,24 @@ struct UnknownLength
 {};
 
 template <typename T>
-concept LengthSlot = StoreValue<T> || std::same_as<T, UnknownLength>;
+concept LengthDescriptor = StoreValue<T> || std::same_as<T, UnknownLength>;
 
 // const applied at this level of the declaration.
-template <IsDeclaration D>
+template <typename D>
+requires IsDeclaration_v<D>
 struct Const : Declaration<D>, ConstDeclaration
 {};
 
 // A pointer to one D.
-template <IsDeclaration D>
+template <typename D>
+requires IsDeclaration_v<D>
 struct Pointer : Declaration<D>, PointerDeclaration
 {};
 
 // A pointer to Length items of D, with room for Capacity items. Capacity differs from Length only for an output array,
 // where the buffer holds more than the call fills.
-template <IsDeclaration D, LengthSlot Length, typename Capacity = UseLength>
+template <typename D, LengthDescriptor Length, typename Capacity = UseLength>
+requires IsDeclaration_v<D>
 struct Array : Declaration<D>, ArrayDeclaration
 {
     using length   = Length;
@@ -118,7 +121,8 @@ struct Array : Declaration<D>, ArrayDeclaration
 // An array of N items of D declared in the storage type itself, with Length of them valid: UseCapacity for all N,
 // or a store value for a bounded array whose count is a sibling. The parameter order is <D, Length, Capacity> for
 // both array forms, so a reader who knows one knows the other.
-template <IsDeclaration D, typename Length, size_t N>
+template <typename D, typename Length, size_t N>
+requires IsDeclaration_v<D>
 struct FixedArray : Declaration<D>, FixedArrayDeclaration
 {
     static_assert(StoreValue<Length> || std::same_as<Length, UseCapacity>,
@@ -142,27 +146,27 @@ struct RemoveConst<Const<D>>
     using type = typename RemoveConst<D>::type;
 };
 
-// The element at the leaf of a declaration, through every level.
+// The declaration with every declarator removed: the element it was written over.
 template <typename D>
-struct ElementOf
+struct RemoveDeclarators
 {
     using type = D;
 };
 
 template <typename D>
-struct ElementOf<Const<D>> : ElementOf<D>
+struct RemoveDeclarators<Const<D>> : RemoveDeclarators<D>
 {};
 
 template <typename D>
-struct ElementOf<Pointer<D>> : ElementOf<D>
+struct RemoveDeclarators<Pointer<D>> : RemoveDeclarators<D>
 {};
 
 template <typename D, typename L, typename C>
-struct ElementOf<Array<D, L, C>> : ElementOf<D>
+struct RemoveDeclarators<Array<D, L, C>> : RemoveDeclarators<D>
 {};
 
 template <typename D, typename L, size_t N>
-struct ElementOf<FixedArray<D, L, N>> : ElementOf<D>
+struct RemoveDeclarators<FixedArray<D, L, N>> : RemoveDeclarators<D>
 {};
 
 // The declared C type a declaration spells, rebuilt from the element's element_type with the declarator applied:
@@ -201,10 +205,13 @@ struct ApiTypeOf<FixedArray<D, L, N>>
 GFXRECON_END_NAMESPACE(detail)
 
 template <typename D>
-using ElementOf = typename detail::ElementOf<D>::type;
+using RemoveDeclarators_t = typename detail::RemoveDeclarators<D>::type;
 
 template <typename D>
-using ApiTypeOf = typename detail::ApiTypeOf<D>::type;
+using ApiTypeOf_t = typename detail::ApiTypeOf<D>::type;
+
+template <typename D>
+using RemoveConst_t = typename detail::RemoveConst<D>::type;
 
 // A field. The generator emits one derived struct per field use, `struct pNext : Field<"pNext", Pointer<Const<
 // ExtensionChain>>> {};`, in a namespace named for the owner, so each use is its own type for MemberPointer,
@@ -213,17 +220,18 @@ using ApiTypeOf = typename detail::ApiTypeOf<D>::type;
 struct FieldBase
 {};
 
-template <util::FixedString Name, IsDeclaration D>
+template <util::FixedString Name, typename D>
+requires IsDeclaration_v<D>
 struct Field : FieldBase
 {
     using declaration = D;
-    using api_element = ElementOf<D>;
+    using api_element = RemoveDeclarators_t<D>;
 
     static constexpr std::string_view field_name = Name.view();
 };
 
 template <typename T>
-concept IsField = std::is_base_of_v<FieldBase, T>;
+inline constexpr bool IsField_v = std::is_base_of_v<FieldBase, T>;
 
 // The Field vocabulary. Every Field the schema generator emits is `struct name : Field<"name", Declaration> {...}`
 // with the members below and no others. A Field states what one use site is, never what an operation does with it,
@@ -254,33 +262,24 @@ concept IsField = std::is_base_of_v<FieldBase, T>;
 // Storage facts, which member of which type holds a field, are MemberPointer specializations and never Field
 // members. Type facts, category, element_type, capture_wrapper_type, are on the api_element and are not restated.
 
-// The API's own C++ type for one element of a field that names this API element. It is not the declared type of any
-// field: the shape supplies the packaging, so a pointer-array field naming this API element is declared as a pointer
-// to this type.
-template <typename ApiType>
-using ElementType = typename ApiType::element_type;
-
-template <typename Field>
-using FieldElementType = ElementType<typename Field::api_element>;
-
-// The logical category a Field's API type names. Every category concept below asks format.h a question about this type
+// The logical category an element names. Every category concept below asks format.h a question about this type
 // and never spells a category tag itself.
-template <typename Field>
-using FieldCategory = typename Field::api_element::category;
+template <ApiElement E>
+using CategoryOf_t = typename E::category;
 
 // The wire type a Field is recorded as. The join between a category and its width is on the category itself, in
 // format/format.h, so a change to the capture format touches that header and no schema content.
 template <typename Field>
-using FieldEncodeType = format::EncodeTypeFor<FieldCategory<Field>>;
+using FieldEncodeType = format::EncodeTypeFor<CategoryOf_t<typename Field::api_element>>;
 
 // The count expression for an Array, PointerArray or StaticArray Field, if any: a FieldValue whose Get reads the
 // array's length from the owner's storage.
 template <typename Field>
-using FieldLength = typename detail::RemoveConst<typename Field::declaration>::type::length;
+using LengthOf_t = typename RemoveConst_t<typename Field::declaration>::length;
 
 // The sibling Field whose value names a generic handle's object type.
 template <typename Field>
-using FieldSelectorField = typename Field::selector_field;
+using SelectorOf_t = typename Field::selector_field;
 
 // Whether the extents a FixedArray Field declares equal the extents of an array type, in rank and in every
 // dimension. An Action with the declared member type in hand asserts this where it reads the array, so a schema that
@@ -292,7 +291,7 @@ template <typename ArrayType, typename Field, size_t... I>
 struct DeclaredExtentsMatch<ArrayType, Field, std::index_sequence<I...>>
 {
     // The type the declaration spells, which std::rank_v and std::extent_v read as they read the member's.
-    using Declared = ApiTypeOf<typename Field::declaration>;
+    using Declared = ApiTypeOf_t<typename Field::declaration>;
 
     // The rank test guards the fold: a declaration shallower than the declared rank is a mismatch, not an
     // out-of-bounds read, because a constant && does not evaluate its right operand once the left is false.
@@ -301,7 +300,7 @@ struct DeclaredExtentsMatch<ArrayType, Field, std::index_sequence<I...>>
 };
 
 template <typename ArrayType, typename Field>
-inline constexpr bool DeclaredExtentsMatchV = DeclaredExtentsMatch<ArrayType, Field>::value;
+inline constexpr bool DeclaredExtentsMatch_v = DeclaredExtentsMatch<ArrayType, Field>::value;
 
 // Member traits. The primary template stays undefined, so an absent specialization makes the access concepts fail
 // rather than producing a hard error.
@@ -321,18 +320,18 @@ struct NonAddressableMember
 };
 
 template <typename Storage, typename Field>
-concept HasMember = requires
+concept FieldStoreFor = requires
 {
     MemberPointer<std::remove_cv_t<Storage>, Field>::value;
 };
 
 template <typename Storage, typename Field>
-concept HasSelectorField = HasMember<Storage, FieldSelectorField<Field>>;
+concept FieldWithSelector = FieldStoreFor<Storage, SelectorOf_t<Field>>;
 
 template <typename Storage, typename Field>
-concept HasFieldLength = requires(const Storage& storage)
+concept FieldWithLength = requires(const Storage& storage)
 {
-    FieldLength<Field>::Get(storage);
+    LengthOf_t<Field>::Get(storage);
 };
 
 template <typename Storage, typename Field>
@@ -342,7 +341,7 @@ concept Addressable = requires
 };
 
 template <typename Storage, typename Field>
-concept NonAddressable = HasMember<Storage, Field> &&(!Addressable<Storage, Field>);
+concept NonAddressable = FieldStoreFor<Storage, Field> &&(!Addressable<Storage, Field>);
 
 // GetRef is the normal primitive for an addressable member. The constraint removes it from the overload set for a
 // non-addressable member, so another action overload wins by overload resolution.
@@ -358,7 +357,7 @@ requires Addressable<Storage, Field>
 // an integer read through the generated accessor. A caller that binds the result to a const reference is safe in
 // both cases, and a caller that wants a copy takes one with auto.
 template <typename Storage, typename Field>
-requires HasMember<Storage, Field>
+requires FieldStoreFor<Storage, Field>
 [[nodiscard]] decltype(auto) Get(const Storage& storage, Field field)
 {
     if constexpr (Addressable<Storage, Field>)
@@ -373,7 +372,7 @@ requires HasMember<Storage, Field>
 
 // Set expresses a write, and is the only write available for a non-addressable member.
 template <typename Storage, typename Field, typename ValueType>
-requires HasMember<Storage, Field>
+requires FieldStoreFor<Storage, Field>
 void Set(Storage& storage, Field field, ValueType&& value)
 {
     if constexpr (Addressable<Storage, Field>)
@@ -386,119 +385,105 @@ void Set(Storage& storage, Field field, ValueType&& value)
     }
 }
 
-// Form concepts. Each reads the field's declaration: the form under any Const, through RemoveConst, and for the
-// fixed array the declared C type, through std::is_array_v on ApiTypeOf.
-template <typename Field>
-using FieldForm = typename detail::RemoveConst<typename Field::declaration>::type;
+// Form concepts. Each reads the field's declaration: the form under any Const, through RemoveConst_t, and for the
+// fixed array the declared C type, through std::is_array_v on ApiTypeOf_t.
 
 // The void return of a command: the Void element held by value. It has no runtime value, no storage member and no
-// encoded bytes; every command schema carries exactly one return Field, which is what lets ReturnFields find it and
-// ParameterFields drop it.
+// encoded bytes; every command schema carries exactly one return Field, which is what lets ReturnFields_t find it and
+// ParameterFields_t drop it.
 template <typename Field>
-concept VoidReturnField =
-    ApiElement<FieldForm<Field>> && std::same_as<typename FieldForm<Field>::category, format::category::Void>;
+concept VoidReturnField = ApiElement<RemoveConst_t<typename Field::declaration>> &&
+    std::same_as<typename RemoveConst_t<typename Field::declaration>::category, format::category::Void>;
 
 // A directly held value: the declaration is an element.
 template <typename Field>
-concept ValueField = ApiElement<FieldForm<Field>> && !VoidReturnField<Field>;
+concept ValueField = ApiElement<RemoveConst_t<typename Field::declaration>> && !VoidReturnField<Field>;
 
 // The extension chain entry of an extensible structure: a pointer whose leaf is the chain element, whose concrete
 // element types are selected at run time from the encoded structure type.
 template <typename Field>
-concept ExtensionChainField = std::is_base_of_v<PointerDeclaration, FieldForm<Field>> &&
-    std::same_as<ElementOf<FieldForm<Field>>, ExtensionChain>;
+concept ExtensionChainField = std::is_base_of_v<PointerDeclaration, RemoveConst_t<typename Field::declaration>> &&
+    std::same_as<typename Field::api_element, ExtensionChain>;
 
 // A pointer to one element.
 template <typename Field>
-concept PointerField = std::is_base_of_v<PointerDeclaration, FieldForm<Field>> && !ExtensionChainField<Field>;
+concept PointerField =
+    std::is_base_of_v<PointerDeclaration, RemoveConst_t<typename Field::declaration>> && !ExtensionChainField<Field>;
 
 // A pointer to a pointer: an output slot the callee fills with an address, void** ppData, AHardwareBuffer** pBuffer.
 // No structure member is one; the command parameters are.
 template <typename Field>
-concept IndirectPointerField = PointerField<Field> &&
-    std::is_base_of_v<PointerDeclaration, typename detail::RemoveConst<typename FieldForm<Field>::element>::type>;
+concept PointerToPointerField = PointerField<Field> &&
+    std::is_base_of_v<PointerDeclaration, RemoveConst_t<typename RemoveConst_t<typename Field::declaration>::element>>;
 
 // An array of pointers, each to one element, with a length: an Array whose item is a Pointer. The storage is count
 // pointers and nothing more; what the wire makes of each pointee is the adapter's decision by category, a structure
 // of one or a null-terminated string.
 template <typename Field>
-concept PointerArrayField = std::is_base_of_v<ArrayDeclaration, FieldForm<Field>> &&
-    std::is_base_of_v<PointerDeclaration, typename detail::RemoveConst<typename FieldForm<Field>::element>::type>;
+concept PointerArrayField = std::is_base_of_v<ArrayDeclaration, RemoveConst_t<typename Field::declaration>> &&
+    std::is_base_of_v<PointerDeclaration, RemoveConst_t<typename RemoveConst_t<typename Field::declaration>::element>>;
 
 // A pointer to a run of elements, with a length.
 template <typename Field>
-concept ArrayField = std::is_base_of_v<ArrayDeclaration, FieldForm<Field>> && !PointerArrayField<Field>;
+concept ArrayField =
+    std::is_base_of_v<ArrayDeclaration, RemoveConst_t<typename Field::declaration>> && !PointerArrayField<Field>;
 
 // A fixed-extent array declared in the storage type itself.
 template <typename Field>
-concept StaticArrayField = std::is_base_of_v<FixedArrayDeclaration, FieldForm<Field>>;
+concept FixedArrayField = std::is_base_of_v<FixedArrayDeclaration, RemoveConst_t<typename Field::declaration>>;
 
 // Category concepts. A category concept reads the element at the leaf of a declaration, and a form concept reads
-// the declaration, so the two are facts about two different things: OpaqueElement<F> && PointerField<F> is a pointer
-// to an opaque object. A category concept takes the Field or the element itself.
+// the declaration, so the two are facts about two different things: OpaqueApiElement<typename F::api_element> &&
+// PointerField<F> is a pointer to an opaque object. A category concept takes the element; a Field's is its api_element
+// member.
 GFXRECON_BEGIN_NAMESPACE(detail)
-
-template <typename T>
-struct ElementOfAny
-{
-    using type = T;
-};
-
-template <IsField T>
-struct ElementOfAny<T>
-{
-    using type = typename T::api_element;
-};
 
 GFXRECON_END_NAMESPACE(detail)
 
-template <typename T>
-using CategoryOf = typename detail::ElementOfAny<T>::type::category;
-
-template <typename T>
-concept HandleElement = format::IsHandleCategory<CategoryOf<T>>;
+template <typename E>
+concept HandleApiElement = ApiElement<E> && format::IsHandleCategory<CategoryOf_t<E>>;
 
 template <typename Field>
-concept HandleValueField = HandleElement<Field> && ValueField<Field>;
+concept HandleValueField = HandleApiElement<typename Field::api_element> && ValueField<Field>;
 
-template <typename T>
-concept ScalarElement = format::IsScalarCategory<CategoryOf<T>>;
+template <typename E>
+concept ScalarApiElement = ApiElement<E> && format::IsScalarCategory<CategoryOf_t<E>>;
 
 template <typename Field>
-concept ScalarValueField = ScalarElement<Field> && ValueField<Field>;
+concept ScalarValueField = ScalarApiElement<typename Field::api_element> && ValueField<Field>;
 
 // Text, of either width. The two categories pick different decoder classes, and nothing else about them differs.
-template <typename T>
-concept TextElement = format::IsTextCategory<CategoryOf<T>>;
+template <typename E>
+concept TextApiElement = ApiElement<E> && format::IsTextCategory<CategoryOf_t<E>>;
 
 // The category alone, so it also matches a pointer-array or static-array of structures. An Action that wants those
 // separately orders its overloads by subsumption, or constrains on the form as well.
-template <typename T>
-concept StructElement = format::IsStructCategory<CategoryOf<T>>;
+template <typename E>
+concept StructApiElement = ApiElement<E> && format::IsStructCategory<CategoryOf_t<E>>;
 
 // A type the API declares and never describes: a platform structure reached through a pointer, or a platform
 // handle typedef held by value. Recorded as the address, never followed.
-template <typename T>
-concept OpaqueElement = format::IsOpaqueCategory<CategoryOf<T>>;
+template <typename E>
+concept OpaqueApiElement = ApiElement<E> && format::IsOpaqueCategory<CategoryOf_t<E>>;
 
-template <typename T>
-concept CallbackElement = format::IsCallbackCategory<CategoryOf<T>>;
+template <typename E>
+concept CallbackApiElement = ApiElement<E> && format::IsCallbackCategory<CategoryOf_t<E>>;
 
 // void: a pointer to it is an address, a counted pointer to it is a run of bytes, and a value of it is a command's
 // void return.
-template <typename T>
-concept VoidElement = std::same_as<CategoryOf<T>, format::category::Void>;
+template <typename E>
+concept VoidApiElement = ApiElement<E> && std::same_as<CategoryOf_t<E>, format::category::Void>;
 
 // Recorded as an identifier rather than the thing itself: a handle's capture-file id, or an address. Nothing decodes
 // into the API's own member for any of them; the identifier goes to the wrapper and the member is nulled until replay
 // resolves it.
-template <typename T>
-concept IdentifierElement = HandleElement<T> || OpaqueElement<T> || CallbackElement<T>;
+template <typename E>
+concept IdentifierApiElement = HandleApiElement<E> || OpaqueApiElement<E> || CallbackApiElement<E>;
 
 // Recorded as the member's own bits, in the category's wire type: a scalar, or an opaque or callback element held
 // by value. A handle is not one, since it records the wrapper's id.
-template <typename T>
-concept GeneralScalarElement = ScalarElement<T> || OpaqueElement<T> || CallbackElement<T>;
+template <typename E>
+concept GeneralScalarApiElement = ScalarApiElement<E> || OpaqueApiElement<E> || CallbackApiElement<E>;
 
 // Any pointer shape. A decoder that reads its own length and depth from the wire cannot tell them apart -- a pointer
 // to one element is a run of one, and a run of pointers is one more level of the same -- so an operation whose body
@@ -514,15 +499,15 @@ concept AnyCountedField = ArrayField<Field> || PointerArrayField<Field>;
 // A run of elements, counted or fixed. The adapter's array entries take either, since both hand over a pointer and a
 // count; the Action reads them differently.
 template <typename Field>
-concept AnyArrayField = StaticArrayField<Field> || ArrayField<Field>;
+concept AnyArrayField = FixedArrayField<Field> || ArrayField<Field>;
 
 // What a count operand may yield: an integer, or a C enum standing for one, as rasterizationSamples does. bool is an
 // integer to the language and not a count.
 template <typename T>
-concept LengthValue = (std::integral<T> && !std::same_as<T, bool>) || std::is_enum_v<T>;
+concept IntegralLength = (std::integral<T> && !std::same_as<T, bool>) || std::is_enum_v<T>;
 
 template <typename Operand, typename Store>
-using OperandValue = decltype(Operand::Get(std::declval<const Store&>()));
+using OperandValue_t = decltype(Operand::Get(std::declval<const Store&>()));
 
 // A value read from storage by Field. The one-argument form reads the Field's own value. The two-argument form reads
 // Member from what the Field points to: Store holds Field, FieldStore is what Field's value points to, and is the
@@ -534,7 +519,7 @@ template <typename Field>
 struct FieldValue<Field> : StoreValueBase
 {
     template <typename Store>
-    requires HasMember<Store, Field>
+    requires FieldStoreFor<Store, Field>
     [[nodiscard]] static auto Get(const Store& store) { return schema::Get(store, Field{}); }
 };
 
@@ -548,7 +533,7 @@ struct FieldValue<Field, Member> : StoreValueBase
     using FieldStore = std::remove_cvref_t<decltype(*FieldValue<Field>::Get(std::declval<const Store&>()))>;
 
     template <typename Store>
-    requires HasMember<FieldStore<Store>, Member>
+    requires FieldStoreFor<FieldStore<Store>, Member>
     [[nodiscard]] static auto Get(const Store& store) { return schema::Get(*FieldValue<Field>::Get(store), Member{}); }
 };
 
@@ -571,7 +556,7 @@ template <StoreValue Left, StoreValue Right>
 struct Sum : StoreValueBase
 {
     template <typename Store>
-    requires LengthValue<OperandValue<Left, Store>> && LengthValue<OperandValue<Right, Store>>
+    requires IntegralLength<OperandValue_t<Left, Store>> && IntegralLength<OperandValue_t<Right, Store>>
     [[nodiscard]] static constexpr auto Get(const Store& store) { return Left::Get(store) + Right::Get(store); }
 };
 
@@ -579,7 +564,7 @@ template <StoreValue Left, StoreValue Right>
 struct Product : StoreValueBase
 {
     template <typename Store>
-    requires LengthValue<OperandValue<Left, Store>> && LengthValue<OperandValue<Right, Store>>
+    requires IntegralLength<OperandValue_t<Left, Store>> && IntegralLength<OperandValue_t<Right, Store>>
     [[nodiscard]] static constexpr auto Get(const Store& store) { return Left::Get(store) * Right::Get(store); }
 };
 
@@ -587,7 +572,7 @@ template <StoreValue Left, StoreValue Right>
 struct Quotient : StoreValueBase
 {
     template <typename Store>
-    requires LengthValue<OperandValue<Left, Store>> && LengthValue<OperandValue<Right, Store>>
+    requires IntegralLength<OperandValue_t<Left, Store>> && IntegralLength<OperandValue_t<Right, Store>>
     [[nodiscard]] static constexpr auto Get(const Store& store) { return Left::Get(store) / Right::Get(store); }
 };
 
@@ -600,7 +585,7 @@ concept StoresFieldAs = Addressable<Storage, Field> && requires(Storage& storage
 };
 
 template <typename Storage, typename Field>
-concept StoresElementField = StoresFieldAs<Storage, Field, FieldElementType<Field>>;
+concept StoresElementField = StoresFieldAs<Storage, Field, ApiTypeOf_t<typename Field::api_element>>;
 
 GFXRECON_END_NAMESPACE(schema)
 GFXRECON_END_NAMESPACE(gfxrecon)

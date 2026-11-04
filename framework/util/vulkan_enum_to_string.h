@@ -20,7 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// Explicit specializations of util/to_string.h's primaries, one per native enum and one more per flag-bits enum,
+// Explicit specializations of util/to_string.h's primaries, one per API enum and one more per flag-bits enum,
 // a visitor invoked across the inventory, defined in generated_vulkan_enum_to_string.cpp over the enumerant tables. A
 // specialization is found wherever the primary is, by the generic formatters too, which an overload would not be.
 // Callers include only this; the tables stay in the .cpp.
@@ -49,14 +49,14 @@ GFXRECON_BEGIN_NAMESPACE(util)
 // instantiated in generated_vulkan_enum_to_string.cpp.
 
 // Requires a descriptor with an enumerant table: one enumerant to its name.
-template <schema::HasEnumerants Descriptor>
+template <schema::EnumApiElement Descriptor>
 std::string ToString(typename Descriptor::element_type value,
                      ToStringFlags                     toStringFlags = kToString_Default,
                      uint32_t                          tabCount      = kToStringDefaultTabCount,
                      uint32_t                          tabSize       = kToStringDefaultTabSize);
 
 // Requires a mask typedef's descriptor: the set bits of a mask, by name.
-template <schema::HasBitvalues Descriptor>
+template <schema::BitmaskApiElement Descriptor>
 std::string ToString(VkFlags64     flags,
                      ToStringFlags toStringFlags = kToString_Default,
                      uint32_t      tabCount      = kToStringDefaultTabCount,

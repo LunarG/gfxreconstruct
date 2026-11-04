@@ -60,15 +60,15 @@
 // Row properties. Each is a fact the preprocessor cannot derive, and each is read back into C++ by a visit,
 // as the trait or the catalog list named beside it, so the property and its C++ form cannot disagree. The
 // name follows what reads it: HAS_ a concept, MAY_ and a bare adjective a catalog list.
-//   GFXRECON_INVENTORY_HAS_DECODED_TYPE       binding::HasDecodedType                 a Decoded_ wrapper exists and the decoded-type rows reach it
-//   GFXRECON_INVENTORY_MAY_REACH_HANDLES      binding::vulkan::MayReachHandles        a handle is reachable through its fields, pNext included
-//   GFXRECON_INVENTORY_EXTERNAL               binding::vulkan::IsExternal             a platform header defines it, not the registry, so it has a API element and no Schema
-//   GFXRECON_INVENTORY_CUSTOM_ENCODE          binding::vulkan::IsCustomEncode         its encoder is hand-written
-//   GFXRECON_INVENTORY_CUSTOM_DECODE          binding::vulkan::IsCustomDecode         its decoder is hand-written
-//   GFXRECON_INVENTORY_CUSTOM_HANDLE_MAPPING  binding::vulkan::IsCustomHandleMapping  its unwrap and map bodies are hand-written, or absent
-//   GFXRECON_INVENTORY_GENERIC_HANDLE         binding::vulkan::HasGenericHandle       a member is a runtime-typed handle, an integer its sibling object type names the type of
-//   GFXRECON_INVENTORY_DEEP_COPY_EXCLUDED     binding::vulkan::IsDeepCopyExcluded     vulkan_struct_deep_copy does not handle it
-//   GFXRECON_INVENTORY_HAS_STRUCTURE_TYPE     schema::HasStructureType                the registry gives it a structure type, which its API element carries, so a pNext chain can hold it
+//   GFXRECON_INVENTORY_HAS_DECODED_TYPE       binding::ApiElementWithDecodedType        a Decoded_ wrapper exists and the decoded-type rows reach it
+//   GFXRECON_INVENTORY_MAY_REACH_HANDLES      binding::vulkan::MayReachHandles_v        a handle is reachable through its fields, pNext included
+//   GFXRECON_INVENTORY_EXTERNAL               binding::vulkan::IsExternal_v             a platform header defines it, not the registry, so it has a API element and no Schema
+//   GFXRECON_INVENTORY_CUSTOM_ENCODE          binding::vulkan::IsCustomEncode_v         its encoder is hand-written
+//   GFXRECON_INVENTORY_CUSTOM_DECODE          binding::vulkan::IsCustomDecode_v         its decoder is hand-written
+//   GFXRECON_INVENTORY_CUSTOM_HANDLE_MAPPING  binding::vulkan::IsCustomHandleMapping_v  its unwrap and map bodies are hand-written, or absent
+//   GFXRECON_INVENTORY_GENERIC_HANDLE         binding::vulkan::HasGenericHandle_v       a member is a runtime-typed handle, an integer its sibling object type names the type of
+//   GFXRECON_INVENTORY_DEEP_COPY_EXCLUDED     binding::vulkan::IsDeepCopyExcluded_v     vulkan_struct_deep_copy does not handle it
+//   GFXRECON_INVENTORY_HAS_STRUCTURE_TYPE     schema::TypedStructApiElement             the registry gives it a structure type, which its API element carries, so a pNext chain can hold it
 //
 // To read the list as C++, use the catalog, binding/vulkan_catalog.h, not this file.
 

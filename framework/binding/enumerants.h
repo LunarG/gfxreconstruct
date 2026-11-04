@@ -51,25 +51,25 @@ struct Enumerant
 
 // The API element of the type whose enumerants Table holds.
 template <typename Table>
-using EnumerantApiElementOf = typename std::remove_cv_t<decltype(Table::entries)>::value_type::descriptor;
+using EnumerantApiElementOf_t = typename std::remove_cv_t<decltype(Table::entries)>::value_type::descriptor;
 
 // The sorted index over Table::entries; a position found through it reads the entry it came from.
 template <typename Table>
 struct EnumerantLookup
 {
-    using value_type = typename EnumerantApiElementOf<Table>::element_type;
+    using value_type = typename EnumerantApiElementOf_t<Table>::element_type;
 
     static constexpr size_t kSize = Table::entries.size();
 
     using Index = util::KeyIndex<value_type, kSize>;
 
     static constexpr Index index{ Table::entries,
-                                  [](const Enumerant<EnumerantApiElementOf<Table>>& entry) { return entry.value; } };
+                                  [](const Enumerant<EnumerantApiElementOf_t<Table>>& entry) { return entry.value; } };
 };
 
-// The name of an enumerant in Table, or an empty view when value is not one. What a miss means is the caller's.
+// The name of an enumerant in Table, or an empty view when value is not one.
 template <typename Table>
-constexpr std::string_view NameIn(typename EnumerantApiElementOf<Table>::element_type value)
+constexpr std::string_view NameIn(typename EnumerantApiElementOf_t<Table>::element_type value)
 {
     using Lookup          = EnumerantLookup<Table>;
     const size_t position = Lookup::index.Find(value);
@@ -78,15 +78,15 @@ constexpr std::string_view NameIn(typename EnumerantApiElementOf<Table>::element
 
 // The table of an enum bound to an enumerated API element.
 template <typename Enum>
-concept HasEnumerantTable = HasApiElement<Enum> && schema::HasEnumerants<typename ApiElementOf<Enum>::type>;
+concept EnumApiType = ApiTypeWithApiElement<Enum> && schema::EnumApiElement<ApiElementOf_t<Enum>>;
 
-template <HasEnumerantTable Enum>
-using EnumerantTableOf = typename ApiElementOf<Enum>::type::enumerants;
+template <EnumApiType Enum>
+using EnumerantTableOf_t = typename ApiElementOf_t<Enum>::enumerants;
 
-template <HasEnumerantTable Enum>
+template <EnumApiType Enum>
 constexpr std::string_view NameOf(Enum value)
 {
-    return NameIn<EnumerantTableOf<Enum>>(value);
+    return NameIn<EnumerantTableOf_t<Enum>>(value);
 }
 
 GFXRECON_END_NAMESPACE(binding)

@@ -48,7 +48,7 @@
 
 #include "generated/generated_vulkan_schema_decoded_command_members.h"
 #include "generated/generated_vulkan_schema_decoded_struct_members.h"
-#include "generated/generated_vulkan_schema_native_struct_members.h"
+#include "generated/generated_vulkan_schema_api_struct_members.h"
 #include "binding/vulkan_api_element_of.h"
 #include "generated/generated_vulkan_schema_enumerants.h"
 #include "util/vulkan_enum_to_string.h"
@@ -79,13 +79,13 @@ static_assert(schema::HasCommandSchema<Command>);
 static_assert(schema::HasSchemaFields<Barrier>);
 static_assert(!schema::HasCommandSchema<Barrier>);
 
-// A void command still carries one Return Field, shaped VoidReturn, and its ReturnType is void.
-static_assert(std::is_same_v<schema::Return<Command>, cmd_field::result>);
-static_assert(std::is_same_v<schema::ReturnType<Command>, void>);
+// A void command still carries one Return Field, shaped VoidReturn, and its return type is void.
+static_assert(std::is_same_v<schema::ReturnField_t<Command>, cmd_field::result>);
+static_assert(std::is_same_v<schema::ApiTypeOf_t<schema::ReturnField_t<Command>::api_element>, void>);
 static_assert(schema::VoidReturnField<cmd_field::result>);
 
 // The parameter partition keeps registry order and drops only the return Field.
-static_assert(std::is_same_v<schema::ParameterFields<Command>,
+static_assert(std::is_same_v<schema::ParameterFields_t<Command>,
                              util::TypeList<cmd_field::commandBuffer,
                                             cmd_field::srcStageMask,
                                             cmd_field::dstStageMask,
@@ -97,13 +97,15 @@ static_assert(std::is_same_v<schema::ParameterFields<Command>,
                                             cmd_field::imageMemoryBarrierCount,
                                             cmd_field::pImageMemoryBarriers>>);
 
-// A non-void command resolves its native return type from the same Return Field.
-static_assert(std::is_same_v<schema::ReturnType<schema::vulkan::api_elements::CreateBuffer>, VkResult>);
+// A non-void command resolves its API return type from the same Return Field.
+static_assert(
+    std::is_same_v<schema::ApiTypeOf_t<schema::ReturnField_t<schema::vulkan::api_elements::CreateBuffer>::api_element>,
+                   VkResult>);
 
 // A category names the logical Encode and Decode operation for a registry type, and carries the wire
 // representation.
 static_assert(
-    std::is_same_v<schema::ElementType<schema::vulkan::api_elements::VkPipelineStageFlags>, VkPipelineStageFlags>);
+    std::is_same_v<schema::ApiTypeOf_t<schema::vulkan::api_elements::VkPipelineStageFlags>, VkPipelineStageFlags>);
 static_assert(std::is_same_v<schema::vulkan::api_elements::VkPipelineStageFlags::category, format::category::Flags>);
 static_assert(std::is_same_v<schema::vulkan::api_elements::VkAccessFlags2::category, format::category::Flags64>);
 static_assert(std::is_same_v<schema::vulkan::api_elements::VkResult::category, format::category::Enum>);
@@ -120,7 +122,7 @@ static_assert(
 // assigns both.
 static_assert(std::is_same_v<schema::vulkan::api_elements::UInt32::category, format::category::UInt32>);
 static_assert(std::is_same_v<schema::vulkan::api_elements::VkBool32::category, format::category::UInt32>);
-static_assert(std::is_same_v<schema::ElementType<schema::vulkan::api_elements::UInt32>, uint32_t>);
+static_assert(std::is_same_v<schema::ApiTypeOf_t<schema::vulkan::api_elements::UInt32>, uint32_t>);
 static_assert(schema::ScalarValueField<barrier_field::srcQueueFamilyIndex>);
 
 // Every scalar category still selects the shared scalar access pattern.
@@ -137,9 +139,9 @@ static_assert(std::is_same_v<schema::FieldEncodeType<barrier_field::buffer>, for
 
 // Shape concepts select on exactly the logical category and the use-site shape.
 static_assert(schema::HandleValueField<barrier_field::buffer>);
-static_assert(schema::StructElement<cmd_field::pBufferMemoryBarriers>);
+static_assert(schema::StructApiElement<cmd_field::pBufferMemoryBarriers::api_element>);
 static_assert(schema::ArrayField<cmd_field::pBufferMemoryBarriers>);
-static_assert(std::is_same_v<schema::FieldLength<cmd_field::pBufferMemoryBarriers>,
+static_assert(std::is_same_v<schema::LengthOf_t<cmd_field::pBufferMemoryBarriers>,
                              schema::FieldValue<cmd_field::bufferMemoryBarrierCount>>);
 static_assert(schema::ExtensionChainField<barrier_field::pNext>);
 
@@ -149,9 +151,9 @@ static_assert(schema::Addressable<decode::Decoded_VkBufferMemoryBarrier, barrier
 static_assert(schema::Addressable<decode::args::CmdPipelineBarrier, cmd_field::pBufferMemoryBarriers>);
 static_assert(schema::StoresElementField<VkBufferMemoryBarrier, barrier_field::buffer>);
 
-// A scalar that decode leaves in the wrapped native structure has no decoded-wrapper mapping.
-static_assert(schema::HasMember<VkBufferMemoryBarrier, barrier_field::srcAccessMask>);
-static_assert(!schema::HasMember<decode::Decoded_VkBufferMemoryBarrier, barrier_field::srcAccessMask>);
+// A scalar that decode leaves in the wrapped API structure has no decoded-wrapper mapping.
+static_assert(schema::FieldStoreFor<VkBufferMemoryBarrier, barrier_field::srcAccessMask>);
+static_assert(!schema::FieldStoreFor<decode::Decoded_VkBufferMemoryBarrier, barrier_field::srcAccessMask>);
 
 // A field the API declares as a plain integer but GFXReconstruct maps as a handle names one shared API element and
 // its runtime selector, because no type-level fact can express it.
@@ -161,15 +163,15 @@ static_assert(std::is_same_v<debug_field::objectHandle::selector_field, debug_fi
 static_assert(schema::HandleValueField<debug_field::objectHandle>);
 
 // A bitfield member keeps a mapping, but it is not addressable, so GetRef drops out of the overload set.
-static_assert(schema::HasMember<VkAccelerationStructureInstanceKHR,
-                                schema::vulkan::fields::VkAccelerationStructureInstanceKHR::mask>);
+static_assert(schema::FieldStoreFor<VkAccelerationStructureInstanceKHR,
+                                    schema::vulkan::fields::VkAccelerationStructureInstanceKHR::mask>);
 static_assert(schema::NonAddressable<VkAccelerationStructureInstanceKHR,
                                      schema::vulkan::fields::VkAccelerationStructureInstanceKHR::mask>);
 
 // The decoded type and the call id resolve through the bindings, keyed as the schema is.
-static_assert(std::is_same_v<binding::DecodedTypeOf<Barrier>, decode::Decoded_VkBufferMemoryBarrier>);
-static_assert(std::is_same_v<binding::DecodedTypeOf<Command>, decode::args::CmdPipelineBarrier>);
-static_assert(binding::CallIdOf<Command> == format::ApiCallId::ApiCall_vkCmdPipelineBarrier);
+static_assert(std::is_same_v<binding::DecodedTypeOf_t<Barrier>, decode::Decoded_VkBufferMemoryBarrier>);
+static_assert(std::is_same_v<binding::DecodedTypeOf_t<Command>, decode::args::CmdPipelineBarrier>);
+static_assert(binding::CallId_v<Command> == format::ApiCallId::ApiCall_vkCmdPipelineBarrier);
 
 // One walk visits the whole field list, and one Action supplies the Apply overloads that its shapes select.
 struct CountingAction
@@ -206,7 +208,7 @@ void RecordPipelineBarrier(VkCommandBuffer,
                            const VkImageMemoryBarrier*)
 {}
 
-struct NativeCallStore
+struct ApiCallStore
 {
     VkCommandBuffer              commandBuffer;
     VkPipelineStageFlags         srcStageMask;
@@ -236,54 +238,54 @@ GFXRECON_BEGIN_NAMESPACE(schema)
 // A hand-written store joins the same Fields, which is why member traits key on storage type and Field rather than
 // on the Field alone.
 template <>
-struct MemberPointer<NativeCallStore, cmd_field::commandBuffer>
+struct MemberPointer<ApiCallStore, cmd_field::commandBuffer>
 {
-    static constexpr auto value = &NativeCallStore::commandBuffer;
+    static constexpr auto value = &ApiCallStore::commandBuffer;
 };
 template <>
-struct MemberPointer<NativeCallStore, cmd_field::srcStageMask>
+struct MemberPointer<ApiCallStore, cmd_field::srcStageMask>
 {
-    static constexpr auto value = &NativeCallStore::srcStageMask;
+    static constexpr auto value = &ApiCallStore::srcStageMask;
 };
 template <>
-struct MemberPointer<NativeCallStore, cmd_field::dstStageMask>
+struct MemberPointer<ApiCallStore, cmd_field::dstStageMask>
 {
-    static constexpr auto value = &NativeCallStore::dstStageMask;
+    static constexpr auto value = &ApiCallStore::dstStageMask;
 };
 template <>
-struct MemberPointer<NativeCallStore, cmd_field::dependencyFlags>
+struct MemberPointer<ApiCallStore, cmd_field::dependencyFlags>
 {
-    static constexpr auto value = &NativeCallStore::dependencyFlags;
+    static constexpr auto value = &ApiCallStore::dependencyFlags;
 };
 template <>
-struct MemberPointer<NativeCallStore, cmd_field::memoryBarrierCount>
+struct MemberPointer<ApiCallStore, cmd_field::memoryBarrierCount>
 {
-    static constexpr auto value = &NativeCallStore::memoryBarrierCount;
+    static constexpr auto value = &ApiCallStore::memoryBarrierCount;
 };
 template <>
-struct MemberPointer<NativeCallStore, cmd_field::pMemoryBarriers>
+struct MemberPointer<ApiCallStore, cmd_field::pMemoryBarriers>
 {
-    static constexpr auto value = &NativeCallStore::pMemoryBarriers;
+    static constexpr auto value = &ApiCallStore::pMemoryBarriers;
 };
 template <>
-struct MemberPointer<NativeCallStore, cmd_field::bufferMemoryBarrierCount>
+struct MemberPointer<ApiCallStore, cmd_field::bufferMemoryBarrierCount>
 {
-    static constexpr auto value = &NativeCallStore::bufferMemoryBarrierCount;
+    static constexpr auto value = &ApiCallStore::bufferMemoryBarrierCount;
 };
 template <>
-struct MemberPointer<NativeCallStore, cmd_field::pBufferMemoryBarriers>
+struct MemberPointer<ApiCallStore, cmd_field::pBufferMemoryBarriers>
 {
-    static constexpr auto value = &NativeCallStore::pBufferMemoryBarriers;
+    static constexpr auto value = &ApiCallStore::pBufferMemoryBarriers;
 };
 template <>
-struct MemberPointer<NativeCallStore, cmd_field::imageMemoryBarrierCount>
+struct MemberPointer<ApiCallStore, cmd_field::imageMemoryBarrierCount>
 {
-    static constexpr auto value = &NativeCallStore::imageMemoryBarrierCount;
+    static constexpr auto value = &ApiCallStore::imageMemoryBarrierCount;
 };
 template <>
-struct MemberPointer<NativeCallStore, cmd_field::pImageMemoryBarriers>
+struct MemberPointer<ApiCallStore, cmd_field::pImageMemoryBarriers>
 {
-    static constexpr auto value = &NativeCallStore::pImageMemoryBarriers;
+    static constexpr auto value = &ApiCallStore::pImageMemoryBarriers;
 };
 
 template <>
@@ -1489,19 +1491,19 @@ TEST_CASE("Schema EncodeStruct matches counted fixed-extent array wire bytes", "
 
     namespace memory_field = schema::vulkan::fields::VkPhysicalDeviceMemoryProperties;
     namespace group_field  = schema::vulkan::fields::VkPhysicalDeviceGroupProperties;
-    static_assert(schema::StaticArrayField<group_field::physicalDevices>);
-    static_assert(schema::HandleElement<group_field::physicalDevices>);
-    static_assert(schema::HasFieldLength<VkPhysicalDeviceGroupProperties, group_field::physicalDevices>);
-    static_assert(std::is_same_v<schema::FieldLength<group_field::physicalDevices>,
+    static_assert(schema::FixedArrayField<group_field::physicalDevices>);
+    static_assert(schema::HandleApiElement<group_field::physicalDevices::api_element>);
+    static_assert(schema::FieldWithLength<VkPhysicalDeviceGroupProperties, group_field::physicalDevices>);
+    static_assert(std::is_same_v<schema::LengthOf_t<group_field::physicalDevices>,
                                  schema::FieldValue<group_field::physicalDeviceCount>>);
-    static_assert(encode::HasCaptureWrapper<schema::vulkan::api_elements::VkPhysicalDevice>);
-    static_assert(schema::StaticArrayField<memory_field::memoryTypes>);
-    static_assert(schema::StaticArrayField<memory_field::memoryHeaps>);
-    static_assert(schema::HasFieldLength<VkPhysicalDeviceMemoryProperties, memory_field::memoryTypes>);
-    static_assert(schema::HasFieldLength<VkPhysicalDeviceMemoryProperties, memory_field::memoryHeaps>);
-    static_assert(std::is_same_v<schema::FieldLength<memory_field::memoryTypes>,
+    static_assert(encode::ApiElementWithCaptureWrapper<schema::vulkan::api_elements::VkPhysicalDevice>);
+    static_assert(schema::FixedArrayField<memory_field::memoryTypes>);
+    static_assert(schema::FixedArrayField<memory_field::memoryHeaps>);
+    static_assert(schema::FieldWithLength<VkPhysicalDeviceMemoryProperties, memory_field::memoryTypes>);
+    static_assert(schema::FieldWithLength<VkPhysicalDeviceMemoryProperties, memory_field::memoryHeaps>);
+    static_assert(std::is_same_v<schema::LengthOf_t<memory_field::memoryTypes>,
                                  schema::FieldValue<memory_field::memoryTypeCount>>);
-    static_assert(std::is_same_v<schema::FieldLength<memory_field::memoryHeaps>,
+    static_assert(std::is_same_v<schema::LengthOf_t<memory_field::memoryHeaps>,
                                  schema::FieldValue<memory_field::memoryHeapCount>>);
 
     auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
@@ -1674,17 +1676,17 @@ TEST_CASE("Schema EncodeStruct matches pointer-array wire bytes", "[schema][enco
     namespace micromap_field = schema::vulkan::fields::VkAccelerationStructureGeometryMicromapDataKHR;
 
     static_assert(schema::PointerArrayField<instance_field::ppEnabledLayerNames>);
-    static_assert(schema::TextElement<instance_field::ppEnabledLayerNames>);
-    static_assert(
-        std::is_pointer_v<std::remove_pointer_t<schema::ApiTypeOf<instance_field::ppEnabledLayerNames::declaration>>>);
-    static_assert(std::is_same_v<schema::FieldLength<instance_field::ppEnabledExtensionNames>,
+    static_assert(schema::TextApiElement<instance_field::ppEnabledLayerNames::api_element>);
+    static_assert(std::is_pointer_v<
+                  std::remove_pointer_t<schema::ApiTypeOf_t<instance_field::ppEnabledLayerNames::declaration>>>);
+    static_assert(std::is_same_v<schema::LengthOf_t<instance_field::ppEnabledExtensionNames>,
                                  schema::FieldValue<instance_field::enabledExtensionCount>>);
 
     static_assert(schema::PointerArrayField<micromap_field::ppUsageCounts>);
-    static_assert(schema::StructElement<micromap_field::ppUsageCounts>);
+    static_assert(schema::StructApiElement<micromap_field::ppUsageCounts::api_element>);
     static_assert(
-        std::is_pointer_v<std::remove_pointer_t<schema::ApiTypeOf<micromap_field::ppUsageCounts::declaration>>>);
-    static_assert(std::is_same_v<schema::FieldLength<micromap_field::ppUsageCounts>,
+        std::is_pointer_v<std::remove_pointer_t<schema::ApiTypeOf_t<micromap_field::ppUsageCounts::declaration>>>);
+    static_assert(std::is_same_v<schema::LengthOf_t<micromap_field::ppUsageCounts>,
                                  schema::FieldValue<micromap_field::usageCountsCount>>);
     static_assert(schema::ArrayField<micromap_field::pUsageCounts>);
 
@@ -1851,7 +1853,7 @@ TEST_CASE("Schema EncodeStruct matches computed-count wire bytes", "[schema][enc
     // a size_t sibling over a constant (VkShaderModuleCreateInfo, codeSize / 4), an enum sibling plus a constant over
     // a constant (VkPipelineMultisampleStateCreateInfo, (rasterizationSamples + 31) / 32), and two constants with no
     // sibling at all (VkMicromapVersionInfoEXT, 2*VK_UUID_SIZE). The API element carries the expression as a
-    // StoreValue type, the Action's counted-run Apply evaluates it through FieldLength::Get, and the procedural body
+    // StoreValue type, the Action's counted-run Apply evaluates it through LengthOf_t::Get, and the procedural body
     // each replaced is the oracle. Two retained partners: VkPipelineRasterizationStateCreateInfo has the same scalar,
     // enum and float fields as the multisample state with no run, and VkAccelerationStructureVersionInfoKHR is the
     // micromap version's byte-identical twin on its procedural body.
@@ -1861,14 +1863,14 @@ TEST_CASE("Schema EncodeStruct matches computed-count wire bytes", "[schema][enc
 
     // The API elements state the registry's arithmetic in prefix form, literals unsigned beside an unsigned
     // sibling or constant and int beside an enum.
-    static_assert(std::is_same_v<schema::FieldLength<shader_field::pCode>,
+    static_assert(std::is_same_v<schema::LengthOf_t<shader_field::pCode>,
                                  schema::Quotient<schema::FieldValue<shader_field::codeSize>, schema::Literal<4u>>>);
     static_assert(
-        std::is_same_v<schema::FieldLength<multisample_field::pSampleMask>,
+        std::is_same_v<schema::LengthOf_t<multisample_field::pSampleMask>,
                        schema::Quotient<schema::Sum<schema::FieldValue<multisample_field::rasterizationSamples>,
                                                     schema::Literal<31>>,
                                         schema::Literal<32>>>);
-    static_assert(std::is_same_v<schema::FieldLength<micromap_field::pVersionData>,
+    static_assert(std::is_same_v<schema::LengthOf_t<micromap_field::pVersionData>,
                                  schema::Product<schema::Literal<2u>, schema::Literal<VK_UUID_SIZE>>>);
 
     // Every operand is a StoreValue, nothing else is, and a count yields an integer or an enum but never a bool.
@@ -1877,22 +1879,22 @@ TEST_CASE("Schema EncodeStruct matches computed-count wire bytes", "[schema][enc
     static_assert(schema::StoreValue<schema::Sum<schema::Literal<1u>, schema::Literal<2u>>>);
     static_assert(!schema::StoreValue<int>);
     static_assert(!schema::StoreValue<shader_field::codeSize>);
-    static_assert(schema::LengthValue<size_t>);
-    static_assert(schema::LengthValue<VkSampleCountFlagBits>);
-    static_assert(!schema::LengthValue<bool>);
-    static_assert(!schema::LengthValue<float>);
+    static_assert(schema::IntegralLength<size_t>);
+    static_assert(schema::IntegralLength<VkSampleCountFlagBits>);
+    static_assert(!schema::IntegralLength<bool>);
+    static_assert(!schema::IntegralLength<float>);
 
     // A constant-only count evaluates on any store, and the arithmetic runs in the operands' own types.
-    static_assert(schema::HasFieldLength<VkMicromapVersionInfoEXT, micromap_field::pVersionData>);
-    static_assert(schema::HasFieldLength<VkShaderModuleCreateInfo, shader_field::pCode>);
-    static_assert(schema::HasFieldLength<VkPipelineMultisampleStateCreateInfo, multisample_field::pSampleMask>);
-    static_assert(std::is_same_v<decltype(schema::FieldLength<shader_field::pCode>::Get(
+    static_assert(schema::FieldWithLength<VkMicromapVersionInfoEXT, micromap_field::pVersionData>);
+    static_assert(schema::FieldWithLength<VkShaderModuleCreateInfo, shader_field::pCode>);
+    static_assert(schema::FieldWithLength<VkPipelineMultisampleStateCreateInfo, multisample_field::pSampleMask>);
+    static_assert(std::is_same_v<decltype(schema::LengthOf_t<shader_field::pCode>::Get(
                                      std::declval<const VkShaderModuleCreateInfo&>())),
                                  size_t>);
-    static_assert(std::is_same_v<decltype(schema::FieldLength<multisample_field::pSampleMask>::Get(
+    static_assert(std::is_same_v<decltype(schema::LengthOf_t<multisample_field::pSampleMask>::Get(
                                      std::declval<const VkPipelineMultisampleStateCreateInfo&>())),
                                  int>);
-    static_assert(schema::FieldLength<micromap_field::pVersionData>::Get(VkMicromapVersionInfoEXT{}) == 32u);
+    static_assert(schema::LengthOf_t<micromap_field::pVersionData>::Get(VkMicromapVersionInfoEXT{}) == 32u);
 
     auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
         return actual.GetDataSize() == oracle.GetDataSize() &&
@@ -1920,7 +1922,7 @@ TEST_CASE("Schema EncodeStruct matches computed-count wire bytes", "[schema][enc
             VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO, nullptr, 0u, code_size, code_size ? words : nullptr
         };
 
-        CHECK(schema::FieldLength<shader_field::pCode>::Get(shader) == code_size / 4);
+        CHECK(schema::LengthOf_t<shader_field::pCode>::Get(shader) == code_size / 4);
         CHECK(matches(shader, [&](encode::ParameterEncoder& oracle) {
             oracle.EncodeEnumValue(shader.sType);
             encode::EncodePNextStruct(&oracle, shader.pNext);
@@ -1945,7 +1947,7 @@ TEST_CASE("Schema EncodeStruct matches computed-count wire bytes", "[schema][enc
                                                           VK_FALSE,
                                                           VK_TRUE };
 
-        CHECK(schema::FieldLength<multisample_field::pSampleMask>::Get(multisample) == (samples + 31) / 32);
+        CHECK(schema::LengthOf_t<multisample_field::pSampleMask>::Get(multisample) == (samples + 31) / 32);
         CHECK(matches(multisample, [&](encode::ParameterEncoder& oracle) {
             oracle.EncodeEnumValue(multisample.sType);
             encode::EncodePNextStruct(&oracle, multisample.pNext);
@@ -2051,24 +2053,24 @@ TEST_CASE("A length reads a length through a pointer sibling", "[schema]")
     namespace build_field      = schema::vulkan::fields::VkAccelerationStructureBuildGeometryInfoKHR;
 
     static_assert(schema::PointerField<alloc_field::pAllocateInfo>);
-    static_assert(std::is_same_v<schema::FieldLength<alloc_field::pCommandBuffers>,
+    static_assert(std::is_same_v<schema::LengthOf_t<alloc_field::pCommandBuffers>,
                                  schema::FieldValue<alloc_field::pAllocateInfo, alloc_info_field::commandBufferCount>>);
-    static_assert(std::is_same_v<schema::FieldLength<set_field::pDescriptorSets>,
+    static_assert(std::is_same_v<schema::LengthOf_t<set_field::pDescriptorSets>,
                                  schema::FieldValue<set_field::pAllocateInfo, set_info_field::descriptorSetCount>>);
-    static_assert(std::is_same_v<schema::FieldLength<sizes_field::pMaxPrimitiveCounts>,
+    static_assert(std::is_same_v<schema::LengthOf_t<sizes_field::pMaxPrimitiveCounts>,
                                  schema::FieldValue<sizes_field::pBuildInfo, build_field::geometryCount>>);
 
     // The two-argument form is a count the Action can evaluate on a store that holds the pointer sibling, and the
     // store the member is read from is the pointee.
-    static_assert(schema::HasFieldLength<AllocateCallStore, alloc_field::pCommandBuffers>);
-    static_assert(std::is_same_v<schema::FieldLength<alloc_field::pCommandBuffers>::FieldStore<AllocateCallStore>,
+    static_assert(schema::FieldWithLength<AllocateCallStore, alloc_field::pCommandBuffers>);
+    static_assert(std::is_same_v<schema::LengthOf_t<alloc_field::pCommandBuffers>::FieldStore<AllocateCallStore>,
                                  VkCommandBufferAllocateInfo>);
 
     VkCommandBufferAllocateInfo info{};
     info.commandBufferCount = 3u;
     AllocateCallStore store{ VK_NULL_HANDLE, &info, nullptr };
 
-    CHECK(schema::FieldLength<alloc_field::pCommandBuffers>::Get(store) == 3u);
+    CHECK(schema::LengthOf_t<alloc_field::pCommandBuffers>::Get(store) == 3u);
     CHECK(schema::FieldValue<alloc_field::pAllocateInfo>::Get(store) == &info);
 
     // The Action's counted-run Apply evaluates the same count. No command goes through the encode Action yet, but
@@ -2111,7 +2113,7 @@ TEST_CASE("A length reads a length through a pointer sibling", "[schema]")
 
 TEST_CASE("A generated command schema invokes a positional call in parameter order", "[schema]")
 {
-    NativeCallStore store{};
+    ApiCallStore store{};
 
     // The requires clause on InvokeFromFields is the assertion: it is satisfied only when every parameter Field
     // reaches the store and the resulting positional call matches the command's signature.
@@ -2182,7 +2184,7 @@ TEST_CASE("The generated DecodeStruct for VkBufferMemoryBarrier is a schema fiel
     CHECK(walked_value.offset == kOffset);
     CHECK(walked_value.size == kSize);
 
-    // The handle lands in the wrapper as a capture-file identity, and the native handle is left for replay to map.
+    // The handle lands in the wrapper as a capture-file identity, and the API handle is left for replay to map.
     CHECK(walked.buffer == kBufferId);
     CHECK(walked_value.buffer == VK_NULL_HANDLE);
 
@@ -2194,13 +2196,14 @@ TEST_CASE("The generated DecodeStruct for VkBufferMemoryBarrier is a schema fiel
     util::Log::Release();
 }
 
-TEST_CASE("A field walk decodes a scalar array into the wrapper and points the native member at it", "[schema]")
+TEST_CASE("A field walk decodes a scalar array into the wrapper and points the API structure's member at it",
+          "[schema]")
 {
     using namespace gfxrecon::decode;
 
     // VkShaderModuleCreateInfo is the smallest structure carrying an Array of scalars. Its pCode is
     // the case the scalar-array overload exists for: the run decodes into the wrapper's PointerDecoder and the
-    // native pointer follows it, the same shape the extension chain already had.
+    // API structure's pointer follows it, the same shape the extension chain already had.
     //
     // codeSize is the sibling count field, and the walk never reads it. It is decoded as its own scalar in its own
     // position, and the array's length travels with the array on the wire, so the two are independent on purpose --
@@ -2243,7 +2246,7 @@ TEST_CASE("A field walk decodes a scalar array into the wrapper and points the n
     REQUIRE(walked.pCode.GetPointer() != nullptr);
     CHECK(walked.pCode.GetLength() == kCode.size());
 
-    // ...the native member points at that same storage rather than a copy...
+    // ...the API structure's member points at that same storage rather than a copy...
     CHECK(walked_value.pCode == walked.pCode.GetPointer());
 
     // ...and every element round-tripped in order.
@@ -2338,7 +2341,7 @@ TEST_CASE("A field walk decodes a fixed-extent array in place, extents from the 
     // the recorded and declared extents agree.
     //
     // This is also the only shape so far that writes nothing to the decoded value at the end. The decoder is
-    // pointed at the decoded value's own storage, so decoding fills the native array directly.
+    // pointed at the decoded value's own storage, so decoding fills the API structure's array directly.
     util::Log::Init(util::LoggingSeverity::kError);
 
     auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
@@ -2958,8 +2961,8 @@ TEST_CASE("A field walk descends into an embedded structure", "[schema]")
 
     // VkImageMemoryBarrier adds one field the previous structure did not have: an embedded VkImageSubresourceRange.
     // That field needs the fourth Apply overload, which allocates the nested decoded wrapper, links it to the inline
-    // native member, and descends through DecodeStruct. VkImageSubresourceRange is itself schema-owned here, so the
-    // descent lands in a second field walk -- but the outer Action neither knows nor cares about that.
+    // API structure's member, and descends through DecodeStruct. VkImageSubresourceRange is itself schema-owned here,
+    // so the descent lands in a second field walk -- but the outer Action neither knows nor cares about that.
     util::Log::Init(util::LoggingSeverity::kError);
 
     auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
@@ -3016,8 +3019,8 @@ TEST_CASE("A field walk descends into an embedded structure", "[schema]")
     CHECK(wrapper.image == kImageId);
     CHECK(value.image == VK_NULL_HANDLE);
 
-    // The embedded overload allocated a nested wrapper and pointed it at the inline native member. That link is what
-    // lets handle mapping and any later pass reach the nested decoded state.
+    // The embedded overload allocated a nested wrapper and pointed it at the inline API structure's member. That link
+    // is what lets handle mapping and any later pass reach the nested decoded state.
     REQUIRE(wrapper.subresourceRange != nullptr);
     CHECK(wrapper.subresourceRange->decoded_value == &value.subresourceRange);
 
@@ -3057,7 +3060,7 @@ TEST_CASE("The schema filler populates every described field", "[schema][fill]")
 TEST_CASE("Enumerants names every enumerant and both name functions read it", "[schema][enumerants]")
 {
     auto check_every_entry = []<typename Enum>() {
-        for (const auto& entry : binding::EnumerantTableOf<Enum>::entries)
+        for (const auto& entry : binding::EnumerantTableOf_t<Enum>::entries)
         {
             CHECK(binding::NameOf(entry.value) == entry.name);
             CHECK(util::ToString(entry.value) == std::string(entry.name));

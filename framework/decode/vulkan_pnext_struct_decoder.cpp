@@ -69,8 +69,8 @@ size_t DecodePNextStruct(const uint8_t* buffer, size_t buffer_size, PNextNode** 
             // The sType isn't part of the attributes, so we exclude it from the fail condition byte count.
             ValueDecoder::DecodeEnumValue((buffer + peek_bytes), (buffer_size - peek_bytes), &structure_type);
 
-            auto on_find = [&bytes_read, &pNext, buffer, buffer_size]<binding::HasDecodedType Descriptor>() {
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<binding::DecodedTypeOf<Descriptor>>>();
+            auto on_find = [&bytes_read, &pNext, buffer, buffer_size]<binding::ApiElementWithDecodedType Descriptor>() {
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<binding::DecodedTypeOf_t<Descriptor>>>();
                 // The Decode() starts from the beginning of the buffer, so we can ignore the peeked bytes.
                 bytes_read = (*pNext)->Decode(buffer, buffer_size);
             };

@@ -20,7 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// Fill a native structure with synthetic values through its schema. Test-only. Written for the encode oracle
+// Fill an API structure with synthetic values through its schema. Test-only. Written for the encode oracle
 // comparison that proved the encode inversion; kept for the round trip and any other test that needs every
 // described field populated.
 
@@ -28,7 +28,7 @@
 #define GFXRECON_TEST_SCHEMA_FILL_H
 
 #include "generated/generated_vulkan_schema.h"
-#include "generated/generated_vulkan_schema_native_struct_members.h"
+#include "generated/generated_vulkan_schema_api_struct_members.h"
 #include "schema/field.h"
 #include "schema/schema.h"
 #include "util/defines.h"
@@ -75,6 +75,10 @@ class FillContext
 template <typename ApiElement, typename Storage>
 void Fill(FillContext& context, Storage& storage);
 
+// What a test pattern fills by value: an arithmetic type or an enum.
+template <typename T>
+inline constexpr bool IsPatternable_v = std::is_arithmetic_v<T> || std::is_enum_v<T>;
+
 // One Apply per shape; the category decides the value inside. Handles stay null, so no capture wrapper is needed and a
 // handle encodes as the null id. Extension chains stay null. Unions and structures without a schema stay
 // value-initialized.
@@ -84,40 +88,41 @@ class FillAction
     explicit FillAction(FillContext& context) : context_(context) {}
 
     template <typename Field, typename Storage>
-    requires schema::ValueField<Field> && schema::HasMember<Storage, Field>
+    requires schema::ValueField<Field> && schema::FieldStoreFor<Storage, Field>
     void Apply(Field field, Storage& storage)
     {
-        using Element = schema::FieldElementType<Field>;
+        using Element = schema::ApiTypeOf_t<typename Field::api_element>;
 
-        if constexpr (schema::StructElement<Field>)
+        if constexpr (schema::StructApiElement<typename Field::api_element>)
         {
             if constexpr (schema::HasSchemaFields<typename Field::api_element> && schema::Addressable<Storage, Field>)
             {
                 Fill<typename Field::api_element>(context_, schema::GetRef(storage, field));
             }
         }
-        else if constexpr (schema::TextElement<Field>)
+        else if constexpr (schema::TextApiElement<typename Field::api_element>)
         {
             // A text typedef held by value, LPCWSTR: the element is the pointer type the header spells.
             schema::Set(storage, field, context_.MakeText<std::remove_cv_t<std::remove_pointer_t<Element>>>());
         }
-        else if constexpr (!schema::HandleElement<Field> && IsPatternable<Element>)
+        else if constexpr (!schema::HandleApiElement<typename Field::api_element> && IsPatternable_v<Element>)
         {
             schema::Set(storage, field, static_cast<Element>(kPattern));
         }
     }
 
     template <typename Field, typename Storage>
-    requires schema::PointerField<Field> && schema::HasMember<Storage, Field>
+    requires schema::PointerField<Field> && schema::FieldStoreFor<Storage, Field>
     void Apply(Field field, Storage& storage)
     {
-        using Element = schema::FieldElementType<Field>;
+        using Element = schema::ApiTypeOf_t<typename Field::api_element>;
 
-        if constexpr (schema::TextElement<Field>)
+        if constexpr (schema::TextApiElement<typename Field::api_element>)
         {
             schema::Set(storage, field, context_.MakeText<Element>());
         }
-        else if constexpr (schema::OpaqueElement<Field> || schema::VoidElement<Field>)
+        else if constexpr (schema::OpaqueApiElement<typename Field::api_element> ||
+                           schema::VoidApiElement<typename Field::api_element>)
         {
             // A pointer to an opaque object or to void: nothing to allocate, the address is the value and stays null.
         }
@@ -130,19 +135,19 @@ class FillAction
     }
 
     template <typename Field, typename Storage>
-    requires schema::AnyCountedField<Field> && schema::HasMember<Storage, Field> &&
-        schema::HasFieldLength<Storage, Field>
+    requires schema::AnyCountedField<Field> && schema::FieldStoreFor<Storage, Field> &&
+        schema::FieldWithLength<Storage, Field>
     void Apply(Field field, Storage& storage)
     {
-        using Element      = schema::FieldElementType<Field>;
-        const size_t count = static_cast<size_t>(schema::FieldLength<Field>::Get(storage));
+        using Element      = schema::ApiTypeOf_t<typename Field::api_element>;
+        const size_t count = static_cast<size_t>(schema::LengthOf_t<Field>::Get(storage));
 
         if constexpr (schema::PointerArrayField<Field>)
         {
             const Element** rows = context_.Make<const Element*>(count);
             for (size_t i = 0; i < count; ++i)
             {
-                if constexpr (schema::TextElement<Field>)
+                if constexpr (schema::TextApiElement<typename Field::api_element>)
                 {
                     rows[i] = context_.MakeText<Element>();
                 }
@@ -155,7 +160,7 @@ class FillAction
             }
             schema::Set(storage, field, rows);
         }
-        else if constexpr (schema::VoidElement<Field>)
+        else if constexpr (schema::VoidApiElement<typename Field::api_element>)
         {
             // A counted run of bytes the API declares as void.
             uint8_t* bytes = context_.Make<uint8_t>(count);
@@ -177,13 +182,13 @@ class FillAction
     }
 
     template <typename Field, typename Storage>
-    requires schema::StaticArrayField<Field> && schema::Addressable<Storage, Field>
+    requires schema::FixedArrayField<Field> && schema::Addressable<Storage, Field>
     void Apply(Field field, Storage& storage)
     {
         auto& array     = schema::GetRef(storage, field);
         using ArrayType = std::remove_cvref_t<decltype(array)>;
 
-        if constexpr (schema::TextElement<Field>)
+        if constexpr (schema::TextApiElement<typename Field::api_element>)
         {
             constexpr size_t extent = std::extent_v<ArrayType, 0>;
             using Char              = std::remove_extent_t<ArrayType>;
@@ -216,24 +221,21 @@ class FillAction
     }
 
     template <typename Field, typename Storage>
-    requires schema::ExtensionChainField<Field> && schema::HasMember<Storage, Field>
+    requires schema::ExtensionChainField<Field> && schema::FieldStoreFor<Storage, Field>
     void Apply(Field, Storage&) {}
 
   private:
-    template <typename T>
-    static constexpr bool IsPatternable = std::is_arithmetic_v<T> || std::is_enum_v<T>;
-
     template <typename Field, typename Element>
     void FillElement(Element& element)
     {
-        if constexpr (schema::StructElement<Field>)
+        if constexpr (schema::StructApiElement<typename Field::api_element>)
         {
             if constexpr (schema::HasSchemaFields<typename Field::api_element>)
             {
                 Fill<typename Field::api_element>(context_, element);
             }
         }
-        else if constexpr (!schema::HandleElement<Field> && IsPatternable<Element>)
+        else if constexpr (!schema::HandleApiElement<typename Field::api_element> && IsPatternable_v<Element>)
         {
             element = static_cast<Element>(kPattern);
         }

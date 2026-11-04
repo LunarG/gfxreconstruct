@@ -20,7 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// The structure type of a native structure, read through its API element binding, and the cast a sieve makes once it
+// The structure type of an API structure, read through its API element binding, and the cast a sieve makes once it
 // has matched one.
 
 #ifndef GFXRECON_BINDING_STRUCTURE_TYPE_H
@@ -37,16 +37,16 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(binding)
 
-// The structure type the native structure's API element carries.
-template <HasSchemaStructureType Native>
+// The structure type the API structure's API element carries.
+template <TypedStructApiType ApiType>
 constexpr auto StructureTypeOf()
 {
-    return ApiElementOf<Native>::type::structure_type;
+    return ApiElementOf<ApiType>::type::structure_type;
 }
 
-// A pointer to a chained structure, as the native type its structure type names, constness carried over from the
+// A pointer to a chained structure, as the API type its structure type names, constness carried over from the
 // pointer. Checked in debug through the first member, which every chainable structure's type is.
-template <HasSchemaStructureType Specific, typename Generic>
+template <TypedStructApiType Specific, typename Generic>
 requires std::is_pointer_v<Generic> && std::negation_v<std::is_pointer<Specific>>
 auto StructureTypeCast(Generic generic)
 {
@@ -59,7 +59,7 @@ auto StructureTypeCast(Generic generic)
 }
 
 // The same, keyed on the API element.
-template <schema::HasStructureType Element, typename Generic>
+template <schema::TypedStructApiElement Element, typename Generic>
 requires std::is_pointer_v<Generic>
 auto StructureTypeCast(Generic generic)
 {

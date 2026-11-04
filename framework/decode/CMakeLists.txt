@@ -352,7 +352,7 @@ target_sources(gfxrecon_decode
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_decoded_command_members.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_decoded_struct_members.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_fields.h
-                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_native_struct_members.h
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_api_struct_members.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_inventory.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_types.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_enumerants.h

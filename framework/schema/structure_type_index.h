@@ -48,13 +48,13 @@ template <typename... Elements>
 constexpr auto StructureTypesOf(util::TypeList<Elements...>)
 {
     using List                       = util::TypeList<Elements...>;
-    constexpr auto kHasStructureType = []<typename Element>() { return HasStructureType<Element>; };
+    constexpr auto kHasStructureType = []<typename Element>() { return TypedStructApiElement<Element>; };
     if constexpr (util::TypeListCountIf(List{}, kHasStructureType) != sizeof...(Elements))
     {
         static_assert(std::same_as<decltype(util::TypeListDrop(List{}, kHasStructureType)), util::TypeList<>>,
                       "StructureTypeIndex: descriptors without a structure_type");
     }
-    using Key                  = std::remove_cv_t<decltype(util::TypeListAt<0, List>::structure_type)>;
+    using Key                  = std::remove_cv_t<decltype(util::TypeListAt_t<0, List>::structure_type)>;
     constexpr auto kHasKeyType = []<typename Element>() {
         return std::is_same_v<Key, std::remove_cv_t<decltype(Element::structure_type)>>;
     };
@@ -65,9 +65,9 @@ constexpr auto StructureTypesOf(util::TypeList<Elements...>)
 
 GFXRECON_END_NAMESPACE(detail)
 
-// Find(structure_type) is a position in List, or End(). Visit takes the position; the miss is the caller's. A range
-// over the list, with begin()/end() and a position that advances, is a natural addition; no customer yet.
-template <util::TypeListType List>
+// Find(structure_type) is a position in List, or End(). Visit takes a position that is not End().
+template <typename List>
+requires util::IsTypeList_v<List>
 class StructureTypeIndex
 {
   public:
@@ -75,7 +75,7 @@ class StructureTypeIndex
     using position = util::IndexPosition<StructureTypeIndex>;
     using key_type = typename decltype(detail::StructureTypesOf(List{}))::value_type;
 
-    static constexpr size_t kSize = util::TypeListSizeV<List>;
+    static constexpr size_t kSize = util::TypeListSize_v<List>;
 
     static constexpr position Find(key_type key) { return position{ kKeys.Find(key) }; }
     static constexpr position End() { return position{ kSize }; }
@@ -95,7 +95,7 @@ decltype(auto) StructureTypeVisit(const Key& key, OnFind&& on_find, OnMiss&& on_
 
     if (const auto position = Index::Find(key); position != Index::End())
     {
-        auto visitor = [&on_find]<HasStructureType Element>(Args&&... arg_pack) {
+        auto visitor = [&on_find]<TypedStructApiElement Element>(Args&&... arg_pack) {
             return on_find.template operator()<Element>(std::forward<Args>(arg_pack)...);
         };
         return util::Visit(position, visitor, std::forward<Args>(args)...);

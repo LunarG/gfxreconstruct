@@ -20,8 +20,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// A sorted key table that maps a key to the position it had in the array the table was built from. The miss is the
-// caller's: Find reports it, nothing here decides what it means.
+// A sorted key table that maps a key to the position it had in the array the table was built from. Find returns
+// kMiss for a key not in the table.
 #ifndef GFXRECON_UTIL_KEY_INDEX_H
 #define GFXRECON_UTIL_KEY_INDEX_H
 

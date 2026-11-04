@@ -130,26 +130,26 @@ GFXRECON_END_NAMESPACE(catalog)
 
 // Membership, as a predicate on an API element: one base-class lookup each.
 template <typename Element>
-inline constexpr bool MayReachHandles = util::TypeListContainsV<catalog::may_reach_handles_structures, Element>;
+inline constexpr bool MayReachHandles_v = util::TypeListContains_v<catalog::may_reach_handles_structures, Element>;
 
 template <typename Element>
-inline constexpr bool IsExternal = util::TypeListContainsV<catalog::external_structures, Element>;
+inline constexpr bool IsExternal_v = util::TypeListContains_v<catalog::external_structures, Element>;
 
 template <typename Element>
-inline constexpr bool IsCustomEncode = util::TypeListContainsV<catalog::custom_encode_structures, Element>;
+inline constexpr bool IsCustomEncode_v = util::TypeListContains_v<catalog::custom_encode_structures, Element>;
 
 template <typename Element>
-inline constexpr bool IsCustomDecode = util::TypeListContainsV<catalog::custom_decode_structures, Element>;
+inline constexpr bool IsCustomDecode_v = util::TypeListContains_v<catalog::custom_decode_structures, Element>;
 
 template <typename Element>
-inline constexpr bool IsCustomHandleMapping =
-    util::TypeListContainsV<catalog::custom_handle_mapping_structures, Element>;
+inline constexpr bool IsCustomHandleMapping_v =
+    util::TypeListContains_v<catalog::custom_handle_mapping_structures, Element>;
 
 template <typename Element>
-inline constexpr bool HasGenericHandle = util::TypeListContainsV<catalog::generic_handle_structures, Element>;
+inline constexpr bool HasGenericHandle_v = util::TypeListContains_v<catalog::generic_handle_structures, Element>;
 
 template <typename Element>
-inline constexpr bool IsDeepCopyExcluded = util::TypeListContainsV<catalog::deep_copy_exclusions, Element>;
+inline constexpr bool IsDeepCopyExcluded_v = util::TypeListContains_v<catalog::deep_copy_exclusions, Element>;
 
 GFXRECON_END_NAMESPACE(vulkan)
 GFXRECON_END_NAMESPACE(binding)
