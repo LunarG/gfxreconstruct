@@ -48,7 +48,7 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 template <typename Struct>
 void EncodeStruct(ParameterEncoder* encoder, const Struct& value)
 {
-    static_assert(binding::HasApiElement<Struct>, "A schema-driven structure must name its API element");
+    static_assert(binding::ApiTypeWithApiElement<Struct>, "A schema-driven structure must name its API element");
     using ApiElement = typename binding::ApiElementOf<Struct>::type;
     static_assert(schema::HasSchemaFields<ApiElement>, "A schema-driven structure's API element must have a schema");
 

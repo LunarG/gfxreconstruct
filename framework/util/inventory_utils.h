@@ -30,18 +30,18 @@
 
 #include "util/type_list.h"
 
-// One row: Native is the API's structure, Element its API element.
-#define GFXRECON_INVENTORY_API_ELEMENT_FOR(Native, Element) \
-    template <>                                               \
-    struct ApiElementOf<Native>                              \
-    {                                                         \
-        using type = Element;                              \
+// One row: ApiType is the API's structure, Element its API element.
+#define GFXRECON_INVENTORY_API_ELEMENT_FOR(ApiType, Element) \
+    template <>                                              \
+    struct ApiElementOf<ApiType>                             \
+    {                                                        \
+        using type = Element;                                \
     }
 
 // One row: ApiElement is the structure or command API element, Decoded the type decode represents it with.
 #define GFXRECON_INVENTORY_DECODED_TYPE(ApiElement, Decoded) \
     template <>                                              \
-    struct DecodedType<ApiElement>                           \
+    struct DecodedTypeOf<ApiElement>                         \
     {                                                        \
         using type = Decoded;                                \
     }
@@ -59,7 +59,7 @@
 // The three are one expression split across an #include, and the formatter reads the brackets as comparison
 // operators.
 // clang-format off
-#define GFXRECON_INVENTORY_TYPE_LIST_BEGIN(Name) using Name = ::gfxrecon::util::TypeListPopFront<::gfxrecon::util::TypeList<void
+#define GFXRECON_INVENTORY_TYPE_LIST_BEGIN(Name) using Name = ::gfxrecon::util::TypeListPopFront_t<::gfxrecon::util::TypeList<void
 #define GFXRECON_INVENTORY_TYPE_LIST_ENTRY(Type) , Type
 #define GFXRECON_INVENTORY_TYPE_LIST_END >>;
 // clang-format on

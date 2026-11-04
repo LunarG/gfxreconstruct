@@ -52,7 +52,7 @@ namespace
 // Encodes the node as the structure its API element names, the way the generated case for that structure did.
 struct EncodeNode
 {
-    template <schema::HasStructureType Element>
+    template <schema::TypedStructApiElement Element>
     void operator()(ParameterEncoder* encoder, const VkBaseInStructure* base) const
     {
         EncodeStructPtr(encoder, binding::StructureTypeCast<Element>(base));

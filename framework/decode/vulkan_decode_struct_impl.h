@@ -35,7 +35,7 @@
 // Everything generated that the body touches is a dependent name -- the API elements, the Schema specializations,
 // each wrapper's api_element and both member-trait partitions are needed to instantiate, not to parse. So
 // this header could be light. It is not, because two headers it includes deliberately carry their generated
-// content: binding/vulkan_decoded_type.h is the rows, so HasDecodedType cannot silently answer no, and
+// content: binding/vulkan_decoded_type.h is the rows, so ApiElementWithDecodedType cannot silently answer no, and
 // vulkan_decode_action.h pulls the member partitions so its overloads cannot re-resolve on a partial set. Both
 // guards exist for other includers, not for this one.
 //
@@ -66,7 +66,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 template <typename Wrapper>
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Wrapper* wrapper)
 {
-    static_assert(binding::NamesApiElement<Wrapper>, "A schema-driven wrapper must name an API element");
+    static_assert(binding::WrapperWithApiElement<Wrapper>, "A schema-driven wrapper must name an API element");
     static_assert(schema::HasSchemaFields<typename Wrapper::api_element>,
                   "A schema-driven wrapper's API element must have a schema");
 

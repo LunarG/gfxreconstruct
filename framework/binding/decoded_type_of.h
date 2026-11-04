@@ -25,10 +25,10 @@
 // and not a schema fact. The other direction needs no binding: a decoded wrapper names its element as api_element.
 //
 // This header declares the binding and nothing more. An API's rows are a visitor invoked across its inventory in
-// binding/<api>_decoded_type.h, which is the header API code includes; with this one alone, HasDecodedType answers
-// no for every element. A translation unit that evaluates the concept on a concrete type without the rows resolves a
-// constrained call differently from one that has them, and nothing diagnoses that, since a specialization declared
-// after a use that implicitly instantiated the primary is ill-formed, no diagnostic required (C++20 standard,
+// binding/<api>_decoded_type.h, which is the header API code includes; with this one alone, ApiElementWithDecodedType
+// answers no for every element. A translation unit that evaluates the concept on a concrete type without the rows
+// resolves a constrained call differently from one that has them, and nothing diagnoses that, since a specialization
+// declared after a use that implicitly instantiated the primary is ill-formed, no diagnostic required (C++20 standard,
 // [temp.expl.spec]/7). The API rows header is the include.
 
 #ifndef GFXRECON_BINDING_DECODED_TYPE_OF_H
@@ -40,26 +40,26 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(binding)
 
 // Keyed on an API element or a command API element. Declared, not defined, so an absent row is an incomplete
-// type and HasDecodedType reads as unsatisfied.
+// type and ApiElementWithDecodedType reads as unsatisfied.
 template <typename ApiElement>
-struct DecodedType;
+struct DecodedTypeOf;
 
 template <typename ApiElement>
-concept HasDecodedType = requires
+concept ApiElementWithDecodedType = requires
 {
-    typename DecodedType<ApiElement>::type;
+    typename DecodedTypeOf<ApiElement>::type;
 };
 
 // The concrete Decoded_Vk* and args:: declarations remain real types. This alias provides generic access without
 // changing their type identity, linkage, or forward declarations.
-template <HasDecodedType ApiElement>
-using DecodedTypeOf = typename DecodedType<ApiElement>::type;
+template <ApiElementWithDecodedType ApiElement>
+using DecodedTypeOf_t = typename DecodedTypeOf<ApiElement>::type;
 
-// A decoded wrapper names the API element it represents, as api_element, the way it names its native type as
+// A decoded wrapper names the API element it represents, as api_element, the way it names its API type as
 // struct_type. An operation handed a wrapper reaches the schema and the bindings through that member, so no inverse
 // binding is generated; the generated checks assert that each wrapper's element resolves back to the wrapper.
 template <typename Wrapper>
-concept NamesApiElement = requires
+concept WrapperWithApiElement = requires
 {
     typename Wrapper::api_element;
 };

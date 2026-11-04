@@ -27,8 +27,8 @@
 **
 */
 
-#ifndef  GFXRECON_GENERATED_VULKAN_SCHEMA_NATIVE_STRUCT_MEMBERS_H
-#define  GFXRECON_GENERATED_VULKAN_SCHEMA_NATIVE_STRUCT_MEMBERS_H
+#ifndef  GFXRECON_GENERATED_VULKAN_SCHEMA_API_STRUCT_MEMBERS_H
+#define  GFXRECON_GENERATED_VULKAN_SCHEMA_API_STRUCT_MEMBERS_H
 
 #include "generated/generated_vulkan_schema_fields.h"
 #include "schema/field.h"
@@ -64,7 +64,7 @@
 #endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-// Member traits for native structure storage.
+// Member traits for API structure storage.
 GFXRECON_BEGIN_NAMESPACE(schema)
 
 template <> struct MemberPointer<::StdVideoH264SpsVuiFlags, vulkan::fields::StdVideoH264SpsVuiFlags::aspect_ratio_info_present_flag> : NonAddressableMember { static uint32_t Get(const ::StdVideoH264SpsVuiFlags& storage) { return storage.aspect_ratio_info_present_flag; } static void Set(::StdVideoH264SpsVuiFlags& storage, uint32_t value) { storage.aspect_ratio_info_present_flag = value; } };
@@ -7304,4 +7304,4 @@ template <> struct MemberPointer<::VkAccelerationStructureGeometryDataKHR, vulka
 GFXRECON_END_NAMESPACE(schema)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_GENERATED_VULKAN_SCHEMA_NATIVE_STRUCT_MEMBERS_H
+#endif // GFXRECON_GENERATED_VULKAN_SCHEMA_API_STRUCT_MEMBERS_H

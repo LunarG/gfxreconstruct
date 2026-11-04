@@ -20,7 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// The Vulkan ApiElementOf rows, a visitor invoked across the inventory: every structure, every union and every native
+// The Vulkan ApiElementOf rows, a visitor invoked across the inventory: every structure, every union and every API
 // enum to its API element. A 64-bit flag-bits type is spelled VkFlags64, so it has no row; one would bind the
 // bare integer type.
 

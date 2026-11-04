@@ -45,7 +45,7 @@ struct Schema;
 
 // A structure the API discriminates by a type value in its first member carries that value on its API element.
 template <typename Element>
-concept HasStructureType = requires
+concept TypedStructApiElement = requires
 {
     Element::structure_type;
 }
@@ -53,42 +53,44 @@ concept HasStructureType = requires
 
 // An enumerated type's API element names its enumerant table.
 template <typename Element>
-concept HasEnumerants = requires
+concept EnumApiElement = requires
 {
     typename Element::enumerants;
 };
 
-// A bits enum: its values compose into a mask of the type bitmask names. The registry declares the group a bitmask
-// and states the width.
+// A bits enum, the registry's bitvalues: its values compose into a mask of the Flags type flags_type names. The
+// registry declares the group a bitmask and states the width.
 template <typename Element>
-concept HasBitmask = HasEnumerants<Element> && requires
+concept BitvaluesApiElement = EnumApiElement<Element> && requires
 {
-    typename Element::bitmask;
+    typename Element::flags_type;
 };
 
-// A mask typedef's API element names the API element of the bits enum whose values compose it.
+// A mask typedef's API element names the API element of the bits enum whose values compose it. Until plan 2.4
+// stage 2 gives every mask a bitvalues, EmptyBitvalues for a mask with no bits enum, this is true of the masks that
+// have one and not of the Bitmask category as a whole.
 template <typename Element>
-concept HasBitvalues = requires
+concept BitmaskApiElement = requires
 {
     typename Element::bitvalues;
-    requires HasBitmask<typename Element::bitvalues>;
+    requires BitvaluesApiElement<typename Element::bitvalues>;
 };
 
 template <typename ApiElement>
 concept HasSchemaFields = requires
 {
     typename Schema<ApiElement>::Fields;
-    requires util::TypeListType<typename Schema<ApiElement>::Fields>;
+    requires util::IsTypeList_v<typename Schema<ApiElement>::Fields>;
 };
 
 // A union's Schema lists Alternatives, each a Field, of which a value holds one. Which one is the selector's to say:
 // the containing structure's Field names it as selector_field, and an alternative the registry marks carries the
 // selector values that choose it as selections. No field walk applies, so a union does not satisfy HasSchemaFields.
 template <typename ApiElement>
-concept HasSchemaAlternatives = requires
+concept UnionApiElement = requires
 {
     typename Schema<ApiElement>::Alternatives;
-    requires util::TypeListType<typename Schema<ApiElement>::Alternatives>;
+    requires util::IsTypeList_v<typename Schema<ApiElement>::Alternatives>;
 };
 
 // The return predicate treats an absent is_return member as false.
@@ -100,24 +102,21 @@ inline constexpr auto kIsReturnField = []<typename Field>() {
 };
 
 template <HasSchemaFields ApiElement>
-using ReturnFields = decltype(util::TypeListKeep(typename Schema<ApiElement>::Fields{}, kIsReturnField));
+using ReturnFields_t = decltype(util::TypeListKeep(typename Schema<ApiElement>::Fields{}, kIsReturnField));
 
 // A command schema is invalid when the partition finds zero or more than one return Field. The same validation
 // distinguishes a command schema from a structure schema.
 template <typename ApiElement>
 concept HasCommandSchema = HasSchemaFields<ApiElement> && requires
 {
-    typename util::TypeListSole<ReturnFields<ApiElement>>;
+    typename util::TypeListSole_t<ReturnFields_t<ApiElement>>;
 };
 
 template <HasCommandSchema ApiElement>
-using Return = util::TypeListSole<ReturnFields<ApiElement>>;
+using ReturnField_t = util::TypeListSole_t<ReturnFields_t<ApiElement>>;
 
 template <HasCommandSchema ApiElement>
-using ReturnType = ElementType<typename Return<ApiElement>::api_element>;
-
-template <HasCommandSchema ApiElement>
-using ParameterFields = decltype(util::TypeListDrop(typename Schema<ApiElement>::Fields{}, kIsReturnField));
+using ParameterFields_t = decltype(util::TypeListDrop(typename Schema<ApiElement>::Fields{}, kIsReturnField));
 
 template <typename Action, typename Field, typename Storage>
 concept FieldActionFor = requires(Action& action, Field field, Storage& storage)
@@ -151,7 +150,7 @@ constexpr bool InvocableFromFieldsImpl(util::TypeList<Fields...>)
     {
         {
             std::forward<Function>(function)(GetRef(storage, Fields{})...)
-            } -> std::same_as<ReturnType<ApiElement>>;
+            } -> std::same_as<ApiTypeOf_t<typename ReturnField_t<ApiElement>::api_element>>;
     };
 }
 
@@ -159,7 +158,7 @@ GFXRECON_END_NAMESPACE(detail)
 
 template <typename ApiElement, typename Function, typename Storage>
 concept InvocableFromFields = HasCommandSchema<ApiElement> &&
-    detail::InvocableFromFieldsImpl<ApiElement, Function, Storage>(ParameterFields<ApiElement>{});
+    detail::InvocableFromFieldsImpl<ApiElement, Function, Storage>(ParameterFields_t<ApiElement>{});
 
 // The positional invocation step. This expands to the same positional call that the hand-written replay path already
 // makes, in canonical parameter order.
@@ -167,7 +166,7 @@ template <HasCommandSchema ApiElement, typename Function, typename Storage>
 requires InvocableFromFields<ApiElement, Function, Storage>
 decltype(auto) InvokeFromFields(Function&& function, Storage& storage)
 {
-    return util::ApplyFields<ParameterFields<ApiElement>>(
+    return util::ApplyFields<ParameterFields_t<ApiElement>>(
         [&](auto field) -> decltype(auto) { return GetRef(storage, field); }, std::forward<Function>(function));
 }
 

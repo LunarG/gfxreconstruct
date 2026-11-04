@@ -25,7 +25,7 @@
 // this is a binding and not a schema fact.
 //
 // This header declares the binding and nothing more. An API's rows are a visitor invoked across its inventory in
-// binding/<api>_call_id.h, which is the header API code includes; with this one alone, HasCallId answers no for
+// binding/<api>_call_id.h, which is the header API code includes; with this one alone, CommandWithCallId answers no for
 // every command.
 
 #ifndef GFXRECON_BINDING_CALL_ID_OF_H
@@ -37,19 +37,19 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(binding)
 
-// Keyed on a command API element. Declared, not defined, so an absent row is an incomplete type and HasCallId reads as
-// unsatisfied.
+// Keyed on a command API element. Declared, not defined, so an absent row is an incomplete type and CommandWithCallId
+// reads as unsatisfied.
 template <typename Command>
 struct CallId;
 
 template <typename Command>
-concept HasCallId = requires
+concept CommandWithCallId = requires
 {
     CallId<Command>::value;
 };
 
-template <HasCallId Command>
-inline constexpr format::ApiCallId CallIdOf = CallId<Command>::value;
+template <CommandWithCallId Command>
+inline constexpr format::ApiCallId CallId_v = CallId<Command>::value;
 
 GFXRECON_END_NAMESPACE(binding)
 GFXRECON_END_NAMESPACE(gfxrecon)

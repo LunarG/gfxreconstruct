@@ -236,10 +236,10 @@ class VulkanSchemaMemberPartitionGeneratorOptions(VulkanSchemaBaseGeneratorOptio
         ))
 
 
-class VulkanSchemaNativeStructMembersGeneratorOptions(
+class VulkanSchemaApiStructMembersGeneratorOptions(
     VulkanSchemaMemberPartitionGeneratorOptions
 ):
-    """Options for the member traits keyed on the native API structure. The API headers declare it."""
+    """Options for the member traits keyed on the API structure the headers declare."""
 
 
 class VulkanSchemaDecodedStructMembersGeneratorOptions(
@@ -1447,7 +1447,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         ]
 
     def get_inventory_enums(self):
-        """(name, is_flag_bits) for every native enumerated type, by name."""
+        """(name, is_flag_bits) for every API enumerated type, by name."""
         return [(enum, enum in self.bitmask_types) for enum in self.get_native_enumerated_types()]
 
     INVENTORY_ROW_MACROS = (
@@ -1476,20 +1476,20 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
     # The first six are back-end inputs and the last three registry facts; the inventory carries both categories, which
     # is why reading it is a binding act.
     INVENTORY_PROPERTIES = (
-        ('HAS_DECODED_TYPE', 'binding::HasDecodedType',
+        ('HAS_DECODED_TYPE', 'binding::ApiElementWithDecodedType',
          'a Decoded_ wrapper exists and the decoded-type rows reach it'),
-        ('MAY_REACH_HANDLES', 'binding::vulkan::MayReachHandles',
+        ('MAY_REACH_HANDLES', 'binding::vulkan::MayReachHandles_v',
          'a handle is reachable through its fields, pNext included'),
-        ('EXTERNAL', 'binding::vulkan::IsExternal',
+        ('EXTERNAL', 'binding::vulkan::IsExternal_v',
          'a platform header defines it, not the registry, so it has a API element and no Schema'),
-        ('CUSTOM_ENCODE', 'binding::vulkan::IsCustomEncode', 'its encoder is hand-written'),
-        ('CUSTOM_DECODE', 'binding::vulkan::IsCustomDecode', 'its decoder is hand-written'),
-        ('CUSTOM_HANDLE_MAPPING', 'binding::vulkan::IsCustomHandleMapping',
+        ('CUSTOM_ENCODE', 'binding::vulkan::IsCustomEncode_v', 'its encoder is hand-written'),
+        ('CUSTOM_DECODE', 'binding::vulkan::IsCustomDecode_v', 'its decoder is hand-written'),
+        ('CUSTOM_HANDLE_MAPPING', 'binding::vulkan::IsCustomHandleMapping_v',
          'its unwrap and map bodies are hand-written, or absent'),
-        ('GENERIC_HANDLE', 'binding::vulkan::HasGenericHandle',
+        ('GENERIC_HANDLE', 'binding::vulkan::HasGenericHandle_v',
          'a member is a runtime-typed handle, an integer its sibling object type names the type of'),
-        ('DEEP_COPY_EXCLUDED', 'binding::vulkan::IsDeepCopyExcluded', 'vulkan_struct_deep_copy does not handle it'),
-        ('HAS_STRUCTURE_TYPE', 'schema::HasStructureType',
+        ('DEEP_COPY_EXCLUDED', 'binding::vulkan::IsDeepCopyExcluded_v', 'vulkan_struct_deep_copy does not handle it'),
+        ('HAS_STRUCTURE_TYPE', 'schema::TypedStructApiElement',
          'the registry gives it a structure type, which its API element carries, so a pNext chain can hold it'),
     )
 
@@ -1657,7 +1657,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         for union in self.schema_unions:
             element = 'schema::{}'.format(self.get_api_element_path(union))
-            write('static_assert(schema::HasSchemaAlternatives<{}>);'.format(element), file=self.outFile)
+            write('static_assert(schema::UnionApiElement<{}>);'.format(element), file=self.outFile)
             write('static_assert(!schema::HasSchemaFields<{}>);'.format(element), file=self.outFile)
 
         self.newline()
@@ -1665,7 +1665,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             '// Every command schema has exactly one return Field, which is what HasCommandSchema tests through',
             file=self.outFile
         )
-        write('// TypeListSole.', file=self.outFile)
+        write('// TypeListSole_t.', file=self.outFile)
 
         for command in self.schema_commands:
             api_element = 'schema::vulkan::api_elements::{}'.format(self.get_command_api_element_name(command))
@@ -1677,7 +1677,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         for struct in self.wrapper_structs:
             write(
-                'static_assert(std::is_same_v<binding::DecodedTypeOf<typename Decoded_{name}::api_element>, '
+                'static_assert(std::is_same_v<binding::DecodedTypeOf_t<typename Decoded_{name}::api_element>, '
                 'Decoded_{name}>);'.format(name=struct),
                 file=self.outFile
             )
@@ -1687,7 +1687,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         for command in self.schema_commands:
             api_element = self.get_command_api_element_name(command)
             write(
-                'static_assert(std::is_same_v<binding::DecodedTypeOf<typename args::{api_element}::api_element>, '
+                'static_assert(std::is_same_v<binding::DecodedTypeOf_t<typename args::{api_element}::api_element>, '
                 'args::{api_element}>);'.format(api_element=api_element),
                 file=self.outFile
             )
@@ -1701,7 +1701,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         for struct in self.wrapper_structs:
             write(
-                'static_assert(std::is_same_v<schema::ElementType<schema::{path}>, '
+                'static_assert(std::is_same_v<schema::ApiTypeOf_t<schema::{path}>, '
                 'typename Decoded_{name}::struct_type>);'.format(
                     path=self.get_api_element_path(struct), name=struct
                 ),
@@ -1709,7 +1709,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             )
 
         self.newline()
-        write('// Cross-source: the declaration a Field spells against the member the API declares. ApiTypeOf rebuilds', file=self.outFile)
+        write('// Cross-source: the declaration a Field spells against the member the API declares. ApiTypeOf_t rebuilds', file=self.outFile)
         write('// the declared C type from the element and the declarator, const at each level, a star per Pointer or', file=self.outFile)
         write('// Array, an extent per FixedArray, and it must equal the member type the compiler laid out. A header', file=self.outFile)
         write('// revision that changed a member fails here. Structures only: a command parameter has no member to', file=self.outFile)
@@ -1722,7 +1722,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
                     continue
 
                 write(
-                    'static_assert(std::is_same_v<decltype({struct}::{name}), schema::ApiTypeOf<{field}::declaration>>);'.format(
+                    'static_assert(std::is_same_v<decltype({struct}::{name}), schema::ApiTypeOf_t<{field}::declaration>>);'.format(
                         struct=struct, name=value.name, field='schema::' + self.get_field_path(struct, value.name)
                     ),
                     file=self.outFile
@@ -1741,7 +1741,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
                 continue
 
             write(
-                'static_assert(sizeof(schema::ElementType<schema::vulkan::api_elements::{name}>) == '
+                'static_assert(sizeof(schema::ApiTypeOf_t<schema::vulkan::api_elements::{name}>) == '
                 'sizeof(format::EncodeTypeFor<schema::vulkan::api_elements::{name}::category>));'.format(name=name),
                 file=self.outFile
             )
@@ -1769,11 +1769,11 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         write('// A API element carries structure_type exactly when the registry gives the structure one: the row property and', file=self.outFile)
         write('// the API element member are two emissions of that one fact, checked against each other on every row.', file=self.outFile)
         write('#define GFXRECON_INVENTORY_REQUIRE GFXRECON_INVENTORY_HAS_STRUCTURE_TYPE', file=self.outFile)
-        write('#define GFXRECON_INVENTORY_VISIT_STRUCT(Name) static_assert(schema::HasStructureType<schema::vulkan::api_elements::Name>);', file=self.outFile)
+        write('#define GFXRECON_INVENTORY_VISIT_STRUCT(Name) static_assert(schema::TypedStructApiElement<schema::vulkan::api_elements::Name>);', file=self.outFile)
         write('#define GFXRECON_INVENTORY_VISIT_UNION(Name) GFXRECON_INVENTORY_VISIT_STRUCT(Name)', file=self.outFile)
         write('#include "generated/generated_vulkan_inventory.h"', file=self.outFile)
         write('#define GFXRECON_INVENTORY_FORBID GFXRECON_INVENTORY_HAS_STRUCTURE_TYPE', file=self.outFile)
-        write('#define GFXRECON_INVENTORY_VISIT_STRUCT(Name) static_assert(!schema::HasStructureType<schema::vulkan::api_elements::Name>);', file=self.outFile)
+        write('#define GFXRECON_INVENTORY_VISIT_STRUCT(Name) static_assert(!schema::TypedStructApiElement<schema::vulkan::api_elements::Name>);', file=self.outFile)
         write('#define GFXRECON_INVENTORY_VISIT_UNION(Name) GFXRECON_INVENTORY_VISIT_STRUCT(Name)', file=self.outFile)
         write('#include "generated/generated_vulkan_inventory.h"', file=self.outFile)
 
@@ -1782,35 +1782,35 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         self.newline()
         write('// The sizes the generator counted, then the relation checked arithmetically.', file=self.outFile)
         write(
-            'constexpr size_t kStructuresCount = util::TypeListSizeV<binding::vulkan::catalog::structures>;\n' +
+            'constexpr size_t kStructuresCount = util::TypeListSize_v<binding::vulkan::catalog::structures>;\n' +
             'static_assert(kStructuresCount == {});'.format(len(self.get_structure_api_elements())),
             file=self.outFile
         )
         write(
-            'constexpr size_t kUnionsCount = util::TypeListSizeV<binding::vulkan::catalog::unions>;\n' +
+            'constexpr size_t kUnionsCount = util::TypeListSize_v<binding::vulkan::catalog::unions>;\n' +
             'static_assert(kUnionsCount == {});'.format(len(self.get_union_api_elements())),
             file=self.outFile
         )
         write(
-            'static_assert(util::TypeListSizeV<binding::vulkan::catalog::extensible_structures> == {});'.format(typed),
+            'static_assert(util::TypeListSize_v<binding::vulkan::catalog::extensible_structures> == {});'.format(typed),
             file=self.outFile
         )
 
         excluded = self.get_deep_copy_excluded_api_elements()
         excluded_typed = [name for name in excluded if self.get_structure_type(name) is not None]
         write(
-            'static_assert(util::TypeListSizeV<binding::vulkan::catalog::deep_copyable_structures> == {});'.format(typed - len(excluded_typed)),
+            'static_assert(util::TypeListSize_v<binding::vulkan::catalog::deep_copyable_structures> == {});'.format(typed - len(excluded_typed)),
             file=self.outFile
         )
 
         self.newline()
         write('// Every enumerated type\'s API element names its table, and every one but a 64-bit flag-bits type is bound to', file=self.outFile)
-        write('// its native enum. Nothing is bound to the bare integer types that the 64-bit flag-bits and the Flags', file=self.outFile)
+        write('// its API enum. Nothing is bound to the bare integer types that the 64-bit flag-bits and the Flags', file=self.outFile)
         write('// typedefs are spelled as, which would draw their ToString calls into the enumerant overloads.', file=self.outFile)
 
         for enum in self.get_enumerated_types():
             element = 'schema::{}'.format(self.get_api_element_path(enum))
-            write('static_assert(schema::HasEnumerants<{}>);'.format(element), file=self.outFile)
+            write('static_assert(schema::EnumApiElement<{}>);'.format(element), file=self.outFile)
             if not self.is_flags_enum_64bit(enum):
                 write(
                     'static_assert(std::is_same_v<binding::ApiElementOf<::{}>::type, {}>);'.format(enum, element),
@@ -1822,7 +1822,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         for enum in self.get_enumerated_types():
             element = 'schema::{}'.format(self.get_api_element_path(enum))
             write(
-                'static_assert({}schema::HasBitmask<{}>);'.format('' if 'FlagBits' in enum else '!', element),
+                'static_assert({}schema::BitvaluesApiElement<{}>);'.format('' if 'FlagBits' in enum else '!', element),
                 file=self.outFile
             )
         self.newline()
@@ -1833,19 +1833,19 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
                 continue
             element = 'schema::{}'.format(self.get_api_element_path(flags))
             write(
-                'static_assert(std::is_same_v<{0}::element_type, {0}::bitvalues::bitmask>);'.format(element),
+                'static_assert(std::is_same_v<{0}::element_type, {0}::bitvalues::flags_type>);'.format(element),
                 file=self.outFile
             )
         self.newline()
-        write('static_assert(!binding::HasApiElement<uint32_t>);', file=self.outFile)
-        write('static_assert(!binding::HasApiElement<uint64_t>);', file=self.outFile)
+        write('static_assert(!binding::ApiTypeWithApiElement<uint32_t>);', file=self.outFile)
+        write('static_assert(!binding::ApiTypeWithApiElement<uint64_t>);', file=self.outFile)
 
         self.newline()
         write('// The catalog: each list, read back from an inventory property, is the size of the input the', file=self.outFile)
         write('// generator carried into that property.', file=self.outFile)
         for name, attribute in self.BINDING_CATALOG_LISTS:
             write(
-                'static_assert(util::TypeListSizeV<binding::vulkan::catalog::{}> == {});'.format(
+                'static_assert(util::TypeListSize_v<binding::vulkan::catalog::{}> == {});'.format(
                     name, len(self.get_binding_catalog_members(attribute))
                 ),
                 file=self.outFile
@@ -1874,11 +1874,11 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         write('// the registry gives, so an external structure has a API element and no Schema of either category, and every other', file=self.outFile)
         write('// structure and union row has one. Every other property is read back into C++ by a visit and cannot disagree.', file=self.outFile)
         write('#define GFXRECON_INVENTORY_REQUIRE GFXRECON_INVENTORY_EXTERNAL', file=self.outFile)
-        write('#define GFXRECON_INVENTORY_VISIT_STRUCT(Name) static_assert(!schema::HasSchemaFields<schema::vulkan::api_elements::Name> && !schema::HasSchemaAlternatives<schema::vulkan::api_elements::Name>);', file=self.outFile)
+        write('#define GFXRECON_INVENTORY_VISIT_STRUCT(Name) static_assert(!schema::HasSchemaFields<schema::vulkan::api_elements::Name> && !schema::UnionApiElement<schema::vulkan::api_elements::Name>);', file=self.outFile)
         write('#define GFXRECON_INVENTORY_VISIT_UNION(Name) GFXRECON_INVENTORY_VISIT_STRUCT(Name)', file=self.outFile)
         write('#include "generated/generated_vulkan_inventory.h"', file=self.outFile)
         write('#define GFXRECON_INVENTORY_FORBID GFXRECON_INVENTORY_EXTERNAL', file=self.outFile)
-        write('#define GFXRECON_INVENTORY_VISIT_STRUCT(Name) static_assert(schema::HasSchemaFields<schema::vulkan::api_elements::Name> || schema::HasSchemaAlternatives<schema::vulkan::api_elements::Name>);', file=self.outFile)
+        write('#define GFXRECON_INVENTORY_VISIT_STRUCT(Name) static_assert(schema::HasSchemaFields<schema::vulkan::api_elements::Name> || schema::UnionApiElement<schema::vulkan::api_elements::Name>);', file=self.outFile)
         write('#define GFXRECON_INVENTORY_VISIT_UNION(Name) GFXRECON_INVENTORY_VISIT_STRUCT(Name)', file=self.outFile)
         write('#include "generated/generated_vulkan_inventory.h"', file=self.outFile)
 
@@ -1912,9 +1912,9 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             )
         )
 
-    def write_native_struct_members(self):
+    def write_api_struct_members(self):
         self.write_member_partition_prologue(
-            'Member traits for native structure storage.'
+            'Member traits for API structure storage.'
         )
 
         for struct in self.schema_structs + self.schema_unions:
@@ -1951,7 +1951,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
             for value in self.all_struct_members[struct]:
                 # A decoded wrapper holds a member only for a field that decode has to expand. A plain scalar stays in
-                # the wrapped native structure, so it has no mapping in this population.
+                # the wrapped API structure, so it has no mapping in this population.
                 if not self.is_extended_struct_definition(
                     value
                 ) and not KhronosStructDecodersHeaderGenerator.needs_member_declaration(
@@ -2097,11 +2097,11 @@ class VulkanInventoryGenerator(VulkanSchemaBaseGenerator):
         self.write_inventory()
 
 
-class VulkanSchemaNativeStructMembersGenerator(VulkanSchemaBaseGenerator):
-    """Generates the member traits keyed on the native API structure."""
+class VulkanSchemaApiStructMembersGenerator(VulkanSchemaBaseGenerator):
+    """Generates the member traits keyed on the API structure."""
 
     def write_part(self):
-        self.write_native_struct_members()
+        self.write_api_struct_members()
 
 
 class VulkanSchemaDecodedStructMembersGenerator(VulkanSchemaBaseGenerator):

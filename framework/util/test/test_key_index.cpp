@@ -120,20 +120,20 @@ constexpr auto kIsEven = []<typename T>() { return (T::value % 2) == 0; };
 using Evens = decltype(util::TypeListKeep(Wide{}, kIsEven));
 using Odds  = decltype(util::TypeListDrop(Wide{}, kIsEven));
 
-static_assert(util::TypeListSizeV<Wide> == kWide);
+static_assert(util::TypeListSize_v<Wide> == kWide);
 static_assert(util::TypeListCountIf(Wide{}, kIsEven) == kWide / 2);
 static_assert(util::TypeListCountIf(Wide{}, util::detail::Not<decltype(kIsEven)>{}) == kWide / 2);
-static_assert(std::same_as<util::TypeListAt<0, Wide>, Tag<0>>);
-static_assert(std::same_as<util::TypeListAt<kWide - 1, Wide>, Tag<kWide - 1>>);
-static_assert(util::TypeListSizeV<Evens> == kWide / 2);
-static_assert(util::TypeListSizeV<Odds> == kWide / 2);
-static_assert(std::same_as<util::TypeListAt<1, Evens>, Tag<2>>);
-static_assert(std::same_as<util::TypeListAt<1, Odds>, Tag<3>>);
-static_assert(util::TypeListContainsV<Wide, Tag<kWide - 1>>);
+static_assert(std::same_as<util::TypeListAt_t<0, Wide>, Tag<0>>);
+static_assert(std::same_as<util::TypeListAt_t<kWide - 1, Wide>, Tag<kWide - 1>>);
+static_assert(util::TypeListSize_v<Evens> == kWide / 2);
+static_assert(util::TypeListSize_v<Odds> == kWide / 2);
+static_assert(std::same_as<util::TypeListAt_t<1, Evens>, Tag<2>>);
+static_assert(std::same_as<util::TypeListAt_t<1, Odds>, Tag<3>>);
+static_assert(util::TypeListContains_v<Wide, Tag<kWide - 1>>);
 static_assert(
-    util::TypeListSizeV<decltype(util::TypeListExclude(Wide{}, util::TypeList<Tag<1>, Tag<3>, Tag<kWide>>{}))> ==
+    util::TypeListSize_v<decltype(util::TypeListExclude(Wide{}, util::TypeList<Tag<1>, Tag<3>, Tag<kWide>>{}))> ==
     kWide - 2);
-static_assert(!util::TypeListContainsV<Wide, Tag<kWide>>);
+static_assert(!util::TypeListContains_v<Wide, Tag<kWide>>);
 } // namespace
 
 TEST_CASE("KeyIndex finds a key's position or reports a miss", "[util][keyindex]")

@@ -75,13 +75,14 @@ struct ApiElementEnum : ApiElementBase<Name, ElementType, format::category::Enum
     using enumerants = Table;
 };
 
-// A bits enumeration: its table and the flags typedef the registry pairs it with, VkFlags or VkFlags64. The
-// category is Enum for a C enum and Flags64 for a 64-bit bits type, which C declares as a typedef of VkFlags64.
-template <util::FixedString Name, typename ElementType, typename Category, typename Table, typename Bitmask>
+// A bits enumeration: its table and the Flags typedef its values compose into, VkFlags or VkFlags64 by the
+// registry group's bitwidth. The category is Enum for a C enum and Flags64 for a 64-bit bits type, which C
+// declares as a typedef of VkFlags64.
+template <util::FixedString Name, typename ElementType, typename Category, typename Table, typename FlagsType>
 struct ApiElementFlagBits : ApiElementBase<Name, ElementType, Category>
 {
     using enumerants = Table;
-    using bitmask    = Bitmask;
+    using flags_type = FlagsType;
 };
 
 // A flags typedef: the category is Flags or Flags64 by width, and bitvalues names its bits enumeration.
