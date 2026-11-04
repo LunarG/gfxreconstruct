@@ -472,11 +472,11 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateBuffer(const ApiCallInfo& ca
     VkBufferCreateInfo* create_info = args.pCreateInfo.GetPointer();
     bool                writable    = false;
 
-    // Ensure that buffers can be copied to and from so contents can be restored.
     if (create_info != nullptr)
     {
         writable = CanWriteBuffer(create_info);
 
+        // Ensure that buffers can be copied to and from so contents can be restored.
         create_info->usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
         if (auto* usage_flags2 = graphics::vulkan_struct_get_pnext<VkBufferUsageFlags2CreateInfo>(create_info))
