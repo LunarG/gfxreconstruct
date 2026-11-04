@@ -83,12 +83,12 @@ void replay_and_record_events(const char*                 test_name,
     ASSERT_NO_FATAL_FAILURE(read_recorded_events(events_path, events));
 }
 
-static const std::string* find_field(const RecordedEvent& event, const std::string& key)
+const std::string* RecordedEvent::find_field(const std::string& key) const
 {
-    auto entry = event.fields.find(key);
-    if (entry == event.fields.end())
+    auto entry = fields.find(key);
+    if (entry == fields.end())
     {
-        ADD_FAILURE() << "the recorder did not write a '" << key << "' field for an event of type " << event.type;
+        ADD_FAILURE() << "the recorder did not write a '" << key << "' field for an event of type " << type;
         return nullptr;
     }
 
@@ -97,13 +97,13 @@ static const std::string* find_field(const RecordedEvent& event, const std::stri
 
 uint64_t unsigned_field(const RecordedEvent& event, const std::string& key)
 {
-    const std::string* value = find_field(event, key);
+    const std::string* value = event.find_field(key);
     return (value == nullptr) ? 0 : std::stoull(*value);
 }
 
 int64_t signed_field(const RecordedEvent& event, const std::string& key)
 {
-    const std::string* value = find_field(event, key);
+    const std::string* value = event.find_field(key);
     return (value == nullptr) ? 0 : std::stoll(*value);
 }
 

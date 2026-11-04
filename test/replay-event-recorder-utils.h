@@ -19,6 +19,13 @@ struct RecordedEvent
     /// Every key=value pair the recorder wrote for the event, as text. Read them with unsigned_field() or
     /// signed_field().
     std::map<std::string, std::string> fields;
+
+    /**
+     * Look up a field by key.
+     *
+     * @return the field's text, or nullptr and a test failure naming the field if the recorder did not write it
+     */
+    const std::string* find_field(const std::string& key) const;
 };
 
 /**
