@@ -28,11 +28,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <map>
+#include <optional>
 #include <string>
 #include <vector>
-
-/// Returned by index_of_first_event() when no event of the type was recorded.
-constexpr size_t kEventNotFound = static_cast<size_t>(-1);
 
 /**
  * One line of the replay event recorder plugin's output.
@@ -81,9 +79,9 @@ int64_t signed_field(const RecordedEvent& event, const std::string& key);
  * @param events - the events replay_and_record_events() read back
  * @param type   - the event type to look for
  *
- * @return the index of the first event of that type in events, or kEventNotFound if there is none
+ * @return the index of the first event of that type in events, or std::nullopt if there is none
  */
-size_t index_of_first_event(const std::vector<RecordedEvent>& events, GfxrReplayEventType type);
+std::optional<size_t> index_of_first_event(const std::vector<RecordedEvent>& events, GfxrReplayEventType type);
 
 /**
  * Collect every recorded event of a type.
