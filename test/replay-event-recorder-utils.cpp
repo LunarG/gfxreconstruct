@@ -107,7 +107,7 @@ int64_t signed_field(const RecordedEvent& event, const std::string& key)
     return (value == nullptr) ? 0 : std::stoll(*value);
 }
 
-size_t index_of_first_event(const std::vector<RecordedEvent>& events, GfxrReplayEventType type)
+std::optional<size_t> index_of_first_event(const std::vector<RecordedEvent>& events, GfxrReplayEventType type)
 {
     for (size_t i = 0; i < events.size(); ++i)
     {
@@ -116,7 +116,7 @@ size_t index_of_first_event(const std::vector<RecordedEvent>& events, GfxrReplay
             return i;
         }
     }
-    return kEventNotFound;
+    return std::nullopt;
 }
 
 std::vector<RecordedEvent> events_of_type(const std::vector<RecordedEvent>& events, GfxrReplayEventType type)
