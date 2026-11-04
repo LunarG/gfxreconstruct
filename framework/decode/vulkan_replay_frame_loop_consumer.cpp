@@ -698,7 +698,8 @@ void VulkanReplayFrameLoopConsumer::RecordBufferStates()
             return;
         }
 
-        if (!buffer_info->writable)
+        // The host can write to a mapped buffer regardless of its usage.
+        if (!buffer_info->writable && (buffer_info->memory_property_flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == 0)
         {
             return;
         }
