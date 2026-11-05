@@ -360,6 +360,7 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
         VkMemoryPropertyFlags property_flags{ 0 };
         uint8_t*              mapped_pointer{ nullptr };
         VkDeviceSize          mapped_offset{ 0 };
+        VkDeviceSize          mapped_end{ 0 }; // End of the mapped range, from the start of the memory object.
     };
 
   protected:
@@ -383,6 +384,9 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
     VkResult AllocateImportedMemory(const VkMemoryAllocateInfo*  allocate_info,
                                     const VkAllocationCallbacks* allocation_callbacks,
                                     VkDeviceMemory*              memory);
+
+    // Returns the end of a mapped range, from the start of the memory object.
+    static VkDeviceSize GetMappedEnd(const MemoryAllocInfo* memory_alloc_info, VkDeviceSize offset, VkDeviceSize size);
 
     // Flush a host write of size bytes at offset from the mapped pointer, for memory that is not host coherent.
     VkResult FlushWrittenRange(const MemoryAllocInfo* memory_alloc_info, uint64_t offset, uint64_t size);
