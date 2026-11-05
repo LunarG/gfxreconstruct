@@ -87,6 +87,13 @@ class ExpandStage : public VulkanConsumerStageBase
     }
 };
 
+// Sends a call knowing only its args type, the way generic stage code does.
+template <typename ArgsT>
+void SendByType(VulkanConsumer& consumer, ArgsT& args)
+{
+    consumer.Process(ApiCallInfo{}, args);
+}
+
 } // namespace
 
 TEST_CASE("Stage forwards a call unchanged", "[stage]")
@@ -157,4 +164,15 @@ TEST_CASE("Stage forks a call to every next consumer", "[stage]")
 
     CHECK(first.draws.size() == 1);
     CHECK(second.draws.size() == 1);
+}
+
+TEST_CASE("Process overload reaches the per-command virtual", "[stage]")
+{
+    RecordingConsumer recorder;
+
+    args::CmdDraw draw{ 1, 3, 1, 0, 0 };
+    SendByType(recorder, draw);
+
+    REQUIRE(recorder.draws.size() == 1);
+    CHECK(recorder.draws[0].vertexCount == 3);
 }
