@@ -99,6 +99,7 @@ generate_targets = [
     'generated_vulkan_schema_decoded_command_members.h',
     'generated_vulkan_schema_checks.cpp',
     'generated_vulkan_schema_enumerants.h',
+    'generated_vulkan_wire_types.h',
 ]
 
 

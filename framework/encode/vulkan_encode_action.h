@@ -31,6 +31,7 @@
 #include "encode/parameter_encoder.h"
 #include "encode/struct_pointer_encoder.h"
 #include "encode/vulkan_encode_capture_wrappers.h"
+#include "binding/vulkan_wire_type.h"
 #include "schema/field.h"
 
 // This operation reads Vulkan's own structures. Keep the complete generated member-binding population beside the
@@ -53,19 +54,25 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 // Direction, not taken yet: the Action names this type directly. Taking it as a template parameter instead, the way a
 // traits type is passed, would make the shape Apply set API-agnostic; the Vulkan facts would then live in this
 // adapter and in the schema, and the same Action would serve another API given its adapter.
+// Interim until plan 2.4 stage 3: the text attribute word is read from the interim text category; the revision makes
+// it a binding on the API element.
+template <schema::TextApiElement Element>
+inline constexpr format::PointerAttributes TextAttributeOf_v =
+    std::same_as<schema::CategoryOf_t<Element>, schema::category::WChar> ? format::PointerAttributes::kIsWString
+                                                                         : format::PointerAttributes::kIsString;
+
 struct EncoderAdapter
 {
-    // Scalar, opaque and callback elements held by value: the member's own bits are the value recorded, in the
-    // category's wire type. A platform typedef is its own element, so a scalar member's declared type is its element
-    // type exactly. An opaque or callback member is declared as some pointer type, which Encode casts to the address.
+    // A platform typedef is its own API element, so a scalar member's DeclaredType is its API element type; an opaque
+    // or funcpointer member is some pointer type, cast to the address.
     template <typename Field, typename DeclaredType>
     requires schema::GeneralScalarApiElement<typename Field::api_element> && schema::ValueField<Field>
     void operator()(Field, ParameterEncoder* encoder, const DeclaredType& value) const
     {
         static_assert(!schema::ScalarApiElement<typename Field::api_element> ||
                           std::is_same_v<DeclaredType, schema::ApiTypeOf_t<typename Field::api_element>>,
-                      "A scalar member is declared as its element type");
-        encoder->Encode(schema::CategoryOf_t<typename Field::api_element>{}, value);
+                      "A scalar member is declared as its API element type");
+        encoder->EncodeAs<binding::WireTypeOf_t<typename Field::api_element>>(value);
     }
 
     // A pointer to one scalar.
@@ -74,7 +81,7 @@ struct EncoderAdapter
     void
     operator()(Field, ParameterEncoder* encoder, const schema::ApiTypeOf_t<typename Field::api_element>* pointer) const
     {
-        encoder->EncodePointer(schema::CategoryOf_t<typename Field::api_element>{}, pointer);
+        encoder->EncodePointerAs<binding::WireTypeOf_t<typename Field::api_element>>(pointer);
     }
 
     // A pointer to an opaque object, Pointer<ANativeWindow>, or to void, Pointer<Void>: what it points at is never
@@ -96,7 +103,7 @@ struct EncoderAdapter
                     const schema::ApiTypeOf_t<typename Field::api_element>* array,
                     size_t                                                  count) const
     {
-        encoder->EncodeArray(schema::CategoryOf_t<typename Field::api_element>{}, array, count);
+        encoder->EncodeArrayAs<binding::WireTypeOf_t<typename Field::api_element>>(array, count);
     }
 
     // A counted run of bytes the API declares as void: Array<Const<Void>, n>.
@@ -147,7 +154,7 @@ struct EncoderAdapter
         encoder->template EncodeVulkanHandleArray<Wrapper>(array, count);
     }
 
-    // Struct category: value, pointer, run. Each calls the EncodeStruct overload for the element's type.
+    // Struct category: value, pointer, run. Each calls the EncodeStruct overload for the API element's type.
     template <typename Field>
     requires schema::StructApiElement<typename Field::api_element> && schema::ValueField<Field>
     void
@@ -187,24 +194,23 @@ struct EncoderAdapter
         EncodeStructArray2D(encoder, rows, count, 1);
     }
 
-    // Text category: pointer, fixed text, run of strings. The category carries the wire attribute and the character width, so
-    // each entry passes it as a tag. A fixed-extent string passes its extent as the strnlen bound, and
-    // a run of strings is a run of null-terminated pointees, so no row length exists to pass.
     template <typename Field>
     requires schema::TextApiElement<typename Field::api_element> && schema::PointerField<Field>
     void
     operator()(Field, ParameterEncoder* encoder, const schema::ApiTypeOf_t<typename Field::api_element>* text) const
     {
-        encoder->EncodeString(schema::CategoryOf_t<typename Field::api_element>{}, text);
+        encoder->EncodeStringAs<binding::WireTypeOf_t<typename Field::api_element>,
+                                TextAttributeOf_v<typename Field::api_element>>(text);
     }
 
-    // A text typedef held by value: the element is the pointer type the header spells, LPCWSTR, and the value is the
-    // null-terminated string it points at.
+    // A text typedef held by value: the API element is the pointer type the header spells, LPCWSTR, and the value is
+    // the null-terminated string it points at.
     template <typename Field>
     requires schema::TextApiElement<typename Field::api_element> && schema::ValueField<Field>
     void operator()(Field, ParameterEncoder* encoder, schema::ApiTypeOf_t<typename Field::api_element> text) const
     {
-        encoder->EncodeString(schema::CategoryOf_t<typename Field::api_element>{}, text);
+        encoder->EncodeStringAs<binding::WireTypeOf_t<typename Field::api_element>,
+                                TextAttributeOf_v<typename Field::api_element>>(text);
     }
 
     template <typename Field>
@@ -216,7 +222,8 @@ struct EncoderAdapter
     {
         static_assert(std::rank_v<schema::ApiTypeOf_t<typename Field::declaration>> == 1,
                       "A fixed-extent string has one dimension");
-        encoder->EncodeString(schema::CategoryOf_t<typename Field::api_element>{}, text, capacity);
+        encoder->EncodeStringAs<binding::WireTypeOf_t<typename Field::api_element>,
+                                TextAttributeOf_v<typename Field::api_element>>(text, capacity);
     }
 
     template <typename Field>
@@ -226,7 +233,8 @@ struct EncoderAdapter
                     const schema::ApiTypeOf_t<typename Field::api_element>* const* strings,
                     size_t                                                         count) const
     {
-        encoder->EncodeStringArray(schema::CategoryOf_t<typename Field::api_element>{}, strings, count);
+        encoder->EncodeStringArrayAs<binding::WireTypeOf_t<typename Field::api_element>,
+                                     TextAttributeOf_v<typename Field::api_element>>(strings, count);
     }
 };
 
@@ -330,9 +338,8 @@ class EncodeStructAction
         schema::FieldWithSelector<Storage, Field>
     void Apply(Field field, const Storage& storage)
     {
-        using SelectorField = schema::SelectorOf_t<Field>;
-        encoder_->Encode(
-            schema::CategoryOf_t<typename Field::api_element>{},
+        using SelectorField = typename Field::selector_field;
+        encoder_->EncodeAs<binding::WireTypeOf_t<typename Field::api_element>>(
             vulkan_wrappers::GetWrappedId(schema::Get(storage, field), schema::Get(storage, SelectorField{})));
     }
 

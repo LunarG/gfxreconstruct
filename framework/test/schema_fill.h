@@ -102,7 +102,7 @@ class FillAction
         }
         else if constexpr (schema::TextApiElement<typename Field::api_element>)
         {
-            // A text typedef held by value, LPCWSTR: the element is the pointer type the header spells.
+            // A text typedef held by value, LPCWSTR: the API element is the pointer type the header spells.
             schema::Set(storage, field, context_.MakeText<std::remove_cv_t<std::remove_pointer_t<Element>>>());
         }
         else if constexpr (!schema::HandleApiElement<typename Field::api_element> && IsPatternable_v<Element>)

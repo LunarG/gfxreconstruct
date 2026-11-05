@@ -356,6 +356,7 @@ target_sources(gfxrecon_decode
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_inventory.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_types.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_schema_enumerants.h
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_wire_types.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders_forward.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_handle_mapping_util.cpp

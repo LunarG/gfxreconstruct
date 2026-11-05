@@ -50,6 +50,7 @@
 #include "generated/generated_vulkan_schema_decoded_struct_members.h"
 #include "generated/generated_vulkan_schema_api_struct_members.h"
 #include "binding/vulkan_api_element_of.h"
+#include "binding/vulkan_wire_type.h"
 #include "generated/generated_vulkan_schema_enumerants.h"
 #include "util/vulkan_enum_to_string.h"
 #include "generated/generated_vulkan_enum_to_json.h"
@@ -102,40 +103,58 @@ static_assert(
     std::is_same_v<schema::ApiTypeOf_t<schema::ReturnField_t<schema::vulkan::api_elements::CreateBuffer>::api_element>,
                    VkResult>);
 
-// A category names the logical Encode and Decode operation for a registry type, and carries the wire
-// representation.
+// A category is the registry's word for an API element, and carries no wire fact.
 static_assert(
     std::is_same_v<schema::ApiTypeOf_t<schema::vulkan::api_elements::VkPipelineStageFlags>, VkPipelineStageFlags>);
-static_assert(std::is_same_v<schema::vulkan::api_elements::VkPipelineStageFlags::category, format::category::Flags>);
-static_assert(std::is_same_v<schema::vulkan::api_elements::VkAccessFlags2::category, format::category::Flags64>);
-static_assert(std::is_same_v<schema::vulkan::api_elements::VkResult::category, format::category::Enum>);
-static_assert(std::is_same_v<schema::vulkan::api_elements::VkSampleMask::category, format::category::SampleMask>);
-static_assert(std::is_same_v<schema::vulkan::api_elements::VkDeviceSize::category, format::category::DeviceSize>);
+static_assert(std::is_same_v<schema::vulkan::api_elements::VkPipelineStageFlags::category, schema::category::Bitmask>);
+static_assert(std::is_same_v<schema::vulkan::api_elements::VkAccessFlags2::category, schema::category::Bitmask>);
+static_assert(std::is_same_v<schema::vulkan::api_elements::VkAccessFlagBits2::category, schema::category::Enum>);
+static_assert(std::is_same_v<schema::vulkan::api_elements::VkResult::category, schema::category::Enum>);
+static_assert(std::is_same_v<schema::vulkan::api_elements::VkSampleMask::category, schema::category::Scalar>);
+static_assert(std::is_same_v<schema::vulkan::api_elements::VkDeviceSize::category, schema::category::Scalar>);
+static_assert(std::is_same_v<schema::vulkan::api_elements::VkClearColorValue::category, schema::category::Union>);
+static_assert(schema::StructApiElement<schema::vulkan::api_elements::VkClearColorValue>);
+
+// The bits enum states its role, the mask names its flags API element and its bits API element, and a mask the
+// registry gives no bits enum names the empty one.
+static_assert(schema::BitvaluesApiElement<schema::vulkan::api_elements::VkAccessFlagBits2>);
+static_assert(!schema::BitvaluesApiElement<schema::vulkan::api_elements::VkResult>);
+static_assert(
+    std::is_same_v<schema::vulkan::api_elements::VkAccessFlags2::flags_type, schema::vulkan::api_elements::VkFlags64>);
+static_assert(std::is_same_v<schema::vulkan::api_elements::VkAccessFlags2::bitvalues,
+                             schema::vulkan::api_elements::VkAccessFlagBits2>);
+static_assert(std::is_same_v<schema::vulkan::api_elements::VkDeviceCreateFlags::bitvalues,
+                             schema::vulkan::api_elements::EmptyBitvalues>);
+static_assert(schema::vulkan::enumerants::EmptyBitvalues::entries.empty());
 
 // Two registry names that share one C++ representation stay distinct, because the API element is the identity.
 static_assert(std::is_same_v<VkAccessFlags2, VkPipelineStageFlags2>);
 static_assert(
     !std::is_same_v<schema::vulkan::api_elements::VkAccessFlags2, schema::vulkan::api_elements::VkPipelineStageFlags2>);
 
-// A category is specific, so each one maps to the ParameterEncoder and ValueDecoder function that already exists for
-// it. That restates part of what element_type says, and the generator checks the agreement in the one loop that
-// assigns both.
-static_assert(std::is_same_v<schema::vulkan::api_elements::UInt32::category, format::category::UInt32>);
-static_assert(std::is_same_v<schema::vulkan::api_elements::VkBool32::category, format::category::UInt32>);
+// Two scalar API elements over one C type stay distinct, and each has the width of its type.
+static_assert(std::is_same_v<schema::vulkan::api_elements::UInt32::category, schema::category::Scalar>);
+static_assert(std::is_same_v<schema::vulkan::api_elements::VkBool32::category, schema::category::Scalar>);
 static_assert(std::is_same_v<schema::ApiTypeOf_t<schema::vulkan::api_elements::UInt32>, uint32_t>);
 static_assert(schema::ScalarValueField<barrier_field::srcQueueFamilyIndex>);
 
-// Every scalar category still selects the shared scalar access pattern.
+// A scalar, a bitmask and an enum are each read as the member's own bits, so all select the scalar access pattern.
 static_assert(schema::ScalarValueField<barrier_field::srcAccessMask>);
 static_assert(schema::ScalarValueField<barrier_field::offset>);
 static_assert(schema::ScalarValueField<barrier_field::sType>);
 
-// The wire representation is reached through the encoding join, never through the API element.
-static_assert(std::is_same_v<schema::FieldEncodeType<barrier_field::srcAccessMask>, format::FlagsEncodeType>);
-static_assert(std::is_same_v<schema::FieldEncodeType<barrier_field::sType>, format::EnumEncodeType>);
-static_assert(std::is_same_v<schema::FieldEncodeType<barrier_field::offset>, format::DeviceSizeEncodeType>);
-static_assert(std::is_same_v<schema::FieldEncodeType<barrier_field::srcQueueFamilyIndex>, uint32_t>);
-static_assert(std::is_same_v<schema::FieldEncodeType<barrier_field::buffer>, format::HandleEncodeType>);
+// WireTypeOf: generated for scalar and enum; partial specializations for the rest.
+static_assert(
+    std::is_same_v<binding::WireTypeOf_t<barrier_field::srcAccessMask::api_element>, format::FlagsEncodeType>);
+static_assert(
+    std::is_same_v<binding::WireTypeOf_t<schema::vulkan::api_elements::VkAccessFlags2>, format::Flags64EncodeType>);
+static_assert(std::is_same_v<binding::WireTypeOf_t<barrier_field::sType::api_element>, format::EnumEncodeType>);
+static_assert(std::is_same_v<binding::WireTypeOf_t<barrier_field::offset::api_element>, format::DeviceSizeEncodeType>);
+static_assert(std::is_same_v<binding::WireTypeOf_t<barrier_field::srcQueueFamilyIndex::api_element>, uint32_t>);
+static_assert(std::is_same_v<binding::WireTypeOf_t<barrier_field::buffer::api_element>, format::HandleEncodeType>);
+static_assert(std::is_same_v<binding::WireTypeOf_t<schema::vulkan::api_elements::SizeT>, format::SizeTEncodeType>);
+static_assert(std::is_same_v<binding::WireTypeOf_t<schema::vulkan::api_elements::PFN_vkAllocationFunction>,
+                             format::AddressEncodeType>);
 
 // Shape concepts select on exactly the logical category and the use-site shape.
 static_assert(schema::HandleValueField<barrier_field::buffer>);
@@ -1292,7 +1311,8 @@ TEST_CASE("Schema EncodeStruct matches fixed-extent text wire bytes", "[schema][
     unterminated.specVersion = 0x00010203u;
 
     CHECK(matches(unterminated, [&](encode::ParameterEncoder& oracle) {
-        oracle.EncodeString(format::category::Char{}, unterminated.extensionName, VK_MAX_EXTENSION_NAME_SIZE);
+        oracle.EncodeStringAs<format::CharEncodeType, format::PointerAttributes::kIsString>(unterminated.extensionName,
+                                                                                            VK_MAX_EXTENSION_NAME_SIZE);
         oracle.EncodeUInt32Value(unterminated.specVersion);
     }));
 }
@@ -2551,7 +2571,7 @@ TEST_CASE("A field walk decodes both address populations in one structure", "[sc
     using namespace gfxrecon::decode;
 
     // VkAllocationCallbacks is the densest address case: one pointer to something outside the API, and five
-    // function pointers. The first is Pointer<Void> and the rest name their own PFN_* callback elements,
+    // function pointers. The first is Pointer<Void> and the rest name their own PFN_* callback API elements,
     // but every field has category Address, so one overload takes all six and the schema needed no special case for
     // the function pointers.
     //
@@ -2778,7 +2798,7 @@ TEST_CASE("A counted void pointer decodes as the bytes the capture kept", "[sche
 
     // VkPipelineCacheCreateInfo::pInitialData is declared const void* with a byte count. No overload was added for
     // it: the capture stores it as bytes, so the API element names uint8_t and the scalar-run overload takes it
-    // unchanged. void names no element, and the wrapper had already settled the question by declaring
+    // unchanged. void names no API element, and the wrapper had already settled the question by declaring
     // PointerDecoder<uint8_t>.
     //
     // With this the Void API element is left with only the two uses where void really means no value: the extension

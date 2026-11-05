@@ -61,12 +61,9 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-// The assertion is the only gate: a wrapper whose element has no schema fails here, naming the wrapper, rather than
-// inside WalkFields.
-template <typename Wrapper>
+template <binding::DecodedWrapper Wrapper>
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Wrapper* wrapper)
 {
-    static_assert(binding::WrapperWithApiElement<Wrapper>, "A schema-driven wrapper must name an API element");
     static_assert(schema::HasSchemaFields<typename Wrapper::api_element>,
                   "A schema-driven wrapper's API element must have a schema");
 

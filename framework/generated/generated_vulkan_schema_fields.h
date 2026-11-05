@@ -998,7 +998,7 @@ struct maxViewports : Field<"maxViewports", api_elements::UInt32> {};
 struct maxViewportDimensions : Field<"maxViewportDimensions", FixedArray<api_elements::UInt32, UseCapacity, 2>> {};
 struct viewportBoundsRange : Field<"viewportBoundsRange", FixedArray<api_elements::Float, UseCapacity, 2>> {};
 struct viewportSubPixelBits : Field<"viewportSubPixelBits", api_elements::UInt32> {};
-struct minMemoryMapAlignment : Field<"minMemoryMapAlignment", api_elements::Size> {};
+struct minMemoryMapAlignment : Field<"minMemoryMapAlignment", api_elements::SizeT> {};
 struct minTexelBufferOffsetAlignment : Field<"minTexelBufferOffsetAlignment", api_elements::VkDeviceSize> {};
 struct minUniformBufferOffsetAlignment : Field<"minUniformBufferOffsetAlignment", api_elements::VkDeviceSize> {};
 struct minStorageBufferOffsetAlignment : Field<"minStorageBufferOffsetAlignment", api_elements::VkDeviceSize> {};
@@ -1424,7 +1424,7 @@ GFXRECON_BEGIN_NAMESPACE(VkShaderModuleCreateInfo)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr bool has_extensions = true; };
 struct flags : Field<"flags", api_elements::VkShaderModuleCreateFlags> {};
-struct codeSize : Field<"codeSize", api_elements::Size> {};
+struct codeSize : Field<"codeSize", api_elements::SizeT> {};
 // NOTE: length evaluates codeSize / 4
 struct pCode : Field<"pCode", Array<Const<api_elements::UInt32>, Quotient<FieldValue<codeSize>, Literal<4u>>>> {};
 GFXRECON_END_NAMESPACE(VkShaderModuleCreateInfo)
@@ -1433,20 +1433,20 @@ GFXRECON_BEGIN_NAMESPACE(VkPipelineCacheCreateInfo)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr bool has_extensions = false; };
 struct flags : Field<"flags", api_elements::VkPipelineCacheCreateFlags> {};
-struct initialDataSize : Field<"initialDataSize", api_elements::Size> {};
+struct initialDataSize : Field<"initialDataSize", api_elements::SizeT> {};
 struct pInitialData : Field<"pInitialData", Array<Const<api_elements::Void>, FieldValue<initialDataSize>>> {};
 GFXRECON_END_NAMESPACE(VkPipelineCacheCreateInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkSpecializationMapEntry)
 struct constantID : Field<"constantID", api_elements::UInt32> {};
 struct offset : Field<"offset", api_elements::UInt32> {};
-struct size : Field<"size", api_elements::Size> {};
+struct size : Field<"size", api_elements::SizeT> {};
 GFXRECON_END_NAMESPACE(VkSpecializationMapEntry)
 
 GFXRECON_BEGIN_NAMESPACE(VkSpecializationInfo)
 struct mapEntryCount : Field<"mapEntryCount", api_elements::UInt32> {};
 struct pMapEntries : Field<"pMapEntries", Array<Const<api_elements::VkSpecializationMapEntry>, FieldValue<mapEntryCount>>> {};
-struct dataSize : Field<"dataSize", api_elements::Size> {};
+struct dataSize : Field<"dataSize", api_elements::SizeT> {};
 struct pData : Field<"pData", Array<Const<api_elements::Void>, FieldValue<dataSize>>> {};
 GFXRECON_END_NAMESPACE(VkSpecializationInfo)
 
@@ -2224,8 +2224,8 @@ struct dstBinding : Field<"dstBinding", api_elements::UInt32> {};
 struct dstArrayElement : Field<"dstArrayElement", api_elements::UInt32> {};
 struct descriptorCount : Field<"descriptorCount", api_elements::UInt32> {};
 struct descriptorType : Field<"descriptorType", api_elements::VkDescriptorType> {};
-struct offset : Field<"offset", api_elements::Size> {};
-struct stride : Field<"stride", api_elements::Size> {};
+struct offset : Field<"offset", api_elements::SizeT> {};
+struct stride : Field<"stride", api_elements::SizeT> {};
 GFXRECON_END_NAMESPACE(VkDescriptorUpdateTemplateEntry)
 
 GFXRECON_BEGIN_NAMESPACE(VkDescriptorUpdateTemplateCreateInfo)
@@ -4890,7 +4890,7 @@ struct pNext : Field<"pNext", Pointer<ExtensionChain>> { static constexpr bool h
 struct name : Field<"name", FixedArray<api_elements::Char, UseCapacity, VK_MAX_DESCRIPTION_SIZE>> {};
 struct description : Field<"description", FixedArray<api_elements::Char, UseCapacity, VK_MAX_DESCRIPTION_SIZE>> {};
 struct isText : Field<"isText", api_elements::VkBool32> {};
-struct dataSize : Field<"dataSize", api_elements::Size> {};
+struct dataSize : Field<"dataSize", api_elements::SizeT> {};
 struct pData : Field<"pData", Array<api_elements::Void, FieldValue<dataSize>>> {};
 GFXRECON_END_NAMESPACE(VkPipelineExecutableInternalRepresentationKHR)
 
@@ -5291,7 +5291,7 @@ struct key : Field<"key", FixedArray<api_elements::UInt8, FieldValue<keySize>, V
 GFXRECON_END_NAMESPACE(VkPipelineBinaryKeyKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkPipelineBinaryDataKHR)
-struct dataSize : Field<"dataSize", api_elements::Size> {};
+struct dataSize : Field<"dataSize", api_elements::SizeT> {};
 struct pData : Field<"pData", Array<api_elements::Void, FieldValue<dataSize>>> {};
 GFXRECON_END_NAMESPACE(VkPipelineBinaryDataKHR)
 
@@ -6216,7 +6216,7 @@ struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr
 struct objectType : Field<"objectType", api_elements::VkDebugReportObjectTypeEXT> {};
 struct object : Field<"object", api_elements::GenericHandle> { using selector_field = objectType; };
 struct tagName : Field<"tagName", api_elements::UInt64> {};
-struct tagSize : Field<"tagSize", api_elements::Size> {};
+struct tagSize : Field<"tagSize", api_elements::SizeT> {};
 struct pTag : Field<"pTag", Array<Const<api_elements::Void>, FieldValue<tagSize>>> {};
 GFXRECON_END_NAMESPACE(VkDebugMarkerObjectTagInfoEXT)
 
@@ -6300,8 +6300,8 @@ GFXRECON_BEGIN_NAMESPACE(VkShaderResourceUsageAMD)
 struct numUsedVgprs : Field<"numUsedVgprs", api_elements::UInt32> {};
 struct numUsedSgprs : Field<"numUsedSgprs", api_elements::UInt32> {};
 struct ldsSizePerLocalWorkGroup : Field<"ldsSizePerLocalWorkGroup", api_elements::UInt32> {};
-struct ldsUsageSizeInBytes : Field<"ldsUsageSizeInBytes", api_elements::Size> {};
-struct scratchMemUsageInBytes : Field<"scratchMemUsageInBytes", api_elements::Size> {};
+struct ldsUsageSizeInBytes : Field<"ldsUsageSizeInBytes", api_elements::SizeT> {};
+struct scratchMemUsageInBytes : Field<"scratchMemUsageInBytes", api_elements::SizeT> {};
 GFXRECON_END_NAMESPACE(VkShaderResourceUsageAMD)
 
 GFXRECON_BEGIN_NAMESPACE(VkShaderStatisticsInfoAMD)
@@ -6658,7 +6658,7 @@ struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr
 struct objectType : Field<"objectType", api_elements::VkObjectType> {};
 struct objectHandle : Field<"objectHandle", api_elements::GenericHandle> { using selector_field = objectType; };
 struct tagName : Field<"tagName", api_elements::UInt64> {};
-struct tagSize : Field<"tagSize", api_elements::Size> {};
+struct tagSize : Field<"tagSize", api_elements::SizeT> {};
 struct pTag : Field<"pTag", Array<Const<api_elements::Void>, FieldValue<tagSize>>> {};
 GFXRECON_END_NAMESPACE(VkDebugUtilsObjectTagInfoEXT)
 
@@ -6982,7 +6982,7 @@ GFXRECON_BEGIN_NAMESPACE(VkValidationCacheCreateInfoEXT)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr bool has_extensions = false; };
 struct flags : Field<"flags", api_elements::VkValidationCacheCreateFlagsEXT> {};
-struct initialDataSize : Field<"initialDataSize", api_elements::Size> {};
+struct initialDataSize : Field<"initialDataSize", api_elements::SizeT> {};
 struct pInitialData : Field<"pInitialData", Array<Const<api_elements::Void>, FieldValue<initialDataSize>>> {};
 GFXRECON_END_NAMESPACE(VkValidationCacheCreateInfoEXT)
 
@@ -8161,25 +8161,25 @@ struct maxResourceDescriptorBufferBindings : Field<"maxResourceDescriptorBufferB
 struct maxSamplerDescriptorBufferBindings : Field<"maxSamplerDescriptorBufferBindings", api_elements::UInt32> {};
 struct maxEmbeddedImmutableSamplerBindings : Field<"maxEmbeddedImmutableSamplerBindings", api_elements::UInt32> {};
 struct maxEmbeddedImmutableSamplers : Field<"maxEmbeddedImmutableSamplers", api_elements::UInt32> {};
-struct bufferCaptureReplayDescriptorDataSize : Field<"bufferCaptureReplayDescriptorDataSize", api_elements::Size> {};
-struct imageCaptureReplayDescriptorDataSize : Field<"imageCaptureReplayDescriptorDataSize", api_elements::Size> {};
-struct imageViewCaptureReplayDescriptorDataSize : Field<"imageViewCaptureReplayDescriptorDataSize", api_elements::Size> {};
-struct samplerCaptureReplayDescriptorDataSize : Field<"samplerCaptureReplayDescriptorDataSize", api_elements::Size> {};
-struct accelerationStructureCaptureReplayDescriptorDataSize : Field<"accelerationStructureCaptureReplayDescriptorDataSize", api_elements::Size> {};
-struct samplerDescriptorSize : Field<"samplerDescriptorSize", api_elements::Size> {};
-struct combinedImageSamplerDescriptorSize : Field<"combinedImageSamplerDescriptorSize", api_elements::Size> {};
-struct sampledImageDescriptorSize : Field<"sampledImageDescriptorSize", api_elements::Size> {};
-struct storageImageDescriptorSize : Field<"storageImageDescriptorSize", api_elements::Size> {};
-struct uniformTexelBufferDescriptorSize : Field<"uniformTexelBufferDescriptorSize", api_elements::Size> {};
-struct robustUniformTexelBufferDescriptorSize : Field<"robustUniformTexelBufferDescriptorSize", api_elements::Size> {};
-struct storageTexelBufferDescriptorSize : Field<"storageTexelBufferDescriptorSize", api_elements::Size> {};
-struct robustStorageTexelBufferDescriptorSize : Field<"robustStorageTexelBufferDescriptorSize", api_elements::Size> {};
-struct uniformBufferDescriptorSize : Field<"uniformBufferDescriptorSize", api_elements::Size> {};
-struct robustUniformBufferDescriptorSize : Field<"robustUniformBufferDescriptorSize", api_elements::Size> {};
-struct storageBufferDescriptorSize : Field<"storageBufferDescriptorSize", api_elements::Size> {};
-struct robustStorageBufferDescriptorSize : Field<"robustStorageBufferDescriptorSize", api_elements::Size> {};
-struct inputAttachmentDescriptorSize : Field<"inputAttachmentDescriptorSize", api_elements::Size> {};
-struct accelerationStructureDescriptorSize : Field<"accelerationStructureDescriptorSize", api_elements::Size> {};
+struct bufferCaptureReplayDescriptorDataSize : Field<"bufferCaptureReplayDescriptorDataSize", api_elements::SizeT> {};
+struct imageCaptureReplayDescriptorDataSize : Field<"imageCaptureReplayDescriptorDataSize", api_elements::SizeT> {};
+struct imageViewCaptureReplayDescriptorDataSize : Field<"imageViewCaptureReplayDescriptorDataSize", api_elements::SizeT> {};
+struct samplerCaptureReplayDescriptorDataSize : Field<"samplerCaptureReplayDescriptorDataSize", api_elements::SizeT> {};
+struct accelerationStructureCaptureReplayDescriptorDataSize : Field<"accelerationStructureCaptureReplayDescriptorDataSize", api_elements::SizeT> {};
+struct samplerDescriptorSize : Field<"samplerDescriptorSize", api_elements::SizeT> {};
+struct combinedImageSamplerDescriptorSize : Field<"combinedImageSamplerDescriptorSize", api_elements::SizeT> {};
+struct sampledImageDescriptorSize : Field<"sampledImageDescriptorSize", api_elements::SizeT> {};
+struct storageImageDescriptorSize : Field<"storageImageDescriptorSize", api_elements::SizeT> {};
+struct uniformTexelBufferDescriptorSize : Field<"uniformTexelBufferDescriptorSize", api_elements::SizeT> {};
+struct robustUniformTexelBufferDescriptorSize : Field<"robustUniformTexelBufferDescriptorSize", api_elements::SizeT> {};
+struct storageTexelBufferDescriptorSize : Field<"storageTexelBufferDescriptorSize", api_elements::SizeT> {};
+struct robustStorageTexelBufferDescriptorSize : Field<"robustStorageTexelBufferDescriptorSize", api_elements::SizeT> {};
+struct uniformBufferDescriptorSize : Field<"uniformBufferDescriptorSize", api_elements::SizeT> {};
+struct robustUniformBufferDescriptorSize : Field<"robustUniformBufferDescriptorSize", api_elements::SizeT> {};
+struct storageBufferDescriptorSize : Field<"storageBufferDescriptorSize", api_elements::SizeT> {};
+struct robustStorageBufferDescriptorSize : Field<"robustStorageBufferDescriptorSize", api_elements::SizeT> {};
+struct inputAttachmentDescriptorSize : Field<"inputAttachmentDescriptorSize", api_elements::SizeT> {};
+struct accelerationStructureDescriptorSize : Field<"accelerationStructureDescriptorSize", api_elements::SizeT> {};
 struct maxSamplerDescriptorBufferRange : Field<"maxSamplerDescriptorBufferRange", api_elements::VkDeviceSize> {};
 struct maxResourceDescriptorBufferRange : Field<"maxResourceDescriptorBufferRange", api_elements::VkDeviceSize> {};
 struct samplerDescriptorBufferAddressSpaceSize : Field<"samplerDescriptorBufferAddressSpaceSize", api_elements::VkDeviceSize> {};
@@ -8264,7 +8264,7 @@ GFXRECON_END_NAMESPACE(VkAccelerationStructureCaptureDescriptorDataInfoEXT)
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<ExtensionChain>> { static constexpr bool has_extensions = true; };
-struct combinedImageSamplerDensityMapDescriptorSize : Field<"combinedImageSamplerDensityMapDescriptorSize", api_elements::Size> {};
+struct combinedImageSamplerDensityMapDescriptorSize : Field<"combinedImageSamplerDensityMapDescriptorSize", api_elements::SizeT> {};
 GFXRECON_END_NAMESPACE(VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT)
@@ -8644,7 +8644,7 @@ struct pImages : Field<"pImages", Array<Const<api_elements::VkImage>, FieldValue
 struct bufferCount : Field<"bufferCount", api_elements::UInt32> {};
 struct pBuffers : Field<"pBuffers", Array<Const<api_elements::VkBuffer>, FieldValue<bufferCount>>> {};
 struct tagName : Field<"tagName", api_elements::UInt64> {};
-struct tagSize : Field<"tagSize", api_elements::Size> {};
+struct tagSize : Field<"tagSize", api_elements::SizeT> {};
 struct pTag : Field<"pTag", Array<Const<api_elements::Void>, FieldValue<tagSize>>> {};
 GFXRECON_END_NAMESPACE(VkFrameBoundaryEXT)
 
@@ -9038,7 +9038,7 @@ GFXRECON_END_NAMESPACE(VkDescriptorSetBindingReferenceVALVE)
 GFXRECON_BEGIN_NAMESPACE(VkDescriptorSetLayoutHostMappingInfoVALVE)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<ExtensionChain>> { static constexpr bool has_extensions = false; };
-struct descriptorOffset : Field<"descriptorOffset", api_elements::Size> {};
+struct descriptorOffset : Field<"descriptorOffset", api_elements::SizeT> {};
 struct descriptorSize : Field<"descriptorSize", api_elements::UInt32> {};
 GFXRECON_END_NAMESPACE(VkDescriptorSetLayoutHostMappingInfoVALVE)
 
@@ -9493,9 +9493,9 @@ GFXRECON_END_NAMESPACE(VkPhysicalDeviceDescriptorBufferTensorFeaturesARM)
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceDescriptorBufferTensorPropertiesARM)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<ExtensionChain>> { static constexpr bool has_extensions = true; };
-struct tensorCaptureReplayDescriptorDataSize : Field<"tensorCaptureReplayDescriptorDataSize", api_elements::Size> {};
-struct tensorViewCaptureReplayDescriptorDataSize : Field<"tensorViewCaptureReplayDescriptorDataSize", api_elements::Size> {};
-struct tensorDescriptorSize : Field<"tensorDescriptorSize", api_elements::Size> {};
+struct tensorCaptureReplayDescriptorDataSize : Field<"tensorCaptureReplayDescriptorDataSize", api_elements::SizeT> {};
+struct tensorViewCaptureReplayDescriptorDataSize : Field<"tensorViewCaptureReplayDescriptorDataSize", api_elements::SizeT> {};
+struct tensorDescriptorSize : Field<"tensorDescriptorSize", api_elements::SizeT> {};
 GFXRECON_END_NAMESPACE(VkPhysicalDeviceDescriptorBufferTensorPropertiesARM)
 
 GFXRECON_BEGIN_NAMESPACE(VkDescriptorGetTensorInfoARM)
@@ -9680,7 +9680,7 @@ struct flags : Field<"flags", api_elements::VkShaderCreateFlagsEXT> {};
 struct stage : Field<"stage", api_elements::VkShaderStageFlagBits> {};
 struct nextStage : Field<"nextStage", api_elements::VkShaderStageFlags> {};
 struct codeType : Field<"codeType", api_elements::VkShaderCodeTypeEXT> {};
-struct codeSize : Field<"codeSize", api_elements::Size> {};
+struct codeSize : Field<"codeSize", api_elements::SizeT> {};
 struct pCode : Field<"pCode", Array<Const<api_elements::Void>, FieldValue<codeSize>>> {};
 struct pName : Field<"pName", Pointer<Const<api_elements::Char>>> {};
 struct setLayoutCount : Field<"setLayoutCount", api_elements::UInt32> {};
@@ -9770,18 +9770,18 @@ GFXRECON_END_NAMESPACE(VkCooperativeVectorPropertiesNV)
 GFXRECON_BEGIN_NAMESPACE(VkConvertCooperativeVectorMatrixInfoNV)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr bool has_extensions = false; };
-struct srcSize : Field<"srcSize", api_elements::Size> {};
+struct srcSize : Field<"srcSize", api_elements::SizeT> {};
 struct srcData : Field<"srcData", api_elements::VkDeviceOrHostAddressConstKHR> {};
-struct pDstSize : Field<"pDstSize", Pointer<api_elements::Size>> {};
+struct pDstSize : Field<"pDstSize", Pointer<api_elements::SizeT>> {};
 struct dstData : Field<"dstData", api_elements::VkDeviceOrHostAddressKHR> {};
 struct srcComponentType : Field<"srcComponentType", api_elements::VkComponentTypeKHR> {};
 struct dstComponentType : Field<"dstComponentType", api_elements::VkComponentTypeKHR> {};
 struct numRows : Field<"numRows", api_elements::UInt32> {};
 struct numColumns : Field<"numColumns", api_elements::UInt32> {};
 struct srcLayout : Field<"srcLayout", api_elements::VkCooperativeVectorMatrixLayoutNV> {};
-struct srcStride : Field<"srcStride", api_elements::Size> {};
+struct srcStride : Field<"srcStride", api_elements::SizeT> {};
 struct dstLayout : Field<"dstLayout", api_elements::VkCooperativeVectorMatrixLayoutNV> {};
-struct dstStride : Field<"dstStride", api_elements::Size> {};
+struct dstStride : Field<"dstStride", api_elements::SizeT> {};
 GFXRECON_END_NAMESPACE(VkConvertCooperativeVectorMatrixInfoNV)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV)
@@ -10018,7 +10018,7 @@ struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<ExtensionChain>> { static constexpr bool has_extensions = false; };
 struct property : Field<"property", api_elements::VkDataGraphPipelinePropertyARM> {};
 struct isText : Field<"isText", api_elements::VkBool32> {};
-struct dataSize : Field<"dataSize", api_elements::Size> {};
+struct dataSize : Field<"dataSize", api_elements::SizeT> {};
 struct pData : Field<"pData", Array<api_elements::Void, FieldValue<dataSize>>> {};
 GFXRECON_END_NAMESPACE(VkDataGraphPipelinePropertyQueryResultARM)
 
@@ -10624,7 +10624,7 @@ GFXRECON_END_NAMESPACE(VkPhysicalDeviceHdrVividFeaturesHUAWEI)
 GFXRECON_BEGIN_NAMESPACE(VkHdrVividDynamicMetadataHUAWEI)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr bool has_extensions = true; };
-struct dynamicMetadataSize : Field<"dynamicMetadataSize", api_elements::Size> {};
+struct dynamicMetadataSize : Field<"dynamicMetadataSize", api_elements::SizeT> {};
 struct pDynamicMetadata : Field<"pDynamicMetadata", Array<Const<api_elements::Void>, FieldValue<dynamicMetadataSize>>> {};
 GFXRECON_END_NAMESPACE(VkHdrVividDynamicMetadataHUAWEI)
 
@@ -11713,7 +11713,7 @@ struct device : Field<"device", api_elements::VkDevice> {};
 struct queryPool : Field<"queryPool", api_elements::VkQueryPool> {};
 struct firstQuery : Field<"firstQuery", api_elements::UInt32> {};
 struct queryCount : Field<"queryCount", api_elements::UInt32> {};
-struct dataSize : Field<"dataSize", api_elements::Size> {};
+struct dataSize : Field<"dataSize", api_elements::SizeT> {};
 struct pData : Field<"pData", Array<api_elements::Void, FieldValue<dataSize>>> {};
 struct stride : Field<"stride", api_elements::VkDeviceSize> {};
 struct flags : Field<"flags", api_elements::VkQueryResultFlags> {};
@@ -12030,7 +12030,7 @@ GFXRECON_END_NAMESPACE(DestroyPipelineCache)
 GFXRECON_BEGIN_NAMESPACE(GetPipelineCacheData)
 struct device : Field<"device", api_elements::VkDevice> {};
 struct pipelineCache : Field<"pipelineCache", api_elements::VkPipelineCache> {};
-struct pDataSize : Field<"pDataSize", Pointer<api_elements::Size>> {};
+struct pDataSize : Field<"pDataSize", Pointer<api_elements::SizeT>> {};
 struct pData : Field<"pData", Array<api_elements::Void, FieldValue<pDataSize>>> {};
 struct result : Field<"result", api_elements::VkResult> { static constexpr bool is_return = true; };
 GFXRECON_END_NAMESPACE(GetPipelineCacheData)
@@ -14006,7 +14006,7 @@ GFXRECON_BEGIN_NAMESPACE(GetEncodedVideoSessionParametersKHR)
 struct device : Field<"device", api_elements::VkDevice> {};
 struct pVideoSessionParametersInfo : Field<"pVideoSessionParametersInfo", Pointer<Const<api_elements::VkVideoEncodeSessionParametersGetInfoKHR>>> {};
 struct pFeedbackInfo : Field<"pFeedbackInfo", Pointer<api_elements::VkVideoEncodeSessionParametersFeedbackInfoKHR>> {};
-struct pDataSize : Field<"pDataSize", Pointer<api_elements::Size>> {};
+struct pDataSize : Field<"pDataSize", Pointer<api_elements::SizeT>> {};
 struct pData : Field<"pData", Array<api_elements::Void, FieldValue<pDataSize>>> {};
 struct result : Field<"result", api_elements::VkResult> { static constexpr bool is_return = true; };
 GFXRECON_END_NAMESPACE(GetEncodedVideoSessionParametersKHR)
@@ -14345,7 +14345,7 @@ GFXRECON_BEGIN_NAMESPACE(GetPipelineBinaryDataKHR)
 struct device : Field<"device", api_elements::VkDevice> {};
 struct pInfo : Field<"pInfo", Pointer<Const<api_elements::VkPipelineBinaryDataInfoKHR>>> {};
 struct pPipelineBinaryKey : Field<"pPipelineBinaryKey", Pointer<api_elements::VkPipelineBinaryKeyKHR>> {};
-struct pPipelineBinaryDataSize : Field<"pPipelineBinaryDataSize", Pointer<api_elements::Size>> {};
+struct pPipelineBinaryDataSize : Field<"pPipelineBinaryDataSize", Pointer<api_elements::SizeT>> {};
 struct pPipelineBinaryData : Field<"pPipelineBinaryData", Array<api_elements::Void, FieldValue<pPipelineBinaryDataSize>>> {};
 struct result : Field<"result", api_elements::VkResult> { static constexpr bool is_return = true; };
 GFXRECON_END_NAMESPACE(GetPipelineBinaryDataKHR)
@@ -14482,7 +14482,7 @@ struct instance : Field<"instance", api_elements::VkInstance> {};
 struct flags : Field<"flags", api_elements::VkDebugReportFlagsEXT> {};
 struct objectType : Field<"objectType", api_elements::VkDebugReportObjectTypeEXT> {};
 struct object : Field<"object", api_elements::GenericHandle> { using selector_field = objectType; };
-struct location : Field<"location", api_elements::Size> {};
+struct location : Field<"location", api_elements::SizeT> {};
 struct messageCode : Field<"messageCode", api_elements::Int32> {};
 struct pLayerPrefix : Field<"pLayerPrefix", Pointer<Const<api_elements::Char>>> {};
 struct pMessage : Field<"pMessage", Pointer<Const<api_elements::Char>>> {};
@@ -14627,7 +14627,7 @@ struct device : Field<"device", api_elements::VkDevice> {};
 struct pipeline : Field<"pipeline", api_elements::VkPipeline> {};
 struct shaderStage : Field<"shaderStage", api_elements::VkShaderStageFlagBits> {};
 struct infoType : Field<"infoType", api_elements::VkShaderInfoTypeAMD> {};
-struct pInfoSize : Field<"pInfoSize", Pointer<api_elements::Size>> {};
+struct pInfoSize : Field<"pInfoSize", Pointer<api_elements::SizeT>> {};
 struct pInfo : Field<"pInfo", Array<api_elements::Void, FieldValue<pInfoSize>>> {};
 struct result : Field<"result", api_elements::VkResult> { static constexpr bool is_return = true; };
 GFXRECON_END_NAMESPACE(GetShaderInfoAMD)
@@ -14953,7 +14953,7 @@ GFXRECON_BEGIN_NAMESPACE(GetGpaSessionResultsAMD)
 struct device : Field<"device", api_elements::VkDevice> {};
 struct gpaSession : Field<"gpaSession", api_elements::VkGpaSessionAMD> {};
 struct sampleID : Field<"sampleID", api_elements::UInt32> {};
-struct pSizeInBytes : Field<"pSizeInBytes", Pointer<api_elements::Size>> {};
+struct pSizeInBytes : Field<"pSizeInBytes", Pointer<api_elements::SizeT>> {};
 struct pData : Field<"pData", Array<api_elements::Void, FieldValue<pSizeInBytes>>> {};
 struct result : Field<"result", api_elements::VkResult> { static constexpr bool is_return = true; };
 GFXRECON_END_NAMESPACE(GetGpaSessionResultsAMD)
@@ -15016,7 +15016,7 @@ GFXRECON_END_NAMESPACE(MergeValidationCachesEXT)
 GFXRECON_BEGIN_NAMESPACE(GetValidationCacheDataEXT)
 struct device : Field<"device", api_elements::VkDevice> {};
 struct validationCache : Field<"validationCache", api_elements::VkValidationCacheEXT> {};
-struct pDataSize : Field<"pDataSize", Pointer<api_elements::Size>> {};
+struct pDataSize : Field<"pDataSize", Pointer<api_elements::SizeT>> {};
 struct pData : Field<"pData", Array<api_elements::Void, FieldValue<pDataSize>>> {};
 struct result : Field<"result", api_elements::VkResult> { static constexpr bool is_return = true; };
 GFXRECON_END_NAMESPACE(GetValidationCacheDataEXT)
@@ -15128,7 +15128,7 @@ struct device : Field<"device", api_elements::VkDevice> {};
 struct pipeline : Field<"pipeline", api_elements::VkPipeline> {};
 struct firstGroup : Field<"firstGroup", api_elements::UInt32> {};
 struct groupCount : Field<"groupCount", api_elements::UInt32> {};
-struct dataSize : Field<"dataSize", api_elements::Size> {};
+struct dataSize : Field<"dataSize", api_elements::SizeT> {};
 struct pData : Field<"pData", Array<api_elements::Void, FieldValue<dataSize>>> {};
 struct result : Field<"result", api_elements::VkResult> { static constexpr bool is_return = true; };
 GFXRECON_END_NAMESPACE(GetRayTracingShaderGroupHandlesKHR)
@@ -15138,7 +15138,7 @@ struct device : Field<"device", api_elements::VkDevice> {};
 struct pipeline : Field<"pipeline", api_elements::VkPipeline> {};
 struct firstGroup : Field<"firstGroup", api_elements::UInt32> {};
 struct groupCount : Field<"groupCount", api_elements::UInt32> {};
-struct dataSize : Field<"dataSize", api_elements::Size> {};
+struct dataSize : Field<"dataSize", api_elements::SizeT> {};
 struct pData : Field<"pData", Array<api_elements::Void, FieldValue<dataSize>>> {};
 struct result : Field<"result", api_elements::VkResult> { static constexpr bool is_return = true; };
 GFXRECON_END_NAMESPACE(GetRayTracingShaderGroupHandlesNV)
@@ -15146,7 +15146,7 @@ GFXRECON_END_NAMESPACE(GetRayTracingShaderGroupHandlesNV)
 GFXRECON_BEGIN_NAMESPACE(GetAccelerationStructureHandleNV)
 struct device : Field<"device", api_elements::VkDevice> {};
 struct accelerationStructure : Field<"accelerationStructure", api_elements::VkAccelerationStructureNV> {};
-struct dataSize : Field<"dataSize", api_elements::Size> {};
+struct dataSize : Field<"dataSize", api_elements::SizeT> {};
 struct pData : Field<"pData", Array<api_elements::Void, FieldValue<dataSize>>> {};
 struct result : Field<"result", api_elements::VkResult> { static constexpr bool is_return = true; };
 GFXRECON_END_NAMESPACE(GetAccelerationStructureHandleNV)
@@ -15719,7 +15719,7 @@ GFXRECON_END_NAMESPACE(GetDescriptorSetLayoutBindingOffsetEXT)
 GFXRECON_BEGIN_NAMESPACE(GetDescriptorEXT)
 struct device : Field<"device", api_elements::VkDevice> {};
 struct pDescriptorInfo : Field<"pDescriptorInfo", Pointer<Const<api_elements::VkDescriptorGetInfoEXT>>> {};
-struct dataSize : Field<"dataSize", api_elements::Size> {};
+struct dataSize : Field<"dataSize", api_elements::SizeT> {};
 struct pDescriptor : Field<"pDescriptor", Array<api_elements::Void, FieldValue<dataSize>>> {};
 struct result : Field<"result", api_elements::Void> { static constexpr bool is_return = true; };
 GFXRECON_END_NAMESPACE(GetDescriptorEXT)
@@ -15972,9 +15972,9 @@ struct device : Field<"device", api_elements::VkDevice> {};
 struct micromapCount : Field<"micromapCount", api_elements::UInt32> {};
 struct pMicromaps : Field<"pMicromaps", Array<Const<api_elements::VkMicromapEXT>, FieldValue<micromapCount>>> {};
 struct queryType : Field<"queryType", api_elements::VkQueryType> {};
-struct dataSize : Field<"dataSize", api_elements::Size> {};
+struct dataSize : Field<"dataSize", api_elements::SizeT> {};
 struct pData : Field<"pData", Array<api_elements::Void, FieldValue<dataSize>>> {};
-struct stride : Field<"stride", api_elements::Size> {};
+struct stride : Field<"stride", api_elements::SizeT> {};
 struct result : Field<"result", api_elements::VkResult> { static constexpr bool is_return = true; };
 GFXRECON_END_NAMESPACE(WriteMicromapsPropertiesEXT)
 
@@ -16424,7 +16424,7 @@ GFXRECON_END_NAMESPACE(DestroyShaderEXT)
 GFXRECON_BEGIN_NAMESPACE(GetShaderBinaryDataEXT)
 struct device : Field<"device", api_elements::VkDevice> {};
 struct shader : Field<"shader", api_elements::VkShaderEXT> {};
-struct pDataSize : Field<"pDataSize", Pointer<api_elements::Size>> {};
+struct pDataSize : Field<"pDataSize", Pointer<api_elements::SizeT>> {};
 struct pData : Field<"pData", Array<api_elements::Void, FieldValue<pDataSize>>> {};
 struct result : Field<"result", api_elements::VkResult> { static constexpr bool is_return = true; };
 GFXRECON_END_NAMESPACE(GetShaderBinaryDataEXT)
@@ -16840,9 +16840,9 @@ struct device : Field<"device", api_elements::VkDevice> {};
 struct accelerationStructureCount : Field<"accelerationStructureCount", api_elements::UInt32> {};
 struct pAccelerationStructures : Field<"pAccelerationStructures", Array<Const<api_elements::VkAccelerationStructureKHR>, FieldValue<accelerationStructureCount>>> {};
 struct queryType : Field<"queryType", api_elements::VkQueryType> {};
-struct dataSize : Field<"dataSize", api_elements::Size> {};
+struct dataSize : Field<"dataSize", api_elements::SizeT> {};
 struct pData : Field<"pData", Array<api_elements::Void, FieldValue<dataSize>>> {};
-struct stride : Field<"stride", api_elements::Size> {};
+struct stride : Field<"stride", api_elements::SizeT> {};
 struct result : Field<"result", api_elements::VkResult> { static constexpr bool is_return = true; };
 GFXRECON_END_NAMESPACE(WriteAccelerationStructuresPropertiesKHR)
 
@@ -16913,7 +16913,7 @@ struct device : Field<"device", api_elements::VkDevice> {};
 struct pipeline : Field<"pipeline", api_elements::VkPipeline> {};
 struct firstGroup : Field<"firstGroup", api_elements::UInt32> {};
 struct groupCount : Field<"groupCount", api_elements::UInt32> {};
-struct dataSize : Field<"dataSize", api_elements::Size> {};
+struct dataSize : Field<"dataSize", api_elements::SizeT> {};
 struct pData : Field<"pData", Array<api_elements::Void, FieldValue<dataSize>>> {};
 struct result : Field<"result", api_elements::VkResult> { static constexpr bool is_return = true; };
 GFXRECON_END_NAMESPACE(GetRayTracingCaptureReplayShaderGroupHandlesKHR)
