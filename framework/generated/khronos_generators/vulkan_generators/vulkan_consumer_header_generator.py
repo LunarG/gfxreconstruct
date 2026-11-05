@@ -104,6 +104,8 @@ class VulkanConsumerHeaderGenerator(VulkanBaseGenerator, KhronosConsumerHeaderGe
         """Write process overloads for all Vulkan commands. E.g.:
         void Process(const ApiCallInfo& call_info, args::CmdDraw& args) { Process_vkCmdDraw(call_info, args); }
         """
+        write(self.indent('\nusing VulkanConsumerBase::Process;', self.INDENT_SIZE), file=self.outFile)
+
         for cmd in self.get_all_filtered_cmd_names():
             if self.skip_generating_command(cmd):
                 continue
