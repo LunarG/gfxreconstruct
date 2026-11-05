@@ -521,12 +521,7 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
         Generate API Call Consumer class member function declaration.
         """
         param_decls = []
-        param_decl = self.make_aligned_param_decl(
-            'const ApiCallInfo&', 'call_info', self.INDENT_SIZE,
-            self.genOpts.align_func_param
-        )
-        param_decls.append(param_decl)
-
+        param_decls.append(self.make_call_info_param_decl())
         param_decls.extend(self.make_param_decls(return_type, name, values))
 
         if param_decls:
@@ -534,16 +529,16 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
 
         return f'void {name}()'
 
+    def make_call_info_param_decl(self):
+        """Helper to create the call_info parameter declaration."""
+        return self.make_aligned_param_decl(
+            'const ApiCallInfo&', 'call_info', self.INDENT_SIZE,
+            self.genOpts.align_func_param
+        )
+
     def make_param_decls(self, return_type, name, values):
         """make_param_decls - return list of parameter declarations for an API call consumer function."""
         param_decls = []
-
-        #if return_type != 'void':
-        #    param_decl = self.make_aligned_param_decl(
-        #        return_type, 'returnValue', self.INDENT_SIZE,
-        #        self.genOpts.align_func_param
-        #    )
-        #    param_decls.append(param_decl)
 
         if len(values) > 0:
             args_struct_name = self.make_args_struct_name(name, namespace='args::')
