@@ -210,7 +210,7 @@ file_processor::ProcessBlockState BlockProcessor::ProcessBlock(Policy& policy, B
                         // we use explicit frame end markers.
                         ParsedBlock& end_marker = block_parser.EmplaceFrameEndMarkerBlock(
                             frame_tracker_.GetFrameNumber() + frame_tracker_.GetFirstFrame());
-                        process_state           = policy.Dispatch(block_index_, end_marker);
+                        process_state = policy.Dispatch(block_index_, end_marker);
                     }
 
                     if (process_state == file_processor::ProcessBlockState::kContinue)
