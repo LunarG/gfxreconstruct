@@ -3550,8 +3550,8 @@ void VulkanCppConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate(const Api
     Post_APICall(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate);
 }
 
-void VulkanCppConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
-                                                                          args::CmdPushDescriptorSetWithTemplate& args)
+void VulkanCppConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
+    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplateKHR& args)
 {
     Generate_vkCmdPushDescriptorSetWithTemplate(args, "KHR");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR);
@@ -3572,7 +3572,7 @@ void VulkanCppConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2(const Ap
 }
 
 void VulkanCppConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
-    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplate2& args)
+    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplate2KHR& args)
 {
     Generate_vkCmdPushDescriptorSetWithTemplate2(args, "KHR");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2KHR);
