@@ -166,6 +166,7 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/vulkan_cpp_util_datapack.h>
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/vulkan_cpp_util_datapack.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_consumer_base.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_consumer_stage_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_pnext_node.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_pnext_typed_node.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_stats_consumer.h
@@ -463,6 +464,7 @@ if (${RUN_TESTS})
     target_sources(gfxrecon_decode_test PRIVATE
             ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_vulkan_command_buffer_util.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/test/test_vulkan_consumer_stage.cpp
             ${CMAKE_CURRENT_LIST_DIR}/../../tools/platform_debug_helper.cpp)
     target_link_libraries(gfxrecon_decode_test PRIVATE gfxrecon_decode)
     if (MSVC)
