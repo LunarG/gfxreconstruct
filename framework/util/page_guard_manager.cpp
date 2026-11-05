@@ -1337,6 +1337,12 @@ uintptr_t PageGuardManager::AllocatePersistentShadowMemory(size_t size)
         size_t total_shadow_pages       = shadow_size >> system_page_pot_shift_;
         size_t last_shadow_segment_size = size & (system_page_size_ - 1); // allocation_size % system_page_size_
 
+        // A size that is a multiple of the page size ends with a full page.
+        if (last_shadow_segment_size == 0)
+        {
+            last_shadow_segment_size = system_page_size_;
+        }
+
         info = new ShadowMemoryInfo(shadow_memory, shadow_size, total_shadow_pages, last_shadow_segment_size);
     }
 
