@@ -2987,6 +2987,49 @@ void VulkanCaptureManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice        
     }
 }
 
+void VulkanCaptureManager::PostProcess_vkInvalidateMappedMemoryRanges(VkResult                   result,
+                                                                      VkDevice                   device,
+                                                                      uint32_t                   memoryRangeCount,
+                                                                      const VkMappedMemoryRange* pMemoryRanges)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+
+    // The application reads the shadow memory, thus the bytes that the invalidate makes visible go there too.
+    if ((result != VK_SUCCESS) || (pMemoryRanges == nullptr) ||
+        ((GetMemoryTrackingMode() != CaptureSettings::MemoryTrackingMode::kPageGuard) &&
+         (GetMemoryTrackingMode() != CaptureSettings::MemoryTrackingMode::kUserfaultfd)))
+    {
+        return;
+    }
+
+    util::PageGuardManager* manager = util::PageGuardManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+
+    for (uint32_t i = 0; i < memoryRangeCount; ++i)
+    {
+        auto memory_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(pMemoryRanges[i].memory);
+
+        if ((memory_wrapper != nullptr) && (memory_wrapper->mapped_data != nullptr))
+        {
+            GFXRECON_ASSERT(pMemoryRanges[i].offset >= memory_wrapper->mapped_offset);
+
+            // The range offset is relative to the start of the memory object, and the page guard offset to the start
+            // of the mapped pointer.
+            VkDeviceSize relative_offset = pMemoryRanges[i].offset - memory_wrapper->mapped_offset;
+            VkDeviceSize size            = pMemoryRanges[i].size;
+            if (size == VK_WHOLE_SIZE)
+            {
+                GFXRECON_ASSERT(pMemoryRanges[i].offset <= memory_wrapper->allocation_size);
+                size = memory_wrapper->allocation_size - pMemoryRanges[i].offset;
+            }
+
+            manager->RefreshShadowMemory(
+                memory_wrapper->handle_id, static_cast<size_t>(relative_offset), static_cast<size_t>(size));
+        }
+    }
+}
+
 void VulkanCaptureManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memory)
 {
     auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(memory);

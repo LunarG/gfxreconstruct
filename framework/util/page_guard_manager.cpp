@@ -1499,6 +1499,67 @@ bool PageGuardManager::HandleGuardPageViolation(void* address, bool is_write, bo
     return found;
 }
 
+void PageGuardManager::RefreshShadowMemory(uint64_t memory_id, size_t offset, size_t size)
+{
+    // A read of a protected page copies the mapped memory when separate read tracking can tell reads from writes, and
+    // a userfaultfd page copies it on every first access.
+#if defined(_WIN32) || (defined(PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION) && \
+                        (defined(__x86_64__) || defined(__i386__) || defined(__arm__) || defined(__aarch64__)))
+    const bool reads_copy_mapped_memory = enable_separate_read_;
+#else
+    const bool reads_copy_mapped_memory = false;
+#endif
+    if ((protection_mode_ != kMProtectMode) || reads_copy_mapped_memory)
+    {
+        return;
+    }
+
+    std::lock_guard<std::mutex> lock(tracked_memory_lock_);
+
+    auto entry = memory_info_.find(memory_id);
+    if ((entry == memory_info_.end()) || (entry->second.shadow_memory == nullptr) ||
+        (offset >= entry->second.mapped_range) || (size == 0))
+    {
+        return;
+    }
+
+    MemoryInfo*  memory_info = &entry->second;
+    const size_t end_offset =
+        (size > (memory_info->mapped_range - offset)) ? memory_info->mapped_range : (offset + size);
+    const size_t first_page = (offset + memory_info->aligned_offset) >> system_page_pot_shift_;
+    const size_t last_page  = (end_offset - 1 + memory_info->aligned_offset) >> system_page_pot_shift_;
+
+    for (size_t page_index = first_page; page_index <= last_page; ++page_index)
+    {
+        // An accessed page is not protected, and can hold writes of the application that are not yet in the mapped
+        // memory.  Host-coherent memory needs no flush, so the invalidate must not drop them.
+        if (memory_info->status_tracker.IsActiveWriteBlock(page_index) ||
+            memory_info->status_tracker.IsActiveReadBlock(page_index))
+        {
+            continue;
+        }
+
+        // The page in offsets from the start of the mapped pointer.
+        const size_t page_start = page_index << system_page_pot_shift_;
+        const size_t page_begin =
+            (page_start > memory_info->aligned_offset) ? (page_start - memory_info->aligned_offset) : 0;
+        const size_t page_end   = page_start + system_page_size_ - memory_info->aligned_offset;
+        const size_t copy_begin = std::max(offset, page_begin);
+        const size_t copy_end   = std::min(end_offset, page_end);
+
+        // A write of another thread to the page while it is open is not tracked.  The application cannot expect one
+        // to the range it invalidates, and page-aligned buffer sizes keep other buffers off the page.
+        void*        page_address = static_cast<uint8_t*>(memory_info->aligned_address) + page_start;
+        const size_t segment_size = GetMemorySegmentSize(memory_info, page_index);
+
+        SetMemoryProtection(page_address, segment_size, kGuardNoProtect);
+        MemoryCopy(static_cast<uint8_t*>(memory_info->shadow_memory) + copy_begin,
+                   static_cast<const uint8_t*>(memory_info->mapped_memory) + copy_begin,
+                   copy_end - copy_begin);
+        SetMemoryProtection(page_address, segment_size, kGuardReadWriteProtect);
+    }
+}
+
 const void* PageGuardManager::GetMappedMemory(uint64_t memory_id) const
 {
     const auto& mem_info = memory_info_.find(memory_id);
