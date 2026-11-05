@@ -87,6 +87,37 @@ class ExpandStage : public VulkanConsumerStageBase
     }
 };
 
+class TemplateUpdateCounter : public VulkanConsumer
+{
+  public:
+    // Counts instead of copying, because args.pData points into the decode arena.
+    void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&, args::UpdateDescriptorSetWithTemplate&) override
+    {
+        ++updates;
+    }
+
+    uint32_t updates = 0;
+};
+
+class PushTemplateCounter : public VulkanConsumer
+{
+  public:
+    void Process_vkCmdPushDescriptorSetWithTemplate(const ApiCallInfo&,
+                                                    args::CmdPushDescriptorSetWithTemplate&) override
+    {
+        ++core;
+    }
+
+    void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo&,
+                                                       args::CmdPushDescriptorSetWithTemplateKHR&) override
+    {
+        ++khr;
+    }
+
+    uint32_t core = 0;
+    uint32_t khr  = 0;
+};
+
 // Sends a call knowing only its args type, the way generic stage code does.
 template <typename ArgsT>
 void SendByType(VulkanConsumer& consumer, ArgsT& args)
@@ -175,4 +206,29 @@ TEST_CASE("Process overload reaches the per-command virtual", "[stage]")
 
     REQUIRE(recorder.draws.size() == 1);
     CHECK(recorder.draws[0].vertexCount == 3);
+}
+
+TEST_CASE("Process overload reaches a hand-declared virtual", "[stage]")
+{
+    TemplateUpdateCounter counter;
+
+    args::UpdateDescriptorSetWithTemplate update{};
+    SendByType(counter, update);
+
+    CHECK(counter.updates == 1);
+}
+
+TEST_CASE("Process overload keeps a KHR call apart from its core twin", "[stage]")
+{
+    PushTemplateCounter counter;
+
+    // The KHR args derive from the core args, so both overloads accept a KHR call.
+    // The exact match must win.
+    args::CmdPushDescriptorSetWithTemplate    push{};
+    args::CmdPushDescriptorSetWithTemplateKHR push_khr{};
+    SendByType(counter, push);
+    SendByType(counter, push_khr);
+
+    CHECK(counter.core == 1);
+    CHECK(counter.khr == 1);
 }
