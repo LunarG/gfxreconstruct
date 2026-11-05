@@ -3101,6 +3101,8 @@ class VulkanConsumer : public VulkanConsumerBase
         const ApiCallInfo&                          call_info,
         args::CmdDrawMeshTasksIndirectCountEXT&     args) {}
 
+    using VulkanConsumerBase::Process;
+
     void Process(
         const ApiCallInfo&                          call_info,
         args::CreateInstance&                       args) {
