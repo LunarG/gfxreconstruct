@@ -127,7 +127,6 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     void TrackEventState(format::HandleId device, format::HandleId event);
     void FixupDeviceEvents(format::HandleId device);
     void FixupDeviceObjects(format::HandleId device, format::HandleId queue);
-    void TrackLoopQueue(format::HandleId queue);
 
     struct SemaphoreTracking
     {
@@ -396,9 +395,6 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     std::unordered_set<format::HandleId> dangling_destroy_descriptor_sets_;
 
     std::unordered_map<format::HandleId, SemaphoreTracking> per_device_semaphore_tracking_;
-
-    /// The last queue each device submitted to or presented on
-    std::unordered_map<format::HandleId, format::HandleId> per_device_last_queue_;
 
     std::unordered_map<format::HandleId, uint32_t> query_pool_sizes_;
 
