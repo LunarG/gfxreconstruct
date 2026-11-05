@@ -530,6 +530,8 @@ struct VulkanImageInfo : public VulkanObjectInfo<VkImage>
 
     VkDeviceSize size{ 0 };
 
+    bool writable{ false };
+
     // contains a debug-utils name, if any
     std::string debug_utils_name;
 };
