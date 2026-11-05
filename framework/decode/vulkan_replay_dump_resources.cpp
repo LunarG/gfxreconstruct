@@ -62,8 +62,8 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                                                              const VulkanPerDeviceContexts& device_contexts,
                                                              const graphics::InstanceDispatchTablesMap& instance_tables,
                                                              const graphics::DeviceDispatchTablesMap&   device_tables) :
-    BeginCommandBufferQueueSubmit_Indices_(options.BeginCommandBufferQueueSubmit_Indices),
-    active_contexts_(0), dump_resources_before_(options.dump_resources_before), object_info_table_(object_info_table),
+    BeginCommandBufferQueueSubmit_Indices_(options.BeginCommandBufferQueueSubmit_Indices), active_contexts_(0),
+    dump_resources_before_(options.dump_resources_before), object_info_table_(object_info_table),
     output_json_per_command(options.dump_resources_json_per_command), default_delegate_(nullptr),
     user_delegate_(nullptr), active_delegate_(nullptr), device_contexts_(device_contexts),
     dump_as_build_input_buffers_(options.dump_resources_dump_build_AS_input_buffers)
@@ -118,6 +118,64 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
         active_delegate_->Open();
     }
 
+    // The windows are the only execution of a command buffer that draw calls, dispatches or trace rays are dumped
+    // from, and every dumped command of it is a slot. The dumping contexts own the slots of their commands.
+    const auto create_windows = [&](const CommandIndices* draw_indices,
+                                    const CommandIndices* dispatch_indices,
+                                    const CommandIndices* trace_rays_indices,
+                                    size_t                dump_args_row,
+                                    decode::Index         bcb_index,
+                                    decode::Index         qs_index) {
+        const auto* renderpass_indices =
+            dump_args_row < options.RenderPass_Indices.size() ? &options.RenderPass_Indices[dump_args_row] : nullptr;
+        const auto& windows = std::make_shared<DumpingContextWindows>(
+            draw_indices, dispatch_indices, trace_rays_indices, renderpass_indices, *object_info_table, options);
+        dumping_context_windows_.emplace(std::make_pair(bcb_index, qs_index), windows);
+        return windows;
+    };
+
+    const auto create_draw_call_context = [&](const std::shared_ptr<DumpingContextWindows>& windows,
+                                              const CommandIndices*                         draw_indices,
+                                              decode::Index                                 bcb_index,
+                                              decode::Index                                 qs_index) {
+        auto dc_context = std::make_shared<DrawCallsDumpingContext>(windows,
+                                                                    draw_indices,
+                                                                    bcb_index,
+                                                                    qs_index,
+                                                                    options.DrawSubresources,
+                                                                    *object_info_table,
+                                                                    options,
+                                                                    *active_delegate_,
+                                                                    compressor_.get(),
+                                                                    acceleration_structures_context_,
+                                                                    device_contexts);
+        windows->SetSlotOwner(WindowSlot::Kind::kDraw, dc_context);
+        draw_call_contexts_.emplace(std::make_pair(bcb_index, qs_index), dc_context);
+    };
+
+    const auto create_dispatch_trace_rays_context = [&](const std::shared_ptr<DumpingContextWindows>& windows,
+                                                        const CommandIndices*                         dispatch_indices,
+                                                        const CommandIndices* trace_rays_indices,
+                                                        decode::Index         bcb_index,
+                                                        decode::Index         qs_index) {
+        auto dr_context = std::make_shared<DispatchTraceRaysDumpingContext>(windows,
+                                                                            dispatch_indices,
+                                                                            options.DispatchSubresources,
+                                                                            trace_rays_indices,
+                                                                            bcb_index,
+                                                                            qs_index,
+                                                                            options.TraceRaysSubresources,
+                                                                            *object_info_table_,
+                                                                            options,
+                                                                            *active_delegate_,
+                                                                            compressor_.get(),
+                                                                            acceleration_structures_context_,
+                                                                            device_contexts);
+        windows->SetSlotOwner(WindowSlot::Kind::kDispatch, dr_context);
+        windows->SetSlotOwner(WindowSlot::Kind::kTraceRays, dr_context);
+        dispatch_ray_contexts_.emplace(std::make_pair(bcb_index, qs_index), dr_context);
+    };
+
     for (size_t i = 0; i < BeginCommandBufferQueueSubmit_Indices_.size(); ++i)
     {
         const decode::Index qs_index  = BeginCommandBufferQueueSubmit_Indices_[i].second;
@@ -127,47 +185,29 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                                   (i < options.TraceRays_Indices.size() && options.TraceRays_Indices[i].size());
         const bool has_transfer = i < options.Transfer_Indices.size() && options.Transfer_Indices[i].size();
 
-        if (has_draw)
-        {
-            const auto* renderpass_indices =
-                i < options.RenderPass_Indices.size() ? &options.RenderPass_Indices[i] : nullptr;
-            draw_call_contexts_.emplace(
-                std::piecewise_construct,
-                std::forward_as_tuple(bcb_index, qs_index),
-                std::forward_as_tuple(std::make_unique<DrawCallsDumpingContext>(&options.Draw_Indices[i],
-                                                                                renderpass_indices,
-                                                                                bcb_index,
-                                                                                qs_index,
-                                                                                options.DrawSubresources,
-                                                                                *object_info_table,
-                                                                                options,
-                                                                                *active_delegate_,
-                                                                                compressor_.get(),
-                                                                                acceleration_structures_context_,
-                                                                                device_contexts)));
-        }
+        const CommandIndices* draw_indices = has_draw ? &options.Draw_Indices[i] : nullptr;
+        const CommandIndices* dispatch_indices =
+            (i < options.Dispatch_Indices.size() && options.Dispatch_Indices[i].size()) ? &options.Dispatch_Indices[i]
+                                                                                        : nullptr;
+        const CommandIndices* trace_rays_indices =
+            (i < options.TraceRays_Indices.size() && options.TraceRays_Indices[i].size())
+                ? &options.TraceRays_Indices[i]
+                : nullptr;
 
-        if (has_dispatch)
+        if (has_draw || has_dispatch)
         {
-            dispatch_ray_contexts_.emplace(std::piecewise_construct,
-                                           std::forward_as_tuple(bcb_index, qs_index),
-                                           std::forward_as_tuple(std::make_unique<DispatchTraceRaysDumpingContext>(
-                                               (options.Dispatch_Indices.size() && options.Dispatch_Indices[i].size())
-                                                   ? &options.Dispatch_Indices[i]
-                                                   : nullptr,
-                                               options.DispatchSubresources,
-                                               (options.TraceRays_Indices.size() && options.TraceRays_Indices[i].size())
-                                                   ? &options.TraceRays_Indices[i]
-                                                   : nullptr,
-                                               bcb_index,
-                                               qs_index,
-                                               options.TraceRaysSubresources,
-                                               *object_info_table_,
-                                               options,
-                                               *active_delegate_,
-                                               compressor_.get(),
-                                               acceleration_structures_context_,
-                                               device_contexts)));
+            const std::shared_ptr<DumpingContextWindows> windows =
+                create_windows(draw_indices, dispatch_indices, trace_rays_indices, i, bcb_index, qs_index);
+
+            if (has_draw)
+            {
+                create_draw_call_context(windows, draw_indices, bcb_index, qs_index);
+            }
+
+            if (has_dispatch)
+            {
+                create_dispatch_trace_rays_context(windows, dispatch_indices, trace_rays_indices, bcb_index, qs_index);
+            }
         }
 
         if (has_transfer)
@@ -206,12 +246,12 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
     // An example:
     // (BCBp, QS0), (BCBp, QS1), (BCBs, QS0), (BSBs, QS1)
     // The same recorded primary (BSBp) is marked for dumping in two different queue submissions (QS0 and QS1).
-    // The primary executes the secondary recorded in BCBs. This request will create 4 draw call dumping contexts:
-    // (BCBp, QS0): Primary context 0 (PC0)
-    // (BCBp, QS1): Primary context 1 (PC1)
-    // (BCBs, QS0): Secondary context 0 (SC0)
-    // (BCBs, QS1): Secondary context 1 (SC1)
-    // PC0 must be assigned with SC0 and PC1 with SC1.
+    // The primary executes the secondary recorded in BCBs. This request will create 4 windows:
+    // (BCBp, QS0): Primary windows 0 (PW0)
+    // (BCBp, QS1): Primary windows 1 (PW1)
+    // (BCBs, QS0): Secondary windows 0 (SW0)
+    // (BCBs, QS1): Secondary windows 1 (SW1)
+    // PW0 must be assigned with SW0 and PW1 with SW1.
     for (size_t i = 0;
          i < options.BeginCommandBufferQueueSubmit_Indices.size() && i < options.ExecuteCommands_Indices.size();
          ++i)
@@ -224,86 +264,47 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
         const decode::Index bcb_index = BeginCommandBufferQueueSubmit_Indices_[i].first;
         const decode::Index qs_index  = BeginCommandBufferQueueSubmit_Indices_[i].second;
 
-        std::shared_ptr<DrawCallsDumpingContext> primary_dc_context =
-            FindContext(draw_call_contexts_, bcb_index, qs_index);
+        std::shared_ptr<DumpingContextWindows> primary_windows =
+            FindContext(dumping_context_windows_, bcb_index, qs_index);
         for (auto& [execute_commands_index, secondary_bcbs] : options.ExecuteCommands_Indices[i])
         {
             for (auto& secondary_bcb : secondary_bcbs)
             {
-                std::shared_ptr<DrawCallsDumpingContext> secondary_dc_context =
-                    FindContext(draw_call_contexts_, secondary_bcb, qs_index);
-                if (secondary_dc_context != nullptr)
+                std::shared_ptr<DumpingContextWindows> secondary_windows =
+                    FindContext(dumping_context_windows_, secondary_bcb, qs_index);
+                if (secondary_windows == nullptr)
                 {
-                    // If a primary has not been marked for dumping but executes a secondary that has been marked, then
-                    // that primary will not have a context created. Create one now.
-                    if (primary_dc_context == nullptr)
-                    {
-                        auto [new_primary_it, success] = draw_call_contexts_.emplace(
-                            std::piecewise_construct,
-                            std::forward_as_tuple(bcb_index, qs_index),
-                            std::forward_as_tuple(std::make_unique<DrawCallsDumpingContext>(
-                                nullptr,
-                                i < options.RenderPass_Indices.size() ? &options.RenderPass_Indices[i] : nullptr,
-                                bcb_index,
-                                qs_index,
-                                options.DrawSubresources,
-                                *object_info_table,
-                                options,
-                                *active_delegate_,
-                                compressor_.get(),
-                                acceleration_structures_context_,
-                                device_contexts)));
-                        GFXRECON_ASSERT(success);
-                        primary_dc_context = new_primary_it->second;
-                    }
-
-                    primary_dc_context->AssignSecondary(execute_commands_index, secondary_dc_context);
+                    continue;
                 }
-            }
-        }
 
-        std::shared_ptr<DispatchTraceRaysDumpingContext> primary_disp_context =
-            FindContext(dispatch_ray_contexts_, bcb_index, qs_index);
-        for (auto& [execute_commands_index, secondary_bcbs] : options.ExecuteCommands_Indices[i])
-        {
-            for (auto& secondary_bcb : secondary_bcbs)
-            {
-                std::shared_ptr<DispatchTraceRaysDumpingContext> secondary_disp_context =
-                    FindContext(dispatch_ray_contexts_, secondary_bcb, qs_index);
-
-                if (secondary_disp_context != nullptr)
+                // If a primary has not been marked for dumping but executes a secondary that has been marked, then
+                // that primary will not have windows created. Create them now.
+                if (primary_windows == nullptr)
                 {
-                    // If a primary has not been marked for dumping but executes a secondary that has been marked, then
-                    // that primary will not have a context created. Create one now.
-                    if (primary_disp_context == nullptr)
-                    {
-                        auto [new_primary_it, success] = dispatch_ray_contexts_.emplace(
-                            std::piecewise_construct,
-                            std::forward_as_tuple(bcb_index, qs_index),
-                            std::forward_as_tuple(
-                                std::make_unique<DispatchTraceRaysDumpingContext>(nullptr,
-                                                                                  options.DispatchSubresources,
-                                                                                  nullptr,
-                                                                                  bcb_index,
-                                                                                  qs_index,
-                                                                                  options.TraceRaysSubresources,
-                                                                                  *object_info_table_,
-                                                                                  options,
-                                                                                  *active_delegate_,
-                                                                                  compressor_.get(),
-                                                                                  acceleration_structures_context_,
-                                                                                  device_contexts)));
-                        GFXRECON_ASSERT(success);
-                        primary_disp_context = new_primary_it->second;
-                    }
-
-                    primary_disp_context->AssignSecondary(execute_commands_index, secondary_disp_context);
+                    primary_windows = create_windows(nullptr, nullptr, nullptr, i, bcb_index, qs_index);
                 }
+
+                // The slots of the secondary become slots of the primary, which is the one submitted and dumped. So
+                // the primary needs a dumping context for every kind of command its secondaries dump, even if none
+                // of its own commands are dumped.
+                if (secondary_windows->HasSlotOwner(WindowSlot::Kind::kDraw) &&
+                    !primary_windows->HasSlotOwner(WindowSlot::Kind::kDraw))
+                {
+                    create_draw_call_context(primary_windows, nullptr, bcb_index, qs_index);
+                }
+
+                if (secondary_windows->HasSlotOwner(WindowSlot::Kind::kDispatch) &&
+                    !primary_windows->HasSlotOwner(WindowSlot::Kind::kDispatch))
+                {
+                    create_dispatch_trace_rays_context(primary_windows, nullptr, nullptr, bcb_index, qs_index);
+                }
+
+                primary_windows->AssignSecondary(execute_commands_index, secondary_windows);
             }
         }
     }
 
-    // Number of command buffers for DrawCallsDumpingContext need to be recalculated when dumping resources from
+    // Number of command buffers of the windows need to be recalculated when dumping resources from
     // secondaries. This is done in a separate pass since we need to be sure that all assignments have been completed.
     if (!options.ExecuteCommands_Indices.empty())
     {
@@ -319,33 +320,22 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
             const uint64_t bcb_index = BeginCommandBufferQueueSubmit_Indices_[i].first;
             const uint64_t qs_index  = BeginCommandBufferQueueSubmit_Indices_[i].second;
 
-            std::shared_ptr<DrawCallsDumpingContext> primary_dc_context =
-                FindContext(draw_call_contexts_, bcb_index, qs_index);
-            if (primary_dc_context != nullptr)
+            std::shared_ptr<DumpingContextWindows> primary_windows =
+                FindContext(dumping_context_windows_, bcb_index, qs_index);
+            if (primary_windows != nullptr)
             {
-                primary_dc_context->RecalculateCommandBuffers();
+                primary_windows->RecalculateCommandBuffers();
             }
-        }
-    }
-
-    // A command buffer dumping both draws and dispatch/trace rays must be executed once. The draw call clones are
-    // that execution, so the dispatch/trace rays context records into them instead of keeping a clone of its own.
-    for (auto& [bcb_qs_pair, dr_context] : dispatch_ray_contexts_)
-    {
-        const auto dc_entry = draw_call_contexts_.find(bcb_qs_pair);
-        if (dc_entry != draw_call_contexts_.end())
-        {
-            dr_context->SetHost(dc_entry->second);
         }
     }
 
     // Append the tail clones last: every context and secondary assignment exists by now, the command buffer
     // counts are final, and nothing has been recorded yet. Each primary does it for its whole family.
-    for (auto& [bcb_qs_pair, dc_context] : draw_call_contexts_)
+    for (auto& [bcb_qs_pair, windows] : dumping_context_windows_)
     {
-        if (dc_context->IsPrimary())
+        if (windows->IsPrimary())
         {
-            dc_context->AppendTailClones();
+            windows->AppendTailClones();
         }
     }
 }
@@ -366,38 +356,28 @@ void VulkanReplayDumpResourcesBase::Release()
     }
     draw_call_contexts_.clear();
     dispatch_ray_contexts_.clear();
+    dumping_context_windows_.clear();
     cb_bcb_map_.clear();
     BeginCommandBufferQueueSubmit_Indices_.clear();
 
     acceleration_structures_context_.clear();
 }
 
-std::vector<std::shared_ptr<DrawCallsDumpingContext>>
-VulkanReplayDumpResourcesBase::FindDrawCallDumpingContexts(VkCommandBuffer original_command_buffer)
+std::vector<std::shared_ptr<DumpingContextWindows>>
+VulkanReplayDumpResourcesBase::FindDumpingContextWindows(VkCommandBuffer original_command_buffer)
 {
-    std::vector<std::shared_ptr<DrawCallsDumpingContext>> contexts;
-
-    auto begin_entry = cb_bcb_map_.find(original_command_buffer);
+    const auto begin_entry = cb_bcb_map_.find(original_command_buffer);
     if (begin_entry == cb_bcb_map_.end())
     {
-        return contexts;
+        return {};
     }
 
-    const decode::Index bcb_index = begin_entry->second;
-    for (auto it = draw_call_contexts_.begin(); it != draw_call_contexts_.end(); ++it)
-    {
-        if (it->first.first == bcb_index)
-        {
-            contexts.push_back(it->second);
-        }
-    }
-
-    return contexts;
+    return FindDumpingContextWindows(begin_entry->second);
 }
 
-std::shared_ptr<DrawCallsDumpingContext>
-VulkanReplayDumpResourcesBase::FindDrawCallDumpingContext(VkCommandBuffer original_command_buffer,
-                                                          decode::Index   qs_index)
+std::shared_ptr<DumpingContextWindows>
+VulkanReplayDumpResourcesBase::FindDumpingContextWindows(VkCommandBuffer original_command_buffer,
+                                                         decode::Index   qs_index)
 {
     const auto begin_entry = cb_bcb_map_.find(original_command_buffer);
     if (begin_entry == cb_bcb_map_.end())
@@ -405,7 +385,35 @@ VulkanReplayDumpResourcesBase::FindDrawCallDumpingContext(VkCommandBuffer origin
         return nullptr;
     }
 
-    return FindContext(draw_call_contexts_, begin_entry->second, qs_index);
+    return FindContext(dumping_context_windows_, begin_entry->second, qs_index);
+}
+
+std::vector<std::shared_ptr<DumpingContextWindows>>
+VulkanReplayDumpResourcesBase::FindDumpingContextWindows(uint64_t bcb_id)
+{
+    std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts;
+
+    for (auto it = dumping_context_windows_.begin(); it != dumping_context_windows_.end(); ++it)
+    {
+        if (it->first.first == bcb_id)
+        {
+            windows_contexts.push_back(it->second);
+        }
+    }
+
+    return windows_contexts;
+}
+
+std::vector<std::shared_ptr<DrawCallsDumpingContext>>
+VulkanReplayDumpResourcesBase::FindDrawCallDumpingContexts(VkCommandBuffer original_command_buffer)
+{
+    const auto begin_entry = cb_bcb_map_.find(original_command_buffer);
+    if (begin_entry == cb_bcb_map_.end())
+    {
+        return {};
+    }
+
+    return FindDrawCallDumpingContexts(begin_entry->second);
 }
 
 std::vector<std::shared_ptr<DrawCallsDumpingContext>>
@@ -463,19 +471,6 @@ VulkanReplayDumpResourcesBase::FindDispatchTraceRaysContexts(VkCommandBuffer ori
     return contexts;
 }
 
-std::shared_ptr<DispatchTraceRaysDumpingContext>
-VulkanReplayDumpResourcesBase::FindDispatchTraceRaysContext(VkCommandBuffer original_command_buffer,
-                                                            decode::Index   qs_index)
-{
-    const auto bcb_entry = cb_bcb_map_.find(original_command_buffer);
-    if (bcb_entry == cb_bcb_map_.end())
-    {
-        return nullptr;
-    }
-
-    return FindContext(dispatch_ray_contexts_, bcb_entry->second, qs_index);
-}
-
 std::vector<std::shared_ptr<TransferDumpingContext>>
 VulkanReplayDumpResourcesBase::FindTransferContextCmdIndex(uint64_t cmd_index)
 {
@@ -523,6 +518,7 @@ void VulkanReplayDumpResourcesBase::ReleaseDumpingContexts(decode::Index qs_inde
 {
     ReleaseDumpingContexts(draw_call_contexts_, qs_index);
     ReleaseDumpingContexts(dispatch_ray_contexts_, qs_index);
+    ReleaseDumpingContexts(dumping_context_windows_, qs_index);
     ReleaseDumpingContexts(transfer_contexts_, qs_index);
 
     BeginCommandBufferQueueSubmit_Indices_.erase(
@@ -549,14 +545,26 @@ VkResult VulkanReplayDumpResourcesBase::BeginCommandBuffer(uint64_t             
     GFXRECON_ASSERT(device_table.IsValid());
     assert(inst_table);
 
+    // The windows clone the command buffer. The dumping contexts that own their slots record into those clones.
+    const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts = FindDumpingContextWindows(bcb_index);
+    for (const auto& windows : windows_contexts)
+    {
+        VkResult res = windows->BeginCommandBuffer(original_command_buffer_info, device_table, begin_info);
+        if (res != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("Cloning command buffer for dumping resources failed (%s).",
+                               util::ToString<VkResult>(res).c_str())
+            return res;
+        }
+    }
+
     const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(bcb_index);
     for (auto dc_context : dc_contexts)
     {
-        VkResult res =
-            dc_context->BeginCommandBuffer(original_command_buffer_info, device_table, inst_table, begin_info);
+        VkResult res = dc_context->BeginCommandBuffer(original_command_buffer_info, device_table, inst_table);
         if (res != VK_SUCCESS)
         {
-            GFXRECON_LOG_ERROR("Cloning command buffer for dumping draw calls failed (%s).",
+            GFXRECON_LOG_ERROR("Beginning command buffer for dumping draw calls failed (%s).",
                                util::ToString<VkResult>(res).c_str())
             return res;
         }
@@ -566,11 +574,10 @@ VkResult VulkanReplayDumpResourcesBase::BeginCommandBuffer(uint64_t             
         FindDispatchTraceRaysContexts(bcb_index);
     for (auto dr_context : dr_contexts)
     {
-        VkResult res =
-            dr_context->BeginCommandBuffer(original_command_buffer_info, device_table, inst_table, begin_info);
+        VkResult res = dr_context->BeginCommandBuffer(original_command_buffer_info, device_table, inst_table);
         if (res != VK_SUCCESS)
         {
-            GFXRECON_LOG_ERROR("Cloning command buffer for dumping compute/ray tracing failed (%s).",
+            GFXRECON_LOG_ERROR("Beginning command buffer for dumping compute/ray tracing failed (%s).",
                                util::ToString<VkResult>(res).c_str())
             return res;
         }
@@ -579,9 +586,9 @@ VkResult VulkanReplayDumpResourcesBase::BeginCommandBuffer(uint64_t             
     const std::vector<std::shared_ptr<const TransferDumpingContext>> transf_contexts =
         FindTransferContextBcbIndex(bcb_index);
 
-    if (!dr_contexts.empty() || !dc_contexts.empty() || !transf_contexts.empty())
+    if (!windows_contexts.empty() || !transf_contexts.empty())
     {
-        active_contexts_ += dr_contexts.size() + dc_contexts.size() + transf_contexts.size();
+        active_contexts_ += windows_contexts.size() + dr_contexts.size() + dc_contexts.size() + transf_contexts.size();
         cb_bcb_map_[original_command_buffer_info->handle] = bcb_index;
     }
 
@@ -606,16 +613,10 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDraw(const ApiCallInfo& call_info
             call_info, func, original_command_buffer, vertex_count, instance_count, first_vertex, first_instance);
     }
 
-    const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-        FindDispatchTraceRaysContexts(original_command_buffer);
-    for (auto dr_context : dr_contexts)
-    {
-        VkCommandBuffer dr_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-        if (dr_command_buffer != VK_NULL_HANDLE)
-        {
-            func(dr_command_buffer, vertex_count, instance_count, first_vertex, first_instance);
-        }
-    }
+    ForEachWorkCommandBufferWithoutOwner(
+        original_command_buffer, WindowSlot::Kind::kDraw, [&](VkCommandBuffer command_buffer) {
+            func(command_buffer, vertex_count, instance_count, first_vertex, first_instance);
+        });
 }
 
 void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexed(const ApiCallInfo&   call_info,
@@ -644,16 +645,10 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexed(const ApiCallInfo&   
                                    first_instance);
     }
 
-    const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-        FindDispatchTraceRaysContexts(original_command_buffer);
-    for (auto dr_context : dr_contexts)
-    {
-        VkCommandBuffer dr_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-        if (dr_command_buffer != VK_NULL_HANDLE)
-        {
-            func(dr_command_buffer, index_count, instance_count, first_index, vertex_offset, first_instance);
-        }
-    }
+    ForEachWorkCommandBufferWithoutOwner(
+        original_command_buffer, WindowSlot::Kind::kDraw, [&](VkCommandBuffer command_buffer) {
+            func(command_buffer, index_count, instance_count, first_index, vertex_offset, first_instance);
+        });
 }
 
 void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndirect(const ApiCallInfo&      call_info,
@@ -674,16 +669,10 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndirect(const ApiCallInfo&  
         dc_context->CmdDrawIndirect(call_info, func, original_command_buffer, buffer_info, offset, draw_count, stride);
     }
 
-    const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-        FindDispatchTraceRaysContexts(original_command_buffer);
-    for (auto dr_context : dr_contexts)
-    {
-        VkCommandBuffer dr_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-        if (dr_command_buffer != VK_NULL_HANDLE)
-        {
-            func(dr_command_buffer, buffer_info->handle, offset, draw_count, stride);
-        }
-    }
+    ForEachWorkCommandBufferWithoutOwner(
+        original_command_buffer, WindowSlot::Kind::kDraw, [&](VkCommandBuffer command_buffer) {
+            func(command_buffer, buffer_info->handle, offset, draw_count, stride);
+        });
 }
 
 void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexedIndirect(const ApiCallInfo&           call_info,
@@ -705,16 +694,10 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexedIndirect(const ApiCall
             call_info, func, original_command_buffer, buffer_info, offset, draw_count, stride);
     }
 
-    const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-        FindDispatchTraceRaysContexts(original_command_buffer);
-    for (auto dr_context : dr_contexts)
-    {
-        VkCommandBuffer dr_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-        if (dr_command_buffer != VK_NULL_HANDLE)
-        {
-            func(dr_command_buffer, buffer_info->handle, offset, draw_count, stride);
-        }
-    }
+    ForEachWorkCommandBufferWithoutOwner(
+        original_command_buffer, WindowSlot::Kind::kDraw, [&](VkCommandBuffer command_buffer) {
+            func(command_buffer, buffer_info->handle, offset, draw_count, stride);
+        });
 }
 
 void VulkanReplayDumpResourcesBase::HandleCmdDrawIndirectCount(const ApiCallInfo&         call_info,
@@ -746,22 +729,16 @@ void VulkanReplayDumpResourcesBase::HandleCmdDrawIndirectCount(const ApiCallInfo
                                          drawcall_type);
     }
 
-    const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-        FindDispatchTraceRaysContexts(original_command_buffer);
-    for (auto dr_context : dr_contexts)
-    {
-        VkCommandBuffer dr_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-        if (dr_command_buffer != VK_NULL_HANDLE)
-        {
-            func(dr_command_buffer,
+    ForEachWorkCommandBufferWithoutOwner(
+        original_command_buffer, WindowSlot::Kind::kDraw, [&](VkCommandBuffer command_buffer) {
+            func(command_buffer,
                  buffer_info->handle,
                  offset,
                  count_buffer_info->handle,
                  count_buffer_offset,
                  max_draw_count,
                  stride);
-        }
-    }
+        });
 }
 
 void VulkanReplayDumpResourcesBase::HandleCmdDrawIndexedIndirectCount(
@@ -794,22 +771,16 @@ void VulkanReplayDumpResourcesBase::HandleCmdDrawIndexedIndirectCount(
                                                 drawcall_type);
     }
 
-    const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-        FindDispatchTraceRaysContexts(original_command_buffer);
-    for (auto dr_context : dr_contexts)
-    {
-        VkCommandBuffer dr_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-        if (dr_command_buffer != VK_NULL_HANDLE)
-        {
-            func(dr_command_buffer,
+    ForEachWorkCommandBufferWithoutOwner(
+        original_command_buffer, WindowSlot::Kind::kDraw, [&](VkCommandBuffer command_buffer) {
+            func(command_buffer,
                  buffer_info->handle,
                  offset,
                  count_buffer_info->handle,
                  count_buffer_offset,
                  max_draw_count,
                  stride);
-        }
-    }
+        });
 }
 
 void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass(
@@ -819,11 +790,11 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass(
     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
     VkSubpassContents                                    contents)
 {
-    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-        FindDrawCallDumpingContexts(original_command_buffer);
-    for (auto dc_context : dc_contexts)
+    const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+        FindDumpingContextWindows(original_command_buffer);
+    for (const auto& windows : windows_contexts)
     {
-        if (dc_context->ShouldHandleRenderPass(call_info.index))
+        if (windows->ShouldHandleRenderPass(call_info.index))
         {
             const auto render_pass_info_meta = pRenderPassBegin->GetMetaStructPointer();
             auto       framebuffer_id        = render_pass_info_meta->framebuffer;
@@ -852,27 +823,16 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass(
                                                                                handle_ids + num_attachments);
             }
 
-            // Do not record vkCmdBeginRenderPass commands in current DrawCall context command buffers.
-            // It will be handled by DrawCallsDumpingContext::BeginRenderPass
+            // Do not record vkCmdBeginRenderPass commands in the window clones as they are.
+            // It will be handled by DumpingContextWindows::BeginRenderPass
             const auto* renderpass_begin_info = pRenderPassBegin->GetPointer();
-            VkResult    res                   = dc_context->BeginRenderPass(
+            VkResult    res                   = windows->BeginRenderPass(
                 call_info.index, render_pass_info, framebuffer_info, renderpass_begin_info, contents);
             assert(res == VK_SUCCESS);
         }
         else
         {
-            func(dc_context->GetWorkCommandBuffer(), pRenderPassBegin->GetPointer(), contents);
-        }
-    }
-
-    const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-        FindDispatchTraceRaysContexts(original_command_buffer);
-    for (auto dr_context : dr_contexts)
-    {
-        VkCommandBuffer dr_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-        if (dr_command_buffer != VK_NULL_HANDLE)
-        {
-            func(dr_command_buffer, pRenderPassBegin->GetPointer(), contents);
+            func(windows->GetWorkCommandBuffer(), pRenderPassBegin->GetPointer(), contents);
         }
     }
 }
@@ -886,11 +846,11 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass2(
 {
     GFXRECON_ASSERT(IsRecording());
 
-    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-        FindDrawCallDumpingContexts(original_command_buffer);
-    for (auto dc_context : dc_contexts)
+    const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+        FindDumpingContextWindows(original_command_buffer);
+    for (const auto& windows : windows_contexts)
     {
-        if (dc_context->ShouldHandleRenderPass(call_info.index))
+        if (windows->ShouldHandleRenderPass(call_info.index))
         {
             const auto render_pass_info_meta = pRenderPassBegin->GetMetaStructPointer();
             auto       framebuffer_id        = render_pass_info_meta->framebuffer;
@@ -919,31 +879,20 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass2(
                                                                                handle_ids + num_attachments);
             }
 
-            // Do not record vkCmdBeginRenderPass commands in current DrawCall context command buffers.
-            // It will be handled by DrawCallsDumpingContext::BeginRenderPass
+            // Do not record vkCmdBeginRenderPass commands in the window clones as they are.
+            // It will be handled by DumpingContextWindows::BeginRenderPass
             const auto* renderpass_begin_info = pRenderPassBegin->GetPointer();
-            VkResult    res                   = dc_context->BeginRenderPass(call_info.index,
-                                                       render_pass_info,
-                                                       framebuffer_info,
-                                                       renderpass_begin_info,
-                                                       pSubpassBeginInfo->GetPointer()->contents);
+            VkResult    res                   = windows->BeginRenderPass(call_info.index,
+                                                    render_pass_info,
+                                                    framebuffer_info,
+                                                    renderpass_begin_info,
+                                                    pSubpassBeginInfo->GetPointer()->contents);
 
             assert(res == VK_SUCCESS);
         }
         else
         {
-            func(dc_context->GetWorkCommandBuffer(), pRenderPassBegin->GetPointer(), pSubpassBeginInfo->GetPointer());
-        }
-    }
-
-    const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-        FindDispatchTraceRaysContexts(original_command_buffer);
-    for (auto dr_context : dr_contexts)
-    {
-        VkCommandBuffer dr_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-        if (dr_command_buffer != VK_NULL_HANDLE)
-        {
-            func(dr_command_buffer, pRenderPassBegin->GetPointer(), pSubpassBeginInfo->GetPointer());
+            func(windows->GetWorkCommandBuffer(), pRenderPassBegin->GetPointer(), pSubpassBeginInfo->GetPointer());
         }
     }
 }
@@ -956,30 +905,19 @@ void VulkanReplayDumpResourcesBase::OverrideCmdNextSubpass(const ApiCallInfo&   
     assert(original_command_buffer != VK_NULL_HANDLE);
     GFXRECON_ASSERT(IsRecording());
 
-    // Do not record NextSubpass commands in current DrawCall context command buffers.
-    // It will be handled by DrawCallsDumpingContext::NextSubpass
-    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-        FindDrawCallDumpingContexts(original_command_buffer);
-    for (auto dc_context : dc_contexts)
+    // Do not record NextSubpass commands in the window clones as they are.
+    // It will be handled by DumpingContextWindows::NextSubpass
+    const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+        FindDumpingContextWindows(original_command_buffer);
+    for (const auto& windows : windows_contexts)
     {
-        if (dc_context->ShouldHandleRenderPass(call_info.index))
+        if (windows->ShouldHandleRenderPass(call_info.index))
         {
-            dc_context->NextSubpass(contents);
+            windows->NextSubpass(contents);
         }
         else
         {
-            func(dc_context->GetWorkCommandBuffer(), contents);
-        }
-    }
-
-    const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-        FindDispatchTraceRaysContexts(original_command_buffer);
-    for (auto dr_context : dr_contexts)
-    {
-        VkCommandBuffer dr_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-        if (dr_command_buffer != VK_NULL_HANDLE)
-        {
-            func(dr_command_buffer, contents);
+            func(windows->GetWorkCommandBuffer(), contents);
         }
     }
 }
@@ -994,31 +932,20 @@ void VulkanReplayDumpResourcesBase::OverrideCmdNextSubpass2(
     assert(original_command_buffer != VK_NULL_HANDLE);
     GFXRECON_ASSERT(IsRecording());
 
-    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-        FindDrawCallDumpingContexts(original_command_buffer);
+    const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+        FindDumpingContextWindows(original_command_buffer);
 
-    for (auto dc_context : dc_contexts)
+    for (const auto& windows : windows_contexts)
     {
-        if (dc_context->ShouldHandleRenderPass(call_info.index))
+        if (windows->ShouldHandleRenderPass(call_info.index))
         {
-            // Do not record NextSubpass commands in current DrawCall context command buffers.
-            // It will be handled by DrawCallsDumpingContext::NextSubpass
-            dc_context->NextSubpass(pSubpassBeginInfo->GetPointer()->contents);
+            // Do not record NextSubpass commands in the window clones as they are.
+            // It will be handled by DumpingContextWindows::NextSubpass
+            windows->NextSubpass(pSubpassBeginInfo->GetPointer()->contents);
         }
         else
         {
-            func(dc_context->GetWorkCommandBuffer(), pSubpassBeginInfo->GetPointer(), pSubpassEndInfo->GetPointer());
-        }
-    }
-
-    const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-        FindDispatchTraceRaysContexts(original_command_buffer);
-    for (auto dr_context : dr_contexts)
-    {
-        VkCommandBuffer dr_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-        if (dr_command_buffer != VK_NULL_HANDLE)
-        {
-            func(dr_command_buffer, pSubpassBeginInfo->GetPointer(), pSubpassEndInfo->GetPointer());
+            func(windows->GetWorkCommandBuffer(), pSubpassBeginInfo->GetPointer(), pSubpassEndInfo->GetPointer());
         }
     }
 }
@@ -1029,30 +956,19 @@ void VulkanReplayDumpResourcesBase::OverrideCmdEndRenderPass(const ApiCallInfo& 
 {
     GFXRECON_ASSERT(IsRecording());
 
-    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-        FindDrawCallDumpingContexts(original_command_buffer);
-    for (auto dc_context : dc_contexts)
+    const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+        FindDumpingContextWindows(original_command_buffer);
+    for (const auto& windows : windows_contexts)
     {
-        if (dc_context->ShouldHandleRenderPass(call_info.index))
+        if (windows->ShouldHandleRenderPass(call_info.index))
         {
-            // Do not record EndRenderPass commands in current DrawCall context command buffers.
-            // It will be handled by DrawCallsDumpingContext::EndRenderPass
-            dc_context->EndRenderPass();
+            // Do not record EndRenderPass commands in the window clones as they are.
+            // It will be handled by DumpingContextWindows::EndRenderPass
+            windows->EndRenderPass();
         }
         else
         {
-            func(dc_context->GetWorkCommandBuffer());
-        }
-    }
-
-    const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-        FindDispatchTraceRaysContexts(original_command_buffer);
-    for (auto dr_context : dr_contexts)
-    {
-        VkCommandBuffer dr_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-        if (dr_command_buffer != VK_NULL_HANDLE)
-        {
-            func(dr_command_buffer);
+            func(windows->GetWorkCommandBuffer());
         }
     }
 }
@@ -1065,30 +981,19 @@ void VulkanReplayDumpResourcesBase::OverrideCmdEndRenderPass2(
 {
     GFXRECON_ASSERT(IsRecording());
 
-    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-        FindDrawCallDumpingContexts(original_command_buffer);
-    for (auto dc_context : dc_contexts)
+    const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+        FindDumpingContextWindows(original_command_buffer);
+    for (const auto& windows : windows_contexts)
     {
-        if (dc_context->ShouldHandleRenderPass(call_info.index))
+        if (windows->ShouldHandleRenderPass(call_info.index))
         {
-            // Do not record EndRenderPass commands in current DrawCall context command buffers.
-            // It will be handled by DrawCallsDumpingContext::EndRenderPass
-            dc_context->EndRenderPass();
+            // Do not record EndRenderPass commands in the window clones as they are.
+            // It will be handled by DumpingContextWindows::EndRenderPass
+            windows->EndRenderPass();
         }
         else
         {
-            func(dc_context->GetWorkCommandBuffer(), pSubpassEndInfo->GetPointer());
-        }
-    }
-
-    const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-        FindDispatchTraceRaysContexts(original_command_buffer);
-    for (auto dr_context : dr_contexts)
-    {
-        VkCommandBuffer dr_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-        if (dr_command_buffer != VK_NULL_HANDLE)
-        {
-            func(dr_command_buffer, pSubpassEndInfo->GetPointer());
+            func(windows->GetWorkCommandBuffer(), pSubpassEndInfo->GetPointer());
         }
     }
 }
@@ -1102,18 +1007,23 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindPipeline(const ApiCallInfo&  
     assert(pipeline);
     GFXRECON_ASSERT(IsRecording());
 
+    const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+        FindDumpingContextWindows(original_command_buffer);
+    for (const auto& windows : windows_contexts)
+    {
+        CommandBufferIterator first, last;
+        windows->GetActiveCommandBuffers(first, last);
+        for (CommandBufferIterator it = first; it < last; ++it)
+        {
+            func(*it, pipelineBindPoint, pipeline->handle);
+        }
+    }
+
     const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
         FindDrawCallDumpingContexts(original_command_buffer);
     for (auto dc_context : dc_contexts)
     {
         dc_context->BindPipeline(pipelineBindPoint, pipeline);
-
-        CommandBufferIterator first, last;
-        dc_context->GetDrawCallActiveCommandBuffers(first, last);
-        for (CommandBufferIterator it = first; it < last; ++it)
-        {
-            func(*it, pipelineBindPoint, pipeline->handle);
-        }
     }
 
     const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
@@ -1121,12 +1031,6 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindPipeline(const ApiCallInfo&  
     for (auto dr_context : dr_contexts)
     {
         dr_context->BindPipeline(pipelineBindPoint, pipeline);
-
-        VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-        {
-            func(dispatch_rays_command_buffer, pipelineBindPoint, pipeline->handle);
-        }
     }
 }
 
@@ -1155,15 +1059,12 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindDescriptorSets(const ApiCallI
         desc_set_handles[i] = (desc_set_info != nullptr) ? desc_set_info->handle : VK_NULL_HANDLE;
     }
 
-    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-        FindDrawCallDumpingContexts(original_command_buffer);
-    for (auto dc_context : dc_contexts)
+    const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+        FindDumpingContextWindows(original_command_buffer);
+    for (const auto& windows : windows_contexts)
     {
-        dc_context->BindDescriptorSets(
-            pipeline_bind_point, first_set, desc_set_infos, dynamicOffsetCount, pDynamicOffsets);
-
         CommandBufferIterator first, last;
-        dc_context->GetDrawCallActiveCommandBuffers(first, last);
+        windows->GetActiveCommandBuffers(first, last);
         for (CommandBufferIterator it = first; it < last; ++it)
         {
             func(*it,
@@ -1177,23 +1078,18 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindDescriptorSets(const ApiCallI
         }
     }
 
+    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
+        FindDrawCallDumpingContexts(original_command_buffer);
+    for (auto dc_context : dc_contexts)
+    {
+        dc_context->BindDescriptorSets(
+            pipeline_bind_point, first_set, desc_set_infos, dynamicOffsetCount, pDynamicOffsets);
+    }
+
     const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
         FindDispatchTraceRaysContexts(original_command_buffer);
     for (auto dr_context : dr_contexts)
     {
-        VkCommandBuffer dr_cmd_buf = dr_context->GetDispatchRaysCommandBuffer();
-        if (dr_cmd_buf != VK_NULL_HANDLE)
-        {
-            func(dr_cmd_buf,
-                 pipeline_bind_point,
-                 layout_info->handle,
-                 first_set,
-                 descriptor_sets_count,
-                 desc_set_handles.data(),
-                 dynamicOffsetCount,
-                 pDynamicOffsets);
-        }
-
         dr_context->BindDescriptorSets(
             pipeline_bind_point, first_set, desc_set_infos, dynamicOffsetCount, pDynamicOffsets);
     }
@@ -1209,15 +1105,12 @@ void VulkanReplayDumpResourcesBase::OverrideCmdPushDescriptorSet(
     uint32_t                                            descriptor_write_count,
     StructPointerDecoder<Decoded_VkWriteDescriptorSet>* p_descriptor_writes)
 {
-    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-        FindDrawCallDumpingContexts(original_command_buffer);
-    for (auto dc_context : dc_contexts)
+    const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+        FindDumpingContextWindows(original_command_buffer);
+    for (const auto& windows : windows_contexts)
     {
-        dc_context->PushDescriptorSet(
-            PipelineBindPointToShaderStageFlags(pipeline_bind_point), set, descriptor_write_count, p_descriptor_writes);
-
         CommandBufferIterator first, last;
-        dc_context->GetDrawCallActiveCommandBuffers(first, last);
+        windows->GetActiveCommandBuffers(first, last);
         for (CommandBufferIterator it = first; it < last; ++it)
         {
             func(*it,
@@ -1229,21 +1122,18 @@ void VulkanReplayDumpResourcesBase::OverrideCmdPushDescriptorSet(
         }
     }
 
+    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
+        FindDrawCallDumpingContexts(original_command_buffer);
+    for (auto dc_context : dc_contexts)
+    {
+        dc_context->PushDescriptorSet(
+            PipelineBindPointToShaderStageFlags(pipeline_bind_point), set, descriptor_write_count, p_descriptor_writes);
+    }
+
     const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
         FindDispatchTraceRaysContexts(original_command_buffer);
     for (auto dr_context : dr_contexts)
     {
-        VkCommandBuffer dr_cmd_buf = dr_context->GetDispatchRaysCommandBuffer();
-        if (dr_cmd_buf != VK_NULL_HANDLE)
-        {
-            func(dr_cmd_buf,
-                 pipeline_bind_point,
-                 layout_info->handle,
-                 set,
-                 descriptor_write_count,
-                 p_descriptor_writes->GetPointer());
-        }
-
         dr_context->PushDescriptorSet(
             PipelineBindPointToShaderStageFlags(pipeline_bind_point), set, descriptor_write_count, p_descriptor_writes);
     }
@@ -1281,31 +1171,30 @@ void VulkanReplayDumpResourcesBase::OverrideCmdPushDescriptorSet2(
     const auto* set_info = pPushDescriptorSetInfo->GetPointer();
     GFXRECON_ASSERT(set_info != nullptr);
 
-    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-        FindDrawCallDumpingContexts(original_command_buffer);
-    for (auto dc_context : dc_contexts)
+    const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+        FindDumpingContextWindows(original_command_buffer);
+    for (const auto& windows : windows_contexts)
     {
-        dc_context->PushDescriptorSet(
-            set_info->stageFlags, set_info->set, set_info->descriptorWriteCount, set_info_meta->pDescriptorWrites);
-
         CommandBufferIterator first, last;
-        dc_context->GetDrawCallActiveCommandBuffers(first, last);
+        windows->GetActiveCommandBuffers(first, last);
         for (CommandBufferIterator it = first; it < last; ++it)
         {
             func(*it, set_info);
         }
     }
 
+    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
+        FindDrawCallDumpingContexts(original_command_buffer);
+    for (auto dc_context : dc_contexts)
+    {
+        dc_context->PushDescriptorSet(
+            set_info->stageFlags, set_info->set, set_info->descriptorWriteCount, set_info_meta->pDescriptorWrites);
+    }
+
     const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
         FindDispatchTraceRaysContexts(original_command_buffer);
     for (auto dr_context : dr_contexts)
     {
-        VkCommandBuffer dr_cmd_buf = dr_context->GetDispatchRaysCommandBuffer();
-        if (dr_cmd_buf != VK_NULL_HANDLE)
-        {
-            func(dr_cmd_buf, set_info);
-        }
-
         dr_context->PushDescriptorSet(
             set_info->stageFlags, set_info->set, set_info->descriptorWriteCount, set_info_meta->pDescriptorWrites);
     }
@@ -1342,6 +1231,18 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindDescriptorSets2(
         desc_set_infos[i] = desc_set_info;
     }
 
+    const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+        FindDumpingContextWindows(original_command_buffer);
+    for (const auto& windows : windows_contexts)
+    {
+        CommandBufferIterator first, last;
+        windows->GetActiveCommandBuffers(first, last);
+        for (CommandBufferIterator it = first; it < last; ++it)
+        {
+            func(*it, pBindDescriptorSetsInfo->GetPointer());
+        }
+    }
+
     const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
         FindDrawCallDumpingContexts(original_command_buffer);
     for (auto dc_context : dc_contexts)
@@ -1354,25 +1255,12 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindDescriptorSets2(
                                            bind_meta->decoded_value->dynamicOffsetCount,
                                            bind_meta->decoded_value->pDynamicOffsets);
         }
-
-        CommandBufferIterator first, last;
-        dc_context->GetDrawCallActiveCommandBuffers(first, last);
-        for (CommandBufferIterator it = first; it < last; ++it)
-        {
-            func(*it, pBindDescriptorSetsInfo->GetPointer());
-        }
     }
 
     const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
         FindDispatchTraceRaysContexts(original_command_buffer);
     for (auto dr_context : dr_contexts)
     {
-        VkCommandBuffer dr_cmd_buf = dr_context->GetDispatchRaysCommandBuffer();
-        if (dr_cmd_buf != VK_NULL_HANDLE)
-        {
-            func(dr_cmd_buf, pBindDescriptorSetsInfo->GetPointer());
-        }
-
         for (const auto bind_point : bind_points)
         {
             dr_context->BindDescriptorSets(bind_point,
@@ -1394,29 +1282,23 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindIndexBuffer(const ApiCallInfo
     // buffer can be VK_NULL_HANDLE/NULL
     VkBuffer buffer_handle = buffer != nullptr ? buffer->handle : VK_NULL_HANDLE;
 
-    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-        FindDrawCallDumpingContexts(original_command_buffer);
-    for (auto dc_context : dc_contexts)
+    const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+        FindDumpingContextWindows(original_command_buffer);
+    for (const auto& windows : windows_contexts)
     {
-        dc_context->BindIndexBuffer(call_info.index, buffer, offset, indexType);
-
         CommandBufferIterator first, last;
-        dc_context->GetDrawCallActiveCommandBuffers(first, last);
+        windows->GetActiveCommandBuffers(first, last);
         for (CommandBufferIterator it = first; it < last; ++it)
         {
             func(*it, buffer_handle, offset, indexType);
         }
     }
 
-    const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-        FindDispatchTraceRaysContexts(original_command_buffer);
-    for (auto dr_context : dr_contexts)
+    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
+        FindDrawCallDumpingContexts(original_command_buffer);
+    for (auto dc_context : dc_contexts)
     {
-        VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-        {
-            func(dispatch_rays_command_buffer, buffer_handle, offset, indexType);
-        }
+        dc_context->BindIndexBuffer(call_info.index, buffer, offset, indexType);
     }
 }
 
@@ -1431,29 +1313,23 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindIndexBuffer2KHR(const ApiCall
     // buffer can be VK_NULL_HANDLE/NULL
     VkBuffer buffer_handle = buffer != nullptr ? buffer->handle : VK_NULL_HANDLE;
 
-    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-        FindDrawCallDumpingContexts(original_command_buffer);
-    for (auto dc_context : dc_contexts)
+    const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+        FindDumpingContextWindows(original_command_buffer);
+    for (const auto& windows : windows_contexts)
     {
         CommandBufferIterator first, last;
-        dc_context->GetDrawCallActiveCommandBuffers(first, last);
+        windows->GetActiveCommandBuffers(first, last);
         for (CommandBufferIterator it = first; it < last; ++it)
         {
             func(*it, buffer_handle, offset, size, indexType);
         }
-
-        dc_context->BindIndexBuffer(call_info.index, buffer, offset, indexType, size);
     }
 
-    const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-        FindDispatchTraceRaysContexts(original_command_buffer);
-    for (auto dr_context : dr_contexts)
+    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
+        FindDrawCallDumpingContexts(original_command_buffer);
+    for (auto dc_context : dc_contexts)
     {
-        VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-        {
-            func(dispatch_rays_command_buffer, buffer_handle, offset, size, indexType);
-        }
+        dc_context->BindIndexBuffer(call_info.index, buffer, offset, indexType, size);
     }
 }
 
@@ -1476,30 +1352,24 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindVertexBuffers(const ApiCallIn
         buffer_handles[i] = buffer_info != nullptr ? buffer_info->handle : VK_NULL_HANDLE;
     }
 
-    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-        FindDrawCallDumpingContexts(original_command_buffer);
-    for (auto dc_context : dc_contexts)
+    const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+        FindDumpingContextWindows(original_command_buffer);
+    for (const auto& windows : windows_contexts)
     {
-        GFXRECON_ASSERT(buffer_infos.size() == bindingCount);
-        dc_context->BindVertexBuffers(call_info.index, firstBinding, buffer_infos, pOffsets);
-
         CommandBufferIterator first, last;
-        dc_context->GetDrawCallActiveCommandBuffers(first, last);
+        windows->GetActiveCommandBuffers(first, last);
         for (CommandBufferIterator it = first; it < last; ++it)
         {
             func(*it, firstBinding, bindingCount, buffer_handles.data(), pOffsets);
         }
     }
 
-    const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-        FindDispatchTraceRaysContexts(original_command_buffer);
-    for (auto dr_context : dr_contexts)
+    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
+        FindDrawCallDumpingContexts(original_command_buffer);
+    for (auto dc_context : dc_contexts)
     {
-        VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-        {
-            func(dispatch_rays_command_buffer, firstBinding, bindingCount, buffer_handles.data(), pOffsets);
-        }
+        GFXRECON_ASSERT(buffer_infos.size() == bindingCount);
+        dc_context->BindVertexBuffers(call_info.index, firstBinding, buffer_infos, pOffsets);
     }
 }
 
@@ -1516,12 +1386,12 @@ void VulkanReplayDumpResourcesBase::OverrideCmdSetVertexInputEXT(
     const VkVertexInputAttributeDescription2EXT* in_pVertexAttributeDescriptions =
         pVertexAttributeDescriptions->GetPointer();
 
-    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-        FindDrawCallDumpingContexts(original_command_buffer);
-    for (auto dc_context : dc_contexts)
+    const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+        FindDumpingContextWindows(original_command_buffer);
+    for (const auto& windows : windows_contexts)
     {
         CommandBufferIterator first, last;
-        dc_context->GetDrawCallActiveCommandBuffers(first, last);
+        windows->GetActiveCommandBuffers(first, last);
         for (CommandBufferIterator it = first; it < last; ++it)
         {
             func(*it,
@@ -1530,26 +1400,16 @@ void VulkanReplayDumpResourcesBase::OverrideCmdSetVertexInputEXT(
                  vertexAttributeDescriptionCount,
                  in_pVertexAttributeDescriptions);
         }
+    }
 
+    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
+        FindDrawCallDumpingContexts(original_command_buffer);
+    for (auto dc_context : dc_contexts)
+    {
         dc_context->SetVertexInput(vertexBindingDescriptionCount,
                                    in_pVertexBindingDescriptions,
                                    vertexAttributeDescriptionCount,
                                    in_pVertexAttributeDescriptions);
-    }
-
-    const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-        FindDispatchTraceRaysContexts(original_command_buffer);
-    for (auto dr_context : dr_contexts)
-    {
-        VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-        {
-            func(dispatch_rays_command_buffer,
-                 vertexBindingDescriptionCount,
-                 in_pVertexBindingDescriptions,
-                 vertexAttributeDescriptionCount,
-                 in_pVertexAttributeDescriptions);
-        }
     }
 }
 
@@ -1598,17 +1458,22 @@ void VulkanReplayDumpResourcesBase::HandleCmdBindVertexBuffers2(const ApiCallInf
         buffer_handles[i]                   = (buffer_info != nullptr) ? buffer_info->handle : VK_NULL_HANDLE;
     }
 
-    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-        FindDrawCallDumpingContexts(original_command_buffer);
-    for (auto dc_context : dc_contexts)
+    const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+        FindDumpingContextWindows(original_command_buffer);
+    for (const auto& windows : windows_contexts)
     {
         CommandBufferIterator first, last;
-        dc_context->GetDrawCallActiveCommandBuffers(first, last);
+        windows->GetActiveCommandBuffers(first, last);
         for (CommandBufferIterator it = first; it < last; ++it)
         {
             func(*it, firstBinding, bindingCount, buffer_handles.data(), pOffsets, pSizes, pStrides);
         }
+    }
 
+    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
+        FindDrawCallDumpingContexts(original_command_buffer);
+    for (auto dc_context : dc_contexts)
+    {
         if (dc_context != nullptr && bindingCount)
         {
             std::vector<const VulkanBufferInfo*> buffer_infos(bindingCount);
@@ -1621,23 +1486,6 @@ void VulkanReplayDumpResourcesBase::HandleCmdBindVertexBuffers2(const ApiCallInf
             }
 
             dc_context->BindVertexBuffers2(call_info.index, firstBinding, buffer_infos, pOffsets, pSizes, pStrides);
-        }
-    }
-
-    const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-        FindDispatchTraceRaysContexts(original_command_buffer);
-    for (auto dr_context : dr_contexts)
-    {
-        VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-        {
-            func(dispatch_rays_command_buffer,
-                 firstBinding,
-                 bindingCount,
-                 buffer_handles.data(),
-                 pOffsets,
-                 pSizes,
-                 pStrides);
         }
     }
 }
@@ -1658,18 +1506,10 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDispatch(const ApiCallInfo& call_
         dr_context->CmdDispatch(call_info, func, original_command_buffer, groupCountX, groupCountY, groupCountZ);
     }
 
-    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-        FindDrawCallDumpingContexts(original_command_buffer);
-    for (auto dc_context : dc_contexts)
-    {
-        // A hosted dispatch/trace rays context records this command itself.
-        if (HostsDispatchTraceRaysContext(dc_context, dr_contexts))
-        {
-            continue;
-        }
-
-        func(dc_context->GetWorkCommandBuffer(), groupCountX, groupCountY, groupCountZ);
-    }
+    ForEachWorkCommandBufferWithoutOwner(
+        original_command_buffer, WindowSlot::Kind::kDispatch, [&](VkCommandBuffer command_buffer) {
+            func(command_buffer, groupCountX, groupCountY, groupCountZ);
+        });
 }
 
 void VulkanReplayDumpResourcesBase::OverrideCmdDispatchIndirect(const ApiCallInfo&        call_info,
@@ -1687,18 +1527,10 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDispatchIndirect(const ApiCallInf
         dr_context->CmdDispatchIndirect(call_info, func, original_command_buffer, buffer_info, offset);
     }
 
-    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-        FindDrawCallDumpingContexts(original_command_buffer);
-    for (auto dc_context : dc_contexts)
-    {
-        // A hosted dispatch/trace rays context records this command itself.
-        if (HostsDispatchTraceRaysContext(dc_context, dr_contexts))
-        {
-            continue;
-        }
-
-        func(dc_context->GetWorkCommandBuffer(), buffer_info->handle, offset);
-    }
+    ForEachWorkCommandBufferWithoutOwner(
+        original_command_buffer, WindowSlot::Kind::kDispatch, [&](VkCommandBuffer command_buffer) {
+            func(command_buffer, buffer_info->handle, offset);
+        });
 }
 
 void VulkanReplayDumpResourcesBase::OverrideCmdTraceRaysKHR(
@@ -1736,25 +1568,17 @@ void VulkanReplayDumpResourcesBase::OverrideCmdTraceRaysKHR(
                                     depth);
     }
 
-    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-        FindDrawCallDumpingContexts(original_command_buffer);
-    for (auto dc_context : dc_contexts)
-    {
-        // A hosted dispatch/trace rays context records this command itself.
-        if (HostsDispatchTraceRaysContext(dc_context, dr_contexts))
-        {
-            continue;
-        }
-
-        func(dc_context->GetWorkCommandBuffer(),
-             in_pRaygenShaderBindingTable,
-             in_pMissShaderBindingTable,
-             in_pHitShaderBindingTable,
-             in_pCallableShaderBindingTable,
-             width,
-             height,
-             depth);
-    }
+    ForEachWorkCommandBufferWithoutOwner(
+        original_command_buffer, WindowSlot::Kind::kDispatch, [&](VkCommandBuffer command_buffer) {
+            func(command_buffer,
+                 in_pRaygenShaderBindingTable,
+                 in_pMissShaderBindingTable,
+                 in_pHitShaderBindingTable,
+                 in_pCallableShaderBindingTable,
+                 width,
+                 height,
+                 depth);
+        });
 }
 
 void VulkanReplayDumpResourcesBase::OverrideCmdTraceRaysIndirectKHR(
@@ -1788,23 +1612,15 @@ void VulkanReplayDumpResourcesBase::OverrideCmdTraceRaysIndirectKHR(
                                             indirectDeviceAddress);
     }
 
-    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-        FindDrawCallDumpingContexts(original_command_buffer);
-    for (auto dc_context : dc_contexts)
-    {
-        // A hosted dispatch/trace rays context records this command itself.
-        if (HostsDispatchTraceRaysContext(dc_context, dr_contexts))
-        {
-            continue;
-        }
-
-        func(dc_context->GetWorkCommandBuffer(),
-             in_pRaygenShaderBindingTable,
-             in_pMissShaderBindingTable,
-             in_pHitShaderBindingTable,
-             in_pCallableShaderBindingTable,
-             indirectDeviceAddress);
-    }
+    ForEachWorkCommandBufferWithoutOwner(
+        original_command_buffer, WindowSlot::Kind::kDispatch, [&](VkCommandBuffer command_buffer) {
+            func(command_buffer,
+                 in_pRaygenShaderBindingTable,
+                 in_pMissShaderBindingTable,
+                 in_pHitShaderBindingTable,
+                 in_pCallableShaderBindingTable,
+                 indirectDeviceAddress);
+        });
 }
 
 void VulkanReplayDumpResourcesBase::OverrideCmdTraceRaysIndirect2KHR(const ApiCallInfo&             call_info,
@@ -1821,18 +1637,10 @@ void VulkanReplayDumpResourcesBase::OverrideCmdTraceRaysIndirect2KHR(const ApiCa
         dr_context->CmdTraceRaysIndirect2KHR(call_info, func, original_command_buffer, indirectDeviceAddress);
     }
 
-    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-        FindDrawCallDumpingContexts(original_command_buffer);
-    for (auto dc_context : dc_contexts)
-    {
-        // A hosted dispatch/trace rays context records this command itself.
-        if (HostsDispatchTraceRaysContext(dc_context, dr_contexts))
-        {
-            continue;
-        }
-
-        func(dc_context->GetWorkCommandBuffer(), indirectDeviceAddress);
-    }
+    ForEachWorkCommandBufferWithoutOwner(
+        original_command_buffer, WindowSlot::Kind::kDispatch, [&](VkCommandBuffer command_buffer) {
+            func(command_buffer, indirectDeviceAddress);
+        });
 }
 
 void VulkanReplayDumpResourcesBase::OverrideCmdBeginRendering(
@@ -1843,11 +1651,11 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRendering(
 {
     assert(IsRecording());
 
-    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-        FindDrawCallDumpingContexts(original_command_buffer);
-    for (auto dc_context : dc_contexts)
+    const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+        FindDumpingContextWindows(original_command_buffer);
+    for (const auto& windows : windows_contexts)
     {
-        if (dc_context->ShouldHandleRenderPass(call_info.index))
+        if (windows->ShouldHandleRenderPass(call_info.index))
         {
             const auto   rendering_info_meta    = pRenderingInfo->GetMetaStructPointer();
             const size_t n_color_attachments    = rendering_info_meta->pColorAttachments->GetLength();
@@ -1890,29 +1698,18 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRendering(
                 depth_attachment_layout = VK_IMAGE_LAYOUT_GENERAL;
             }
 
-            // Do not record vkCmdBeginRendering commands in current DrawCall context command buffers.
-            // It will be handled by DrawCallsDumpingContext::BeginRendering
-            dc_context->BeginRendering(call_info.index,
-                                       pRenderingInfo->GetPointer(),
-                                       color_attachments,
-                                       color_attachment_layouts,
-                                       depth_attachment,
-                                       depth_attachment_layout);
+            // Do not record vkCmdBeginRendering commands in the window clones as they are.
+            // It will be handled by DumpingContextWindows::BeginRendering
+            windows->BeginRendering(call_info.index,
+                                    pRenderingInfo->GetPointer(),
+                                    color_attachments,
+                                    color_attachment_layouts,
+                                    depth_attachment,
+                                    depth_attachment_layout);
         }
         else
         {
-            dc_context->RecordCmdBeginRendering(dc_context->GetWorkCommandBuffer(), pRenderingInfo->GetPointer());
-        }
-    }
-
-    const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-        FindDispatchTraceRaysContexts(original_command_buffer);
-    for (auto dr_context : dr_contexts)
-    {
-        VkCommandBuffer dr_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-        if (dr_command_buffer != VK_NULL_HANDLE)
-        {
-            func(dr_command_buffer, pRenderingInfo->GetPointer());
+            windows->RecordCmdBeginRendering(windows->GetWorkCommandBuffer(), pRenderingInfo->GetPointer());
         }
     }
 }
@@ -1932,28 +1729,17 @@ void VulkanReplayDumpResourcesBase::OverrideCmdEndRendering(const ApiCallInfo&  
 {
     assert(IsRecording());
 
-    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-        FindDrawCallDumpingContexts(original_command_buffer);
-    for (auto dc_context : dc_contexts)
+    const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+        FindDumpingContextWindows(original_command_buffer);
+    for (const auto& windows : windows_contexts)
     {
-        if (dc_context->ShouldHandleRenderPass(call_info.index))
+        if (windows->ShouldHandleRenderPass(call_info.index))
         {
-            dc_context->EndRendering();
+            windows->EndRendering();
         }
         else
         {
-            dc_context->RecordCmdEndRendering(dc_context->GetWorkCommandBuffer());
-        }
-    }
-
-    const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-        FindDispatchTraceRaysContexts(original_command_buffer);
-    for (auto dr_context : dr_contexts)
-    {
-        VkCommandBuffer dr_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-        if (dr_command_buffer != VK_NULL_HANDLE)
-        {
-            func(dr_command_buffer);
+            windows->RecordCmdEndRendering(windows->GetWorkCommandBuffer());
         }
     }
 }
@@ -1973,28 +1759,17 @@ void VulkanReplayDumpResourcesBase::OverrideCmdEndRendering2KHR(
 {
     GFXRECON_ASSERT(IsRecording());
 
-    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-        FindDrawCallDumpingContexts(original_command_buffer);
-    for (auto dc_context : dc_contexts)
+    const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+        FindDumpingContextWindows(original_command_buffer);
+    for (const auto& windows : windows_contexts)
     {
-        if (dc_context->ShouldHandleRenderPass(call_info.index))
+        if (windows->ShouldHandleRenderPass(call_info.index))
         {
-            dc_context->EndRendering(func, pRenderingEndInfo->GetPointer());
+            windows->EndRendering(func, pRenderingEndInfo->GetPointer());
         }
         else
         {
-            func(dc_context->GetWorkCommandBuffer(), pRenderingEndInfo->GetPointer());
-        }
-    }
-
-    const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-        FindDispatchTraceRaysContexts(original_command_buffer);
-    for (auto dr_context : dr_contexts)
-    {
-        VkCommandBuffer dr_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-        if (dr_command_buffer != VK_NULL_HANDLE)
-        {
-            func(dr_command_buffer, pRenderingEndInfo->GetPointer());
+            func(windows->GetWorkCommandBuffer(), pRenderingEndInfo->GetPointer());
         }
     }
 }
@@ -2007,27 +1782,16 @@ void VulkanReplayDumpResourcesBase::OverrideCmdSetRenderingAttachmentLocations(
 {
     GFXRECON_ASSERT(IsRecording());
 
-    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-        FindDrawCallDumpingContexts(original_command_buffer);
-    for (auto dc_context : dc_contexts)
+    const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+        FindDumpingContextWindows(original_command_buffer);
+    for (const auto& windows : windows_contexts)
     {
         // State, but it may only be recorded inside a rendering instance
         CommandBufferIterator first, last;
-        dc_context->GetRenderPassCommandBuffers(first, last);
+        windows->GetRenderPassCommandBuffers(first, last);
         for (CommandBufferIterator it = first; it < last; ++it)
         {
             func(*it, pLocationInfo->GetPointer());
-        }
-    }
-
-    const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-        FindDispatchTraceRaysContexts(original_command_buffer);
-    for (auto dr_context : dr_contexts)
-    {
-        VkCommandBuffer dr_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-        if (dr_command_buffer != VK_NULL_HANDLE)
-        {
-            func(dr_command_buffer, pLocationInfo->GetPointer());
         }
     }
 }
@@ -2040,27 +1804,16 @@ void VulkanReplayDumpResourcesBase::OverrideCmdSetRenderingInputAttachmentIndice
 {
     GFXRECON_ASSERT(IsRecording());
 
-    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-        FindDrawCallDumpingContexts(original_command_buffer);
-    for (auto dc_context : dc_contexts)
+    const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+        FindDumpingContextWindows(original_command_buffer);
+    for (const auto& windows : windows_contexts)
     {
         // State, but it may only be recorded inside a rendering instance
         CommandBufferIterator first, last;
-        dc_context->GetRenderPassCommandBuffers(first, last);
+        windows->GetRenderPassCommandBuffers(first, last);
         for (CommandBufferIterator it = first; it < last; ++it)
         {
             func(*it, pInputAttachmentIndexInfo->GetPointer());
-        }
-    }
-
-    const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-        FindDispatchTraceRaysContexts(original_command_buffer);
-    for (auto dr_context : dr_contexts)
-    {
-        VkCommandBuffer dr_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-        if (dr_command_buffer != VK_NULL_HANDLE)
-        {
-            func(dr_command_buffer, pInputAttachmentIndexInfo->GetPointer());
         }
     }
 }
@@ -2092,8 +1845,7 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit2(std::span<const VkSubmitInf
         return _res_;                                                                                               \
     }
 
-    std::map<std::pair<Index, Index>, std::shared_ptr<TransferDumpingContext>>          transfer_contexts;
-    std::map<std::pair<Index, Index>, std::shared_ptr<DispatchTraceRaysDumpingContext>> dispatch_contexts;
+    std::map<std::pair<Index, Index>, std::shared_ptr<TransferDumpingContext>> transfer_contexts;
 
     const VulkanDeviceInfo* device_info = object_info_table_->GetVkDeviceInfo(queue_info->parent_id);
     GFXRECON_ASSERT(device_info != nullptr);
@@ -2144,9 +1896,6 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit2(std::span<const VkSubmitInf
             }
             else
             {
-                auto dc_context       = FindDrawCallDumpingContext(command_buffer, qs_index);
-                auto dispatch_context = FindDispatchTraceRaysContext(command_buffer, qs_index);
-
                 // Look for transfer contexts (both primary and secondary) submitted in this queue submission.
                 bool has_transfer = false;
                 for (auto& [bcb_qs_pair, transf_context] : transfer_contexts_)
@@ -2159,37 +1908,21 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit2(std::span<const VkSubmitInf
                     }
                 }
 
-                // Each command buffer executes exactly once. The draw call clones or the dispatch/trace rays clone
-                // run every command of the original, transfer snapshots included, so the original itself is submitted
-                // only when no clone stands in for it.
-                if (has_transfer && dc_context == nullptr && dispatch_context == nullptr)
+                // Each command buffer executes exactly once. The windows run every command of the original,
+                // transfer snapshots included, so the original itself is submitted only when no windows stand in
+                // for it.
+                const auto& windows = FindDumpingContextWindows(command_buffer, qs_index);
+                if (has_transfer && windows == nullptr)
                 {
                     submit_cbs.push_back(VkCommandBufferSubmitInfo{
                         VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO, nullptr, command_buffer, 0 });
                 }
 
-                // Handle Dispatch/TraceRays commands
-                if (dispatch_context != nullptr)
+                // Handle draw, dispatch and trace rays commands: the windows are submitted one after the other and
+                // the dumping context that owns the slot of each one dumps it
+                if (windows != nullptr)
                 {
-                    dispatch_contexts.emplace(std::make_pair(static_cast<Index>(si), static_cast<Index>(cb)),
-                                              dispatch_context);
-
-                    // Dispatch/RayTracing context uses a clone command buffer. We submit that one instead of the
-                    // original. Hosted by the draw call context it has none: its work runs with the draw call clones.
-                    if (!dispatch_context->IsHosted())
-                    {
-                        submit_cbs.push_back(
-                            VkCommandBufferSubmitInfo{ VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO,
-                                                       nullptr,
-                                                       dispatch_context->GetDispatchRaysCommandBuffer(),
-                                                       0 });
-                    }
-                }
-
-                // Handle Draw commands
-                if (dc_context != nullptr)
-                {
-                    // Submit previous command buffers from this VkSubmitInfo before dumping draw calls
+                    // Submit previous command buffers from this VkSubmitInfo before running the windows
                     if (!submit_cbs.empty())
                     {
                         modified_submit_info.commandBufferInfoCount = static_cast<uint32_t>(submit_cbs.size());
@@ -2222,9 +1955,9 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit2(std::span<const VkSubmitInf
                         submit_cbs.clear();
                     }
 
-                    res = dc_context->DumpDrawCalls(
+                    res = windows->SubmitAndDump(
                         queue_info->handle, modified_submit_info, static_cast<Index>(si), static_cast<Index>(cb));
-                    CHECK_VK_ERROR(res, "DumpDrawCalls")
+                    CHECK_VK_ERROR(res, "SubmitAndDump")
 
                     // The semaphores have been used up by the submission. Don't use them again.
                     modified_submit_info.waitSemaphoreInfoCount   = 0;
@@ -2263,12 +1996,6 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit2(std::span<const VkSubmitInf
         CHECK_VK_ERROR(res, "DumpTransferCommands")
     }
 
-    for (auto& [pair, disp_context] : dispatch_contexts)
-    {
-        VkResult res = disp_context->DumpDispatchTraceRays(pair.first, pair.second);
-        CHECK_VK_ERROR(res, "DumpDispatchTraceRays")
-    }
-
     if (!output_json_per_command)
     {
         active_delegate_->DumpEnd();
@@ -2295,6 +2022,13 @@ bool VulkanReplayDumpResourcesBase::MustDumpQueueSubmitIndex(uint64_t index) con
 
 void VulkanReplayDumpResourcesBase::ResetCommandBuffer(VkCommandBuffer original_command_buffer)
 {
+    const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+        FindDumpingContextWindows(original_command_buffer);
+    for (const auto& windows : windows_contexts)
+    {
+        windows->Release();
+    }
+
     const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
         FindDrawCallDumpingContexts(original_command_buffer);
     for (auto dc_context : dc_contexts)
@@ -2426,18 +2160,11 @@ void VulkanReplayDumpResourcesBase::OverrideEndCommandBuffer(const ApiCallInfo& 
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-            FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
+        const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+            FindDumpingContextWindows(commandBuffer);
+        for (const auto& windows : windows_contexts)
         {
-            dc_context->EndCommandBuffer();
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-            FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            dr_context->EndCommandBuffer();
+            windows->EndCommandBuffer();
         }
     }
 }
@@ -2448,41 +2175,26 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
                                                                uint32_t                 commandBufferCount,
                                                                const VkCommandBuffer*   pCommandBuffers)
 {
-    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_primary_contexts =
-        FindDrawCallDumpingContexts(commandBuffer);
-    const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_primary_contexts =
-        FindDispatchTraceRaysContexts(commandBuffer);
+    // Every dumped secondary has windows of its own, which the primary's windows execute in place of the original.
+    // The bookkeeping of the dumped commands of the executed secondaries happens in UpdateSecondaries, through the
+    // dumping contexts that own the slots.
+    const std::vector<std::shared_ptr<DumpingContextWindows>> primary_windows_contexts =
+        FindDumpingContextWindows(commandBuffer);
 
-    // A secondary whose dispatch/trace rays context keeps a clone of its own executes through that clone. The
-    // primary's draw call clones execute the secondaries as well, so they take the clone in place of the original.
-    std::vector<VkCommandBuffer> executed(pCommandBuffers, pCommandBuffers + commandBufferCount);
-    for (const auto& dr_primary_context : dr_primary_contexts)
-    {
-        for (const auto& secondary : dr_primary_context->SecondariesToExecute(call_info.index))
-        {
-            const VkCommandBuffer clone = secondary->GetDispatchRaysCommandBuffer();
-            const auto entry = std::find(executed.begin(), executed.end(), secondary->GetOriginalCommandBuffer());
-            if (clone != VK_NULL_HANDLE && entry != executed.end())
-            {
-                *entry = clone;
-            }
-        }
-    }
-
-    for (auto dc_primary_context : dc_primary_contexts)
+    for (auto primary_windows : primary_windows_contexts)
     {
         CommandBufferIterator primary_first, primary_last;
-        dc_primary_context->GetDrawCallActiveCommandBuffers(primary_first, primary_last);
+        primary_windows->GetActiveCommandBuffers(primary_first, primary_last);
 
-        std::vector<std::shared_ptr<DrawCallsDumpingContext>> secondaries_to_execute =
-            dc_primary_context->SecondariesToExecute(call_info.index);
+        std::vector<std::shared_ptr<DumpingContextWindows>> secondaries_to_execute =
+            primary_windows->SecondariesToExecute(call_info.index);
         if (!secondaries_to_execute.empty())
         {
-            // Reorder this primary's draw call indices to follow the pCommandBuffers order in
+            // Reorder this primary's slots to follow the pCommandBuffers order in
             // which the slots will actually be finalized.
             {
-                std::vector<std::shared_ptr<DrawCallsDumpingContext>> execution_order;
-                auto                                                  unmatched = secondaries_to_execute;
+                std::vector<std::shared_ptr<DumpingContextWindows>> execution_order;
+                auto                                                unmatched = secondaries_to_execute;
                 for (uint32_t i = 0; i < commandBufferCount; ++i)
                 {
                     for (auto it = unmatched.begin(); it != unmatched.end(); ++it)
@@ -2497,7 +2209,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
                 }
 
                 GFXRECON_ASSERT(secondaries_to_execute.size() == execution_order.size());
-                dc_primary_context->ReorderSecondaries(call_info.index, execution_order);
+                primary_windows->ReorderSecondaries(call_info.index, execution_order);
 
                 // Use the ordered list of secondaries.
                 secondaries_to_execute = execution_order;
@@ -2540,7 +2252,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
                         func(*(primary_first + finalized_primaries), 1, &tail);
                     }
 
-                    dc_primary_context->UpdateSecondaries(*secondary_to_execute->get(), call_info.index, i);
+                    primary_windows->UpdateSecondaries(*secondary_to_execute->get(), call_info.index, i);
 
                     // All primaries have been finalized. Nothing else to do
                     if (finalized_primaries == primary_last - primary_first)
@@ -2559,7 +2271,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
                     // recorded in.
                     if ((primary_first + finalized_primaries) < primary_last)
                     {
-                        func(*(primary_first + finalized_primaries), 1, &executed[i]);
+                        func(*(primary_first + finalized_primaries), 1, &pCommandBuffers[i]);
                     }
                 }
             }
@@ -2567,59 +2279,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
         else
         {
             // No executed secondary has a dumping context, so this is plain work for the primary.
-            func(dc_primary_context->GetWorkCommandBuffer(), commandBufferCount, executed.data());
-        }
-    }
-
-    if (IsRecording())
-    {
-        for (auto dr_primary_context : dr_primary_contexts)
-        {
-            // Hosted by the draw call context, this context records nothing here: the draw call clones execute the
-            // secondaries. Its bookkeeping of the executed secondaries still happens.
-            const VkCommandBuffer dispatch_rays_command_buffer = dr_primary_context->GetDispatchRaysCommandBuffer();
-            const bool            record                       = (dispatch_rays_command_buffer != VK_NULL_HANDLE);
-
-            std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> secondaries_to_execute =
-                dr_primary_context->SecondariesToExecute(call_info.index);
-            if (!secondaries_to_execute.empty())
-            {
-                for (uint32_t i = 0; i < commandBufferCount; ++i)
-                {
-                    // Handle the executed secondaries that are marked for dumping separately
-                    auto secondary_to_execute = secondaries_to_execute.begin();
-                    for (; secondary_to_execute != secondaries_to_execute.end(); ++secondary_to_execute)
-                    {
-                        if (pCommandBuffers[i] == secondary_to_execute->get()->GetOriginalCommandBuffer())
-                        {
-                            break;
-                        }
-                    }
-
-                    if (secondary_to_execute != secondaries_to_execute.end())
-                    {
-                        if (record)
-                        {
-                            func(dispatch_rays_command_buffer, 1, &executed[i]);
-                        }
-
-                        dr_primary_context->UpdateSecondaries(*secondary_to_execute->get(), call_info.index, i);
-
-                        // Dumping the same secondary multiple times from the same execution is not handled yet.
-                        // Remove the entry from the vector to prevent from attempting to handle the same secondary
-                        // again
-                        secondaries_to_execute.erase(secondary_to_execute);
-                    }
-                    else if (record)
-                    {
-                        func(dispatch_rays_command_buffer, 1, &executed[i]);
-                    }
-                }
-            }
-            else if (record)
-            {
-                func(dispatch_rays_command_buffer, commandBufferCount, executed.data());
-            }
+            func(primary_windows->GetWorkCommandBuffer(), commandBufferCount, pCommandBuffers);
         }
     }
 }
@@ -2757,26 +2417,15 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyBuffer(const ApiCallInfo&    
     // In case DumpBeforeCommand is true, draw call and compute/ray tracing contexts need to be handled only once
     if (!before_command)
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-            FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
+        const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+            FindDumpingContextWindows(commandBuffer);
+        for (const auto& windows : windows_contexts)
         {
-            func(dc_context->GetWorkCommandBuffer(),
+            func(windows->GetWorkCommandBuffer(),
                  srcBuffer->handle,
                  dstBuffer->handle,
                  regionCount,
                  pRegions->GetPointer());
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-            FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dr_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dr_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dr_command_buffer, srcBuffer->handle, dstBuffer->handle, regionCount, pRegions->GetPointer());
-            }
         }
     }
 
@@ -2803,22 +2452,11 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyBuffer2(
     // In case DumpBeforeCommand is true, draw call and compute/ray tracing contexts need to be handled only once
     if (!before_command)
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-            FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
+        const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+            FindDumpingContextWindows(commandBuffer);
+        for (const auto& windows : windows_contexts)
         {
-            func(dc_context->GetWorkCommandBuffer(), pCopyBufferInfo->GetPointer());
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-            FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dr_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dr_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dr_command_buffer, pCopyBufferInfo->GetPointer());
-            }
+            func(windows->GetWorkCommandBuffer(), pCopyBufferInfo->GetPointer());
         }
     }
 
@@ -2840,22 +2478,11 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyBuffer2KHR(
     // In case DumpBeforeCommand is true, draw call and compute/ray tracing contexts need to be handled only once
     if (!before_command)
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-            FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
+        const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+            FindDumpingContextWindows(commandBuffer);
+        for (const auto& windows : windows_contexts)
         {
-            func(dc_context->GetWorkCommandBuffer(), pCopyBufferInfo->GetPointer());
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-            FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dr_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dr_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dr_command_buffer, pCopyBufferInfo->GetPointer());
-            }
+            func(windows->GetWorkCommandBuffer(), pCopyBufferInfo->GetPointer());
         }
     }
 
@@ -2881,32 +2508,16 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyBufferToImage(
     // In case DumpBeforeCommand is true, draw call and compute/ray tracing contexts need to be handled only once
     if (!before_command)
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-            FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
+        const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+            FindDumpingContextWindows(commandBuffer);
+        for (const auto& windows : windows_contexts)
         {
-            func(dc_context->GetWorkCommandBuffer(),
+            func(windows->GetWorkCommandBuffer(),
                  srcBuffer->handle,
                  dstImage->handle,
                  dstImageLayout,
                  regionCount,
                  pRegions->GetPointer());
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-            FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dr_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dr_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dr_command_buffer,
-                     srcBuffer->handle,
-                     dstImage->handle,
-                     dstImageLayout,
-                     regionCount,
-                     pRegions->GetPointer());
-            }
         }
     }
 
@@ -2934,22 +2545,11 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyBufferToImage2(
     // In case DumpBeforeCommand is true, draw call and compute/ray tracing contexts need to be handled only once
     if (!before_command)
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-            FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
+        const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+            FindDumpingContextWindows(commandBuffer);
+        for (const auto& windows : windows_contexts)
         {
-            func(dc_context->GetWorkCommandBuffer(), pCopyBufferToImageInfo->GetPointer());
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-            FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dr_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dr_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dr_command_buffer, pCopyBufferToImageInfo->GetPointer());
-            }
+            func(windows->GetWorkCommandBuffer(), pCopyBufferToImageInfo->GetPointer());
         }
     }
 
@@ -2971,22 +2571,11 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyBufferToImage2KHR(
     // In case DumpBeforeCommand is true, draw call and compute/ray tracing contexts need to be handled only once
     if (!before_command)
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-            FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
+        const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+            FindDumpingContextWindows(commandBuffer);
+        for (const auto& windows : windows_contexts)
         {
-            func(dc_context->GetWorkCommandBuffer(), pCopyBufferToImageInfo->GetPointer());
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-            FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dr_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dr_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dr_command_buffer, pCopyBufferToImageInfo->GetPointer());
-            }
+            func(windows->GetWorkCommandBuffer(), pCopyBufferToImageInfo->GetPointer());
         }
     }
 
@@ -3012,34 +2601,17 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyImage(const ApiCallInfo&     
     // In case DumpBeforeCommand is true, draw call and compute/ray tracing contexts need to be handled only once
     if (!before_command)
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-            FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
+        const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+            FindDumpingContextWindows(commandBuffer);
+        for (const auto& windows : windows_contexts)
         {
-            func(dc_context->GetWorkCommandBuffer(),
+            func(windows->GetWorkCommandBuffer(),
                  srcImage->handle,
                  srcImageLayout,
                  dstImage->handle,
                  dstImageLayout,
                  regionCount,
                  pRegions->GetPointer());
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-            FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dispatch_rays_command_buffer,
-                     srcImage->handle,
-                     srcImageLayout,
-                     dstImage->handle,
-                     dstImageLayout,
-                     regionCount,
-                     pRegions->GetPointer());
-            }
         }
     }
 
@@ -3068,22 +2640,11 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyImage2(
     // In case DumpBeforeCommand is true, draw call and compute/ray tracing contexts need to be handled only once
     if (!before_command)
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-            FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
+        const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+            FindDumpingContextWindows(commandBuffer);
+        for (const auto& windows : windows_contexts)
         {
-            func(dc_context->GetWorkCommandBuffer(), pCopyImageInfo->GetPointer());
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-            FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dispatch_rays_command_buffer, pCopyImageInfo->GetPointer());
-            }
+            func(windows->GetWorkCommandBuffer(), pCopyImageInfo->GetPointer());
         }
     }
 
@@ -3105,22 +2666,11 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyImage2KHR(
     // In case DumpBeforeCommand is true, draw call and compute/ray tracing contexts need to be handled only once
     if (!before_command)
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-            FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
+        const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+            FindDumpingContextWindows(commandBuffer);
+        for (const auto& windows : windows_contexts)
         {
-            func(dc_context->GetWorkCommandBuffer(), pCopyImageInfo->GetPointer());
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-            FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dispatch_rays_command_buffer, pCopyImageInfo->GetPointer());
-            }
+            func(windows->GetWorkCommandBuffer(), pCopyImageInfo->GetPointer());
         }
     }
 
@@ -3146,32 +2696,16 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyImageToBuffer(
     // In case DumpBeforeCommand is true, draw call and compute/ray tracing contexts need to be handled only once
     if (!before_command)
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-            FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
+        const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+            FindDumpingContextWindows(commandBuffer);
+        for (const auto& windows : windows_contexts)
         {
-            func(dc_context->GetWorkCommandBuffer(),
+            func(windows->GetWorkCommandBuffer(),
                  srcImage->handle,
                  srcImageLayout,
                  dstBuffer->handle,
                  regionCount,
                  pRegions->GetPointer());
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-            FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dispatch_rays_command_buffer,
-                     srcImage->handle,
-                     srcImageLayout,
-                     dstBuffer->handle,
-                     regionCount,
-                     pRegions->GetPointer());
-            }
         }
     }
 
@@ -3199,22 +2733,11 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyImageToBuffer2(
     // In case DumpBeforeCommand is true, draw call and compute/ray tracing contexts need to be handled only once
     if (!before_command)
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-            FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
+        const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+            FindDumpingContextWindows(commandBuffer);
+        for (const auto& windows : windows_contexts)
         {
-            func(dc_context->GetWorkCommandBuffer(), pCopyImageToBufferInfo->GetPointer());
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-            FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dispatch_rays_command_buffer, pCopyImageToBufferInfo->GetPointer());
-            }
+            func(windows->GetWorkCommandBuffer(), pCopyImageToBufferInfo->GetPointer());
         }
     }
 
@@ -3236,22 +2759,11 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyImageToBuffer2KHR(
     // In case DumpBeforeCommand is true, draw call and compute/ray tracing contexts need to be handled only once
     if (!before_command)
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-            FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
+        const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+            FindDumpingContextWindows(commandBuffer);
+        for (const auto& windows : windows_contexts)
         {
-            func(dc_context->GetWorkCommandBuffer(), pCopyImageToBufferInfo->GetPointer());
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-            FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dispatch_rays_command_buffer, pCopyImageToBufferInfo->GetPointer());
-            }
+            func(windows->GetWorkCommandBuffer(), pCopyImageToBufferInfo->GetPointer());
         }
     }
 
@@ -3278,11 +2790,11 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBlitImage(const ApiCallInfo&     
     // In case DumpBeforeCommand is true, draw call and compute/ray tracing contexts need to be handled only once
     if (!before_command)
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-            FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
+        const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+            FindDumpingContextWindows(commandBuffer);
+        for (const auto& windows : windows_contexts)
         {
-            func(dc_context->GetWorkCommandBuffer(),
+            func(windows->GetWorkCommandBuffer(),
                  srcImage->handle,
                  srcImageLayout,
                  dstImage->handle,
@@ -3290,24 +2802,6 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBlitImage(const ApiCallInfo&     
                  regionCount,
                  pRegions->GetPointer(),
                  filter);
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-            FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dispatch_rays_command_buffer,
-                     srcImage->handle,
-                     srcImageLayout,
-                     dstImage->handle,
-                     dstImageLayout,
-                     regionCount,
-                     pRegions->GetPointer(),
-                     filter);
-            }
         }
     }
 
@@ -3337,22 +2831,11 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBlitImage2(
     // In case DumpBeforeCommand is true, draw call and compute/ray tracing contexts need to be handled only once
     if (!before_command)
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-            FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
+        const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+            FindDumpingContextWindows(commandBuffer);
+        for (const auto& windows : windows_contexts)
         {
-            func(dc_context->GetWorkCommandBuffer(), pBlitImageInfo->GetPointer());
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-            FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dispatch_rays_command_buffer, pBlitImageInfo->GetPointer());
-            }
+            func(windows->GetWorkCommandBuffer(), pBlitImageInfo->GetPointer());
         }
     }
 
@@ -3374,22 +2857,11 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBlitImage2KHR(
     // In case DumpBeforeCommand is true, draw call and compute/ray tracing contexts need to be handled only once
     if (!before_command)
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-            FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
+        const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+            FindDumpingContextWindows(commandBuffer);
+        for (const auto& windows : windows_contexts)
         {
-            func(dc_context->GetWorkCommandBuffer(), pBlitImageInfo->GetPointer());
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-            FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dispatch_rays_command_buffer, pBlitImageInfo->GetPointer());
-            }
+            func(windows->GetWorkCommandBuffer(), pBlitImageInfo->GetPointer());
         }
     }
 
@@ -3416,21 +2888,10 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBuildAccelerationStructuresKHR(
         VkAccelerationStructureBuildGeometryInfoKHR* build_geometry_infos = pInfos->GetPointer();
         VkAccelerationStructureBuildRangeInfoKHR**   build_range_infos    = ppBuildRangeInfos->GetPointer();
 
-        std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
+        std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts = FindDumpingContextWindows(commandBuffer);
+        for (const auto& windows : windows_contexts)
         {
-            func(dc_context->GetWorkCommandBuffer(), infoCount, build_geometry_infos, build_range_infos);
-        }
-
-        std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-            FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto& dr_context : dr_contexts)
-        {
-            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dispatch_rays_command_buffer, infoCount, build_geometry_infos, build_range_infos);
-            }
+            func(windows->GetWorkCommandBuffer(), infoCount, build_geometry_infos, build_range_infos);
         }
     }
 
@@ -3456,21 +2917,10 @@ void VulkanReplayDumpResourcesBase::OverrideCmdCopyAccelerationStructureKHR(
     // In case DumpBeforeCommand is true, draw call and compute/ray tracing contexts need to be handled only once
     if (!before_command)
     {
-        std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
+        std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts = FindDumpingContextWindows(commandBuffer);
+        for (const auto& windows : windows_contexts)
         {
-            func(dc_context->GetWorkCommandBuffer(), pInfo->GetPointer());
-        }
-
-        std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-            FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto& dr_context : dr_contexts)
-        {
-            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dispatch_rays_command_buffer, pInfo->GetPointer());
-            }
+            func(windows->GetWorkCommandBuffer(), pInfo->GetPointer());
         }
     }
 

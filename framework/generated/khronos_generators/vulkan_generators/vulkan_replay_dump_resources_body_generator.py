@@ -107,7 +107,7 @@ class VulkanReplayDumpResourcesBodyGenerator(
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)
 
-    # A state command is replayed into every active draw call clone, a work command only into the current one.
+    # A state command is replayed into every active window clone, a work command only into the current one.
     def is_state_command(self, name):
         # These do GPU work despite carrying a state prefix.
         work_despite_prefix = (
@@ -139,13 +139,12 @@ class VulkanReplayDumpResourcesBodyGenerator(
         if not is_override:
             body += '    if (IsRecording())\n'
             body += '    {\n'
-            body += '        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);\n'
-            body += '        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);\n'
-            body += '        if (!dc_contexts.empty() || !dr_contexts.empty())\n'
+            body += '        const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts = FindDumpingContextWindows(commandBuffer);\n'
+            body += '        if (!windows_contexts.empty())\n'
             body += '        {\n'
             body += '            auto injected = device_table.Open();\n'
             body += '            const auto func = injected->{};\n'.format(name[2:])
-            body += '            for (auto dc_context : dc_contexts)\n'
+            body += '            for (auto windows : windows_contexts)\n'
             body += '            {\n'
 
             call_expr = ''
@@ -154,24 +153,13 @@ class VulkanReplayDumpResourcesBodyGenerator(
 
             if self.is_state_command(name):
                 body += '                CommandBufferIterator first, last;\n'
-                body += '                dc_context->GetDrawCallActiveCommandBuffers(first, last);\n'
+                body += '                windows->GetActiveCommandBuffers(first, last);\n'
                 body += '                for (CommandBufferIterator it = first; it < last; ++it)\n'
                 body += '                {\n'
                 body += '                    ' + ('func(*it, ' + call_expr)[:-2] + ');\n'
                 body += '                }\n'
             else:
-                body += '                ' + ('func(dc_context->GetWorkCommandBuffer(), ' + call_expr)[:-2] + ');\n'
-            body += '            }\n'
-            body += '\n'
-            body += '            for (auto dr_context : dr_contexts)\n'
-            body += '            {\n'
-            body += '                VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();\n'
-            body += '                if (dispatch_rays_command_buffer != VK_NULL_HANDLE)\n'
-            body += '                {\n'
-
-            dispatchfunc = 'func(dispatch_rays_command_buffer, ' + call_expr
-            body += '                    ' + dispatchfunc[:-2] + ');\n'
-            body += '                }\n'
+                body += '                ' + ('func(windows->GetWorkCommandBuffer(), ' + call_expr)[:-2] + ');\n'
             body += '            }\n'
             body += '        }\n'
             body += '    }\n'

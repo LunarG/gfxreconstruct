@@ -28,6 +28,7 @@
 #include "decode/vulkan_replay_device_context.h"
 #include "decode/vulkan_replay_dump_resources_as.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
+#include "decode/vulkan_replay_dump_resources_windows.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_options.h"
 #include "format/format.h"
@@ -47,13 +48,21 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class DrawCallsDumpingContext;
-
-// This class handles the context related to dumping Dispatch and TraceRays resouces
-class DispatchTraceRaysDumpingContext
+// This class handles the context related to dumping Dispatch and TraceRays resouces.
+//
+// It owns the dispatch and trace rays slots of the DumpingContextWindows of its (BeginCommandBuffer, QueueSubmit)
+// pair. It tracks the compute/ray tracing state while the command buffer is recorded, snapshots the descriptors
+// referenced by a target command, records the command into the clone taking work and closes the window there. Once
+// the windows have executed a window it dumps the command's storage descriptors straight from the original
+// resources, which at that moment hold exactly the state after (or, with --dump-resources-before, before) the
+// command. No descriptor is ever cloned.
+class DispatchTraceRaysDumpingContext : public DumpingContextBase
 {
   public:
-    DispatchTraceRaysDumpingContext(const CommandIndices*                             dispatch_indices,
+    // windows is the execution of the command buffer this context dumps dispatch/trace rays commands from. Both
+    // rows of indices are null for a primary that only executes secondaries with dumped dispatch/trace rays.
+    DispatchTraceRaysDumpingContext(std::shared_ptr<DumpingContextWindows>            windows,
+                                    const CommandIndices*                             dispatch_indices,
                                     const CommandImageSubresource&                    disp_subresources,
                                     const CommandIndices*                             trace_rays_indices,
                                     decode::Index                                     bcb_index,
@@ -68,25 +77,9 @@ class DispatchTraceRaysDumpingContext
 
     ~DispatchTraceRaysDumpingContext();
 
-    VkResult BeginCommandBuffer(VulkanCommandBufferInfo*                   orig_cmd_buf_info,
+    VkResult BeginCommandBuffer(const VulkanCommandBufferInfo*             orig_cmd_buf_info,
                                 const graphics::VulkanInjectedDeviceCalls& dev_table,
-                                const graphics::VulkanInstanceTable*       inst_table,
-                                const VkCommandBufferBeginInfo*            begin_info);
-
-    // If a DispatchTraceRaysDumpingContext is hosted by a DrawCallsDumpingContext then DR_command_buffer_ will be null.
-    VkCommandBuffer GetDispatchRaysCommandBuffer() const { return DR_command_buffer_; }
-
-    // A draw call context on the same command buffer owns the only execution of that command buffer. Hosted by it,
-    // this context keeps no clone of its own: its dispatch/trace rays commands and resource snapshots are recorded
-    // into the draw call clone taking work. Otherwise the two would each execute the command buffer once more.
-    void SetHost(std::shared_ptr<DrawCallsDumpingContext> host) { host_ = std::move(host); }
-    bool IsHosted() const { return host_ != nullptr; }
-    const std::shared_ptr<DrawCallsDumpingContext>& GetHost() const { return host_; }
-
-    VkCommandBuffer GetOriginalCommandBuffer() const
-    {
-        return original_command_buffer_info_ != nullptr ? original_command_buffer_info_->handle : VK_NULL_HANDLE;
-    }
+                                const graphics::VulkanInstanceTable*       inst_table) override;
 
     void CmdDispatch(const ApiCallInfo& call_info,
                      PFN_vkCmdDispatch  func,
@@ -142,33 +135,49 @@ class DispatchTraceRaysDumpingContext
                            uint32_t                                                  descriptor_write_count,
                            const StructPointerDecoder<Decoded_VkWriteDescriptorSet>* p_descriptor_writes);
 
-    VkResult DumpDispatchTraceRays(Index submit_info_index, Index submit_info_cmd_buf_index);
+    // DumpingContextBase
+    VkResult DumpSlot(const WindowSlot& slot,
+                      size_t            window_index,
+                      VkQueue           queue,
+                      Index             submit_info_index,
+                      Index             submit_info_cmd_buf_index) override;
 
-    VkResult DumpMutableResources(const DumpedResourceBase& dumped_resource_base, bool is_dispatch);
+    void ResetDumpedResources() override;
 
-    void FinalizeCommandBuffer(bool is_dispatch);
+    void PrepareSecondary(DumpingContextBase& secondary_owner) override;
 
-    VkResult CloneDispatchMutableResources(uint64_t index, bool cloning_before_cmd);
-
-    VkResult CloneTraceRaysMutableResources(uint64_t index, bool cloning_before_cmd);
+    void ExecuteSecondarySlot(DumpingContextBase& secondary_owner,
+                              const WindowSlot&   secondary_slot,
+                              Index               execute_cmd_index,
+                              Index               command_buffer_execute_index) override;
 
     void BindPipeline(VkPipelineBindPoint bind_point, const VulkanPipelineInfo* pipeline);
 
-    void EndCommandBuffer();
-
     void Release();
 
-    void UpdateSecondaries(DispatchTraceRaysDumpingContext& secondary_context,
-                           Index                            execute_cmd_index,
-                           Index                            command_buffer_execute_index);
-
-    void AssignSecondary(uint64_t                                         execute_commands_index,
-                         std::shared_ptr<DispatchTraceRaysDumpingContext> secondary_context);
-
-    std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>>
-    SecondariesToExecute(uint64_t execute_commands_index) const;
-
   private:
+    // Dumps the resources of one dispatch/trace rays command right after the window that ends with it executed (or,
+    // with --dump-resources-before, the window that ends right before it; is_before_window tells the two apart).
+    // window_index is the index of that window: it keys the identifiers of commands merged from secondaries.
+    VkResult DumpCommand(Index cmd_index,
+                         bool  is_trace_rays,
+                         bool  is_before_window,
+                         Index window_index,
+                         Index submit_info_index,
+                         Index submit_info_cmd_buf_index);
+
+    // Shares the secondary's parameters of a command with this (primary) context and records under which window
+    // (window_index) and which vkCmdExecuteCommands this execution of the command runs.
+    void MergeSecondaryCommand(DispatchTraceRaysDumpingContext& secondary_context,
+                               Index                            cmd_index,
+                               bool                             is_trace_rays,
+                               Index                            window_index,
+                               Index                            execute_cmd_index,
+                               Index                            command_buffer_execute_index);
+
+    // The dispatch/trace rays contexts of the secondaries this context's command buffer executes
+    std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> GetSecondaryContexts() const;
+
     void InsertNewDispatchParameters(uint64_t index, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ);
 
     void InsertNewDispatchParameters(uint64_t index, const VulkanBufferInfo* buffer_info, VkDeviceSize offset);
@@ -191,36 +200,27 @@ class DispatchTraceRaysDumpingContext
 
     void InsertNewTraceRaysIndirect2Parameters(uint64_t index, VkDeviceAddress indirectDeviceAddress);
 
-    void CopyImageResource(const VulkanImageInfo* src_image_info, VkImage dst_image);
-
-    void CopyBufferResource(const VulkanBufferInfo* src_buffer_info,
-                            VkDeviceSize            offset,
-                            VkDeviceSize            range,
-                            VkBuffer                dst_buffer);
-
-    void DestroyMutableResourcesClones();
-
     void ReleaseIndirectParams();
 
-    VkResult FetchIndirectParams();
+    // Reads back the parameters an indirect command took from its device buffer. Called once the window that holds
+    // the copy of those parameters has executed.
+    VkResult ReadIndirectParams(VkBuffer params_buffer, VkDeviceSize size, void* params);
 
     VkResult DumpDescriptors(const DumpedResourceBase& dumped_resource_base, bool is_dispatch);
 
-    // The command buffer this context records into: the host's clone taking work, or its own clone
+    // Dumps the storage descriptors the command references, from the original resources. With
+    // --dump-resources-before it runs twice per command, first for the "before" window, which creates the entries,
+    // then for the "after" window, which finds them again.
+    VkResult
+    DumpMutableResources(const DumpedResourceBase& dumped_resource_base, bool is_dispatch, bool before_command);
+
+    // The clone taking work: where this context records its commands and the copies of indirect parameters
     VkCommandBuffer RecordingCommandBuffer() const;
 
-    const VulkanCommandBufferInfo*           original_command_buffer_info_;
-    decode::Index                            bcb_index_;
-    decode::Index                            qs_index_;
-    VkCommandBuffer                          DR_command_buffer_;
-    std::shared_ptr<DrawCallsDumpingContext> host_;
-    CommandIndices                           dispatch_indices_;
-    CommandImageSubresource                  disp_subresources_;
-    CommandIndices                           trace_rays_indices_;
-    CommandImageSubresource                  tr_subresources_;
-    VulkanDumpResourcesDelegate&             delegate_;
-    const VulkanReplayOptions&               options_;
-    const util::Compressor*                  compressor_;
+    CommandIndices          dispatch_indices_;
+    CommandImageSubresource disp_subresources_;
+    CommandIndices          trace_rays_indices_;
+    CommandImageSubresource tr_subresources_;
 
     // One entry per descriptor set for each compute and ray tracing binding points
     BoundDescriptorSets bound_descriptor_sets_compute_;
@@ -230,115 +230,6 @@ class DispatchTraceRaysDumpingContext
     const VulkanPipelineInfo* bound_pipeline_trace_rays_;
 
   public:
-    // For each Dispatch/TraceRays that we dump we create a clone of all mutable resources used in the
-    // shaders/pipeline and the content of the original resources are copied into the clones
-    struct MutableResourcesBackupContext
-    {
-        MutableResourcesBackupContext() = default;
-
-        struct ClonedDescriptorBase
-        {
-            ClonedDescriptorBase() = delete;
-
-            ClonedDescriptorBase(VkShaderStageFlags                         stage_flags,
-                                 VkDescriptorType                           type,
-                                 format::HandleId                           parent_device,
-                                 const graphics::VulkanInjectedDeviceCalls& dt,
-                                 const CommonObjectInfoTable&               oit) :
-                device_memory(VK_NULL_HANDLE),
-                stages(stage_flags), desc_type(type), parent_device_id(parent_device), device_table(dt),
-                object_info_table(oit)
-            {}
-
-            // Deleted through this base (unique_ptr<ClonedDescriptorBase>): the derived destructors destroy the
-            // cloned buffer or image
-            virtual ~ClonedDescriptorBase()
-            {
-                const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(parent_device_id);
-                GFXRECON_ASSERT(device_info != nullptr);
-                const VkDevice device = device_info->handle;
-
-                if (device_memory != VK_NULL_HANDLE)
-                {
-                    auto injected = device_table.Open();
-                    injected->FreeMemory(device, device_memory, nullptr);
-                    device_memory = VK_NULL_HANDLE;
-                }
-            }
-
-            VkDeviceMemory                            device_memory;
-            VkShaderStageFlags                        stages;
-            VkDescriptorType                          desc_type;
-            format::HandleId                          parent_device_id;
-            const graphics::VulkanInjectedDeviceCalls device_table;
-            const CommonObjectInfoTable&              object_info_table;
-        };
-
-        struct ClonedImageDescriptor : ClonedDescriptorBase
-        {
-            ClonedImageDescriptor() = delete;
-
-            ClonedImageDescriptor(const VulkanImageInfo&                     src_img_info,
-                                  VkShaderStageFlags                         stage_flags,
-                                  VkDescriptorType                           type,
-                                  format::HandleId                           parent_device,
-                                  const graphics::VulkanInjectedDeviceCalls& dt,
-                                  const CommonObjectInfoTable&               oit) :
-                ClonedDescriptorBase(stage_flags, type, parent_device, dt, oit),
-                new_image_info(src_img_info)
-            {}
-
-            ~ClonedImageDescriptor()
-            {
-                const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(parent_device_id);
-                GFXRECON_ASSERT(device_info != nullptr);
-
-                if (new_image_info.handle != VK_NULL_HANDLE)
-                {
-                    auto injected = device_table.Open();
-                    injected->DestroyImage(device_info->handle, new_image_info.handle, nullptr);
-                    new_image_info.handle = VK_NULL_HANDLE;
-                }
-            }
-
-            VulkanImageInfo new_image_info;
-        };
-
-        struct ClonedBufferDescriptor : ClonedDescriptorBase
-        {
-            ClonedBufferDescriptor() = delete;
-
-            ClonedBufferDescriptor(const VulkanBufferInfo&                    src_buffer_info,
-                                   VkDeviceSize                               size,
-                                   VkShaderStageFlags                         stage_flags,
-                                   VkDescriptorType                           type,
-                                   format::HandleId                           parent_device,
-                                   const graphics::VulkanInjectedDeviceCalls& dt,
-                                   const CommonObjectInfoTable&               oit) :
-                ClonedDescriptorBase(stage_flags, type, parent_device, dt, oit),
-                new_buffer_info(src_buffer_info), cloned_size(size)
-            {}
-
-            ~ClonedBufferDescriptor()
-            {
-                const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(parent_device_id);
-                GFXRECON_ASSERT(device_info != nullptr);
-
-                if (new_buffer_info.handle != VK_NULL_HANDLE)
-                {
-                    auto injected = device_table.Open();
-                    injected->DestroyBuffer(device_info->handle, new_buffer_info.handle, nullptr);
-                    new_buffer_info.handle = VK_NULL_HANDLE;
-                }
-            }
-
-            VulkanBufferInfo new_buffer_info;
-            VkDeviceSize     cloned_size;
-        };
-
-        std::map<DescriptorLocation, std::unique_ptr<ClonedDescriptorBase>> cloned_descriptors;
-    };
-
     enum DispatchTypes
     {
         kDispatch,
@@ -478,9 +369,6 @@ class DispatchTraceRaysDumpingContext
 
         BoundDescriptorSets referenced_descriptors;
 
-        MutableResourcesBackupContext mutable_resources_clones;
-        MutableResourcesBackupContext mutable_resources_clones_before;
-
         // Need to keep track if a dispatch context from a secondary command buffer has been updated with information
         // that might be available only from the primary command buffer
         bool updated_referenced_descriptors;
@@ -493,7 +381,7 @@ class DispatchTraceRaysDumpingContext
         // Store the vkCmdExecuteCommands block index and the secondary's command buffer index inside pCommandBuffers.
         // This is a map in order to support the case where the same secondary is executed multiple times either from
         // the same vkCmdExecuteCommands or when vkCmdExecuteCommands is recorded multiple times in the primary command
-        // buffer. The primary's DrawCallsDumpingContext::current_cb_index_ is used as the map's key.
+        // buffer. The index of the primary's window that runs the command is used as the map's key.
         std::map<Index, SecondaryIdentifiers> secondary_identifiers;
 
         DumpedResourcesInfo dumped_resources;
@@ -614,10 +502,6 @@ class DispatchTraceRaysDumpingContext
 
         BoundDescriptorSets referenced_descriptors;
 
-        // Keep copies of all mutable resources that are changed by the dumped commands/shaders
-        MutableResourcesBackupContext mutable_resources_clones;
-        MutableResourcesBackupContext mutable_resources_clones_before;
-
         // Need to keep track if a trace rays context from a secondary command buffer has been updated with information
         // that might be available only from the primary command buffer
         bool updated_referenced_descriptors;
@@ -630,16 +514,13 @@ class DispatchTraceRaysDumpingContext
         // Store the vkCmdExecuteCommands block index and the secondary's command buffer index inside pCommandBuffers.
         // This is a map in order to support the case where the same secondary is executed multiple times either from
         // the same vkCmdExecuteCommands or when vkCmdExecuteCommands is recorded multiple times in the primary command
-        // buffer. The primary's DrawCallsDumpingContext::current_cb_index_ is used as the map's key.
+        // buffer. The index of the primary's window that runs the command is used as the map's key.
         std::map<Index, SecondaryIdentifiers> secondary_identifiers;
 
         DumpedResourcesInfo dumped_resources;
     };
 
   private:
-    VkResult CloneMutableResources(const BoundDescriptorSets&     referenced_descriptors,
-                                   MutableResourcesBackupContext& backup_context);
-
     void SnapshotDispatchState(DispatchParams& disp_params);
 
     void SnapshotTraceRaysState(TraceRaysParams& tr_params);
@@ -647,6 +528,10 @@ class DispatchTraceRaysDumpingContext
     VkResult CopyDispatchIndirectParameters(DispatchParams& disp_params);
 
     VkResult CopyTraceRaysIndirectParameters(TraceRaysParams& tr_params);
+
+    VkResult FetchDispatchIndirectParams(DispatchParams& disp_params);
+
+    VkResult FetchTraceRaysIndirectParams(TraceRaysParams& tr_params);
 
     // Gather here all descriptors referenced by commands that have already been dumped
     // in order to avoid dumping descriptors referenced from multiple shader stages,
@@ -660,8 +545,6 @@ class DispatchTraceRaysDumpingContext
 
     DumpedDescriptors dispatch_dumped_descriptors_;
     DumpedDescriptors trace_rays_dumped_descriptors_;
-
-    DumpResourcesCommandBufferLevel command_buffer_level_;
 
     void SecondaryUpdateContextFromPrimary(const BoundDescriptorSets& dispatch_descriptor_sets,
                                            const BoundDescriptorSets& tr_descriptor_sets);
@@ -678,22 +561,7 @@ class DispatchTraceRaysDumpingContext
 
     TraceRaysParameters& GetTraceRaysParameters() { return trace_rays_params_; }
 
-    // Execute commands block index : DrawCallContexts
-    // This must be an ordered map: secondary dispatch/trace rays indices are merged in iteration order,
-    // which must match the ascending block index order in which the vkCmdExecuteCommands are replayed.
-    std::map<Index, std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>>> secondaries_;
-
-    const DumpResourcesAccelerationStructuresContext& acceleration_structures_context_;
-
-    const VulkanPerDeviceContexts& device_contexts_;
-
-    graphics::VulkanInjectedDeviceCalls     device_table_;
-    VkDevice                                parent_device_;
-    const graphics::VulkanInstanceTable*    instance_table_;
-    CommonObjectInfoTable&                  object_info_table_;
-    const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props_;
-    size_t                                  current_dispatch_index_;
-    size_t                                  current_trace_rays_index_;
+    VkDevice parent_device_;
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)
