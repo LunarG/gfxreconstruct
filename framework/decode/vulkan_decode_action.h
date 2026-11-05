@@ -42,6 +42,7 @@
 #include "decode/pointer_decoder.h"
 #include "decode/value_decoder.h"
 #include "decode/vulkan_pnext_node.h"
+#include "binding/vulkan_wire_type.h"
 #include "schema/field.h"
 #include "schema/schema.h"
 #include "util/defines.h"
@@ -59,13 +60,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-// There is no table here joining a logical category to a wire type, and no wire type is named. ValueDecoder and
-// PointerDecoder each take a category, and format/format.h carries the width on the category itself, so this operation says
-// only what a field's category is -- which the schema already told it.
-//
-// Their named entry points -- DecodeVkDeviceSize, DecodeFlags and the rest -- each hardcode one wire type, which is
-// the same fact stated a second time. Going through the category keeps one statement of it, and reaches the categories no
-// named entry point covers: PointerDecoder has no DecodeFlags64, and Decode<format::category::Flags64> needs none.
+// The wire type comes from binding::WireTypeOf, never from a named ValueDecoder or PointerDecoder entry point, so a
+// new width is a WireTypeOf specialization and not a new Decode method.
 
 // The decode Action. It carries the read cursor, so one instance walks one structure.
 class DecodeStructAction
@@ -75,8 +71,8 @@ class DecodeStructAction
 
     size_t BytesRead() const { return bytes_read_; }
 
-    // A value-shaped scalar decodes a whole value of the field's element type and writes it to the decoded value,
-    // which is where the API expects to read it.
+    // A value-shaped scalar decodes a whole value of the field's API element type and writes it to the decoded
+    // value, which is where the API expects to read it.
     //
     // It is not decoded in place, because not every member has a place. A bitfield cannot be decoded into: the
     // address-of operator may not be applied to one and a non-const reference may not be bound to one, so there is
@@ -93,7 +89,7 @@ class DecodeStructAction
         schema::ApiTypeOf_t<typename Field::api_element> value{};
 
         bytes_read_ +=
-            ValueDecoder::Decode<schema::CategoryOf_t<typename Field::api_element>>(Cursor(), Remaining(), &value);
+            ValueDecoder::DecodeAs<binding::WireTypeOf_t<typename Field::api_element>>(Cursor(), Remaining(), &value);
 
         schema::Set(DecodedValueRef(storage), field, value);
     }
@@ -112,12 +108,12 @@ class DecodeStructAction
         auto& field_ref = schema::GetRef(storage, field);
 
         bytes_read_ +=
-            field_ref.template Decode<schema::CategoryOf_t<typename Field::api_element>>(Cursor(), Remaining());
+            field_ref.template DecodeAs<binding::WireTypeOf_t<typename Field::api_element>>(Cursor(), Remaining());
 
         schema::Set(DecodedValueRef(storage), field, field_ref.GetPointer());
     }
 
-    // An identifier held by value: a handle, an opaque element, a callback. The captured identifier goes to the
+    // An identifier held by value: a handle, an opaque API element, a callback. The captured identifier goes to the
     // wrapper member; the decoded value's member is set to Member{}, the null of its own declared type, and replay
     // resolves the identifier later: a handle through the handle map, an address through PreProcessExternalObject.
     // Member{} serves every spelling of null: VK_NULL_HANDLE for a handle, pointer or integer by build; 0 for a
@@ -129,7 +125,7 @@ class DecodeStructAction
     {
         using Member = std::remove_cvref_t<decltype(schema::GetRef(DecodedValueRef(storage), field))>;
 
-        bytes_read_ += ValueDecoder::Decode<schema::CategoryOf_t<typename Field::api_element>>(
+        bytes_read_ += ValueDecoder::DecodeAs<binding::WireTypeOf_t<typename Field::api_element>>(
             Cursor(), Remaining(), &schema::GetRef(storage, field));
 
         schema::Set(DecodedValueRef(storage), field, Member{});
@@ -281,7 +277,7 @@ class DecodeStructAction
         }
 
         bytes_read_ +=
-            field_ref.template Decode<schema::CategoryOf_t<typename Field::api_element>>(Cursor(), Remaining());
+            field_ref.template DecodeAs<binding::WireTypeOf_t<typename Field::api_element>>(Cursor(), Remaining());
     }
 
     // A pointer to a structure, or to a run of them. Both decode identically: StructPointerDecoder reads its own
@@ -291,7 +287,7 @@ class DecodeStructAction
     // ever stops holding, this body fails to compile and names the field.
     //
     // The decoder descends into each element through DecodeStruct, so this is legacy descent like the embedded
-    // structure case, once per element. Whether an element type is itself a field walk is that structure's
+    // structure case, once per element. Whether an API element is itself a field walk is that structure's
     // business.
     template <typename Field, typename Storage>
     requires schema::StructApiElement<typename Field::api_element> && schema::AnyPointerField<Field> &&

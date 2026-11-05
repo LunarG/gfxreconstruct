@@ -6177,6 +6177,17 @@ struct VkViewportCoordinateSwizzleNV
     } };
 };
 
+// The bits elements of a mask the registry gives no bits enum: an empty table each.
+struct EmptyBitvalues
+{
+    static constexpr std::array<binding::Enumerant<api_elements::EmptyBitvalues>, 0> entries{};
+};
+
+struct EmptyBitvalues64
+{
+    static constexpr std::array<binding::Enumerant<api_elements::EmptyBitvalues64>, 0> entries{};
+};
+
 GFXRECON_END_NAMESPACE(enumerants)
 GFXRECON_END_NAMESPACE(vulkan)
 GFXRECON_END_NAMESPACE(schema)

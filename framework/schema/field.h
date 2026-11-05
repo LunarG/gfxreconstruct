@@ -58,8 +58,9 @@ concept StoreValue = std::derived_from<T, StoreValueBase>;
 
 // Declarations. A field's declaration is an API element, or one form over a declaration: Const, Pointer, Array or
 // FixedArray. The forms nest as the C declarator nests, so `const T* const*` is Array<Const<Pointer<Const<T>>>, n>,
-// and an element is the leaf. Each form derives from Declaration<D>, which names what it declares as element, and
-// from its own tag, so a shape concept is one base check. The forms are the type chain DWARF records for a member,
+// and an API element is the leaf. Each form derives from Declaration<D>, which names what it declares as element,
+// and from its own tag, so a shape concept is one base check. The forms are the type chain DWARF records for a
+// member,
 // DW_TAG_const_type, DW_TAG_pointer_type and DW_TAG_array_type over a base or structure type, with the length a
 // store value where DWARF has DW_AT_count.
 struct DeclarationBase
@@ -146,7 +147,7 @@ struct RemoveConst<Const<D>>
     using type = typename RemoveConst<D>::type;
 };
 
-// The declaration with every declarator removed: the element it was written over.
+// The declaration with every declarator removed: the API element it was written over.
 template <typename D>
 struct RemoveDeclarators
 {
@@ -169,9 +170,9 @@ template <typename D, typename L, size_t N>
 struct RemoveDeclarators<FixedArray<D, L, N>> : RemoveDeclarators<D>
 {};
 
-// The declared C type a declaration spells, rebuilt from the element's element_type with the declarator applied:
-// const at the level it was written, a star for Pointer and Array, an extent for FixedArray. add_const_t on an array
-// type qualifies its elements, as C does.
+// The declared C type a declaration spells, rebuilt from the API element's element_type with the declarator
+// applied: const at the level it was written, a star for Pointer and Array, an extent for FixedArray. add_const_t on
+// an array type qualifies its elements, as C does.
 template <typename D>
 struct ApiTypeOf
 {
@@ -262,24 +263,13 @@ inline constexpr bool IsField_v = std::is_base_of_v<FieldBase, T>;
 // Storage facts, which member of which type holds a field, are MemberPointer specializations and never Field
 // members. Type facts, category, element_type, capture_wrapper_type, are on the api_element and are not restated.
 
-// The logical category an element names. Every category concept below asks format.h a question about this type
-// and never spells a category tag itself.
 template <ApiElement E>
 using CategoryOf_t = typename E::category;
-
-// The wire type a Field is recorded as. The join between a category and its width is on the category itself, in
-// format/format.h, so a change to the capture format touches that header and no schema content.
-template <typename Field>
-using FieldEncodeType = format::EncodeTypeFor<CategoryOf_t<typename Field::api_element>>;
 
 // The count expression for an Array, PointerArray or StaticArray Field, if any: a FieldValue whose Get reads the
 // array's length from the owner's storage.
 template <typename Field>
 using LengthOf_t = typename RemoveConst_t<typename Field::declaration>::length;
-
-// The sibling Field whose value names a generic handle's object type.
-template <typename Field>
-using SelectorOf_t = typename Field::selector_field;
 
 // Whether the extents a FixedArray Field declares equal the extents of an array type, in rank and in every
 // dimension. An Action with the declared member type in hand asserts this where it reads the array, so a schema that
@@ -326,7 +316,7 @@ concept FieldStoreFor = requires
 };
 
 template <typename Storage, typename Field>
-concept FieldWithSelector = FieldStoreFor<Storage, SelectorOf_t<Field>>;
+concept FieldWithSelector = FieldStoreFor<Storage, typename Field::selector_field>;
 
 template <typename Storage, typename Field>
 concept FieldWithLength = requires(const Storage& storage)
@@ -388,19 +378,19 @@ void Set(Storage& storage, Field field, ValueType&& value)
 // Form concepts. Each reads the field's declaration: the form under any Const, through RemoveConst_t, and for the
 // fixed array the declared C type, through std::is_array_v on ApiTypeOf_t.
 
-// The void return of a command: the Void element held by value. It has no runtime value, no storage member and no
+// The void return of a command: the Void API element held by value. It has no runtime value, no storage member and no
 // encoded bytes; every command schema carries exactly one return Field, which is what lets ReturnFields_t find it and
 // ParameterFields_t drop it.
 template <typename Field>
 concept VoidReturnField = ApiElement<RemoveConst_t<typename Field::declaration>> &&
-    std::same_as<typename RemoveConst_t<typename Field::declaration>::category, format::category::Void>;
+    std::same_as<typename RemoveConst_t<typename Field::declaration>::category, category::Void>;
 
-// A directly held value: the declaration is an element.
+// A directly held value: the declaration is an API element.
 template <typename Field>
 concept ValueField = ApiElement<RemoveConst_t<typename Field::declaration>> && !VoidReturnField<Field>;
 
-// The extension chain entry of an extensible structure: a pointer whose leaf is the chain element, whose concrete
-// element types are selected at run time from the encoded structure type.
+// The extension chain entry of an extensible structure: a pointer whose leaf is the chain API element, whose
+// concrete API element types are selected at run time from the encoded structure type.
 template <typename Field>
 concept ExtensionChainField = std::is_base_of_v<PointerDeclaration, RemoveConst_t<typename Field::declaration>> &&
     std::same_as<typename Field::api_element, ExtensionChain>;
@@ -432,58 +422,68 @@ concept ArrayField =
 template <typename Field>
 concept FixedArrayField = std::is_base_of_v<FixedArrayDeclaration, RemoveConst_t<typename Field::declaration>>;
 
-// Category concepts. A category concept reads the element at the leaf of a declaration, and a form concept reads
-// the declaration, so the two are facts about two different things: OpaqueApiElement<typename F::api_element> &&
+// Category concepts. A category concept reads the API element at the leaf of a declaration, and a form concept
+// reads the declaration, so the two are facts about two different things:
+// OpaqueApiElement<typename F::api_element> &&
 // PointerField<F> is a pointer to an opaque object. A category concept takes the element; a Field's is its api_element
 // member.
-GFXRECON_BEGIN_NAMESPACE(detail)
-
-GFXRECON_END_NAMESPACE(detail)
-
 template <typename E>
-concept HandleApiElement = ApiElement<E> && format::IsHandleCategory<CategoryOf_t<E>>;
+concept HandleApiElement = ApiElement<E> && std::same_as<CategoryOf_t<E>, category::Handle>;
 
 template <typename Field>
 concept HandleValueField = HandleApiElement<typename Field::api_element> && ValueField<Field>;
 
+// The family the Actions dispatch on: enum and bitmask included, each recorded as the member's own bits.
 template <typename E>
-concept ScalarApiElement = ApiElement<E> && format::IsScalarCategory<CategoryOf_t<E>>;
+concept ScalarApiElement = ApiElement<E> &&
+    (std::same_as<CategoryOf_t<E>, category::Scalar> || std::same_as<CategoryOf_t<E>, category::Enum> ||
+     std::same_as<CategoryOf_t<E>, category::Bitmask>);
 
 template <typename Field>
 concept ScalarValueField = ScalarApiElement<typename Field::api_element> && ValueField<Field>;
 
-// Text, of either width. The two categories pick different decoder classes, and nothing else about them differs.
+// Interim until stage 3: text becomes a scalar with a length token on the field.
 template <typename E>
-concept TextApiElement = ApiElement<E> && format::IsTextCategory<CategoryOf_t<E>>;
+concept TextApiElement = ApiElement<E> && std::derived_from<CategoryOf_t<E>, category::Text>;
 
-// The category alone, so it also matches a pointer-array or static-array of structures. An Action that wants those
-// separately orders its overloads by subsumption, or constrains on the form as well.
+// Union included: a union field descends through DecodeStruct and EncodeStruct, dev's union overloads, as a struct
+// field does.
 template <typename E>
-concept StructApiElement = ApiElement<E> && format::IsStructCategory<CategoryOf_t<E>>;
+concept StructApiElement = ApiElement<E> &&
+    (std::same_as<CategoryOf_t<E>, category::Struct> || std::same_as<CategoryOf_t<E>, category::Union>);
+
+// Its Schema lists Alternatives, not Fields (schema/schema.h).
+template <typename E>
+concept UnionApiElement = ApiElement<E> && std::same_as<CategoryOf_t<E>, category::Union>;
+
+template <typename E>
+concept EnumApiElement = ApiElement<E> && std::same_as<CategoryOf_t<E>, category::Enum>;
+
+template <typename E>
+concept BitmaskApiElement = ApiElement<E> && std::same_as<CategoryOf_t<E>, category::Bitmask>;
 
 // A type the API declares and never describes: a platform structure reached through a pointer, or a platform
 // handle typedef held by value. Recorded as the address, never followed.
 template <typename E>
-concept OpaqueApiElement = ApiElement<E> && format::IsOpaqueCategory<CategoryOf_t<E>>;
+concept OpaqueApiElement = ApiElement<E> && std::same_as<CategoryOf_t<E>, category::Opaque>;
 
 template <typename E>
-concept CallbackApiElement = ApiElement<E> && format::IsCallbackCategory<CategoryOf_t<E>>;
+concept FuncpointerApiElement = ApiElement<E> && std::same_as<CategoryOf_t<E>, category::Funcpointer>;
 
 // void: a pointer to it is an address, a counted pointer to it is a run of bytes, and a value of it is a command's
 // void return.
 template <typename E>
-concept VoidApiElement = ApiElement<E> && std::same_as<CategoryOf_t<E>, format::category::Void>;
+concept VoidApiElement = ApiElement<E> && std::same_as<CategoryOf_t<E>, category::Void>;
 
 // Recorded as an identifier rather than the thing itself: a handle's capture-file id, or an address. Nothing decodes
 // into the API's own member for any of them; the identifier goes to the wrapper and the member is nulled until replay
 // resolves it.
 template <typename E>
-concept IdentifierApiElement = HandleApiElement<E> || OpaqueApiElement<E> || CallbackApiElement<E>;
+concept IdentifierApiElement = HandleApiElement<E> || OpaqueApiElement<E> || FuncpointerApiElement<E>;
 
-// Recorded as the member's own bits, in the category's wire type: a scalar, or an opaque or callback element held
-// by value. A handle is not one, since it records the wrapper's id.
+// Handle is excluded: a handle value records the capture id, not the member's bits.
 template <typename E>
-concept GeneralScalarApiElement = ScalarApiElement<E> || OpaqueApiElement<E> || CallbackApiElement<E>;
+concept GeneralScalarApiElement = ScalarApiElement<E> || OpaqueApiElement<E> || FuncpointerApiElement<E>;
 
 // Any pointer shape. A decoder that reads its own length and depth from the wire cannot tell them apart -- a pointer
 // to one element is a run of one, and a run of pointers is one more level of the same -- so an operation whose body

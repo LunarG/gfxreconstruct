@@ -36,6 +36,7 @@
 // cannot get the template for such a wrapper. There is no list of such structures.
 #include "decode/custom_vulkan_struct_decoders_forward.h"
 #include "generated/generated_vulkan_struct_decoders_forward.h"
+#include "binding/decoded_type_of.h"
 #include "util/defines.h"
 
 #include <cstddef>
@@ -44,7 +45,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-template <typename Wrapper>
+template <binding::DecodedWrapper Wrapper>
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Wrapper* wrapper);
 
 GFXRECON_END_NAMESPACE(decode)

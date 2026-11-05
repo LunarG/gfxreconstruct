@@ -61,7 +61,7 @@ using CaptureWrapperOf_t = typename CaptureWrapperOf<ApiType>::type;
     {                                                                                                              \
         using type = vulkan_wrappers::Wrapper;                                                                     \
         static_assert(std::is_same_v<type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::Handle>>, \
-                      "The wrapper's handle type must be the descriptor's element type");                          \
+                      "The wrapper's handle type must be the API element's element_type");                         \
     }
 
 // A struct visitor: it yields a specialization, a type, so this lives in a header.

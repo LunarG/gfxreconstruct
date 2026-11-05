@@ -51,46 +51,19 @@ concept TypedStructApiElement = requires
 }
 &&std::is_enum_v<std::remove_cv_t<decltype(Element::structure_type)>>;
 
-// An enumerated type's API element names its enumerant table.
-template <typename Element>
-concept EnumApiElement = requires
-{
-    typename Element::enumerants;
-};
-
-// A bits enum, the registry's bitvalues: its values compose into a mask of the Flags type flags_type names. The
-// registry declares the group a bitmask and states the width.
+// A bits enum, the registry's bitvalues: an enum whose group the registry declares type="bitmask".
 template <typename Element>
 concept BitvaluesApiElement = EnumApiElement<Element> && requires
 {
-    typename Element::flags_type;
+    requires Element::kBitvalues;
 };
 
-// A mask typedef's API element names the API element of the bits enum whose values compose it. Until plan 2.4
-// stage 2 gives every mask a bitvalues, EmptyBitvalues for a mask with no bits enum, this is true of the masks that
-// have one and not of the Bitmask category as a whole.
-template <typename Element>
-concept BitmaskApiElement = requires
-{
-    typename Element::bitvalues;
-    requires BitvaluesApiElement<typename Element::bitvalues>;
-};
-
+// A union's Schema lists Alternatives, not Fields, so a union does not satisfy this; the generated checks assert it.
 template <typename ApiElement>
 concept HasSchemaFields = requires
 {
     typename Schema<ApiElement>::Fields;
     requires util::IsTypeList_v<typename Schema<ApiElement>::Fields>;
-};
-
-// A union's Schema lists Alternatives, each a Field, of which a value holds one. Which one is the selector's to say:
-// the containing structure's Field names it as selector_field, and an alternative the registry marks carries the
-// selector values that choose it as selections. No field walk applies, so a union does not satisfy HasSchemaFields.
-template <typename ApiElement>
-concept UnionApiElement = requires
-{
-    typename Schema<ApiElement>::Alternatives;
-    requires util::IsTypeList_v<typename Schema<ApiElement>::Alternatives>;
 };
 
 // The return predicate treats an absent is_return member as false.

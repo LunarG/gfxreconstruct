@@ -21,20 +21,25 @@
 */
 
 // The decoded-type binding: an API element, a structure's API element or a command API element, to the type
-// decode represents it with. Which wrapper represents an element is the C++ back end's decision, so this is a binding
-// and not a schema fact. The other direction needs no binding: a decoded wrapper names its element as api_element.
+// decode represents it with. Which wrapper represents an API element is the C++ back end's decision, so this is a
+// binding and not a schema fact. The other direction needs no binding: a decoded wrapper names its API element as
+// api_element.
 //
 // This header declares the binding and nothing more. An API's rows are a visitor invoked across its inventory in
 // binding/<api>_decoded_type.h, which is the header API code includes; with this one alone, ApiElementWithDecodedType
-// answers no for every element. A translation unit that evaluates the concept on a concrete type without the rows
-// resolves a constrained call differently from one that has them, and nothing diagnoses that, since a specialization
-// declared after a use that implicitly instantiated the primary is ill-formed, no diagnostic required (C++20 standard,
+// answers no for every API element. A translation unit that evaluates the concept on a concrete type without the
+// rows resolves a constrained call differently from one that has them, and nothing diagnoses that, since a
+// specialization declared after a use that implicitly instantiated the primary is ill-formed, no diagnostic required
+// (C++20 standard,
 // [temp.expl.spec]/7). The API rows header is the include.
 
 #ifndef GFXRECON_BINDING_DECODED_TYPE_OF_H
 #define GFXRECON_BINDING_DECODED_TYPE_OF_H
 
+#include "schema/api_element.h"
 #include "util/defines.h"
+
+#include <concepts>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(binding)
@@ -55,13 +60,16 @@ concept ApiElementWithDecodedType = requires
 template <ApiElementWithDecodedType ApiElement>
 using DecodedTypeOf_t = typename DecodedTypeOf<ApiElement>::type;
 
-// A decoded wrapper names the API element it represents, as api_element, the way it names its API type as
-// struct_type. An operation handed a wrapper reaches the schema and the bindings through that member, so no inverse
-// binding is generated; the generated checks assert that each wrapper's element resolves back to the wrapper.
+// The Decoded_ family. Declaration headers constrain on this concept, decode/vulkan_decode_struct.h, so it reads no
+// generated content. No ApiElementOf entry exists for a wrapper; an operation reaches the schema through api_element.
 template <typename Wrapper>
-concept WrapperWithApiElement = requires
+concept DecodedWrapper = requires(Wrapper& wrapper)
 {
-    typename Wrapper::api_element;
+    typename Wrapper::struct_type;
+    requires schema::ApiElement<typename Wrapper::api_element>;
+    {
+        wrapper.decoded_value
+        } -> std::convertible_to<typename Wrapper::struct_type*>;
 };
 
 GFXRECON_END_NAMESPACE(binding)

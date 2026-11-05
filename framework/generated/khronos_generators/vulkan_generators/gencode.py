@@ -67,6 +67,7 @@ from vulkan_schema_generator import (
     VulkanSchemaDecodedCommandMembersGenerator, VulkanSchemaDecodedCommandMembersGeneratorOptions,
     VulkanSchemaChecksGenerator, VulkanSchemaChecksGeneratorOptions,
     VulkanSchemaEnumerantsGenerator, VulkanSchemaEnumerantsGeneratorOptions,
+    VulkanWireTypesGenerator, VulkanWireTypesGeneratorOptions,
     VulkanEnumToStringBodyGenerator, VulkanEnumToStringBodyGeneratorOptions
 )
 
@@ -346,6 +347,8 @@ def make_gen_opts(args):
          VulkanSchemaChecksGenerator, VulkanSchemaChecksGeneratorOptions, False),
         ('generated_vulkan_schema_enumerants.h',
          VulkanSchemaEnumerantsGenerator, VulkanSchemaEnumerantsGeneratorOptions, True),
+        ('generated_vulkan_wire_types.h',
+         VulkanWireTypesGenerator, VulkanWireTypesGeneratorOptions, True),
         ('generated_vulkan_enum_to_string.cpp',
          VulkanEnumToStringBodyGenerator, VulkanEnumToStringBodyGeneratorOptions, False),
     ):
