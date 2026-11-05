@@ -188,8 +188,8 @@ file_processor::ProcessBlockState BlockProcessor::ProcessBlock(Policy& policy, B
 
         if (parsed_block.Holds<FrameEndMarkerArgs>())
         {
-            // Older traces can use frame markers without declaring them. On frame 0 if we reach a frame marker
-            // when already emitting an implicit frame marker, mark the explicit as redundant.
+            // Older traces can use frame markers without declaring them. When processing the first frame, if we reach a
+            // frame marker when already emitting an implicit frame marker, mark the explicit as redundant.
             parsed_block.Get<FrameEndMarkerArgs>().redundant =
                 !frame_tracker_.UsesFrameMarkers() && (frame_tracker_.GetFrameNumber() != file_processor::kFirstFrame);
         }
