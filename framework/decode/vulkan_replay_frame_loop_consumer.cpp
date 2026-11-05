@@ -324,7 +324,6 @@ void VulkanReplayFrameLoopConsumer::ProcessStateEndMarker(uint64_t frame_number)
         per_device_fence_tracking_.clear();
         per_device_event_tracking_.clear();
         per_device_semaphore_tracking_.clear();
-        per_device_last_queue_.clear();
         ResetBufferTracking();
         ResetImageTracking();
         StartLooping();
@@ -362,7 +361,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkDestroyDevice(const ApiCallInfo& c
     {
         ResetBufferTracking(args.device);
         ResetImageTracking(args.device);
-        per_device_last_queue_.erase(args.device);
     }
     VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDevice(call_info, args);
 }
@@ -2199,12 +2197,6 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceObjects(format::HandleId device, 
     GetSemaphoreTracking(device).FixupSemaphores(queue);
 }
 
-void VulkanReplayFrameLoopConsumer::TrackLoopQueue(format::HandleId queue)
-{
-    const VulkanQueueInfo* queue_info             = GetObjectInfoTable().GetVkQueueInfo(queue);
-    per_device_last_queue_[queue_info->parent_id] = queue;
-}
-
 void VulkanReplayFrameLoopConsumer::ProcessFrameEndMarker(uint64_t frame_number)
 {
     VulkanReplayConsumer::ProcessFrameEndMarker(frame_number);
@@ -2214,10 +2206,36 @@ void VulkanReplayFrameLoopConsumer::ProcessFrameEndMarker(uint64_t frame_number)
         return;
     }
 
-    CommonObjectInfoTable& table = GetObjectInfoTable();
-    for (const auto& [device_id, queue] : per_device_last_queue_)
-    {
-        VkDevice device = table.GetVkDeviceInfo(device_id)->handle;
+    const VulkanObjectInfoTable& table = GetObjectInfoTable();
+    table.VisitVkDeviceInfo([this, &table](const VulkanDeviceInfo* device_info) {
+        GFXRECON_ASSERT(device_info != nullptr);
+
+        // The device is idle before fixup, so the fixup submits can go to any of its queues. Prefer a graphics or
+        // compute family.
+        const uint32_t preferred_family =
+            graphics::FindGraphicsOrComputeQueueFamilyIndex(device_info->enabled_queue_family_flags);
+        format::HandleId queue           = format::kNullHandleId;
+        bool             found_preferred = false;
+        table.VisitVkQueueInfo([&](const VulkanQueueInfo* queue_info) {
+            if (found_preferred || (queue_info->parent_id != device_info->capture_id))
+            {
+                return;
+            }
+            found_preferred = (queue_info->family_index == preferred_family);
+            if (found_preferred || (queue == format::kNullHandleId))
+            {
+                queue = queue_info->capture_id;
+            }
+        });
+
+        if (queue == format::kNullHandleId)
+        {
+            GFXRECON_LOG_WARNING("Skipping frame loop fixup for device %" PRIu64 " because it has no queues",
+                                 device_info->capture_id);
+            return;
+        }
+
+        VkDevice device = device_info->handle;
         GFXRECON_ASSERT(device != VK_NULL_HANDLE);
         const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device);
         GFXRECON_ASSERT(device_table != nullptr);
@@ -2226,8 +2244,8 @@ void VulkanReplayFrameLoopConsumer::ProcessFrameEndMarker(uint64_t frame_number)
         VkResult result = device_table->DeviceWaitIdle(device);
         CHECK_VK_RESULT(result, "vkDeviceWaitIdle");
 
-        FixupDeviceObjects(device_id, queue);
-    }
+        FixupDeviceObjects(device_info->capture_id, queue);
+    });
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit(const ApiCallInfo& call_info, args::QueueSubmit& args)
@@ -2236,8 +2254,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit(const ApiCallInfo& cal
 
     if (frame_loop_info_.IsLooping())
     {
-        TrackLoopQueue(args.queue);
-
         if (frame_loop_info_.IsFirstIteration())
         {
             VulkanQueueInfo* queue_info = GetObjectInfoTable().GetVkQueueInfo(args.queue);
@@ -2252,8 +2268,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit2(const ApiCallInfo& ca
 
     if (frame_loop_info_.IsLooping())
     {
-        TrackLoopQueue(args.queue);
-
         if (frame_loop_info_.IsFirstIteration())
         {
             VulkanQueueInfo* queue_info = GetObjectInfoTable().GetVkQueueInfo(args.queue);
@@ -2268,8 +2282,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit2KHR(const ApiCallInfo&
 
     if (frame_loop_info_.IsLooping())
     {
-        TrackLoopQueue(args.queue);
-
         if (frame_loop_info_.IsFirstIteration())
         {
             VulkanQueueInfo* queue_info = GetObjectInfoTable().GetVkQueueInfo(args.queue);
@@ -2306,8 +2318,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(const ApiCallInfo&
 
     if (frame_loop_info_.IsLooping())
     {
-        TrackLoopQueue(args.queue);
-
         if (frame_loop_info_.IsFirstIteration())
         {
             VulkanQueueInfo* queue_info = GetObjectInfoTable().GetVkQueueInfo(args.queue);
