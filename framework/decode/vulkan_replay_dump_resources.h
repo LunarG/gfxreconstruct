@@ -29,6 +29,7 @@
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_options.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
+#include "decode/vulkan_replay_dump_resources_windows.h"
 #include "decode/vulkan_replay_dump_resources_draw_calls.h"
 #include "decode/vulkan_replay_dump_resources_transfer.h"
 #include "decode/vulkan_replay_dump_resources_compute_ray_tracing.h"
@@ -40,12 +41,10 @@
 #include "util/defines.h"
 #include "vulkan/vulkan_core.h"
 
-#include <algorithm>
 #include <cstdint>
 #include <type_traits>
 #include <memory>
 #include <unordered_map>
-#include <unordered_set>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -684,6 +683,10 @@ class VulkanReplayDumpResourcesBase
 
     void ProcessStateEndMarker();
 
+    // The windows that stand in for the given command buffer: one for each queue submission it is dumped from
+    std::vector<std::shared_ptr<DumpingContextWindows>>
+    FindDumpingContextWindows(VkCommandBuffer original_command_buffer);
+
     std::vector<std::shared_ptr<DrawCallsDumpingContext>>
     FindDrawCallDumpingContexts(VkCommandBuffer original_command_buffer);
 
@@ -847,12 +850,12 @@ class VulkanReplayDumpResourcesBase
 
   private:
     std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> FindDispatchTraceRaysContexts(uint64_t bcb_id);
-    std::shared_ptr<DispatchTraceRaysDumpingContext>
-    FindDispatchTraceRaysContext(VkCommandBuffer original_command_buffer, decode::Index qs_index);
 
     std::vector<std::shared_ptr<DrawCallsDumpingContext>> FindDrawCallDumpingContexts(uint64_t bcb_id);
-    std::shared_ptr<DrawCallsDumpingContext> FindDrawCallDumpingContext(VkCommandBuffer original_command_buffer,
-                                                                        decode::Index   qs_index);
+
+    std::vector<std::shared_ptr<DumpingContextWindows>> FindDumpingContextWindows(uint64_t bcb_id);
+    std::shared_ptr<DumpingContextWindows> FindDumpingContextWindows(VkCommandBuffer original_command_buffer,
+                                                                     decode::Index   qs_index);
 
     template <typename ContextMap>
     static typename ContextMap::mapped_type
@@ -862,22 +865,36 @@ class VulkanReplayDumpResourcesBase
         return (entry != contexts.end()) ? entry->second : nullptr;
     }
 
-    // every clone recording this command buffer's work. a command not routed here does not run at all.
+    // the clone currently taking work, for each windows of this command buffer. a command not routed here does not
+    // run at all: the windows are the only execution of a dumped command buffer.
     template <typename Callback>
     void ForEachWorkCommandBuffer(VkCommandBuffer original_command_buffer, Callback callback)
     {
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-            FindDispatchTraceRaysContexts(original_command_buffer);
-        for (const auto& dr_context : dr_contexts)
+        const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+            FindDumpingContextWindows(original_command_buffer);
+        for (const auto& windows : windows_contexts)
         {
-            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+            callback(windows->GetWorkCommandBuffer());
+        }
+    }
+
+    // A command buffer that has a dumping context for a kind of command (draw, dispatch, trace rays) has that context
+    // record every command of that kind, dumped or not. This handles the command buffers that have windows but no
+    // context for the given kind.
+    template <typename Callback>
+    void ForEachWorkCommandBufferWithoutOwner(VkCommandBuffer  original_command_buffer,
+                                              WindowSlot::Kind kind,
+                                              Callback         callback)
+    {
+        const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+            FindDumpingContextWindows(original_command_buffer);
+        for (const auto& windows : windows_contexts)
+        {
+            if (!windows->HasSlotOwner(kind))
             {
-                callback(dispatch_rays_command_buffer);
+                callback(windows->GetWorkCommandBuffer());
             }
         }
-
-        ForEachDrawCallWorkCommandBuffer(original_command_buffer, callback);
     }
 
     // every clone from the one taking work to the last. query commands go here, so each clone resets, begins and
@@ -885,23 +902,12 @@ class VulkanReplayDumpResourcesBase
     template <typename Callback>
     void ForEachStateCommandBuffer(VkCommandBuffer original_command_buffer, Callback callback)
     {
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
-            FindDispatchTraceRaysContexts(original_command_buffer);
-        for (const auto& dr_context : dr_contexts)
-        {
-            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-            {
-                callback(dispatch_rays_command_buffer);
-            }
-        }
-
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-            FindDrawCallDumpingContexts(original_command_buffer);
-        for (const auto& dc_context : dc_contexts)
+        const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
+            FindDumpingContextWindows(original_command_buffer);
+        for (const auto& windows : windows_contexts)
         {
             CommandBufferIterator first, last;
-            dc_context->GetDrawCallActiveCommandBuffers(first, last);
+            windows->GetActiveCommandBuffers(first, last);
             for (CommandBufferIterator it = first; it < last; ++it)
             {
                 callback(*it);
@@ -909,48 +915,13 @@ class VulkanReplayDumpResourcesBase
         }
     }
 
-    // draw call clone currently taking work, for each context on this command buffer.
-    template <typename Callback>
-    void ForEachDrawCallWorkCommandBuffer(VkCommandBuffer original_command_buffer, Callback callback)
-    {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-            FindDrawCallDumpingContexts(original_command_buffer);
-        for (const auto& dc_context : dc_contexts)
-        {
-            callback(dc_context->GetWorkCommandBuffer());
-        }
-    }
-
-    // Transfer dumping records its snapshot copies into the stream where the command sits. With a draw call
-    // context the clones are the only execution, so the snapshots belong in the clone taking work. Without one, a
-    // dispatch/trace rays clone replaces the original the same way.
+    // Transfer dumping records its snapshot copies into the stream where the command sits. With windows the clones
+    // are the only execution, so the snapshots belong in the clone taking work.
     VkCommandBuffer TransferRecordingCommandBuffer(VkCommandBuffer original_command_buffer)
     {
         VkCommandBuffer clone = VK_NULL_HANDLE;
-        ForEachDrawCallWorkCommandBuffer(original_command_buffer, [&clone](VkCommandBuffer cb) { clone = cb; });
-        if (clone == VK_NULL_HANDLE)
-        {
-            for (const auto& dr_context : FindDispatchTraceRaysContexts(original_command_buffer))
-            {
-                if (dr_context->GetDispatchRaysCommandBuffer() != VK_NULL_HANDLE)
-                {
-                    clone = dr_context->GetDispatchRaysCommandBuffer();
-                }
-            }
-        }
+        ForEachWorkCommandBuffer(original_command_buffer, [&clone](VkCommandBuffer cb) { clone = cb; });
         return (clone != VK_NULL_HANDLE) ? clone : original_command_buffer;
-    }
-
-    // Whether the draw call context hosts one of the dispatch/trace rays contexts. The hosted context records the
-    // dispatch/trace rays command itself, between its resource snapshots, so the draw call clone must not record it
-    // a second time.
-    static bool
-    HostsDispatchTraceRaysContext(const std::shared_ptr<DrawCallsDumpingContext>&                      dc_context,
-                                  const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>>& dr_contexts)
-    {
-        return std::any_of(dr_contexts.begin(), dr_contexts.end(), [&dc_context](const auto& dr_context) {
-            return dr_context->GetHost() == dc_context;
-        });
     }
 
     // Transfer contexts search funcs
@@ -1005,6 +976,10 @@ class VulkanReplayDumpResourcesBase
 
     // Mapping between the original VkCommandBuffer handle and its BeginCommandBuffer indices we care about
     std::unordered_map<VkCommandBuffer, decode::Index> cb_bcb_map_;
+
+    // The execution of each command buffer that draw calls, dispatches or trace rays are dumped from. One per
+    // BeginCommandBuffer - QueueSubmit pair. The draw call and dispatch/trace rays contexts of the pair own its slots.
+    std::map<BeginCmdBufQueueSubmitPair, std::shared_ptr<DumpingContextWindows>> dumping_context_windows_;
 
     // DrawCall dumping contexts. One per BeginCommandBuffer - QueueSubmit pair
     std::map<BeginCmdBufQueueSubmitPair, std::shared_ptr<DrawCallsDumpingContext>> draw_call_contexts_;

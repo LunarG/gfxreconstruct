@@ -34,11 +34,14 @@
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "graphics/vulkan_injected_calls.h"
 #include "graphics/vulkan_util.h"
+#include "util/compressor.h"
 #include "util/logging.h"
 #include "util/defines.h"
 #include "util/options.h"
 
+#include <cstddef>
 #include <cstdint>
+#include <memory>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -225,6 +228,94 @@ struct SecondaryIdentifiers
 };
 
 #define DEPTH_ATTACHMENT ~0
+
+// Defined in vulkan_replay_dump_resources_windows.h
+class DumpingContextWindows;
+struct WindowSlot;
+
+// Base class of the dumping contexts.
+//
+// Each dumping context is assigned its corresponding DumpingContextWindows. The base also holds what every such context
+// needs: the (BeginCommandBuffer, QueueSubmit) pair it was created for, the original command buffer, the dispatch
+// tables of its device and what the resources are dumped with.
+//
+// A dumping context owns the slots of the commands it knows: while the command buffer is recorded
+// it tracks the state it needs, records its target commands into the clone taking work and tells the windows where a
+// window ends. When the command buffer is submitted the windows run and call the owner of each slot back, through the
+// virtual functions declared here, to dump it.
+class DumpingContextBase
+{
+  public:
+    // windows is the execution of the command buffer this context dumps commands from.
+    DumpingContextBase(std::shared_ptr<DumpingContextWindows>            windows,
+                       Index                                             bcb_index,
+                       Index                                             qs_index,
+                       CommonObjectInfoTable&                            object_info_table,
+                       const VulkanReplayOptions&                        options,
+                       VulkanDumpResourcesDelegate&                      delegate,
+                       const util::Compressor*                           compressor,
+                       const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
+                       const VulkanPerDeviceContexts&                    device_contexts);
+
+    virtual ~DumpingContextBase() = default;
+
+    // Stores the original command buffer and the dispatch tables of its device. Contexts with more to set up
+    // override it and call this one first.
+    virtual VkResult BeginCommandBuffer(const VulkanCommandBufferInfo*             orig_cmd_buf_info,
+                                        const graphics::VulkanInjectedDeviceCalls& dev_table,
+                                        const graphics::VulkanInstanceTable*       inst_table);
+
+    VkCommandBuffer GetOriginalCommandBuffer() const
+    {
+        return original_command_buffer_info_ != nullptr ? original_command_buffer_info_->handle : VK_NULL_HANDLE;
+    }
+
+    // Dumps the resources of the slot's command. Called right after the window with index window_index has
+    // executed: the one that ends with the command or, with --dump-resources-before, first the one that ends right
+    // before it (even index) and then the one that holds the command (odd index).
+    virtual VkResult DumpSlot(const WindowSlot& slot,
+                              size_t            window_index,
+                              VkQueue           queue,
+                              Index             submit_info_index,
+                              Index             submit_info_cmd_buf_index) = 0;
+
+    // Forgets what was dumped during a queue submission, in case the command buffer is submitted again
+    virtual void ResetDumpedResources() = 0;
+
+    // Called on the owner of a primary from vkCmdExecuteCommands, before the slots of the secondary are taken
+    // over: hands the state a secondary can inherit from the primary down to the secondary's owner of the same kind.
+    virtual void PrepareSecondary(DumpingContextBase& secondary_owner) = 0;
+
+    // Called on the owner of a primary once per slot of an executed secondary, in the secondary's slot order: shares
+    // the secondary owner's parameters of the slot's command with this owner, records under which window of the
+    // primary and which vkCmdExecuteCommands this execution of the command runs, and finalizes the primary's
+    // window (two windows with --dump-resources-before).
+    virtual void ExecuteSecondarySlot(DumpingContextBase& secondary_owner,
+                                      const WindowSlot&   secondary_slot,
+                                      Index               execute_cmd_index,
+                                      Index               command_buffer_execute_index) = 0;
+
+  protected:
+    // The execution of the command buffer: the clones this context records into and whose slots it owns
+    std::shared_ptr<DumpingContextWindows> windows_;
+
+    const VulkanCommandBufferInfo* original_command_buffer_info_;
+    Index                          bcb_index_;
+    Index                          qs_index_;
+
+    VulkanDumpResourcesDelegate& delegate_;
+    const VulkanReplayOptions&   options_;
+    const util::Compressor*      compressor_;
+
+    graphics::VulkanInjectedDeviceCalls     device_table_;
+    const graphics::VulkanInstanceTable*    instance_table_;
+    CommonObjectInfoTable&                  object_info_table_;
+    const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props_;
+
+    const DumpResourcesAccelerationStructuresContext& acceleration_structures_context_;
+
+    const VulkanPerDeviceContexts& device_contexts_;
+};
 
 GFXRECON_END_NAMESPACE(gfxrecon) GFXRECON_END_NAMESPACE(decode)
 
