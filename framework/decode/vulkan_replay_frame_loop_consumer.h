@@ -358,7 +358,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
         void RecordInitialState(const std::vector<format::HandleId>& image_ids,
                                 const std::vector<format::HandleId>& restorable_image_ids);
 
-        void Restore(format::HandleId queue);
+        void Restore();
 
         void DestroyShadowImages();
 
@@ -379,7 +379,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     ImageTracking& GetImageTracking(format::HandleId device);
     bool           CanSnapshotImageContents(const VulkanImageInfo* image_info) const;
     void           TrackImageStates();
-    void           FixupDeviceImages(format::HandleId device, format::HandleId queue);
+    void           FixupDeviceImages(format::HandleId device);
     void           ResetImageTracking();
     void           ResetImageTracking(format::HandleId device);
 

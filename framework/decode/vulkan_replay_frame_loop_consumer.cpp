@@ -1799,7 +1799,7 @@ void VulkanReplayFrameLoopConsumer::TrackImageStates()
     }
 }
 
-void VulkanReplayFrameLoopConsumer::FixupDeviceImages(format::HandleId device, format::HandleId queue)
+void VulkanReplayFrameLoopConsumer::FixupDeviceImages(format::HandleId device)
 {
     auto it = per_device_image_tracking_.find(device);
     if (it == per_device_image_tracking_.end())
@@ -1807,7 +1807,7 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceImages(format::HandleId device, f
         return;
     }
 
-    it->second.Restore(queue);
+    it->second.Restore();
 }
 
 void VulkanReplayFrameLoopConsumer::ResetImageTracking()
@@ -2108,7 +2108,7 @@ void VulkanReplayFrameLoopConsumer::ImageTracking::BuildRestoreCommands()
     }
 }
 
-void VulkanReplayFrameLoopConsumer::ImageTracking::Restore(format::HandleId queue)
+void VulkanReplayFrameLoopConsumer::ImageTracking::Restore()
 {
     if (image_states_.empty())
     {
@@ -2116,8 +2116,7 @@ void VulkanReplayFrameLoopConsumer::ImageTracking::Restore(format::HandleId queu
     }
 
     VulkanDeviceInfo* device_info = object_table_.GetVkDeviceInfo(device_id_);
-    VulkanQueueInfo*  queue_info  = object_table_.GetVkQueueInfo(queue);
-    GFXRECON_ASSERT(device_info != nullptr && queue_info != nullptr);
+    GFXRECON_ASSERT(device_info != nullptr);
 
     const bool built_this_restore = !restore_commands_.built;
     if (built_this_restore)
@@ -2147,7 +2146,7 @@ void VulkanReplayFrameLoopConsumer::ImageTracking::Restore(format::HandleId queu
     }
 
     TemporaryCommandBuffer temp_cmd_buff(*device_info, device_table_);
-    if (temp_cmd_buff.CreateAndBegin(queue_info->family_index, queue_info->handle) != VK_SUCCESS)
+    if (temp_cmd_buff.CreateAndBegin(graphics::FindGraphicsOrComputeQueueFamilyIndex) != VK_SUCCESS)
     {
         return;
     }
@@ -2194,7 +2193,7 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceObjects(format::HandleId device, 
         return;
     }
     FixupDeviceEvents(device);
-    FixupDeviceImages(device, queue);
+    FixupDeviceImages(device);
     FixupDeviceFences(device, queue);
     FixupDeviceBuffers(device);
     GetSemaphoreTracking(device).FixupSemaphores(queue);
