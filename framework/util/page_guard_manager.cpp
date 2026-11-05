@@ -28,6 +28,7 @@
 #include "util/page_status_tracker.h"
 #include "util/platform.h"
 
+#include <algorithm>
 #include <cassert>
 #include <csetjmp>
 #include <cinttypes>
@@ -1139,9 +1140,7 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
         // the first map.  Copied pages are marked dirty, and are not copied if mapped again.
         if (shadow_memory_info != nullptr)
         {
-            size_t         first_page = (mapped_offset - aligned_offset) >> system_page_pot_shift_;
-            uint8_t*       dst_page   = static_cast<uint8_t*>(shadow_memory);
-            const uint8_t* src_page   = static_cast<const uint8_t*>(mapped_memory);
+            size_t first_page = (mapped_offset - aligned_offset) >> system_page_pot_shift_;
 
             for (size_t i = 0; i < total_pages; ++i)
             {
@@ -1149,17 +1148,18 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
 
                 if (!shadow_memory_info->page_loaded[page_index])
                 {
-                    size_t copy_size = system_page_size_;
+                    // The page in offsets from the start of the mapped pointer, clamped to the mapped range.
+                    size_t page_begin = (i == 0) ? 0 : ((i << system_page_pot_shift_) - aligned_offset);
+                    size_t page_end   = ((i + 1) << system_page_pot_shift_) - aligned_offset;
 
                     if ((page_index + 1) == shadow_memory_info->total_pages)
                     {
-                        copy_size = shadow_memory_info->last_segment_size;
+                        page_end = page_begin + shadow_memory_info->last_segment_size - ((i == 0) ? aligned_offset : 0);
                     }
 
-                    if (i == 0)
-                    {
-                        copy_size -= aligned_offset;
-                    }
+                    page_end = std::min(page_end, mapped_range);
+
+                    size_t copy_size = page_end - page_begin;
 
                     if (copy_size == system_page_size_)
                     {
@@ -1167,10 +1167,9 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
                         shadow_memory_info->page_loaded[page_index] = true;
                     }
 
-                    MemoryCopy(dst_page, src_page, copy_size);
-
-                    dst_page += copy_size;
-                    src_page += copy_size;
+                    MemoryCopy(static_cast<uint8_t*>(shadow_memory) + page_begin,
+                               static_cast<const uint8_t*>(mapped_memory) + page_begin,
+                               copy_size);
                 }
             }
         }
