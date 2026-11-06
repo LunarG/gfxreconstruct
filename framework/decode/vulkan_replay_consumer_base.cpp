@@ -13750,7 +13750,7 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate(const 
 }
 
 void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
-    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplate& args)
+    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplateKHR& args)
 {
     ReplayCmdPushDescriptorSetWithTemplate(
         call_info, args.commandBuffer, args.descriptorUpdateTemplate, args.layout, args.set, &args.pData, true);
@@ -13811,7 +13811,7 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2(
 }
 
 void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
-    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplate2& args)
+    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplate2KHR& args)
 {
     ReplayCmdPushDescriptorSetWithTemplate2(
         call_info, args.commandBuffer, args.pPushDescriptorSetWithTemplateInfo.GetMetaStructPointer(), true);

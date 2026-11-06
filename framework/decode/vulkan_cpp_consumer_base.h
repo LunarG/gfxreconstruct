@@ -312,8 +312,9 @@ class VulkanCppConsumerBase : public VulkanConsumer
     virtual void Process_vkCmdPushDescriptorSetWithTemplate(const ApiCallInfo&                      call_info,
                                                             args::CmdPushDescriptorSetWithTemplate& args) override;
 
-    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo&                      call_info,
-                                                               args::CmdPushDescriptorSetWithTemplate& args) override;
+    virtual void
+    Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo&                         call_info,
+                                                  args::CmdPushDescriptorSetWithTemplateKHR& args) override;
 
     virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&                        call_info,
                                                               args::UpdateDescriptorSetWithTemplateKHR& args) override;
@@ -321,8 +322,9 @@ class VulkanCppConsumerBase : public VulkanConsumer
     virtual void Process_vkCmdPushDescriptorSetWithTemplate2(const ApiCallInfo&                       call_info,
                                                              args::CmdPushDescriptorSetWithTemplate2& args) override;
 
-    virtual void Process_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo&                       call_info,
-                                                                args::CmdPushDescriptorSetWithTemplate2& args) override;
+    virtual void
+    Process_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo&                          call_info,
+                                                   args::CmdPushDescriptorSetWithTemplate2KHR& args) override;
 
     // String utilities
     static std::string ToEscape(const char* value);
