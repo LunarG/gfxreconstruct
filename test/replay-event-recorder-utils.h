@@ -9,17 +9,13 @@
 #include <string>
 #include <vector>
 
-/// Returned by index_of_first_event() when no event of the type was recorded.
-constexpr size_t kEventNotFound = static_cast<size_t>(-1);
-
 /**
  * One line of the replay event recorder plugin's output.
  */
 struct RecordedEvent
 {
     uint32_t type = 0;
-    /// Every key=value pair the recorder wrote for the event, as text. Read them with unsigned_field() or
-    /// signed_field().
+    /// Every key=value pair the recorder wrote for the event, as text. Read them with unsigned_field().
     std::map<std::string, std::string> fields;
 };
 
@@ -43,23 +39,6 @@ void replay_and_record_events(const char*                 test_name,
  * @return the value of the field, or 0 and a test failure naming the field if the recorder did not write it
  */
 uint64_t unsigned_field(const RecordedEvent& event, const std::string& key);
-
-/**
- * Read a field of a recorded event as a signed value, e.g. "result".
- *
- * @return the value of the field, or 0 and a test failure naming the field if the recorder did not write it
- */
-int64_t signed_field(const RecordedEvent& event, const std::string& key);
-
-/**
- * Find the first recorded event of a type.
- *
- * @param events - the events replay_and_record_events() read back
- * @param type   - the event type to look for
- *
- * @return the index of the first event of that type in events, or kEventNotFound if there is none
- */
-size_t index_of_first_event(const std::vector<RecordedEvent>& events, GfxrReplayEventType type);
 
 /**
  * Collect every recorded event of a type.

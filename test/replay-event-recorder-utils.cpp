@@ -19,15 +19,7 @@ static std::string quoted(const std::filesystem::path& path)
 
 static std::filesystem::path recorded_events_path(const char* test_name)
 {
-    std::string name{ test_name };
-
-    const auto* test_info = ::testing::UnitTest::GetInstance()->current_test_info();
-    if (test_info != nullptr)
-    {
-        name += std::string{ "_" } + test_info->test_suite_name() + "_" + test_info->name();
-    }
-
-    return std::filesystem::current_path() / (name + "_replay_events.txt");
+    return std::filesystem::current_path() / (test_file_name(test_name) + "_replay_events.txt");
 }
 
 static void read_recorded_events(const std::filesystem::path& path, std::vector<RecordedEvent>& events)
@@ -97,24 +89,6 @@ uint64_t unsigned_field(const RecordedEvent& event, const std::string& key)
 {
     const std::string* value = find_field(event, key);
     return (value == nullptr) ? 0 : std::stoull(*value);
-}
-
-int64_t signed_field(const RecordedEvent& event, const std::string& key)
-{
-    const std::string* value = find_field(event, key);
-    return (value == nullptr) ? 0 : std::stoll(*value);
-}
-
-size_t index_of_first_event(const std::vector<RecordedEvent>& events, GfxrReplayEventType type)
-{
-    for (size_t i = 0; i < events.size(); ++i)
-    {
-        if (events[i].type == type)
-        {
-            return i;
-        }
-    }
-    return kEventNotFound;
 }
 
 std::vector<RecordedEvent> events_of_type(const std::vector<RecordedEvent>& events, GfxrReplayEventType type)

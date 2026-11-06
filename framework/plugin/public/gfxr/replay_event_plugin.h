@@ -23,7 +23,6 @@
 #ifndef GFXRECON_REPLAY_EVENT_PLUGIN_H
 #define GFXRECON_REPLAY_EVENT_PLUGIN_H
 
-#include <stddef.h>
 #include <stdint.h>
 
 #if defined(_WIN32)

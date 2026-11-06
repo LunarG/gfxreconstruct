@@ -9,6 +9,17 @@
 void run_in_background(const char* test_name);
 
 /**
+ * Get the name of the test app combined with the test suite and test case running it, e.g.
+ * "<test_name>_<test_suite>_<test_case>". This allows the same app to be used in different test cases, as otherwise
+ * their output files might conflict.
+ *
+ * @param test_name - the name of the test app
+ *
+ * @return the combined name, or just test_name when no test is running
+ */
+std::string test_file_name(const char* test_name);
+
+/**
  * Run an application with capture enabled, and compare the resulting gfxr file to a known good gfxr
  *
  * @param test_name         - the name of the test to launch
