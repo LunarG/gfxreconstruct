@@ -72,8 +72,6 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     void Process_vkDestroyFence(const ApiCallInfo& call_info, args::DestroyFence& args) override;
 
-    void Process_vkQueueBindSparse(const ApiCallInfo& call_info, args::QueueBindSparse& args) override;
-
     void Process_vkCreateEvent(const ApiCallInfo& call_info, args::CreateEvent& args) override;
 
     void Process_vkDestroyEvent(const ApiCallInfo& call_info, args::DestroyEvent& args) override;
@@ -107,6 +105,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     virtual void StartLooping() override;
 
+    virtual void ProcessFrameEndMarker(uint64_t frame_number) override;
+
     // Private declarations
   private:
     void RemovePoolDanglingCreateDescriptors(format::HandleId descriptorPool);
@@ -118,7 +118,6 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     void TrackFenceStates();
     void TrackFenceState(format::HandleId device, format::HandleId fence);
     void FixupDeviceFences(format::HandleId device, format::HandleId queue);
-    void FrameBoundaryEndOfFrame(format::HandleId queue, PNextNode* pNext);
 
     struct EventTracking
     {
@@ -358,7 +357,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
         void RecordInitialState(const std::vector<format::HandleId>& image_ids,
                                 const std::vector<format::HandleId>& restorable_image_ids);
 
-        void Restore(format::HandleId queue);
+        void Restore();
 
         void DestroyShadowImages();
 
@@ -379,7 +378,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     ImageTracking& GetImageTracking(format::HandleId device);
     bool           CanSnapshotImageContents(const VulkanImageInfo* image_info) const;
     void           TrackImageStates();
-    void           FixupDeviceImages(format::HandleId device, format::HandleId queue);
+    void           FixupDeviceImages(format::HandleId device);
     void           ResetImageTracking();
     void           ResetImageTracking(format::HandleId device);
 

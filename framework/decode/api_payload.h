@@ -149,6 +149,7 @@ struct StateEndMarkerArgs
 struct FrameEndMarkerArgs
 {
     uint64_t frame_number;
+    bool     redundant{ false };
 
     auto GetTuple() const { return std::tie(frame_number); }
 };

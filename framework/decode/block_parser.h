@@ -169,6 +169,13 @@ class BlockParser
         return EmplaceBlock(args);
     }
 
+    // A frame end marker that isn't in the file, standing in for an implicit frame delimiter.
+    ParsedBlock& EmplaceFrameEndMarkerBlock(uint64_t frame_number)
+    {
+        FrameEndMarkerArgs* args = Emplace<FrameEndMarkerArgs>(frame_number);
+        return EmplaceBlock(ParsedBlock::BlockState::kReady, block_index_, nullptr, args);
+    }
+
 #ifdef GFXRECON_ENABLE_EXPERIMENTAL_PARSER_INTERFACE
     // Returns the restricted facade that parsing code outside this class uses to build blocks --
     // today the parsers for extended meta-data types (see block_parser_meta_data.h). It is the only
