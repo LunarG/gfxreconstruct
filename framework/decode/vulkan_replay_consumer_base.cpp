@@ -9456,6 +9456,9 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
         // It means the application only ran GetSwapchainImage once. It didn't get image count first.
         if (swapchain_info->replay_image_count == 0 && replay_images != nullptr)
         {
+            // The count query is not a call of the application.
+            util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+
             swapchain_->GetSwapchainImagesKHR(
                 original_result, func, device_info, swapchain_info, capture_image_count, replay_image_count, nullptr);
         }

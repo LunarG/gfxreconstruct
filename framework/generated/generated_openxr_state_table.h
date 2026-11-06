@@ -582,6 +582,58 @@ class OpenXrStateHandleTable : OpenXrStateTableBase
 
     template<typename Wrapper> Wrapper* GetWrapper(typename Wrapper::HandleType handle) { return nullptr; }
 
+    // Calls visitor with the name of each handle type and the number of its wrappers in the table.
+    void VisitWrapperCounts(std::function<void(const char*, size_t)> visitor) const
+    {
+        visitor("VkCommandBuffer", vk_commandBuffer_map_.size());
+        visitor("VkDevice", vk_device_map_.size());
+        visitor("VkImage", vk_image_map_.size());
+        visitor("VkInstance", vk_instance_map_.size());
+        visitor("VkPhysicalDevice", vk_physicalDevice_map_.size());
+        visitor("VkQueue", vk_queue_map_.size());
+        visitor("VkSurfaceKHR", vk_surfaceKHR_map_.size());
+        visitor("VkSwapchainKHR", vk_swapchainKHR_map_.size());
+        visitor("XrAction", xr_action_map_.size());
+        visitor("XrActionSet", xr_actionSet_map_.size());
+        visitor("XrBodyTrackerFB", xr_bodyTrackerFB_map_.size());
+        visitor("XrDebugUtilsMessengerEXT", xr_debugUtilsMessengerEXT_map_.size());
+        visitor("XrEnvironmentDepthProviderMETA", xr_environmentDepthProviderMETA_map_.size());
+        visitor("XrEnvironmentDepthSwapchainMETA", xr_environmentDepthSwapchainMETA_map_.size());
+        visitor("XrExportedLocalizationMapML", xr_exportedLocalizationMapML_map_.size());
+        visitor("XrEyeTrackerFB", xr_eyeTrackerFB_map_.size());
+        visitor("XrFaceTracker2FB", xr_faceTracker2FB_map_.size());
+        visitor("XrFaceTrackerFB", xr_faceTrackerFB_map_.size());
+        visitor("XrFacialTrackerHTC", xr_facialTrackerHTC_map_.size());
+        visitor("XrFoveationProfileFB", xr_foveationProfileFB_map_.size());
+        visitor("XrGeometryInstanceFB", xr_geometryInstanceFB_map_.size());
+        visitor("XrHandTrackerEXT", xr_handTrackerEXT_map_.size());
+        visitor("XrInstance", xr_instance_map_.size());
+        visitor("XrMarkerDetectorML", xr_markerDetectorML_map_.size());
+        visitor("XrPassthroughColorLutMETA", xr_passthroughColorLutMETA_map_.size());
+        visitor("XrPassthroughFB", xr_passthroughFB_map_.size());
+        visitor("XrPassthroughHTC", xr_passthroughHTC_map_.size());
+        visitor("XrPassthroughLayerFB", xr_passthroughLayerFB_map_.size());
+        visitor("XrPlaneDetectorEXT", xr_planeDetectorEXT_map_.size());
+        visitor("XrSceneMSFT", xr_sceneMSFT_map_.size());
+        visitor("XrSceneObserverMSFT", xr_sceneObserverMSFT_map_.size());
+        visitor("XrSession", xr_session_map_.size());
+        visitor("XrSpace", xr_space_map_.size());
+        visitor("XrSpaceUserFB", xr_spaceUserFB_map_.size());
+        visitor("XrSpatialAnchorMSFT", xr_spatialAnchorMSFT_map_.size());
+        visitor("XrSpatialAnchorStoreConnectionMSFT", xr_spatialAnchorStoreConnectionMSFT_map_.size());
+        visitor("XrSpatialGraphNodeBindingMSFT", xr_spatialGraphNodeBindingMSFT_map_.size());
+        visitor("XrSwapchain", xr_swapchain_map_.size());
+        visitor("XrTriangleMeshFB", xr_triangleMeshFB_map_.size());
+        visitor("XrVirtualKeyboardMETA", xr_virtualKeyboardMETA_map_.size());
+        visitor("XrAsyncRequestIdFB", xr_asyncRequestIdFB_map_.size());
+        visitor("XrControllerModelKeyMSFT", xr_controllerModelKeyMSFT_map_.size());
+        visitor("XrMarkerML", xr_markerML_map_.size());
+        visitor("XrPath", xr_path_map_.size());
+        visitor("XrRenderModelKeyFB", xr_renderModelKeyFB_map_.size());
+        visitor("XrSystemId", xr_systemId_map_.size());
+        visitor("XrFutureEXT", xr_futureEXT_map_.size());
+    }
+
   private:
     std::unordered_map<VkCommandBuffer, vulkan_wrappers::CommandBufferWrapper*> vk_commandBuffer_map_;
     std::unordered_map<VkDevice, vulkan_wrappers::DeviceWrapper*> vk_device_map_;

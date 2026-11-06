@@ -687,6 +687,16 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkFlushMappedMemoryRanges
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkInvalidateMappedMemoryRanges>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkInvalidateMappedMemoryRanges(result, args...);
+    }
+};
+
+template <>
 struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUnmapMemory>
 {
     template <typename... Args>

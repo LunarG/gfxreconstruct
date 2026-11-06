@@ -54,6 +54,25 @@ class CallbackBase
         event_a_fp_(context_);
     }
 
+    // Callbacks set while an event is in progress missed its EventA.  This gives them one, so that the EventB
+    // that ends the event pairs with it.
+    void EventAForNewCallbacks()
+    {
+#ifdef GFXRECON_DEBUG_BUILD
+        event_a_in_progress_ = true;
+#endif
+
+        event_a_fp_(context_);
+    }
+
+    // Ends an event without the EventB, for callbacks that did not get its EventA.
+    void SkipEventB()
+    {
+#ifdef GFXRECON_DEBUG_BUILD
+        event_a_in_progress_ = false;
+#endif
+    }
+
     void EventB()
     {
 #ifdef GFXRECON_DEBUG_BUILD
@@ -88,6 +107,10 @@ static thread_local uint32_t thread_scope_depth = 0;
 static std::mutex scope_transition_mutex;
 static uint32_t   global_scope_count = 0;
 
+// Set when callbacks are set while another thread has the open scope.  They did not get its EventA, thus they do
+// not get its EventB either.
+static bool skip_event_b_for_new_callbacks = false;
+
 MarkInjectedCommandsHelper::MarkInjectedCommandsHelper()
 {
     if (thread_scope_depth++ == 0)
@@ -110,7 +133,15 @@ MarkInjectedCommandsHelper::~MarkInjectedCommandsHelper()
         std::lock_guard<std::mutex> lock(scope_transition_mutex);
         if (--global_scope_count == 0)
         {
-            injected_commands_marker.EventB();
+            if (skip_event_b_for_new_callbacks)
+            {
+                skip_event_b_for_new_callbacks = false;
+                injected_commands_marker.SkipEventB();
+            }
+            else
+            {
+                injected_commands_marker.EventB();
+            }
         }
     }
 }
@@ -124,7 +155,23 @@ extern "C" void GFXR_EXPORT SetInjectedCommandCallbacks(PFN_EventBeginCallBack b
                                                         PFN_EventEndCallBack   end_fp,
                                                         void*                  data)
 {
+    // A tool can register while a scope is open.  When the calling thread is in the scope, as a driver that the
+    // loader loads inside one is, the tool gets the begin callback now, on that thread.  When only another thread
+    // is, the tool gets no callback for that scope, because the begin callback names the thread of the scope.
+    std::lock_guard<std::mutex> lock(scope_transition_mutex);
     injected_commands_marker.SetCallbacks(begin_fp, end_fp, data);
+    skip_event_b_for_new_callbacks = false;
+    if (global_scope_count != 0)
+    {
+        if (thread_scope_depth != 0)
+        {
+            injected_commands_marker.EventAForNewCallbacks();
+        }
+        else
+        {
+            skip_event_b_for_new_callbacks = true;
+        }
+    }
 }
 
 class TrimmingStateMarker : public CallbackBase
