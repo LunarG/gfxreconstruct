@@ -486,22 +486,33 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
             build_info.dstAccelerationStructure);
 
         encode::AccelerationStructureKHRBuildCommandData dst_command{};
+        std::vector<VkAccelerationStructureGeometryKHR>  flattened;
+        const VkAccelerationStructureGeometryKHR*        geometries = build_info.pGeometries;
+        if (geometries == nullptr)
+        {
+            flattened.reserve(build_info.geometryCount);
+            for (uint32_t g = 0; g < build_info.geometryCount; ++g)
+            {
+                flattened.push_back(*build_info.ppGeometries[g]);
+            }
+            geometries = flattened.data();
+        }
 
         // Extract command information for 1 AccelerationStructure
         for (uint32_t g = 0; g < build_info.geometryCount; ++g)
         {
-            auto geometry = build_info.pGeometries != nullptr ? build_info.pGeometries + g : build_info.ppGeometries[g];
+            const auto& geometry = geometries[g];
 
             // scratch space for buffer-addresses. we extract and keep track of associated buffers.
             std::vector<VkDeviceAddress> to_extract;
 
-            switch (geometry->geometryType)
+            switch (geometry.geometryType)
             {
                 case VkGeometryTypeKHR::VK_GEOMETRY_TYPE_TRIANGLES_KHR:
                 {
-                    for (const auto& address : { geometry->geometry.triangles.vertexData.deviceAddress,
-                                                 geometry->geometry.triangles.indexData.deviceAddress,
-                                                 geometry->geometry.triangles.transformData.deviceAddress })
+                    for (const auto& address : { geometry.geometry.triangles.vertexData.deviceAddress,
+                                                 geometry.geometry.triangles.indexData.deviceAddress,
+                                                 geometry.geometry.triangles.transformData.deviceAddress })
                     {
                         to_extract.push_back(address);
                     }
@@ -509,12 +520,12 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
                 }
                 case VkGeometryTypeKHR::VK_GEOMETRY_TYPE_AABBS_KHR:
                 {
-                    to_extract.push_back(geometry->geometry.aabbs.data.deviceAddress);
+                    to_extract.push_back(geometry.geometry.aabbs.data.deviceAddress);
                     break;
                 }
                 case VkGeometryTypeKHR::VK_GEOMETRY_TYPE_INSTANCES_KHR:
                 {
-                    to_extract.push_back(geometry->geometry.instances.data.deviceAddress);
+                    to_extract.push_back(geometry.geometry.instances.data.deviceAddress);
                     break;
                 }
                 case VK_GEOMETRY_TYPE_SPHERES_NV:
@@ -553,16 +564,16 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
                     buffer.usage              = target_buffer_wrapper->usage;
                 }
             }
-
-            dst_command.geometry_info                     = build_info;
-            VkAccelerationStructureGeometryKHR* unwrapped = gfxrecon::encode::vulkan_trackers::TrackStructs(
-                build_info.pGeometries, build_info.geometryCount, dst_command.geometry_info_memory);
-            dst_command.geometry_info.pGeometries = unwrapped;
-
-            dst_command.build_range_infos.insert(dst_command.build_range_infos.end(),
-                                                 pp_buildRange_infos[i],
-                                                 pp_buildRange_infos[i] + build_info.geometryCount);
         }
+
+        dst_command.geometry_info              = build_info;
+        dst_command.geometry_info.ppGeometries = nullptr;
+        dst_command.geometry_info.pGeometries  = gfxrecon::encode::vulkan_trackers::TrackStructs(
+            geometries, build_info.geometryCount, dst_command.geometry_info_memory);
+
+        dst_command.build_range_infos.insert(dst_command.build_range_infos.end(),
+                                             pp_buildRange_infos[i],
+                                             pp_buildRange_infos[i] + build_info.geometryCount);
 
         // track all AS builds as regular builds, we'll have no AS to 'update'
         GFXRECON_ASSERT(wrapper->address != 0 && wrapper->size != 0);
@@ -581,11 +592,13 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
 
         for (uint32_t g = 0; g < build_info.geometryCount; ++g)
         {
-            if (build_info.pGeometries[g].geometryType != VK_GEOMETRY_TYPE_INSTANCES_KHR)
+            const auto& geometry = geometries[g];
+
+            if (geometry.geometryType != VK_GEOMETRY_TYPE_INSTANCES_KHR)
             {
                 continue;
             }
-            const VkDeviceAddress address         = build_info.pGeometries[g].geometry.instances.data.deviceAddress;
+            const VkDeviceAddress address         = geometry.geometry.instances.data.deviceAddress;
             const uint32_t        primitive_count = pp_buildRange_infos[i]->primitiveCount;
             // According to spec both address and primitiveCount can be 0.
             // Nothing to handle in these cases.

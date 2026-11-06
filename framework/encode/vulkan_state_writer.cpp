@@ -2232,10 +2232,10 @@ void VulkanStateWriter::UpdateAddresses(encode::AccelerationStructureKHRBuildCom
         addresses_to_replace[address] = const_cast<VkDeviceAddress*>(&address);
     };
 
+    GFXRECON_ASSERT(command.geometry_info.ppGeometries == nullptr);
     for (uint32_t g = 0; g < command.geometry_info.geometryCount; ++g)
     {
-        auto geometry = command.geometry_info.pGeometries != nullptr ? command.geometry_info.pGeometries + g
-                                                                     : command.geometry_info.ppGeometries[g];
+        auto geometry = command.geometry_info.pGeometries + g;
 
         switch (geometry->geometryType)
         {
