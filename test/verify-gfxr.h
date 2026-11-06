@@ -34,10 +34,14 @@ void verify_gfxr(const char* test_name, const char* trimming_frames = nullptr, b
  *
  * @param test_name          - the name of the test app to launch and capture
  * @param extra_replay_args  - additional arguments forwarded verbatim to gfxrecon-replay
+ * @param trimming_frames    - the frames to capture, e.g. "10" or "10-100", or nullptr to capture every frame. A range
+ *                             has to start past the first frame for the capture to hold a state block.
  *
  * @note expects the same environment variables as verify_gfxr().
  */
-void capture_and_replay(const char* test_name, std::vector<std::string> extra_replay_args = {});
+void capture_and_replay(const char*              test_name,
+                        std::vector<std::string> extra_replay_args = {},
+                        const char*              trimming_frames   = nullptr);
 
 /**
  * Run a test app with capture enabled, producing <test_name>_<test_suite>_<test_case>.gfxr next to the test runner for
