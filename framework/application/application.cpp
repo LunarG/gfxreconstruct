@@ -24,6 +24,7 @@
 #include "application/application.h"
 #include "util/logging.h"
 #include "util/platform.h"
+#include "util/remote_channel.h"
 #include "decode/preload_file_processor.h"
 
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
@@ -53,6 +54,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <chrono>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
@@ -207,7 +209,14 @@ void Application::Run()
 
     while (running_)
     {
-        ProcessEvents(paused_);
+        // While paused, ApplyRemoteControls() does the bounded wait so controller commands are still serviced.
+        const bool remote_attached = (remote_channel_ != nullptr);
+        ProcessEvents(paused_ && !remote_attached);
+
+        if (remote_attached)
+        {
+            ApplyRemoteControls();
+        }
 
         // Only process the next frame if a quit event was not processed or not paused.
         if (running_ && !paused_)
@@ -284,7 +293,9 @@ void Application::Run()
 
 void Application::SetPaused(bool paused)
 {
-    if (file_processor_ != nullptr && paused_ != paused)
+    const bool changed = (paused_ != paused);
+
+    if (file_processor_ != nullptr && changed)
     {
         uint32_t current_frame = file_processor_->GetCurrentFrameNumber();
         if (paused)
@@ -298,6 +309,72 @@ void Application::SetPaused(bool paused)
     }
 
     paused_ = paused;
+
+    if (changed)
+    {
+        SendRemoteStatus();
+    }
+}
+
+void Application::SendRemoteStatus()
+{
+    if (remote_channel_ != nullptr && file_processor_ != nullptr)
+    {
+        remote_channel_->SendStatus(paused_ ? "paused" : "running",
+                                    file_processor_->GetCurrentFrameNumber(),
+                                    file_processor_->GetCurrentBlockIndex());
+    }
+}
+
+void Application::ApplyRemoteControls()
+{
+    GFXRECON_ASSERT(remote_channel_ != nullptr);
+
+    std::string action;
+
+    if (paused_ && remote_channel_->WaitPopControl(&action, std::chrono::milliseconds(10)))
+    {
+        ApplyRemoteControl(action);
+    }
+
+    while (remote_channel_->TryPopControl(&action))
+    {
+        ApplyRemoteControl(action);
+    }
+
+    // Checked after draining, so a stop sent just before closing still counts as the controller's own.
+    if (running_ && remote_channel_->IsControllerClosed())
+    {
+        GFXRECON_LOG_WARNING("Remote controller disconnected; stopping replay");
+        StopRunning();
+    }
+}
+
+void Application::ApplyRemoteControl(const std::string& action)
+{
+    if (action == "pause")
+    {
+        SetPaused(true);
+    }
+    else if (action == "resume")
+    {
+        SetPaused(false);
+    }
+    else if (action == "step")
+    {
+        if (paused_)
+        {
+            PlaySingleFrame();
+        }
+    }
+    else if (action == "stop")
+    {
+        StopRunning();
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Ignoring unknown remote control action '%s'", action.c_str());
+    }
 }
 
 bool Application::PlaySingleFrame()
@@ -328,6 +405,8 @@ bool Application::PlaySingleFrame()
             {
                 GFXRECON_LOG_INFO("Paused at frame %u", file_processor_->GetCurrentFrameNumber());
             }
+
+            SendRemoteStatus();
         }
         else
         {

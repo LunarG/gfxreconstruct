@@ -65,12 +65,27 @@ Backpressure testing (a slow controller against replay's bounded send queue):
 import argparse
 import json
 import os
+import queue
+import select
 import shlex
 import socket
 import struct
 import subprocess
 import sys
+import threading
 import time
+
+CONTROL_COMMANDS = {
+    'p': 'pause',
+    'pause': 'pause',
+    'r': 'resume',
+    'resume': 'resume',
+    's': 'step',
+    'n': 'step',
+    'step': 'step',
+    'q': 'stop',
+    'stop': 'stop',
+}
 
 
 def normalize(token):
@@ -205,6 +220,31 @@ def send_json(conn, obj):
     send_frame(conn, json.dumps(obj).encode('utf-8'))
 
 
+def send_command(conn, line):
+    '''Send the control message matching one line of command input.'''
+    line = line.strip().lower()
+    if not line:
+        return
+    action = CONTROL_COMMANDS.get(line)
+    if action is None:
+        print(
+            f"Unknown command '{line}' (p=pause, r=resume, s/n=step, q=stop)")
+        return
+    send_json(conn, {'type': 'control', 'action': action})
+
+
+def start_command_reader():
+    '''Read stdin lines on a daemon thread; select() on stdin is POSIX-only, but a queue works everywhere.'''
+    commands = queue.Queue()
+
+    def reader():
+        for line in sys.stdin:
+            commands.put(line)
+
+    threading.Thread(target=reader, daemon=True).start()
+    return commands
+
+
 def handle_session(conn, options, output_dir, hello=None):
     '''Run the handshake and process messages until replay reports done.
 
@@ -235,8 +275,32 @@ def handle_session(conn, options, output_dir, hello=None):
         print('Replay did not acknowledge settings', file=sys.stderr)
         return False
 
+    commands = None
+    if sys.stdin.isatty():
+        commands = start_command_reader()
+        print(
+            'Commands: p=pause, r=resume, s/n=step, q=stop (press Enter after each)'
+        )
+
     success = False
+    prev_msg_type = None
+    last_state = None
+    last_frame = None
+    last_block = None
+    last_op = None
+    last_current = None
+    last_total = None
     while True:
+        if commands is not None:
+            # Poll so queued commands still go out while replay is quiet.
+            readable, _, _ = select.select([conn], [], [], 0.1)
+            while not commands.empty():
+                send_command(conn, commands.get_nowait())
+                # The echoed command moved the cursor, so the next status starts a fresh line.
+                prev_msg_type = None
+            if conn not in readable:
+                continue
+
         frame = recv_frame(conn)
         if frame is None:
             print('Replay disconnected')
@@ -245,7 +309,33 @@ def handle_session(conn, options, output_dir, hello=None):
         msg = json.loads(frame)
         msg_type = msg.get('type')
 
-        if msg_type == 'file':
+        if msg_type == 'log':
+            # Already formatted like replay's console line, level included.
+            print(msg.get('message', ''))
+        elif msg_type in ('status', 'progress'):
+            # 'status' and bounded 'progress' share one in-place status line.
+            if msg_type == 'status':
+                last_state = msg.get('state')
+                last_frame = msg.get('frame')
+                last_block = msg.get('block')
+            else:
+                last_op = msg.get('operation', 'operation')
+                last_current = msg.get('current')
+                last_total = msg.get('total')
+            if prev_msg_type in ('status', 'progress') and sys.stdout.isatty():
+                # Move up a line and clear it, overwriting the previous status.
+                print('\033[F\033[K', end='')
+            # 'state' and 'frame' may be unknown if an operation reports before the first status.
+            parts = []
+            if last_frame is not None:
+                frame_part = f"frame {last_frame}"
+                if last_block is not None:
+                    frame_part += f", block {last_block}"
+                parts.append(frame_part)
+            if last_current is not None:
+                parts.append(f"{last_op} {last_current}/{last_total}")
+            print(f"--- {last_state or 'status'}: {', '.join(parts)}")
+        elif msg_type == 'file':
             # A "file" message is always followed by a raw binary frame.
             name = msg.get('name', 'unnamed')
             expected = msg.get('size', 0)
@@ -255,9 +345,12 @@ def handle_session(conn, options, output_dir, hello=None):
         elif msg_type == 'done':
             success = bool(msg.get('success'))
             print(f'Replay finished (success={success})')
+            # Replay waits for us to close first; run_session closes on return.
             break
         else:
             print(f'Unknown message: {msg}', file=sys.stderr)
+
+        prev_msg_type = msg_type
 
     if recv_rate > 0:
         print(f'--- recv throttle: {recv_rate / (1 << 20):.1f} MiB/s, '

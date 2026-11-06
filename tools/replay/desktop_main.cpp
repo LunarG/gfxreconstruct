@@ -96,9 +96,10 @@ int main(int argc, const char** argv)
     // If --remote-connect or --remote-listen is specified, the controller supplies the replay settings. Because the
     // user explicitly requested remote control, treat any failure to establish it as fatal rather than silently
     // falling back to the command-line arguments.
-    gfxrecon::util::RemoteChannel remote_channel;
-    if (gfxrecon::replay::SetupRemoteChannel(remote_channel, arg_parser, options, arguments) ==
-        gfxrecon::replay::RemoteSetupResult::kFailed)
+    gfxrecon::util::RemoteChannel             remote_channel;
+    const gfxrecon::replay::RemoteSetupResult remote_setup =
+        gfxrecon::replay::SetupRemoteChannel(remote_channel, arg_parser, options, arguments);
+    if (remote_setup == gfxrecon::replay::RemoteSetupResult::kFailed)
     {
         gfxrecon::util::Log::Release();
         exit(-1);
@@ -145,7 +146,10 @@ int main(int argc, const char** argv)
             return std::make_shared<gfxrecon::application::Application>(kApplicationName, fp, wsi_extension, nullptr);
         };
 
-        if (!gfxrecon::replay::RunReplay(file_processor, features, arg_parser, filename, make_application))
+        gfxrecon::util::RemoteChannel* const controller =
+            (remote_setup == gfxrecon::replay::RemoteSetupResult::kConnected) ? &remote_channel : nullptr;
+
+        if (!gfxrecon::replay::RunReplay(file_processor, features, arg_parser, filename, make_application, controller))
         {
             return_code = -1;
         }

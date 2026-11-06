@@ -1294,6 +1294,8 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(Index submit_inf
         const VulkanDelegateDumpDrawCallContext draw_call_info(
             DumpResourcesPipelineStage::kCompute, instance_table_, device_table_, disp_params.get());
         delegate_.DumpDrawCallInfo(draw_call_info);
+
+        DumpResourcesProgress::Advance();
     }
 
     index = 0;
@@ -1345,6 +1347,8 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(Index submit_inf
         const VulkanDelegateDumpDrawCallContext draw_call_info(
             DumpResourcesPipelineStage::kRayTracing, instance_table_, device_table_, tr_params.get());
         delegate_.DumpDrawCallInfo(draw_call_info);
+
+        DumpResourcesProgress::Advance();
     }
 
     // Clean up references to dumped descriptors in case this command buffer is submitted again
