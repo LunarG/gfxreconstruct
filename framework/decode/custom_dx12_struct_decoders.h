@@ -331,6 +331,7 @@ struct Decoded_D3D12_SAMPLER_DESC2
 
     D3D12_SAMPLER_DESC2*  decoded_value{ nullptr };
     PointerDecoder<float> FloatBorderColor;
+    PointerDecoder<uint32_t> UintBorderColor;
 };
 
 struct Decoded_D3D12_SHADER_NODE
