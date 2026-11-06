@@ -1865,8 +1865,11 @@ void VulkanReplayFrameLoopConsumer::TrackImageStates()
 
             device_images[image_info->parent_id].push_back(image_info->capture_id);
 
-            // The host can write to a mapped image regardless of its usage.
-            if (!image_info->writable && (image_info->memory_property_flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == 0)
+            // The host can write to a mapped image regardless of its usage, but it is only well defined if
+            // the image is not in optimal tiling.
+            const bool host_writable = (image_info->tiling != VK_IMAGE_TILING_OPTIMAL) &&
+                                       (image_info->memory_property_flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) != 0;
+            if (!image_info->writable && !host_writable)
             {
                 return;
             }
