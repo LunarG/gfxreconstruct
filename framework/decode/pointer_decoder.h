@@ -53,6 +53,22 @@ class PointerDecoder : public PointerDecoderBase
 
     std::span<const T> GetSpan() const { return std::span(GetPointer(), GetLength()); }
 
+    // Keeps only the decoded elements at `indices`, moving them to the front of the array, and shrinks GetLength()
+    // to match. Each index has to be at least its own position in `indices`, as it is when they are increasing.
+    // The output data is not kept, so this has to be called before it is allocated.
+    void KeepIndices(std::span<const uint32_t> indices)
+    {
+        GFXRECON_ASSERT((indices.size() <= GetLength()) && (output_data_ == nullptr));
+
+        for (size_t i = 0; i < indices.size(); ++i)
+        {
+            GFXRECON_ASSERT((indices[i] >= i) && (indices[i] < GetLength()));
+            data_[i] = data_[indices[i]];
+        }
+
+        SetLength(indices.size());
+    }
+
     size_t GetOutputLength() const { return output_len_; }
 
     OutputT* GetOutputPointer() { return output_data_; }
