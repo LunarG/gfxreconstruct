@@ -108,16 +108,10 @@ const std::string* RecordedEvent::find_field(const std::string& key) const
     return &entry->second;
 }
 
-uint64_t unsigned_field(const RecordedEvent& event, const std::string& key)
+uint64_t RecordedEvent::unsigned_field(const std::string& key) const
 {
-    const std::string* value = event.find_field(key);
+    const std::string* value = find_field(key);
     return (value == nullptr) ? 0 : std::stoull(*value);
-}
-
-int64_t signed_field(const RecordedEvent& event, const std::string& key)
-{
-    const std::string* value = event.find_field(key);
-    return (value == nullptr) ? 0 : std::stoll(*value);
 }
 
 std::optional<size_t> index_of_first_event(const std::vector<RecordedEvent>& events, GfxrReplayEventType type)
