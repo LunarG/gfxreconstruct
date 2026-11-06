@@ -52,6 +52,10 @@ std::unordered_set<format::HandleId> vulkan_struct_extract_handle_ids(
 
 template <>
 std::unordered_set<format::HandleId> vulkan_struct_extract_handle_ids(
+    const decode::StructPointerDecoder<decode::Decoded_VkRayTracingPipelineCreateInfoKHR>* create_infos);
+
+template <>
+std::unordered_set<format::HandleId> vulkan_struct_extract_handle_ids(
     const decode::StructPointerDecoder<decode::Decoded_VkShaderCreateInfoEXT>* create_infos);
 
 GFXRECON_END_NAMESPACE(graphics)

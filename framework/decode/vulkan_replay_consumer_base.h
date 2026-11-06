@@ -1924,6 +1924,17 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                 StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
                                 HandlePointerDecoder<VkPipeline>*                                pPipelines);
 
+    std::function<handle_create_result_t<VkPipeline>()> AsyncCreateRayTracingPipelinesKHR(
+        PFN_vkCreateRayTracingPipelinesKHR                                     func,
+        VkResult                                                               returnValue,
+        const ApiCallInfo&                                                     call_info,
+        const VulkanDeviceInfo*                                                device_info,
+        const VulkanPipelineCacheInfo*                                         pipeline_cache_info,
+        uint32_t                                                               createInfoCount,
+        const StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>*                   pAllocator,
+        HandlePointerDecoder<VkPipeline>*                                      pPipelines);
+
     std::function<handle_create_result_t<VkShaderEXT>()>
     AsyncCreateShadersEXT(PFN_vkCreateShadersEXT                               func,
                           VkResult                                             returnValue,

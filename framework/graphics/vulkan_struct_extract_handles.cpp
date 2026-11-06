@@ -108,6 +108,40 @@ std::unordered_set<format::HandleId> vulkan_struct_extract_handle_ids(
 
 template <>
 std::unordered_set<format::HandleId> vulkan_struct_extract_handle_ids(
+    const decode::StructPointerDecoder<decode::Decoded_VkRayTracingPipelineCreateInfoKHR>* create_infos)
+{
+    if (create_infos == nullptr)
+    {
+        return {};
+    }
+    std::unordered_set<format::HandleId> handle_deps;
+
+    for (size_t i = 0; i < create_infos->GetLength(); ++i)
+    {
+        const auto& create_info_meta = create_infos->GetMetaStructPointer()[i];
+        handle_deps.insert(create_info_meta.layout);
+        handle_deps.insert(create_info_meta.basePipelineHandle);
+
+        if (create_info_meta.pStages != nullptr)
+        {
+            const auto* stages_meta = create_info_meta.pStages->GetMetaStructPointer();
+            for (size_t j = 0; j < create_info_meta.pStages->GetLength(); ++j)
+            {
+                handle_deps.insert(stages_meta[j].module);
+            }
+        }
+        if (create_info_meta.pLibraryInfo != nullptr &&
+            create_info_meta.pLibraryInfo->GetMetaStructPointer() != nullptr)
+        {
+            const auto& libraries = create_info_meta.pLibraryInfo->GetMetaStructPointer()->pLibraries;
+            handle_deps.insert(libraries.GetPointer(), libraries.GetPointer() + libraries.GetLength());
+        }
+    }
+    return handle_deps;
+}
+
+template <>
+std::unordered_set<format::HandleId> vulkan_struct_extract_handle_ids(
     const decode::StructPointerDecoder<decode::Decoded_VkShaderCreateInfoEXT>* create_infos)
 {
     GFXRECON_UNREFERENCED_PARAMETER(create_infos);
