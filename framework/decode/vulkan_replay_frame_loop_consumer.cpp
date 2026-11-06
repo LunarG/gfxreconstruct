@@ -498,10 +498,55 @@ static bool CanRestoreImage(const VkImageCreateInfo* create_info)
     return true;
 }
 
+// These usages only let the device read from an image. Any other usage is assumed to be writable.
+static bool CanWriteImage(const VkImageCreateInfo* create_info)
+{
+    constexpr VkImageUsageFlags2KHR kReadOnlyUsage2 =
+        VK_IMAGE_USAGE_2_TRANSFER_SRC_BIT_KHR | VK_IMAGE_USAGE_2_SAMPLED_BIT_KHR |
+        VK_IMAGE_USAGE_2_INPUT_ATTACHMENT_BIT_KHR | VK_IMAGE_USAGE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR |
+        VK_IMAGE_USAGE_2_FRAGMENT_DENSITY_MAP_BIT_EXT | VK_IMAGE_USAGE_2_VIDEO_DECODE_SRC_BIT_KHR |
+        VK_IMAGE_USAGE_2_VIDEO_ENCODE_SRC_BIT_KHR | VK_IMAGE_USAGE_2_INVOCATION_MASK_BIT_HUAWEI |
+        VK_IMAGE_USAGE_2_SAMPLE_WEIGHT_BIT_QCOM | VK_IMAGE_USAGE_2_SAMPLE_BLOCK_MATCH_BIT_QCOM |
+        VK_IMAGE_USAGE_2_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR |
+        VK_IMAGE_USAGE_2_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR;
+
+    constexpr VkImageUsageFlags kReadOnlyUsage =
+        VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT |
+        VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR | VK_IMAGE_USAGE_FRAGMENT_DENSITY_MAP_BIT_EXT |
+        VK_IMAGE_USAGE_VIDEO_DECODE_SRC_BIT_KHR | VK_IMAGE_USAGE_VIDEO_ENCODE_SRC_BIT_KHR |
+        VK_IMAGE_USAGE_INVOCATION_MASK_BIT_HUAWEI | VK_IMAGE_USAGE_SAMPLE_WEIGHT_BIT_QCOM |
+        VK_IMAGE_USAGE_SAMPLE_BLOCK_MATCH_BIT_QCOM | VK_IMAGE_USAGE_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR |
+        VK_IMAGE_USAGE_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR;
+
+    if (const auto* usage_flags2 = graphics::vulkan_struct_get_pnext<VkImageUsageFlags2CreateInfoKHR>(create_info))
+    {
+        if ((usage_flags2->usage & ~kReadOnlyUsage2) != 0)
+        {
+            return true;
+        }
+    }
+    else if ((create_info->usage & ~kReadOnlyUsage) != 0)
+    {
+        return true;
+    }
+
+    if (const auto* stencil_usage2 = graphics::vulkan_struct_get_pnext<VkImageStencilUsage2CreateInfoKHR>(create_info))
+    {
+        return (stencil_usage2->stencilUsage & ~kReadOnlyUsage2) != 0;
+    }
+    if (const auto* stencil_usage = graphics::vulkan_struct_get_pnext<VkImageStencilUsageCreateInfo>(create_info))
+    {
+        return (stencil_usage->stencilUsage & ~kReadOnlyUsage) != 0;
+    }
+
+    return false;
+}
+
 void VulkanReplayFrameLoopConsumer::Process_vkCreateImage(const ApiCallInfo& call_info, args::CreateImage& args)
 {
     VkImageCreateInfo*      create_info = args.pCreateInfo.GetPointer();
     const VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+    bool                    writable    = false;
 
     if ((create_info != nullptr) && !args.pImage.IsNull() && (device_info != nullptr) && CanRestoreImage(create_info) &&
         graphics::VulkanResourcesUtil::IsFormatSupported(*GetInstanceTable(device_info->parent),
@@ -512,6 +557,8 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateImage(const ApiCallInfo& cal
                                                              VK_FORMAT_FEATURE_TRANSFER_DST_BIT,
                                                          create_info))
     {
+        writable = CanWriteImage(create_info);
+
         create_info->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
         if (auto* usage_flags2 = graphics::vulkan_struct_get_pnext<VkImageUsageFlags2CreateInfoKHR>(create_info))
@@ -532,6 +579,14 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateImage(const ApiCallInfo& cal
     }
 
     VulkanReplayFrameLoopConsumerBase::Process_vkCreateImage(call_info, args);
+
+    if (writable)
+    {
+        if (VulkanImageInfo* image_info = GetObjectInfoTable().GetVkImageInfo(*args.pImage.GetPointer()))
+        {
+            image_info->writable = true;
+        }
+    }
 }
 
 VulkanReplayFrameLoopConsumer::SemaphoreTracking&
@@ -1809,6 +1864,15 @@ void VulkanReplayFrameLoopConsumer::TrackImageStates()
             GFXRECON_ASSERT(GetObjectInfoTable().GetVkDeviceInfo(image_info->parent_id) != nullptr);
 
             device_images[image_info->parent_id].push_back(image_info->capture_id);
+
+            // The host can write to a mapped image regardless of its usage, but it is only well defined if
+            // the image is not in optimal tiling.
+            const bool host_writable = (image_info->tiling != VK_IMAGE_TILING_OPTIMAL) &&
+                                       (image_info->memory_property_flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) != 0;
+            if (!image_info->writable && !host_writable)
+            {
+                return;
+            }
 
             if (CanSnapshotImageContents(image_info))
             {
