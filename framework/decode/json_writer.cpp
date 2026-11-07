@@ -194,6 +194,18 @@ void JsonWriter::ProcessAnnotation(uint64_t               block_index,
     annotation["type"]  = util::AnnotationTypeToString(type);
     annotation["label"] = label;
     annotation["data"]  = data;
+
+    // Embed JSON annotation data as a JSON value rather than an escaped string. Keep the raw string if it
+    // isn't valid JSON.
+    if (type == format::AnnotationType::kJson)
+    {
+        nlohmann::ordered_json parsed_data = nlohmann::ordered_json::parse(data, nullptr, false);
+        if (!parsed_data.is_discarded())
+        {
+            annotation["data"] = std::move(parsed_data);
+        }
+    }
+
     WriteBlockEnd();
 }
 
