@@ -62,6 +62,66 @@ jobs:
           -warnings-as-errors='*' \
           '(framework/(?!generated/)|tools/|layer/)'
 
+  clang-tidy-windows:
+    name: "Check Windows code quality with clang-tidy"
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+    - name: Set up MSVC environment
+      uses: ilammy/msvc-dev-cmd@v1
+    - name: Get run-clang-tidy
+      shell: bash
+      run: |
+        # Use the runner's LLVM clang-tidy, which matches the clang-cl the
+        # build is configured with; fetch the run-clang-tidy driver to match.
+        curl -sfLO https://raw.githubusercontent.com/llvm/llvm-project/release/20.x/clang-tools-extra/clang-tidy/tool/run-clang-tidy.py
+    - name: Configure
+      shell: bash
+      run: |
+        cmake -S . -B tidy-build -G Ninja \
+          -DCMAKE_C_COMPILER=clang-cl -DCMAKE_CXX_COMPILER=clang-cl \
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DD3D12_SUPPORT=ON
+    - name: Repair compile database for clang-tidy
+      shell: bash
+      run: |
+        # CMake writes the GFXR_*_PATH defines (DLL paths from CMakeLists.txt)
+        # with quoting that clang's Windows command-line tokenizer cannot
+        # re-parse: the whole rest of each compile command, source file
+        # included, is swallowed into one token and clang-tidy fails with
+        # "no input files". Rewrite them in the well-formed escaped-quote
+        # form, and drop the MSVC-only /MP flag, which clang-cl reports as
+        # unused (fatal under /WX).
+        python - <<'EOF'
+        import json
+        import re
+        path = 'tidy-build/compile_commands.json'
+        db = json.load(open(path))
+        def_pat = re.compile(r'-D"(GFXR_\w+)=\\"([^"\\]*)\\"\\"')
+        for entry in db:
+            command = def_pat.sub(r'-D\1=\\"\2\\"', entry['command'])
+            entry['command'] = command.replace(' /MP ', ' ')
+        json.dump(db, open(path, 'w'), indent=1)
+        print('rewrote', len(db), 'compile commands')
+        EOF
+    - name: Run clang-tidy
+      shell: bash
+      run: |
+        # Check only the sources guarded by Windows-specific macros; the rest
+        # of the code is covered by the Linux clang-tidy job.
+        set -f  # keep bash from glob-expanding the [/\\] in the file regexes
+        MACROS='WIN32|_WIN32|VK_USE_PLATFORM_WIN32_KHR|D3D12_SUPPORT|GFXRECON_AGS_SUPPORT'
+        CPPS=$(python .github/scripts/guarded_sources.py "$MACROS")
+        HDRS=$(python .github/scripts/guarded_sources.py "$MACROS" --headers)
+        test -n "$CPPS"  # an empty list would silently check nothing
+        echo "Checking $(printf '%s\n' "$CPPS" | wc -l) guarded sources"
+        python run-clang-tidy.py -p tidy-build -quiet \
+          -clang-tidy-binary "C:/Program Files/LLVM/bin/clang-tidy.exe" \
+          -warnings-as-errors='*' \
+          -header-filter="$HDRS" \
+          $CPPS
+
   linux:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}

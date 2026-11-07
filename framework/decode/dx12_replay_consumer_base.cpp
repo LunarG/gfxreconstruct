@@ -495,7 +495,7 @@ void Dx12ReplayConsumerBase::ApplyBatchedResourceInitInfo(
                 {
                     GFXRECON_LOG_WARNING(
                         "Initializing Swapchain Buffers. The before state supposed to be COMMON|PRESENT, but it's %s",
-                        util::ToString(state.states));
+                        util::ToString(state.states).c_str());
                 }
             }
 
