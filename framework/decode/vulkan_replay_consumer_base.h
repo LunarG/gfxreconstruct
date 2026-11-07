@@ -2046,13 +2046,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void MapDescriptorUpdateTemplateHandles(const VulkanDescriptorUpdateTemplateInfo* update_template_info,
                                             DescriptorUpdateTemplateDecoder*          decoder);
 
-    // Wait and signal semaphores to omit from one submission.
-    struct SemaphoreFilter
-    {
-        std::unordered_set<VkSemaphore> waits;
-        std::unordered_set<VkSemaphore> signals;
-    };
-
     void GetImportedSemaphores(const HandlePointerDecoder<VkSemaphore>& semaphore_data,
                                std::unordered_set<VkSemaphore>*         imported_semaphores);
 

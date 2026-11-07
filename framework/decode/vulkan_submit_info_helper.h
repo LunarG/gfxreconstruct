@@ -27,6 +27,12 @@
 #include "graphics/vulkan_injected_calls.h"
 #include "decode/vulkan_object_info.h"
 #include "util/defines.h"
+#include "util/logging.h"
+
+#include <memory>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -84,6 +90,13 @@ struct VulkanInjectedSemaphoreInfo
 struct VulkanSubmitSemaphores
 {
     std::vector<graphics::VulkanSemaphore> semaphores;
+};
+
+// Wait and signal semaphores to omit from one submission.
+struct SemaphoreFilter
+{
+    std::unordered_set<VkSemaphore> waits;
+    std::unordered_set<VkSemaphore> signals;
 };
 
 class VulkanSubmitInfoHelper
@@ -151,6 +164,11 @@ class VulkanSubmitInfoHelper
      * The submit waits on `semaphore.target_value`, then signals `semaphore.target_value + 1`.
      */
     void InjectSemaphore(VulkanInjectedSemaphore& semaphore);
+
+    /**
+     * @brief Remove the wait and signal semaphores named by the filter.
+     */
+    void RemoveSemaphores(const SemaphoreFilter& filter);
 };
 
 class VulkanSubmitInfo2Helper
@@ -197,7 +215,79 @@ class VulkanSubmitInfo2Helper
      * The submit waits on `semaphore_info.info.value`, then signals `semaphore_info.info.value + 1`.
      */
     void InjectSemaphore(VulkanInjectedSemaphoreInfo& semaphore_info);
+
+    /**
+     * @brief Remove the wait and signal semaphore infos whose semaphore the filter names.
+     */
+    void RemoveSemaphores(const SemaphoreFilter& filter);
 };
+
+class VulkanBindSparseInfoHelper
+{
+  private:
+    VkBindSparseInfo& bind_info_;
+
+    /// Backing storage for this bind's wait semaphores.
+    std::vector<VkSemaphore> wait_semaphores_;
+
+    /// Backing storage for this bind's signal semaphores.
+    std::vector<VkSemaphore> signal_semaphores_;
+
+    /// Backing storage for this bind's timeline signal-semaphore values.
+    std::vector<uint64_t> signal_semaphore_values_;
+
+    /// Backing storage for this bind's timeline wait-semaphore values.
+    std::vector<uint64_t> wait_semaphore_values_;
+
+    /// Owned `VkTimelineSemaphoreSubmitInfo` that replaces the one in this bind's pNext chain, if it has one.
+    VkTimelineSemaphoreSubmitInfo timeline_semaphore_info_{ VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO };
+
+    void CopyWaitSemaphores();
+    void CopyWaitValues();
+    void CopySignalSemaphores();
+    void CopySignalValues();
+    void CopyTimelineSemaphoreSubmitInfo();
+
+  public:
+    VulkanBindSparseInfoHelper(VkBindSparseInfo& bind_info);
+    ~VulkanBindSparseInfoHelper() = default;
+
+    VulkanBindSparseInfoHelper(const VulkanBindSparseInfoHelper&)            = delete;
+    VulkanBindSparseInfoHelper& operator=(const VulkanBindSparseInfoHelper&) = delete;
+    VulkanBindSparseInfoHelper(VulkanBindSparseInfoHelper&&)                 = delete;
+    VulkanBindSparseInfoHelper& operator=(VulkanBindSparseInfoHelper&&)      = delete;
+
+    /**
+     * @brief Remove the wait and signal semaphores named by the filter.
+     */
+    void RemoveSemaphores(const SemaphoreFilter& filter);
+};
+
+// Removes the semaphores named by the filters from the wait and signal arrays of the submissions they target.
+//
+// Replay needs this because some semaphores that were signaled at capture are never signaled at replay, and waiting on
+// them would hang the queue:
+//   - Imported semaphores: the external handle import is skipped, so the external signaler does not exist at replay.
+//   - Shadow semaphores: vkAcquireNextImageKHR is skipped for swapchains whose surface was not created (e.g. a
+//     --surface-index replay), so the acquire never signals its semaphore.
+// Once such a wait is removed, the semaphore is never unsignaled, so a later signal of it would signal a binary
+// semaphore that is already signaled. Those redundant signals are removed too.
+//
+// Helper is the helper type for SubmitInfo: VulkanSubmitInfoHelper, VulkanSubmitInfo2Helper or
+// VulkanBindSparseInfoHelper.
+template <typename SubmitInfo, typename Helper>
+void FilterSemaphores(std::vector<SubmitInfo>&                             submit_infos,
+                      const std::unordered_map<uint32_t, SemaphoreFilter>& filters,
+                      std::vector<std::unique_ptr<Helper>>&                helpers)
+{
+    for (const auto& [index, filter] : filters)
+    {
+        GFXRECON_ASSERT(index < submit_infos.size());
+
+        auto& helper = helpers.emplace_back(std::make_unique<Helper>(submit_infos[index]));
+        helper->RemoveSemaphores(filter);
+    }
+}
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

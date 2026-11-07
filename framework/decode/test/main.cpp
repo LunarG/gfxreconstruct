@@ -31,6 +31,7 @@
 #include "decode/vulkan_screenshot_handler.h"
 #include "decode/vulkan_handle_mapping_util.h"
 #include "decode/vulkan_object_info.h"
+#include "decode/vulkan_submit_info_helper.h"
 #include "decode/common_object_info_table.h"
 #include "format/format.h"
 #include "format/format_util.h"
@@ -354,6 +355,98 @@ TEST_CASE("Test a roundtrip between SubmitInfo2Translator and SubmitInfoTranslat
     for (uint32_t i = 0; i < submit_info.signalSemaphoreCount; ++i)
     {
         REQUIRE(r_device_group->pSignalSemaphoreDeviceIndices[i] == signal_device_indices[i]);
+    }
+}
+
+TEST_CASE("FilterSemaphores omits the filtered semaphores", "[semaphore]")
+{
+    const VkSemaphore kept_waits[2] = { gfxrecon::format::FromHandleId<VkSemaphore>(0x11),
+                                        gfxrecon::format::FromHandleId<VkSemaphore>(0x12) };
+    const VkSemaphore removed_a     = gfxrecon::format::FromHandleId<VkSemaphore>(0x21);
+    const VkSemaphore removed_b     = gfxrecon::format::FromHandleId<VkSemaphore>(0x22);
+
+    // pWaitSemaphores to submit
+    const VkSemaphore entry_waits[2][3] = { { kept_waits[0], removed_a, removed_b },
+                                            { removed_b, kept_waits[1], removed_a } };
+
+    std::unordered_map<uint32_t, gfxrecon::decode::SemaphoreFilter> filters;
+    filters[0].waits = { removed_a, removed_b };
+    filters[1].waits = { removed_a, removed_b };
+
+    // Semaphores expected to still be in the modiied submit after filtering
+    const std::vector<VkSemaphore> expected_waits[2] = { { kept_waits[0] }, { kept_waits[1] } };
+
+    SECTION("VkSubmitInfo")
+    {
+        std::vector<VkSubmitInfo> submit_infos(2);
+        for (uint32_t i = 0; i < 2; ++i)
+        {
+            submit_infos[i].sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+            submit_infos[i].waitSemaphoreCount = 3;
+            submit_infos[i].pWaitSemaphores    = entry_waits[i];
+        }
+
+        std::vector<std::unique_ptr<gfxrecon::decode::VulkanSubmitInfoHelper>> helpers;
+        gfxrecon::decode::FilterSemaphores(submit_infos, filters, helpers);
+
+        for (uint32_t i = 0; i < 2; ++i)
+        {
+            const VkSubmitInfo& info = submit_infos[i];
+            REQUIRE(std::vector<VkSemaphore>(info.pWaitSemaphores, info.pWaitSemaphores + info.waitSemaphoreCount) ==
+                    expected_waits[i]);
+        }
+    }
+
+    SECTION("VkSubmitInfo2")
+    {
+        VkSemaphoreSubmitInfo wait_infos[2][3] = {};
+        for (uint32_t i = 0; i < 2; ++i)
+        {
+            for (uint32_t j = 0; j < 3; ++j)
+            {
+                wait_infos[i][j].sType     = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
+                wait_infos[i][j].semaphore = entry_waits[i][j];
+            }
+        }
+
+        std::vector<VkSubmitInfo2> submit_infos(2);
+        for (uint32_t i = 0; i < 2; ++i)
+        {
+            submit_infos[i].sType                  = VK_STRUCTURE_TYPE_SUBMIT_INFO_2;
+            submit_infos[i].waitSemaphoreInfoCount = 3;
+            submit_infos[i].pWaitSemaphoreInfos    = wait_infos[i];
+        }
+
+        std::vector<std::unique_ptr<gfxrecon::decode::VulkanSubmitInfo2Helper>> helpers;
+        gfxrecon::decode::FilterSemaphores(submit_infos, filters, helpers);
+
+        for (uint32_t i = 0; i < 2; ++i)
+        {
+            const VkSubmitInfo2& info = submit_infos[i];
+            REQUIRE(info.waitSemaphoreInfoCount == expected_waits[i].size());
+            REQUIRE(info.pWaitSemaphoreInfos[0].semaphore == expected_waits[i][0]);
+        }
+    }
+
+    SECTION("VkBindSparseInfo")
+    {
+        std::vector<VkBindSparseInfo> bind_infos(2);
+        for (uint32_t i = 0; i < 2; ++i)
+        {
+            bind_infos[i].sType              = VK_STRUCTURE_TYPE_BIND_SPARSE_INFO;
+            bind_infos[i].waitSemaphoreCount = 3;
+            bind_infos[i].pWaitSemaphores    = entry_waits[i];
+        }
+
+        std::vector<std::unique_ptr<gfxrecon::decode::VulkanBindSparseInfoHelper>> helpers;
+        gfxrecon::decode::FilterSemaphores(bind_infos, filters, helpers);
+
+        for (uint32_t i = 0; i < 2; ++i)
+        {
+            const VkBindSparseInfo& info = bind_infos[i];
+            REQUIRE(std::vector<VkSemaphore>(info.pWaitSemaphores, info.pWaitSemaphores + info.waitSemaphoreCount) ==
+                    expected_waits[i]);
+        }
     }
 }
 
