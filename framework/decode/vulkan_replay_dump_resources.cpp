@@ -308,6 +308,17 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
         }
     }
 
+    // A command buffer dumping both draws and dispatch/trace rays must be executed once. The draw call clones are
+    // that execution, so the dispatch/trace rays context records into them instead of keeping a clone of its own.
+    for (auto& [bcb_qs_pair, dr_context] : dispatch_ray_contexts_)
+    {
+        const auto dc_entry = draw_call_contexts_.find(bcb_qs_pair);
+        if (dc_entry != draw_call_contexts_.end())
+        {
+            dr_context->SetHost(dc_entry->second);
+        }
+    }
+
     // Append the tail clones last: every context and secondary assignment exists by now, the command buffer
     // counts are final, and nothing has been recorded yet. Each primary does it for its whole family.
     for (auto& [bcb_qs_pair, dc_context] : draw_call_contexts_)
@@ -1151,14 +1162,17 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindDescriptorSets(const ApiCallI
     for (auto dr_context : dr_contexts)
     {
         VkCommandBuffer dr_cmd_buf = dr_context->GetDispatchRaysCommandBuffer();
-        func(dr_cmd_buf,
-             pipeline_bind_point,
-             layout_info->handle,
-             first_set,
-             descriptor_sets_count,
-             desc_set_handles.data(),
-             dynamicOffsetCount,
-             pDynamicOffsets);
+        if (dr_cmd_buf != VK_NULL_HANDLE)
+        {
+            func(dr_cmd_buf,
+                 pipeline_bind_point,
+                 layout_info->handle,
+                 first_set,
+                 descriptor_sets_count,
+                 desc_set_handles.data(),
+                 dynamicOffsetCount,
+                 pDynamicOffsets);
+        }
 
         dr_context->BindDescriptorSets(
             pipeline_bind_point, first_set, desc_set_infos, dynamicOffsetCount, pDynamicOffsets);
@@ -1200,12 +1214,15 @@ void VulkanReplayDumpResourcesBase::OverrideCmdPushDescriptorSet(
     for (auto dr_context : dr_contexts)
     {
         VkCommandBuffer dr_cmd_buf = dr_context->GetDispatchRaysCommandBuffer();
-        func(dr_cmd_buf,
-             pipeline_bind_point,
-             layout_info->handle,
-             set,
-             descriptor_write_count,
-             p_descriptor_writes->GetPointer());
+        if (dr_cmd_buf != VK_NULL_HANDLE)
+        {
+            func(dr_cmd_buf,
+                 pipeline_bind_point,
+                 layout_info->handle,
+                 set,
+                 descriptor_write_count,
+                 p_descriptor_writes->GetPointer());
+        }
 
         dr_context->PushDescriptorSet(
             PipelineBindPointToShaderStageFlags(pipeline_bind_point), set, descriptor_write_count, p_descriptor_writes);
@@ -1264,7 +1281,10 @@ void VulkanReplayDumpResourcesBase::OverrideCmdPushDescriptorSet2(
     for (auto dr_context : dr_contexts)
     {
         VkCommandBuffer dr_cmd_buf = dr_context->GetDispatchRaysCommandBuffer();
-        func(dr_cmd_buf, set_info);
+        if (dr_cmd_buf != VK_NULL_HANDLE)
+        {
+            func(dr_cmd_buf, set_info);
+        }
 
         dr_context->PushDescriptorSet(
             set_info->stageFlags, set_info->set, set_info->descriptorWriteCount, set_info_meta->pDescriptorWrites);
@@ -1328,7 +1348,10 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindDescriptorSets2(
     for (auto dr_context : dr_contexts)
     {
         VkCommandBuffer dr_cmd_buf = dr_context->GetDispatchRaysCommandBuffer();
-        func(dr_cmd_buf, pBindDescriptorSetsInfo->GetPointer());
+        if (dr_cmd_buf != VK_NULL_HANDLE)
+        {
+            func(dr_cmd_buf, pBindDescriptorSetsInfo->GetPointer());
+        }
 
         for (const auto bind_point : bind_points)
         {
@@ -1619,6 +1642,12 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDispatch(const ApiCallInfo& call_
         FindDrawCallDumpingContexts(original_command_buffer);
     for (auto dc_context : dc_contexts)
     {
+        // A hosted dispatch/trace rays context records this command itself.
+        if (HostsDispatchTraceRaysContext(dc_context, dr_contexts))
+        {
+            continue;
+        }
+
         func(dc_context->GetWorkCommandBuffer(), groupCountX, groupCountY, groupCountZ);
     }
 }
@@ -1642,6 +1671,12 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDispatchIndirect(const ApiCallInf
         FindDrawCallDumpingContexts(original_command_buffer);
     for (auto dc_context : dc_contexts)
     {
+        // A hosted dispatch/trace rays context records this command itself.
+        if (HostsDispatchTraceRaysContext(dc_context, dr_contexts))
+        {
+            continue;
+        }
+
         func(dc_context->GetWorkCommandBuffer(), buffer_info->handle, offset);
     }
 }
@@ -1685,6 +1720,12 @@ void VulkanReplayDumpResourcesBase::OverrideCmdTraceRaysKHR(
         FindDrawCallDumpingContexts(original_command_buffer);
     for (auto dc_context : dc_contexts)
     {
+        // A hosted dispatch/trace rays context records this command itself.
+        if (HostsDispatchTraceRaysContext(dc_context, dr_contexts))
+        {
+            continue;
+        }
+
         func(dc_context->GetWorkCommandBuffer(),
              in_pRaygenShaderBindingTable,
              in_pMissShaderBindingTable,
@@ -1729,9 +1770,15 @@ void VulkanReplayDumpResourcesBase::OverrideCmdTraceRaysIndirectKHR(
 
     const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
         FindDrawCallDumpingContexts(original_command_buffer);
-    for (auto dc_contest : dc_contexts)
+    for (auto dc_context : dc_contexts)
     {
-        func(dc_contest->GetWorkCommandBuffer(),
+        // A hosted dispatch/trace rays context records this command itself.
+        if (HostsDispatchTraceRaysContext(dc_context, dr_contexts))
+        {
+            continue;
+        }
+
+        func(dc_context->GetWorkCommandBuffer(),
              in_pRaygenShaderBindingTable,
              in_pMissShaderBindingTable,
              in_pHitShaderBindingTable,
@@ -1758,6 +1805,12 @@ void VulkanReplayDumpResourcesBase::OverrideCmdTraceRaysIndirect2KHR(const ApiCa
         FindDrawCallDumpingContexts(original_command_buffer);
     for (auto dc_context : dc_contexts)
     {
+        // A hosted dispatch/trace rays context records this command itself.
+        if (HostsDispatchTraceRaysContext(dc_context, dr_contexts))
+        {
+            continue;
+        }
+
         func(dc_context->GetWorkCommandBuffer(), indirectDeviceAddress);
     }
 }
@@ -2068,36 +2121,46 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit2(std::span<const VkSubmitInf
             }
             else
             {
-                auto dc_context = FindDrawCallDumpingContext(command_buffer, qs_index);
+                auto dc_context       = FindDrawCallDumpingContext(command_buffer, qs_index);
+                auto dispatch_context = FindDispatchTraceRaysContext(command_buffer, qs_index);
 
                 // Look for transfer contexts (both primary and secondary) submitted in this queue submission.
+                bool has_transfer = false;
                 for (auto& [bcb_qs_pair, transf_context] : transfer_contexts_)
                 {
                     if (bcb_qs_pair.second == qs_index)
                     {
                         transfer_contexts.emplace(std::make_pair(static_cast<Index>(si), static_cast<Index>(cb)),
                                                   transf_context);
-
-                        // clones already run these commands when draws dump. avoid running them twice.
-                        if (dc_context == nullptr)
-                        {
-                            submit_cbs.push_back(VkCommandBufferSubmitInfo{
-                                VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO, nullptr, command_buffer, 0 });
-                        }
+                        has_transfer = true;
                     }
                 }
 
+                // Each command buffer executes exactly once. The draw call clones or the dispatch/trace rays clone
+                // run every command of the original, transfer snapshots included, so the original itself is submitted
+                // only when no clone stands in for it.
+                if (has_transfer && dc_context == nullptr && dispatch_context == nullptr)
+                {
+                    submit_cbs.push_back(VkCommandBufferSubmitInfo{
+                        VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO, nullptr, command_buffer, 0 });
+                }
+
                 // Handle Dispatch/TraceRays commands
-                if (auto dispatch_context = FindDispatchTraceRaysContext(command_buffer, qs_index))
+                if (dispatch_context != nullptr)
                 {
                     dispatch_contexts.emplace(std::make_pair(static_cast<Index>(si), static_cast<Index>(cb)),
                                               dispatch_context);
+
                     // Dispatch/RayTracing context uses a clone command buffer. We submit that one instead of the
-                    // original.
-                    submit_cbs.push_back(VkCommandBufferSubmitInfo{ VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO,
-                                                                    nullptr,
-                                                                    dispatch_context->GetDispatchRaysCommandBuffer(),
-                                                                    0 });
+                    // original. Hosted by the draw call context it has none: its work runs with the draw call clones.
+                    if (!dispatch_context->IsHosted())
+                    {
+                        submit_cbs.push_back(
+                            VkCommandBufferSubmitInfo{ VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO,
+                                                       nullptr,
+                                                       dispatch_context->GetDispatchRaysCommandBuffer(),
+                                                       0 });
+                    }
                 }
 
                 // Handle Draw commands
@@ -2364,6 +2427,24 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
 {
     const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_primary_contexts =
         FindDrawCallDumpingContexts(commandBuffer);
+    const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_primary_contexts =
+        FindDispatchTraceRaysContexts(commandBuffer);
+
+    // A secondary whose dispatch/trace rays context keeps a clone of its own executes through that clone. The
+    // primary's draw call clones execute the secondaries as well, so they take the clone in place of the original.
+    std::vector<VkCommandBuffer> executed(pCommandBuffers, pCommandBuffers + commandBufferCount);
+    for (const auto& dr_primary_context : dr_primary_contexts)
+    {
+        for (const auto& secondary : dr_primary_context->SecondariesToExecute(call_info.index))
+        {
+            const VkCommandBuffer clone = secondary->GetDispatchRaysCommandBuffer();
+            const auto entry = std::find(executed.begin(), executed.end(), secondary->GetOriginalCommandBuffer());
+            if (clone != VK_NULL_HANDLE && entry != executed.end())
+            {
+                *entry = clone;
+            }
+        }
+    }
 
     for (auto dc_primary_context : dc_primary_contexts)
     {
@@ -2455,7 +2536,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
                     // recorded in.
                     if ((primary_first + finalized_primaries) < primary_last)
                     {
-                        func(*(primary_first + finalized_primaries), 1, &pCommandBuffers[i]);
+                        func(*(primary_first + finalized_primaries), 1, &executed[i]);
                     }
                 }
             }
@@ -2463,58 +2544,58 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
         else
         {
             // No executed secondary has a dumping context, so this is plain work for the primary.
-            func(dc_primary_context->GetWorkCommandBuffer(), commandBufferCount, pCommandBuffers);
+            func(dc_primary_context->GetWorkCommandBuffer(), commandBufferCount, executed.data());
         }
     }
 
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_primary_contexts =
-            FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_primary_context : dr_primary_contexts)
         {
-            VkCommandBuffer dispatch_rays_command_buffer = dr_primary_context->GetDispatchRaysCommandBuffer();
-            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+            // Hosted by the draw call context, this context records nothing here: the draw call clones execute the
+            // secondaries. Its bookkeeping of the executed secondaries still happens.
+            const VkCommandBuffer dispatch_rays_command_buffer = dr_primary_context->GetDispatchRaysCommandBuffer();
+            const bool            record                       = (dispatch_rays_command_buffer != VK_NULL_HANDLE);
+
+            std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> secondaries_to_execute =
+                dr_primary_context->SecondariesToExecute(call_info.index);
+            if (!secondaries_to_execute.empty())
             {
-                std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> secondaries_to_execute =
-                    dr_primary_context->SecondariesToExecute(call_info.index);
-                if (!secondaries_to_execute.empty())
+                for (uint32_t i = 0; i < commandBufferCount; ++i)
                 {
-                    for (uint32_t i = 0; i < commandBufferCount; ++i)
+                    // Handle the executed secondaries that are marked for dumping separately
+                    auto secondary_to_execute = secondaries_to_execute.begin();
+                    for (; secondary_to_execute != secondaries_to_execute.end(); ++secondary_to_execute)
                     {
-                        // Handle the executed secondaries that are marked for dumping separately
-                        auto secondary_to_execute = secondaries_to_execute.begin();
-                        for (; secondary_to_execute != secondaries_to_execute.end(); ++secondary_to_execute)
+                        if (pCommandBuffers[i] == secondary_to_execute->get()->GetOriginalCommandBuffer())
                         {
-                            if (pCommandBuffers[i] == secondary_to_execute->get()->GetOriginalCommandBuffer())
-                            {
-                                break;
-                            }
-                        }
-
-                        if (secondary_to_execute != secondaries_to_execute.end())
-                        {
-                            VkCommandBuffer secondary_command_buffer =
-                                secondary_to_execute->get()->GetDispatchRaysCommandBuffer();
-                            func(dispatch_rays_command_buffer, 1, &secondary_command_buffer);
-
-                            dr_primary_context->UpdateSecondaries(*secondary_to_execute->get(), call_info.index, i);
-
-                            // Dumping the same secondary multiple times from the same execution is not handled yet.
-                            // Remove the entry from the vector to prevent from attempting to handle the same secondary
-                            // again
-                            secondaries_to_execute.erase(secondary_to_execute);
-                        }
-                        else
-                        {
-                            func(dispatch_rays_command_buffer, 1, &pCommandBuffers[i]);
+                            break;
                         }
                     }
+
+                    if (secondary_to_execute != secondaries_to_execute.end())
+                    {
+                        if (record)
+                        {
+                            func(dispatch_rays_command_buffer, 1, &executed[i]);
+                        }
+
+                        dr_primary_context->UpdateSecondaries(*secondary_to_execute->get(), call_info.index, i);
+
+                        // Dumping the same secondary multiple times from the same execution is not handled yet.
+                        // Remove the entry from the vector to prevent from attempting to handle the same secondary
+                        // again
+                        secondaries_to_execute.erase(secondary_to_execute);
+                    }
+                    else if (record)
+                    {
+                        func(dispatch_rays_command_buffer, 1, &executed[i]);
+                    }
                 }
-                else
-                {
-                    func(dispatch_rays_command_buffer, commandBufferCount, pCommandBuffers);
-                }
+            }
+            else if (record)
+            {
+                func(dispatch_rays_command_buffer, commandBufferCount, executed.data());
             }
         }
     }
