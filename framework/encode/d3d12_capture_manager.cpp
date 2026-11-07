@@ -3248,7 +3248,7 @@ void D3D12CaptureManager::WriteDriverInfoCommand(const std::string& info)
     {
         format::DriverInfoBlock driver_info_header = {};
 
-        strncpy_s(driver_info_header.driver_record,
+        gfxrecon::util::platform::StringCopy(driver_info_header.driver_record,
                   util::filepath::kMaxDriverInfoSize,
                   info.c_str(),
                   util::filepath::kMaxDriverInfoSize);
@@ -3297,7 +3297,7 @@ void D3D12CaptureManager::WriteDx12RuntimeInfo()
                                                file_info.AppVersion,
                                                sizeof(runtime_info.version));
 
-                    strncpy_s(runtime_info.src,
+                    gfxrecon::util::platform::StringCopy(runtime_info.src,
                               util::filepath::kMaxFilePropertySize,
                               runtime_desc.c_str(),
                               util::filepath::kMaxFilePropertySize);
