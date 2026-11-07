@@ -103,11 +103,7 @@ void EncodeStructArray2D(ParameterEncoder* encoder,
     {
         for (size_t i = 0; i < m; ++i)
         {
-            encoder->EncodeStructArrayPreamble(value[i], n, omit_data, omit_addr);
-            for (size_t j = 0; j < n; ++j)
-            {
-                EncodeStruct(encoder, value[i][j]);
-            }
+            EncodeStructArray(encoder, value[i], n, omit_data, omit_addr);
         }
     }
 }
@@ -122,16 +118,12 @@ typename std::enable_if<!std::is_integral<SizeT>::value>::type EncodeStructArray
     const size_t outer_len = size_2d.size();
     encoder->EncodeStructArray2DPreamble(value, outer_len, omit_data, omit_addr);
 
-    if ((value != nullptr) && (outer_len > 0))
+    if ((value != nullptr) && (outer_len > 0) && !omit_data)
     {
         for (size_t i = 0; i < outer_len; ++i)
         {
             const size_t inner_len = size_2d[i];
-            encoder->EncodeStructArrayPreamble(value[i], inner_len, omit_data, omit_addr);
-            for (size_t j = 0; j < inner_len; ++j)
-            {
-                EncodeStruct(encoder, value[i][j]);
-            }
+            EncodeStructArray(encoder, value[i], inner_len, omit_data, omit_addr);
         }
     }
 }
