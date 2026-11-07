@@ -38,7 +38,8 @@ GFXRECON_BEGIN_NAMESPACE(application)
 ANativeWindow* tmp_window = nullptr;
 
 AndroidWindow::AndroidWindow(AndroidContext* android_context, ANativeWindow* window) :
-    android_context_(android_context), window_(window), width_(0), height_(0), pre_transform_(0)
+    android_context_(android_context), window_(window), width_(0), height_(0),
+    orientation_(AndroidContext::ScreenOrientation::kLandscape)
 {
     assert((android_context_ != nullptr) && (window != nullptr));
 
@@ -48,56 +49,46 @@ AndroidWindow::AndroidWindow(AndroidContext* android_context, ANativeWindow* win
 
 void AndroidWindow::SetSize(const uint32_t width, const uint32_t height)
 {
-    SetSizePreTransform(width, height, format::ResizeWindowPreTransform::kPreTransform0);
-}
-
-void AndroidWindow::SetSizePreTransform(const uint32_t width, const uint32_t height, const uint32_t pre_transform)
-{
-    if ((width != width_) || (height != height_) || (pre_transform != pre_transform_))
+    if (width != width_ || height != height_)
     {
-        width_         = width;
-        height_        = height;
-        pre_transform_ = pre_transform;
-
-        // For Android, we adjust the screen orientation based on requested width and height.
-        int32_t pixel_width  = ANativeWindow_getWidth(window_);
-        int32_t pixel_height = ANativeWindow_getHeight(window_);
-
-        // We don't change the current orientation if width == height or if the requested orientation matches the
-        // current orientation, unless a pre-transform has been applied to the swapchain, in which case the orientation
-        // will be adjusted to match the pre-transform.
-        if (((width != height) && ((width < height) != (pixel_width < pixel_height))) ||
-            (pre_transform != format::ResizeWindowPreTransform::kPreTransform0))
-        {
-            auto orientation = AndroidContext::ScreenOrientation::kLandscape;
-
-            if (height > width)
-            {
-                orientation = AndroidContext::ScreenOrientation::kPortrait;
-            }
-
-            // Pre-transform is a different story. Supposing identity transform of capture and
-            // replay device match and it is portrait, then the following holds true.
-            if ((pre_transform == format::ResizeWindowPreTransform::kPreTransform90) ||
-                (pre_transform == format::ResizeWindowPreTransform::kPreTransform270))
-            {
-                orientation = AndroidContext::ScreenOrientation::kLandscape;
-            }
-            else if (pre_transform == format::ResizeWindowPreTransform::kPreTransform180)
-            {
-                orientation = AndroidContext::ScreenOrientation::kPortrait;
-            }
-
-            android_context_->SetOrientation(orientation);
-        }
-
         int32_t result = ANativeWindow_setBuffersGeometry(window_, width, height, ANativeWindow_getFormat(window_));
         if (result != 0)
         {
             GFXRECON_LOG_ERROR("Failed to change native window geometry: ANativeWindow_setBuffersGeometry returned %d",
                                result);
         }
+        else
+        {
+            GFXRECON_LOG_DEBUG(
+                "Changed native window geometry: window=%p, width=%d, height=%d", window_, width, height);
+        }
     }
+
+    AndroidContext::ScreenOrientation orientation;
+    if (height > width)
+    {
+        orientation = AndroidContext::ScreenOrientation::kPortrait;
+    }
+    else
+    {
+        orientation = AndroidContext::ScreenOrientation::kLandscape;
+    }
+
+    if (orientation != orientation_)
+    {
+        android_context_->SetOrientation(orientation);
+        GFXRECON_LOG_DEBUG("Changed android context orientation: orientation=%d", orientation);
+    }
+
+    width_       = width;
+    height_      = height;
+    orientation_ = orientation;
+}
+
+void AndroidWindow::SetSizePreTransform(const uint32_t width, const uint32_t height, const uint32_t pre_transform)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pre_transform);
+    SetSize(width, height);
 }
 
 bool AndroidWindow::GetNativeHandle(HandleType type, void** handle)
