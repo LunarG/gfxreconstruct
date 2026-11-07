@@ -1533,31 +1533,105 @@ void VulkanAddressReplacer::ProcessCmdCopyAccelerationStructuresKHR(
 {
     if (info != nullptr)
     {
-        VkDeviceSize compact_size    = 0;
-        auto         compact_size_it = as_compact_sizes_.find(info->src);
-        if (compact_size_it != as_compact_sizes_.end())
-        {
-            compact_size = compact_size_it->second;
-            as_compact_sizes_.erase(info->src);
+        const VkAccelerationStructureKHR original_src = info->src;
 
-            auto* as_info = address_tracker.GetAccelerationStructureByHandle(info->dst);
-            GFXRECON_ASSERT(as_info != nullptr);
-            if (as_info != nullptr)
+        // correct in-place
+        swap_acceleration_structure_handle(info->src, address_tracker);
+
+        // determine replay-size of the copy, if known to differ from capture
+        VkDeviceSize required_size = 0;
+        if (info->mode == VK_COPY_ACCELERATION_STRUCTURE_MODE_COMPACT_KHR)
+        {
+            // compacted-sizes were queried for potentially swapped handles, see ProcessCmdWriteAccelerationStructures..
+            auto compact_size_it = as_compact_sizes_.find(info->src);
+            if (compact_size_it != as_compact_sizes_.end())
             {
-                auto* buffer_info = address_tracker.GetBufferByHandle(as_info->buffer);
-                GFXRECON_ASSERT(buffer_info != nullptr);
-                if (buffer_info != nullptr)
+                required_size = compact_size_it->second;
+                as_compact_sizes_.erase(compact_size_it);
+            }
+        }
+        else if (info->mode == VK_COPY_ACCELERATION_STRUCTURE_MODE_CLONE_KHR)
+        {
+            // a clone requires the replay-size of its source, which differs from capture-size for shadow-structures
+            if (const auto* src_info = address_tracker.GetAccelerationStructureByHandle(original_src))
+            {
+                auto shadow_as_it = shadow_as_map_.find(src_info->replay_address);
+                if (shadow_as_it != shadow_as_map_.end() && shadow_as_it->second.origin_handle == original_src)
                 {
-                    if (buffer_info->size < compact_size)
-                    {
-                        // TODO: need replacement AS
-                    }
+                    required_size = shadow_as_it->second.size;
                 }
             }
         }
 
-        // correct in-place
-        swap_acceleration_structure_handle(info->src, address_tracker);
+        const auto* dst_info = address_tracker.GetAccelerationStructureByHandle(info->dst);
+        GFXRECON_ASSERT(dst_info != nullptr);
+
+        if (required_size != 0 && dst_info != nullptr)
+        {
+            const auto* buffer_info   = address_tracker.GetBufferByHandle(dst_info->buffer);
+            const bool  dst_is_usable = dst_info->size >= required_size && buffer_info != nullptr &&
+                                       buffer_info->size >= dst_info->offset + required_size;
+
+            VkDeviceAddress dst_replay_address = dst_info->replay_address;
+
+            // dst_replay_address could be 0 if the game doesn't call GetAccelerationStructureDeviceAddress before the
+            // copy.
+            if (!dst_is_usable && dst_replay_address == 0)
+            {
+                VkAccelerationStructureDeviceAddressInfoKHR address_info = {};
+                address_info.sType                 = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR;
+                address_info.accelerationStructure = info->dst;
+
+                auto injected      = device_table_->Open();
+                dst_replay_address = injected->GetAccelerationStructureDeviceAddressKHR(device_, &address_info);
+
+                auto* dst_info_mut = object_table_->GetVkAccelerationStructureKHRInfo(dst_info->capture_id);
+                GFXRECON_ASSERT(dst_info_mut != nullptr);
+                if (dst_info_mut != nullptr)
+                {
+                    dst_info_mut->replay_address = dst_replay_address;
+                }
+            }
+
+            if (!dst_is_usable && dst_replay_address != 0)
+            {
+                GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdCopyAccelerationStructuresKHR: Replay is "
+                                       "adjusting acceleration-structure copies using shadow-structures");
+
+                // drop stale or too small entries
+                auto shadow_as_it = shadow_as_map_.find(dst_replay_address);
+                if (shadow_as_it != shadow_as_map_.end() &&
+                    (shadow_as_it->second.origin_handle != info->dst || shadow_as_it->second.size < required_size))
+                {
+                    shadow_as_map_.erase(shadow_as_it);
+                }
+
+                auto& replacement_as = shadow_as_map_[dst_replay_address];
+
+                if (replacement_as.handle == VK_NULL_HANDLE)
+                {
+                    replacement_as.origin_handle = info->dst;
+
+                    if (!create_acceleration_asset(replacement_as, dst_info->type, required_size, 0))
+                    {
+                        GFXRECON_LOG_ERROR("ProcessCmdCopyAccelerationStructuresKHR: creation of shadow "
+                                           "acceleration-structure failed");
+
+                        // do not keep a half-initialized entry around
+                        shadow_as_map_.erase(dst_replay_address);
+                    }
+                }
+            }
+            else if (!dst_is_usable)
+            {
+                GFXRECON_LOG_WARNING("ProcessCmdCopyAccelerationStructuresKHR: replay-size (%" PRIu64
+                                     ") exceeds destination acceleration-structure size (%" PRIu64
+                                     "), but its device-address is unknown",
+                                     required_size,
+                                     dst_info->size);
+            }
+        }
+
         swap_acceleration_structure_handle(info->dst, address_tracker);
     }
 }
@@ -1702,27 +1776,56 @@ void VulkanAddressReplacer::ProcessGetQueryPoolResults(VkDevice           device
                                                        VkQueryResultFlags flags)
 {
     GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(firstQuery);
-    GFXRECON_UNREFERENCED_PARAMETER(queryCount);
-    GFXRECON_UNREFERENCED_PARAMETER(dataSize);
 
     // intercept queries containing acceleration-structure compaction-sizes
-    if (!as_compact_queries_.empty() && stride == sizeof(VkDeviceSize))
+    auto it = as_compact_queries_.find(query_pool);
+    if (it == as_compact_queries_.end() || pData == nullptr)
     {
-        bool is_synced = flags & VK_QUERY_RESULT_WAIT_BIT;
+        return;
+    }
 
-        auto it = as_compact_queries_.find(query_pool);
-        if (is_synced && it != as_compact_queries_.end())
+    // results are only guaranteed to be written for all queries when waiting
+    if ((flags & VK_QUERY_RESULT_WAIT_BIT) == 0)
+    {
+        return;
+    }
+
+    const bool         is_64_bit   = flags & VK_QUERY_RESULT_64_BIT;
+    const VkDeviceSize result_size = is_64_bit ? sizeof(uint64_t) : sizeof(uint32_t);
+
+    // stride is ignored for a single query and may be zero
+    const VkDeviceSize result_stride = queryCount == 1 ? result_size : stride;
+
+    auto& queries = it->second;
+    for (auto query_it = queries.begin(); query_it != queries.end();)
+    {
+        const auto& [as, query_index] = *query_it;
+
+        if (query_index < firstQuery || query_index >= firstQuery + queryCount)
         {
-            // assuming post-processing here, pData was already written
-            auto* result_array = reinterpret_cast<const VkDeviceSize*>(pData);
-
-            for (const auto& [as, query_index] : it->second)
-            {
-                as_compact_sizes_[as] = result_array[query_index];
-            }
+            ++query_it;
+            continue;
         }
-        as_compact_queries_.erase(query_pool);
+
+        // assuming post-processing here, pData was already written
+        const VkDeviceSize result_offset = (query_index - firstQuery) * result_stride;
+        GFXRECON_ASSERT(result_offset + result_size <= dataSize);
+        if (result_offset + result_size > dataSize)
+        {
+            ++query_it;
+            continue;
+        }
+
+        const auto* result = static_cast<const uint8_t*>(pData) + result_offset;
+        as_compact_sizes_[as] =
+            is_64_bit ? *reinterpret_cast<const uint64_t*>(result) : *reinterpret_cast<const uint32_t*>(result);
+
+        query_it = queries.erase(query_it);
+    }
+
+    if (queries.empty())
+    {
+        as_compact_queries_.erase(it);
     }
 }
 
@@ -2272,6 +2375,8 @@ bool VulkanAddressReplacer::create_acceleration_asset(VulkanAddressReplacer::acc
                            "acceleration-structure creation failed");
         return false;
     }
+    as_asset.size = num_buffer_bytes;
+
     VkAccelerationStructureDeviceAddressInfoKHR acceleration_address_info = {};
     acceleration_address_info.sType                 = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR;
     acceleration_address_info.accelerationStructure = as_asset.handle;
