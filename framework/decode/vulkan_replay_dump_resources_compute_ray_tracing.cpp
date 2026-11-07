@@ -1246,7 +1246,6 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(Index submit_inf
         return res;
     }
 
-    uint32_t index = 0;
     for (const auto& [disp_index, disp_params] : dispatch_params_)
     {
         GFXRECON_LOG_INFO("Dumping mutable resources for dispatch index %" PRIu64, disp_index);
@@ -1254,12 +1253,12 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(Index submit_inf
         SecondaryIdentifiers secondary_indices;
         if (disp_params->command_buffer_level == DumpResourcesCommandBufferLevel::kSecondary)
         {
-            // This map is updated in UpdateSecondaries accordingly
-            const auto entry = disp_params->secondary_identifiers.find(index++);
-            GFXRECON_ASSERT(entry != disp_params->secondary_identifiers.end());
-            if (entry != disp_params->secondary_identifiers.end())
+            // This map is updated in UpdateSecondaries accordingly. Each dispatch is dumped once, so the first
+            // execution of the secondary is the one being reported.
+            GFXRECON_ASSERT(!disp_params->secondary_identifiers.empty());
+            if (!disp_params->secondary_identifiers.empty())
             {
-                secondary_indices = entry->second;
+                secondary_indices = disp_params->secondary_identifiers.begin()->second;
                 GFXRECON_ASSERT(secondary_indices.execute_cmds_index != UNDEFINED_INDEX);
                 GFXRECON_ASSERT(secondary_indices.execute_cmds_cmd_buf_index != UNDEFINED_INDEX);
             }
@@ -1296,7 +1295,6 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(Index submit_inf
         delegate_.DumpDrawCallInfo(draw_call_info);
     }
 
-    index = 0;
     for (const auto& [tr_index, tr_params] : trace_rays_params_)
     {
         GFXRECON_LOG_INFO("Dumping mutable resources for trace rays index %" PRIu64, tr_index);
@@ -1304,12 +1302,12 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(Index submit_inf
         SecondaryIdentifiers secondary_indices;
         if (tr_params->command_buffer_level == DumpResourcesCommandBufferLevel::kSecondary)
         {
-            // This map is updated in UpdateSecondaries accordingly
-            const auto entry = tr_params->secondary_identifiers.find(index++);
-            GFXRECON_ASSERT(entry != tr_params->secondary_identifiers.end());
-            if (entry != tr_params->secondary_identifiers.end())
+            // This map is updated in UpdateSecondaries accordingly. Each trace rays is dumped once, so the first
+            // execution of the secondary is the one being reported.
+            GFXRECON_ASSERT(!tr_params->secondary_identifiers.empty());
+            if (!tr_params->secondary_identifiers.empty())
             {
-                secondary_indices = entry->second;
+                secondary_indices = tr_params->secondary_identifiers.begin()->second;
                 GFXRECON_ASSERT(secondary_indices.execute_cmds_index != UNDEFINED_INDEX);
                 GFXRECON_ASSERT(secondary_indices.execute_cmds_cmd_buf_index != UNDEFINED_INDEX);
             }
