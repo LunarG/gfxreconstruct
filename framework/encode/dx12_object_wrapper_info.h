@@ -361,6 +361,11 @@ struct ID3D12StateObjectInfo : public DxWrapperInfo
     std::pair<format::HandleId, std::shared_ptr<const DxWrapperInfo>> grow_from_state_object_wrapper_info{
         format::kNullHandleId, nullptr
     };
+
+    // The ID3D12StateObjectProperties that GetShaderIdentifier was called through. If this state object is released
+    // after AddToStateObject grew a child from it, the child keeps this info alive so the trim state writer can still
+    // write the GetShaderIdentifier calls.
+    std::unordered_map<format::HandleId, std::shared_ptr<const DxWrapperInfo>> properties_wrapper_infos;
 };
 
 struct ID3D12StateObjectPropertiesInfo : public DxWrapperInfo
