@@ -435,6 +435,30 @@ void VulkanReplayFrameLoopConsumer::Process_vkFreeMemory(const ApiCallInfo& call
     }
 }
 
+// Only these usages let the device write to a buffer. Transfer writes are tracked by command instead.
+static bool CanWriteBuffer(const VkBufferCreateInfo* create_info)
+{
+    if (const auto* usage_flags2 = graphics::vulkan_struct_get_pnext<VkBufferUsageFlags2CreateInfo>(create_info))
+    {
+        constexpr VkBufferUsageFlags2 kWritableUsage2 =
+            VK_BUFFER_USAGE_2_STORAGE_TEXEL_BUFFER_BIT | VK_BUFFER_USAGE_2_STORAGE_BUFFER_BIT |
+            VK_BUFFER_USAGE_2_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT |
+            VK_BUFFER_USAGE_2_TRANSFORM_FEEDBACK_COUNTER_BUFFER_BIT_EXT | VK_BUFFER_USAGE_2_SHADER_DEVICE_ADDRESS_BIT |
+            VK_BUFFER_USAGE_2_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_2_MICROMAP_STORAGE_BIT_EXT |
+            VK_BUFFER_USAGE_2_VIDEO_ENCODE_DST_BIT_KHR;
+
+        return (usage_flags2->usage & kWritableUsage2) != 0;
+    }
+
+    constexpr VkBufferUsageFlags kWritableUsage =
+        VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
+        VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT | VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_COUNTER_BUFFER_BIT_EXT |
+        VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR |
+        VK_BUFFER_USAGE_MICROMAP_STORAGE_BIT_EXT | VK_BUFFER_USAGE_VIDEO_ENCODE_DST_BIT_KHR;
+
+    return (create_info->usage & kWritableUsage) != 0;
+}
+
 void VulkanReplayFrameLoopConsumer::Process_vkCreateBuffer(const ApiCallInfo& call_info, args::CreateBuffer& args)
 {
     VkBufferCreateInfo* create_info = args.pCreateInfo.GetPointer();
@@ -442,6 +466,11 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateBuffer(const ApiCallInfo& ca
     // Ensure that buffers can be copied to and from so contents can be restored.
     if (create_info != nullptr)
     {
+        if (!args.pBuffer.IsNull() && CanWriteBuffer(create_info))
+        {
+            writable_buffers_.insert(*args.pBuffer.GetPointer());
+        }
+
         create_info->usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
         if (auto* usage_flags2 = graphics::vulkan_struct_get_pnext<VkBufferUsageFlags2CreateInfo>(create_info))
@@ -644,13 +673,28 @@ VulkanReplayFrameLoopConsumer::BufferTracking& VulkanReplayFrameLoopConsumer::Ge
     return it->second;
 }
 
+void VulkanReplayFrameLoopConsumer::TrackBufferWrite(format::HandleId commandBuffer, format::HandleId buffer)
+{
+    if (buffer == format::kNullHandleId)
+    {
+        return;
+    }
+
+    command_buffer_modified_buffers_[commandBuffer].insert(buffer);
+}
+
 void VulkanReplayFrameLoopConsumer::RecordBufferStates()
 {
     CommonObjectInfoTable& table = GetObjectInfoTable();
 
-    std::unordered_map<format::HandleId, std::vector<format::HandleId>> device_buffers;
-    table.VisitVkBufferInfo([&table, &device_buffers](const VulkanBufferInfo* buffer_info) {
+    std::unordered_map<format::HandleId, std::unordered_set<format::HandleId>> device_buffers;
+    table.VisitVkBufferInfo([this, &table, &device_buffers](const VulkanBufferInfo* buffer_info) {
         if (buffer_info == nullptr || buffer_info->handle == VK_NULL_HANDLE || buffer_info->size == 0)
+        {
+            return;
+        }
+
+        if (!writable_buffers_.contains(buffer_info->capture_id))
         {
             return;
         }
@@ -669,8 +713,74 @@ void VulkanReplayFrameLoopConsumer::RecordBufferStates()
             return;
         }
 
-        device_buffers[buffer_info->parent_id].push_back(buffer_info->capture_id);
+        device_buffers[buffer_info->parent_id].insert(buffer_info->capture_id);
     });
+
+    for (const auto& [device_id, buffer_ids] : device_buffers)
+    {
+        GetBufferTracking(device_id).RecordInitialState(buffer_ids);
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::ShadowBufferWrites(const std::vector<format::HandleId>& command_buffer_ids)
+{
+    CommonObjectInfoTable& table = GetObjectInfoTable();
+
+    // Walk the secondaries the submitted command buffers execute.
+    std::vector<format::HandleId>        pending_ids(command_buffer_ids.begin(), command_buffer_ids.end());
+    std::unordered_set<format::HandleId> visited_ids;
+    while (!pending_ids.empty())
+    {
+        const format::HandleId command_buffer_id = pending_ids.back();
+        pending_ids.pop_back();
+        if (!visited_ids.insert(command_buffer_id).second)
+        {
+            continue;
+        }
+
+        auto secondaries_it = command_buffer_executed_secondaries_.find(command_buffer_id);
+        if (secondaries_it != command_buffer_executed_secondaries_.end())
+        {
+            pending_ids.insert(pending_ids.end(), secondaries_it->second.begin(), secondaries_it->second.end());
+        }
+    }
+
+    std::unordered_map<format::HandleId, std::unordered_set<format::HandleId>> device_buffers;
+    for (format::HandleId command_buffer_id : visited_ids)
+    {
+        auto it = command_buffer_modified_buffers_.find(command_buffer_id);
+        if (it == command_buffer_modified_buffers_.end())
+        {
+            continue;
+        }
+
+        for (format::HandleId buffer_id : it->second)
+        {
+            const VulkanBufferInfo* buffer_info = table.GetVkBufferInfo(buffer_id);
+            if (buffer_info == nullptr || buffer_info->handle == VK_NULL_HANDLE || buffer_info->size == 0)
+            {
+                continue;
+            }
+
+            // A buffer should never outlive the device that created it in the object info table.
+            GFXRECON_ASSERT(table.GetVkDeviceInfo(buffer_info->parent_id) != nullptr);
+
+            // A buffer that was created but never bound to memory (vkBindBufferMemory never called, or
+            // never succeeded) has no backing memory at all.
+            if (buffer_info->memory_property_flags == 0)
+            {
+                GFXRECON_LOG_DEBUG("ShadowBufferWrites: Skipping buffer %" PRIu64
+                                   " with no bound memory; its contents will not be restored across loop "
+                                   "repetitions.",
+                                   buffer_info->capture_id);
+                continue;
+            }
+
+            device_buffers[buffer_info->parent_id].insert(buffer_id);
+        }
+
+        command_buffer_modified_buffers_.erase(it);
+    }
 
     for (const auto& [device_id, buffer_ids] : device_buffers)
     {
@@ -777,9 +887,25 @@ size_t VulkanReplayFrameLoopConsumer::BufferTracking::AddMemoryBlock(uint32_t   
     return memory_blocks_.size() - 1;
 }
 
-void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std::vector<format::HandleId>& buffer_ids)
+void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(
+    const std::unordered_set<format::HandleId>& buffer_ids)
 {
     if (allocator_ == nullptr || buffer_ids.empty())
+    {
+        return;
+    }
+
+    // A later submit can reach a buffer that an earlier one already shadowed, through a different
+    // command buffer that writes it too. Only shadow the ones that are not shadowed yet.
+    std::vector<format::HandleId> unshadowed_buffer_ids;
+    for (format::HandleId buffer_id : buffer_ids)
+    {
+        if (!shadow_buffers_.contains(buffer_id))
+        {
+            unshadowed_buffer_ids.push_back(buffer_id);
+        }
+    }
+    if (unshadowed_buffer_ids.empty())
     {
         return;
     }
@@ -798,13 +924,8 @@ void VulkanReplayFrameLoopConsumer::BufferTracking::RecordInitialState(const std
     uint32_t                         memory_type_index = std::numeric_limits<uint32_t>::max();
     VkDeviceSize                     unbound_size      = 0;
 
-    for (format::HandleId buffer_id : buffer_ids)
+    for (format::HandleId buffer_id : unshadowed_buffer_ids)
     {
-        if (shadow_buffers_.contains(buffer_id))
-        {
-            continue;
-        }
-
         const VulkanBufferInfo* buffer_info = object_table_.GetVkBufferInfo(buffer_id);
         if (buffer_info == nullptr || buffer_info->handle == VK_NULL_HANDLE || buffer_info->size == 0)
         {
@@ -1028,6 +1149,10 @@ void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(const ApiCallIn
 {
     VulkanReplayConsumer::Process_vkBeginCommandBuffer(call_info, args);
 
+    // Beginning a command buffer implicitly resets it
+    command_buffer_modified_buffers_.erase(args.commandBuffer);
+    command_buffer_executed_secondaries_.erase(args.commandBuffer);
+
     if (frame_loop_info_.IsLooping())
     {
         // Record query pool reset commands
@@ -1048,6 +1173,27 @@ void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(const ApiCallIn
             // keep tracked query availability in sync with the injected reset
             cb_info->recorded_query_ops.push_back({ info->capture_id, 0, pool_size, false });
         });
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCmdExecuteCommands(const ApiCallInfo&        call_info,
+                                                                 args::CmdExecuteCommands& args)
+{
+    VulkanReplayFrameLoopConsumerBase::Process_vkCmdExecuteCommands(call_info, args);
+
+    const format::HandleId* secondary_ids = args.pCommandBuffers.GetPointer();
+    if (secondary_ids == nullptr)
+    {
+        return;
+    }
+
+    std::unordered_set<format::HandleId>& secondaries = command_buffer_executed_secondaries_[args.commandBuffer];
+    for (size_t i = 0; i < args.pCommandBuffers.GetLength(); ++i)
+    {
+        if (secondary_ids[i] != format::kNullHandleId)
+        {
+            secondaries.insert(secondary_ids[i]);
+        }
     }
 }
 
@@ -2238,6 +2384,22 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueBindSparse(const ApiCallInfo&
 
 void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit(const ApiCallInfo& call_info, args::QueueSubmit& args)
 {
+    // Shadow before the submit runs, while the buffers it writes still hold their pre-write contents.
+    if (frame_loop_info_.IsFirstIteration() && !args.pSubmits.IsNull() && args.pSubmits.HasData())
+    {
+        std::vector<format::HandleId> command_buffer_ids;
+        const auto                    submits = args.pSubmits.GetMetaStructPointer();
+        for (size_t i = 0; i < args.pSubmits.GetLength(); ++i)
+        {
+            const auto ids = submits[i].pCommandBuffers.GetPointer();
+            if (ids != nullptr)
+            {
+                command_buffer_ids.insert(command_buffer_ids.end(), ids, ids + submits[i].pCommandBuffers.GetLength());
+            }
+        }
+        ShadowBufferWrites(command_buffer_ids);
+    }
+
     VulkanReplayConsumer::Process_vkQueueSubmit(call_info, args);
 
     if (frame_loop_info_.IsLooping())
@@ -2257,6 +2419,28 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit(const ApiCallInfo& cal
 
 void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit2(const ApiCallInfo& call_info, args::QueueSubmit2& args)
 {
+    // Shadow before the submit runs, while the buffers it writes still hold their pre-write contents.
+    if (frame_loop_info_.IsFirstIteration() && !args.pSubmits.IsNull() && args.pSubmits.HasData())
+    {
+        std::vector<format::HandleId> command_buffer_ids;
+        const auto                    submits = args.pSubmits.GetMetaStructPointer();
+        for (size_t i = 0; i < args.pSubmits.GetLength(); ++i)
+        {
+            const auto* command_buffer_infos = submits[i].pCommandBufferInfos;
+            if (command_buffer_infos == nullptr)
+            {
+                continue;
+            }
+
+            const auto infos = command_buffer_infos->GetMetaStructPointer();
+            for (size_t j = 0; j < command_buffer_infos->GetLength(); ++j)
+            {
+                command_buffer_ids.push_back(infos[j].commandBuffer);
+            }
+        }
+        ShadowBufferWrites(command_buffer_ids);
+    }
+
     VulkanReplayConsumer::Process_vkQueueSubmit2(call_info, args);
 
     if (frame_loop_info_.IsLooping())
@@ -2276,6 +2460,28 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit2(const ApiCallInfo& ca
 
 void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit2KHR(const ApiCallInfo& call_info, args::QueueSubmit2KHR& args)
 {
+    // Shadow before the submit runs, while the buffers it writes still hold their pre-write contents.
+    if (frame_loop_info_.IsFirstIteration() && !args.pSubmits.IsNull() && args.pSubmits.HasData())
+    {
+        std::vector<format::HandleId> command_buffer_ids;
+        const auto                    submits = args.pSubmits.GetMetaStructPointer();
+        for (size_t i = 0; i < args.pSubmits.GetLength(); ++i)
+        {
+            const auto* command_buffer_infos = submits[i].pCommandBufferInfos;
+            if (command_buffer_infos == nullptr)
+            {
+                continue;
+            }
+
+            const auto infos = command_buffer_infos->GetMetaStructPointer();
+            for (size_t j = 0; j < command_buffer_infos->GetLength(); ++j)
+            {
+                command_buffer_ids.push_back(infos[j].commandBuffer);
+            }
+        }
+        ShadowBufferWrites(command_buffer_ids);
+    }
+
     VulkanReplayConsumer::Process_vkQueueSubmit2KHR(call_info, args);
 
     if (frame_loop_info_.IsLooping())
