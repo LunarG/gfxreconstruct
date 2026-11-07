@@ -26,6 +26,8 @@
 
 #include "vulkan_check_buffer_references.h"
 
+#include <type_traits>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
@@ -72,6 +74,39 @@ void populate_shader_stages(const decode::StructPointerDecoder<T>*    pCreateInf
                         graphics::vulkan_check_buffer_references(
                             module_create_info->pCode, module_create_info->codeSize, pipeline_info);
                     }
+                }
+            }
+        }
+
+        // pipelines linked from libraries have no shader-stages of their own, inherit buffer-references from libraries
+        const decode::Decoded_VkPipelineLibraryCreateInfoKHR* library_info_meta = nullptr;
+
+        if constexpr (std::is_same_v<T, decode::Decoded_VkRayTracingPipelineCreateInfoKHR>)
+        {
+            if (pipeline_infos_meta[i].pLibraryInfo != nullptr)
+            {
+                library_info_meta = pipeline_infos_meta[i].pLibraryInfo->GetMetaStructPointer();
+            }
+        }
+        else
+        {
+            library_info_meta = decode::GetPNextMetaStruct<decode::Decoded_VkPipelineLibraryCreateInfoKHR>(
+                pipeline_infos_meta[i].pNext);
+        }
+
+        if (pipeline_info != nullptr && library_info_meta != nullptr)
+        {
+            const format::HandleId* library_ids = library_info_meta->pLibraries.GetPointer();
+
+            for (size_t l = 0; l < library_info_meta->pLibraries.GetLength(); ++l)
+            {
+                const decode::VulkanPipelineInfo* library_pipeline_info =
+                    object_info_table.GetVkPipelineInfo(library_ids[l]);
+
+                if (library_pipeline_info != nullptr)
+                {
+                    pipeline_info->buffer_reference_infos.insert(library_pipeline_info->buffer_reference_infos.begin(),
+                                                                 library_pipeline_info->buffer_reference_infos.end());
                 }
             }
         }
