@@ -4982,7 +4982,8 @@ bool VulkanStateWriter::CheckDescriptorStatus(const vulkan_state_info::Descripto
             case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
             case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
             case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-                if (IsBufferValid(descriptor->handle_ids[index], state_table))
+                if (descriptor->handle_ids[index] == format::kNullHandleId ||
+                    IsBufferValid(descriptor->handle_ids[index], state_table))
                 {
                     valid = true;
                 }

@@ -1279,8 +1279,9 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                 uint32_t src_copy_count = src_binding.count - current_src_array_element;
                 uint32_t current_copies = std::min(current_count, std::min(dst_copy_count, src_copy_count));
 
-                bool* written_start = &dst_binding.written[current_dst_array_element];
-                std::fill(written_start, written_start + current_copies, true);
+                std::copy_n(&src_binding.written[current_src_array_element],
+                            current_copies,
+                            &dst_binding.written[current_dst_array_element]);
 
                 memcpy(&dst_binding.handle_ids[current_dst_array_element],
                        &src_binding.handle_ids[current_src_array_element],
