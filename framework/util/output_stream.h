@@ -62,9 +62,9 @@ class OutputStream
     }
 };
 
-inline void Write(OutputStream& os, std::string_view sv)
+inline bool Write(OutputStream& os, std::string_view sv)
 {
-    os.Write(sv.data(), sv.size());
+    return os.Write(sv.data(), sv.size());
 }
 
 GFXRECON_END_NAMESPACE(util)

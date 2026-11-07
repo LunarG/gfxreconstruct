@@ -35,9 +35,11 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 VulkanScreenshotJson::VulkanScreenshotJson(const ReplayOptions& options, const ScreenshotController& controller) :
-    controller_(controller)
+    controller_(controller), single_file_(options.screenshot_results_single_file), first_block_(true),
+    frame_open_(false), frame_reason_is_error_(false)
 {
     header_["schemaVersion"]   = kSchemaVersion;
+    header_["layout"]          = single_file_ ? kLayoutSingleFile : kLayoutPerFrame;
     header_["gfxreconVersion"] = GetProjectVersionString();
     header_["vulkanVersion"]   = std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
                                std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
@@ -86,14 +88,30 @@ VulkanScreenshotJson::VulkanScreenshotJson(const ReplayOptions& options, const S
     json_options["applyPrerotation"]           = options.screenshot_apply_prerotation;
     json_options["ignoreFrameBoundaryAndroid"] = options.screenshot_ignore_frameBoundaryAndroid;
 
-    const std::string filename = controller_.FilePrefix() + ".json";
-    if (!Open(filename))
+    if (single_file_)
     {
-        GFXRECON_LOG_WARNING("Screenshot results will not be recorded: could not open %s", filename.c_str());
+        const std::string filename = controller_.FilePrefix() + ".json";
+        if (!Open(filename))
+        {
+            GFXRECON_LOG_WARNING("Screenshot results will not be recorded: could not open %s", filename.c_str());
+        }
+        else
+        {
+            GFXRECON_LOG_INFO("Writing screenshot results to %s", filename.c_str());
+
+            // The array of blocks, the header first.
+            util::Write(*stream_, "[\n");
+
+            nlohmann::ordered_json header_block;
+            header_block["header"] = header_;
+            WriteBlock(header_block);
+        }
     }
     else
     {
-        GFXRECON_LOG_INFO("Writing screenshot results to %s", filename.c_str());
+        GFXRECON_LOG_INFO("Writing screenshot results to %s_frame_<n>.json, with a summary in %s.json",
+                          controller_.FilePrefix().c_str(),
+                          controller_.FilePrefix().c_str());
     }
 }
 
@@ -116,28 +134,20 @@ bool VulkanScreenshotJson::Open(const std::string& filename)
         return false;
     }
 
-    first_block_ = true;
-
-    util::Write(*stream_, "[\n");
-
-    nlohmann::ordered_json header_block;
-    header_block["header"] = header_;
-    WriteBlock(header_block);
-
     return true;
 }
 
 void VulkanScreenshotJson::Close(uint32_t frames_seen)
 {
-    if (stream_ == nullptr)
+    if (single_file_ && (stream_ == nullptr))
     {
         return;
     }
 
     CloseFrame();
 
-    nlohmann::ordered_json summary_block;
-    auto&                  summary = summary_block["summary"];
+    nlohmann::ordered_json document;
+    auto&                  summary = document["summary"];
     summary["framesSeen"]          = frames_seen;
     summary["framesRequested"]     = frames_requested_;
     summary["framesWritten"]       = frames_written_;
@@ -145,10 +155,18 @@ void VulkanScreenshotJson::Close(uint32_t frames_seen)
     summary["framesSkipped"]       = frames_skipped_;
     summary["framesFailed"]        = frames_failed_;
     summary["filesWritten"]        = files_written_;
-    WriteBlock(summary_block);
 
-    util::Write(*stream_, "\n]");
-    stream_.reset();
+    if (single_file_)
+    {
+        WriteBlock(document);
+
+        util::Write(*stream_, "\n]");
+        stream_.reset();
+    }
+    else
+    {
+        WritePerFrameFile(controller_.FilePrefix() + ".json", document);
+    }
 }
 
 void VulkanScreenshotJson::BeginFrame(const char*             boundary_type,
@@ -157,7 +175,7 @@ void VulkanScreenshotJson::BeginFrame(const char*             boundary_type,
                                       std::optional<VkResult> capture_result,
                                       uint64_t                block_index)
 {
-    if ((stream_ == nullptr) || !controller_.IsScreenshotFrame())
+    if ((single_file_ && (stream_ == nullptr)) || !controller_.IsScreenshotFrame())
     {
         return;
     }
@@ -343,7 +361,7 @@ void VulkanScreenshotJson::CloseFrame()
         InsertReason(frame_, screenshot_reason::kNoOutputs, "The frame boundary produced no outputs", std::nullopt);
     }
 
-    // Move status and reason next to the boundary block so that the entry reads top-down: what ended the frame, how
+    // Move status and reason next to the boundary block so that the record reads top-down: what ended the frame, how
     // it went, then the outputs.
     nlohmann::ordered_json ordered;
     for (const char* key : { "frame", "blockIndex", "boundary", "status", "reason" })
@@ -380,7 +398,15 @@ void VulkanScreenshotJson::CloseFrame()
             break;
     }
 
-    WriteBlock(ordered);
+    if (single_file_)
+    {
+        WriteBlock(ordered);
+    }
+    else
+    {
+        // The same base name a single image of this frame gets, so the record sits next to the images it describes.
+        WritePerFrameFile(controller_.FilenameFor() + ".json", ordered);
+    }
 
     frame_.clear();
     frame_open_ = false;
@@ -786,9 +812,32 @@ void VulkanScreenshotJson::InsertReason(nlohmann::ordered_json& entry,
     }
 }
 
+bool VulkanScreenshotJson::WritePerFrameFile(const std::string& filename, const nlohmann::ordered_json& record)
+{
+    GFXRECON_ASSERT(!single_file_);
+
+    if (!Open(filename))
+    {
+        return false;
+    }
+
+    // The header first, so the file says how replay was run before what it produced.
+    nlohmann::ordered_json document;
+    document["header"] = header_;
+    document.update(record);
+
+    const std::string text =
+        document.dump(util::kJsonIndentWidth, ' ', false, nlohmann::json::error_handler_t::replace) + "\n";
+
+    const bool written = util::Write(*stream_, text);
+    stream_.reset();
+
+    return written;
+}
+
 void VulkanScreenshotJson::WriteBlock(const nlohmann::ordered_json& block)
 {
-    GFXRECON_ASSERT(stream_ != nullptr);
+    GFXRECON_ASSERT(single_file_ && (stream_ != nullptr));
 
     if (!first_block_)
     {

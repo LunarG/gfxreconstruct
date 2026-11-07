@@ -11,6 +11,13 @@ TEST(ScreenshotResults, QueuePresent)
     capture_and_verify_screenshots("triangle", { "--screenshots", "1-2" });
 }
 
+// --screenshot-results-single-file: the same frames as QueuePresent, in one json holding every frame and the summary.
+TEST(ScreenshotResults, SingleFile)
+{
+    capture_and_verify_screenshots(
+        "triangle", { "--screenshots", "1-2", "--screenshot-results-single-file" }, "triangle-single-file");
+}
+
 // A submitted command buffer that carries the VR frame delimiter label: the attachments it rendered to.
 TEST(ScreenshotResults, CommandBufferFrameBoundary)
 {

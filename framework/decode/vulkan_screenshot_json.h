@@ -32,9 +32,6 @@
 #include "util/json_util.h"
 #include "util/output_stream.h"
 
-#include "vulkan/vulkan.h"
-
-#include <array>
 #include <cstdint>
 #include <memory>
 #include <optional>
@@ -50,17 +47,18 @@ struct Decoded_VkPresentInfoKHR;
 /**
  * @brief The record of every screenshot the Vulkan consumer takes, or does not take.
  *
- * Written as "<prefix>.json" next to the screenshots: a header block, one block for each frame the
- * ScreenshotController asked for, and a summary block. A frame block says which boundary ended the
- * frame, which images it presented, and for each image whether a file was written and if not, why.
- *
- * A frame is open between BeginFrame and EndFrame. Every other call is a no-op when no frame is
- * open, so the consumer records unconditionally and only the frames asked for reach the file.
+ * By default, written next to the screenshots as one file for each frame the ScreenshotController asked for, plus a
+ * summary json file. If a single file is requested then only ony json file is generated "<prefix>.json".
+ * It holds the header, which says how replay was run, and the frame record: which boundary ended the frame, which
+ * images it presented, and for each image whether a file was written and if not, why. The summary holds
+ * the header and the counters over all frames.
  */
 class VulkanScreenshotJson
 {
   public:
-    static constexpr uint32_t kSchemaVersion = 1;
+    static constexpr uint32_t kSchemaVersion      = 2;
+    static constexpr char     kLayoutPerFrame[]   = "perFrame";
+    static constexpr char     kLayoutSingleFile[] = "singleFile";
 
     // The "source" and "present" parts of an output entry: what is read, not how it went. Built once for an image
     // and used for each of its layers.
@@ -80,7 +78,7 @@ class VulkanScreenshotJson
         VkSurfaceTransformFlagBitsKHR pre_transform{ VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR };
     };
 
-    // Opens the file. Records nothing when it cannot be opened, and says so once.
+    // Builds the json header.
     VulkanScreenshotJson(const ReplayOptions& options, const ScreenshotController& controller);
 
     // Closes the open frame, if any, and writes the summary.
@@ -184,8 +182,11 @@ class VulkanScreenshotJson
                          std::optional<VkResult> vk_result = std::nullopt);
 
   private:
+    // Opens filename for writing as stream_.
     bool Open(const std::string& filename);
 
+    // Closes the open frame and writes the summary: into "<prefix>.json" with the header in per-frame mode, as
+    // the last block of the single file otherwise.
     void Close(uint32_t frames_seen);
 
     // Opens the entry of the current frame. boundary_type says what ended the frame, call_name which call did.
@@ -201,7 +202,8 @@ class VulkanScreenshotJson
     void SetBoundaryFrameBoundaryEXT(const Decoded_VkFrameBoundaryEXT* frame_boundary);
     void SetBoundaryFrameBoundaryANDROID(const VulkanSemaphoreInfo* semaphore_info);
 
-    // Writes the open frame's block and adds it to the counters.
+    // Writes the open frame's record, as its own file or as a block of the single file, and adds the frame to the
+    // counters.
     void CloseFrame();
 
     // Fills the "present" part of a swapchain's output. surface_extension and window_size are absent when replay has
@@ -226,6 +228,10 @@ class VulkanScreenshotJson
                              const std::string&      message,
                              std::optional<VkResult> vk_result);
 
+    // Per-frame only: writes the header followed by record as one document to filename
+    bool WritePerFrameFile(const std::string& filename, const nlohmann::ordered_json& record);
+
+    // Single-file mode: appends one block to the open file's array.
     void WriteBlock(const nlohmann::ordered_json& block);
 
     // Computes the status of a frame from the number of its outputs in each status. reason_is_error classifies a
@@ -234,13 +240,14 @@ class VulkanScreenshotJson
     ComputeFrameStatus(uint32_t written, uint32_t skipped, uint32_t failed, bool reason_is_error);
 
   private:
-    const ScreenshotController& controller_;
+    const ScreenshotController&         controller_;
     std::unique_ptr<util::OutputStream> stream_;
-    bool                        first_block_{ true };
-    bool                        frame_open_{ false };
-    bool                        frame_reason_is_error_{ false };
-    nlohmann::ordered_json      header_;
-    nlohmann::ordered_json      frame_;
+    const bool                          single_file_;
+    bool                                first_block_;
+    bool                                frame_open_;
+    bool                                frame_reason_is_error_;
+    nlohmann::ordered_json              header_;
+    nlohmann::ordered_json              frame_;
 
     // Outputs of the open frame in each status.
     uint32_t outputs_written_{ 0 };
