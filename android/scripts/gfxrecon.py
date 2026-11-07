@@ -117,6 +117,7 @@ def CreateReplayParser():
     parser.add_argument('--screenshot-results', action='store_true', default=False, help='Write a JSON file next to the screenshots, named after the screenshot prefix, that records for each requested frame which files were written and why any image was skipped (forwarded to replay tool)')
     parser.add_argument('--capture', action='store_true', default=False, help='Capture the replaying GFXR file. Capture option behavior and usage is the same as when capturing with the GFXR layer. The capture functionality is included in the `gfxrecon-replay` executable--no GFXR capture layer is added to the Vulkan layer chain.')
     parser.add_argument('--sfa', '--skip-failed-allocations', action='store_true', default=False, help='Skip vkAllocateMemory, vkAllocateCommandBuffers, and vkAllocateDescriptorSets calls that failed during capture (forwarded to replay tool)')
+    parser.add_argument('--replace-shaders', metavar='DIR', help='Replace the shader code in each CreateShaderModule with the contents of the file DIR/sh<handle_id> if found, where <handle_id> is the handle id of the CreateShaderModule call. DIR is a directory on the device. See gfxrecon-extract. (forwarded to replay tool)')
     parser.add_argument('--opcd', '--omit-pipeline-cache-data', action='store_true', default=False, help='Omit pipeline cache data from calls to vkCreatePipelineCache and skip calls to vkGetPipelineCacheData (forwarded to replay tool)')
     parser.add_argument('--surface-index', metavar='N', help='Restrict rendering to the Nth surface object created.  Used with captures that include multiple surfaces.  Default is -1 (render to all surfaces; forwarded to replay tool)')
     parser.add_argument('--sync', action='store_true', default=False, help='Synchronize after each queue submission with vkQueueWaitIdle (forwarded to replay tool)')
@@ -249,6 +250,10 @@ def MakeExtrasString(args):
 
     if args.sfa:
         arg_list.append('--sfa')
+
+    if args.replace_shaders:
+        arg_list.append('--replace-shaders')
+        arg_list.append('{}'.format(args.replace_shaders))
 
     if args.opcd:
         arg_list.append('--opcd')
