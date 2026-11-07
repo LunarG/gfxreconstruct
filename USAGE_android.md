@@ -69,15 +69,17 @@ Where `${Application Full Name}` is the full name of the application, such
 as `com.khronos.vulkan_samples`.
 
 Some devices won't allow access to those folders for certain applications.
-In those cases, the following folders can be used, but will require `adb` root
-access to retrieve the files:
+In those cases, the following folders can be used:
 
  - `/data/data/${Application Full Name}/`
  - `/data/user/0/${Application Full Name}/`
 
 **NOTE:** These directories may not be visible to other applications (including
 gfxrecon-replay, adb pull), so any capture files will need to be copied to a
-readable location with adb shell before they can be replayed.
+readable location before they can be replayed.
+If the application is debuggable, `run-as` can read the files without `adb`
+root access, as described in [Retrieving Files From Internal Storage](#retrieving-files-from-internal-storage).
+Otherwise, `adb` root access is required to retrieve the files.
 
 ## Capturing API Calls
 
@@ -108,9 +110,9 @@ as described in the [Android Data Storage](https://developer.android.com/trainin
 documentation.
 
 If external storage cannot be used, internal storage may be used instead. While
-these locations require no additional permissions, they may require `adb` root
-access to retrieve the resulting capture files and/or copy them to a location
-that the replay tool can read.
+these locations require no additional permissions, they are private to the
+application, so `adb pull` and the replay tool cannot read the resulting capture
+files directly.
 
 * `/data/data/${Package Name}/`
 * `/data/user/0/${Package Name}/`
@@ -124,6 +126,31 @@ that the replay tool can read.
 > E gfxrecon: fopen(/sdcard/gfxrecon_capture.gfxr, wb) failed (errno = 1)
 > F gfxrecon: Failed to initialize CaptureManager
 >```
+
+##### Retrieving Files From Internal Storage
+
+If the capture target application is debuggable, as described in
+[Enable the Layer for a Specific Application](#enable-the-layer-for-a-specific-application),
+`run-as` can read files from its internal storage without `adb` root access.
+
+To copy a capture file to the host, use `adb exec-out`, which passes binary data
+through unmodified:
+
+```bash
+adb exec-out run-as ${Package Name} cat /data/data/${Package Name}/capture.gfxr > capture.gfxr
+```
+
+On Windows, run this command from `cmd` rather than Windows PowerShell, whose
+`>` redirection re-encodes the output and corrupts the capture file.
+
+To copy a capture file to a location on the device that the replay tool can read:
+
+```bash
+adb shell "run-as ${Package Name} cat /data/data/${Package Name}/capture.gfxr > /sdcard/Download/capture.gfxr"
+```
+
+If the capture target application is not debuggable, `adb` root access is
+required to retrieve the files.
 
 #### Understanding GFXReconstruct Layer Memory Capture
 
