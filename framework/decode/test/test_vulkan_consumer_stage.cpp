@@ -25,9 +25,11 @@
 
 #include "generated/generated_vulkan_consumer_stage.h"
 
+#include <string>
 #include <vector>
 
 using namespace gfxrecon::decode;
+namespace format = gfxrecon::format;
 
 namespace
 {
@@ -101,6 +103,65 @@ class PushTemplateCounter : public VulkanConsumer
 
     uint32_t core = 0;
     uint32_t khr  = 0;
+};
+
+// Logs the name of every hand-declared VulkanConsumerBase method it receives.
+class HandDeclaredLog : public VulkanConsumer
+{
+  public:
+    void StartLooping() override { names.push_back("StartLooping"); }
+
+    void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&, args::UpdateDescriptorSetWithTemplate&) override
+    {
+        names.push_back("UpdateDescriptorSetWithTemplate");
+    }
+
+    void Process_vkCmdPushDescriptorSetWithTemplate(const ApiCallInfo&,
+                                                    args::CmdPushDescriptorSetWithTemplate&) override
+    {
+        names.push_back("CmdPushDescriptorSetWithTemplate");
+    }
+
+    void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo&,
+                                                       args::CmdPushDescriptorSetWithTemplateKHR&) override
+    {
+        names.push_back("CmdPushDescriptorSetWithTemplateKHR");
+    }
+
+    void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&,
+                                                      args::UpdateDescriptorSetWithTemplateKHR&) override
+    {
+        names.push_back("UpdateDescriptorSetWithTemplateKHR");
+    }
+
+    void Process_vkCmdPushDescriptorSetWithTemplate2(const ApiCallInfo&,
+                                                     args::CmdPushDescriptorSetWithTemplate2&) override
+    {
+        names.push_back("CmdPushDescriptorSetWithTemplate2");
+    }
+
+    void Process_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo&,
+                                                        args::CmdPushDescriptorSetWithTemplate2KHR&) override
+    {
+        names.push_back("CmdPushDescriptorSetWithTemplate2KHR");
+    }
+
+    void Process_vkCreateRayTracingPipelinesKHR(const ApiCallInfo&, args::CreateRayTracingPipelinesKHR&) override
+    {
+        names.push_back("CreateRayTracingPipelinesKHR");
+    }
+
+    void ProcessSetTlasToBlasRelationCommand(format::HandleId                     tlas,
+                                             const std::vector<format::HandleId>& blases) override
+    {
+        names.push_back("SetTlasToBlasRelation");
+        last_tlas   = tlas;
+        last_blases = blases;
+    }
+
+    std::vector<std::string>      names;
+    format::HandleId              last_tlas = 0;
+    std::vector<format::HandleId> last_blases;
 };
 
 // Sends a call knowing only its args type, the way generic stage code does.
@@ -231,4 +292,41 @@ TEST_CASE("Process overload keeps a KHR call apart from its core twin", "[stage]
 
     CHECK(counter.core == 1);
     CHECK(counter.khr == 1);
+}
+
+TEST_CASE("Stage passes through hand-declared Vulkan methods", "[stage]")
+{
+    VulkanConsumerStage stage;
+    HandDeclaredLog     log;
+    stage.AddNext(&log);
+
+    args::UpdateDescriptorSetWithTemplate      update{};
+    args::CmdPushDescriptorSetWithTemplate     push{};
+    args::CmdPushDescriptorSetWithTemplateKHR  push_khr{};
+    args::UpdateDescriptorSetWithTemplateKHR   update_khr{};
+    args::CmdPushDescriptorSetWithTemplate2    push2{};
+    args::CmdPushDescriptorSetWithTemplate2KHR push2_khr{};
+    args::CreateRayTracingPipelinesKHR         pipelines{};
+
+    stage.StartLooping();
+    stage.Process_vkUpdateDescriptorSetWithTemplate(ApiCallInfo{}, update);
+    stage.Process_vkCmdPushDescriptorSetWithTemplate(ApiCallInfo{}, push);
+    stage.Process_vkCmdPushDescriptorSetWithTemplateKHR(ApiCallInfo{}, push_khr);
+    stage.Process_vkUpdateDescriptorSetWithTemplateKHR(ApiCallInfo{}, update_khr);
+    stage.Process_vkCmdPushDescriptorSetWithTemplate2(ApiCallInfo{}, push2);
+    stage.Process_vkCmdPushDescriptorSetWithTemplate2KHR(ApiCallInfo{}, push2_khr);
+    stage.Process_vkCreateRayTracingPipelinesKHR(ApiCallInfo{}, pipelines);
+    stage.ProcessSetTlasToBlasRelationCommand(7, { 8, 9 });
+
+    CHECK(log.names == std::vector<std::string>{ "StartLooping",
+                                                 "UpdateDescriptorSetWithTemplate",
+                                                 "CmdPushDescriptorSetWithTemplate",
+                                                 "CmdPushDescriptorSetWithTemplateKHR",
+                                                 "UpdateDescriptorSetWithTemplateKHR",
+                                                 "CmdPushDescriptorSetWithTemplate2",
+                                                 "CmdPushDescriptorSetWithTemplate2KHR",
+                                                 "CreateRayTracingPipelinesKHR",
+                                                 "SetTlasToBlasRelation" });
+    CHECK(log.last_tlas == 7);
+    CHECK(log.last_blases == std::vector<format::HandleId>{ 8, 9 });
 }

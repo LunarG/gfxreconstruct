@@ -36,6 +36,56 @@ class VulkanConsumerStageBase : public VulkanConsumer
   public:
     void AddNext(VulkanConsumer* next) { next_consumers_.push_back(next); }
 
+    void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&                     call_info,
+                                                   args::UpdateDescriptorSetWithTemplate& args) override
+    {
+        Forward(call_info, args);
+    }
+
+    void Process_vkCmdPushDescriptorSetWithTemplate(const ApiCallInfo&                      call_info,
+                                                    args::CmdPushDescriptorSetWithTemplate& args) override
+    {
+        Forward(call_info, args);
+    }
+
+    void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo&                         call_info,
+                                                       args::CmdPushDescriptorSetWithTemplateKHR& args) override
+    {
+        Forward(call_info, args);
+    }
+
+    void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&                        call_info,
+                                                      args::UpdateDescriptorSetWithTemplateKHR& args) override
+    {
+        Forward(call_info, args);
+    }
+
+    void Process_vkCmdPushDescriptorSetWithTemplate2(const ApiCallInfo&                       call_info,
+                                                     args::CmdPushDescriptorSetWithTemplate2& args) override
+    {
+        Forward(call_info, args);
+    }
+
+    void Process_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo&                          call_info,
+                                                        args::CmdPushDescriptorSetWithTemplate2KHR& args) override
+    {
+        Forward(call_info, args);
+    }
+
+    void Process_vkCreateRayTracingPipelinesKHR(const ApiCallInfo&                  call_info,
+                                                args::CreateRayTracingPipelinesKHR& args) override
+    {
+        Forward(call_info, args);
+    }
+
+    void ProcessSetTlasToBlasRelationCommand(format::HandleId                     tlas,
+                                             const std::vector<format::HandleId>& blases) override
+    {
+        Broadcast(&VulkanConsumer::ProcessSetTlasToBlasRelationCommand, tlas, blases);
+    }
+
+    void StartLooping() override { Broadcast(&VulkanConsumer::StartLooping); }
+
   protected:
     std::vector<VulkanConsumer*>& GetNextConsumers() { return next_consumers_; }
 
@@ -45,6 +95,15 @@ class VulkanConsumerStageBase : public VulkanConsumer
         for (auto next : next_consumers_)
         {
             next->Process(call_info, args);
+        }
+    }
+
+    template <typename Method, typename... Args>
+    void Broadcast(Method method, const Args&... args)
+    {
+        for (auto next : next_consumers_)
+        {
+            (next->*method)(args...);
         }
     }
 
