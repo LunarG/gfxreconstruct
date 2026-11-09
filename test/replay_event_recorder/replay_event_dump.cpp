@@ -1,0 +1,215 @@
+/*
+** Copyright (c) 2026 LunarG, Inc.
+**
+** Permission is hereby granted, free of charge, to any person obtaining a
+** copy of this software and associated documentation files (the "Software"),
+** to deal in the Software without restriction, including without limitation
+** the rights to use, copy, modify, merge, publish, distribute, sublicense,
+** and/or sell copies of the Software, and to permit persons to whom the
+** Software is furnished to do so, subject to the following conditions:
+**
+** The above copyright notice and this permission notice shall be included in
+** all copies or substantial portions of the Software.
+**
+** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+** DEALINGS IN THE SOFTWARE.
+*/
+
+/*
+** A replay event plugin that appends every event it receives to a text file. The file to write is
+** given by --replay-event-plugin-params.
+**
+** Each event becomes one line of whitespace separated key=value pairs
+**
+**     type=2 abi=3 size=48 frame=1 timestamp_ns=94518200 submit_index=3 queue_id=1 result=0 completion_source=1
+*/
+
+#include <gfxr/replay_event_plugin.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct ReplayEventDumpPlugin
+{
+    GfxrReplayPluginV1 base;
+    FILE*              output;
+} ReplayEventDumpPlugin;
+
+static void destroy(GfxrReplayPluginV1* self)
+{
+    ReplayEventDumpPlugin* plugin = (ReplayEventDumpPlugin*)self;
+    if (plugin == NULL)
+    {
+        return;
+    }
+
+    if (plugin->output != NULL)
+    {
+        fclose(plugin->output);
+    }
+
+    free(plugin);
+}
+
+static void print_unsigned_field(FILE* output, const char* key, uint64_t value)
+{
+    fprintf(output, " %s=%llu", key, (unsigned long long)value);
+}
+
+static void print_signed_field(FILE* output, const char* key, int64_t value)
+{
+    fprintf(output, " %s=%lld", key, (long long)value);
+}
+
+static bool payload_fits(const GfxrReplayEventHeader* event, size_t expected_size)
+{
+    return event->struct_size >= expected_size;
+}
+
+// Returns false when the event was too small for its type's struct.
+static bool append_payload(FILE* output, const GfxrReplayEventHeader* event)
+{
+    switch (event->type)
+    {
+        case GFXR_REPLAY_EVENT_QUEUE_SUBMIT_BEGIN:
+        {
+            if (!payload_fits(event, sizeof(GfxrReplayQueueSubmitBeginEvent)))
+            {
+                return false;
+            }
+
+            const GfxrReplayQueueSubmitBeginEvent* submit_begin = (const GfxrReplayQueueSubmitBeginEvent*)event;
+
+            print_unsigned_field(output, "submit_index", submit_begin->submit_index);
+            print_unsigned_field(output, "queue_id", submit_begin->queue_id);
+            break;
+        }
+
+        case GFXR_REPLAY_EVENT_QUEUE_SUBMIT_END:
+        {
+            if (!payload_fits(event, sizeof(GfxrReplayQueueSubmitEndEvent)))
+            {
+                return false;
+            }
+
+            const GfxrReplayQueueSubmitEndEvent* submit_end = (const GfxrReplayQueueSubmitEndEvent*)event;
+
+            print_unsigned_field(output, "submit_index", submit_end->submit_index);
+            print_unsigned_field(output, "queue_id", submit_end->queue_id);
+            // VkResult, is negative for a Vulkan error
+            print_signed_field(output, "result", submit_end->result);
+            print_unsigned_field(output, "completion_source", submit_end->completion_source);
+            break;
+        }
+
+        case GFXR_REPLAY_EVENT_FRAME_END:
+        {
+            if (!payload_fits(event, sizeof(GfxrReplayFrameEndEvent)))
+            {
+                return false;
+            }
+
+            const GfxrReplayFrameEndEvent* frame_end = (const GfxrReplayFrameEndEvent*)event;
+
+            print_unsigned_field(output, "first_submit_index", frame_end->first_submit_index);
+            print_unsigned_field(output, "last_submit_index", frame_end->last_submit_index);
+            break;
+        }
+
+        case GFXR_REPLAY_EVENT_WAIT_BEGIN:
+        {
+            if (!payload_fits(event, sizeof(GfxrReplayWaitBeginEvent)))
+            {
+                return false;
+            }
+
+            const GfxrReplayWaitBeginEvent* wait_begin = (const GfxrReplayWaitBeginEvent*)event;
+
+            print_unsigned_field(output, "requested_duration_ms", wait_begin->requested_duration_ms);
+            break;
+        }
+
+        // These carry nothing beyond the header
+        case GFXR_REPLAY_EVENT_FRAME_BEGIN:
+        case GFXR_REPLAY_EVENT_STATE_SETUP_BEGIN:
+        case GFXR_REPLAY_EVENT_STATE_SETUP_END:
+        case GFXR_REPLAY_EVENT_WAIT_END:
+            break;
+
+        // Unknown event types such as from a newer ABI
+        default:
+            print_unsigned_field(output, "unknown_type", 1);
+            break;
+    }
+
+    return true;
+}
+
+static GfxrReplayPluginResult on_event(GfxrReplayPluginV1* self, const GfxrReplayEventHeader* event)
+{
+    ReplayEventDumpPlugin* plugin = (ReplayEventDumpPlugin*)self;
+    if ((plugin == NULL) || (plugin->output == NULL) || (event == NULL))
+    {
+        return GFXR_REPLAY_PLUGIN_RESULT_ERROR;
+    }
+
+    fprintf(plugin->output, "type=%u", (unsigned int)event->type);
+    print_unsigned_field(plugin->output, "abi", event->abi_version);
+    print_unsigned_field(plugin->output, "size", event->struct_size);
+    print_unsigned_field(plugin->output, "frame", event->frame_index);
+    print_unsigned_field(plugin->output, "timestamp_ns", event->timestamp_ns);
+
+    bool payload_complete = append_payload(plugin->output, event);
+    if (!payload_complete)
+    {
+        print_unsigned_field(plugin->output, "truncated", 1);
+    }
+
+    fputc('\n', plugin->output);
+
+    fflush(plugin->output);
+
+    return payload_complete ? GFXR_REPLAY_PLUGIN_RESULT_OK : GFXR_REPLAY_PLUGIN_RESULT_ERROR;
+}
+
+GFXR_REPLAY_PLUGIN_EXPORT GfxrReplayPluginV1* gfxrCreateReplayPluginV1(const GfxrReplayPluginCreateInfo* create_info)
+{
+    if ((create_info == NULL) || (create_info->struct_size != sizeof(GfxrReplayPluginCreateInfo)) ||
+        (create_info->abi_version != GFXR_REPLAY_PLUGIN_ABI_VERSION))
+    {
+        return NULL;
+    }
+
+    if ((create_info->plugin_params == NULL) || (create_info->plugin_params[0] == '\0'))
+    {
+        fprintf(stderr, "replay event dump: --replay-event-plugin-params must name an output file\n");
+        return NULL;
+    }
+
+    ReplayEventDumpPlugin* plugin = (ReplayEventDumpPlugin*)calloc(1, sizeof(ReplayEventDumpPlugin));
+    if (plugin == NULL)
+    {
+        return NULL;
+    }
+
+    plugin->output = fopen(create_info->plugin_params, "w");
+    if (plugin->output == NULL)
+    {
+        fprintf(stderr, "replay event dump: failed to open '%s' for writing\n", create_info->plugin_params);
+        free(plugin);
+        return NULL;
+    }
+
+    plugin->base.abi_version = GFXR_REPLAY_PLUGIN_ABI_VERSION;
+    plugin->base.struct_size = sizeof(GfxrReplayPluginV1);
+    plugin->base.destroy     = destroy;
+    plugin->base.on_event    = on_event;
+
+    return &plugin->base;
+}

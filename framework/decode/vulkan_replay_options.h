@@ -267,9 +267,6 @@ struct VulkanReplayOptions : public ReplayOptions
     /// a barrier before and after each dispatch.
     bool serialize_compute_and_transfer{ false };
 
-    void MaybeWaitBeforeFirstSubmit() const;
-    void MaybeWaitBeforeFrame() const;
-
     // Prevent querying properties of AHardwareBuffer that couldn't be re-created at replay time.
     bool omit_null_hardware_buffers{ false };
 };

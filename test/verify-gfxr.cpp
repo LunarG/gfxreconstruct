@@ -78,9 +78,7 @@ static const char* CONVERT_FILENAME = "gfxrecon-convert.exe";
 static const char* REPLAY_FILENAME  = "gfxrecon-replay.exe";
 #endif
 
-// Gets the name of the test app combined with the test suite running it. This allows the same app to be used in
-// different test cases, as otherwise there might be conflicts with the same trace file.
-static std::string capture_file_name(const char* test_name)
+std::string test_file_name(const char* test_name)
 {
     const auto* test_info = ::testing::UnitTest::GetInstance()->current_test_info();
     if (test_info == nullptr)
@@ -150,7 +148,7 @@ struct Paths
             trimming_suffix = "_trim_trigger";
         }
 
-        capture_trimming_path.append(capture_file_name(test_name) + trimming_suffix + ".gfxr");
+        capture_trimming_path.append(test_file_name(test_name) + trimming_suffix + ".gfxr");
 
         std::string known_good_trimming_file = test_name + trimming_suffix;
         known_good_trimming_file += ".gfxr";
@@ -183,7 +181,7 @@ struct Paths
         convert_path.append(CONVERT_FILENAME);
         replay_path.append(REPLAY_FILENAME);
 
-        capture_path.append(capture_file_name(test_name) + std::string(".gfxr"));
+        capture_path.append(test_file_name(test_name) + std::string(".gfxr"));
 
         known_good_path.append("known_good");
         known_good_path.append(test_name + std::string(".gfxr"));
