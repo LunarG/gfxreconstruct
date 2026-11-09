@@ -57,25 +57,19 @@ static void destroy(GfxrReplayPluginV1* self)
     free(plugin);
 }
 
-static void append_unsigned(FILE* output, const char* key, uint64_t value)
+static void print_unsigned_field(FILE* output, const char* key, uint64_t value)
 {
     fprintf(output, " %s=%llu", key, (unsigned long long)value);
 }
 
-static void append_signed(FILE* output, const char* key, int64_t value)
+static void print_signed_field(FILE* output, const char* key, int64_t value)
 {
     fprintf(output, " %s=%lld", key, (long long)value);
 }
 
-static bool payload_fits(FILE* output, const GfxrReplayEventHeader* event, size_t expected_size)
+static bool payload_fits(const GfxrReplayEventHeader* event, size_t expected_size)
 {
-    if (event->struct_size >= expected_size)
-    {
-        return true;
-    }
-
-    append_unsigned(output, "truncated", 1);
-    return false;
+    return event->struct_size >= expected_size;
 }
 
 // Returns false when the event was too small for its type's struct.
@@ -85,59 +79,59 @@ static bool append_payload(FILE* output, const GfxrReplayEventHeader* event)
     {
         case GFXR_REPLAY_EVENT_QUEUE_SUBMIT_BEGIN:
         {
-            if (!payload_fits(output, event, sizeof(GfxrReplayQueueSubmitBeginEvent)))
+            if (!payload_fits(event, sizeof(GfxrReplayQueueSubmitBeginEvent)))
             {
                 return false;
             }
 
             const GfxrReplayQueueSubmitBeginEvent* submit_begin = (const GfxrReplayQueueSubmitBeginEvent*)event;
 
-            append_unsigned(output, "submit_index", submit_begin->submit_index);
-            append_unsigned(output, "queue_id", submit_begin->queue_id);
+            print_unsigned_field(output, "submit_index", submit_begin->submit_index);
+            print_unsigned_field(output, "queue_id", submit_begin->queue_id);
             break;
         }
 
         case GFXR_REPLAY_EVENT_QUEUE_SUBMIT_END:
         {
-            if (!payload_fits(output, event, sizeof(GfxrReplayQueueSubmitEndEvent)))
+            if (!payload_fits(event, sizeof(GfxrReplayQueueSubmitEndEvent)))
             {
                 return false;
             }
 
             const GfxrReplayQueueSubmitEndEvent* submit_end = (const GfxrReplayQueueSubmitEndEvent*)event;
 
-            append_unsigned(output, "submit_index", submit_end->submit_index);
-            append_unsigned(output, "queue_id", submit_end->queue_id);
+            print_unsigned_field(output, "submit_index", submit_end->submit_index);
+            print_unsigned_field(output, "queue_id", submit_end->queue_id);
             // VkResult, is negative for a Vulkan error
-            append_signed(output, "result", submit_end->result);
-            append_unsigned(output, "completion_source", submit_end->completion_source);
+            print_signed_field(output, "result", submit_end->result);
+            print_unsigned_field(output, "completion_source", submit_end->completion_source);
             break;
         }
 
         case GFXR_REPLAY_EVENT_FRAME_END:
         {
-            if (!payload_fits(output, event, sizeof(GfxrReplayFrameEndEvent)))
+            if (!payload_fits(event, sizeof(GfxrReplayFrameEndEvent)))
             {
                 return false;
             }
 
             const GfxrReplayFrameEndEvent* frame_end = (const GfxrReplayFrameEndEvent*)event;
 
-            append_unsigned(output, "first_submit_index", frame_end->first_submit_index);
-            append_unsigned(output, "last_submit_index", frame_end->last_submit_index);
+            print_unsigned_field(output, "first_submit_index", frame_end->first_submit_index);
+            print_unsigned_field(output, "last_submit_index", frame_end->last_submit_index);
             break;
         }
 
         case GFXR_REPLAY_EVENT_WAIT_BEGIN:
         {
-            if (!payload_fits(output, event, sizeof(GfxrReplayWaitBeginEvent)))
+            if (!payload_fits(event, sizeof(GfxrReplayWaitBeginEvent)))
             {
                 return false;
             }
 
             const GfxrReplayWaitBeginEvent* wait_begin = (const GfxrReplayWaitBeginEvent*)event;
 
-            append_unsigned(output, "requested_duration_ms", wait_begin->requested_duration_ms);
+            print_unsigned_field(output, "requested_duration_ms", wait_begin->requested_duration_ms);
             break;
         }
 
@@ -150,7 +144,7 @@ static bool append_payload(FILE* output, const GfxrReplayEventHeader* event)
 
         // Unknown event types such as from a newer ABI
         default:
-            append_unsigned(output, "unknown_type", 1);
+            print_unsigned_field(output, "unknown_type", 1);
             break;
     }
 
@@ -166,12 +160,16 @@ static GfxrReplayPluginResult on_event(GfxrReplayPluginV1* self, const GfxrRepla
     }
 
     fprintf(plugin->output, "type=%u", (unsigned int)event->type);
-    append_unsigned(plugin->output, "abi", event->abi_version);
-    append_unsigned(plugin->output, "size", event->struct_size);
-    append_unsigned(plugin->output, "frame", event->frame_index);
-    append_unsigned(plugin->output, "timestamp_ns", event->timestamp_ns);
+    print_unsigned_field(plugin->output, "abi", event->abi_version);
+    print_unsigned_field(plugin->output, "size", event->struct_size);
+    print_unsigned_field(plugin->output, "frame", event->frame_index);
+    print_unsigned_field(plugin->output, "timestamp_ns", event->timestamp_ns);
 
     bool payload_complete = append_payload(plugin->output, event);
+    if (!payload_complete)
+    {
+        print_unsigned_field(plugin->output, "truncated", 1);
+    }
 
     fputc('\n', plugin->output);
 
