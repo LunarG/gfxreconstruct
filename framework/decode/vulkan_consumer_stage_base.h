@@ -39,6 +39,15 @@ class VulkanConsumerStageBase : public VulkanConsumer
   protected:
     std::vector<VulkanConsumer*>& GetNextConsumers() { return next_consumers_; }
 
+    template <typename ArgsT>
+    void Forward(const ApiCallInfo& call_info, ArgsT& args)
+    {
+        for (auto next : next_consumers_)
+        {
+            next->Process(call_info, args);
+        }
+    }
+
   private:
     std::vector<VulkanConsumer*> next_consumers_;
 };
