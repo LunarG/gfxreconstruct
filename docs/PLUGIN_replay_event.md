@@ -358,6 +358,7 @@ typedef struct GfxrReplayFrameEndEvent {
 typedef struct GfxrReplayWaitBeginEvent {
     GfxrReplayEventHeader header;
     uint32_t requested_duration_ms;
+    uint32_t reserved;
 } GfxrReplayWaitBeginEvent;
 
 typedef struct GfxrReplayWaitEndEvent {
