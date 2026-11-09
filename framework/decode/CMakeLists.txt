@@ -466,8 +466,11 @@ if (${RUN_TESTS})
             ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_vulkan_command_buffer_util.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_vulkan_consumer_stage.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/test/test_vulkan_consumer_stage_corpus.cpp
             ${CMAKE_CURRENT_LIST_DIR}/../../tools/platform_debug_helper.cpp)
     target_link_libraries(gfxrecon_decode_test PRIVATE gfxrecon_decode)
+    target_compile_definitions(gfxrecon_decode_test PRIVATE
+            GFXRECON_KNOWN_GOOD_DIR="${GFXRECON_SOURCE_DIR}/test/known_good")
     if (MSVC)
         # The test source exceeds the default number of sections during compilation, use this flag to increase the limit
         target_compile_options(gfxrecon_decode_test PRIVATE /bigobj)
