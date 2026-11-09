@@ -23,7 +23,7 @@
 
 add_library(gfxrecon_replay_event_recorder
     MODULE
-        ${CMAKE_CURRENT_LIST_DIR}/replay_event_recorder.cpp)
+        ${CMAKE_CURRENT_LIST_DIR}/replay_event_dump.cpp)
 target_link_libraries(gfxrecon_replay_event_recorder PRIVATE gfxrecon_replay_event_plugin_abi)
 
 if(ANDROID)

@@ -35,26 +35,26 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct RecorderPlugin
+typedef struct ReplayEventDumpPlugin
 {
     GfxrReplayPluginV1 base;
     FILE*              output;
-} RecorderPlugin;
+} ReplayEventDumpPlugin;
 
 static void destroy(GfxrReplayPluginV1* self)
 {
-    RecorderPlugin* recorder = (RecorderPlugin*)self;
-    if (recorder == NULL)
+    ReplayEventDumpPlugin* plugin = (ReplayEventDumpPlugin*)self;
+    if (plugin == NULL)
     {
         return;
     }
 
-    if (recorder->output != NULL)
+    if (plugin->output != NULL)
     {
-        fclose(recorder->output);
+        fclose(plugin->output);
     }
 
-    free(recorder);
+    free(plugin);
 }
 
 static void append_unsigned(FILE* output, const char* key, uint64_t value)
@@ -159,23 +159,23 @@ static bool append_payload(FILE* output, const GfxrReplayEventHeader* event)
 
 static GfxrReplayPluginResult on_event(GfxrReplayPluginV1* self, const GfxrReplayEventHeader* event)
 {
-    RecorderPlugin* recorder = (RecorderPlugin*)self;
-    if ((recorder == NULL) || (recorder->output == NULL) || (event == NULL))
+    ReplayEventDumpPlugin* plugin = (ReplayEventDumpPlugin*)self;
+    if ((plugin == NULL) || (plugin->output == NULL) || (event == NULL))
     {
         return GFXR_REPLAY_PLUGIN_RESULT_ERROR;
     }
 
-    fprintf(recorder->output, "type=%u", (unsigned int)event->type);
-    append_unsigned(recorder->output, "abi", event->abi_version);
-    append_unsigned(recorder->output, "size", event->struct_size);
-    append_unsigned(recorder->output, "frame", event->frame_index);
-    append_unsigned(recorder->output, "timestamp_ns", event->timestamp_ns);
+    fprintf(plugin->output, "type=%u", (unsigned int)event->type);
+    append_unsigned(plugin->output, "abi", event->abi_version);
+    append_unsigned(plugin->output, "size", event->struct_size);
+    append_unsigned(plugin->output, "frame", event->frame_index);
+    append_unsigned(plugin->output, "timestamp_ns", event->timestamp_ns);
 
-    bool payload_complete = append_payload(recorder->output, event);
+    bool payload_complete = append_payload(plugin->output, event);
 
-    fputc('\n', recorder->output);
+    fputc('\n', plugin->output);
 
-    fflush(recorder->output);
+    fflush(plugin->output);
 
     return payload_complete ? GFXR_REPLAY_PLUGIN_RESULT_OK : GFXR_REPLAY_PLUGIN_RESULT_ERROR;
 }
@@ -190,28 +190,28 @@ GFXR_REPLAY_PLUGIN_EXPORT GfxrReplayPluginV1* gfxrCreateReplayPluginV1(const Gfx
 
     if ((create_info->plugin_params == NULL) || (create_info->plugin_params[0] == '\0'))
     {
-        fprintf(stderr, "replay event recorder: --replay-event-plugin-params must name an output file\n");
+        fprintf(stderr, "replay event dump: --replay-event-plugin-params must name an output file\n");
         return NULL;
     }
 
-    RecorderPlugin* recorder = (RecorderPlugin*)calloc(1, sizeof(RecorderPlugin));
-    if (recorder == NULL)
+    ReplayEventDumpPlugin* plugin = (ReplayEventDumpPlugin*)calloc(1, sizeof(ReplayEventDumpPlugin));
+    if (plugin == NULL)
     {
         return NULL;
     }
 
-    recorder->output = fopen(create_info->plugin_params, "w");
-    if (recorder->output == NULL)
+    plugin->output = fopen(create_info->plugin_params, "w");
+    if (plugin->output == NULL)
     {
-        fprintf(stderr, "replay event recorder: failed to open '%s' for writing\n", create_info->plugin_params);
-        free(recorder);
+        fprintf(stderr, "replay event dump: failed to open '%s' for writing\n", create_info->plugin_params);
+        free(plugin);
         return NULL;
     }
 
-    recorder->base.abi_version = GFXR_REPLAY_PLUGIN_ABI_VERSION;
-    recorder->base.struct_size = sizeof(GfxrReplayPluginV1);
-    recorder->base.destroy     = destroy;
-    recorder->base.on_event    = on_event;
+    plugin->base.abi_version = GFXR_REPLAY_PLUGIN_ABI_VERSION;
+    plugin->base.struct_size = sizeof(GfxrReplayPluginV1);
+    plugin->base.destroy     = destroy;
+    plugin->base.on_event    = on_event;
 
-    return &recorder->base;
+    return &plugin->base;
 }
