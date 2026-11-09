@@ -164,6 +164,74 @@ class HandDeclaredLog : public VulkanConsumer
     std::vector<format::HandleId> last_blases;
 };
 
+// Logs the non-call stream events that a stage must broadcast.
+class StreamEventLog : public VulkanConsumer
+{
+  public:
+    void WaitDevicesIdle() override { names.push_back("WaitDevicesIdle"); }
+
+    void ProcessStateBeginMarker(uint64_t frame) override { names.push_back("StateBegin " + std::to_string(frame)); }
+
+    void ProcessStateEndMarker(uint64_t frame) override { names.push_back("StateEnd " + std::to_string(frame)); }
+
+    void ProcessFrameEndMarker(uint64_t frame) override { names.push_back("FrameEnd " + std::to_string(frame)); }
+
+    void ProcessSetEnvironmentVariablesCommand(const format::SetEnvironmentVariablesCommand&,
+                                               const char* env_string) override
+    {
+        names.push_back(std::string("SetEnvironmentVariables ") + env_string);
+    }
+
+    void ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override
+    {
+        names.push_back("FillMemory " + std::to_string(memory_id) + " " + std::to_string(offset) + " " +
+                        std::to_string(size));
+        fill_data = data;
+    }
+
+    void ProcessExecuteBlocksFromFile(uint32_t, int64_t, const std::string& filename) override
+    {
+        names.push_back("ExecuteBlocksFromFile " + filename);
+    }
+
+    void SetCurrentBlockIndex(uint64_t block_index) override
+    {
+        names.push_back("BlockIndex " + std::to_string(block_index));
+    }
+
+    void SetCurrentFrameNumber(uint64_t frame_number) override
+    {
+        names.push_back("FrameNumber " + std::to_string(frame_number));
+    }
+
+    std::vector<std::string> names;
+    const uint8_t*           fill_data = nullptr;
+};
+
+// Exposes the block index and frame number that the stage stores for itself.
+class IndexedStage : public VulkanConsumerStage
+{
+  public:
+    uint64_t BlockIndex() const { return block_index_; }
+    uint64_t FrameNumber() const { return frame_number_; }
+};
+
+// Reports complete from a given block on, and counts the frames it receives.
+class FinishingConsumer : public VulkanConsumer
+{
+  public:
+    explicit FinishingConsumer(uint64_t last_block) : last_block_(last_block) {}
+
+    bool IsComplete(uint64_t block_index) override { return block_index >= last_block_; }
+
+    void ProcessFrameEndMarker(uint64_t) override { ++frames; }
+
+    uint32_t frames = 0;
+
+  private:
+    uint64_t last_block_;
+};
+
 // Sends a call knowing only its args type, the way generic stage code does.
 template <typename ArgsT>
 void SendByType(VulkanConsumer& consumer, ArgsT& args)
@@ -329,4 +397,65 @@ TEST_CASE("Stage passes through hand-declared Vulkan methods", "[stage]")
                                                  "SetTlasToBlasRelation" });
     CHECK(log.last_tlas == 7);
     CHECK(log.last_blases == std::vector<format::HandleId>{ 8, 9 });
+}
+
+TEST_CASE("Stage broadcasts markers and metadata", "[stage]")
+{
+    VulkanConsumerStage stage;
+    StreamEventLog      log;
+    stage.AddNext(&log);
+
+    const uint8_t                          fill[4] = {};
+    format::SetEnvironmentVariablesCommand env_header{};
+
+    stage.WaitDevicesIdle();
+    stage.ProcessStateBeginMarker(1);
+    stage.ProcessStateEndMarker(1);
+    stage.ProcessFrameEndMarker(2);
+    stage.ProcessSetEnvironmentVariablesCommand(env_header, "A=1");
+    stage.ProcessFillMemoryCommand(3, 16, sizeof(fill), fill);
+    stage.ProcessExecuteBlocksFromFile(5, 0, "other.gfxr");
+
+    CHECK(log.names == std::vector<std::string>{ "WaitDevicesIdle",
+                                                 "StateBegin 1",
+                                                 "StateEnd 1",
+                                                 "FrameEnd 2",
+                                                 "SetEnvironmentVariables A=1",
+                                                 "FillMemory 3 16 4",
+                                                 "ExecuteBlocksFromFile other.gfxr" });
+    CHECK(log.fill_data == fill);
+}
+
+TEST_CASE("Stage keeps its own block index and frame number", "[stage]")
+{
+    IndexedStage   stage;
+    StreamEventLog log;
+    stage.AddNext(&log);
+
+    stage.SetCurrentBlockIndex(10);
+    stage.SetCurrentFrameNumber(3);
+
+    CHECK(stage.BlockIndex() == 10);
+    CHECK(stage.FrameNumber() == 3);
+
+    // Each next consumer hears each setter exactly once.
+    CHECK(log.names == std::vector<std::string>{ "BlockIndex 10", "FrameNumber 3" });
+}
+
+TEST_CASE("Stage stops sending to a finished consumer", "[stage]")
+{
+    VulkanConsumerStage stage;
+    FinishingConsumer   tap(100);
+    FinishingConsumer   replay(200);
+    stage.AddNext(&tap);
+    stage.AddNext(&replay);
+
+    // The tap finishes and leaves the list, but the replay consumer still runs.
+    CHECK_FALSE(stage.IsComplete(100));
+
+    stage.ProcessFrameEndMarker(1);
+    CHECK(tap.frames == 0);
+    CHECK(replay.frames == 1);
+
+    CHECK(stage.IsComplete(200));
 }
