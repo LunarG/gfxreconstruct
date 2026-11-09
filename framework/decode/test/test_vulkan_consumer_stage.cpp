@@ -23,7 +23,7 @@
 // Catch must come before the Vulkan headers.
 #include <catch2/catch.hpp>
 
-#include "decode/vulkan_consumer_stage_base.h"
+#include "generated/generated_vulkan_consumer_stage.h"
 
 #include <vector>
 
@@ -38,22 +38,13 @@ class RecordingConsumer : public VulkanConsumer
     // Copying args is safe only because CmdDraw holds plain values and no arena pointers.
     void Process_vkCmdDraw(const ApiCallInfo&, args::CmdDraw& args) override { draws.push_back(args); }
 
+    void Process_vkCmdDispatch(const ApiCallInfo&, args::CmdDispatch&) override { ++dispatches; }
+
     std::vector<args::CmdDraw> draws;
+    uint32_t                   dispatches = 0;
 };
 
-class ForwardStage : public VulkanConsumerStageBase
-{
-  public:
-    void Process_vkCmdDraw(const ApiCallInfo& call_info, args::CmdDraw& args) override
-    {
-        for (auto next : GetNextConsumers())
-        {
-            next->Process_vkCmdDraw(call_info, args);
-        }
-    }
-};
-
-class SuppressStage : public VulkanConsumerStageBase
+class SuppressStage : public VulkanConsumerStage
 {
   public:
     void Process_vkCmdDraw(const ApiCallInfo&, args::CmdDraw&) override { ++suppressed; }
@@ -61,29 +52,23 @@ class SuppressStage : public VulkanConsumerStageBase
     uint32_t suppressed = 0;
 };
 
-class EditStage : public VulkanConsumerStageBase
+class EditStage : public VulkanConsumerStage
 {
   public:
     void Process_vkCmdDraw(const ApiCallInfo& call_info, args::CmdDraw& args) override
     {
         args.vertexCount = 42;
-        for (auto next : GetNextConsumers())
-        {
-            next->Process_vkCmdDraw(call_info, args);
-        }
+        Forward(call_info, args);
     }
 };
 
-class ExpandStage : public VulkanConsumerStageBase
+class ExpandStage : public VulkanConsumerStage
 {
   public:
     void Process_vkCmdDraw(const ApiCallInfo& call_info, args::CmdDraw& args) override
     {
-        for (auto next : GetNextConsumers())
-        {
-            next->Process_vkCmdDraw(call_info, args);
-            next->Process_vkCmdDraw(call_info, args);
-        }
+        Forward(call_info, args);
+        Forward(call_info, args);
     }
 };
 
@@ -129,8 +114,8 @@ void SendByType(VulkanConsumer& consumer, ArgsT& args)
 
 TEST_CASE("Stage forwards a call unchanged", "[stage]")
 {
-    ForwardStage      stage;
-    RecordingConsumer recorder;
+    VulkanConsumerStage stage;
+    RecordingConsumer   recorder;
     stage.AddNext(&recorder);
 
     args::CmdDraw draw{ 1, 3, 1, 0, 0 };
@@ -152,6 +137,21 @@ TEST_CASE("Stage suppresses a call", "[stage]")
 
     CHECK(stage.suppressed == 1);
     CHECK(recorder.draws.empty());
+}
+
+TEST_CASE("Stage passes through calls it does not override", "[stage]")
+{
+    SuppressStage     stage;
+    RecordingConsumer recorder;
+    stage.AddNext(&recorder);
+
+    args::CmdDraw     draw{};
+    args::CmdDispatch dispatch{};
+    stage.Process_vkCmdDraw(ApiCallInfo{}, draw);
+    stage.Process_vkCmdDispatch(ApiCallInfo{}, dispatch);
+
+    CHECK(recorder.draws.empty());
+    CHECK(recorder.dispatches == 1);
 }
 
 TEST_CASE("Stage edits a call before forwarding", "[stage]")
@@ -184,9 +184,9 @@ TEST_CASE("Stage expands one call into two", "[stage]")
 
 TEST_CASE("Stage forks a call to every next consumer", "[stage]")
 {
-    ForwardStage      stage;
-    RecordingConsumer first;
-    RecordingConsumer second;
+    VulkanConsumerStage stage;
+    RecordingConsumer   first;
+    RecordingConsumer   second;
     stage.AddNext(&first);
     stage.AddNext(&second);
 
