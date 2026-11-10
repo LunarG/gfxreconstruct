@@ -1036,6 +1036,12 @@ void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(const ApiCallIn
         VkDevice                 replay_device = GetObjectInfoTable().GetVkDeviceInfo(device)->handle;
         GFXRECON_ASSERT(replay_device != 0);
         GetObjectInfoTable().VisitVkQueryPoolInfo([this, replay_device, cb_info](const VulkanQueryPoolInfo* info) {
+            // A command buffer can only reference query pools created from its own device.
+            if (info->parent_id != cb_info->parent_id)
+            {
+                return;
+            }
+
             GFXRECON_ASSERT(query_pool_sizes_.contains(info->capture_id));
             const graphics::VulkanDeviceTable* device_table = GetDeviceTable(replay_device);
             GFXRECON_ASSERT(device_table != nullptr);
