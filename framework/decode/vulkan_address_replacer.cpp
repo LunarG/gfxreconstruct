@@ -1479,6 +1479,8 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                         // replace VkAccelerationStructureInstanceKHR::accelerationStructureReference inside buffer
                         for (uint32_t k = 0; k < range_infos[j].primitiveCount; ++k)
                         {
+                            // instances.data.deviceAddress is a multiple of 16.
+                            // accel_structure_reference = 16n + k * 64 + 56 = a multiple of 8.
                             VkDeviceAddress accel_structure_reference =
                                 instances.data.deviceAddress + k * sizeof(VkAccelerationStructureInstanceKHR) +
                                 offsetof(VkAccelerationStructureInstanceKHR, accelerationStructureReference);
