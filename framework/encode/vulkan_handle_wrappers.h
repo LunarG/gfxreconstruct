@@ -231,6 +231,9 @@ struct AssetWrapperBase
     VkDeviceSize                              size{ 0 };
     bool                                      dirty{ true };
     std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
+
+    // Queue family ownership releases that have been submitted and not yet matched by a submitted acquire.
+    std::vector<vulkan_state_info::QueueFamilyOwnershipTransfer> pending_ownership_releases;
 };
 
 struct BufferViewWrapper;
@@ -520,6 +523,17 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
     // Active query info for queries that have been recorded to this command buffer, which will be transfered to the
     // QueryPoolWrapper as pending queries when the command buffer is submitted to a queue.
     std::unordered_map<QueryPoolWrapper*, std::unordered_map<uint32_t, vulkan_state_info::QueryInfo>> recorded_queries;
+
+    // Queue family ownership transfers recorded to this command buffer, in recording order, to be applied to the
+    // resource's pending releases when the command buffer is submitted. Whether a barrier is the release or the
+    // acquire half of a transfer depends on the queue family of the command buffer's pool.
+    struct RecordedOwnershipTransfer
+    {
+        AssetWrapperBase*                               resource{ nullptr };
+        vulkan_state_info::QueueFamilyOwnershipTransfer transfer;
+        bool                                            is_release{ false };
+    };
+    std::vector<RecordedOwnershipTransfer> recorded_ownership_transfers;
 
     // Render pass object tracking for processing image layout transitions. Render pass and framebuffer values
     // for the active render pass instance will be set on calls to vkCmdBeginRenderPass and will be used to update the
