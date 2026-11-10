@@ -161,3 +161,7 @@ class VulkanDecoderBodyGenerator(VulkanBaseGenerator, KhronosDecoderBodyGenerato
         body = preamble + main_body + epilogue
 
         return body
+
+    def make_decode_function_call_prologue(self):
+        """Method override."""
+        return '    SetCurrentCallBytes(CallBytes{ call_id, parameter_buffer, buffer_size });\n\n'
