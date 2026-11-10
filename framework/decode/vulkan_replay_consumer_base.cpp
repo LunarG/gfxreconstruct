@@ -13869,6 +13869,7 @@ void VulkanReplayConsumerBase::Process_vkCreateRayTracingPipelinesKHR(const ApiC
         }
     }
 
+    PushRecaptureHandleIds(args.pPipelines.GetPointer(), args.pPipelines.GetLength());
     VkResult replay_result =
         OverrideCreateRayTracingPipelinesKHR(GetDeviceTable(in_device->handle)->CreateRayTracingPipelinesKHR,
                                              args.result,
@@ -13880,6 +13881,7 @@ void VulkanReplayConsumerBase::Process_vkCreateRayTracingPipelinesKHR(const ApiC
                                              &args.pAllocator,
                                              &args.pPipelines);
     CheckResult("vkCreateRayTracingPipelinesKHR", args.result, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     if ((replay_result == VK_SUCCESS) || (replay_result == VK_OPERATION_NOT_DEFERRED_KHR) ||
         (replay_result == VK_PIPELINE_COMPILE_REQUIRED_EXT))
