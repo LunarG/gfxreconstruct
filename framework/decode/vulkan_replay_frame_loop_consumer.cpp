@@ -435,6 +435,47 @@ void VulkanReplayFrameLoopConsumer::Process_vkFreeMemory(const ApiCallInfo& call
     }
 }
 
+void VulkanReplayFrameLoopConsumer::ProcessCreateHardwareBufferCommand(
+    format::HandleId                                    device_id,
+    format::HandleId                                    memory_id,
+    uint64_t                                            buffer_id,
+    uint32_t                                            format,
+    uint32_t                                            width,
+    uint32_t                                            height,
+    uint32_t                                            stride,
+    uint64_t                                            usage,
+    uint32_t                                            layers,
+    const std::vector<format::HardwareBufferPlaneInfo>& plane_info)
+{
+    if (!frame_loop_info_.IsLooping() || !allocated_loop_hardware_buffers_.contains(buffer_id))
+    {
+        VulkanReplayFrameLoopConsumerBase::ProcessCreateHardwareBufferCommand(
+            device_id, memory_id, buffer_id, format, width, height, stride, usage, layers, plane_info);
+
+        if (frame_loop_info_.IsLooping())
+        {
+            allocated_loop_hardware_buffers_.insert(buffer_id);
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::ProcessDestroyHardwareBufferCommand(uint64_t buffer_id)
+{
+    if (!frame_loop_info_.IsLooping())
+    {
+        VulkanReplayFrameLoopConsumerBase::ProcessDestroyHardwareBufferCommand(buffer_id);
+    }
+    else if (allocated_loop_hardware_buffers_.contains(buffer_id))
+    {
+        VulkanReplayFrameLoopConsumerBase::ProcessDestroyHardwareBufferCommand(buffer_id);
+        allocated_loop_hardware_buffers_.erase(buffer_id);
+    }
+    else if (frame_loop_info_.IsFinalIteration())
+    {
+        VulkanReplayFrameLoopConsumerBase::ProcessDestroyHardwareBufferCommand(buffer_id);
+    }
+}
+
 void VulkanReplayFrameLoopConsumer::Process_vkCreateBuffer(const ApiCallInfo& call_info, args::CreateBuffer& args)
 {
     VkBufferCreateInfo* create_info = args.pCreateInfo.GetPointer();
