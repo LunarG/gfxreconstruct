@@ -11046,21 +11046,9 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
             modified_create_infos[create_info_i].flags |=
                 VK_PIPELINE_CREATE_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR;
 
-            uint32_t group_info_count = in_pCreateInfos[create_info_i].groupCount;
-            bool     has_data         = (device_info->shader_group_handles.find(pipeline_capture_id) !=
-                             device_info->shader_group_handles.end());
-
-            if (has_data)
-            {
-                GFXRECON_ASSERT(device_info->shader_group_handles.at(pipeline_capture_id).size() ==
-                                (device_info->property_feature_info.property_shaderGroupHandleCaptureReplaySize *
-                                 group_info_count));
-            }
-            else
-            {
-                GFXRECON_LOG_WARNING("Missing shader group handle data in for ray tracing pipeline (ID = %" PRIu64 ").",
-                                     pipeline_capture_id);
-            }
+            uint32_t       group_info_count = in_pCreateInfos[create_info_i].groupCount;
+            const uint8_t* handle_data =
+                GetShaderGroupCaptureReplayHandles(device_info, pipeline_capture_id, group_info_count);
 
             // Set pShaderGroupCaptureReplayHandle in shader group create infos.
             std::vector<VkRayTracingShaderGroupCreateInfoKHR>& modified_group_infos = modified_pgroups[create_info_i];
@@ -11070,17 +11058,10 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
             {
                 modified_group_infos.push_back(in_pCreateInfos[create_info_i].pGroups[group_info_i]);
 
-                if (has_data)
-                {
-                    uint32_t byte_offset =
-                        device_info->property_feature_info.property_shaderGroupHandleCaptureReplaySize * group_info_i;
-                    modified_group_infos[group_info_i].pShaderGroupCaptureReplayHandle =
-                        device_info->shader_group_handles.at(pipeline_capture_id).data() + byte_offset;
-                }
-                else
-                {
-                    modified_group_infos[group_info_i].pShaderGroupCaptureReplayHandle = nullptr;
-                }
+                uint32_t byte_offset =
+                    device_info->property_feature_info.property_shaderGroupHandleCaptureReplaySize * group_info_i;
+                modified_group_infos[group_info_i].pShaderGroupCaptureReplayHandle =
+                    (handle_data != nullptr) ? handle_data + byte_offset : nullptr;
             }
 
             // Use modified shader group infos.
@@ -13910,6 +13891,31 @@ void VulkanReplayConsumerBase::Process_vkCreateRayTracingPipelinesKHR(const ApiC
         args.pPipelines.SetConsumerData(i, &handle_info[i]);
     }
 
+    if (UseAsyncOperations())
+    {
+        auto task = AsyncCreateRayTracingPipelinesKHR(GetDeviceTable(in_device->handle)->CreateRayTracingPipelinesKHR,
+                                                      args.result,
+                                                      call_info,
+                                                      in_device,
+                                                      in_deferredOperation,
+                                                      in_pipelineCache,
+                                                      args.createInfoCount,
+                                                      &args.pCreateInfos,
+                                                      &args.pAllocator,
+                                                      &args.pPipelines);
+        if (task)
+        {
+            AddHandlesAsync<VulkanPipelineInfo>(args.device,
+                                                args.pPipelines.GetPointer(),
+                                                args.pPipelines.GetLength(),
+                                                std::move(handle_info),
+                                                &CommonObjectInfoTable::AddVkPipelineInfo,
+                                                std::move(task));
+            return;
+        }
+    }
+
+    PushRecaptureHandleIds(args.pPipelines.GetPointer(), args.pPipelines.GetLength());
     VkResult replay_result =
         OverrideCreateRayTracingPipelinesKHR(GetDeviceTable(in_device->handle)->CreateRayTracingPipelinesKHR,
                                              args.result,
@@ -13921,6 +13927,7 @@ void VulkanReplayConsumerBase::Process_vkCreateRayTracingPipelinesKHR(const ApiC
                                              &args.pAllocator,
                                              &args.pPipelines);
     CheckResult("vkCreateRayTracingPipelinesKHR", args.result, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     if ((replay_result == VK_SUCCESS) || (replay_result == VK_OPERATION_NOT_DEFERRED_KHR) ||
         (replay_result == VK_PIPELINE_COMPILE_REQUIRED_EXT))
@@ -14084,6 +14091,22 @@ bool VulkanReplayConsumerBase::SkipPipelineCreationForCompileRequired(VkResult  
         return true;
     }
     return false;
+}
+
+const uint8_t* VulkanReplayConsumerBase::GetShaderGroupCaptureReplayHandles(const VulkanDeviceInfo* device_info,
+                                                                            format::HandleId        pipeline_id,
+                                                                            uint32_t                group_count)
+{
+    auto entry = device_info->shader_group_handles.find(pipeline_id);
+    if (entry == device_info->shader_group_handles.end())
+    {
+        GFXRECON_LOG_WARNING("Missing shader group handle data in for ray tracing pipeline (ID = %" PRIu64 ").",
+                             pipeline_id);
+        return nullptr;
+    }
+    GFXRECON_ASSERT(entry->second.size() ==
+                    device_info->property_feature_info.property_shaderGroupHandleCaptureReplaySize * group_count);
+    return entry->second.data();
 }
 
 template <typename T>
@@ -14857,6 +14880,134 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
         return { replay_result, std::move(out_pipelines) };
     };
     return task;
+}
+
+std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::AsyncCreateRayTracingPipelinesKHR(
+    PFN_vkCreateRayTracingPipelinesKHR                                     func,
+    VkResult                                                               returnValue,
+    const ApiCallInfo&                                                     call_info,
+    const VulkanDeviceInfo*                                                device_info,
+    const VulkanDeferredOperationKHRInfo*                                  deferred_operation_info,
+    const VulkanPipelineCacheInfo*                                         pipeline_cache_info,
+    uint32_t                                                               createInfoCount,
+    const StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>*                   pAllocator,
+    HandlePointerDecoder<VkPipeline>*                                      pPipelines)
+{
+    bool avoid_async_op = pipeline_cache_info != nullptr && pipeline_cache_info->handle != VK_NULL_HANDLE &&
+                          pipeline_cache_info->requires_external_synchronization;
+    avoid_async_op = avoid_async_op || deferred_operation_info != nullptr;
+    avoid_async_op = avoid_async_op || SkipPipelineCreationForCompileRequired(returnValue, pPipelines);
+
+    if (avoid_async_op || createInfoCount == 0)
+    {
+        return {};
+    }
+
+    auto* in_pCreateInfos = const_cast<VkRayTracingPipelineCreateInfoKHR*>(pCreateInfos->GetPointer());
+    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+    VkPipelineCache pipeline_cache = (pipeline_cache_info != nullptr) ? pipeline_cache_info->handle : VK_NULL_HANDLE;
+
+    RemoveFailOnCompileRequiredFlags(in_pCreateInfos, createInfoCount);
+    if (omitted_pipeline_cache_data_)
+    {
+        AllowCompileDuringPipelineCreation(createInfoCount, in_pCreateInfos);
+    }
+
+    format::HandleId cache_pipeline_id = format::kNullHandleId;
+    if (pipeline_cache == VK_NULL_HANDLE && options_.add_new_pipeline_caches)
+    {
+        cache_pipeline_id = *pPipelines->GetPointer();
+        pipeline_cache    = CreateNewPipelineCache(device_info, cache_pipeline_id);
+    }
+
+    if (returnValue == VK_SUCCESS && options_.dumping_resources)
+    {
+        resource_dumper_->DumpRayTracingPipelineInfos(pCreateInfos, createInfoCount, pPipelines);
+    }
+
+    if (UseAddressReplacement(device_info))
+    {
+        graphics::populate_shader_stages(pCreateInfos, pPipelines, GetObjectInfoTable());
+    }
+
+    const size_t         num_bytes = graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, nullptr);
+    std::vector<uint8_t> create_info_data(num_bytes);
+    graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, create_info_data.data());
+    auto* create_infos = reinterpret_cast<VkRayTracingPipelineCreateInfoKHR*>(create_info_data.data());
+
+    std::vector<format::HandleId> pipeline_ids(pPipelines->GetPointer(), pPipelines->GetPointer() + createInfoCount);
+
+    // The capture/replay shader group handles of OverrideCreateRayTracingPipelinesKHR, set on the deep copy.
+    if (device_info->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay &&
+        !UseAddressReplacement(device_info))
+    {
+        const uint32_t handle_size = device_info->property_feature_info.property_shaderGroupHandleCaptureReplaySize;
+        for (uint32_t i = 0; i < createInfoCount; ++i)
+        {
+            create_infos[i].flags |= VK_PIPELINE_CREATE_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR;
+
+            const uint8_t* handle_data =
+                GetShaderGroupCaptureReplayHandles(device_info, pipeline_ids[i], create_infos[i].groupCount);
+            auto* groups = const_cast<VkRayTracingShaderGroupCreateInfoKHR*>(create_infos[i].pGroups);
+            for (uint32_t group = 0; group < create_infos[i].groupCount; ++group)
+            {
+                groups[group].pShaderGroupCaptureReplayHandle =
+                    (handle_data != nullptr) ? handle_data + handle_size * group : nullptr;
+            }
+        }
+    }
+
+    auto handle_deps = graphics::vulkan_struct_extract_handle_ids(pCreateInfos);
+    handle_deps.insert(pipeline_ids.begin(), pipeline_ids.end());
+    std::function<void()> sync_fn = [this, parent_id = pipeline_ids[0]]() {
+        MapHandle<VulkanPipelineInfo>(parent_id, &VulkanObjectInfoTable::GetVkPipelineInfo);
+    };
+    uint64_t async_task_id = TrackAsyncHandles(handle_deps, sync_fn);
+
+    return [this,
+            device_info,
+            pipeline_cache,
+            cache_pipeline_id,
+            func,
+            returnValue,
+            call_info,
+            in_pAllocator,
+            createInfoCount,
+            async_task_id,
+            create_info_data = std::move(create_info_data),
+            handle_deps      = std::move(handle_deps),
+            pipeline_ids     = std::move(pipeline_ids)]() mutable -> handle_create_result_t<VkPipeline> {
+        std::vector<VkPipeline> out_pipelines(createInfoCount);
+        auto create_infos = reinterpret_cast<const VkRayTracingPipelineCreateInfoKHR*>(create_info_data.data());
+        PushRecaptureHandleIds(pipeline_ids.data(), pipeline_ids.size());
+        VkResult replay_result = func(device_info->handle,
+                                      VK_NULL_HANDLE,
+                                      pipeline_cache,
+                                      createInfoCount,
+                                      create_infos,
+                                      in_pAllocator,
+                                      out_pipelines.data());
+        CheckResult("vkCreateRayTracingPipelinesKHR", returnValue, replay_result, call_info);
+        ClearRecaptureHandleIds();
+
+        MainThreadQueue().post([this,
+                                device_info,
+                                pipeline_cache,
+                                cache_pipeline_id,
+                                replay_result,
+                                pipeline_handles = out_pipelines,
+                                async_task_id,
+                                handle_deps = std::move(handle_deps)]() mutable {
+            ClearAsyncHandles(async_task_id, handle_deps);
+            if (cache_pipeline_id != format::kNullHandleId && replay_result == VK_SUCCESS)
+            {
+                TrackNewPipelineCache(
+                    device_info, cache_pipeline_id, pipeline_cache, pipeline_handles.data(), pipeline_handles.size());
+            }
+        });
+        return { replay_result, std::move(out_pipelines) };
+    };
 }
 
 std::function<handle_create_result_t<VkShaderEXT>()>

@@ -1925,6 +1925,18 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                 StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
                                 HandlePointerDecoder<VkPipeline>*                                pPipelines);
 
+    std::function<handle_create_result_t<VkPipeline>()> AsyncCreateRayTracingPipelinesKHR(
+        PFN_vkCreateRayTracingPipelinesKHR                                     func,
+        VkResult                                                               returnValue,
+        const ApiCallInfo&                                                     call_info,
+        const VulkanDeviceInfo*                                                device_info,
+        const VulkanDeferredOperationKHRInfo*                                  deferred_operation_info,
+        const VulkanPipelineCacheInfo*                                         pipeline_cache_info,
+        uint32_t                                                               createInfoCount,
+        const StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>*                   pAllocator,
+        HandlePointerDecoder<VkPipeline>*                                      pPipelines);
+
     std::function<handle_create_result_t<VkShaderEXT>()>
     AsyncCreateShadersEXT(PFN_vkCreateShadersEXT                               func,
                           VkResult                                             returnValue,
@@ -2327,6 +2339,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
      */
     static bool SkipPipelineCreationForCompileRequired(VkResult                          original_result,
                                                        HandlePointerDecoder<VkPipeline>* pipelines);
+
+    // Captured shader group handles of a ray tracing pipeline, or nullptr if the capture has none.
+    static const uint8_t* GetShaderGroupCaptureReplayHandles(const VulkanDeviceInfo* device_info,
+                                                             format::HandleId        pipeline_id,
+                                                             uint32_t                group_count);
 
     /**
      *
