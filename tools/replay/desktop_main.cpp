@@ -128,6 +128,11 @@ int main(int argc, const char** argv)
     gfxrecon::util::Log::Settings log_settings;
     GetLogSettings(arg_parser, log_settings);
     gfxrecon::util::Log::UpdateWithSettings(log_settings);
+    if (log_settings.flush_after_write)
+    {
+        // Flush startup messages emitted before the command-line log settings were applied.
+        gfxrecon::util::platform::FileFlush(stdout);
+    }
 
     // An entry that received a value outside its accepted set gets a warning. The Feature that
     // owns the entry then uses its default value. The log settings apply before this call, so

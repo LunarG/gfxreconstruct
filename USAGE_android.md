@@ -770,7 +770,7 @@ The `gfxrecon.py replay` command has the following usage:
 
 ```text
 usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--log-level LEVEL]
-                          [--log-timestamps] [--log-file DEVICE_FILE]
+                          [--log-timestamps] [--log-flush] [--log-file DEVICE_FILE]
                           [--debug-messenger-level LEVEL] [--pause-frame N]
                           [--paused] [--loop-frame N] [--loop-count N]
                           [--cpu-mask binary_mask]
@@ -841,6 +841,8 @@ options:
                         fatal, error, warning, info, and debug. Default is
                         info. (forwarded to replay tool)
   --log-timestamps      Output a timestamp in front of each log message.
+  --log-flush           Flush each log message to console/file output. Default
+                        is disabled. (forwarded to replay tool)
   --log-file DEVICE_FILE
                         Write log messages to a file at the specified path
                         instead of logcat (forwarded to replay tool)
