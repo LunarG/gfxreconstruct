@@ -11000,21 +11000,9 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
             modified_create_infos[create_info_i].flags |=
                 VK_PIPELINE_CREATE_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR;
 
-            uint32_t group_info_count = in_pCreateInfos[create_info_i].groupCount;
-            bool     has_data         = (device_info->shader_group_handles.find(pipeline_capture_id) !=
-                             device_info->shader_group_handles.end());
-
-            if (has_data)
-            {
-                GFXRECON_ASSERT(device_info->shader_group_handles.at(pipeline_capture_id).size() ==
-                                (device_info->property_feature_info.property_shaderGroupHandleCaptureReplaySize *
-                                 group_info_count));
-            }
-            else
-            {
-                GFXRECON_LOG_WARNING("Missing shader group handle data in for ray tracing pipeline (ID = %" PRIu64 ").",
-                                     pipeline_capture_id);
-            }
+            uint32_t       group_info_count = in_pCreateInfos[create_info_i].groupCount;
+            const uint8_t* handle_data =
+                GetShaderGroupCaptureReplayHandles(device_info, pipeline_capture_id, group_info_count);
 
             // Set pShaderGroupCaptureReplayHandle in shader group create infos.
             std::vector<VkRayTracingShaderGroupCreateInfoKHR>& modified_group_infos = modified_pgroups[create_info_i];
@@ -11024,17 +11012,10 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
             {
                 modified_group_infos.push_back(in_pCreateInfos[create_info_i].pGroups[group_info_i]);
 
-                if (has_data)
-                {
-                    uint32_t byte_offset =
-                        device_info->property_feature_info.property_shaderGroupHandleCaptureReplaySize * group_info_i;
-                    modified_group_infos[group_info_i].pShaderGroupCaptureReplayHandle =
-                        device_info->shader_group_handles.at(pipeline_capture_id).data() + byte_offset;
-                }
-                else
-                {
-                    modified_group_infos[group_info_i].pShaderGroupCaptureReplayHandle = nullptr;
-                }
+                uint32_t byte_offset =
+                    device_info->property_feature_info.property_shaderGroupHandleCaptureReplaySize * group_info_i;
+                modified_group_infos[group_info_i].pShaderGroupCaptureReplayHandle =
+                    (handle_data != nullptr) ? handle_data + byte_offset : nullptr;
             }
 
             // Use modified shader group infos.
@@ -14063,6 +14044,22 @@ bool VulkanReplayConsumerBase::SkipPipelineCreationForCompileRequired(VkResult  
     return false;
 }
 
+const uint8_t* VulkanReplayConsumerBase::GetShaderGroupCaptureReplayHandles(const VulkanDeviceInfo* device_info,
+                                                                            format::HandleId        pipeline_id,
+                                                                            uint32_t                group_count)
+{
+    auto entry = device_info->shader_group_handles.find(pipeline_id);
+    if (entry == device_info->shader_group_handles.end())
+    {
+        GFXRECON_LOG_WARNING("Missing shader group handle data in for ray tracing pipeline (ID = %" PRIu64 ").",
+                             pipeline_id);
+        return nullptr;
+    }
+    GFXRECON_ASSERT(entry->second.size() ==
+                    device_info->property_feature_info.property_shaderGroupHandleCaptureReplaySize * group_count);
+    return entry->second.data();
+}
+
 template <typename T>
 void VulkanReplayConsumerBase::RemoveFailOnCompileRequiredFlags(T* create_infos, uint32_t create_info_count)
 {
@@ -14899,18 +14896,13 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
         {
             create_infos[i].flags |= VK_PIPELINE_CREATE_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR;
 
-            auto handles = device_info->shader_group_handles.find(pipeline_ids[i]);
-            if (handles == device_info->shader_group_handles.end())
-            {
-                GFXRECON_LOG_WARNING("Missing shader group handle data in for ray tracing pipeline (ID = %" PRIu64 ").",
-                                     pipeline_ids[i]);
-            }
+            const uint8_t* handle_data =
+                GetShaderGroupCaptureReplayHandles(device_info, pipeline_ids[i], create_infos[i].groupCount);
             auto* groups = const_cast<VkRayTracingShaderGroupCreateInfoKHR*>(create_infos[i].pGroups);
             for (uint32_t group = 0; group < create_infos[i].groupCount; ++group)
             {
-                groups[group].pShaderGroupCaptureReplayHandle = (handles != device_info->shader_group_handles.end())
-                                                                    ? handles->second.data() + handle_size * group
-                                                                    : nullptr;
+                groups[group].pShaderGroupCaptureReplayHandle =
+                    (handle_data != nullptr) ? handle_data + handle_size * group : nullptr;
             }
         }
     }
