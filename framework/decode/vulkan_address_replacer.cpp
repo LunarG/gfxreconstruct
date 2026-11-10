@@ -314,6 +314,7 @@ VulkanAddressReplacer::~VulkanAddressReplacer()
     pipeline_context_map_.clear();
     shadow_sbt_map_.clear();
     shadow_as_map_.clear();
+    retired_shadow_as_map_.clear();
     shadow_scratch_map_.clear();
     submit_asset_map_.clear();
     submit_asset_ = {};
@@ -1604,12 +1605,19 @@ void VulkanAddressReplacer::ProcessCmdCopyAccelerationStructuresKHR(
                 GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdCopyAccelerationStructuresKHR: Replay is "
                                        "adjusting acceleration-structure copies using shadow-structures");
 
-                // drop stale or too small entries
                 auto shadow_as_it = shadow_as_map_.find(dst_replay_address);
-                if (shadow_as_it != shadow_as_map_.end() &&
-                    (shadow_as_it->second.origin_handle != info->dst || shadow_as_it->second.size < required_size))
+                if (shadow_as_it != shadow_as_map_.end())
                 {
-                    shadow_as_map_.erase(shadow_as_it);
+                    if (shadow_as_it->second.origin_handle != info->dst)
+                    {
+                        // stale entry, its acceleration-structure was destroyed
+                        shadow_as_map_.erase(shadow_as_it);
+                    }
+                    else if (shadow_as_it->second.size < required_size)
+                    {
+                        // too small, but may still be in use. keep it until dst is destroyed.
+                        retired_shadow_as_map_[info->dst].push_back(shadow_as_map_.extract(shadow_as_it));
+                    }
                 }
 
                 auto& replacement_as = shadow_as_map_[dst_replay_address];
@@ -2287,6 +2295,9 @@ void VulkanAddressReplacer::DestroyShadowResources(
             shadow_as_map_.erase(remove_shadow_as_it);
         }
 
+        // remove retired shadow-structures
+        retired_shadow_as_map_.erase(acceleration_structure_info->handle);
+
         // remove a potential replacement scratch-buffer
         auto remove_scratch_it = shadow_scratch_map_.find(acceleration_structure_info->handle);
         if (remove_scratch_it != shadow_scratch_map_.end())
@@ -2312,6 +2323,14 @@ void VulkanAddressReplacer::DestroyShadowResources(const VulkanBufferInfo*      
                 if (remove_shadow_as_it != shadow_as_map_.end())
                 {
                     shadow_as_map_.erase(remove_shadow_as_it);
+                }
+            }
+
+            for (const auto* as_info : as_infos)
+            {
+                if (as_info != nullptr)
+                {
+                    retired_shadow_as_map_.erase(as_info->handle);
                 }
             }
         }
