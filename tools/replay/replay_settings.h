@@ -35,7 +35,8 @@ const char kOptions[] =
     "--debug-device-lost,--create-dummy-allocations,--screenshot-all,--screenshot-results,"
     "--qamr|--quit-after-measurement-range,"
     "--fmr|--flush-measurement-range,--flush-inside-measurement-range,--pbi-all,--preload-measurement-range,"
-    "--log-timestamps,--async-processing,--dump-resources-before-draw,--dump-resources-modifiable-state-only";
+    "--log-timestamps,--log-flush,--async-processing,--dump-resources-before-draw,"
+    "--dump-resources-modifiable-state-only";
 
 const char kArguments[] =
     "--log-level,--log-file,--cpu-mask,--gpu,--pause-frame,--wsi,--screenshots,--screenshot-interval,"
@@ -128,12 +129,12 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-image-format <format>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-modifiable-state-only]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--fwo <x,y> | --force-windowed-origin <x,y>]");
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>] [--log-debugview]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>] [--log-debugview] [--log-flush]");
 #if defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--no-debug-popup]");
 #endif
 #else
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>] [--log-flush]");
 #endif
 
     // Each Feature contributes the entries that belong only to that Feature, so an entry is in
@@ -150,6 +151,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --log-level <level>\tSpecify lowest level message to log. Options are:");
     GFXRECON_WRITE_CONSOLE("          \t\tfatal, error, warning, info, and debug. Default is info.");
     GFXRECON_WRITE_CONSOLE("  --log-timestamps\tOutput a timestamp in front of each log message.");
+    GFXRECON_WRITE_CONSOLE("  --log-flush\t\tFlush each log message to console/file output. Default is disabled.");
     GFXRECON_WRITE_CONSOLE("  --log-file <file>\tWrite log messages to a file at the specified path.");
     GFXRECON_WRITE_CONSOLE("          \t\tDefault is: Empty string (file logging disabled).");
 #if defined(_WIN32)
