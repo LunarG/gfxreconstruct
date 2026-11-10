@@ -1929,6 +1929,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         VkResult                                                               returnValue,
         const ApiCallInfo&                                                     call_info,
         const VulkanDeviceInfo*                                                device_info,
+        const VulkanDeferredOperationKHRInfo*                                  deferred_operation_info,
         const VulkanPipelineCacheInfo*                                         pipeline_cache_info,
         uint32_t                                                               createInfoCount,
         const StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,

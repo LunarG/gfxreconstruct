@@ -13845,12 +13845,13 @@ void VulkanReplayConsumerBase::Process_vkCreateRayTracingPipelinesKHR(const ApiC
         args.pPipelines.SetConsumerData(i, &handle_info[i]);
     }
 
-    if (UseAsyncOperations() && in_deferredOperation == nullptr)
+    if (UseAsyncOperations())
     {
         auto task = AsyncCreateRayTracingPipelinesKHR(GetDeviceTable(in_device->handle)->CreateRayTracingPipelinesKHR,
                                                       args.result,
                                                       call_info,
                                                       in_device,
+                                                      in_deferredOperation,
                                                       in_pipelineCache,
                                                       args.createInfoCount,
                                                       &args.pCreateInfos,
@@ -14838,6 +14839,7 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
     VkResult                                                               returnValue,
     const ApiCallInfo&                                                     call_info,
     const VulkanDeviceInfo*                                                device_info,
+    const VulkanDeferredOperationKHRInfo*                                  deferred_operation_info,
     const VulkanPipelineCacheInfo*                                         pipeline_cache_info,
     uint32_t                                                               createInfoCount,
     const StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
@@ -14846,6 +14848,7 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
 {
     bool avoid_async_op = pipeline_cache_info != nullptr && pipeline_cache_info->handle != VK_NULL_HANDLE &&
                           pipeline_cache_info->requires_external_synchronization;
+    avoid_async_op = avoid_async_op || deferred_operation_info != nullptr;
     avoid_async_op = avoid_async_op || SkipPipelineCreationForCompileRequired(returnValue, pPipelines);
 
     if (avoid_async_op || createInfoCount == 0)
