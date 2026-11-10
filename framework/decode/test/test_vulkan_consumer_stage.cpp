@@ -24,7 +24,9 @@
 #include <catch2/catch.hpp>
 
 #include "generated/generated_vulkan_consumer_stage.h"
+#include "generated/generated_vulkan_decoder.h"
 
+#include <cstring>
 #include <string>
 #include <vector>
 
@@ -241,6 +243,43 @@ class FinishingConsumer : public VulkanConsumer
   private:
     uint64_t last_block_;
 };
+
+// Copies the call bytes that the stage holds while it processes vkCmdDraw.
+class CallBytesProbe : public VulkanConsumerStage
+{
+  public:
+    void Process_vkCmdDraw(const ApiCallInfo& call_info, args::CmdDraw& args) override
+    {
+        seen = GetCurrentCallBytes();
+        VulkanConsumerStage::Process_vkCmdDraw(call_info, args);
+    }
+
+    const CallBytes& Current() const { return GetCurrentCallBytes(); }
+
+    CallBytes seen;
+};
+
+// Encodes vkCmdDraw the way it sits in a capture file: a handle id, then four uint32_t.
+std::vector<uint8_t> EncodeCmdDraw(format::HandleId command_buffer,
+                                   uint32_t         vertex_count,
+                                   uint32_t         instance_count,
+                                   uint32_t         first_vertex,
+                                   uint32_t         first_instance)
+{
+    std::vector<uint8_t> bytes(sizeof(format::HandleId) + 4 * sizeof(uint32_t));
+    uint8_t*             out = bytes.data();
+
+    std::memcpy(out, &command_buffer, sizeof(command_buffer));
+    out += sizeof(command_buffer);
+
+    for (uint32_t value : { vertex_count, instance_count, first_vertex, first_instance })
+    {
+        std::memcpy(out, &value, sizeof(value));
+        out += sizeof(value);
+    }
+
+    return bytes;
+}
 
 // Sends a call knowing only its args type, the way generic stage code does.
 template <typename ArgsT>
@@ -499,4 +538,47 @@ TEST_CASE("Chained stage completes when the consumer at the end does", "[stage]"
     // The inner stage drops the finished consumer and reports complete,
     // so the outer stage drops the inner one.
     CHECK(outer.IsComplete(200));
+}
+
+TEST_CASE("Decoder hands each call's bytes to every stage", "[stage]")
+{
+    CallBytesProbe    first;
+    CallBytesProbe    second;
+    RecordingConsumer recorder;
+    first.AddNext(&second);
+    second.AddNext(&recorder);
+
+    VulkanDecoder decoder;
+    decoder.AddConsumer(&first);
+
+    const auto bytes = EncodeCmdDraw(1, 3, 1, 0, 0);
+    decoder.DecodeFunctionCall(format::ApiCall_vkCmdDraw, ApiCallInfo{}, bytes.data(), bytes.size());
+
+    for (const CallBytesProbe* stage : { &first, &second })
+    {
+        CHECK(stage->seen.call_id == format::ApiCall_vkCmdDraw);
+        CHECK(stage->seen.parameter_buffer == bytes.data());
+        CHECK(stage->seen.buffer_size == bytes.size());
+    }
+
+    // The same bytes decode to the call that reached the recorder.
+    REQUIRE(recorder.draws.size() == 1);
+    CHECK(recorder.draws[0].commandBuffer == 1);
+    CHECK(recorder.draws[0].vertexCount == 3);
+}
+
+TEST_CASE("Decoder hands over the bytes before it picks a decode function", "[stage]")
+{
+    CallBytesProbe stage;
+    VulkanDecoder  decoder;
+    decoder.AddConsumer(&stage);
+
+    CHECK(stage.Current().parameter_buffer == nullptr);
+    CHECK(stage.Current().buffer_size == 0);
+
+    // An unknown id falls through the generated switch to VulkanDecoderBase, like the hand-written calls.
+    const uint8_t bytes[4] = {};
+    decoder.DecodeFunctionCall(format::ApiCall_Unknown, ApiCallInfo{}, bytes, sizeof(bytes));
+
+    CHECK(stage.Current().buffer_size == sizeof(bytes));
 }

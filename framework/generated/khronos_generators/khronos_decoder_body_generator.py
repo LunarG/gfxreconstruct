@@ -276,14 +276,15 @@ class KhronosDecoderBodyGenerator():
         return preamble, main_body, epilogue
 
     def generate_decode_cases(self):
-        prefix = self.get_api_prefix()
         """Generate the (Platform)Decoder::DecodeFunctionCall method."""
+        prefix = self.get_api_prefix()
 
         body = f'void {prefix}Decoder::DecodeFunctionCall(format::ApiCallId             call_id,\n'
         body += '                                       const ApiCallInfo&            call_info,\n'
         body += '                                       const uint8_t*                parameter_buffer,\n'
         body += '                                       size_t                        buffer_size)\n'
         body += '{\n'
+        body += self.make_decode_function_call_prologue()
         body += '    switch(call_id)\n'
         body += '    {\n'
         body += '    default:\n'
@@ -301,3 +302,7 @@ class KhronosDecoderBodyGenerator():
 
         write('    }', file=self.outFile)
         write('}\n', file=self.outFile)
+
+    def make_decode_function_call_prologue(self):
+        """Return code to run before the switch in DecodeFunctionCall. Method may be overridden."""
+        return ''
