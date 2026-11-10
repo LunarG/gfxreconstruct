@@ -91,7 +91,7 @@ class VulkanConsumerStageBase : public VulkanConsumer
 
     void StartLooping() override { Broadcast(&VulkanConsumer::StartLooping); }
 
-    // The stage keeps its own block index and frame number, and passes them on.
+    // The stage keeps its own block index, frame number and current call bytes, and passes them on.
     // It is complete when every next consumer is. A finished consumer stops receiving calls.
     void SetCurrentBlockIndex(uint64_t block_index) override
     {
@@ -103,6 +103,12 @@ class VulkanConsumerStageBase : public VulkanConsumer
     {
         VulkanConsumer::SetCurrentFrameNumber(frame_number);
         Broadcast(&VulkanConsumer::SetCurrentFrameNumber, frame_number);
+    }
+
+    void SetCurrentCallBytes(const CallBytes& call_bytes) override
+    {
+        current_call_bytes_ = call_bytes;
+        Broadcast(&VulkanConsumer::SetCurrentCallBytes, call_bytes);
     }
 
     bool IsComplete(uint64_t block_index) override { return decode::IsComplete(next_consumers_, block_index); }
@@ -366,6 +372,9 @@ class VulkanConsumerStageBase : public VulkanConsumer
   protected:
     std::vector<VulkanConsumer*>& GetNextConsumers() { return next_consumers_; }
 
+    // Valid only during the Process_vk* call that follows. Copy the bytes to keep the call.
+    const CallBytes& GetCurrentCallBytes() const { return current_call_bytes_; }
+
     template <typename ArgsT>
     void Forward(const ApiCallInfo& call_info, ArgsT& args)
     {
@@ -386,6 +395,7 @@ class VulkanConsumerStageBase : public VulkanConsumer
 
   private:
     std::vector<VulkanConsumer*> next_consumers_;
+    CallBytes                    current_call_bytes_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

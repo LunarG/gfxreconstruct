@@ -232,6 +232,9 @@ class VulkanDecoderBase : public ApiDecoder
   protected:
     const std::vector<VulkanConsumer*>& GetConsumers() const { return consumers_; }
 
+    // Passes the encoded parameters of the current call to every consumer.
+    void SetCurrentCallBytes(const CallBytes& call_bytes);
+
   private:
     size_t Decode_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo& call_info,
                                                     const uint8_t*     parameter_buffer,
