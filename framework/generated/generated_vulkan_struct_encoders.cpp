@@ -5492,7 +5492,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyDeviceMemoryImageInfoKH
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryRangeBarrierKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
-    EncodePNextStructIfValid(encoder, value.pNext);
+    EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlags64Value(value.srcStageMask);
     encoder->EncodeFlags64Value(value.srcAccessMask);
     encoder->EncodeFlags64Value(value.dstStageMask);
@@ -5773,7 +5773,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryKeysAndDataKH
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineCreateInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
-    EncodePNextStructIfValid(encoder, value.pNext);
+    EncodePNextStruct(encoder, value.pNext);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryCreateInfoKHR& value)
@@ -6773,6 +6773,20 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSharedPresentSurfaceCapabil
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlags64Value(value.sharedPresentSupportedUsageFlags);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance12FeaturesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.maintenance12);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance12PropertiesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.maxInputAttachmentIndex);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugReportCallbackCreateInfoEXT& value)
@@ -12148,6 +12162,13 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderSubgrou
     encoder->EncodeUInt32Value(value.shaderSubgroupPartitioned);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCooperativeMatrixLayoutsFeaturesARM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.cooperativeMatrixArmLayouts);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -12210,6 +12231,13 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePrimitiveRest
     encoder->EncodeUInt32Value(value.primitiveRestartIndex);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceVertexAddressBindingUnrestrictedFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.vertexAddressBindingUnrestricted);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageTilingControlFeaturesEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -12266,6 +12294,29 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBufferDeviceAddressAlignmen
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.alignment);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceHdrSmpteSt209450FeaturesGOOGLE& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.hdrSmpteSt209450);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkHdrSmpteSt209450GOOGLE& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeSizeTValue(value.metadataSize);
+    encoder->EncodeVoidArray(value.pMetadata, value.metadataSize);
+    encoder->EncodeEnumValue(value.powerPreference);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSurfaceCapabilitiesHdrSmpteSt209450GOOGLE& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.hdrSmpteSt209450Supported);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildRangeInfoKHR& value)

@@ -1192,6 +1192,10 @@ class VulkanReferencedBlockConsumer : public VulkanReferencedBlockConsumerBase
         const ApiCallInfo&                          call_info,
         args::CmdSetComputeOccupancyPriorityNV&     args) override;
 
+    void Process_vkGetCommandBufferInternalHandleNV(
+        const ApiCallInfo&                          call_info,
+        args::GetCommandBufferInternalHandleNV&     args) override;
+
     void Process_vkCmdSetPrimitiveRestartIndexEXT(
         const ApiCallInfo&                          call_info,
         args::CmdSetPrimitiveRestartIndexEXT&       args) override;

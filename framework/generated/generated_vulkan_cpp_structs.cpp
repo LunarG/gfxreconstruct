@@ -14283,6 +14283,34 @@ std::string GenerateStruct_VkSharedPresentSurfaceCapabilities2KHR(std::ostream &
 }
 
 
+std::string GenerateStruct_VkPhysicalDeviceMaintenance12FeaturesKHR(std::ostream &out, const VkPhysicalDeviceMaintenance12FeaturesKHR* structInfo, Decoded_VkPhysicalDeviceMaintenance12FeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->maintenance12 << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceMaintenance12FeaturesKHR");
+    out << "\t\t" << "VkPhysicalDeviceMaintenance12FeaturesKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceMaintenance12PropertiesKHR(std::ostream &out, const VkPhysicalDeviceMaintenance12PropertiesKHR* structInfo, Decoded_VkPhysicalDeviceMaintenance12PropertiesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->maxInputAttachmentIndex << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceMaintenance12PropertiesKHR");
+    out << "\t\t" << "VkPhysicalDeviceMaintenance12PropertiesKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
 std::string GenerateStruct_VkDebugReportCallbackCreateInfoEXT(std::ostream &out, const VkDebugReportCallbackCreateInfoEXT* structInfo, Decoded_VkDebugReportCallbackCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
@@ -17560,7 +17588,7 @@ std::string GenerateStruct_VkMetalSurfaceCreateInfoEXT(std::ostream &out, const 
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << "VkMetalSurfaceCreateFlagsEXT(" << structInfo->flags << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << "reinterpret_cast<const CAMetalLayer*>(" << structInfo->pLayer << ")" << ",";
+    struct_body << "\t\t\t" << "reinterpret_cast<CAMetalLayer*>(" << structInfo->pLayer << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "metalSurfaceCreateInfoEXT");
     out << "\t\t" << "VkMetalSurfaceCreateInfoEXT " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -25636,6 +25664,20 @@ std::string GenerateStruct_VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT(
 }
 
 
+std::string GenerateStruct_VkPhysicalDeviceCooperativeMatrixLayoutsFeaturesARM(std::ostream &out, const VkPhysicalDeviceCooperativeMatrixLayoutsFeaturesARM* structInfo, Decoded_VkPhysicalDeviceCooperativeMatrixLayoutsFeaturesARM* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->cooperativeMatrixArmLayouts << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceCooperativeMatrixLayoutsFeaturesARM");
+    out << "\t\t" << "VkPhysicalDeviceCooperativeMatrixLayoutsFeaturesARM " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
 std::string GenerateStruct_VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT(std::ostream &out, const VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT* structInfo, Decoded_VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
@@ -25754,6 +25796,20 @@ std::string GenerateStruct_VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT(std:
 }
 
 
+std::string GenerateStruct_VkPhysicalDeviceVertexAddressBindingUnrestrictedFeaturesEXT(std::ostream &out, const VkPhysicalDeviceVertexAddressBindingUnrestrictedFeaturesEXT* structInfo, Decoded_VkPhysicalDeviceVertexAddressBindingUnrestrictedFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->vertexAddressBindingUnrestricted << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceVertexAddressBindingUnrestrictedFeaturesEXT");
+    out << "\t\t" << "VkPhysicalDeviceVertexAddressBindingUnrestrictedFeaturesEXT " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
 std::string GenerateStruct_VkImageTilingControlCreateInfoEXT(std::ostream &out, const VkImageTilingControlCreateInfoEXT* structInfo, Decoded_VkImageTilingControlCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
@@ -25862,6 +25918,59 @@ std::string GenerateStruct_VkPhysicalDeviceBufferDeviceAddressAllocationAlignmen
     struct_body << "\t\t\t" << structInfo->maxBufferDeviceAddressAllocationAlignment << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE");
     out << "\t\t" << "VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkHdrSmpteSt209450GOOGLE(std::ostream &out, const VkHdrSmpteSt209450GOOGLE* structInfo, Decoded_VkHdrSmpteSt209450GOOGLE* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string pmetadata_array = "NULL";
+    if (structInfo->pMetadata != NULL) {
+        std::string pmetadata_values;
+        for (uint32_t idx0 = 0; idx0 < structInfo->metadataSize; ++idx0) {
+            pmetadata_values += std::to_string(reinterpret_cast<const uint8_t*>(structInfo->pMetadata)[idx0]) + ", ";
+        }
+        pmetadata_array = "pMetadata_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "uint8_t " << pmetadata_array << "[] = {" << pmetadata_values << "};" << std::endl;
+    }
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->metadataSize << "," << std::endl;
+    struct_body << "\t\t\t" << pmetadata_array << "," << std::endl;
+    struct_body << "\t\t\t" << "VkHdrSmpteSt209450PowerPreferenceGOOGLE(" << structInfo->powerPreference << ")" << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "hdrSmpteSt209450GOOGLE");
+    out << "\t\t" << "VkHdrSmpteSt209450GOOGLE " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceHdrSmpteSt209450FeaturesGOOGLE(std::ostream &out, const VkPhysicalDeviceHdrSmpteSt209450FeaturesGOOGLE* structInfo, Decoded_VkPhysicalDeviceHdrSmpteSt209450FeaturesGOOGLE* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->hdrSmpteSt209450 << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceHdrSmpteSt209450FeaturesGOOGLE");
+    out << "\t\t" << "VkPhysicalDeviceHdrSmpteSt209450FeaturesGOOGLE " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkSurfaceCapabilitiesHdrSmpteSt209450GOOGLE(std::ostream &out, const VkSurfaceCapabilitiesHdrSmpteSt209450GOOGLE* structInfo, Decoded_VkSurfaceCapabilitiesHdrSmpteSt209450GOOGLE* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->hdrSmpteSt209450Supported << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "surfaceCapabilitiesHdrSmpteSt209450GOOGLE");
+    out << "\t\t" << "VkSurfaceCapabilitiesHdrSmpteSt209450GOOGLE " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;

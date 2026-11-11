@@ -1412,6 +1412,10 @@ void MapStructHandles(Decoded_VkImageStencilUsage2CreateInfoKHR* wrapper, const 
 
 void MapStructHandles(Decoded_VkSharedPresentSurfaceCapabilities2KHR* wrapper, const CommonObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_VkPhysicalDeviceMaintenance12FeaturesKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkPhysicalDeviceMaintenance12PropertiesKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
 void MapStructHandles(Decoded_VkDebugReportCallbackCreateInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkPipelineRasterizationStateRasterizationOrderAMD* wrapper, const CommonObjectInfoTable& object_info_table);
@@ -2662,6 +2666,8 @@ void MapStructHandles(Decoded_VkPhysicalDeviceCooperativeMatrixMaintenance1Featu
 
 void MapStructHandles(Decoded_VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_VkPhysicalDeviceCooperativeMatrixLayoutsFeaturesARM* wrapper, const CommonObjectInfoTable& object_info_table);
+
 void MapStructHandles(Decoded_VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE* wrapper, const CommonObjectInfoTable& object_info_table);
@@ -2678,6 +2684,8 @@ void MapStructHandles(Decoded_VkDataGraphPipelineSessionNeuralStatisticsCreateIn
 
 void MapStructHandles(Decoded_VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_VkPhysicalDeviceVertexAddressBindingUnrestrictedFeaturesEXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
 void MapStructHandles(Decoded_VkPhysicalDeviceImageTilingControlFeaturesEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkImageTilingControlCreateInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
@@ -2693,6 +2701,12 @@ void MapStructHandles(Decoded_VkPhysicalDeviceBufferDeviceAddressAllocationAlign
 void MapStructHandles(Decoded_VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkBufferDeviceAddressAlignmentAllocateInfoVALVE* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkPhysicalDeviceHdrSmpteSt209450FeaturesGOOGLE* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkHdrSmpteSt209450GOOGLE* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkSurfaceCapabilitiesHdrSmpteSt209450GOOGLE* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkAccelerationStructureBuildRangeInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
 

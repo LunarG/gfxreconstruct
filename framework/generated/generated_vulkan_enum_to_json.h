@@ -671,6 +671,7 @@ void to_json(nlohmann::ordered_json& jdata, const VkGpaPerfBlockAMD& value);
 void to_json(nlohmann::ordered_json& jdata, const VkGpaSampleTypeAMD& value);
 void to_json(nlohmann::ordered_json& jdata, const VkGpaSqShaderStageFlagBitsAMD& value);
 void to_json(nlohmann::ordered_json& jdata, const VkGraphicsPipelineLibraryFlagBitsEXT& value);
+void to_json(nlohmann::ordered_json& jdata, const VkHdrSmpteSt209450PowerPreferenceGOOGLE& value);
 void to_json(nlohmann::ordered_json& jdata, const VkHostImageCopyFlagBits& value);
 void to_json(nlohmann::ordered_json& jdata, const VkImageAspectFlagBits& value);
 void to_json(nlohmann::ordered_json& jdata, const VkImageCompressionFixedRateFlagBitsEXT& value);

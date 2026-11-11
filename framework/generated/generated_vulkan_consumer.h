@@ -2977,6 +2977,22 @@ class VulkanConsumer : public VulkanConsumerBase
         const ApiCallInfo&                          call_info,
         args::GetPhysicalDeviceCooperativeMatrixProperties2EXT& args) {}
 
+    virtual void Process_vkGetPhysicalDeviceInternalHandleNV(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceInternalHandleNV&    args) {}
+
+    virtual void Process_vkGetDeviceInternalHandleNV(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceInternalHandleNV&            args) {}
+
+    virtual void Process_vkGetQueueInternalHandleNV(
+        const ApiCallInfo&                          call_info,
+        args::GetQueueInternalHandleNV&             args) {}
+
+    virtual void Process_vkGetCommandBufferInternalHandleNV(
+        const ApiCallInfo&                          call_info,
+        args::GetCommandBufferInternalHandleNV&     args) {}
+
     virtual void Process_vkCmdSetPrimitiveRestartIndexEXT(
         const ApiCallInfo&                          call_info,
         args::CmdSetPrimitiveRestartIndexEXT&       args) {}

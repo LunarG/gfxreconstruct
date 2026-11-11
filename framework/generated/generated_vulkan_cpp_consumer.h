@@ -2795,6 +2795,21 @@ class VulkanCppConsumer : public VulkanCppConsumerBase
     virtual void Process_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT(
         const ApiCallInfo&                          call_info,
         args::GetPhysicalDeviceCooperativeMatrixProperties2EXT& args) override;
+    virtual void Process_vkGetCommandBufferInternalHandleNV(
+        const ApiCallInfo&                          call_info,
+        args::GetCommandBufferInternalHandleNV&     args) override;
+
+    virtual void Process_vkGetDeviceInternalHandleNV(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceInternalHandleNV&            args) override;
+
+    virtual void Process_vkGetPhysicalDeviceInternalHandleNV(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceInternalHandleNV&    args) override;
+
+    virtual void Process_vkGetQueueInternalHandleNV(
+        const ApiCallInfo&                          call_info,
+        args::GetQueueInternalHandleNV&             args) override;
     virtual void Process_vkCmdSetPrimitiveRestartIndexEXT(
         const ApiCallInfo&                          call_info,
         args::CmdSetPrimitiveRestartIndexEXT&       args) override;
