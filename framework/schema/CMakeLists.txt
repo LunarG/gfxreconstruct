@@ -19,15 +19,9 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
-###############################################################################
-
-# The arrangement layer. format defines the primitives a capture can represent and how each is encoded; this defines how
-# they are arranged -- which API type a Field holds, how it is packaged, and which store member holds it. Header-only
-# and API-agnostic: it refers to no Vulkan type, no decoded representation and no operation, so capture and replay can
-# both reach it without reaching each other.
 #
-# Generated content is not here. An API's descriptors, Field descriptors and schemas are generated into
-# framework/generated and listed by the target that compiles them.
+# Description: CMake script for framework schema target
+###############################################################################
 
 add_library(gfxrecon_schema INTERFACE)
 
@@ -35,12 +29,9 @@ target_include_directories(gfxrecon_schema
                            INTERFACE
                                ${GFXRECON_SOURCE_DIR}/framework)
 
-# util supplies defines.h and the TypeList facility; format supplies the categories a Field's API element can have and
-# their widths.
 target_link_libraries(gfxrecon_schema
                       INTERFACE
-                          gfxrecon_util
-                          gfxrecon_format)
+                          gfxrecon_util)
 
 # The headers are listed on a target of their own rather than on gfxrecon_schema. INTERFACE sources are a usage
 # requirement, so listing them there would add both to every target that links this one, transitively -- every

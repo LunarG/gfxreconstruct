@@ -19,15 +19,9 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
-###############################################################################
-
-# The arrangement layer. format defines the primitives a capture can represent and how each is encoded; this defines how
-# they are arranged -- which API type a Field holds, how it is packaged, and which store member holds it. Header-only
-# and API-agnostic: it refers to no Vulkan type, no decoded representation and no operation, so capture and replay can
-# both reach it without reaching each other.
 #
-# Generated content is not here. An API's API elements, Fields and schemas are generated into
-# framework/generated and listed by the target that compiles them.
+# Description: CMake script for framework binding target
+###############################################################################
 
 add_library(gfxrecon_binding INTERFACE)
 
@@ -37,6 +31,7 @@ target_include_directories(gfxrecon_binding
 
 target_link_libraries(gfxrecon_binding
                       INTERFACE
+                          gfxrecon_format
                           gfxrecon_schema)
 
 add_custom_target(gfxrecon_binding_headers
@@ -49,4 +44,6 @@ add_custom_target(gfxrecon_binding_headers
                       ${CMAKE_CURRENT_LIST_DIR}/vulkan_call_id.h
                       ${CMAKE_CURRENT_LIST_DIR}/vulkan_catalog.h
                       ${CMAKE_CURRENT_LIST_DIR}/vulkan_decoded_type.h
-                      ${CMAKE_CURRENT_LIST_DIR}/vulkan_api_element_of.h)
+                      ${CMAKE_CURRENT_LIST_DIR}/vulkan_api_element_of.h
+                      ${CMAKE_CURRENT_LIST_DIR}/vulkan_wire_type.h
+                      ${CMAKE_CURRENT_LIST_DIR}/wire_type_of.h)

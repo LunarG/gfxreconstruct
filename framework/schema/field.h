@@ -26,7 +26,6 @@
 #ifndef GFXRECON_SCHEMA_FIELD_H
 #define GFXRECON_SCHEMA_FIELD_H
 
-#include "format/format.h"
 #include "schema/api_element.h"
 #include "util/defines.h"
 #include "util/fixed_string.h"
