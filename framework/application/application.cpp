@@ -219,8 +219,10 @@ void Application::Run()
         }
 
         // Only process the next frame if a quit event was not processed or not paused.
-        if (running_ && !paused_)
+        if (running_ && (!paused_ || step_requested_))
         {
+            step_requested_ = false;
+
             if (!pre_frame_processed)
             {
                 // Explicitly process the pre-frame phase before advancing to the next frame.
@@ -337,7 +339,8 @@ void Application::ApplyRemoteControls()
         ApplyRemoteControl(action);
     }
 
-    while (remote_channel_->TryPopControl(&action))
+    // Stop at a step so controls queued behind it apply after its frame.
+    while (!step_requested_ && remote_channel_->TryPopControl(&action))
     {
         ApplyRemoteControl(action);
     }
@@ -364,7 +367,7 @@ void Application::ApplyRemoteControl(const std::string& action)
     {
         if (paused_)
         {
-            PlaySingleFrame();
+            step_requested_ = true;
         }
     }
     else if (action == "stop")

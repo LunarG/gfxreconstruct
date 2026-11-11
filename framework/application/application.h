@@ -169,6 +169,9 @@ class Application final
 
     util::RemoteChannel* remote_channel_ = nullptr; ///< Optional, non-owning channel for reporting replay status.
 
+    // A step runs one Run() iteration, so a step before the first frame also processes the pre-frame.
+    bool step_requested_ = false;
+
 #if defined(BUILD_ANDROID_APP)
     struct android_app* android_app_{nullptr};
 #endif
