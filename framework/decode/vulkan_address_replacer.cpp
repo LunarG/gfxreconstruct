@@ -1798,8 +1798,8 @@ void VulkanAddressReplacer::ProcessGetQueryPoolResults(VkDevice           device
         return;
     }
 
-    // results are only guaranteed to be written for all queries when waiting
-    if ((flags & VK_QUERY_RESULT_WAIT_BIT) == 0)
+    // the caller only forwards VK_SUCCESS, so results are final unless partial results were requested without waiting
+    if ((flags & VK_QUERY_RESULT_PARTIAL_BIT) && !(flags & VK_QUERY_RESULT_WAIT_BIT))
     {
         return;
     }
