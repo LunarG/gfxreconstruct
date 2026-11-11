@@ -13741,7 +13741,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceInternalHandleNV(const ApiCallIn
     args::GetPhysicalDeviceInternalHandleNV args;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.physicalDevice);
-    bytes_read += args.pHandle.DecodeVkInternalHandleNV((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += args.pHandle.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : GetConsumers())
     {
@@ -13758,7 +13758,7 @@ size_t VulkanDecoder::Decode_vkGetDeviceInternalHandleNV(const ApiCallInfo& call
     args::GetDeviceInternalHandleNV args;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.device);
-    bytes_read += args.pHandle.DecodeVkInternalHandleNV((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += args.pHandle.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : GetConsumers())
     {
@@ -13775,7 +13775,7 @@ size_t VulkanDecoder::Decode_vkGetQueueInternalHandleNV(const ApiCallInfo& call_
     args::GetQueueInternalHandleNV args;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.queue);
-    bytes_read += args.pHandle.DecodeVkInternalHandleNV((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += args.pHandle.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : GetConsumers())
     {
@@ -13792,7 +13792,7 @@ size_t VulkanDecoder::Decode_vkGetCommandBufferInternalHandleNV(const ApiCallInf
     args::GetCommandBufferInternalHandleNV args;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
-    bytes_read += args.pHandle.DecodeVkInternalHandleNV((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += args.pHandle.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : GetConsumers())
     {

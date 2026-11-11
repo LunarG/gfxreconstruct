@@ -9595,7 +9595,7 @@ void VulkanExportJsonConsumer::Process_vkGetPhysicalDeviceInternalHandleNV(
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetPhysicalDeviceInternalHandleNV");
     auto& jargs = jdata[format::kNameArgs];
         HandleToJson(jargs["physicalDevice"], args.physicalDevice);
-        FieldToJson(jargs["pHandle"], &args.pHandle);
+        FieldToJson(jargs["pHandle"], args.pHandle);
     WriteBlockEnd();
 }
 
@@ -9606,7 +9606,7 @@ void VulkanExportJsonConsumer::Process_vkGetDeviceInternalHandleNV(
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetDeviceInternalHandleNV");
     auto& jargs = jdata[format::kNameArgs];
         HandleToJson(jargs["device"], args.device);
-        FieldToJson(jargs["pHandle"], &args.pHandle);
+        FieldToJson(jargs["pHandle"], args.pHandle);
     WriteBlockEnd();
 }
 
@@ -9617,7 +9617,7 @@ void VulkanExportJsonConsumer::Process_vkGetQueueInternalHandleNV(
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetQueueInternalHandleNV");
     auto& jargs = jdata[format::kNameArgs];
         HandleToJson(jargs["queue"], args.queue);
-        FieldToJson(jargs["pHandle"], &args.pHandle);
+        FieldToJson(jargs["pHandle"], args.pHandle);
     WriteBlockEnd();
 }
 
@@ -9628,7 +9628,7 @@ void VulkanExportJsonConsumer::Process_vkGetCommandBufferInternalHandleNV(
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetCommandBufferInternalHandleNV");
     auto& jargs = jdata[format::kNameArgs];
         HandleToJson(jargs["commandBuffer"], args.commandBuffer);
-        FieldToJson(jargs["pHandle"], &args.pHandle);
+        FieldToJson(jargs["pHandle"], args.pHandle);
     WriteBlockEnd();
 }
 

@@ -864,6 +864,10 @@ enum ApiCallId : uint32_t
     ApiCall_vkGetGpaDeviceClockInfoAMD                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1376),
     ApiCall_vkSetGpaDeviceClockModeAMD                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1377),
     ApiCall_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1378),
+    ApiCall_vkGetPhysicalDeviceInternalHandleNV                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x1379),
+    ApiCall_vkGetDeviceInternalHandleNV                                                           = MakeApiCallId(ApiFamily_Vulkan, 0x137a),
+    ApiCall_vkGetQueueInternalHandleNV                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x137b),
+    ApiCall_vkGetCommandBufferInternalHandleNV                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x137c),
 
     ApiCall_VulkanLast,
 
