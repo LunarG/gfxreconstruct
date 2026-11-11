@@ -1192,6 +1192,18 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue              queue,
                                                       secondary_indices.execute_cmds_index,
                                                       secondary_indices.execute_cmds_cmd_buf_index);
 
+        // A DrawCallParams object is shared between every execution of the same secondary draw call, so the
+        // resources dumped for a previous slot must not leak into this slot's entry. Reset once per slot: with
+        // dump_resources_before the "after" command buffer appends to the entries created by the "before" one.
+        if (is_before_command)
+        {
+            dc_params.dumped_resources.Reset();
+            dc_params.dumped_resources.bcb_index          = bcb_index_;
+            dc_params.dumped_resources.cmd_index          = dc_index;
+            dc_params.dumped_resources.qs_index           = qs_index_;
+            dc_params.dumped_resources.execute_cmds_index = secondary_indices.execute_cmds_index;
+        }
+
         // Dump vertex/index buffers
         if (options_.dump_resources_dump_vertex_index_buffer && is_before_command)
         {
@@ -1517,10 +1529,6 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(uint64_t          
     {
         return VK_SUCCESS;
     }
-
-    dc_params.dumped_resources.bcb_index = bcb_index_;
-    dc_params.dumped_resources.cmd_index = dc_index;
-    dc_params.dumped_resources.qs_index  = qs_index_;
 
     assert(original_command_buffer_info_);
     assert(original_command_buffer_info_->parent_id != format::kNullHandleId);

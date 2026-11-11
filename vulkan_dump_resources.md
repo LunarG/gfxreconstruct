@@ -479,6 +479,7 @@ The output json consists of 4 main entries:
 2. Draw call commands
 
 The draw calls are listed in an array. Each draw call entry contains information regarding:
+- The block indices of the draw call, its vkBeginCommandBuffer and its vkQueueSubmit. For draw calls recorded in a secondary command buffer, `executeCommandsIndex` holds the block index of the vkCmdExecuteCommands that executed them; it is `null` for draw calls recorded in the primary
 - The Vulkan api command parameters
 - The color and/or depth attachments
 - Vertex and/or index buffers (if requested)
@@ -516,6 +517,7 @@ Here is an example of a json output file:
       "drawIndex": 407,
       "beginCommandBufferIndex": 399,
       "queueSubmitIndex": 461,
+      "executeCommandsIndex": null,
       "parameters": {
         "drawCallType": "vkCmdDraw",
         "vertexCount": 24576,
