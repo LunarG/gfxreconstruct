@@ -34,6 +34,7 @@
 
 #include "plugin/replay_event_plugin_loader.h"
 #include "util/api_version_info.h"
+#include "util/callbacks.h"
 #include "util/feature_module_registry.h"
 #include "decode/vulkan_state_recording_decoder.h"
 
@@ -199,6 +200,9 @@ InitRealignAllocatorCreateFunc(const std::string&                              f
     // Enable first pass of replay to generate resource tracking information.
     GFXRECON_WRITE_CONSOLE("First pass of replay resource tracking for realign memory portability mode. This may take "
                            "some time. Please wait...");
+
+    // The first pass makes an instance and a device of its own, which are not in the capture.
+    gfxrecon::util::MarkInjectedCommandsHelper injected_commands_scope;
 
     gfxrecon::decode::FileProcessor file_processor_resource_tracking;
     gfxrecon::decode::VulkanDecoder decoder;
