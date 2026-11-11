@@ -16380,7 +16380,7 @@ void VulkanCppConsumer::Process_vkGetCommandBufferInternalHandleNV(
     std::string phandle_name = "NULL";
     if (!args.pHandle.IsNull()) {
         phandle_name = "pHandle_" + std::to_string(this->GetNextId());
-        fprintf(file, "\t\tVkInternalHandleNV %s = %s;\n", phandle_name.c_str(), util::ToString(*args.pHandle.GetPointer()).c_str());
+        fprintf(file, "\t\tuint8_t* %s = %s;\n", phandle_name.c_str(), util::ToString(*args.pHandle.GetPointer()).c_str());
         phandle_name.insert(0, "&");
     }
     pfn_loader_.AddMethodName("vkGetCommandBufferInternalHandleNV");
@@ -16401,7 +16401,7 @@ void VulkanCppConsumer::Process_vkGetDeviceInternalHandleNV(
     std::string phandle_name = "NULL";
     if (!args.pHandle.IsNull()) {
         phandle_name = "pHandle_" + std::to_string(this->GetNextId());
-        fprintf(file, "\t\tVkInternalHandleNV %s = %s;\n", phandle_name.c_str(), util::ToString(*args.pHandle.GetPointer()).c_str());
+        fprintf(file, "\t\tuint8_t* %s = %s;\n", phandle_name.c_str(), util::ToString(*args.pHandle.GetPointer()).c_str());
         phandle_name.insert(0, "&");
     }
     pfn_loader_.AddMethodName("vkGetDeviceInternalHandleNV");
@@ -16422,7 +16422,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceInternalHandleNV(
     std::string phandle_name = "NULL";
     if (!args.pHandle.IsNull()) {
         phandle_name = "pHandle_" + std::to_string(this->GetNextId());
-        fprintf(file, "\t\tVkInternalHandleNV %s = %s;\n", phandle_name.c_str(), util::ToString(*args.pHandle.GetPointer()).c_str());
+        fprintf(file, "\t\tuint8_t* %s = %s;\n", phandle_name.c_str(), util::ToString(*args.pHandle.GetPointer()).c_str());
         phandle_name.insert(0, "&");
     }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceInternalHandleNV");
@@ -16443,7 +16443,7 @@ void VulkanCppConsumer::Process_vkGetQueueInternalHandleNV(
     std::string phandle_name = "NULL";
     if (!args.pHandle.IsNull()) {
         phandle_name = "pHandle_" + std::to_string(this->GetNextId());
-        fprintf(file, "\t\tVkInternalHandleNV %s = %s;\n", phandle_name.c_str(), util::ToString(*args.pHandle.GetPointer()).c_str());
+        fprintf(file, "\t\tuint8_t* %s = %s;\n", phandle_name.c_str(), util::ToString(*args.pHandle.GetPointer()).c_str());
         phandle_name.insert(0, "&");
     }
     pfn_loader_.AddMethodName("vkGetQueueInternalHandleNV");

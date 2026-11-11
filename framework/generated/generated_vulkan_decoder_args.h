@@ -7908,7 +7908,7 @@ struct GetPhysicalDeviceCooperativeMatrixProperties2EXT
 struct GetPhysicalDeviceInternalHandleNV
 {
     format::HandleId physicalDevice;
-    PointerDecoder<VkInternalHandleNV> pHandle;
+    PointerDecoder<uint64_t, void*> pHandle;
 
     auto GetTuple() const { return std::tie(physicalDevice, pHandle); }
 };
@@ -7917,7 +7917,7 @@ struct GetPhysicalDeviceInternalHandleNV
 struct GetDeviceInternalHandleNV
 {
     format::HandleId device;
-    PointerDecoder<VkInternalHandleNV> pHandle;
+    PointerDecoder<uint64_t, void*> pHandle;
 
     auto GetTuple() const { return std::tie(device, pHandle); }
 };
@@ -7926,7 +7926,7 @@ struct GetDeviceInternalHandleNV
 struct GetQueueInternalHandleNV
 {
     format::HandleId queue;
-    PointerDecoder<VkInternalHandleNV> pHandle;
+    PointerDecoder<uint64_t, void*> pHandle;
 
     auto GetTuple() const { return std::tie(queue, pHandle); }
 };
@@ -7935,7 +7935,7 @@ struct GetQueueInternalHandleNV
 struct GetCommandBufferInternalHandleNV
 {
     format::HandleId commandBuffer;
-    PointerDecoder<VkInternalHandleNV> pHandle;
+    PointerDecoder<uint64_t, void*> pHandle;
 
     auto GetTuple() const { return std::tie(commandBuffer, pHandle); }
 };

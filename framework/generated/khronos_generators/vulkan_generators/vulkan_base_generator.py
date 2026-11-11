@@ -308,6 +308,10 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
             "VkRemoteAddressNV": {
                 "baseType": "void",
                 "replaceWith": "void*"
+            },
+            "VkInternalHandleNV": {
+                "baseType": "void",
+                "replaceWith": "void*"
             }
         }
 

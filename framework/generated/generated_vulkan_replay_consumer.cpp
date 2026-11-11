@@ -10841,9 +10841,11 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceInternalHandleNV(
     args::GetPhysicalDeviceInternalHandleNV&    args)
 {
     VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(args.physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
-    VkInternalHandleNV* out_pHandle = args.pHandle.IsNull() ? nullptr : args.pHandle.AllocateOutputData(1, static_cast<VkInternalHandleNV>(0));
+    VkInternalHandleNV* out_pHandle = args.pHandle.IsNull() ? nullptr : reinterpret_cast<VkInternalHandleNV*>(args.pHandle.AllocateOutputData(1));
 
     GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceInternalHandleNV(in_physicalDevice, out_pHandle);
+
+    PostProcessExternalObject(VK_SUCCESS, (*args.pHandle.GetPointer()), static_cast<void*>(*out_pHandle), format::ApiCallId::ApiCall_vkGetPhysicalDeviceInternalHandleNV, "vkGetPhysicalDeviceInternalHandleNV");
 }
 
 void VulkanReplayConsumer::Process_vkGetDeviceInternalHandleNV(
@@ -10851,9 +10853,11 @@ void VulkanReplayConsumer::Process_vkGetDeviceInternalHandleNV(
     args::GetDeviceInternalHandleNV&            args)
 {
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    VkInternalHandleNV* out_pHandle = args.pHandle.IsNull() ? nullptr : args.pHandle.AllocateOutputData(1, static_cast<VkInternalHandleNV>(0));
+    VkInternalHandleNV* out_pHandle = args.pHandle.IsNull() ? nullptr : reinterpret_cast<VkInternalHandleNV*>(args.pHandle.AllocateOutputData(1));
 
     GetDeviceTable(in_device)->GetDeviceInternalHandleNV(in_device, out_pHandle);
+
+    PostProcessExternalObject(VK_SUCCESS, (*args.pHandle.GetPointer()), static_cast<void*>(*out_pHandle), format::ApiCallId::ApiCall_vkGetDeviceInternalHandleNV, "vkGetDeviceInternalHandleNV");
 }
 
 void VulkanReplayConsumer::Process_vkGetQueueInternalHandleNV(
@@ -10861,9 +10865,11 @@ void VulkanReplayConsumer::Process_vkGetQueueInternalHandleNV(
     args::GetQueueInternalHandleNV&             args)
 {
     VkQueue in_queue = MapHandle<VulkanQueueInfo>(args.queue, &CommonObjectInfoTable::GetVkQueueInfo);
-    VkInternalHandleNV* out_pHandle = args.pHandle.IsNull() ? nullptr : args.pHandle.AllocateOutputData(1, static_cast<VkInternalHandleNV>(0));
+    VkInternalHandleNV* out_pHandle = args.pHandle.IsNull() ? nullptr : reinterpret_cast<VkInternalHandleNV*>(args.pHandle.AllocateOutputData(1));
 
     GetDeviceTable(in_queue)->GetQueueInternalHandleNV(in_queue, out_pHandle);
+
+    PostProcessExternalObject(VK_SUCCESS, (*args.pHandle.GetPointer()), static_cast<void*>(*out_pHandle), format::ApiCallId::ApiCall_vkGetQueueInternalHandleNV, "vkGetQueueInternalHandleNV");
 }
 
 void VulkanReplayConsumer::Process_vkGetCommandBufferInternalHandleNV(
@@ -10871,9 +10877,11 @@ void VulkanReplayConsumer::Process_vkGetCommandBufferInternalHandleNV(
     args::GetCommandBufferInternalHandleNV&     args)
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    VkInternalHandleNV* out_pHandle = args.pHandle.IsNull() ? nullptr : args.pHandle.AllocateOutputData(1, static_cast<VkInternalHandleNV>(0));
+    VkInternalHandleNV* out_pHandle = args.pHandle.IsNull() ? nullptr : reinterpret_cast<VkInternalHandleNV*>(args.pHandle.AllocateOutputData(1));
 
     GetDeviceTable(in_commandBuffer)->GetCommandBufferInternalHandleNV(in_commandBuffer, out_pHandle);
+
+    PostProcessExternalObject(VK_SUCCESS, (*args.pHandle.GetPointer()), static_cast<void*>(*out_pHandle), format::ApiCallId::ApiCall_vkGetCommandBufferInternalHandleNV, "vkGetCommandBufferInternalHandleNV");
 }
 
 void VulkanReplayConsumer::Process_vkCmdSetPrimitiveRestartIndexEXT(

@@ -30209,7 +30209,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceInternalHandleNV(
     if (encoder)
     {
         encoder->EncodeVulkanHandleValue<vulkan_wrappers::PhysicalDeviceWrapper>(physicalDevice);
-        encoder->EncodeVkInternalHandleNVPtr(pHandle);
+        encoder->EncodeVoidPtrPtr(pHandle);
         manager->EndApiCallCapture();
     }
 
@@ -30243,7 +30243,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceInternalHandleNV(
     if (encoder)
     {
         encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
-        encoder->EncodeVkInternalHandleNVPtr(pHandle);
+        encoder->EncodeVoidPtrPtr(pHandle);
         manager->EndApiCallCapture();
     }
 
@@ -30277,7 +30277,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetQueueInternalHandleNV(
     if (encoder)
     {
         encoder->EncodeVulkanHandleValue<vulkan_wrappers::QueueWrapper>(queue);
-        encoder->EncodeVkInternalHandleNVPtr(pHandle);
+        encoder->EncodeVoidPtrPtr(pHandle);
         manager->EndApiCallCapture();
     }
 
@@ -30311,7 +30311,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetCommandBufferInternalHandleNV(
     if (encoder)
     {
         encoder->EncodeVulkanHandleValue<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-        encoder->EncodeVkInternalHandleNVPtr(pHandle);
+        encoder->EncodeVoidPtrPtr(pHandle);
         manager->EndCommandApiCallCapture(commandBuffer);
     }
 
