@@ -23,6 +23,7 @@
 #include "util/logging.h"
 #include "util/logging_targets.h"
 #include "util/platform.h"
+#include "util/remote_channel.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -278,6 +279,16 @@ void LoggingTargetFile::Flush()
     {
         log_stream_.flush();
     }
+}
+
+void LoggingTargetRemote::LogMessage(LoggingSeverity severity, const std::string& message)
+{
+    if (!WillOutputMessage(severity))
+    {
+        return;
+    }
+
+    RemoteChannel::SendActiveLog(severity, message);
 }
 
 GFXRECON_END_NAMESPACE(logging)
