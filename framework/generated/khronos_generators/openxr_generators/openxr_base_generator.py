@@ -435,9 +435,9 @@ class OpenXrBaseGenerator(KhronosBaseGenerator):
         """Method override. Generate code for the feature."""
         KhronosBaseGenerator.endFeature(self)
 
-    def genStruct(self, typeinfo, typename, alias):
+    def genStruct(self, typeinfo, typename, alias, protect=None):
         """Method override."""
-        super().genStruct(typeinfo, typename, alias)
+        super().genStruct(typeinfo, typename, alias, protect)
 
         if not alias:
             self.check_struct_member_handles(

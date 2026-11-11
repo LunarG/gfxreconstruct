@@ -2027,6 +2027,13 @@ void VulkanReferencedBlockConsumer::Process_vkCmdSetComputeOccupancyPriorityNV(
     if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
+void VulkanReferencedBlockConsumer::Process_vkGetCommandBufferInternalHandleNV(
+    const ApiCallInfo&                          call_info,
+    args::GetCommandBufferInternalHandleNV&     args)
+{
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
 void VulkanReferencedBlockConsumer::Process_vkCmdSetPrimitiveRestartIndexEXT(
     const ApiCallInfo&                          call_info,
     args::CmdSetPrimitiveRestartIndexEXT&       args)

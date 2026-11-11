@@ -10836,6 +10836,46 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPropertie
     if (args.pProperties.IsNull()) { SetOutputArrayCount<VulkanPhysicalDeviceInfo>(args.physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceCooperativeMatrixProperties2EXT, *out_pPropertyCount, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo); }
 }
 
+void VulkanReplayConsumer::Process_vkGetPhysicalDeviceInternalHandleNV(
+    const ApiCallInfo&                          call_info,
+    args::GetPhysicalDeviceInternalHandleNV&    args)
+{
+    VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(args.physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
+    VkInternalHandleNV* out_pHandle = args.pHandle.IsNull() ? nullptr : args.pHandle.AllocateOutputData(1, static_cast<VkInternalHandleNV>(0));
+
+    GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceInternalHandleNV(in_physicalDevice, out_pHandle);
+}
+
+void VulkanReplayConsumer::Process_vkGetDeviceInternalHandleNV(
+    const ApiCallInfo&                          call_info,
+    args::GetDeviceInternalHandleNV&            args)
+{
+    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
+    VkInternalHandleNV* out_pHandle = args.pHandle.IsNull() ? nullptr : args.pHandle.AllocateOutputData(1, static_cast<VkInternalHandleNV>(0));
+
+    GetDeviceTable(in_device)->GetDeviceInternalHandleNV(in_device, out_pHandle);
+}
+
+void VulkanReplayConsumer::Process_vkGetQueueInternalHandleNV(
+    const ApiCallInfo&                          call_info,
+    args::GetQueueInternalHandleNV&             args)
+{
+    VkQueue in_queue = MapHandle<VulkanQueueInfo>(args.queue, &CommonObjectInfoTable::GetVkQueueInfo);
+    VkInternalHandleNV* out_pHandle = args.pHandle.IsNull() ? nullptr : args.pHandle.AllocateOutputData(1, static_cast<VkInternalHandleNV>(0));
+
+    GetDeviceTable(in_queue)->GetQueueInternalHandleNV(in_queue, out_pHandle);
+}
+
+void VulkanReplayConsumer::Process_vkGetCommandBufferInternalHandleNV(
+    const ApiCallInfo&                          call_info,
+    args::GetCommandBufferInternalHandleNV&     args)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    VkInternalHandleNV* out_pHandle = args.pHandle.IsNull() ? nullptr : args.pHandle.AllocateOutputData(1, static_cast<VkInternalHandleNV>(0));
+
+    GetDeviceTable(in_commandBuffer)->GetCommandBufferInternalHandleNV(in_commandBuffer, out_pHandle);
+}
+
 void VulkanReplayConsumer::Process_vkCmdSetPrimitiveRestartIndexEXT(
     const ApiCallInfo&                          call_info,
     args::CmdSetPrimitiveRestartIndexEXT&       args)
@@ -13859,6 +13899,16 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkSharedPresentSurfaceCapabilities2KHR>());
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_12_FEATURES_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceMaintenance12FeaturesKHR>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_12_PROPERTIES_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceMaintenance12PropertiesKHR>());
+                break;
+            }
             case VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDebugReportCallbackCreateInfoEXT>());
@@ -16709,6 +16759,11 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT>());
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_LAYOUTS_FEATURES_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceCooperativeMatrixLayoutsFeaturesARM>());
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OCP_MICROSCALING_TYPES_FEATURES_EXT:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT>());
@@ -16749,6 +16804,11 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT>());
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ADDRESS_BINDING_UNRESTRICTED_FEATURES_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceVertexAddressBindingUnrestrictedFeaturesEXT>());
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceImageTilingControlFeaturesEXT>());
@@ -16787,6 +16847,21 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
             case VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_ALIGNMENT_ALLOCATE_INFO_VALVE:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkBufferDeviceAddressAlignmentAllocateInfoVALVE>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HDR_SMPTE_ST_209450_FEATURES_GOOGLE:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceHdrSmpteSt209450FeaturesGOOGLE>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_HDR_SMPTE_ST_209450_GOOGLE:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkHdrSmpteSt209450GOOGLE>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_HDR_SMPTE_ST_209450_GOOGLE:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkSurfaceCapabilitiesHdrSmpteSt209450GOOGLE>());
                 break;
             }
             case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR:

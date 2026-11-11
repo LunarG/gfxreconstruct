@@ -4803,11 +4803,11 @@ void UnwrapStructHandles(VkPipelineBinaryCreateInfoKHR* value, HandleUnwrapMemor
 {
     if (value != nullptr)
     {
+        value->pPipelineCreateInfo = UnwrapStructPtrHandles(value->pPipelineCreateInfo, unwrap_memory);
         if (value->pNext != nullptr)
         {
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
         }
-        value->pPipelineCreateInfo = UnwrapStructPtrHandles(value->pPipelineCreateInfo, unwrap_memory);
     }
 }
 
@@ -5980,6 +5980,28 @@ void UnwrapStructHandles(VkImageStencilUsage2CreateInfoKHR* value, HandleUnwrapM
 }
 
 void UnwrapStructHandles(VkSharedPresentSurfaceCapabilities2KHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkPhysicalDeviceMaintenance12FeaturesKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkPhysicalDeviceMaintenance12PropertiesKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
@@ -12260,6 +12282,17 @@ void UnwrapStructHandles(VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT* v
     }
 }
 
+void UnwrapStructHandles(VkPhysicalDeviceCooperativeMatrixLayoutsFeaturesARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
 void UnwrapStructHandles(VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -12348,6 +12381,17 @@ void UnwrapStructHandles(VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT* value
     }
 }
 
+void UnwrapStructHandles(VkPhysicalDeviceVertexAddressBindingUnrestrictedFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
 void UnwrapStructHandles(VkPhysicalDeviceImageTilingControlFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -12426,6 +12470,39 @@ void UnwrapStructHandles(VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentP
 }
 
 void UnwrapStructHandles(VkBufferDeviceAddressAlignmentAllocateInfoVALVE* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkPhysicalDeviceHdrSmpteSt209450FeaturesGOOGLE* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkHdrSmpteSt209450GOOGLE* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
+void UnwrapStructHandles(VkSurfaceCapabilitiesHdrSmpteSt209450GOOGLE* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
@@ -13517,6 +13594,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_HDR_METADATA_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkHdrMetadataEXT*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_HDR_SMPTE_ST_209450_GOOGLE:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkHdrSmpteSt209450GOOGLE*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_HDR_VIVID_DYNAMIC_METADATA_HUAWEI:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkHdrVividDynamicMetadataHUAWEI*>(base), 1, unwrap_memory));
         break;
@@ -14018,6 +14098,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_INFO_2_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixInfo2EXT*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_LAYOUTS_FEATURES_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixLayoutsFeaturesARM*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_MAINTENANCE_1_FEATURES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT*>(base), 1, unwrap_memory));
         break;
@@ -14312,6 +14395,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GROUP_PROPERTIES:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceGroupProperties*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HDR_SMPTE_ST_209450_FEATURES_GOOGLE:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceHdrSmpteSt209450FeaturesGOOGLE*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HDR_VIVID_FEATURES_HUAWEI:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceHdrVividFeaturesHUAWEI*>(base), 1, unwrap_memory));
         break;
@@ -14440,6 +14526,12 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_11_FEATURES_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceMaintenance11FeaturesKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_12_FEATURES_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceMaintenance12FeaturesKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_12_PROPERTIES_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceMaintenance12PropertiesKHR*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_3_PROPERTIES:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceMaintenance3Properties*>(base), 1, unwrap_memory));
@@ -15050,6 +15142,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VARIABLE_POINTERS_FEATURES:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceVariablePointersFeatures*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ADDRESS_BINDING_UNRESTRICTED_FEATURES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceVertexAddressBindingUnrestrictedFeaturesEXT*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceVertexAttributeDivisorFeatures*>(base), 1, unwrap_memory));
         break;
@@ -15649,6 +15744,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_FULL_SCREEN_EXCLUSIVE_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSurfaceCapabilitiesFullScreenExclusiveEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_HDR_SMPTE_ST_209450_GOOGLE:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSurfaceCapabilitiesHdrSmpteSt209450GOOGLE*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_PRESENT_BARRIER_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSurfaceCapabilitiesPresentBarrierNV*>(base), 1, unwrap_memory));
@@ -16375,6 +16473,8 @@ const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwr
             return UnwrapStructPtrHandles(reinterpret_cast<const VkPipelineBinaryHandlesInfoKHR*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_PIPELINE_BINARY_INFO_KHR:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkPipelineBinaryInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PIPELINE_CREATE_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkPipelineCreateInfoKHR*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_INFO_KHR:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkPipelineExecutableInfoKHR*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_PIPELINE_INDIRECT_DEVICE_ADDRESS_INFO_NV:

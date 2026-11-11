@@ -265,6 +265,7 @@ template <> std::string ToString<VkGpaSqShaderStageFlagBitsAMD>(const VkGpaSqSha
 template <> std::string ToString<VkGpaSqShaderStageFlagBitsAMD>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkGraphicsPipelineLibraryFlagBitsEXT>(const VkGraphicsPipelineLibraryFlagBitsEXT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkGraphicsPipelineLibraryFlagBitsEXT>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkHdrSmpteSt209450PowerPreferenceGOOGLE>(const VkHdrSmpteSt209450PowerPreferenceGOOGLE& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkHostImageCopyFlagBits>(const VkHostImageCopyFlagBits& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkHostImageCopyFlagBits>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkImageAspectFlagBits>(const VkImageAspectFlagBits& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);

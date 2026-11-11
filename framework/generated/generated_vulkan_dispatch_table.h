@@ -185,6 +185,7 @@ inline VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDeviceQueueFamilyPerfor
 inline VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM(VkPhysicalDevice, uint32_t, const VkQueueFamilyDataGraphPropertiesARM*, const VkDataGraphOpticalFlowImageFormatInfoARM*, uint32_t*, VkDataGraphOpticalFlowImageFormatPropertiesARM*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM(VkPhysicalDevice, uint32_t, const VkQueueFamilyDataGraphPropertiesARM*, VkBaseOutStructure*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCooperativeMatrixProperties2EXT(VkPhysicalDevice, const VkPhysicalDeviceCooperativeMatrixInfo2EXT*, uint32_t*, VkCooperativeMatrixProperties2EXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceCooperativeMatrixProperties2EXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceInternalHandleNV(VkPhysicalDevice, VkInternalHandleNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceInternalHandleNV was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkDevice, const char*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetDeviceProcAddr was called, resulting in no-op behavior."); return nullptr; }
 inline VKAPI_ATTR void VKAPI_CALL vkDestroyDevice(VkDevice, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkDestroyDevice was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkGetDeviceQueue(VkDevice, uint32_t, uint32_t, VkQueue*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetDeviceQueue was called, resulting in no-op behavior."); }
@@ -816,6 +817,9 @@ inline VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryMetalHandlePropertiesEXT(VkDevi
 inline VKAPI_ATTR void VKAPI_CALL vkCmdEndRendering2EXT(VkCommandBuffer, const VkRenderingEndInfoKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdEndRendering2EXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdBeginCustomResolveEXT(VkCommandBuffer, const VkBeginCustomResolveInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdBeginCustomResolveEXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdSetComputeOccupancyPriorityNV(VkCommandBuffer, const VkComputeOccupancyPriorityParametersNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetComputeOccupancyPriorityNV was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL vkGetDeviceInternalHandleNV(VkDevice, VkInternalHandleNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetDeviceInternalHandleNV was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL vkGetQueueInternalHandleNV(VkQueue, VkInternalHandleNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetQueueInternalHandleNV was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL vkGetCommandBufferInternalHandleNV(VkCommandBuffer, VkInternalHandleNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetCommandBufferInternalHandleNV was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdSetPrimitiveRestartIndexEXT(VkCommandBuffer, uint32_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetPrimitiveRestartIndexEXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkCreateAccelerationStructureKHR(VkDevice, const VkAccelerationStructureCreateInfoKHR*, const VkAllocationCallbacks*, VkAccelerationStructureKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCreateAccelerationStructureKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL vkDestroyAccelerationStructureKHR(VkDevice, VkAccelerationStructureKHR, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkDestroyAccelerationStructureKHR was called, resulting in no-op behavior."); }
@@ -968,6 +972,7 @@ struct VulkanInstanceTable
     PFN_vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM GetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM{ noop::vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM };
     PFN_vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM GetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM{ noop::vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM };
     PFN_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT GetPhysicalDeviceCooperativeMatrixProperties2EXT{ noop::vkGetPhysicalDeviceCooperativeMatrixProperties2EXT };
+    PFN_vkGetPhysicalDeviceInternalHandleNV GetPhysicalDeviceInternalHandleNV{ noop::vkGetPhysicalDeviceInternalHandleNV };
 };
 
 struct VulkanDeviceTable
@@ -1603,6 +1608,9 @@ struct VulkanDeviceTable
     PFN_vkCmdEndRendering2EXT CmdEndRendering2EXT{ noop::vkCmdEndRendering2EXT };
     PFN_vkCmdBeginCustomResolveEXT CmdBeginCustomResolveEXT{ noop::vkCmdBeginCustomResolveEXT };
     PFN_vkCmdSetComputeOccupancyPriorityNV CmdSetComputeOccupancyPriorityNV{ noop::vkCmdSetComputeOccupancyPriorityNV };
+    PFN_vkGetDeviceInternalHandleNV GetDeviceInternalHandleNV{ noop::vkGetDeviceInternalHandleNV };
+    PFN_vkGetQueueInternalHandleNV GetQueueInternalHandleNV{ noop::vkGetQueueInternalHandleNV };
+    PFN_vkGetCommandBufferInternalHandleNV GetCommandBufferInternalHandleNV{ noop::vkGetCommandBufferInternalHandleNV };
     PFN_vkCmdSetPrimitiveRestartIndexEXT CmdSetPrimitiveRestartIndexEXT{ noop::vkCmdSetPrimitiveRestartIndexEXT };
     PFN_vkCreateAccelerationStructureKHR CreateAccelerationStructureKHR{ noop::vkCreateAccelerationStructureKHR };
     PFN_vkDestroyAccelerationStructureKHR DestroyAccelerationStructureKHR{ noop::vkDestroyAccelerationStructureKHR };
@@ -1760,6 +1768,7 @@ static void LoadVulkanInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance in
     LoadVulkanFunction(gpa, instance, "vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM", &table->GetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM);
     LoadVulkanFunction(gpa, instance, "vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM", &table->GetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM);
     LoadVulkanFunction(gpa, instance, "vkGetPhysicalDeviceCooperativeMatrixProperties2EXT", &table->GetPhysicalDeviceCooperativeMatrixProperties2EXT);
+    LoadVulkanFunction(gpa, instance, "vkGetPhysicalDeviceInternalHandleNV", &table->GetPhysicalDeviceInternalHandleNV);
 }
 
 static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, VulkanDeviceTable* table)
@@ -2397,6 +2406,9 @@ static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, 
     LoadVulkanFunction(gpa, device, "vkCmdEndRendering2EXT", &table->CmdEndRendering2EXT);
     LoadVulkanFunction(gpa, device, "vkCmdBeginCustomResolveEXT", &table->CmdBeginCustomResolveEXT);
     LoadVulkanFunction(gpa, device, "vkCmdSetComputeOccupancyPriorityNV", &table->CmdSetComputeOccupancyPriorityNV);
+    LoadVulkanFunction(gpa, device, "vkGetDeviceInternalHandleNV", &table->GetDeviceInternalHandleNV);
+    LoadVulkanFunction(gpa, device, "vkGetQueueInternalHandleNV", &table->GetQueueInternalHandleNV);
+    LoadVulkanFunction(gpa, device, "vkGetCommandBufferInternalHandleNV", &table->GetCommandBufferInternalHandleNV);
     LoadVulkanFunction(gpa, device, "vkCmdSetPrimitiveRestartIndexEXT", &table->CmdSetPrimitiveRestartIndexEXT);
     LoadVulkanFunction(gpa, device, "vkCreateAccelerationStructureKHR", &table->CreateAccelerationStructureKHR);
     LoadVulkanFunction(gpa, device, "vkDestroyAccelerationStructureKHR", &table->DestroyAccelerationStructureKHR);
