@@ -8793,7 +8793,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDeviceMemoryReportCallbackD
     encoder->EncodeUInt64Value(value.memoryObjectId);
     encoder->EncodeUInt64Value(value.size);
     encoder->EncodeEnumValue(value.objectType);
-    encoder->EncodeUInt64Value(value.objectHandle);
+    encoder->EncodeUInt64Value(vulkan_wrappers::GetWrappedId(value.objectHandle, value.objectType));
     encoder->EncodeUInt32Value(value.heapIndex);
 }
 
