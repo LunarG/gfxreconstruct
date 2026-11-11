@@ -136,7 +136,7 @@ struct replacer_params_bda_t
     // storage-buffer for a hashmap-control-block (gpu_array_t), caches addresses that have already been replaced
     VkDeviceAddress address_blacklist = 0;
 
-    // input-/output-arrays can be identical when sbt-alignments/strides match
+    // addresses are replaced in-place, input- and output-arrays are identical
     VkDeviceAddress input_handles  = 0;
     VkDeviceAddress output_handles = 0;
     uint32_t        num_handles    = 0;
@@ -1021,20 +1021,8 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         hashmap_sbt_.get_storage(pipeline_context_sbt.storage_array.mapped_data);
 
         // input-handles
-        constexpr uint32_t max_num_handles = 512;
-        if (!create_buffer(pipeline_context_sbt.input_handle_buffer,
-                           max_num_handles * sizeof(VkDeviceAddress),
-                           0,
-                           0,
-                           true,
-                           "GFXR VulkanAddressReplacer pipeline_context_sbt.input_handle_buffer"))
-        {
-            GFXRECON_LOG_ERROR("VulkanAddressReplacer: input-handle-buffer creation failed");
-        }
-        auto input_addresses = reinterpret_cast<VkDeviceAddress*>(pipeline_context_sbt.input_handle_buffer.mapped_data);
-
         std::unordered_map<const VkStridedDeviceAddressRegionKHR*, VkDeviceSize> num_addresses_map;
-        uint32_t                                                                 num_addresses = 0;
+        std::vector<VkDeviceAddress>                                             input_addresses;
 
         {
             const auto handle_size_aligned = static_cast<uint32_t>(util::aligned_value(
@@ -1050,11 +1038,27 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
                     // populate input-addresses, which are handles to replace and shaderRecord data to pass-through
                     for (uint32_t offset = 0; offset < region->size; offset += handle_size_aligned)
                     {
-                        input_addresses[num_addresses++] = region->deviceAddress + offset;
+                        input_addresses.push_back(region->deviceAddress + offset);
                     }
                 }
             }
         }
+        const auto num_addresses = GFXRECON_NARROWING_CAST(uint32_t, input_addresses.size());
+        GFXRECON_ASSERT(num_addresses > 0);
+
+        if (!create_buffer(pipeline_context_sbt.input_handle_buffer,
+                           num_addresses * sizeof(VkDeviceAddress),
+                           0,
+                           0,
+                           true,
+                           "GFXR VulkanAddressReplacer pipeline_context_sbt.input_handle_buffer"))
+        {
+            GFXRECON_LOG_ERROR("VulkanAddressReplacer: input-handle-buffer creation failed");
+            return;
+        }
+        memcpy(pipeline_context_sbt.input_handle_buffer.mapped_data,
+               input_addresses.data(),
+               num_addresses * sizeof(VkDeviceAddress));
 
         replacer_params_sbt_t replacer_params = {};
         replacer_params.hashmap.storage       = pipeline_context_sbt.storage_array.device_address;
@@ -1090,7 +1094,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
 
             // output-handles
             if (!create_buffer(pipeline_context_sbt.output_handle_buffer,
-                               max_num_handles * sizeof(VkDeviceAddress),
+                               num_addresses * sizeof(VkDeviceAddress),
                                0,
                                0,
                                true,
