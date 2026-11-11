@@ -60,6 +60,10 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     void Process_vkBeginCommandBuffer(const ApiCallInfo& call_info, args::BeginCommandBuffer& args) override;
 
+    void Process_vkResetCommandBuffer(const ApiCallInfo& call_info, args::ResetCommandBuffer& args) override;
+
+    void Process_vkFreeCommandBuffers(const ApiCallInfo& call_info, args::FreeCommandBuffers& args) override;
+
     void Process_vkDestroyDescriptorPool(const ApiCallInfo& call_info, args::DestroyDescriptorPool& args) override;
 
     void Process_vkResetDescriptorPool(const ApiCallInfo& call_info, args::ResetDescriptorPool& args) override;
@@ -415,6 +419,9 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     // Support for vkAcquireProfilingLockKHR/vkReleaseProfilingLockKHR
     std::unordered_map<format::HandleId, bool> profilingLockState;
+
+    // THIS IS A HACK THAT SUCKS!!!
+    std::set<format::HandleId> cbs_begun_this_frame_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
