@@ -865,7 +865,7 @@ enum ApiCallId : uint32_t
     ApiCall_vkSetGpaDeviceClockModeAMD                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1377),
     ApiCall_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1378),
     ApiCall_vkCmdBindResourceHeapEXT                                                              = MakeApiCallId(ApiFamily_Vulkan, 0x1379),
-    ApiCall_vkBindSamplerHeapEXT                                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x137a),
+    ApiCall_vkCmdBindSamplerHeapEXT                                                               = MakeApiCallId(ApiFamily_Vulkan, 0x137a),
     ApiCall_vkCmdPushDataEXT                                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x137b),
     ApiCall_vkGetImageOpaqueCaptureDataEXT                                                        = MakeApiCallId(ApiFamily_Vulkan, 0x137c),
     ApiCall_vkGetPhysicalDeviceDescriptorSizeEXT                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x137d),
