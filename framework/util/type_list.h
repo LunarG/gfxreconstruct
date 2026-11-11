@@ -20,6 +20,20 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+// This header declares TypeList, a compile-time list of types, and the algorithms over it:
+//   - TypeListCountIf, TypeListKeep, TypeListDrop and TypeListExclude count or filter by a predicate over types;
+//   - TypeListAt_t, TypeListSole_t, TypeListPopFront_t, TypeListSize_v and TypeListContains_v query the list;
+//   - TypeListForEach and ApplyFields call a function once per element, or once with every element;
+//   - IndexPosition and Visit go from a position an index found at run time to the element at that position.
+// A Schema's Field list and the catalog lists (binding/vulkan_catalog.h) are TypeLists. No algorithm recurses on the
+// list, so a catalog list costs no more per element than a Field list.
+//
+// Limitations:
+//   - A predicate must be a captureless lambda; see below.
+//   - Visit instantiates the visitor for every element of the list, whether or not a call reaches it.
+//
+// Typical pattern:
+//   using Kept = decltype(util::TypeListKeep(List{}, []<typename T>() { return std::is_enum_v<T>; }));
 #ifndef GFXRECON_UTIL_TYPE_LIST_H
 #define GFXRECON_UTIL_TYPE_LIST_H
 
@@ -41,6 +55,8 @@ template <typename... Types>
 struct TypeList
 {};
 
+// IsTypeList_v is true for a TypeList of any length.
+// IsTypeList_v is true for a TypeList of any length.
 template <typename T>
 struct IsTypeList : std::false_type
 {};
@@ -52,10 +68,9 @@ struct IsTypeList<TypeList<Types...>> : std::true_type
 template <typename T>
 inline constexpr bool IsTypeList_v = IsTypeList<T>::value;
 
-// A fold expression over a pack is instantiated as nested binary expressions, one level per element, and clang
-// stops at 256; a pack expanded into a braced list is one node at any length. Every algorithm here that reduces
-// a pack does so through an array and a constexpr loop, so a catalog-sized list is no different from a field list.
-// The array form is the C++17 successor of the initializer_list expansion idiom.
+// Every algorithm here that reduces a pack does so through a braced array and a constexpr loop, never a fold
+// expression: clang instantiates a fold as nested binary expressions, one level per element, and stops at depth 256,
+// while a braced list is one node at any length. A catalog list has more than 256 elements.
 
 template <size_t N>
 constexpr size_t CountOf(const std::array<bool, N>& values)
@@ -68,7 +83,7 @@ constexpr size_t CountOf(const std::array<bool, N>& values)
     return count;
 }
 
-// The positions of the true entries, in order; Count is CountOf(values).
+// Returns the positions of the true entries, in order. Count must be CountOf(values).
 template <size_t Count, size_t N>
 constexpr std::array<size_t, Count> PositionsOf(const std::array<bool, N>& values)
 {
@@ -84,14 +99,14 @@ constexpr std::array<size_t, Count> PositionsOf(const std::array<bool, N>& value
     return positions;
 }
 
-// A predicate over types is a constexpr callable with a template call operator and no parameters,
-// []<typename T>() { return ...; }, the shape TypeListForEach's visitors take; a concept is one in one line. The
-// algorithms take it by value and re-create it, which a captureless closure allows, so the call is a constant
-// expression.
+// A predicate over types is a captureless lambda with a template call operator and no parameters,
+// []<typename T>() { return ...; }, the shape TypeListForEach's visitors take; it wraps a concept in one line. The
+// algorithms call Predicate{}, not the argument, so the call is a constant expression. A capturing lambda fails to
+// compile: it is not default constructible.
 
 GFXRECON_BEGIN_NAMESPACE(detail)
 
-// The negation of a predicate, for TypeListDrop.
+// Not negates a predicate, for TypeListDrop.
 template <typename Predicate>
 struct Not
 {
@@ -122,19 +137,24 @@ decltype(auto) ApplyFieldsImpl(TypeList<Fields...>, Accessor&& accessor, Functio
 
 GFXRECON_END_NAMESPACE(detail)
 
-// How many elements satisfy the predicate. All, any and none are comparisons on it.
+// Returns how many elements satisfy the predicate. All, any and none are comparisons on this count, so they have no
+// algorithm of their own.
 template <typename List, typename Predicate>
 constexpr size_t TypeListCountIf(List, Predicate)
 {
     return detail::TypeListCountIfImpl(List{}, Predicate{});
 }
 
+// Calls function.operator()<T>() once per element, in list order.
+// Calls function.operator()<T>() once per element, in list order.
 template <typename List, typename Function>
 constexpr void TypeListForEach(Function&& function)
 {
     detail::TypeListForEachImpl(List{}, std::forward<Function>(function));
 }
 
+// Calls function once, with accessor(Field{}) for every element as its arguments.
+// Calls function once, with accessor(Field{}) for every element as its arguments.
 template <typename List, typename Accessor, typename Function>
 decltype(auto) ApplyFields(Accessor&& accessor, Function&& function)
 {
@@ -143,15 +163,19 @@ decltype(auto) ApplyFields(Accessor&& accessor, Function&& function)
 
 GFXRECON_BEGIN_NAMESPACE(detail)
 
-// TypeListAt_t without recursion: one base per element, all inherited at once, and the element at I selected by
-// deduction against the one base with that position, which the C++20 standard allows through a derived-to-base
-// conversion ([temp.deduct.call]/4.3). The layout and the lookup are Boost.Mp11's mp_map_find (Dimov) and the
-// multiple-inheritance form in Dionne, "Efficient parameter pack indexing" (2015); libc++ and libstdc++ lay out
-// std::tuple the same way. std::tuple_element recurses on MSVC and is not used.
+// TypeListAt_t without recursion: the multiple-inheritance indexer of Agustín Bergé's "True Story: Efficient Packing"
+// (talesofcpp.fusionfenix.com/post-22), benchmarked in Louis Dionne's "Efficient parameter pack indexing" (2015).
+// The obvious forms, a recursive walk or a fold, nest one level per element and fail to compile past clang's limit of
+// 256 on a catalog-sized list; this form is flat, one base per element, so a lookup is one deduction at any length.
+// C++26 pack indexing and the __type_pack_element builtin do the same, but not on every toolchain we build with.
 //
-// Each Indexed also derives from Holder<T>, so the same object is a set: whether T is in the list is whether
-// Holder<T> is a base, one lookup. A repeated element makes Holder<T> an ambiguous base, which still satisfies
-// std::is_base_of ([meta.rel]), so duplicates cost nothing.
+// Indexer derives from Indexed<I, T> for every element: for TypeList<A, B, C> its bases are Indexed<0, A>,
+// Indexed<1, B> and Indexed<2, C>. PickIndexed<1>(Indexer{}) deduces T from the one base of the form Indexed<1, T>,
+// so decltype of the call is Indexed<1, B>, and its ::type is B. std::tuple_element is not used: it recurses on MSVC.
+//
+// Each Indexed also derives from Holder<T>, so the same Indexer is a set: TypeListContains_v<List, B> is one
+// is_base_of<Holder<B>, Indexer> test. A repeated element makes Holder<T> an ambiguous base, which std::is_base_of
+// still reports as a base ([meta.rel]), so a list with duplicates works.
 template <typename T>
 struct Holder
 {};
@@ -191,17 +215,22 @@ struct TypeListAt<I, TypeList<Types...>>
     using type = typename decltype(PickIndexed<I>(Indexer<std::index_sequence_for<Types...>, Types...>{}))::type;
 };
 
-// A constexpr array of positions as an index_sequence. The one value-to-template-argument step is here; a later
-// expansion takes the positions as template arguments and evaluates no subscript inside a template argument list,
-// which MSVC rejects for a raw array member (C3546).
+// PositionSequence turns a constexpr array of positions into an index_sequence. The one value-to-template-argument
+// step is here; a later expansion takes the positions as template arguments and evaluates no subscript inside a
+// template argument list, which MSVC rejects for a raw array member (C3546).
 template <auto Positions, size_t... Is>
 std::index_sequence<Positions[Is]...> PositionSequence(std::index_sequence<Is...>);
 
 template <auto Positions>
 using PositionSequence_t = decltype(PositionSequence<Positions>(std::make_index_sequence<Positions.size()>{}));
 
-// The elements whose predicate holds: the predicate results as an array, their positions as an array, that array
-// as an index_sequence, and one expansion over it. Flat at every step.
+// TypeListKeep keeps the elements whose predicate holds, in four flat steps. Each step is one constexpr evaluation or
+// one pack expansion, so the instantiation depth is the same at any list length; the textbook filter recurses once
+// per element, and its depth grows with the list. For TypeList<A, B, C> and a predicate true of A and C:
+//   1. kSelected, the predicate result per element:     { true, false, true }
+//   2. kPositions, the positions of the true entries:   { 0, 2 }
+//   3. PositionSequence_t<kPositions>:                  std::index_sequence<0, 2>
+//   4. Pick, TypeListAt_t at each position:             TypeList<A, C>
 template <typename... Types, size_t... Positions>
 TypeList<typename TypeListAt<Positions, TypeList<Types...>>::type...>
     Pick(TypeList<Types...>, std::index_sequence<Positions...>); // declared only; its type is the answer
@@ -231,43 +260,48 @@ GFXRECON_END_NAMESPACE(detail)
 template <size_t I, typename List>
 using TypeListAt_t = typename detail::TypeListAt<I, List>::type;
 
-// Whether T is in the list: a base-class lookup on the index, not a pass over the list. Measured over the 1,365-entry
-// structures catalog, 1,365 queries compile in under a second this way and in six minutes as a count.
+// TypeListContains_v is true when T is in the list: one base-class lookup on the Indexer, not a pass over the list.
+// NOTE: MUST NOT be rewritten as a TypeListCountIf -- a count is a pass over the list per query, so TypeListExclude,
+// which queries once per element, would compile in time quadratic in the list length.
 template <typename List, typename T>
 inline constexpr bool TypeListContains_v = std::is_base_of_v<detail::Holder<T>, typename detail::IndexerOf<List>::type>;
 
-// The list of elements whose predicate holds, as a value: using Kept = decltype(TypeListKeep(List{}, kPredicate));
+// Returns the elements whose predicate holds, as a value: using Kept = decltype(TypeListKeep(List{}, kPredicate));
 template <typename List, typename Predicate>
 constexpr auto TypeListKeep(List, Predicate)
 {
     return detail::TypeListKeepImpl(List{}, Predicate{});
 }
 
+// Returns the elements whose predicate does not hold, as a value.
+// Returns the elements whose predicate does not hold, as a value.
 template <typename List, typename Predicate>
 constexpr auto TypeListDrop(List, Predicate)
 {
     return TypeListKeep(List{}, detail::Not<Predicate>{});
 }
 
-// The elements of List that are not in Excluded.
+// Returns the elements of List that are not in Excluded.
 template <typename List, typename Excluded>
 constexpr auto TypeListExclude(List, Excluded)
 {
     return TypeListDrop(List{}, []<typename T>() { return TypeListContains_v<Excluded, T>; });
 }
 
+// TypeListSole_t is the one element of a one-element list; any other length fails to compile.
+// TypeListSole_t is the one element of a one-element list; any other length fails to compile.
 template <typename List>
 using TypeListSole_t = typename detail::TypeListSole<List>::type;
 
-// The list without its first element. One deduction, so it costs nothing at any length; a list built on a
-// placeholder first element is trimmed this way.
+// TypeListPopFront_t is the list without its first element: one deduction at any length.
+// GFXRECON_INVENTORY_TYPE_LIST_BEGIN uses it to drop the placeholder its list opens on.
 template <typename List>
 using TypeListPopFront_t = decltype(detail::TypeListPopFront(List{}));
 
 GFXRECON_BEGIN_NAMESPACE(detail)
 
-// One invoker per element, in list order; each calls visitor.operator()<Element>(args...). A table of invokers
-// indexed at run time is how libc++ and libstdc++ implement std::visit.
+// InvokerTable holds one invoker per element, in list order; each calls visitor.operator()<Element>(args...). Visit
+// indexes it at run time.
 template <typename Visitor, typename ArgsList, typename Elements>
 struct InvokerTable;
 
@@ -310,14 +344,14 @@ struct TypeListSize<TypeList<Types...>> : std::integral_constant<size_t, sizeof.
 
 GFXRECON_END_NAMESPACE(detail)
 
+// TypeListSize_v is the element count.
+// TypeListSize_v is the element count.
 template <typename List>
 inline constexpr size_t TypeListSize_v = detail::TypeListSize<List>::value;
 
-// A class template, not a type nested in the index: Visit deduces Index from this parameter, and a type reached
-// through Index::, aliased or not, is non-deduced ([temp.deduct.type]/5).
-//
-// Where an index's Find landed in its list, or its End. The index constructs one; Visit reads it; nothing else
-// sees the position.
+// IndexPosition is where an index's Find landed in its list, or its End. Only the index constructs one and only Visit
+// reads it. It is a class template, not a type nested in the index: Visit deduces Index from this parameter, and a
+// type reached through Index::, aliased or not, is non-deduced ([temp.deduct.type]/5).
 template <typename Index>
 class IndexPosition
 {
@@ -337,8 +371,8 @@ class IndexPosition
     size_t position_;
 };
 
-// Calls visitor.operator()<Element>(args...) for the element of the index's list at `position`. Asserts that
-// `position` is not Index::End().
+// Calls visitor.operator()<Element>(args...) for the element of the index's list at `position`. Asserts in DEBUG that
+// `position` is not Index::End(); compare it against End() before the call.
 template <typename Index, typename Visitor, typename... Args>
 decltype(auto) Visit(IndexPosition<Index> position, Visitor&& visitor, Args&&... args)
 {

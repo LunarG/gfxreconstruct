@@ -20,10 +20,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// The Vulkan DecodedType rows, a visitor invoked across the inventory: every decodable structure to its Decoded_
-// wrapper, and every command to its args structure. A structure without the HAS_DECODED_TYPE property has no wrapper
-// the rows reach (findings BR-6). Every command gets a row, including the one whose args structure is hand-written
-// because its decoder is, since that structure must have the canonical shape.
+// This header specializes DecodedTypeOf as an inventory visitor: each structure with a Decoded_ wrapper as that
+// wrapper, each command as its args structure.
 
 #ifndef GFXRECON_BINDING_VULKAN_DECODED_TYPE_H
 #define GFXRECON_BINDING_VULKAN_DECODED_TYPE_H
@@ -48,7 +46,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(binding)
 
-// A struct visitor: it yields a specialization, a type, so this lives in a header.
 #define GFXRECON_INVENTORY_REQUIRE GFXRECON_INVENTORY_HAS_DECODED_TYPE
 #define GFXRECON_INVENTORY_VISIT_STRUCT(Name) \
     GFXRECON_INVENTORY_DECODED_TYPE(schema::vulkan::api_elements::Name, decode::Decoded_##Name);

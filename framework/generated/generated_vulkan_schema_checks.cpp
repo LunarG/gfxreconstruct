@@ -3589,8 +3589,9 @@ static_assert(schema::HasCommandSchema<schema::vulkan::api_elements::CmdDrawMesh
 static_assert(schema::HasCommandSchema<schema::vulkan::api_elements::CmdDrawMeshTasksIndirectEXT>);
 static_assert(schema::HasCommandSchema<schema::vulkan::api_elements::CmdDrawMeshTasksIndirectCountEXT>);
 
-// Each wrapper names its element, and the trait keyed on that element names the wrapper. The two
-// come from different generators, so a mis-paired line in either cannot pass.
+// Decoded_X::api_element and args::X::api_element, from the struct-decoders and args generators,
+// against binding::DecodedTypeOf, which binding/vulkan_decoded_type.h builds from the inventory. A
+// mis-paired line in either fails here.
 static_assert(std::is_same_v<binding::DecodedTypeOf_t<typename Decoded_StdVideoH264SpsVuiFlags::api_element>, Decoded_StdVideoH264SpsVuiFlags>);
 static_assert(std::is_same_v<binding::DecodedTypeOf_t<typename Decoded_StdVideoH264HrdParameters::api_element>, Decoded_StdVideoH264HrdParameters>);
 static_assert(std::is_same_v<binding::DecodedTypeOf_t<typename Decoded_StdVideoH264SequenceParameterSetVui::api_element>, Decoded_StdVideoH264SequenceParameterSetVui>);
@@ -5694,8 +5695,8 @@ static_assert(std::is_same_v<binding::DecodedTypeOf_t<typename args::CmdDrawMesh
 static_assert(std::is_same_v<binding::DecodedTypeOf_t<typename args::CmdDrawMeshTasksIndirectEXT::api_element>, args::CmdDrawMeshTasksIndirectEXT>);
 static_assert(std::is_same_v<binding::DecodedTypeOf_t<typename args::CmdDrawMeshTasksIndirectCountEXT::api_element>, args::CmdDrawMeshTasksIndirectCountEXT>);
 
-// Cross-generator: the element type on the API element against struct_type on the decoded wrapper,
-// which the struct-decoders generator emits without any knowledge of the schema.
+// The API element's element_type against Decoded_X::struct_type, which the struct-decoders generator
+// writes from the registry name, not from the schema.
 static_assert(std::is_same_v<schema::ApiTypeOf_t<schema::vulkan::api_elements::StdVideoH264SpsVuiFlags>, typename Decoded_StdVideoH264SpsVuiFlags::struct_type>);
 static_assert(std::is_same_v<schema::ApiTypeOf_t<schema::vulkan::api_elements::StdVideoH264HrdParameters>, typename Decoded_StdVideoH264HrdParameters::struct_type>);
 static_assert(std::is_same_v<schema::ApiTypeOf_t<schema::vulkan::api_elements::StdVideoH264SequenceParameterSetVui>, typename Decoded_StdVideoH264SequenceParameterSetVui::struct_type>);
@@ -7044,11 +7045,10 @@ static_assert(std::is_same_v<schema::ApiTypeOf_t<schema::vulkan::api_elements::V
 static_assert(std::is_same_v<schema::ApiTypeOf_t<schema::vulkan::api_elements::VkPhysicalDeviceMeshShaderPropertiesEXT>, typename Decoded_VkPhysicalDeviceMeshShaderPropertiesEXT::struct_type>);
 static_assert(std::is_same_v<schema::ApiTypeOf_t<schema::vulkan::api_elements::VkDrawMeshTasksIndirectCommandEXT>, typename Decoded_VkDrawMeshTasksIndirectCommandEXT::struct_type>);
 
-// Cross-source: the declaration a Field spells against the member the API declares. ApiTypeOf_t rebuilds
-// the declared C type from the element and the declarator, const at each level, a star per Pointer or
-// Array, an extent per FixedArray, and it must equal the member type the compiler laid out. A header
-// revision that changed a member fails here. Structures only: a command parameter has no member to
-// compare against. One kind of member is not comparable and is skipped: the base structures' pNext,
+// Each structure and union member's C++ type against ApiTypeOf_t of its Field's declaration. ApiTypeOf_t
+// rebuilds the C type from the API element and the declarators -- const at each level, a star per Pointer
+// or Array, an extent per FixedArray -- so a header revision that changes a member fails here. Commands
+// are not checked: a parameter has no member to compare against. Skipped: the base structures' pNext,
 // which the header types as the base structure and the schema as the chain.
 static_assert(std::is_same_v<decltype(StdVideoH264SpsVuiFlags::aspect_ratio_info_present_flag), schema::ApiTypeOf_t<schema::vulkan::fields::StdVideoH264SpsVuiFlags::aspect_ratio_info_present_flag::declaration>>);
 static_assert(std::is_same_v<decltype(StdVideoH264SpsVuiFlags::overscan_info_present_flag), schema::ApiTypeOf_t<schema::vulkan::fields::StdVideoH264SpsVuiFlags::overscan_info_present_flag::declaration>>);
@@ -14282,10 +14282,10 @@ static_assert(std::is_same_v<decltype(VkAccelerationStructureGeometryDataKHR::tr
 static_assert(std::is_same_v<decltype(VkAccelerationStructureGeometryDataKHR::aabbs), schema::ApiTypeOf_t<schema::vulkan::fields::VkAccelerationStructureGeometryDataKHR::aabbs::declaration>>);
 static_assert(std::is_same_v<decltype(VkAccelerationStructureGeometryDataKHR::instances), schema::ApiTypeOf_t<schema::vulkan::fields::VkAccelerationStructureGeometryDataKHR::instances::declaration>>);
 
-// An element with a width is as wide as the wire type its binding states: an element narrower than its wire
-// type would compile and desynchronize the stream. size_t is the one exception, 4 or 8 bytes in memory against
-// 8 on the wire, which ValueDecoder converts. A handle and an address are recorded as identifiers of their
-// own width, and text as a run of characters, so neither is compared.
+// sizeof each API element == sizeof its WireTypeOf: an API element narrower than its wire type would
+// compile and desynchronize the stream. Skipped: size_t (4 or 8 bytes in memory, 8 on the wire, which
+// ValueDecoder converts), text, and the kinds with no generated WireTypeOf (handle, funcpointer and
+// opaque are recorded as 64-bit identifiers or addresses; struct and void have no width).
 static_assert(sizeof(schema::ApiTypeOf_t<schema::vulkan::api_elements::DWORD>) == sizeof(binding::WireTypeOf_t<schema::vulkan::api_elements::DWORD>));
 static_assert(sizeof(schema::ApiTypeOf_t<schema::vulkan::api_elements::Double>) == sizeof(binding::WireTypeOf_t<schema::vulkan::api_elements::Double>));
 static_assert(sizeof(schema::ApiTypeOf_t<schema::vulkan::api_elements::EmptyBitvalues>) == sizeof(binding::WireTypeOf_t<schema::vulkan::api_elements::EmptyBitvalues>));
@@ -14885,15 +14885,15 @@ static_assert(sizeof(schema::ApiTypeOf_t<schema::vulkan::api_elements::xcb_visua
 static_assert(sizeof(schema::ApiTypeOf_t<schema::vulkan::api_elements::xcb_window_t>) == sizeof(binding::WireTypeOf_t<schema::vulkan::api_elements::xcb_window_t>));
 static_assert(sizeof(schema::ApiTypeOf_t<schema::vulkan::api_elements::zx_handle_t>) == sizeof(binding::WireTypeOf_t<schema::vulkan::api_elements::zx_handle_t>));
 
-// The encoder captures a refined typedef by its basetype, so a refined element records the same bytes
+// The encoder captures a refined typedef by its basetype, so a refined API element records the same bytes
 // as the primitive it refines.
 static_assert(std::is_same_v<binding::WireTypeOf_t<schema::vulkan::api_elements::VkDeviceAddress>, binding::WireTypeOf_t<schema::vulkan::api_elements::UInt64>>);
 static_assert(std::is_same_v<binding::WireTypeOf_t<schema::vulkan::api_elements::VkDeviceSize>, binding::WireTypeOf_t<schema::vulkan::api_elements::UInt64>>);
 static_assert(std::is_same_v<binding::WireTypeOf_t<schema::vulkan::api_elements::VkSampleMask>, binding::WireTypeOf_t<schema::vulkan::api_elements::UInt32>>);
 
 
-// A API element carries structure_type exactly when the registry gives the structure one: the row property and
-// the API element member are two emissions of that one fact, checked against each other on every row.
+// The HAS_STRUCTURE_TYPE inventory property against the API element's structure_type member: two emissions
+// of one vk.xml fact, checked against each other on every structure and union inventory entry.
 #define GFXRECON_INVENTORY_REQUIRE GFXRECON_INVENTORY_HAS_STRUCTURE_TYPE
 #define GFXRECON_INVENTORY_VISIT_STRUCT(Name) static_assert(schema::TypedStructApiElement<schema::vulkan::api_elements::Name>);
 #define GFXRECON_INVENTORY_VISIT_UNION(Name) GFXRECON_INVENTORY_VISIT_STRUCT(Name)
@@ -14903,7 +14903,7 @@ static_assert(std::is_same_v<binding::WireTypeOf_t<schema::vulkan::api_elements:
 #define GFXRECON_INVENTORY_VISIT_UNION(Name) GFXRECON_INVENTORY_VISIT_STRUCT(Name)
 #include "generated/generated_vulkan_inventory.h"
 
-// The sizes the generator counted, then the relation checked arithmetically.
+// Catalog list sizes against the counts this generator computed.
 constexpr size_t kStructuresCount = util::TypeListSize_v<binding::vulkan::catalog::structures>;
 static_assert(kStructuresCount == 1365);
 constexpr size_t kUnionsCount = util::TypeListSize_v<binding::vulkan::catalog::unions>;
@@ -14911,9 +14911,8 @@ static_assert(kUnionsCount == 12);
 static_assert(util::TypeListSize_v<binding::vulkan::catalog::extensible_structures> == 1144);
 static_assert(util::TypeListSize_v<binding::vulkan::catalog::deep_copyable_structures> == 1136);
 
-// Every enumerated type's API element names its table, and every one but a 64-bit flag-bits type is bound to
-// its API enum. Nothing is bound to the bare integer types that the 64-bit flag-bits and the Flags
-// typedefs are spelled as, which would draw their ToString calls into the enumerant overloads.
+// Each enumerated type's API element refers to its table, and each but a 64-bit flag-bits type is the
+// binding::ApiElementOf of its C enum.
 static_assert(schema::EnumApiElement<schema::vulkan::api_elements::StdVideoAV1ChromaSamplePosition>);
 static_assert(std::is_same_v<binding::ApiElementOf<::StdVideoAV1ChromaSamplePosition>::type, schema::vulkan::api_elements::StdVideoAV1ChromaSamplePosition>);
 static_assert(schema::EnumApiElement<schema::vulkan::api_elements::StdVideoAV1ColorPrimaries>);
@@ -15967,8 +15966,8 @@ static_assert(schema::BitvaluesApiElement<schema::vulkan::api_elements::VkVideoS
 static_assert(schema::BitvaluesApiElement<schema::vulkan::api_elements::VkVideoSessionParametersCreateFlagBitsKHR>);
 static_assert(!schema::BitvaluesApiElement<schema::vulkan::api_elements::VkViewportCoordinateSwizzleNV>);
 
-// A mask typedef's own type is the flags type it names, and is as wide as the bits enum whose values compose
-// it: the typedef's base type against the bits group's bitwidth, two places the registry states one width.
+// Each mask typedef's element_type is its flags_type's, and is as wide as its bits enum: vk.xml states the
+// width twice, in the typedef's base type and in the bits group's bitwidth.
 static_assert(std::is_same_v<schema::vulkan::api_elements::VkAccelerationStructureCreateFlagsKHR::element_type, schema::vulkan::api_elements::VkAccelerationStructureCreateFlagsKHR::flags_type::element_type>);
 static_assert(sizeof(schema::vulkan::api_elements::VkAccelerationStructureCreateFlagsKHR::element_type) == sizeof(schema::vulkan::api_elements::VkAccelerationStructureCreateFlagsKHR::bitvalues::element_type));
 static_assert(std::is_same_v<schema::vulkan::api_elements::VkAccessFlags::element_type, schema::vulkan::api_elements::VkAccessFlags::flags_type::element_type>);
@@ -16302,6 +16301,8 @@ static_assert(sizeof(schema::vulkan::api_elements::VkVideoSessionCreateFlagsKHR:
 static_assert(std::is_same_v<schema::vulkan::api_elements::VkVideoSessionParametersCreateFlagsKHR::element_type, schema::vulkan::api_elements::VkVideoSessionParametersCreateFlagsKHR::flags_type::element_type>);
 static_assert(sizeof(schema::vulkan::api_elements::VkVideoSessionParametersCreateFlagsKHR::element_type) == sizeof(schema::vulkan::api_elements::VkVideoSessionParametersCreateFlagsKHR::bitvalues::element_type));
 
+// No binding::ApiElementOf for uint32_t or uint64_t: every 32-bit mask typedef is uint32_t, and every 64-bit
+// mask and flag-bits typedef is uint64_t, so one C type cannot select one API element.
 static_assert(!binding::ApiTypeWithApiElement<uint32_t>);
 static_assert(!binding::ApiTypeWithApiElement<uint64_t>);
 
@@ -16314,8 +16315,8 @@ static_assert(util::TypeListSize_v<binding::vulkan::catalog::custom_handle_mappi
 static_assert(util::TypeListSize_v<binding::vulkan::catalog::generic_handle_structures> == 5);
 static_assert(util::TypeListSize_v<binding::vulkan::catalog::deep_copy_exclusions> == 10);
 
-// The inventory against the catalog and the model: one count per row category. A row the generator dropped or
-// doubled fails here by count.
+// Inventory entry counts per category against the catalog and this generator's model. An entry the
+// generator dropped or doubled fails here by count.
 #define GFXRECON_INVENTORY_VISIT_STRUCT(...) +1
 constexpr size_t kInventoryStructs = 0
 #include "generated/generated_vulkan_inventory.h"
@@ -16347,9 +16348,8 @@ constexpr size_t kInventoryCommands = 0
 ;
 static_assert(kInventoryCommands == 754);
 
-// The one property with a second source: EXTERNAL comes from the platform list, and a Schema from the members
-// the registry gives, so an external structure has a API element and no Schema of either category, and every other
-// structure and union row has one. Every other property is read back into C++ by a visit and cannot disagree.
+// EXTERNAL against the Schemas: EXTERNAL comes from platform_types.json and a Schema from the members
+// vk.xml gives, so an external structure has no Schema and every other structure and union has one.
 #define GFXRECON_INVENTORY_REQUIRE GFXRECON_INVENTORY_EXTERNAL
 #define GFXRECON_INVENTORY_VISIT_STRUCT(Name) static_assert(!schema::HasSchemaFields<schema::vulkan::api_elements::Name> && !schema::UnionApiElement<schema::vulkan::api_elements::Name>);
 #define GFXRECON_INVENTORY_VISIT_UNION(Name) GFXRECON_INVENTORY_VISIT_STRUCT(Name)

@@ -20,9 +20,11 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// Fill an API structure with synthetic values through its schema. Test-only. Written for the encode oracle
-// comparison that proved the encode inversion; kept for the round trip and any other test that needs every
-// described field populated.
+// Fill writes synthetic values into an API structure by walking its Schema with FillAction. Test-only.
+//
+// FillAction leaves handles, extension chains, opaque and void pointers, unions and structures without Schema Fields at
+// the caller's value: a null handle encodes as the null id with no capture wrapper registered, a chain's node types
+// are known only from sType at run time, and a union's Schema lists Alternatives, not Fields.
 
 #ifndef GFXRECON_TEST_SCHEMA_FILL_H
 #define GFXRECON_TEST_SCHEMA_FILL_H
@@ -75,13 +77,9 @@ class FillContext
 template <typename ApiElement, typename Storage>
 void Fill(FillContext& context, Storage& storage);
 
-// What a test pattern fills by value: an arithmetic type or an enum.
 template <typename T>
 inline constexpr bool IsPatternable_v = std::is_arithmetic_v<T> || std::is_enum_v<T>;
 
-// One Apply per shape; the category decides the value inside. Handles stay null, so no capture wrapper is needed and a
-// handle encodes as the null id. Extension chains stay null. Unions and structures without a schema stay
-// value-initialized.
 class FillAction
 {
   public:

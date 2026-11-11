@@ -105,8 +105,6 @@ from vulkan_struct_handle_wrappers_header_generator import VulkanStructHandleWra
 from vulkan_struct_handle_wrappers_body_generator import VulkanStructHandleWrappersBodyGenerator, VulkanStructHandleWrappersBodyGeneratorOptions
 from vulkan_struct_deep_copy_body_generator import VulkanStructDeepCopyBodyGenerator, VulkanStructDeepCopyBodyGeneratorOptions
 
-# To String
-
 from vulkan_handle_wrapper_util_body_generator import VulkanHandleWrapperUtilBodyGenerator, VulkanHandleWrapperUtilBodyGeneratorOptions
 from vulkan_handle_mapping_util_body_generator import VulkanHandleMappingUtilBodyGenerator, VulkanHandleMappingUtilBodyGeneratorOptions
 from vulkan_state_tracker_debug_util_body_generator import VulkanStateTrackerDebugUtilBodyGenerator, VulkanStateTrackerDebugUtilBodyGeneratorOptions
@@ -326,8 +324,8 @@ def make_gen_opts(args):
         )
     ]
 
-    # Field schema generators. One model, one generated file for each part of it, so that a target includes only
-    # the storage population it uses.
+    # Field schema generators: each writes one file from the model vulkan_schema_generator.py builds, so a target
+    # includes only the files it lists.
     for schema_filename, schema_generator, schema_options, schema_protect in (
         ('generated_vulkan_schema_types.h',
          VulkanSchemaTypesGenerator, VulkanSchemaTypesGeneratorOptions, True),

@@ -54,10 +54,10 @@
 #endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-// Enumerants: one table per enumerated type, in registry order, with the name the API spells. For a flag-bits
-// type the table holds single bits, combined masks and zero alike: lookups go from value to name, so they
-// are not told apart. An alias adds no entry. The type's API element names its table, and each entry
-// names the api_element.
+// Enumerant tables: one per enumerated type, in vk.xml order, with the name the API spells. A flag-bits
+// table holds single bits, combined masks and zero alike: lookups go from value to name, so they are not
+// told apart. An alias adds no entry. Each table is a struct named for its type, holding Enumerant<API element>
+// entries.
 GFXRECON_BEGIN_NAMESPACE(schema)
 GFXRECON_BEGIN_NAMESPACE(vulkan)
 GFXRECON_BEGIN_NAMESPACE(enumerants)
@@ -6177,7 +6177,7 @@ struct VkViewportCoordinateSwizzleNV
     } };
 };
 
-// The bits elements of a mask the registry gives no bits enum: an empty table each.
+// EmptyBitvalues and EmptyBitvalues64 are the empty tables for a mask the registry gives no bits enum.
 struct EmptyBitvalues
 {
     static constexpr std::array<binding::Enumerant<api_elements::EmptyBitvalues>, 0> entries{};

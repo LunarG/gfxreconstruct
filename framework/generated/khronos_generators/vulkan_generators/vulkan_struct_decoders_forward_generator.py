@@ -77,7 +77,8 @@ class VulkanStructDecodersForwardGenerator(VulkanBaseGenerator, KhronosStructDec
         )
 
     def skip_struct_decoder_prototype(self, struct):
-        """Method override. Every decoder is declared by the template in decode/vulkan_decode_struct.h."""
+        """Method override: returns True for every structure, because the template in decode/vulkan_decode_struct.h
+        declares every decoder."""
         return True
 
     def endFile(self):

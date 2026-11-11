@@ -45,16 +45,9 @@
 #include "vk_video/vulkan_video_codec_h265std_encode.h"
 #include "vk_video/vulkan_video_codecs_common.h"
 
-// TARGET-PRIVATE. Include this only from the one implementation header that owns an operation
-// family, and include the whole set of partitions that operation reads. Do not include it from a
-// header other targets pull in.
-//
-// An operation constrains its Apply overloads on these specializations. A translation unit that
-// sees some of them and not others still compiles: the constraints simply answer no, and the same
-// call resolves to a different overload than it does next door. Nothing diagnoses that. Keeping
-// the include in one place is what makes the partial state unreachable -- and the partitions exist
-// to keep this weight out of translation units that do not read it, which spreading the include
-// around also defeats.
+// The MemberPointer specializations for this storage kind: schema::Get and Set for every member, and GetRef for
+// every addressable one. These headers are large; include them only from code that reads members through a
+// Field, the Actions and the schema tests, never from a header other targets include.
 
 #ifdef WIN32
 #ifdef CreateEvent

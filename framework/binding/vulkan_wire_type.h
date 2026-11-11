@@ -20,7 +20,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// The Vulkan WireTypeOf specializations.
+// This header gathers every Vulkan WireTypeOf specialization: the partial specializations in binding/wire_type_of.h
+// and the generated ones in generated/generated_vulkan_wire_types.h. Include it, not either alone.
 
 #ifndef GFXRECON_BINDING_VULKAN_WIRE_TYPE_H
 #define GFXRECON_BINDING_VULKAN_WIRE_TYPE_H

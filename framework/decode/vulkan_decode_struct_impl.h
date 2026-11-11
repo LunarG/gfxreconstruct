@@ -20,29 +20,12 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// DecodeStruct for every structure the schema drives -- the definition.
+// This header defines DecodeStruct. Only a translation unit that instantiates it includes this header:
+// decode/vulkan_struct_decoders.cpp, with the explicit instantiations, and test/test_vulkan_schema.cpp. A translation
+// unit that only calls DecodeStruct includes decode/vulkan_decode_struct.h and links to those instantiations.
 //
-// PRIVATE. One translation unit includes this: decode/vulkan_struct_decoders.cpp, which holds the explicit
-// instantiations. Everything else sees the declaration in
-// decode/vulkan_decode_struct.h and links against those instantiations, reaching no schema, so the next operation
-// family costs one translation unit rather than one per caller.
-//
-// It is a header because the body is API-agnostic: it names no structure and no field, only the API element, the
-// Schema and the Action. Each API's instantiation unit includes it and stamps its own rows, so the body is written
-// once and vulkan_struct_decoders.cpp is the first such unit, not the only one. Folding it into that file would
-// make the second API copy it.
-//
-// Everything generated that the body touches is a dependent name -- the API elements, the Schema specializations,
-// each wrapper's api_element and both member-trait partitions are needed to instantiate, not to parse. So
-// this header could be light. It is not, because two headers it includes deliberately carry their generated
-// content: binding/vulkan_decoded_type.h is the rows, so ApiElementWithDecodedType cannot silently answer no, and
-// vulkan_decode_action.h pulls the member partitions so its overloads cannot re-resolve on a partial set. Both
-// guards exist for other includers, not for this one.
-//
-// That costs nothing here, since the only translation unit that includes this is the one that instantiates, and
-// instantiation needs the content regardless. It would matter if the definition ever had to parse without the
-// generated schema -- compiling the walk against a stub, say -- and at that point splitting each facade into
-// primaries and specializations is two lines rather than a redesign.
+// NOTE: in a translation unit that sees only the declaration, a call on a wrapper missing from those instantiations is
+// a link error (unresolved external), not a compile error.
 
 #ifndef GFXRECON_DECODE_VULKAN_DECODE_STRUCT_IMPL_H
 #define GFXRECON_DECODE_VULKAN_DECODE_STRUCT_IMPL_H

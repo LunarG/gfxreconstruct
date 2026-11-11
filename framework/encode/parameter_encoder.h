@@ -67,9 +67,8 @@ class ParameterEncoder
     // Bound the element count of a fixed-extent array whose registry 'len' names a sibling count member, e.g.
     // VkPhysicalDeviceMemoryProperties::memoryTypes[VK_MAX_MEMORY_TYPES] with len="memoryTypeCount". The count is
     // produced by the driver or application, in the count member's own integer type; a value above the array's
-    // capacity would read past the end of the source array, and a negative one would be taken as a huge count, so
-    // both are clamped and reported. The result is the length an array encoder takes, a size_t no larger than the
-    // capacity; the count's type only decides the comparisons.
+    // capacity would read past the end of the source array, so it is clamped to the capacity, and a negative value,
+    // which a conversion to size_t would make huge, gives 0. Both are logged.
     template <std::integral Count>
     static size_t ClampStaticArrayLength(Count count, size_t capacity, const char* name)
     {
@@ -248,8 +247,8 @@ class ParameterEncoder
     template<typename T>
     void EncodeFlags64Array(const T* arr, size_t len, bool omit_data = false, bool omit_addr = false)                 { EncodeArrayConverted<format::Flags64EncodeType>(arr, len, omit_data, omit_addr); }
 
-    // No omit flags: a bool beside the size_t capacity makes an integer argument ambiguous; add them in a form no integer
-    // selects. capacity is the strnlen bound.
+    // No omit flags: a bool beside the size_t capacity makes an integer argument ambiguous; add them in a form no
+    // integer selects. capacity is the strnlen bound.
     template <typename WireType, format::PointerAttributes kAttribute, typename T>
     void EncodeStringAs(const T* str)
     {
@@ -906,7 +905,6 @@ class ParameterEncoder
         }
     }
 
-    // The shared body of EncodeBasicString; string_length is the length rule the caller chose.
     template <typename CharT, typename EncodeT, format::PointerAttributes EncodeAttrib, typename StringLength>
     void EncodeBasicStringImpl(const CharT* str, bool omit_data, bool omit_addr, StringLength string_length)
     {

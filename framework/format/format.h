@@ -34,6 +34,7 @@
 
 #include <cinttypes>
 #include <concepts>
+#include <limits>
 #include <type_traits>
 
 #define GFXRECON_FOURCC GFXRECON_MAKE_FOURCC('G', 'F', 'X', 'R')
@@ -65,8 +66,7 @@ typedef uint16_t WCharEncodeType; // Encoding type for LPCWSTR (UTF-16) strings.
 typedef uint32_t FormatEncodeType;
 typedef uint32_t D3D_FEATURE_LEVELEncodeType;
 
-// The primitives are recorded as themselves. They are named here anyway so that every logical category below selects a
-// type from this list, rather than some selecting a typedef and others naming a C type directly.
+// The integral types are recorded as themselves. The typedefs exist so WireTypeOf never names a bare C type.
 typedef int8_t   Int8EncodeType;
 typedef int16_t  Int16EncodeType;
 typedef int32_t  Int32EncodeType;
@@ -75,6 +75,10 @@ typedef uint8_t  UInt8EncodeType;
 typedef uint16_t UInt16EncodeType;
 typedef uint32_t UInt32EncodeType;
 typedef uint64_t UInt64EncodeType;
+
+// The capture format assumes float and double as IEEE 754 binary32 and binary64.
+static_assert(std::numeric_limits<float>::is_iec559 && sizeof(float) == 4, "float must be IEEE 754 binary32");
+static_assert(std::numeric_limits<double>::is_iec559 && sizeof(double) == 8, "double must be IEEE 754 binary64");
 typedef float    FloatEncodeType;
 typedef double   DoubleEncodeType;
 
@@ -93,8 +97,8 @@ static_assert(sizeof(CharEncodeType) == 1);
 static_assert(sizeof(WCharEncodeType) == 2);
 static_assert(sizeof(HandleEncodeType) == 8);
 
-// A handle ID is the capture-file identity of an API handle. It is currently a typedef of the handle wire type, so
-// an operation may record one as the other.
+// HandleId is the capture-file identity of an API handle. It is HandleEncodeType, so an Action may write a HandleId as
+// a handle's wire type; this assertion fails to compile if the two diverge.
 static_assert(std::is_same_v<HandleId, HandleEncodeType>);
 
 const uint32_t kCompressedBlockTypeBit    = 0x80000000;

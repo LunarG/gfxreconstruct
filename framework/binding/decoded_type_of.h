@@ -20,18 +20,15 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// The decoded-type binding: an API element, a structure's API element or a command API element, to the type
-// decode represents it with. Which wrapper represents an API element is the C++ back end's decision, so this is a
-// binding and not a schema fact. The other direction needs no binding: a decoded wrapper names its API element as
-// api_element.
+// DecodedTypeOf maps an API element, or a command API element, to the type decode stores it in: a Decoded_ wrapper or
+// an args structure. That type is decode's choice, not the registry's, so it is a binding, not an API element member.
+// The other direction needs no binding: a wrapper holds its API element as api_element.
 //
-// This header declares the binding and nothing more. An API's rows are a visitor invoked across its inventory in
-// binding/<api>_decoded_type.h, which is the header API code includes; with this one alone, ApiElementWithDecodedType
-// answers no for every API element. A translation unit that evaluates the concept on a concrete type without the
-// rows resolves a constrained call differently from one that has them, and nothing diagnoses that, since a
-// specialization declared after a use that implicitly instantiated the primary is ill-formed, no diagnostic required
-// (C++20 standard,
-// [temp.expl.spec]/7). The API rows header is the include.
+// This header declares the template and nothing more. An API's specializations are an inventory visitor in
+// binding/<api>_decoded_type.h, which is the header API code includes; with this header alone,
+// ApiElementWithDecodedType is false for every API element.
+// NOTE: a translation unit that evaluates ApiElementWithDecodedType before including binding/<api>_decoded_type.h
+// gets false, silently, and the compiler is not required to diagnose the late specialization.
 
 #ifndef GFXRECON_BINDING_DECODED_TYPE_OF_H
 #define GFXRECON_BINDING_DECODED_TYPE_OF_H
@@ -44,8 +41,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(binding)
 
-// Keyed on an API element or a command API element. Declared, not defined, so an absent row is an incomplete
-// type and ApiElementWithDecodedType reads as unsatisfied.
+// Keyed on an API element or a command API element. Undefined: an API element without a specialization is an
+// incomplete type, and ApiElementWithDecodedType is false for it.
 template <typename ApiElement>
 struct DecodedTypeOf;
 
@@ -55,13 +52,10 @@ concept ApiElementWithDecodedType = requires
     typename DecodedTypeOf<ApiElement>::type;
 };
 
-// The concrete Decoded_Vk* and args:: declarations remain real types. This alias provides generic access without
-// changing their type identity, linkage, or forward declarations.
 template <ApiElementWithDecodedType ApiElement>
 using DecodedTypeOf_t = typename DecodedTypeOf<ApiElement>::type;
 
-// The Decoded_ family. Declaration headers constrain on this concept, decode/vulkan_decode_struct.h, so it reads no
-// generated content. No ApiElementOf entry exists for a wrapper; an operation reaches the schema through api_element.
+// DecodedWrapper is the concept a Decoded_ wrapper satisfies.
 template <typename Wrapper>
 concept DecodedWrapper = requires(Wrapper& wrapper)
 {

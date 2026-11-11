@@ -30,11 +30,9 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-// The schema drives every structure decoder, and this is the only translation unit that compiles the walk: one
-// explicit instantiation per structure, a visitor invoked across the inventory, forbidding the structures whose
-// decoder is hand-written.
-// A function visitor: it yields an explicit instantiation, a definition, so this lives in one .cpp: every other
-// translation unit compiles against the declaration and links here (C++20 standard, [temp.explicit]).
+// Instantiates DecodeStruct once per inventory structure, except the CUSTOM_DECODE ones, whose hand-written overloads
+// are declared in decode/custom_vulkan_struct_decoders_forward.h. A translation unit that includes only
+// decode/vulkan_decode_struct.h links to these instantiations.
 #define GFXRECON_INVENTORY_FORBID GFXRECON_INVENTORY_CUSTOM_DECODE
 #define GFXRECON_INVENTORY_VISIT_STRUCT(Name) \
     template size_t DecodeStruct<Decoded_##Name>(const uint8_t*, size_t, Decoded_##Name*);

@@ -20,10 +20,14 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// The Vulkan catalog: the inventory read back into C++. The inventory carries back-end facts as row properties, so
-// anything that reads it is binding, registry-derived lists included; the inventory's banner says which property
-// is which. Each list and the trait is a visitor invoked across the inventory, so it is a property read back and
-// cannot disagree with it. The checks file asserts each list's size against the generator's count.
+// The Vulkan catalog reads the API element inventory, generated/generated_vulkan_inventory.h, back into C++: in
+// namespace catalog, a TypeList of API elements per inventory property. Each list is the property read back, so it
+// cannot disagree with the inventory; the inventory's banner lists each property. Only structures and unions carry
+// properties.
+//
+// To add a list, write a block like those below: define GFXRECON_INVENTORY_REQUIRE or GFXRECON_INVENTORY_FORBID as
+// needed and the visit macros, then BEGIN, the #include, and END. The #include undefines the visit, REQUIRE and FORBID
+// macros, so each block starts clean.
 
 #ifndef GFXRECON_BINDING_VULKAN_CATALOG_H
 #define GFXRECON_BINDING_VULKAN_CATALOG_H
@@ -39,38 +43,25 @@ GFXRECON_BEGIN_NAMESPACE(vulkan)
 
 GFXRECON_BEGIN_NAMESPACE(catalog)
 
-// A list visitor: it yields one TypeList entry, a type, so this lives in a header.
-
-// The structures and unions from which a handle is reachable through the fields: a handle member, an extension
-// chain, which may carry anything, or a member that reaches one. The generator computes it from the member list,
-// the same facts the Fields are generated from, and the MAY_REACH_HANDLES property is the only place it is stated.
-#define GFXRECON_INVENTORY_REQUIRE GFXRECON_INVENTORY_MAY_REACH_HANDLES
-#define GFXRECON_INVENTORY_VISIT_STRUCT(Name) GFXRECON_INVENTORY_TYPE_LIST_ENTRY(schema::vulkan::api_elements::Name)
-#define GFXRECON_INVENTORY_VISIT_UNION(Name) GFXRECON_INVENTORY_VISIT_STRUCT(Name)
-GFXRECON_INVENTORY_TYPE_LIST_BEGIN(may_reach_handles_structures)
-#include "generated/generated_vulkan_inventory.h"
-GFXRECON_INVENTORY_TYPE_LIST_END
-
-// Every structure API element.
 #define GFXRECON_INVENTORY_VISIT_STRUCT(Name) GFXRECON_INVENTORY_TYPE_LIST_ENTRY(schema::vulkan::api_elements::Name)
 GFXRECON_INVENTORY_TYPE_LIST_BEGIN(structures)
 #include "generated/generated_vulkan_inventory.h"
 GFXRECON_INVENTORY_TYPE_LIST_END
 
-// Every union API element.
 #define GFXRECON_INVENTORY_VISIT_UNION(Name) GFXRECON_INVENTORY_TYPE_LIST_ENTRY(schema::vulkan::api_elements::Name)
 GFXRECON_INVENTORY_TYPE_LIST_BEGIN(unions)
 #include "generated/generated_vulkan_inventory.h"
 GFXRECON_INVENTORY_TYPE_LIST_END
 
-// The structures a pNext chain can hold: every API element with a structure_type. No union has one.
+// extensible_structures lists every structure with a structure_type; no union has one.
 #define GFXRECON_INVENTORY_REQUIRE GFXRECON_INVENTORY_HAS_STRUCTURE_TYPE
 #define GFXRECON_INVENTORY_VISIT_STRUCT(Name) GFXRECON_INVENTORY_TYPE_LIST_ENTRY(schema::vulkan::api_elements::Name)
 GFXRECON_INVENTORY_TYPE_LIST_BEGIN(extensible_structures)
 #include "generated/generated_vulkan_inventory.h"
 GFXRECON_INVENTORY_TYPE_LIST_END
 
-// The structures a platform header defines and the registry only references: an API element and no Schema.
+// external_structures lists the structures a platform header defines and the registry only references: each has an
+// API element and no Schema.
 #define GFXRECON_INVENTORY_REQUIRE GFXRECON_INVENTORY_EXTERNAL
 #define GFXRECON_INVENTORY_VISIT_STRUCT(Name) GFXRECON_INVENTORY_TYPE_LIST_ENTRY(schema::vulkan::api_elements::Name)
 #define GFXRECON_INVENTORY_VISIT_UNION(Name) GFXRECON_INVENTORY_VISIT_STRUCT(Name)
@@ -78,7 +69,7 @@ GFXRECON_INVENTORY_TYPE_LIST_BEGIN(external_structures)
 #include "generated/generated_vulkan_inventory.h"
 GFXRECON_INVENTORY_TYPE_LIST_END
 
-// The structures whose encoder is hand-written.
+// custom_encode_structures lists the structures whose encoder is hand-written.
 #define GFXRECON_INVENTORY_REQUIRE GFXRECON_INVENTORY_CUSTOM_ENCODE
 #define GFXRECON_INVENTORY_VISIT_STRUCT(Name) GFXRECON_INVENTORY_TYPE_LIST_ENTRY(schema::vulkan::api_elements::Name)
 #define GFXRECON_INVENTORY_VISIT_UNION(Name) GFXRECON_INVENTORY_VISIT_STRUCT(Name)
@@ -86,7 +77,7 @@ GFXRECON_INVENTORY_TYPE_LIST_BEGIN(custom_encode_structures)
 #include "generated/generated_vulkan_inventory.h"
 GFXRECON_INVENTORY_TYPE_LIST_END
 
-// The structures whose decoder is hand-written.
+// custom_decode_structures lists the structures whose decoder is hand-written.
 #define GFXRECON_INVENTORY_REQUIRE GFXRECON_INVENTORY_CUSTOM_DECODE
 #define GFXRECON_INVENTORY_VISIT_STRUCT(Name) GFXRECON_INVENTORY_TYPE_LIST_ENTRY(schema::vulkan::api_elements::Name)
 #define GFXRECON_INVENTORY_VISIT_UNION(Name) GFXRECON_INVENTORY_VISIT_STRUCT(Name)
@@ -94,7 +85,7 @@ GFXRECON_INVENTORY_TYPE_LIST_BEGIN(custom_decode_structures)
 #include "generated/generated_vulkan_inventory.h"
 GFXRECON_INVENTORY_TYPE_LIST_END
 
-// The structures whose unwrap and map bodies are hand-written, or absent.
+// custom_handle_mapping_structures lists the structures whose unwrap and map bodies are hand-written, or absent.
 #define GFXRECON_INVENTORY_REQUIRE GFXRECON_INVENTORY_CUSTOM_HANDLE_MAPPING
 #define GFXRECON_INVENTORY_VISIT_STRUCT(Name) GFXRECON_INVENTORY_TYPE_LIST_ENTRY(schema::vulkan::api_elements::Name)
 #define GFXRECON_INVENTORY_VISIT_UNION(Name) GFXRECON_INVENTORY_VISIT_STRUCT(Name)
@@ -102,7 +93,8 @@ GFXRECON_INVENTORY_TYPE_LIST_BEGIN(custom_handle_mapping_structures)
 #include "generated/generated_vulkan_inventory.h"
 GFXRECON_INVENTORY_TYPE_LIST_END
 
-// The structures with a runtime-typed handle member: an integer whose sibling object type names the handle type.
+// generic_handle_structures lists the structures with a runtime-typed handle member: an integer whose sibling object
+// type member identifies the handle type.
 #define GFXRECON_INVENTORY_REQUIRE GFXRECON_INVENTORY_GENERIC_HANDLE
 #define GFXRECON_INVENTORY_VISIT_STRUCT(Name) GFXRECON_INVENTORY_TYPE_LIST_ENTRY(schema::vulkan::api_elements::Name)
 #define GFXRECON_INVENTORY_VISIT_UNION(Name) GFXRECON_INVENTORY_VISIT_STRUCT(Name)
@@ -110,7 +102,7 @@ GFXRECON_INVENTORY_TYPE_LIST_BEGIN(generic_handle_structures)
 #include "generated/generated_vulkan_inventory.h"
 GFXRECON_INVENTORY_TYPE_LIST_END
 
-// The structures vulkan_struct_deep_copy does not handle: structures-deep-copy in the blacklists file.
+// deep_copy_exclusions lists the structures vulkan_struct_deep_copy does not handle.
 #define GFXRECON_INVENTORY_REQUIRE GFXRECON_INVENTORY_DEEP_COPY_EXCLUDED
 #define GFXRECON_INVENTORY_VISIT_STRUCT(Name) GFXRECON_INVENTORY_TYPE_LIST_ENTRY(schema::vulkan::api_elements::Name)
 #define GFXRECON_INVENTORY_VISIT_UNION(Name) GFXRECON_INVENTORY_VISIT_STRUCT(Name)
@@ -118,7 +110,7 @@ GFXRECON_INVENTORY_TYPE_LIST_BEGIN(deep_copy_exclusions)
 #include "generated/generated_vulkan_inventory.h"
 GFXRECON_INVENTORY_TYPE_LIST_END
 
-// What vulkan_struct_deep_copy_stype dispatches over: the extensible structures less the exclusions.
+// deep_copyable_structures lists the extensible structures that are not deep-copy exclusions.
 #define GFXRECON_INVENTORY_REQUIRE GFXRECON_INVENTORY_HAS_STRUCTURE_TYPE
 #define GFXRECON_INVENTORY_FORBID GFXRECON_INVENTORY_DEEP_COPY_EXCLUDED
 #define GFXRECON_INVENTORY_VISIT_STRUCT(Name) GFXRECON_INVENTORY_TYPE_LIST_ENTRY(schema::vulkan::api_elements::Name)
@@ -127,29 +119,6 @@ GFXRECON_INVENTORY_TYPE_LIST_BEGIN(deep_copyable_structures)
 GFXRECON_INVENTORY_TYPE_LIST_END
 
 GFXRECON_END_NAMESPACE(catalog)
-
-// Membership, as a predicate on an API element: one base-class lookup each.
-template <typename Element>
-inline constexpr bool MayReachHandles_v = util::TypeListContains_v<catalog::may_reach_handles_structures, Element>;
-
-template <typename Element>
-inline constexpr bool IsExternal_v = util::TypeListContains_v<catalog::external_structures, Element>;
-
-template <typename Element>
-inline constexpr bool IsCustomEncode_v = util::TypeListContains_v<catalog::custom_encode_structures, Element>;
-
-template <typename Element>
-inline constexpr bool IsCustomDecode_v = util::TypeListContains_v<catalog::custom_decode_structures, Element>;
-
-template <typename Element>
-inline constexpr bool IsCustomHandleMapping_v =
-    util::TypeListContains_v<catalog::custom_handle_mapping_structures, Element>;
-
-template <typename Element>
-inline constexpr bool HasGenericHandle_v = util::TypeListContains_v<catalog::generic_handle_structures, Element>;
-
-template <typename Element>
-inline constexpr bool IsDeepCopyExcluded_v = util::TypeListContains_v<catalog::deep_copy_exclusions, Element>;
 
 GFXRECON_END_NAMESPACE(vulkan)
 GFXRECON_END_NAMESPACE(binding)

@@ -47,6 +47,9 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+// The args structures of the commands with a hand-written decoder. Each keeps the generated shape: the MemberPointer
+// specializations in generated/generated_vulkan_schema_decoded_command_members.h read its members by name.
 GFXRECON_BEGIN_NAMESPACE(args)
 
 struct UpdateDescriptorSetWithTemplate

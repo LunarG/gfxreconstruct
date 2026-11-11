@@ -107,8 +107,9 @@ class VulkanReplayConsumerBodyGenerator(
 
 
     def write_typed_struct_allocation(self):
-        """The output structure for a parameter declared VkBaseOutStructure*: the chain initializer allocates by
-        sType and walks the chain, so the captured structure is handed to it as the chain of a stand-in head."""
+        """Writes AllocateOutputTypedStruct, which allocates the output structure for a parameter declared
+        VkBaseOutStructure*. InitializeOutputStructPNextImpl already allocates by sType and walks the chain, so the
+        captured structure is handed to it as the chain of a stand-in head."""
         self.newline()
         write('VkBaseOutStructure* AllocateOutputTypedStruct(const TypedStructDecoder& decoder)', file=self.outFile)
         write('{', file=self.outFile)
@@ -121,7 +122,7 @@ class VulkanReplayConsumerBodyGenerator(
         """Method override."""
         api_data = self.get_api_data()
 
-        # Defined after the bodies, beside the extension-chain initializer it calls.
+        # Declared here and defined after the bodies, beside the extension-chain initializer it calls.
         write('VkBaseOutStructure* AllocateOutputTypedStruct(const TypedStructDecoder& decoder);', file=self.outFile)
         self.newline()
 

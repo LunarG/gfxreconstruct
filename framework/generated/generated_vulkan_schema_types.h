@@ -58,12 +58,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(schema)
 
-// API elements. An API element carries the API's own type for one named thing in the API and the registry's
-// category word for it. It carries no wire type and no decoded representation: those are bindings on the
-// element, binding::WireTypeOf and binding::DecodedTypeOf.
+// API elements: one per type referenced by the schema. An API element carries its name, the
+// type the Vulkan headers declare (element_type) and the registry's category word for it. It
+// carries no wire type and no decoded type: those are bindings, binding::WireTypeOf and
+// binding::DecodedTypeOf.
 GFXRECON_BEGIN_NAMESPACE(vulkan)
 
-// The enumerant tables, defined in generated_vulkan_schema_enumerants.h. An API element names its own.
+// The enumerant tables, defined in generated_vulkan_schema_enumerants.h. Each enumerated API element refers to its own.
 GFXRECON_BEGIN_NAMESPACE(enumerants)
 struct StdVideoAV1ChromaSamplePosition;
 struct StdVideoAV1ColorPrimaries;
@@ -425,8 +426,9 @@ struct EmptyBitvalues64;
 GFXRECON_END_NAMESPACE(enumerants)
 
 GFXRECON_BEGIN_NAMESPACE(api_elements)
-// Platform typedefs with an element of their own, typed as the platform header spells them; the
-// category is that of the type format/platform_types.h substitutes for each: AHardwareBuffer, ANativeWindow, CAMetalLayer, DWORD, Display, GgpFrameToken, GgpStreamDescriptor, HANDLE, HINSTANCE, HMONITOR, HWND, IDirectFB, IDirectFBSurface, LPCWSTR, RROutput, VisualID, VkRemoteAddressNV, Window, _screen_context, _screen_window, wl_display, wl_surface, xcb_connection_t, xcb_visualid_t, xcb_window_t, zx_handle_t.
+// Platform typedefs (platform_types.json and REPLACE_TYPE): each has an API element named and
+// typed as the platform header spells it. Its category is Opaque when the substituted base type
+// is void, else the substituted type's category, e.g. Scalar for DWORD.
 struct AHardwareBuffer;
 struct ANativeWindow;
 struct CAMetalLayer;
@@ -4551,8 +4553,8 @@ struct zx_handle_t : ApiElementScalar<"zx_handle_t", ::zx_handle_t> {};
 GFXRECON_END_NAMESPACE(api_elements)
 GFXRECON_END_NAMESPACE(vulkan)
 
-// Command api_elements. A command API element is a schema key and a binding key. It carries no members of its own
-// until command piloting, or an operation over commands, needs one.
+// Command API elements: one per command, named for the command without its vk prefix. Each is
+// the key for the command's Schema, binding::DecodedTypeOf and binding::CallId, and has no members.
 GFXRECON_BEGIN_NAMESPACE(vulkan)
 GFXRECON_BEGIN_NAMESPACE(api_elements)
 struct CreateInstance {};

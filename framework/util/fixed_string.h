@@ -20,10 +20,9 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// A string literal as a non-type template argument. C++20 admits a class object as a template argument when the
-// class is structural, [temp.param]/7: every base and non-static data member public, non-mutable, and itself of a
-// structural type. The characters are copied into a public array, which is structural, so Field<"pNext", ...> names
-// a distinct type for each spelling and two equal spellings name the same type.
+// FixedString carries a string literal as a non-type template argument, which the literal itself cannot be.
+// NOTE: MUST NOT make data private or mutable -- a class object is a template argument only when the class is
+// structural, every base and non-static data member public and non-mutable ([temp.param]/7).
 
 #ifndef GFXRECON_UTIL_FIXED_STRING_H
 #define GFXRECON_UTIL_FIXED_STRING_H
@@ -49,7 +48,7 @@ struct FixedString
         }
     }
 
-    // The characters without the terminator.
+    // Returns the characters without the terminator.
     constexpr std::string_view view() const { return std::string_view(data, N - 1); }
 };
 

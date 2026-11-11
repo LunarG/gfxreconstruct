@@ -68,9 +68,8 @@ struct IsByteEquivalent : ExactTypeMatchesAny<std::remove_cv_t<T>, std::byte, ch
 template <typename T>
 inline constexpr bool IsByteEquivalent_v = IsByteEquivalent<T>::value;
 
-// Create a pointer type to Specific that has the same constness as Generic. std::negation_v rather than a
-// parenthesized !: certain versions of clang-format (14 is known) glue the token after a parenthesized constraint
-// onto it.
+// CopyPointerConst yields a pointer to Specific with the constness of what Generic points at. std::negation_v rather
+// than a parenthesized !: clang-format 14, at least, glues the token after a parenthesized constraint onto it.
 template <typename Generic, typename Specific>
 requires std::is_pointer_v<Generic> && std::negation_v<std::is_pointer<Specific>>
 struct CopyPointerConst

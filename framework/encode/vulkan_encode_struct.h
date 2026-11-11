@@ -20,22 +20,20 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// The one EncodeStruct declaration: a function template over every Vulkan structure the schema describes, in
-// place of one prototype per structure. The generated struct-encoders header includes this one, so a caller may
-// include either.
+// This header declares the EncodeStruct template, one declaration for every schema-driven Vulkan structure.
+// generated/generated_vulkan_struct_encoders.h includes it, so a caller may include either.
 //
-// The definition is in encode/vulkan_encode_struct_impl.h, which is private to the one translation unit that
-// instantiates it.
+// encode/vulkan_encode_struct_impl.h defines the template; only encode/vulkan_struct_encoders.cpp, which holds the
+// explicit instantiations, includes it.
 
 #ifndef GFXRECON_ENCODE_VULKAN_ENCODE_STRUCT_H
 #define GFXRECON_ENCODE_VULKAN_ENCODE_STRUCT_H
 
-// Nothing in this file uses the custom header. A structure with a hand-written EncodeStruct is taken out of the
-// template by overload resolution, which prefers the non-template overload only where it is declared: a call from
-// inside a template finds non-dependent candidates at the point of definition and dependent ones through
-// argument-dependent lookup, which adds nothing for a global C structure (C++20 standard, [temp.dep.candidate],
-// [basic.lookup.argdep]). Including the custom header here declares those overloads wherever the template is, so a
-// caller of this header alone cannot get the template for such a structure. There is no list of such structures.
+// NOTE: MUST NOT remove as unused -- nothing in this file uses it, but it declares the hand-written EncodeStruct
+// overloads wherever the template is declared. A call inside a template sees only the overloads declared before the
+// template's definition ([temp.dep.candidate]); argument-dependent lookup adds none for a global C structure
+// ([basic.lookup.argdep]). Without it, a call on a CUSTOM_ENCODE structure picks the template, which has no
+// instantiation for it, and fails to link.
 #include "encode/custom_vulkan_struct_encoders.h"
 #include "util/defines.h"
 

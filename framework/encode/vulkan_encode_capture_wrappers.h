@@ -20,12 +20,10 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// A handle's API element to its capture wrapper. The design places this fact on the API element as
-// capture_wrapper_type; naming an encode-side wrapper from the public types header would pull the wrapper headers
-// into every includer, so it is an encode-private trait keyed on the API element instead. The rows are a visitor
-// invoked across the inventory below, one per handle API element, named by the base generator's rule: the handle name
-// without its Vk prefix, plus Wrapper. Making the wrappers themselves the specializations stays deferred (findings,
-// OPT-2).
+// CaptureWrapperOf maps a handle's API element to its capture wrapper, vulkan_wrappers::<Stem>Wrapper, where Stem is
+// the handle name without its Vk prefix. The inventory visitor below emits one specialization per handle. It is an
+// encode-only trait, not a member of the API element: naming the wrappers in generated_vulkan_schema_types.h would
+// pull encode/vulkan_handle_wrappers.h into every includer.
 
 #ifndef GFXRECON_ENCODE_VULKAN_ENCODE_CAPTURE_WRAPPERS_H
 #define GFXRECON_ENCODE_VULKAN_ENCODE_CAPTURE_WRAPPERS_H
@@ -40,7 +38,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-// Declared, not defined, so an absent row is an incomplete type and ApiElementWithCaptureWrapper reads as unsatisfied.
+// Declared, not defined: for a handle API element without a specialization, ApiElementWithCaptureWrapper is false, and
+// no EncoderAdapter handle overload accepts its Field.
 template <typename ApiType>
 struct CaptureWrapperOf;
 
@@ -53,8 +52,6 @@ concept ApiElementWithCaptureWrapper = requires
 template <ApiElementWithCaptureWrapper ApiType>
 using CaptureWrapperOf_t = typename CaptureWrapperOf<ApiType>::type;
 
-// One row per mapped handle type. The static_assert holds the row to the API element: the wrapper named must wrap
-// the handle type the API element describes.
 #define GFXRECON_VULKAN_CAPTURE_WRAPPER_OF(Handle, Wrapper)                                                        \
     template <>                                                                                                    \
     struct CaptureWrapperOf<schema::vulkan::api_elements::Handle>                                                  \
@@ -64,7 +61,6 @@ using CaptureWrapperOf_t = typename CaptureWrapperOf<ApiType>::type;
                       "The wrapper's handle type must be the API element's element_type");                         \
     }
 
-// A struct visitor: it yields a specialization, a type, so this lives in a header.
 #define GFXRECON_INVENTORY_VISIT_HANDLE(Name, Stem) GFXRECON_VULKAN_CAPTURE_WRAPPER_OF(Name, Stem##Wrapper);
 #include "generated/generated_vulkan_inventory.h"
 

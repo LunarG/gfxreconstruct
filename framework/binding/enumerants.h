@@ -20,9 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// The lookup over an enumerant table. The tables are generated schema content, one per enumerated type, each holding
-// only entries; an entry names the type's API element, which gives the value type and the type's name. The
-// index is built from entries here, at compile time.
+// The lookup over an enumerant table: an `entries` array of Enumerant<ApiElement>.
 #ifndef GFXRECON_BINDING_ENUMERANTS_H
 #define GFXRECON_BINDING_ENUMERANTS_H
 
@@ -39,21 +37,21 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(binding)
 
-// One enumerant of the type Element describes: its value and the name the API spells it with.
+// Enumerant holds one enumerant of the type Element describes: its value and the name the API spells it with.
 template <typename Element>
 struct Enumerant
 {
-    using descriptor = Element;
+    using api_element = Element;
 
     typename Element::element_type value;
     std::string_view                  name;
 };
 
-// The API element of the type whose enumerants Table holds.
+// EnumerantApiElementOf_t is the API element of the type whose enumerants Table holds.
 template <typename Table>
-using EnumerantApiElementOf_t = typename std::remove_cv_t<decltype(Table::entries)>::value_type::descriptor;
+using EnumerantApiElementOf_t = typename std::remove_cv_t<decltype(Table::entries)>::value_type::api_element;
 
-// The sorted index over Table::entries; a position found through it reads the entry it came from.
+// EnumerantLookup holds the sorted index over Table::entries; two entries of one value fail to compile here.
 template <typename Table>
 struct EnumerantLookup
 {
@@ -67,7 +65,7 @@ struct EnumerantLookup
                                   [](const Enumerant<EnumerantApiElementOf_t<Table>>& entry) { return entry.value; } };
 };
 
-// The name of an enumerant in Table, or an empty view when value is not one.
+// Returns the name of an enumerant in Table, or an empty view when value is not one.
 template <typename Table>
 constexpr std::string_view NameIn(typename EnumerantApiElementOf_t<Table>::element_type value)
 {
@@ -76,7 +74,6 @@ constexpr std::string_view NameIn(typename EnumerantApiElementOf_t<Table>::eleme
     return (position == Lookup::Index::kMiss) ? std::string_view{} : Table::entries[position].name;
 }
 
-// The table of an enum bound to an enumerated API element.
 template <typename Enum>
 concept EnumApiType = ApiTypeWithApiElement<Enum> && schema::EnumApiElement<ApiElementOf_t<Enum>>;
 

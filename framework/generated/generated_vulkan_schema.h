@@ -56,8 +56,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(schema)
 
-// Schemas. A structure keys on its API element and a command on its command api_element, which is the
-// same key the decoded-type binding uses, so one spelling reaches both.
+// A structure's Fields are the TypeList in the Schema specialization for its API element, in API order. A command's
+// are the same, ending with its Return Field. A union's Schema lists Alternatives instead.
 
 template <>
 struct Schema<vulkan::api_elements::StdVideoH264SpsVuiFlags>

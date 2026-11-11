@@ -20,9 +20,10 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// The type an API element is encoded as, e.g. format::DeviceSizeEncodeType for VkDeviceSize. The scalar and enum
-// specializations of an API are generated into generated/generated_<api>_wire_types.h, which
-// binding/<api>_wire_type.h includes; the partial specializations below cover bitmask, handle, funcpointer and opaque.
+// WireTypeOf is the type an API element is encoded as in the capture file, e.g. format::DeviceSizeEncodeType for
+// VkDeviceSize. The scalar, enum and text specializations are generated into generated/generated_<api>_wire_types.h,
+// which binding/<api>_wire_type.h includes; the partial specializations below cover bitmask, handle, funcpointer and
+// opaque. To change how a type is recorded, change its specialization: the Actions only read WireTypeOf_t.
 
 #ifndef GFXRECON_BINDING_WIRE_TYPE_OF_H
 #define GFXRECON_BINDING_WIRE_TYPE_OF_H
@@ -34,7 +35,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(binding)
 
-// Declared and not defined: an API element without a specialization is an incomplete type where it is read.
+// Undefined: an API element without a specialization is an incomplete type where WireTypeOf_t reads it.
 template <schema::ApiElement Element>
 requires schema::ScalarApiElement<Element> || schema::TextApiElement<Element> || schema::IdentifierApiElement<Element>
 struct WireTypeOf;

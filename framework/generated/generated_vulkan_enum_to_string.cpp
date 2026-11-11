@@ -545,7 +545,8 @@ template <> std::string ToString<VkVideoSessionParametersCreateFlagBitsKHR>(cons
 template <> std::string ToString<VkVideoSessionParametersCreateFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t) { return detail::EnumerantMaskToString<schema::vulkan::enumerants::VkVideoSessionParametersCreateFlagBitsKHR>(vkFlags); }
 template <> std::string ToString<VkViewportCoordinateSwizzleNV>(const VkViewportCoordinateSwizzleNV& value, ToStringFlags, uint32_t, uint32_t) { return detail::EnumerantToString<schema::vulkan::enumerants::VkViewportCoordinateSwizzleNV>(value); }
 
-// The 64-bit flag-bits types, by api_element: the bits API element names one enumerant, the typedef's expands a mask.
+// ToString<bits API element>(VkFlags64) returns the name of one bit. ToString<mask API element>(VkFlags64) returns the
+// names of all set bits joined with '|', or the zero value's name when none is set.
 template std::string ToString<schema::vulkan::api_elements::VkAccessFlagBits2>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
 template std::string ToString<schema::vulkan::api_elements::VkAccessFlags2>(VkFlags64, ToStringFlags, uint32_t, uint32_t);
 template std::string ToString<schema::vulkan::api_elements::VkAccessFlagBits3KHR>(VkFlags64, ToStringFlags, uint32_t, uint32_t);

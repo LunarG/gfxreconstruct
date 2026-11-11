@@ -20,7 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// The pNext encoder's dispatch over the schema's extensible-structure catalog.
+// This file tests EncodePNextStruct's dispatch over binding::vulkan::catalog::extensible_structures.
 
 #include <catch2/catch.hpp>
 
@@ -45,10 +45,10 @@ namespace
 using namespace gfxrecon;
 } // namespace
 
-// The pNext encoder's dispatch: for every structure the chain can hold, the entry point finds the node by its sType
-// and encodes it as EncodeStructPtr of that structure does, byte for byte. A zero-initialized instance with its
-// sType set is enough to tell the structures apart and needs no handles registered; the per-structure encoding is
-// proven elsewhere, this proves the dispatch reaches it.
+// Checks that EncodePNextStruct writes the bytes EncodeStructPtr writes for every structure in the catalog, and that
+// StructureTypeIndex finds its sType; a structure dispatched to the wrong encoder, or not at all, fails the compare.
+// Each structure is zero-initialized with its sType set: enough to tell the structures apart, with no handles to
+// register. Per-structure encoding is tested in test_vulkan_schema.cpp.
 TEST_CASE("EncodePNextStruct dispatches every extensible structure to its encoder", "[schema][encode][pnext]")
 {
     using ExtensibleStructures = binding::vulkan::catalog::extensible_structures;
@@ -117,7 +117,7 @@ TEST_CASE("EncodePNextStruct dispatches every extensible structure to its encode
         CHECK(same_bytes(actual_buffer, oracle_buffer));
     }
 
-    // The two loader enumerants name no structure, so they are misses in the index.
+    // The two loader enumerants refer to no structure, so they are misses in the index.
     CHECK(Index::Find(VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO) == Index::End());
     CHECK(Index::Find(VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO) == Index::End());
 }

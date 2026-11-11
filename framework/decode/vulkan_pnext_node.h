@@ -57,9 +57,8 @@ class PNextNode
 };
 
 //  NOTE:
-// A node exists only for a non-null, encoded (kHasData), recognized structure; otherwise the pointer stays null.
-// DecodePNextStruct does not check kHasData. Callers that can see omitted data must check it first
-// (see TypedStructDecoder).
+// DecodePNextStruct allocates a node only for a non-null, encoded (kIsStruct and kHasData set), recognized
+// structure; otherwise the pointer stays null.
 //
 //  NOTE:
 // This functions as if it were a base class to all DecodedStruct_<SomeStruct>

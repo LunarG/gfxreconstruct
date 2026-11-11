@@ -20,20 +20,19 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// The one DecodeStruct declaration: a function template over every decoded wrapper the schema describes, in place
-// of one prototype per structure. The generated struct-decoders headers include this one, so a caller may include
-// either.
+// This header declares the DecodeStruct template, one declaration for every schema-driven Decoded_ wrapper.
+// generated/generated_vulkan_struct_decoders.h includes it, so a caller may include either.
 //
-// The definition is in decode/vulkan_decode_struct_impl.h, which is private to the one translation unit that
-// instantiates it. See that header for why.
+// decode/vulkan_decode_struct_impl.h defines the template, and the explicit instantiations are in
+// decode/vulkan_struct_decoders.cpp.
 
 #ifndef GFXRECON_DECODE_VULKAN_DECODE_STRUCT_H
 #define GFXRECON_DECODE_VULKAN_DECODE_STRUCT_H
 
-// Nothing in this file uses the custom forward header. A wrapper with a hand-written DecodeStruct is taken out of the
-// template by overload resolution, which prefers the non-template overload only where it is declared; including the
-// custom forward header here declares those overloads wherever the template is, so a caller of this header alone
-// cannot get the template for such a wrapper. There is no list of such structures.
+// NOTE: MUST NOT remove as unused -- nothing in this file uses it, but it declares the hand-written DecodeStruct
+// overloads wherever the template is declared. Overload resolution prefers a non-template overload only where it is
+// declared; without it, a call on a CUSTOM_DECODE wrapper picks the template, which has no instantiation for it, and
+// fails to link.
 #include "decode/custom_vulkan_struct_decoders_forward.h"
 #include "generated/generated_vulkan_struct_decoders_forward.h"
 #include "binding/decoded_type_of.h"

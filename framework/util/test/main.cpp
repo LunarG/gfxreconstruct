@@ -125,11 +125,12 @@ TEST_CASE("Enum32MaskToString", "[to_string]")
 
     const VkFlags usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
 
-    // The flag-bits enum names the table: the set bits by name, in bit order.
+    // ToString on the flag-bits enum lists the set bits by name, in bit order.
     REQUIRE(ToString<VkImageUsageFlagBits>(usage) == "VK_IMAGE_USAGE_TRANSFER_SRC_BIT|VK_IMAGE_USAGE_SAMPLED_BIT");
     REQUIRE(ToString<VkImageUsageFlagBits>(VkFlags{ 0 }) == "Unhandled VkImageUsageFlagBits");
 
-    // The Flags typedef is VkFlags, so it reaches the primary template: the integer, which tocpp casts.
+    // VkImageUsageFlags is VkFlags, so it reaches the primary ToString: std::to_string of the integer. tocpp relies on
+    // that: it writes ToString<VkMemoryMapFlags> into the generated C++ as a numeric argument.
     REQUIRE(ToString<VkImageUsageFlags>(usage) == std::to_string(usage));
 
     gfxrecon::util::Log::Release();

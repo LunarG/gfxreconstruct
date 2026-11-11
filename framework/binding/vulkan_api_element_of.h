@@ -20,9 +20,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// The Vulkan ApiElementOf rows, a visitor invoked across the inventory: every structure, every union and every API
-// enum to its API element. A 64-bit flag-bits type is spelled VkFlags64, so it has no row; one would bind the
-// bare integer type.
+// This header specializes ApiElementOf for every inventory structure, union, enum and flag-bits enum, as an inventory
+// visitor. A 64-bit flag-bits type is a VkFlags64 typedef, so it has no specialization: one would key on uint64_t.
 
 #ifndef GFXRECON_BINDING_VULKAN_API_ELEMENT_OF_H
 #define GFXRECON_BINDING_VULKAN_API_ELEMENT_OF_H
@@ -35,7 +34,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(binding)
 
-// A struct visitor: it yields a specialization, a type, so this lives in a header.
 #define GFXRECON_INVENTORY_VISIT_STRUCT(Name) \
     GFXRECON_INVENTORY_API_ELEMENT_FOR(::Name, schema::vulkan::api_elements::Name);
 #define GFXRECON_INVENTORY_VISIT_UNION(Name) GFXRECON_INVENTORY_VISIT_STRUCT(Name)

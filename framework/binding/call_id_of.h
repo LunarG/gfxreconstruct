@@ -20,13 +20,14 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// The call-id binding: a command's API element to the ApiCallId the classic encoding writes for the command on the
-// wire. The registry gives a command no such number, and a second encoding could number commands differently, so
-// this is a binding and not a schema fact.
+// CallId maps a command API element to the format::ApiCallId the capture file records for the command. It is a
+// binding, not an API element member: the registry gives a command no such number.
 //
-// This header declares the binding and nothing more. An API's rows are a visitor invoked across its inventory in
-// binding/<api>_call_id.h, which is the header API code includes; with this one alone, CommandWithCallId answers no for
-// every command.
+// This header declares the template and nothing more. An API's specializations are an inventory visitor in
+// binding/<api>_call_id.h, which is the header API code includes; with this header alone, CommandWithCallId is false
+// for every command.
+// NOTE: a translation unit that evaluates CommandWithCallId before including binding/<api>_call_id.h gets false,
+// silently, and the compiler is not required to diagnose the late specialization.
 
 #ifndef GFXRECON_BINDING_CALL_ID_OF_H
 #define GFXRECON_BINDING_CALL_ID_OF_H
@@ -37,8 +38,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(binding)
 
-// Keyed on a command API element. Declared, not defined, so an absent row is an incomplete type and CommandWithCallId
-// reads as unsatisfied.
+// Keyed on a command API element. Undefined: a command without a specialization is an incomplete type, and
+// CommandWithCallId is false for it.
 template <typename Command>
 struct CallId;
 

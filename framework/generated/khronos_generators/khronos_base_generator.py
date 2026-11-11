@@ -2226,8 +2226,7 @@ class KhronosBaseGenerator(OutputGenerator):
             count = value.pointer_count
 
             if self.is_base_output_structure_type(type_name):
-                # A pointer to one structure named by its own sType: a decoder with the pointee's type erased, which
-                # runs the sType sieve and holds the node it allocates (decode/vulkan_decode_typed_struct.h).
+                # The structure's type is in its own sType; TypedStructDecoder selects by it.
                 type_name = 'TypedStructDecoder'
             elif self.is_struct(type_name):
                 if count > 1:
@@ -2557,10 +2556,11 @@ class KhronosBaseGenerator(OutputGenerator):
     def struct_has_handles(self, typename):
         return self.is_struct(typename) and (typename in self.structs_with_handles)
 
-    # Structs that might have handles: any struct known to have handles, any struct with generic handles, and any
-    # struct that can be extended, since we do not know whether an extension carries a handle. Two gaps, arguably:
-    # a pNext chain inside a member structure is not counted, and a blacklisted structure is dropped from the
-    # extendable set. The schema generator's may_reach_handles counts both.
+    # Structs that might have handles include any struct KNOWN to have handles,
+    # any struct that has GENERIC handles, and any struct that could be extended since
+    # we do not know if any of the extendable structs have handles
+    # Not counted: a pNext chain inside a member structure, and a blacklisted extendable structure, which is never
+    # added to all_possible_extendable_structs. may_reach_handles in vulkan_schema_generator.py counts both.
     def struct_might_have_handles(self, typename):
         return (self.is_struct(typename)
                 and ((typename in self.structs_with_handles)

@@ -59,7 +59,9 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(schema)
 
-// Field api_elements. A Field names its API type and its shape at this use site.
+// Fields: one namespace per structure, union and command, holding one Field per member or
+// parameter, and a command's Return Field. A Field holds its declaration: its API element and the
+// declarators over it.
 GFXRECON_BEGIN_NAMESPACE(vulkan)
 GFXRECON_BEGIN_NAMESPACE(fields)
 

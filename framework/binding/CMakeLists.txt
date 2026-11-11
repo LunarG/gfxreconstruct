@@ -21,10 +21,10 @@
 # IN THE SOFTWARE.
 ###############################################################################
 
-# The arrangement layer. format defines the primitives a capture can represent and how each is encoded; this
-# defines how they are arranged -- which API type a Field names, how it is packaged, and which store member holds
-# it. Header-only and API-agnostic: it names no Vulkan type, no decoded representation and no operation, so capture
-# and replay can both reach it without reaching each other.
+# The arrangement layer. format defines the primitives a capture can represent and how each is encoded; this defines how
+# they are arranged -- which API type a Field holds, how it is packaged, and which store member holds it. Header-only
+# and API-agnostic: it refers to no Vulkan type, no decoded representation and no operation, so capture and replay can
+# both reach it without reaching each other.
 #
 # Generated content is not here. An API's API elements, Fields and schemas are generated into
 # framework/generated and listed by the target that compiles them.

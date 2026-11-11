@@ -61,10 +61,10 @@ class KhronosStructDecodersHeaderGenerator():
             self.write_decoded_parent_child_struct_definitions(api_data, struct)
 
     def make_api_element_alias(self, struct):
-        """The line naming the wrapper's API element in its schema, or empty for an API without a schema.
+        """Returns the `using api_element = ...;` line for a Decoded_ wrapper, or empty for an API without a schema.
 
-        A wrapper that names its element is its own key into the schema and the representation traits, so an
-        operation handed a wrapper needs no inverse trait to find them.
+        A wrapper that holds its API element is its own key into the schema and the bindings, so an operation handed
+        a wrapper needs no inverse trait to find them.
         """
         return ''
 

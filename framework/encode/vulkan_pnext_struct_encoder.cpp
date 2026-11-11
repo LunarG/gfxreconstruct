@@ -20,9 +20,9 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// The pNext chain encoder: one entry point over the schema's structure list, in place of a generated switch with a
-// case per structure. A node is found by its sType in the StructureTypeIndex and encoded through the EncodeStructPtr
-// its API element names; an unrecognized node is reported and skipped, and the hop past it is probed (DF-2).
+// EncodePNextStruct finds each node's API element by its sType in binding::vulkan::catalog::extensible_structures and
+// encodes the node with EncodeStructPtr. A node whose sType is not in that list is reported and omitted from the
+// capture, and the walk continues at the next node through EncodePNextStructIfValid.
 
 #include "binding/structure_type.h"
 #include "encode/struct_pointer_encoder.h"
@@ -49,7 +49,6 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 namespace
 {
 
-// Encodes the node as the structure its API element names, the way the generated case for that structure did.
 struct EncodeNode
 {
     template <schema::TypedStructApiElement Element>

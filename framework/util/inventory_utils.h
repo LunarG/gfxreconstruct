@@ -20,17 +20,18 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// What a visitor invoked across an inventory can expand to, in one place: the row macros for the three binding
-// specializations, and the three macros that build a TypeList out of a run of entries an #include produces, which
-// no macro can wrap. The row macros spell the binding templates' names; they need those declared where they expand,
-// not here.
+// The macros an inventory visitor expands to; the visit protocol is in the banner of
+// generated/generated_vulkan_inventory.h.
+// NOTE: a specialization macro spells its template unqualified and does not include its header -- expand it inside the
+// template's namespace, after the template's declaration.
 
 #ifndef GFXRECON_UTIL_INVENTORY_UTILS_H
 #define GFXRECON_UTIL_INVENTORY_UTILS_H
 
 #include "util/type_list.h"
 
-// One row: ApiType is the API's structure, Element its API element.
+// Specializes ApiElementOf<ApiType> as Element: ApiType is the API's C type (a structure, union or enum) and Element
+// its API element.
 #define GFXRECON_INVENTORY_API_ELEMENT_FOR(ApiType, Element) \
     template <>                                              \
     struct ApiElementOf<ApiType>                             \
@@ -38,7 +39,8 @@
         using type = Element;                                \
     }
 
-// One row: ApiElement is the structure or command API element, Decoded the type decode represents it with.
+// Specializes DecodedTypeOf<ApiElement> as Decoded. ApiElement is a structure or command API element; Decoded is the
+// type decode stores it in.
 #define GFXRECON_INVENTORY_DECODED_TYPE(ApiElement, Decoded) \
     template <>                                              \
     struct DecodedTypeOf<ApiElement>                         \
@@ -46,7 +48,7 @@
         using type = Decoded;                                \
     }
 
-// One row: Command is the command API element, Id its ApiCallId enumerator.
+// Specializes CallId<Command> as Id. Command is a command API element; Id is its format::ApiCallId enumerator.
 #define GFXRECON_INVENTORY_CALL_ID(Command, Id)        \
     template <>                                        \
     struct CallId<Command>                             \
@@ -54,10 +56,10 @@
         static constexpr format::ApiCallId value = Id; \
     }
 
-// A TypeList named Name from the entries between BEGIN and END: the visitor expands each row to an ENTRY, the list
-// opens on a placeholder, and END drops it, so a selection of nothing is an empty list.
-// The three are one expression split across an #include, and the formatter reads the brackets as comparison
-// operators.
+// These three declare a TypeList named Name from the entries between BEGIN and END. The visitor expands each inventory
+// entry to an ENTRY. BEGIN opens the list on a void placeholder that TypeListPopFront_t drops, so an empty selection is
+// an empty list. clang-format is off: the three are one expression split across an #include, and clang-format reads the
+// brackets as comparison operators.
 // clang-format off
 #define GFXRECON_INVENTORY_TYPE_LIST_BEGIN(Name) using Name = ::gfxrecon::util::TypeListPopFront_t<::gfxrecon::util::TypeList<void
 #define GFXRECON_INVENTORY_TYPE_LIST_ENTRY(Type) , Type

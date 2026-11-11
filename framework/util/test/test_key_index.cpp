@@ -20,7 +20,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// KeyIndex, the key-to-position table, and Visit over a TypeList at a position an index returned.
+// This file tests util::KeyIndex, the key-to-position table; util::Visit at a position an index returned; and the
+// TypeList algorithms on a list of 300 types.
 
 #include <catch2/catch.hpp>
 
@@ -37,7 +38,7 @@ namespace
 {
 using namespace gfxrecon;
 
-// Sparse values, like VkStructureType, so a dense jump table is not an option and the sorted table is what runs.
+// Sparse values, like VkStructureType.
 enum class Color : uint32_t
 {
     Red   = 1,
@@ -102,7 +103,7 @@ struct Named
 constexpr std::array<Named, 3>   kNamed{ { { 9, "nine" }, { 5, "five" }, { 7, "seven" } } };
 constexpr util::KeyIndex<int, 3> kNamedIndex{ kNamed, [](const Named& element) { return element.key; } };
 
-// A list wider than clang's 256-level expression nesting limit, so every TypeList algorithm is shown flat.
+// A list wider than clang's 256-level expression nesting limit, so the TypeList algorithms below run past it.
 template <size_t I>
 struct Tag
 {

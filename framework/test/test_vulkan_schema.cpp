@@ -20,20 +20,17 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// Contract check for the generated Vulkan field schema.
-//
-// Including every generated part is itself most of the check: the whole schema, all member-trait partitions, and the
-// decoded representation traits have to parse and agree. The assertions below then hold the contracts to the
-// canonical vkCmdPipelineBarrier and VkBufferMemoryBarrier example.
+// This file tests the generated Vulkan schema, its bindings, and the encode and decode field walks. Including the
+// generated schema headers is part of the check: they must compile together in one translation unit. The file-scope
+// static_asserts check the schema's contracts on vkCmdPipelineBarrier and VkBufferMemoryBarrier. Most TEST_CASEs
+// compare EncodeStruct's bytes with an oracle built from ParameterEncoder calls, or decode such bytes with
+// DecodeStruct and check each field.
 
 #include <catch2/catch.hpp>
 
 #include "generated/generated_vulkan_schema.h"
 #include "binding/vulkan_call_id.h"
 #include "binding/vulkan_decoded_type.h"
-
-// The generated schema reaches no wire representation type, so the encoding join is included separately, the way an
-// Encode or Decode adapter would include it.
 
 #include "decode/decode_allocator.h"
 #include "decode/vulkan_decode_struct_impl.h"
@@ -68,7 +65,6 @@ using namespace gfxrecon;
 
 using Command = schema::vulkan::api_elements::CmdPipelineBarrier;
 
-// A structure keys its schema on its API element, the same key the decoded-type binding uses.
 using Barrier = schema::vulkan::api_elements::VkBufferMemoryBarrier;
 
 namespace cmd_field     = schema::vulkan::fields::CmdPipelineBarrier;
@@ -80,7 +76,7 @@ static_assert(schema::HasCommandSchema<Command>);
 static_assert(schema::HasSchemaFields<Barrier>);
 static_assert(!schema::HasCommandSchema<Barrier>);
 
-// A void command still carries one Return Field, shaped VoidReturn, and its return type is void.
+// A void command still has one return Field: VoidReturnField holds, and its API type is void.
 static_assert(std::is_same_v<schema::ReturnField_t<Command>, cmd_field::result>);
 static_assert(std::is_same_v<schema::ApiTypeOf_t<schema::ReturnField_t<Command>::api_element>, void>);
 static_assert(schema::VoidReturnField<cmd_field::result>);
@@ -98,12 +94,13 @@ static_assert(std::is_same_v<schema::ParameterFields_t<Command>,
                                             cmd_field::imageMemoryBarrierCount,
                                             cmd_field::pImageMemoryBarriers>>);
 
-// A non-void command resolves its API return type from the same Return Field.
+// A non-void command's API return type comes from the same return Field.
 static_assert(
     std::is_same_v<schema::ApiTypeOf_t<schema::ReturnField_t<schema::vulkan::api_elements::CreateBuffer>::api_element>,
                    VkResult>);
 
-// A category is the registry's word for an API element, and carries no wire fact.
+// category follows vk.xml's category attribute, except that VkSampleMask and VkDeviceSize, basetype in vk.xml, are
+// Scalar. A union is a StructApiElement.
 static_assert(
     std::is_same_v<schema::ApiTypeOf_t<schema::vulkan::api_elements::VkPipelineStageFlags>, VkPipelineStageFlags>);
 static_assert(std::is_same_v<schema::vulkan::api_elements::VkPipelineStageFlags::category, schema::category::Bitmask>);
@@ -115,8 +112,8 @@ static_assert(std::is_same_v<schema::vulkan::api_elements::VkDeviceSize::categor
 static_assert(std::is_same_v<schema::vulkan::api_elements::VkClearColorValue::category, schema::category::Union>);
 static_assert(schema::StructApiElement<schema::vulkan::api_elements::VkClearColorValue>);
 
-// The bits enum states its role, the mask names its flags API element and its bits API element, and a mask the
-// registry gives no bits enum names the empty one.
+// A bits enum sets kBitvalues. A bitmask holds its flags_type and its bitvalues; a bitmask that vk.xml gives no bits
+// enum holds EmptyBitvalues, whose enumerant table is empty.
 static_assert(schema::BitvaluesApiElement<schema::vulkan::api_elements::VkAccessFlagBits2>);
 static_assert(!schema::BitvaluesApiElement<schema::vulkan::api_elements::VkResult>);
 static_assert(
@@ -127,23 +124,24 @@ static_assert(std::is_same_v<schema::vulkan::api_elements::VkDeviceCreateFlags::
                              schema::vulkan::api_elements::EmptyBitvalues>);
 static_assert(schema::vulkan::enumerants::EmptyBitvalues::entries.empty());
 
-// Two registry names that share one C++ representation stay distinct, because the API element is the identity.
+// VkAccessFlags2 and VkPipelineStageFlags2 are one C++ type and two distinct API elements.
 static_assert(std::is_same_v<VkAccessFlags2, VkPipelineStageFlags2>);
 static_assert(
     !std::is_same_v<schema::vulkan::api_elements::VkAccessFlags2, schema::vulkan::api_elements::VkPipelineStageFlags2>);
 
-// Two scalar API elements over one C type stay distinct, and each has the width of its type.
+// UInt32 and VkBool32 are both Scalar; ApiTypeOf_t<UInt32> is uint32_t, and srcQueueFamilyIndex is a ScalarValueField.
 static_assert(std::is_same_v<schema::vulkan::api_elements::UInt32::category, schema::category::Scalar>);
 static_assert(std::is_same_v<schema::vulkan::api_elements::VkBool32::category, schema::category::Scalar>);
 static_assert(std::is_same_v<schema::ApiTypeOf_t<schema::vulkan::api_elements::UInt32>, uint32_t>);
 static_assert(schema::ScalarValueField<barrier_field::srcQueueFamilyIndex>);
 
-// A scalar, a bitmask and an enum are each read as the member's own bits, so all select the scalar access pattern.
+// ScalarValueField holds for a scalar (offset), a bitmask (srcAccessMask) and an enum (sType).
 static_assert(schema::ScalarValueField<barrier_field::srcAccessMask>);
 static_assert(schema::ScalarValueField<barrier_field::offset>);
 static_assert(schema::ScalarValueField<barrier_field::sType>);
 
-// WireTypeOf: generated for scalar and enum; partial specializations for the rest.
+// WireTypeOf: specializations generated for scalar, enum and text (generated_vulkan_wire_types.h); partial
+// specializations for bitmask, handle, funcpointer and opaque (binding/wire_type_of.h).
 static_assert(
     std::is_same_v<binding::WireTypeOf_t<barrier_field::srcAccessMask::api_element>, format::FlagsEncodeType>);
 static_assert(
@@ -156,7 +154,7 @@ static_assert(std::is_same_v<binding::WireTypeOf_t<schema::vulkan::api_elements:
 static_assert(std::is_same_v<binding::WireTypeOf_t<schema::vulkan::api_elements::PFN_vkAllocationFunction>,
                              format::AddressEncodeType>);
 
-// Shape concepts select on exactly the logical category and the use-site shape.
+// The form and category concepts select on the barrier's Fields, and LengthOf_t is the count Field of a run.
 static_assert(schema::HandleValueField<barrier_field::buffer>);
 static_assert(schema::StructApiElement<cmd_field::pBufferMemoryBarriers::api_element>);
 static_assert(schema::ArrayField<cmd_field::pBufferMemoryBarriers>);
@@ -174,25 +172,26 @@ static_assert(schema::StoresElementField<VkBufferMemoryBarrier, barrier_field::b
 static_assert(schema::FieldStoreFor<VkBufferMemoryBarrier, barrier_field::srcAccessMask>);
 static_assert(!schema::FieldStoreFor<decode::Decoded_VkBufferMemoryBarrier, barrier_field::srcAccessMask>);
 
-// A field the API declares as a plain integer but GFXReconstruct maps as a handle names one shared API element and
-// its runtime selector, because no type-level fact can express it.
+// objectHandle is a uint64_t in vk.xml that GFXReconstruct maps as a handle: its API element is GenericHandle, and
+// its selector_field is objectType, which selects the handle type at run time.
 namespace debug_field = schema::vulkan::fields::VkDebugUtilsObjectNameInfoEXT;
 static_assert(std::is_same_v<debug_field::objectHandle::api_element, schema::vulkan::api_elements::GenericHandle>);
 static_assert(std::is_same_v<debug_field::objectHandle::selector_field, debug_field::objectType>);
 static_assert(schema::HandleValueField<debug_field::objectHandle>);
 
-// A bitfield member keeps a mapping, but it is not addressable, so GetRef drops out of the overload set.
+// VkAccelerationStructureInstanceKHR::mask is a bitfield: it has a MemberPointer specialization but no address, so
+// GetRef does not accept it and Get and Set go through the generated accessors.
 static_assert(schema::FieldStoreFor<VkAccelerationStructureInstanceKHR,
                                     schema::vulkan::fields::VkAccelerationStructureInstanceKHR::mask>);
 static_assert(schema::NonAddressable<VkAccelerationStructureInstanceKHR,
                                      schema::vulkan::fields::VkAccelerationStructureInstanceKHR::mask>);
 
-// The decoded type and the call id resolve through the bindings, keyed as the schema is.
+// DecodedTypeOf and CallId_v resolve through the bindings, keyed on the API element as the schema is.
 static_assert(std::is_same_v<binding::DecodedTypeOf_t<Barrier>, decode::Decoded_VkBufferMemoryBarrier>);
 static_assert(std::is_same_v<binding::DecodedTypeOf_t<Command>, decode::args::CmdPipelineBarrier>);
 static_assert(binding::CallId_v<Command> == format::ApiCallId::ApiCall_vkCmdPipelineBarrier);
 
-// One walk visits the whole field list, and one Action supplies the Apply overloads that its shapes select.
+// Counts the Fields WalkFields visits, as HandleValueField, ScalarValueField, or neither.
 struct CountingAction
 {
     size_t handles = 0;
@@ -214,7 +213,8 @@ struct CountingAction
     }
 };
 
-// The positional invocation step expands to the call the driver path already makes.
+// Stands in for vkCmdPipelineBarrier in the InvokeFromFields test: the same signature, an empty body. ApiCallStore
+// and AllocateCallStore below are hand-written command stores for the InvokeFromFields and FieldValue tests.
 void RecordPipelineBarrier(VkCommandBuffer,
                            VkPipelineStageFlags,
                            VkPipelineStageFlags,
@@ -254,8 +254,8 @@ struct AllocateCallStore
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(schema)
 
-// A hand-written store joins the same Fields, which is why member traits key on storage type and Field rather than
-// on the Field alone.
+// Maps command Fields onto the hand-written stores. MemberPointer keys on the storage type and the Field, not on
+// the Field alone, so a hand-written store maps the same Fields as the API structure and its Decoded_ wrapper.
 template <>
 struct MemberPointer<ApiCallStore, cmd_field::commandBuffer>
 {
@@ -333,60 +333,43 @@ TEST_CASE("One field walk covers a generated structure schema", "[schema]")
 
     schema::WalkFields<Barrier>(action, barrier);
 
-    // sType, srcAccessMask, dstAccessMask, srcQueueFamilyIndex, dstQueueFamilyIndex, offset and size are value-shaped
-    // scalars, buffer is the one handle, and pNext is the extension chain.
+    // sType, srcAccessMask, dstAccessMask, srcQueueFamilyIndex, dstQueueFamilyIndex, offset and size are
+    // ScalarValueFields, buffer is the one handle, and pNext is the extension chain.
     CHECK(action.handles == 1);
     CHECK(action.scalars == 7);
     CHECK(action.others == 1);
 }
 
+// Checks EncodeStruct on VkExtent3D against EncodeUInt32Value per member; a dropped, reordered or mis-sized member
+// fails the compare.
 TEST_CASE("Schema EncodeStruct matches scalar-value wire bytes", "[schema][encode]")
 {
-    // Migration candidate: its concrete public overload bridges to the generic EncodeStruct field walk.
-    VkExtent2D migrated{ 0x12345678u, 0x90abcdefu };
+    VkExtent3D extent{ 0x10203040u, 0x50607080u, 0x90a0b0c0u };
 
-    encode::ParameterBuffer  migrated_buffer;
-    encode::ParameterEncoder migrated_encoder(&migrated_buffer);
-    encode::EncodeStruct(&migrated_encoder, migrated);
+    encode::ParameterBuffer  buffer;
+    encode::ParameterEncoder encoder(&buffer);
+    encode::EncodeStruct(&encoder, extent);
 
-    encode::ParameterBuffer  migrated_oracle_buffer;
-    encode::ParameterEncoder migrated_oracle(&migrated_oracle_buffer);
-    migrated_oracle.EncodeUInt32Value(migrated.width);
-    migrated_oracle.EncodeUInt32Value(migrated.height);
+    encode::ParameterBuffer  oracle_buffer;
+    encode::ParameterEncoder oracle(&oracle_buffer);
+    oracle.EncodeUInt32Value(extent.width);
+    oracle.EncodeUInt32Value(extent.height);
+    oracle.EncodeUInt32Value(extent.depth);
 
-    REQUIRE(migrated_buffer.GetDataSize() == migrated_oracle_buffer.GetDataSize());
-    CHECK(std::memcmp(migrated_buffer.GetData(), migrated_oracle_buffer.GetData(), migrated_buffer.GetDataSize()) == 0);
-
-    // Comparison candidate: its generated procedural body remains unchanged and exercises the same UInt32/value
-    // idiom once more. A separate primitive oracle makes the comparison independent of either implementation.
-    VkExtent3D comparison{ 0x10203040u, 0x50607080u, 0x90a0b0c0u };
-
-    encode::ParameterBuffer  comparison_buffer;
-    encode::ParameterEncoder comparison_encoder(&comparison_buffer);
-    encode::EncodeStruct(&comparison_encoder, comparison);
-
-    encode::ParameterBuffer  comparison_oracle_buffer;
-    encode::ParameterEncoder comparison_oracle(&comparison_oracle_buffer);
-    comparison_oracle.EncodeUInt32Value(comparison.width);
-    comparison_oracle.EncodeUInt32Value(comparison.height);
-    comparison_oracle.EncodeUInt32Value(comparison.depth);
-
-    REQUIRE(comparison_buffer.GetDataSize() == comparison_oracle_buffer.GetDataSize());
-    CHECK(std::memcmp(
-              comparison_buffer.GetData(), comparison_oracle_buffer.GetData(), comparison_buffer.GetDataSize()) == 0);
+    REQUIRE(buffer.GetDataSize() == oracle_buffer.GetDataSize());
+    CHECK(std::memcmp(buffer.GetData(), oracle_buffer.GetData(), buffer.GetDataSize()) == 0);
 }
 
 TEST_CASE("Schema EncodeStruct matches fixed-extent array wire bytes", "[schema][encode]")
 {
-    // Two migrated structures, one per rank, against primitive oracles; two retained partners exercise the same
-    // idiom through their procedural bodies. Values are asymmetric so a transposed, truncated or reordered run lands
-    // on different bytes.
+    // Checks fixed-extent arrays of rank one and rank two against oracles built from ParameterEncoder calls. Values
+    // are asymmetric, so a transposed, truncated or reordered run lands on different bytes.
     auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
         return actual.GetDataSize() == oracle.GetDataSize() &&
                std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
     };
 
-    // Rank one, migrated: four scalars, one of them an enum, then a byte array of VK_UUID_SIZE.
+    // Rank one: four scalars, one of them an enum, then a byte array of VK_UUID_SIZE.
     VkPipelineCacheHeaderVersionOne header{};
     header.headerSize    = 0x00000020u;
     header.headerVersion = VK_PIPELINE_CACHE_HEADER_VERSION_ONE;
@@ -411,8 +394,8 @@ TEST_CASE("Schema EncodeStruct matches fixed-extent array wire bytes", "[schema]
 
     CHECK(same_bytes(header_buffer, header_oracle_buffer));
 
-    // Rank two, migrated: a 3x4 float matrix and nothing else. The oracle is the 2DMatrix entry point, so this also
-    // pins that a matrix is one flat run of the extent product.
+    // Rank two: a 3x4 float matrix and nothing else. The oracle is EncodeFloat2DMatrix, so this also checks that a
+    // matrix is written as one flat run of the extent product, 12.
     VkTransformMatrixKHR matrix{};
     for (size_t row = 0; row < 3; ++row)
     {
@@ -432,7 +415,7 @@ TEST_CASE("Schema EncodeStruct matches fixed-extent array wire bytes", "[schema]
 
     CHECK(same_bytes(matrix_buffer, matrix_oracle_buffer));
 
-    // Rank one, retained partner: the same header shape with a uint32_t array.
+    // Rank one: four scalars, two of them enums, then a uint32_t array.
     VkPipelineCacheHeaderVersionDataGraphQCOM graph_header{};
     graph_header.headerSize    = 0x00000030u;
     graph_header.headerVersion = VK_PIPELINE_CACHE_HEADER_VERSION_ONE;
@@ -456,7 +439,7 @@ TEST_CASE("Schema EncodeStruct matches fixed-extent array wire bytes", "[schema]
 
     CHECK(same_bytes(graph_buffer, graph_oracle_buffer));
 
-    // Rank two, retained partner: two scalars and two byte matrices.
+    // Rank two: two scalars and two byte matrices.
     StdVideoH264ScalingLists lists{};
     lists.scaling_list_present_mask       = 0x0123u;
     lists.use_default_scaling_matrix_mask = 0x4567u;
@@ -490,10 +473,9 @@ TEST_CASE("Schema EncodeStruct matches fixed-extent array wire bytes", "[schema]
 
 TEST_CASE("Schema EncodeStruct matches extension-chain wire bytes", "[schema][encode]")
 {
-    // Two migrated structures that are sType and pNext and nothing else, one per pNext policy, so the comparison
-    // isolates the choice the Field's has_extensions makes; two retained partners exercise each policy through their
-    // procedural bodies. Each is encoded with a null chain and with a one-node chain, against an oracle that calls
-    // the same pNext entry point the procedural body did.
+    // Checks the extension chain against an oracle that calls the entry point the Field's has_extensions selects:
+    // true, EncodePNextStruct; false, EncodePNextStructIfValid. VkSubpassEndInfo and VkPipelineCreateInfoKHR are sType
+    // and pNext only, so nothing else differs. Each structure is encoded with a null chain and with a one-node chain.
     auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
         return actual.GetDataSize() == oracle.GetDataSize() &&
                std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
@@ -504,10 +486,9 @@ TEST_CASE("Schema EncodeStruct matches extension-chain wire bytes", "[schema][en
         encode::EncodeStruct(&encoder, value);
     };
 
-    // One registered extension of VkSubpassEndInfo, and the one registered extension of VkAttachmentReference2. The
-    // two probed partners take the stencil-layout node as well: the walk resolves a node by its sType alone and
-    // never asks whether the registry allows it on this owner, so any recognized node shows the probe followed the
-    // pointer.
+    // Chain nodes: a structure vk.xml lets extend VkSubpassEndInfo, and the one it lets extend VkAttachmentReference2.
+    // The structures without has_extensions take the stencil node too: EncodePNextStruct finds a node by sType alone,
+    // not by what vk.xml allows on the owner, so a node on the wire shows that the probe followed the pointer.
     VkRenderPassFragmentDensityMapOffsetEndInfoEXT offsets{};
     offsets.sType = VK_STRUCTURE_TYPE_RENDER_PASS_FRAGMENT_DENSITY_MAP_OFFSET_END_INFO_EXT;
 
@@ -515,7 +496,7 @@ TEST_CASE("Schema EncodeStruct matches extension-chain wire bytes", "[schema][en
     stencil.sType         = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_STENCIL_LAYOUT;
     stencil.stencilLayout = VK_IMAGE_LAYOUT_STENCIL_ATTACHMENT_OPTIMAL;
 
-    // Migrated, has_extensions: the chain is walked trusting the pointer.
+    // has_extensions: EncodePNextStruct, which trusts the pointer.
     for (const void* chain : { static_cast<const void*>(nullptr), static_cast<const void*>(&offsets) })
     {
         VkSubpassEndInfo end{ VK_STRUCTURE_TYPE_SUBPASS_END_INFO, chain };
@@ -531,9 +512,9 @@ TEST_CASE("Schema EncodeStruct matches extension-chain wire bytes", "[schema][en
         CHECK(same_bytes(end_buffer, end_oracle_buffer));
     }
 
-    // Migrated, no registered extensions: the pointer is probed before the chain is walked. The registry has
-    // nothing declared for VkPipelineCreateInfoKHR, though the spec text requires a pipeline create-info node here,
-    // so this is also the case where the registry fact and the spec's prose disagree and the probe covers the gap.
+    // No has_extensions: EncodePNextStructIfValid, which probes the pointer before it walks the chain. vk.xml declares
+    // no structure that extends VkPipelineCreateInfoKHR, though VK_KHR_pipeline_binary requires a pipeline create-info
+    // structure in its pNext chain.
     for (void* chain : { static_cast<void*>(nullptr), static_cast<void*>(&stencil) })
     {
         VkPipelineCreateInfoKHR create{ VK_STRUCTURE_TYPE_PIPELINE_CREATE_INFO_KHR, chain };
@@ -549,8 +530,7 @@ TEST_CASE("Schema EncodeStruct matches extension-chain wire bytes", "[schema][en
         CHECK(same_bytes(create_buffer, create_oracle_buffer));
     }
 
-    // Retained partner, has_extensions, with three scalars after the chain so the chain's length on the wire is
-    // seen to leave the fields behind it in place.
+    // has_extensions, with three scalars after pNext, so a chain written at the wrong length shifts them.
     for (const void* chain : { static_cast<const void*>(nullptr), static_cast<const void*>(&stencil) })
     {
         VkAttachmentReference2 reference{ VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2,
@@ -573,7 +553,7 @@ TEST_CASE("Schema EncodeStruct matches extension-chain wire bytes", "[schema][en
         CHECK(same_bytes(reference_buffer, reference_oracle_buffer));
     }
 
-    // Retained partner, no registered extensions.
+    // No has_extensions.
     for (const void* chain : { static_cast<const void*>(nullptr), static_cast<const void*>(&stencil) })
     {
         VkPerTileBeginInfoQCOM begin{ VK_STRUCTURE_TYPE_PER_TILE_BEGIN_INFO_QCOM, chain };
@@ -592,10 +572,8 @@ TEST_CASE("Schema EncodeStruct matches extension-chain wire bytes", "[schema][en
 
 TEST_CASE("Schema EncodeStruct matches scalar-pointer wire bytes", "[schema][encode]")
 {
-    // One migrated structure whose only field beyond sType and pNext is a pointer to one scalar, encoded with the
-    // pointer null and with it set; one retained partner takes the same entry point twice through its procedural
-    // body, one pointer down each path. The value behind the pointer is a negative enum so a sign or width slip
-    // lands on different bytes.
+    // Checks VkBindMemoryStatus, whose only field beyond sType and pNext is a pointer to one scalar, null and set.
+    // The value is VK_ERROR_OUT_OF_HOST_MEMORY, a negative enum, so a sign or width slip lands on different bytes.
     auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
         return actual.GetDataSize() == oracle.GetDataSize() &&
                std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
@@ -620,7 +598,7 @@ TEST_CASE("Schema EncodeStruct matches scalar-pointer wire bytes", "[schema][enc
         CHECK(same_bytes(status_buffer, status_oracle_buffer));
     }
 
-    // Retained partner: a counted run keeps it on its procedural body, and its two scalar pointers go one each way.
+    // A counted run beside two scalar pointers, one set and one null.
     uint32_t depth_index = 0x0badf00du;
 
     VkRenderingInputAttachmentIndexInfo indices{
@@ -645,10 +623,9 @@ TEST_CASE("Schema EncodeStruct matches scalar-pointer wire bytes", "[schema][enc
 
 TEST_CASE("Schema EncodeStruct matches counted scalar run wire bytes", "[schema][encode]")
 {
-    // One migrated structure whose run is a counted byte run, OpaqueBytes with a size_t count, encoded with the run
-    // null and empty and with it populated; its retained twin takes the same entry point through its procedural
-    // body. The count is read from the sibling Field, the first cross-field read in either Action, so the populated
-    // case uses an odd length that no default or extent could supply.
+    // Checks pInitialData, an Array<Const<Void>> counted by the size_t initialDataSize: null and empty, then
+    // populated. The count is read from the sibling Field, so the populated case has an odd length, 7, that no default
+    // or extent could supply.
     auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
         return actual.GetDataSize() == oracle.GetDataSize() &&
                std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
@@ -684,7 +661,7 @@ TEST_CASE("Schema EncodeStruct matches counted scalar run wire bytes", "[schema]
 
         CHECK(same_bytes(cache_buffer, cache_oracle_buffer));
 
-        // Retained twin: the same five fields under another sType, through its procedural body.
+        // The same five fields under another sType.
         VkValidationCacheCreateInfoEXT validation{
             VK_STRUCTURE_TYPE_VALIDATION_CACHE_CREATE_INFO_EXT, nullptr, 0u, run.size, run.data
         };
@@ -704,9 +681,8 @@ TEST_CASE("Schema EncodeStruct matches counted scalar run wire bytes", "[schema]
         CHECK(same_bytes(validation_buffer, validation_oracle_buffer));
     }
 
-    // Migrated, a typed run: uint32_t elements under a uint32_t count, so the element pointer casts to itself and
-    // the run goes through the same converting body the UInt32Array entry point uses. Exclusive sharing with no
-    // indices, then concurrent sharing with three.
+    // A uint32_t run under a uint32_t count: EncodeArrayAs reaches the same EncodeArray that EncodeUInt32Array calls.
+    // Exclusive sharing with no indices, then concurrent sharing with three.
     const uint32_t families[] = { 0u, 2u, 5u };
 
     struct Sharing
@@ -746,7 +722,7 @@ TEST_CASE("Schema EncodeStruct matches counted scalar run wire bytes", "[schema]
         CHECK(same_bytes(buffer_buffer, buffer_oracle_buffer));
     }
 
-    // Retained partner: three counted runs in one structure, one of them signed, through its procedural body.
+    // Three counted runs in one structure, one of them int32_t.
     const uint32_t view_masks[]        = { 0x3u, 0x5u };
     const int32_t  view_offsets[]      = { -1 };
     const uint32_t correlation_masks[] = { 0x6u, 0x1u };
@@ -781,7 +757,7 @@ TEST_CASE("Schema EncodeStruct matches counted scalar run wire bytes", "[schema]
 namespace
 {
 
-// A handle id source for wrappers the tests register themselves.
+// A handle id source for the capture wrappers the tests register themselves.
 gfxrecon::format::HandleId TestHandleId()
 {
     static gfxrecon::format::HandleId next = 0x1000;
@@ -802,8 +778,7 @@ Handle FakeHandle(uint64_t value)
     }
 }
 
-// A non-dispatchable handle's bits widened to 64, which is how the API hands a generic handle over. A function
-// template, so the branch that does not apply to the platform's handle representation is never instantiated.
+// A non-dispatchable handle's bits as uint64_t, the type of a generic handle member.
 template <typename Handle>
 uint64_t HandleBits(Handle handle)
 {
@@ -830,11 +805,9 @@ VKAPI_ATTR VkBool32 VKAPI_CALL TestDebugUtilsCallback(VkDebugUtilsMessageSeverit
 
 TEST_CASE("Schema EncodeStruct matches address-value wire bytes", "[schema][encode]")
 {
-    // Four migrated structures cover the address category's forms: two typed platform handles, a lone platform handle,
-    // a platform HANDLE beside a flags value, and a function pointer beside a void pointer. Two retained partners
-    // take a void pointer through their procedural bodies. The encoder records the pointer and nothing behind it,
-    // so a chosen integer reinterpreted as each handle type stands in for a real window, monitor or allocation;
-    // the platform handle types are the platform's on Windows and void pointers everywhere else.
+    // Checks platform handles, a function pointer and void pointers against EncodeVoidPtr and EncodeFunctionPtr. Each
+    // is written as an address and nothing behind it, so a chosen integer reinterpreted as each handle type stands in
+    // for a real window, monitor or allocation. Off Windows, the platform handle types are void*.
     auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
         return actual.GetDataSize() == oracle.GetDataSize() &&
                std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
@@ -855,7 +828,7 @@ TEST_CASE("Schema EncodeStruct matches address-value wire bytes", "[schema][enco
     // The non-null value fits a 32-bit pointer, so the list-initialization narrows on no target.
     for (uintptr_t address : { uintptr_t{ 0 }, uintptr_t{ 0x7ff6a1b0u } })
     {
-        // Migrated: two typed platform handles, under the probed chain walk.
+        // Two typed platform handles; no has_extensions, so the chain is probed.
         VkWin32SurfaceCreateInfoKHR surface{ VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
                                              nullptr,
                                              0u,
@@ -870,7 +843,7 @@ TEST_CASE("Schema EncodeStruct matches address-value wire bytes", "[schema][enco
             oracle.EncodeVoidPtr(surface.hwnd);
         }));
 
-        // Migrated: one platform handle and nothing else.
+        // One platform handle and nothing else.
         VkSurfaceFullScreenExclusiveWin32InfoEXT exclusive{
             VK_STRUCTURE_TYPE_SURFACE_FULL_SCREEN_EXCLUSIVE_WIN32_INFO_EXT, nullptr, reinterpret_cast<HMONITOR>(address)
         };
@@ -881,7 +854,7 @@ TEST_CASE("Schema EncodeStruct matches address-value wire bytes", "[schema][enco
             oracle.EncodeVoidPtr(exclusive.hmonitor);
         }));
 
-        // Migrated: a HANDLE beside a flags value.
+        // A HANDLE beside a flags value.
         VkImportMemoryWin32HandleInfoNV import_handle{ VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_NV,
                                                        nullptr,
                                                        VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT_NV,
@@ -894,7 +867,7 @@ TEST_CASE("Schema EncodeStruct matches address-value wire bytes", "[schema][enco
             oracle.EncodeVoidPtr(import_handle.handle);
         }));
 
-        // Migrated: a function pointer and a void pointer, the two named entry points the address category replaces.
+        // A function pointer and a void pointer.
         VkDebugUtilsMessengerCreateInfoEXT messenger{ VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
                                                       nullptr,
                                                       0u,
@@ -913,7 +886,7 @@ TEST_CASE("Schema EncodeStruct matches address-value wire bytes", "[schema][enco
             oracle.EncodeVoidPtr(messenger.pUserData);
         }));
 
-        // Retained partners: a void pointer through each procedural body, one per chain walk.
+        // A void pointer, once per pNext policy.
         VkImportMemoryHostPointerInfoEXT host_pointer{ VK_STRUCTURE_TYPE_IMPORT_MEMORY_HOST_POINTER_INFO_EXT,
                                                        nullptr,
                                                        VK_EXTERNAL_MEMORY_HANDLE_TYPE_HOST_ALLOCATION_BIT_EXT,
@@ -942,11 +915,10 @@ TEST_CASE("Schema EncodeStruct matches address-value wire bytes", "[schema][enco
 
 TEST_CASE("Schema EncodeStruct matches wrapped-handle wire bytes", "[schema][encode]")
 {
-    // Two migrated structures, one handle each of the two wrapper types the pilot maps, one per chain walk; two
-    // retained partners, one carrying both handles. A handle encodes as the id of the wrapper the state handle table
-    // holds for it, so the test registers wrappers for chosen handle values and destroys them after, and also encodes
-    // the null handle, which is the null id with no lookup. An unregistered non-null handle would encode as the null
-    // id with a warning; that case is not taken, since both sides would make the same lookup and prove nothing.
+    // Checks VkBuffer and VkDeviceMemory handles against EncodeVulkanHandleValue. A handle encodes as the id of the
+    // capture wrapper the state handle table holds for it, so the test registers capture wrappers for chosen handle
+    // values and destroys them after; VK_NULL_HANDLE encodes as the null id with no lookup. An unregistered handle
+    // would encode as the null id with a warning; that case is not taken, since both sides would make the same lookup.
     using namespace gfxrecon::encode::vulkan_wrappers;
 
     util::Log::Init(util::LoggingSeverity::kError);
@@ -983,7 +955,7 @@ TEST_CASE("Schema EncodeStruct matches wrapped-handle wire bytes", "[schema][enc
 
     for (const Handles& handles : { Handles{ VK_NULL_HANDLE, VK_NULL_HANDLE }, Handles{ buffer, memory } })
     {
-        // Migrated: a device memory handle under the probed chain walk.
+        // A VkDeviceMemory handle; no has_extensions.
         VkMappedMemoryRange range{ VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE, nullptr, handles.memory, 0x100u, 0x200u };
 
         CHECK(matches(range, [&](encode::ParameterEncoder& oracle) {
@@ -994,7 +966,7 @@ TEST_CASE("Schema EncodeStruct matches wrapped-handle wire bytes", "[schema][enc
             oracle.EncodeUInt64Value(range.size);
         }));
 
-        // Migrated: the design's canonical example, a buffer handle among six scalars, trusted chain walk.
+        // A VkBuffer handle among six scalars; has_extensions.
         VkBufferMemoryBarrier barrier{ VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
                                        nullptr,
                                        VK_ACCESS_TRANSFER_WRITE_BIT,
@@ -1017,7 +989,7 @@ TEST_CASE("Schema EncodeStruct matches wrapped-handle wire bytes", "[schema][enc
             oracle.EncodeUInt64Value(barrier.size);
         }));
 
-        // Retained partners: both handles in one body, and a buffer handle among scalars and an enum.
+        // Both handle types in one structure, then a buffer handle among scalars and an enum.
         VkBindBufferMemoryInfo bind{
             VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO, nullptr, handles.buffer, handles.memory, 0x40u
         };
@@ -1051,11 +1023,10 @@ TEST_CASE("Schema EncodeStruct matches wrapped-handle wire bytes", "[schema][enc
 
 TEST_CASE("Schema EncodeStruct matches wrapped-handle run wire bytes", "[schema][encode]")
 {
-    // One migrated structure with three handle runs of two wrapper types beside a flags run that shares a count
-    // with the first of them; two retained partners with a handle run beside scalar runs. Semaphores register as
-    // non-dispatchable wrappers with no parent. A command buffer is dispatchable: registration reads the dispatch
-    // key from the first word of the object the handle points at, so a local pointer slot stands in for the driver's
-    // object, and removal goes through the generic path because the command-buffer specialization assumes a pool.
+    // Checks handle runs against EncodeVulkanHandleArray. Semaphores register as non-dispatchable capture wrappers
+    // with no parent. A command buffer is dispatchable: registration reads the dispatch key from the first word of the
+    // object the handle points at, so a local pointer slot stands in for the driver's object. It is removed with
+    // RemoveWrapper: DestroyWrappedHandle<CommandBufferWrapper> dereferences parent_pool, which is null here.
     using namespace gfxrecon::encode::vulkan_wrappers;
 
     util::Log::Init(util::LoggingSeverity::kError);
@@ -1106,7 +1077,7 @@ TEST_CASE("Schema EncodeStruct matches wrapped-handle run wire bytes", "[schema]
 
     for (const Handles& handles : { Handles{ null_semaphores, null_command }, Handles{ semaphores, one_command } })
     {
-        // Migrated: three handle runs, the first sharing waitSemaphoreCount with the flags run beside it.
+        // Three handle runs, the first sharing waitSemaphoreCount with the flags run beside it.
         VkSubmitInfo submit{ VK_STRUCTURE_TYPE_SUBMIT_INFO,
                              nullptr,
                              2u,
@@ -1129,7 +1100,7 @@ TEST_CASE("Schema EncodeStruct matches wrapped-handle run wire bytes", "[schema]
             oracle.EncodeVulkanHandleArray<SemaphoreWrapper>(submit.pSignalSemaphores, submit.signalSemaphoreCount);
         }));
 
-        // Retained partner: a handle run beside a uint64 run under one count, probed chain walk.
+        // A handle run and a uint64_t run under one count; no has_extensions.
         VkSemaphoreWaitInfo wait{
             VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO, nullptr, VK_SEMAPHORE_WAIT_ANY_BIT, 2u, handles.semaphores, values
         };
@@ -1143,7 +1114,7 @@ TEST_CASE("Schema EncodeStruct matches wrapped-handle run wire bytes", "[schema]
             oracle.EncodeUInt64Array(wait.pValues, wait.semaphoreCount);
         }));
 
-        // Retained partner: two handle runs of different types beside a uint32 run and a VkResult run.
+        // Two handle runs of different types, a uint32_t run and a VkResult run.
         VkPresentInfoKHR present{ VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
                                   nullptr,
                                   1u,
@@ -1177,11 +1148,10 @@ TEST_CASE("Schema EncodeStruct matches wrapped-handle run wire bytes", "[schema]
 
 TEST_CASE("Schema EncodeStruct matches generic-handle and text-pointer wire bytes", "[schema][encode]")
 {
-    // One migrated structure carrying both idioms: a generic handle, an integer whose object type a sibling enum
-    // names and which the encoder resolves to a wrapper id through that enum, and a pointer to text. The retained
-    // partner is the debug-marker twin, whose selector is the older VkDebugReportObjectTypeEXT enum and whose chain
-    // walk is the probed one. A registered buffer resolves to a real id; the null object resolves to the null id;
-    // the text is null, empty, and a short name.
+    // Checks a generic handle and a text pointer. The handle is a uint64_t whose object type a sibling enum gives, and
+    // the encoder resolves it to a capture id through GetWrappedId with that enum: VkObjectType, then the older
+    // VkDebugReportObjectTypeEXT. A registered buffer resolves to its id and the null object to the null id; the text
+    // is null, empty, and a short name.
     using namespace gfxrecon::encode::vulkan_wrappers;
 
     util::Log::Init(util::LoggingSeverity::kError);
@@ -1217,7 +1187,7 @@ TEST_CASE("Schema EncodeStruct matches generic-handle and text-pointer wire byte
 
     for (const Case& c : { Case{ 0u, nullptr }, Case{ buffer_bits, "" }, Case{ buffer_bits, "schema" } })
     {
-        // Migrated: VkObjectType selector, trusted chain walk.
+        // VkObjectType selector; has_extensions.
         VkDebugUtilsObjectNameInfoEXT utils{
             VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT, nullptr, VK_OBJECT_TYPE_BUFFER, c.object, c.name
         };
@@ -1230,7 +1200,7 @@ TEST_CASE("Schema EncodeStruct matches generic-handle and text-pointer wire byte
             oracle.EncodeString(utils.pObjectName);
         }));
 
-        // Retained partner: VkDebugReportObjectTypeEXT selector, probed chain walk.
+        // VkDebugReportObjectTypeEXT selector; no has_extensions.
         VkDebugMarkerObjectNameInfoEXT marker{ VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_NAME_INFO_EXT,
                                                nullptr,
                                                VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_EXT,
@@ -1251,11 +1221,10 @@ TEST_CASE("Schema EncodeStruct matches generic-handle and text-pointer wire byte
 
 TEST_CASE("Schema EncodeStruct matches fixed-extent text wire bytes", "[schema][encode]")
 {
-    // One migrated structure, a fixed string beside one scalar and nothing else, so a mismatch can only be the
-    // string; the retained partner carries two fixed strings around two scalars. The string is empty, short, and
-    // filled to the extent minus one, against the procedural body's pointer-form EncodeString. A fourth case fills
-    // the whole extent with no terminator: the procedural form would read past the array there, so it is compared
-    // against the bounded category-keyed form the Action calls, which proves the bound holds rather than the bytes.
+    // Checks fixed-extent text against EncodeString: one string beside one scalar, so a mismatch can only be the
+    // string, then two strings around two scalars. The strings are empty, short, and the extent minus one. A fourth
+    // case fills the whole extent with no terminator: EncodeString would read past the array there, so it is compared
+    // against EncodeStringAs bounded by the extent, the call EncoderAdapter makes; that case checks the bound holds.
     auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
         return actual.GetDataSize() == oracle.GetDataSize() &&
                std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
@@ -1319,10 +1288,9 @@ TEST_CASE("Schema EncodeStruct matches fixed-extent text wire bytes", "[schema][
 
 TEST_CASE("Schema EncodeStruct matches wide-text pointer wire bytes", "[schema][encode]")
 {
-    // One migrated structure with an LPCWSTR beside a HANDLE, and a retained partner adding a semaphore handle. The
-    // WChar category's wire type is 16-bit units on every platform, converted element by element where wchar_t is
-    // wider, so the same bytes are expected on Windows and Linux. The name is null and set; the handle is a
-    // chosen value reinterpreted as HANDLE, void* off Windows.
+    // Checks LPCWSTR text against EncodeWString. Its wire type, WCharEncodeType, is 16-bit units on every platform,
+    // converted element by element where wchar_t is wider, so Windows and Linux expect the same bytes. The name is
+    // null and set; the HANDLE is a chosen value, void* off Windows.
     using namespace gfxrecon::encode::vulkan_wrappers;
 
     auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
@@ -1346,7 +1314,7 @@ TEST_CASE("Schema EncodeStruct matches wide-text pointer wire bytes", "[schema][
 
     for (LPCWSTR name : { static_cast<LPCWSTR>(nullptr), static_cast<LPCWSTR>(wide_name) })
     {
-        // Migrated: enum, HANDLE, LPCWSTR, trusted chain walk.
+        // Enum, HANDLE, LPCWSTR; has_extensions.
         VkImportMemoryWin32HandleInfoKHR import_memory{ VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_KHR,
                                                         nullptr,
                                                         VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT,
@@ -1361,7 +1329,7 @@ TEST_CASE("Schema EncodeStruct matches wide-text pointer wire bytes", "[schema][
             oracle.EncodeWString(import_memory.name);
         }));
 
-        // Retained partner: a null semaphore handle ahead of the same three, probed chain walk.
+        // A null semaphore handle ahead of the same three; no has_extensions.
         VkImportSemaphoreWin32HandleInfoKHR import_semaphore{ VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHR,
                                                               nullptr,
                                                               VK_NULL_HANDLE,
@@ -1384,11 +1352,10 @@ TEST_CASE("Schema EncodeStruct matches wide-text pointer wire bytes", "[schema][
 
 TEST_CASE("Schema EncodeStruct matches embedded-structure wire bytes", "[schema][encode]")
 {
-    // Two migrated structures cover the four structure shapes. VkRenderingInfo carries a structure value, a counted
-    // run of structures and two structure pointers, every inner type procedural, so the walk descends without any
-    // inner port; VkImageBlit carries two structure values and two fixed-extent structure arrays. The retained
-    // partner VkSpecializationInfo puts a structure run beside an OpaqueBytes run. Inner handles are null and the
-    // clear value is a union the inner procedural body owns, so nothing here depends on the wrapper table.
+    // Checks embedded structures: VkRenderingInfo carries a structure value, a counted run of structures and two
+    // structure pointers; VkImageBlit carries two structure values and two fixed-extent structure arrays;
+    // VkSpecializationInfo puts a structure run beside a void run. Inner handles are null, so nothing depends on the
+    // state handle table. VkClearValue, a union, goes through its hand-written EncodeStruct.
     auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
         return actual.GetDataSize() == oracle.GetDataSize() &&
                std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
@@ -1434,7 +1401,7 @@ TEST_CASE("Schema EncodeStruct matches embedded-structure wire bytes", "[schema]
         const VkRenderingAttachmentInfo* depth;
     };
 
-    // Migrated: a value (renderArea), a counted run (color attachments), two pointers, one null in each case.
+    // A value (renderArea), a counted run (color attachments), two pointers, one null in each case.
     for (const Attachments& a : { Attachments{ 0u, nullptr, nullptr }, Attachments{ 2u, color, &depth } })
     {
         VkRenderingInfo rendering{ VK_STRUCTURE_TYPE_RENDERING_INFO,
@@ -1462,8 +1429,8 @@ TEST_CASE("Schema EncodeStruct matches embedded-structure wire bytes", "[schema]
         }));
     }
 
-    // Migrated: two structure values and two fixed-extent structure arrays, offsets asymmetric so a swapped or
-    // truncated array lands on different bytes.
+    // Two structure values and two fixed-extent structure arrays, offsets asymmetric so a swapped or truncated array
+    // lands on different bytes.
     VkImageBlit blit{ VkImageSubresourceLayers{ VK_IMAGE_ASPECT_COLOR_BIT, 1u, 2u, 3u },
                       { VkOffset3D{ 0, 1, 2 }, VkOffset3D{ 16, 32, 1 } },
                       VkImageSubresourceLayers{ VK_IMAGE_ASPECT_COLOR_BIT, 0u, 5u, 1u },
@@ -1476,7 +1443,7 @@ TEST_CASE("Schema EncodeStruct matches embedded-structure wire bytes", "[schema]
         encode::EncodeStructArray(&oracle, blit.dstOffsets, 2);
     }));
 
-    // Retained partner: a structure run beside a byte run, through its procedural body.
+    // A structure run beside a void run.
     const VkSpecializationMapEntry entries[] = { VkSpecializationMapEntry{ 0u, 0u, 4u },
                                                  VkSpecializationMapEntry{ 1u, 4u, 1u } };
     const uint8_t                  data[]    = { 0x01, 0x02, 0x03, 0x04, 0x05 };
@@ -1495,16 +1462,12 @@ TEST_CASE("Schema EncodeStruct matches embedded-structure wire bytes", "[schema]
 
 TEST_CASE("Schema EncodeStruct matches counted fixed-extent array wire bytes", "[schema][encode]")
 {
-    // Two migrated structures whose fixed-extent arrays carry a count sibling. The procedural bodies encode the
-    // count, not the extent, and the schema records the sibling as length, so the static-array overload reads
-    // it. VkPhysicalDeviceMemoryProperties holds two structure arrays; VkPhysicalDeviceGroupProperties holds the
-    // registry's one handle static array, the only exercise the handle array adapter entry's static-array half
-    // gets. Counts sit below the extents so a full-extent run lands on different bytes. The over-extent cases have
-    // no procedural oracle, since those bodies would read past the member; their oracle is the primitive sequence
-    // with the count written as the driver set it and the run clamped to the extent. Two retained partners:
-    // VkPhysicalDeviceMemoryProperties2 reaches a migrated body through a procedural parent, and
-    // VkQueueFamilyGlobalPriorityProperties has a count sibling the naming heuristic misses (DF-1), so its body
-    // still writes the full extent.
+    // Checks fixed-extent arrays whose length is a count Field: the run is written to the count, clamped to the
+    // extent by ParameterEncoder::ClampStaticArrayLength. VkPhysicalDeviceMemoryProperties holds two structure arrays.
+    // VkPhysicalDeviceGroupProperties::physicalDevices is the only fixed array of handles in vk.xml, so it is the only
+    // case for the fixed-array half of EncoderAdapter's handle-array overload. Counts sit below the extents, so a
+    // full-extent run lands on different bytes. For counts over the extents, the oracle writes the count as set and
+    // the run clamped to the extent.
     using namespace gfxrecon::encode::vulkan_wrappers;
 
     util::Log::Init(util::LoggingSeverity::kError);
@@ -1563,7 +1526,7 @@ TEST_CASE("Schema EncodeStruct matches counted fixed-extent array wire bytes", "
         uint32_t heaps;
     };
 
-    // Migrated: counts below the extents, zero counts, and counts equal to the extents.
+    // Counts below the extents, zero counts, and counts equal to the extents.
     for (const Counts& counts :
          { Counts{ 3u, 2u }, Counts{ 0u, 0u }, Counts{ VK_MAX_MEMORY_TYPES, VK_MAX_MEMORY_HEAPS } })
     {
@@ -1580,7 +1543,7 @@ TEST_CASE("Schema EncodeStruct matches counted fixed-extent array wire bytes", "
         }));
     }
 
-    // Migrated, counts over the extents: the count is recorded as set, the run stops at the extent.
+    // Counts over the extents: the count is recorded as set, the run stops at the extent.
     {
         VkPhysicalDeviceMemoryProperties properties{};
         fill(properties);
@@ -1595,7 +1558,7 @@ TEST_CASE("Schema EncodeStruct matches counted fixed-extent array wire bytes", "
         }));
     }
 
-    // Retained partner: a procedural parent whose structure value is the migrated body.
+    // The same structure embedded by value in VkPhysicalDeviceMemoryProperties2.
     {
         VkPhysicalDeviceMemoryProperties2 properties2{};
         properties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
@@ -1614,9 +1577,9 @@ TEST_CASE("Schema EncodeStruct matches counted fixed-extent array wire bytes", "
         }));
     }
 
-    // Migrated: the handle static array. Physical devices are dispatchable, so each registers from a local pointer
-    // slot with a null parent, as the command buffer does in the handle-run test, and is removed through the generic
-    // path. Elements past the count stay VK_NULL_HANDLE, so the over-extent run is two ids and thirty nulls.
+    // The fixed array of handles. Physical devices are dispatchable, so each registers from a local pointer slot with a
+    // null parent, as the command buffer does in the handle-run test, and is removed with RemoveWrapper. Elements past
+    // the count stay VK_NULL_HANDLE, so the over-extent run is two ids and thirty nulls.
     void*            device_objects[2] = { nullptr, nullptr };
     VkPhysicalDevice devices[2]        = { reinterpret_cast<VkPhysicalDevice>(&device_objects[0]),
                                            reinterpret_cast<VkPhysicalDevice>(&device_objects[1]) };
@@ -1659,8 +1622,8 @@ TEST_CASE("Schema EncodeStruct matches counted fixed-extent array wire bytes", "
         delete wrapper;
     }
 
-    // Retained partner: the count sibling priorityCount reaches the API element through the registry's len attribute
-    // (dev PR 3265), so the run is written to its count, not its extent.
+    // vk.xml gives priorities len="priorityCount", so the Field's length is priorityCount and the run is written to
+    // the count, not the extent.
     {
         VkQueueFamilyGlobalPriorityProperties priorities{};
         priorities.sType         = VK_STRUCTURE_TYPE_QUEUE_FAMILY_GLOBAL_PRIORITY_PROPERTIES;
@@ -1683,15 +1646,11 @@ TEST_CASE("Schema EncodeStruct matches counted fixed-extent array wire bytes", "
 
 TEST_CASE("Schema EncodeStruct matches pointer-array wire bytes", "[schema][encode]")
 {
-    // The PointerArray shape: an array of count pointers, each to one element. The storage is the same for a run of
-    // strings and a run of structures, and the wire is not: the adapter's text entry writes a one-dimensional array
-    // of strings, its struct entry writes the two-dimensional structure array with every row of length one, which is
-    // the encoder's spelling of a pointer to one structure. Two migrated structures, one per category: VkInstanceCreateInfo
-    // carries two string runs beside a structure pointer, and VkAccelerationStructureGeometryMicromapDataKHR carries
-    // a structure run and the pointer run over the same count beside address values. The retained partners
-    // VkDeviceCreateInfo and VkMicromapBuildInfoEXT carry the same runs through their procedural bodies; the latter
-    // waits only on a MicromapEXTWrapper row, since its unions descend into their hand-written encoders like any
-    // structure value.
+    // Checks PointerArrayField: an array of count pointers, each to one element. The storage is the same for a run of
+    // strings and a run of structures, and the wire is not: text is written as a one-dimensional string array,
+    // structures as EncodeStructArray2D with every inner length 1, the encoder's form of a pointer to one structure.
+    // VkInstanceCreateInfo and VkDeviceCreateInfo carry string runs; VkAccelerationStructureGeometryMicromapDataKHR and
+    // VkMicromapBuildInfoEXT carry a structure run and a pointer run over the same count.
     namespace instance_field = schema::vulkan::fields::VkInstanceCreateInfo;
     namespace micromap_field = schema::vulkan::fields::VkAccelerationStructureGeometryMicromapDataKHR;
 
@@ -1710,7 +1669,8 @@ TEST_CASE("Schema EncodeStruct matches pointer-array wire bytes", "[schema][enco
                                  schema::FieldValue<micromap_field::usageCountsCount>>);
     static_assert(schema::ArrayField<micromap_field::pUsageCounts>);
 
-    // Both counted shapes are pointer shapes to the decoder, which reads depth and length from the wire.
+    // ppUsageCounts is AnyPointerField and AnyCountedField, not AnyArrayField. To the decoder both counted forms are
+    // pointer forms: a PointerDecoder reads depth and length from the wire.
     static_assert(schema::AnyPointerField<micromap_field::ppUsageCounts>);
     static_assert(schema::AnyCountedField<micromap_field::ppUsageCounts>);
     static_assert(!schema::AnyArrayField<micromap_field::ppUsageCounts>);
@@ -1755,7 +1715,7 @@ TEST_CASE("Schema EncodeStruct matches pointer-array wire bytes", "[schema][enco
     for (const Names& names :
          { Names{ 0u, nullptr, 0u, nullptr, nullptr }, Names{ 2u, layers, 3u, extensions, &application } })
     {
-        // Migrated: two string runs, kIsArray of strings on the wire.
+        // Two string runs beside a structure pointer.
         VkInstanceCreateInfo instance{};
         instance.sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
         instance.flags                   = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
@@ -1776,7 +1736,7 @@ TEST_CASE("Schema EncodeStruct matches pointer-array wire bytes", "[schema][enco
             oracle.EncodeStringArray(instance.ppEnabledExtensionNames, instance.enabledExtensionCount);
         }));
 
-        // Retained partner: the same two runs beside a structure run and a structure pointer.
+        // The same two runs beside a structure run and a structure pointer.
         VkDeviceCreateInfo device{};
         device.sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
         device.enabledLayerCount       = names.layer_count;
@@ -1813,7 +1773,7 @@ TEST_CASE("Schema EncodeStruct matches pointer-array wire bytes", "[schema][enco
 
     for (const Usages& u : { Usages{ 0u, nullptr, nullptr }, Usages{ 2u, usages, usage_pointers } })
     {
-        // Migrated: a structure run and a run of pointers to structures, kIsArray2D with rows of one on the wire.
+        // A structure run, and a run of pointers to structures written as a 2D array with inner length 1.
         VkAccelerationStructureGeometryMicromapDataKHR micromap{};
         micromap.sType               = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_MICROMAP_DATA_KHR;
         micromap.usageCountsCount    = u.count;
@@ -1835,7 +1795,7 @@ TEST_CASE("Schema EncodeStruct matches pointer-array wire bytes", "[schema][enco
         }));
     }
 
-    // Retained partner: the EXT usage type through the same two runs, beside a null handle and three unions.
+    // VkMicromapUsageEXT through the same two runs, beside a null handle and three unions.
     const VkMicromapUsageEXT ext_usages[] = { VkMicromapUsageEXT{ 4u, 1u, 0u }, VkMicromapUsageEXT{ 9u, 3u, 1u } };
     const VkMicromapUsageEXT* const ext_usage_pointers[] = { &ext_usages[0], &ext_usages[1] };
 
@@ -1869,20 +1829,17 @@ TEST_CASE("Schema EncodeStruct matches pointer-array wire bytes", "[schema][enco
 
 TEST_CASE("Schema EncodeStruct matches computed-count wire bytes", "[schema][encode]")
 {
-    // Three migrated structures whose run length is registry arithmetic rather than one sibling, one per operator:
-    // a size_t sibling over a constant (VkShaderModuleCreateInfo, codeSize / 4), an enum sibling plus a constant over
-    // a constant (VkPipelineMultisampleStateCreateInfo, (rasterizationSamples + 31) / 32), and two constants with no
-    // sibling at all (VkMicromapVersionInfoEXT, 2*VK_UUID_SIZE). The API element carries the expression as a
-    // StoreValue type, the Action's counted-run Apply evaluates it through LengthOf_t::Get, and the procedural body
-    // each replaced is the oracle. Two retained partners: VkPipelineRasterizationStateCreateInfo has the same scalar,
-    // enum and float fields as the multisample state with no run, and VkAccelerationStructureVersionInfoKHR is the
-    // micromap version's byte-identical twin on its procedural body.
+    // Checks run lengths that are vk.xml altlen arithmetic rather than one count Field, one per operator: a size_t
+    // Field over a constant (VkShaderModuleCreateInfo, codeSize / 4), an enum Field plus a constant over a constant
+    // (VkPipelineMultisampleStateCreateInfo, (rasterizationSamples + 31) / 32), and two constants with no Field at all
+    // (VkMicromapVersionInfoEXT, 2*VK_UUID_SIZE). The Field's Array declaration holds the expression as StoreValue
+    // types, and EncodeStructAction's counted-run Apply evaluates it through LengthOf_t::Get.
     namespace shader_field      = schema::vulkan::fields::VkShaderModuleCreateInfo;
     namespace multisample_field = schema::vulkan::fields::VkPipelineMultisampleStateCreateInfo;
     namespace micromap_field    = schema::vulkan::fields::VkMicromapVersionInfoEXT;
 
-    // The API elements state the registry's arithmetic in prefix form, literals unsigned beside an unsigned
-    // sibling or constant and int beside an enum.
+    // LengthOf_t states vk.xml's arithmetic in prefix form; a literal is unsigned beside an unsigned Field or constant,
+    // and int beside an enum.
     static_assert(std::is_same_v<schema::LengthOf_t<shader_field::pCode>,
                                  schema::Quotient<schema::FieldValue<shader_field::codeSize>, schema::Literal<4u>>>);
     static_assert(
@@ -1893,7 +1850,8 @@ TEST_CASE("Schema EncodeStruct matches computed-count wire bytes", "[schema][enc
     static_assert(std::is_same_v<schema::LengthOf_t<micromap_field::pVersionData>,
                                  schema::Product<schema::Literal<2u>, schema::Literal<VK_UUID_SIZE>>>);
 
-    // Every operand is a StoreValue, nothing else is, and a count yields an integer or an enum but never a bool.
+    // FieldValue, Literal and Sum are StoreValues, and int and a Field are not. IntegralLength admits integers and
+    // enums, and not bool or float.
     static_assert(schema::StoreValue<schema::FieldValue<shader_field::codeSize>>);
     static_assert(schema::StoreValue<schema::Literal<4u>>);
     static_assert(schema::StoreValue<schema::Sum<schema::Literal<1u>, schema::Literal<2u>>>);
@@ -1996,7 +1954,8 @@ TEST_CASE("Schema EncodeStruct matches computed-count wire bytes", "[schema][enc
         oracle.EncodeUInt8Array(micromap.pVersionData, 2 * VK_UUID_SIZE);
     }));
 
-    // Retained partner: the multisample state's neighbour in the pipeline, scalars, enums and floats, no run.
+    // VkPipelineRasterizationStateCreateInfo, the multisample state's neighbour in the pipeline: scalars, enums and
+    // floats, and no run.
     VkPipelineRasterizationStateCreateInfo rasterization{ VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
                                                           nullptr,
                                                           0u,
@@ -2027,7 +1986,7 @@ TEST_CASE("Schema EncodeStruct matches computed-count wire bytes", "[schema][enc
         oracle.EncodeFloatValue(rasterization.lineWidth);
     }));
 
-    // Retained partner: the micromap version's twin, same three fields and the same constant length.
+    // VkAccelerationStructureVersionInfoKHR: VkMicromapVersionInfoEXT's three fields and constant length.
     VkAccelerationStructureVersionInfoKHR acceleration{ VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_VERSION_INFO_KHR,
                                                         nullptr,
                                                         version };
@@ -2062,10 +2021,10 @@ TEST_CASE("Get yields a Field's value in place or by copy", "[schema]")
 
 TEST_CASE("A length reads a length through a pointer sibling", "[schema]")
 {
-    // Three command parameters have a registry length of the form sibling->member, with no sibling holding the
-    // count itself. The generator records the two-argument FieldValue for each, and its Get reads the sibling's
-    // value, dereferences it, and reads the member from the pointee. The pointee's own Fields and
-    // MemberPointer rows serve the inner read, so the schema names the member and generates nothing else for it.
+    // Three command parameters have a vk.xml len of the form param->member, with no parameter that holds the count
+    // itself. The generator emits FieldValue<param, member> for each; its Get reads param, dereferences it, and reads
+    // member from the structure it points at. That structure's own Fields and MemberPointer specializations serve the
+    // inner read, so the schema declares the member and emits nothing else for it.
     namespace alloc_info_field = schema::vulkan::fields::VkCommandBufferAllocateInfo;
     namespace set_field        = schema::vulkan::fields::AllocateDescriptorSets;
     namespace set_info_field   = schema::vulkan::fields::VkDescriptorSetAllocateInfo;
@@ -2080,8 +2039,8 @@ TEST_CASE("A length reads a length through a pointer sibling", "[schema]")
     static_assert(std::is_same_v<schema::LengthOf_t<sizes_field::pMaxPrimitiveCounts>,
                                  schema::FieldValue<sizes_field::pBuildInfo, build_field::geometryCount>>);
 
-    // The two-argument form is a count the Action can evaluate on a store that holds the pointer sibling, and the
-    // store the member is read from is the pointee.
+    // The two-argument form is a length the Action can evaluate on a store that holds the pointer parameter
+    // (FieldWithLength); its FieldStore, the store member is read from, is the structure the pointer points at.
     static_assert(schema::FieldWithLength<AllocateCallStore, alloc_field::pCommandBuffers>);
     static_assert(std::is_same_v<schema::LengthOf_t<alloc_field::pCommandBuffers>::FieldStore<AllocateCallStore>,
                                  VkCommandBufferAllocateInfo>);
@@ -2093,9 +2052,9 @@ TEST_CASE("A length reads a length through a pointer sibling", "[schema]")
     CHECK(schema::LengthOf_t<alloc_field::pCommandBuffers>::Get(store) == 3u);
     CHECK(schema::FieldValue<alloc_field::pAllocateInfo>::Get(store) == &info);
 
-    // The Action's counted-run Apply evaluates the same count. No command goes through the encode Action yet, but
-    // the Apply is per field and takes any store that holds the members, so it runs on the hand-written store. Two
-    // registered command buffers behind a count of two, against the procedural handle-array call.
+    // EncodeStructAction's counted-run Apply evaluates the same length. No command encoder uses EncodeStructAction,
+    // but the Apply is per Field and takes any store that holds the members, so it runs on the hand-written store: two
+    // registered command buffers behind a count of two, against EncodeVulkanHandleArray.
     using namespace gfxrecon::encode::vulkan_wrappers;
 
     util::Log::Init(util::LoggingSeverity::kError);
@@ -2142,26 +2101,20 @@ TEST_CASE("A generated command schema invokes a positional call in parameter ord
     CHECK(store.memoryBarrierCount == 0);
 }
 
-TEST_CASE("The generated DecodeStruct for VkBufferMemoryBarrier is a schema field walk", "[schema]")
+TEST_CASE("DecodeStruct for VkBufferMemoryBarrier is a schema field walk", "[schema]")
 {
     using namespace gfxrecon::decode;
 
-    // VkBufferMemoryBarrier is schema-driven, so the struct-decoders generator emits no procedural body for it and
-    // DecodeStruct is the field walk. Nothing below names a field of the structure: the
-    // schema orders them and the hand-written Action decides what each one means.
-    //
-    // Equivalence with the procedural body was checked field for field before the swap, by decoding the same buffer
-    // both ways. That comparison is no longer available once the procedural body is gone, so what remains is the
-    // round trip against the values written below, which is independent of either implementation.
+    // Checks DecodeStruct on bytes written from ParameterEncoder calls: every field round-trips, and the bytes read
+    // equal the bytes written.
     util::Log::Init(util::LoggingSeverity::kError);
 
     auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
     auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
 
-    // The wire layout is written from the encoder primitives rather than from EncodeStruct, for one reason: a handle
-    // encodes through GetWrappedId, so a handle the capture layer never wrapped would record as a null identity and
-    // the handle path would not be exercised with a real value. The call order below is the generated encoder's,
-    // which is the canonical field order the schema also carries.
+    // Written from ParameterEncoder calls, not EncodeStruct: EncodeStruct encodes a handle through GetWrappedId, so a
+    // handle the capture layer never wrapped would encode as the null id and the handle path would not see a real
+    // value. The calls follow the schema's field order.
     constexpr format::HandleId kBufferId       = 0x0000BEEFCAFE0001ull;
     constexpr VkAccessFlags    kSrcAccess      = VK_ACCESS_TRANSFER_WRITE_BIT;
     constexpr VkAccessFlags    kDstAccess      = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_UNIFORM_READ_BIT;
@@ -2186,7 +2139,6 @@ TEST_CASE("The generated DecodeStruct for VkBufferMemoryBarrier is a schema fiel
 
     DecodeAllocator::Begin();
 
-    // This is the ordinary decode entry point. Its body is the field walk.
     VkBufferMemoryBarrier         walked_value{};
     Decoded_VkBufferMemoryBarrier walked{};
     walked.decoded_value     = &walked_value;
@@ -2194,8 +2146,8 @@ TEST_CASE("The generated DecodeStruct for VkBufferMemoryBarrier is a schema fiel
 
     CHECK(walked_read == encoded_size);
 
-    // ...and round-trips the value that was written, in the right order and at the right width. A field read out of
-    // order or at the wrong width would land in a neighbour, so these also pin the canonical field order.
+    // Round-trips the value that was written, in the right order and at the right width. A field read out of order
+    // or at the wrong width would land in a neighbour, so these also pin the canonical field order.
     CHECK(walked_value.sType == VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER);
     CHECK(walked_value.srcAccessMask == kSrcAccess);
     CHECK(walked_value.dstAccessMask == kDstAccess);
@@ -2208,7 +2160,7 @@ TEST_CASE("The generated DecodeStruct for VkBufferMemoryBarrier is a schema fiel
     CHECK(walked.buffer == kBufferId);
     CHECK(walked_value.buffer == VK_NULL_HANDLE);
 
-    // The extension chain took the chain overload.
+    // A null pNext decodes as null.
     CHECK(walked.pNext == nullptr);
     CHECK(walked_value.pNext == nullptr);
 
@@ -2221,13 +2173,9 @@ TEST_CASE("A field walk decodes a scalar array into the wrapper and points the A
 {
     using namespace gfxrecon::decode;
 
-    // VkShaderModuleCreateInfo is the smallest structure carrying an Array of scalars. Its pCode is
-    // the case the scalar-array overload exists for: the run decodes into the wrapper's PointerDecoder and the
-    // API structure's pointer follows it, the same shape the extension chain already had.
-    //
-    // codeSize is the sibling count field, and the walk never reads it. It is decoded as its own scalar in its own
-    // position, and the array's length travels with the array on the wire, so the two are independent on purpose --
-    // a walk that consulted the count would have to know which field it was.
+    // Checks an Array of scalars: VkShaderModuleCreateInfo::pCode decodes into the wrapper's PointerDecoder, and the
+    // API structure's pCode points at it. codeSize is decoded as its own scalar in its own position, and the walk
+    // never reads it: the run's length travels with the run on the wire.
     util::Log::Init(util::LoggingSeverity::kError);
 
     auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
@@ -2283,12 +2231,8 @@ TEST_CASE("A field walk decodes an array of structures and descends into each el
 {
     using namespace gfxrecon::decode;
 
-    // VkSparseBufferMemoryBindInfo is the smallest structure carrying an Array of structures, and it has no
-    // sType and no pNext, which is worth having: the walk makes no assumption that a structure is extensible.
-    //
-    // Each element descends through the ordinary DecodeStruct entry point, which for VkSparseMemoryBind is a second
-    // field walk. The array overload does not know or care which: it meets the element at the entry point, the same
-    // way it would meet a hand-written body.
+    // Checks an Array of structures in VkSparseBufferMemoryBindInfo, which has no sType and no pNext: the walk does
+    // not assume a structure is extensible. Each VkSparseMemoryBind decodes through DecodeStruct, a second field walk.
     util::Log::Init(util::LoggingSeverity::kError);
 
     auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
@@ -2355,13 +2299,10 @@ TEST_CASE("A field walk decodes a fixed-extent array in place, extents from the 
 {
     using namespace gfxrecon::decode;
 
-    // VkTransformMatrixKHR is one field, float matrix[3][4]. The Field records extents {3, 4}, and the overload
-    // takes both extents from std::extent_v on the API member's declared type, which the member trait already
-    // names, so the one and two dimensional cases need no separate treatment. The generated checks file asserts
-    // the recorded and declared extents agree.
-    //
-    // This is also the only shape so far that writes nothing to the decoded value at the end. The decoder is
-    // pointed at the decoded value's own storage, so decoding fills the API structure's array directly.
+    // Checks VkTransformMatrixKHR::matrix, float[3][4], declared FixedArray<FixedArray<Float, UseCapacity, 4>,
+    // UseCapacity, 3>. The Action takes both extents from std::extent_v on the API member's type, so one and two
+    // dimensions need no separate case. The decoder is pointed at the API structure's own array, so decoding fills it
+    // directly and nothing is assigned afterwards.
     util::Log::Init(util::LoggingSeverity::kError);
 
     auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
@@ -2413,12 +2354,10 @@ TEST_CASE("A field walk decodes a pointer to a structure through the same overlo
 {
     using namespace gfxrecon::decode;
 
-    // VkDeviceBufferMemoryRequirements carries a pointer to one VkBufferCreateInfo. No overload was added for it:
-    // StructPointerDecoder reads its own length from the wire, so one structure is a run of one and the body is the
-    // array case unchanged. Only the constraint widened, from ArrayField to either pointer shape.
-    //
-    // The element is a large extensible structure, so this descends into a substantial second walk rather than a
-    // leaf -- including that element's own pNext.
+    // Checks VkDeviceBufferMemoryRequirements::pCreateInfo, a pointer to one VkBufferCreateInfo. It takes the
+    // structure-run overload (AnyPointerField): StructPointerDecoder reads its own length from the wire, so one
+    // structure is a run of one. The element is a large extensible structure, so this descends into a second walk,
+    // including that element's own pNext.
     util::Log::Init(util::LoggingSeverity::kError);
 
     auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
@@ -2477,12 +2416,10 @@ TEST_CASE("A field walk writes a bitfield through Set, since it has no address",
 {
     using namespace gfxrecon::decode;
 
-    // StdVideoAV1TileInfoFlags is uniform_tile_spacing_flag : 1 and reserved : 31. Neither member has an address --
-    // C++ [class.bit]/3 forbids both &member and binding a non-const reference to one -- so the member trait holds
-    // generated Get and Set accessors in place of a pointer-to-member, and the walk writes through Set.
-    //
-    // Each bitfield is recorded as a whole uint32 on the wire, so a one-bit flag costs four bytes. The values below
-    // are chosen to prove that: 8 bytes for two fields, and reserved carries a value wider than one bit.
+    // Checks StdVideoAV1TileInfoFlags: uniform_tile_spacing_flag : 1 and reserved : 31. Neither member has an
+    // address, so its MemberPointer specialization holds generated Get and Set accessors in place of a
+    // pointer-to-member, and the walk writes through Set. Each bitfield is a whole uint32_t on the wire, so a one-bit
+    // flag costs four bytes: 8 bytes for two fields, and reserved carries a value wider than one bit.
     util::Log::Init(util::LoggingSeverity::kError);
 
     auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
@@ -2518,14 +2455,9 @@ TEST_CASE("A field walk keeps an opaque pointer in the wrapper and leaves the de
 {
     using namespace gfxrecon::decode;
 
-    // VkCheckpointData2NV::pCheckpointMarker is a void pointer to something outside the API. The capture recorded
-    // whatever address the application held, which means nothing in this process, so it lands in the wrapper as a
-    // value and the decoded value's pointer is left null for replay to resolve through PreProcessExternalObject --
-    // the same division a handle gets.
-    //
-    // Its declaration is Pointer<Void>, and the pointer-to-void entry records the address, so the schema states the
-    // wire form and the overload reads it from the category like every other. The API element exists because the
-    // declared type cannot state it: this is void*, and so is a counted run of bytes, and so is pNext.
+    // Checks VkCheckpointData2NV::pCheckpointMarker, a Pointer<Void> to something outside the API. The captured
+    // address means nothing in this process, so ValueDecoder::DecodeAddress reads it into the wrapper's uint64_t, and
+    // the API structure's pointer is left null -- the same division a handle gets.
     util::Log::Init(util::LoggingSeverity::kError);
 
     auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
@@ -2570,12 +2502,9 @@ TEST_CASE("A field walk decodes both address populations in one structure", "[sc
 {
     using namespace gfxrecon::decode;
 
-    // VkAllocationCallbacks is the densest address case: one pointer to something outside the API, and five
-    // function pointers. The first is Pointer<Void> and the rest name their own PFN_* callback API elements,
-    // but every field has category Address, so one overload takes all six and the schema needed no special case for
-    // the function pointers.
-    //
-    // It also has no sType and no pNext.
+    // Checks VkAllocationCallbacks: pUserData is a Pointer<Void>, and the five PFN_* members are Funcpointer values.
+    // pUserData takes the pointer-to-opaque-or-void overload and the function pointers take the identifier overload;
+    // both read an address into the wrapper and null the API structure's member. No sType or pNext.
     util::Log::Init(util::LoggingSeverity::kError);
 
     auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
@@ -2634,13 +2563,10 @@ TEST_CASE("A field walk decodes a run of handles into the wrapper and nulls the 
 {
     using namespace gfxrecon::decode;
 
-    // VkRenderPassAttachmentBeginInfo::pAttachments is a run of VkImageView. It gets the same division a single
-    // handle gets: the capture-file identities land in the wrapper's HandlePointerDecoder and the decoded value's
-    // pointer stays null, because replay maps the identities to handles of its own run.
-    //
-    // The identities are written with EncodeHandleIdArray rather than EncodeVulkanHandleArray, for the reason the
-    // single-handle test gives: the latter goes through GetWrappedId, so handles this process never wrapped would
-    // record as null and the path would not be exercised with real values.
+    // Checks VkRenderPassAttachmentBeginInfo::pAttachments, a run of VkImageView, divided as a single handle is: the
+    // capture ids go to the wrapper's HandlePointerDecoder, and the API structure's pointer stays null because replay
+    // maps the ids into the decoder's own handle storage. The ids are written with EncodeHandleIdArray, since
+    // EncodeVulkanHandleArray goes through GetWrappedId and would encode handles this process never wrapped as null.
     util::Log::Init(util::LoggingSeverity::kError);
 
     auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
@@ -2690,13 +2616,10 @@ TEST_CASE("A field walk decodes a string and points the decoded value at it", "[
 {
     using namespace gfxrecon::decode;
 
-    // VkDebugUtilsLabelEXT is a string beside a fixed-extent array, so it exercises the two shapes that both
-    // decode in place of the API's own storage but resolve it differently: the string allocates and the decoded
-    // value points at what it allocated, while color decodes straight into the decoded value's own array.
-    //
-    // One overload serves a single string and a run of them. StringDecoder, WStringDecoder and StringArrayDecoder
-    // all read their own length and hand back storage, so only the wrapper's member type differs, and the category
-    // picks that rather than picking a call.
+    // Checks VkDebugUtilsLabelEXT, a string beside a fixed-extent array. The string decodes into storage the
+    // StringDecoder allocates, and the API structure points at it; color decodes straight into the API structure's own
+    // array. One overload serves a single string and a run of them: StringDecoder, WStringDecoder and
+    // StringArrayDecoder each read their own length and hand back storage, so only the wrapper's member type differs.
     util::Log::Init(util::LoggingSeverity::kError);
 
     auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
@@ -2745,12 +2668,9 @@ TEST_CASE("A field walk decodes fixed-extent strings in place", "[schema]")
 {
     using namespace gfxrecon::decode;
 
-    // VkLayerProperties carries two fixed-extent strings of different extents, with scalars between them. Like any
-    // fixed-extent array they decode into the decoded value's own storage rather than into storage of the
-    // decoder's, so nothing is assigned afterwards and the extents come from the API declaration.
-    //
-    // The names are shorter than their arrays, which is the case worth pinning: the wire carries the string, not
-    // the array, so the two fields are not the same size on the wire even though both arrays are fixed.
+    // Checks VkLayerProperties: two fixed-extent strings of different extents, with scalars between them. They decode
+    // into the API structure's own arrays, so nothing is assigned afterwards and the extents come from the API
+    // declaration. The names are shorter than their arrays: the wire carries the string, not the array.
     util::Log::Init(util::LoggingSeverity::kError);
 
     auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
@@ -2796,13 +2716,9 @@ TEST_CASE("A counted void pointer decodes as the bytes the capture kept", "[sche
 {
     using namespace gfxrecon::decode;
 
-    // VkPipelineCacheCreateInfo::pInitialData is declared const void* with a byte count. No overload was added for
-    // it: the capture stores it as bytes, so the API element names uint8_t and the scalar-run overload takes it
-    // unchanged. void names no API element, and the wrapper had already settled the question by declaring
-    // PointerDecoder<uint8_t>.
-    //
-    // With this the Void API element is left with only the two uses where void really means no value: the extension
-    // chain and a void command's return.
+    // Checks VkPipelineCacheCreateInfo::pInitialData, an Array<Const<Void>> with a byte count. It takes the void-run
+    // overload: the bytes decode into the wrapper's PointerDecoder<uint8_t> through DecodeUInt8, and the API
+    // structure's pointer points at them.
     util::Log::Init(util::LoggingSeverity::kError);
 
     auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
@@ -2852,12 +2768,9 @@ TEST_CASE("One overload takes a scalar pointer and a scalar run in the same stru
 {
     using namespace gfxrecon::decode;
 
-    // VkRenderingInputAttachmentIndexInfo carries a run of uint32_t and two pointers to one uint32_t, all the same
-    // category. No overload was added: the scalar-run constraint widened to either pointer shape, because
-    // PointerDecoder reads its own length from the wire and one element is a run of one.
-    //
-    // The reference exemplar VkBindMemoryStatus reaches the same overload with category Enum, which is the half this
-    // structure does not show.
+    // Checks VkRenderingInputAttachmentIndexInfo: a uint32_t run and two pointers to one uint32_t take one overload
+    // (ScalarApiElement and AnyPointerField), since PointerDecoder reads its own length from the wire and one element
+    // is a run of one. VkBindMemoryStatus::pResult reaches the same overload with an enum.
     util::Log::Init(util::LoggingSeverity::kError);
 
     auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
@@ -2913,11 +2826,8 @@ TEST_CASE("A field walk decodes a fixed-extent array of structures in place", "[
 {
     using namespace gfxrecon::decode;
 
-    // VkImageBlit2 carries two VkOffset3D[2]. The decoder is allocated as it is for any run of structures, then
-    // pointed at the decoded value's own array so it decodes into that, which is the fixed-extent half of the
-    // pattern applied to the structure decoder. Nothing is assigned afterwards.
-    //
-    // Its reference twin VkImageBlit is the same structure without sType and pNext.
+    // Checks VkImageBlit2's two VkOffset3D[2]. Each StructPointerDecoder is allocated as for any run of structures,
+    // then pointed at the API structure's own array with SetExternalMemory, so nothing is assigned afterwards.
     util::Log::Init(util::LoggingSeverity::kError);
 
     auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
@@ -2979,10 +2889,9 @@ TEST_CASE("A field walk descends into an embedded structure", "[schema]")
 {
     using namespace gfxrecon::decode;
 
-    // VkImageMemoryBarrier adds one field the previous structure did not have: an embedded VkImageSubresourceRange.
-    // That field needs the fourth Apply overload, which allocates the nested decoded wrapper, links it to the inline
-    // API structure's member, and descends through DecodeStruct. VkImageSubresourceRange is itself schema-owned here,
-    // so the descent lands in a second field walk -- but the outer Action neither knows nor cares about that.
+    // Checks VkImageMemoryBarrier's embedded VkImageSubresourceRange. The embedded-structure overload allocates the
+    // nested wrapper, links its decoded_value to the API structure's member, and descends through DecodeStruct, which
+    // for VkImageSubresourceRange is a second field walk.
     util::Log::Init(util::LoggingSeverity::kError);
 
     auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
@@ -3074,10 +2983,11 @@ TEST_CASE("The schema filler populates every described field", "[schema][fill]")
     CHECK(info.pNext == nullptr);
 }
 
-// The enumerant table names every enumerant, and the two name functions agree with it: ToString substitutes its
-// unhandled string on a miss, to_json the hex form. VkStructureType is the largest enum and the sieves' key;
-// VkImageUsageFlagBits stands for the flag-bits enums, whose per-bit expansion reads the same entries.
-TEST_CASE("Enumerants names every enumerant and both name functions read it", "[schema][enumerants]")
+// Checks that the enumerant table holds every enumerant and that both name functions agree with it: ToString returns
+// its unhandled string on a miss, to_json the hex form. VkStructureType is the largest enum and the key
+// StructureTypeIndex indexes by; VkImageUsageFlagBits stands for the flag-bits enums, whose per-bit expansion reads
+// the same entries.
+TEST_CASE("Enumerants holds every enumerant and both name functions read it", "[schema][enumerants]")
 {
     auto check_every_entry = []<typename Enum>() {
         for (const auto& entry : binding::EnumerantTableOf_t<Enum>::entries)

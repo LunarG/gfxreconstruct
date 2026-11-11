@@ -20,8 +20,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// A sorted key table that maps a key to the position it had in the array the table was built from. Find returns
-// kMiss for a key not in the table.
+// This header declares KeyIndex, a sorted key table normally built at compile time. schema::StructureTypeIndex and
+// binding::EnumerantLookup are built on it.
 #ifndef GFXRECON_UTIL_KEY_INDEX_H
 #define GFXRECON_UTIL_KEY_INDEX_H
 
@@ -40,7 +40,8 @@ GFXRECON_BEGIN_NAMESPACE(util)
 
 GFXRECON_BEGIN_NAMESPACE(detail)
 
-// Not constexpr, so a KeyIndex built at compile time fails to compile when two keys are equal.
+// Not constexpr, so a KeyIndex built at compile time fails to compile when two keys are equal. Built at run time, it
+// asserts in DEBUG and is a no-op in RELEASE.
 inline void KeyIndexHasDuplicateKeys()
 {
     GFXRECON_ASSERT(false);
@@ -48,9 +49,9 @@ inline void KeyIndexHasDuplicateKeys()
 
 GFXRECON_END_NAMESPACE(detail)
 
-// Key to position. Find is a binary search over the keys sorted at construction; the position is the element's
-// index in the array the table was built from, and a key not in the table yields kMiss. The array holds keys, or
-// elements that key_of maps to keys.
+// KeyIndex maps a key to the position it had in the array the table was built from. The array holds keys, or elements
+// that key_of maps to keys. Find is a binary search over the keys sorted at construction and returns kMiss for a key
+// not in the table.
 template <typename Key, size_t N>
 class KeyIndex
 {

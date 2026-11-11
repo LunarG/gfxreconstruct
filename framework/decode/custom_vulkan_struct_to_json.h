@@ -113,8 +113,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const std::vector<T>& data)
 
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkLayerSettingEXT* data);
 
-// A command parameter declared VkBaseOutStructure*. Emits the concrete structure, selected by its sType, or nothing
-// when the decoder holds none.
+// Emits a command parameter declared VkBaseOutStructure* as the concrete structure its sType selects, or nothing when
+// the decoder holds none.
 void FieldToJson(nlohmann::ordered_json& jdata, const TypedStructDecoder* data);
 
 GFXRECON_END_NAMESPACE(decode)

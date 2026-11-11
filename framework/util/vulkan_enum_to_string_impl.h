@@ -20,9 +20,10 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// The bodies behind Vulkan's enum ToString: the lookup and the mask expansion over an enumerant table, and the two
-// API element-keyed templates. Included only by generated_vulkan_enum_to_string.cpp, which defines the generated
-// specializations as one-line calls into these and instantiates the templates; callers include the generated header.
+// This header defines the bodies behind Vulkan's enum ToString: the lookup and the mask expansion over an enumerant
+// table, and the two API element-keyed templates. Only generated/generated_vulkan_enum_to_string.cpp includes it: that
+// file defines the specializations as one-line calls into these and explicitly instantiates the templates. Callers
+// include util/vulkan_enum_to_string.h instead.
 #ifndef GFXRECON_UTIL_VULKAN_ENUM_TO_STRING_IMPL_H
 #define GFXRECON_UTIL_VULKAN_ENUM_TO_STRING_IMPL_H
 
@@ -49,7 +50,8 @@ std::string EnumerantToString(typename binding::EnumerantApiElementOf_t<Table>::
     return name.empty() ? "Unhandled " + std::string(binding::EnumerantApiElementOf_t<Table>::name) : std::string(name);
 }
 
-// Each set bit by name, in bit order, joined with '|'; zero by the table's name for zero.
+// Returns each set bit by name, in bit order, joined with '|'. Zero prints the enumerant whose value is 0, or
+// "Unhandled <enum name>" when the table has none.
 template <typename Table, typename Flags>
 std::string EnumerantMaskToString(Flags flags)
 {

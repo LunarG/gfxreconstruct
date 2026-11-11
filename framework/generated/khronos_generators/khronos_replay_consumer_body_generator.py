@@ -1044,9 +1044,9 @@ class KhronosReplayConsumerBodyGenerator():
                                         value.name
                                     ] = f'*{value.prefixed_name}.GetOutputPointer()'
                             elif value.base_type == self.get_base_output_structure_name():
-                                # A pointer to one structure named by its own sType, held by a TypedStructDecoder. The
-                                # output structure is allocated with the captured type and its pNext chain initialized
-                                # from the captured one, both by the generated AllocateOutputTypedStruct.
+                                # A VkBaseOutStructure* parameter: a TypedStructDecoder holds the one structure its
+                                # sType identifies. The generated AllocateOutputTypedStruct allocates the output
+                                # structure with the captured type and initializes its pNext chain from the capture.
                                 expr += '{paramname}{op}IsNull() ? nullptr : AllocateOutputTypedStruct({paramname});'.format(
                                     paramname=value.prefixed_name, op=value.op
                                 )

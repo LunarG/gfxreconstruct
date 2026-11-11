@@ -55,7 +55,7 @@ size_t DecodePNextStruct(const uint8_t* buffer, size_t buffer_size, PNextNode** 
 
     if ((buffer != nullptr) && (buffer_size >= sizeof(attrib)))
     {
-        // Peek at the pointer attribute mask to make sure we have a non-NULL value that can be decoded.
+        // Peek at the whole pointer preamble: attribute, address and any length.
         size_t             dummy_len     = 0;
         uint64_t           dummy_address = 0;
         constexpr uint32_t kRequiredAttribMask =
@@ -69,8 +69,8 @@ size_t DecodePNextStruct(const uint8_t* buffer, size_t buffer_size, PNextNode** 
             // The sType isn't part of the attributes, so we exclude it from the fail condition byte count.
             ValueDecoder::DecodeEnumValue((buffer + peek_bytes), (buffer_size - peek_bytes), &structure_type);
 
-            auto on_find = [&bytes_read, &pNext, buffer, buffer_size]<binding::ApiElementWithDecodedType Descriptor>() {
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<binding::DecodedTypeOf_t<Descriptor>>>();
+            auto on_find = [&bytes_read, &pNext, buffer, buffer_size]<binding::ApiElementWithDecodedType ApiElement>() {
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<binding::DecodedTypeOf_t<ApiElement>>>();
                 // The Decode() starts from the beginning of the buffer, so we can ignore the peeked bytes.
                 bytes_read = (*pNext)->Decode(buffer, buffer_size);
             };
@@ -86,8 +86,8 @@ size_t DecodePNextStruct(const uint8_t* buffer, size_t buffer_size, PNextNode** 
 
     if ((bytes_read == 0) && (attrib != 0))
     {
-        // The encoded pointer attribute mask included kIsNull, or the sType was unrecognized.
-        // We will report that we read the attribute mask, but nothing else was decoded.
+        // The pointer was null, not an encoded structure, cut off before its sType, or of an unrecognized sType.
+        // Report the preamble as read; nothing else was decoded.
         bytes_read = peek_bytes;
     }
 

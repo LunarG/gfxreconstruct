@@ -20,8 +20,9 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// An API element: one named thing in the API, a structure, a union, a handle, an enumerated type, a scalar typedef, a
-// command.
+// An API element is the C++ type for one type of the API. It holds the registry name, the C type (element_type) and
+// the category. Each derives from the base below for its category. A command's API element is an empty tag and does
+// not satisfy ApiElement.
 
 #ifndef GFXRECON_SCHEMA_API_ELEMENT_H
 #define GFXRECON_SCHEMA_API_ELEMENT_H
@@ -35,7 +36,9 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(schema)
 
-// The registry's category attribute, plus Scalar and Void for the C types the registry does not mark.
+// Category is the registry's category attribute, with three exceptions. Scalar holds the registry's basetype types plus
+// the C types the registry does not mark (uint32_t, float). Void holds void and ExtensionChain. The interim categories
+// below have no registry counterpart.
 struct Category
 {};
 
@@ -58,8 +61,9 @@ struct Scalar : Category
 struct Void : Category
 {};
 
-// Interim, until plan 2.4 stage 3. An opaque element becomes Void or a deref_ element with source_type; text becomes
-// a Char or WChar scalar with a length token on the field, and the text attribute word a binding on the element.
+// The generator emits ApiElementBase directly for these categories only; they have no base of their own.
+// Interim until stage 3: Opaque becomes Void or an API element for the type pointed at; Text, Char and WChar become a
+// Char or WChar scalar with a length token on the Field.
 struct Opaque : Category
 {};
 struct Text : Category
@@ -71,8 +75,6 @@ struct WChar : Text
 
 GFXRECON_END_NAMESPACE(category)
 
-// The generator emits ApiElementBase directly for the interim categories only; every other element derives from its
-// category's base below.
 template <util::FixedString Name, typename ElementType, typename Category>
 struct ApiElementBase
 {
@@ -115,7 +117,8 @@ template <util::FixedString Name, typename ElementType>
 struct ApiElementVoid : ApiElementBase<Name, ElementType, category::Void>
 {};
 
-// A structure with a structure type: the value of its sType member, the registry's values attribute.
+// ApiElementTypedStruct is the base for a structure with an sType member. structure_type is the value of that sType,
+// the registry's values attribute.
 template <util::FixedString Name, typename ElementType, auto kStructureType>
 struct ApiElementTypedStruct : ApiElementBase<Name, ElementType, category::Struct>
 {
@@ -128,8 +131,8 @@ struct ApiElementEnum : ApiElementBase<Name, ElementType, category::Enum>
     using enumerants = Table;
 };
 
-// flags_type: the VkFlags or VkFlags64 element the typedef is declared over. bitvalues: the bits enum element, or
-// EmptyBitvalues or EmptyBitvalues64 when the registry names none.
+// flags_type is the VkFlags or VkFlags64 API element the typedef is declared over. bitvalues is the bits enum API
+// element, or EmptyBitvalues or EmptyBitvalues64 when the registry gives no bits enum.
 template <util::FixedString Name, typename ElementType, typename FlagsType, typename Bitvalues>
 struct ApiElementBitmask : ApiElementBase<Name, ElementType, category::Bitmask>
 {
@@ -137,9 +140,8 @@ struct ApiElementBitmask : ApiElementBase<Name, ElementType, category::Bitmask>
     using bitvalues  = Bitvalues;
 };
 
-// The extension chain, as an element. A pNext member points at a node whose type is chosen at run time by its
-// structure type, and C spells that target void. The element is API-neutral because OpenXR's next chain is the same
-// thing, so it lives here and not in an API's element namespace.
+// ExtensionChain is the API element a pNext member points at: a structure whose sType selects its type at run time. C
+// spells it void. It is declared in schema, not in an API's api_elements namespace, because it is API-neutral.
 struct ExtensionChain : ApiElementVoid<"ExtensionChain", void>
 {};
 

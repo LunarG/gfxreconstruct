@@ -25,9 +25,9 @@
 
 #define CATCH_CONFIG_MAIN
 #if defined(D3D12_SUPPORT)
-// The decode library's DX12 objects name interface IIDs that only a translation unit compiled with INITGUID defines.
-// Each tool has one (its *_d3d12_feature.cpp); this is the test program's, so a link that pulls any DX12 object in
-// resolves them.
+// Defines the DX12 interface IIDs the decode library's DX12 objects reference. Only a translation unit that includes
+// initguid.h ahead of d3d12.h defines them; without one, a link that pulls in a DX12 object fails on unresolved IIDs.
+// This is the test program's, as tools/replay/replay_d3d12_feature.cpp is gfxrecon-replay's.
 #include <initguid.h>
 #include <d3d12.h>
 #endif

@@ -81,7 +81,8 @@ class VulkanStructEncodersHeaderGenerator(VulkanBaseGenerator, KhronosStructEnco
         )
 
     def skip_struct_type(self, struct_type):
-        """Method override. Every encoder is declared by the template in encode/vulkan_encode_struct.h."""
+        """Method override: returns True for every structure, because the template in encode/vulkan_encode_struct.h
+        declares every encoder."""
         return True
 
     def endFile(self):

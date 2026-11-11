@@ -20,14 +20,12 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// Generic EncodeStruct definition. PRIVATE: encode/vulkan_struct_encoders.cpp is the one translation unit that
-// includes it and instantiates the walk. Callers see the declaration in encode/vulkan_encode_struct.h, beside the
-// prototypes of the structures that keep a hand-written body, and a call by structure type resolves as it always did.
+// This header defines EncodeStruct. Only a translation unit that instantiates it includes this header:
+// encode/vulkan_struct_encoders.cpp, with the explicit instantiations. A translation unit that only calls EncodeStruct
+// includes encode/vulkan_encode_struct.h and links to those instantiations.
 //
-// It is a header because the body is API-agnostic: it names no structure and no field, only the API element, the
-// Schema and the Action. Each API's instantiation unit includes it and stamps its own rows, so the body is written
-// once and vulkan_struct_encoders.cpp is the first such unit, not the only one. Folding it into that file would
-// make the second API copy it.
+// NOTE: in a translation unit that sees only the declaration, a call on a structure missing from those instantiations
+// is a link error (unresolved external), not a compile error.
 
 #ifndef GFXRECON_ENCODE_VULKAN_ENCODE_STRUCT_IMPL_H
 #define GFXRECON_ENCODE_VULKAN_ENCODE_STRUCT_IMPL_H
@@ -43,12 +41,10 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-// The assertion is the only gate: a structure with no API element fails here, naming the structure, rather than inside
-// WalkFields.
 template <typename Struct>
 void EncodeStruct(ParameterEncoder* encoder, const Struct& value)
 {
-    static_assert(binding::ApiTypeWithApiElement<Struct>, "A schema-driven structure must name its API element");
+    static_assert(binding::ApiTypeWithApiElement<Struct>, "A schema-driven structure must declare api_element");
     using ApiElement = typename binding::ApiElementOf<Struct>::type;
     static_assert(schema::HasSchemaFields<ApiElement>, "A schema-driven structure's API element must have a schema");
 

@@ -20,9 +20,9 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// A Schema is the arrangement: the canonical, ordered Field list for one API element, and the algorithms over it.
-// It composes schema/field.h with the schema-independent TypeList facility, and defines no API element and
-// no Field -- those are generated content.
+// A Schema is the ordered Field list for one API element; this header holds the algorithms over it.
+// NOTE: a Schema specialization is visible only where the API's schema definitions are included; elsewhere
+// HasSchemaFields is false and WalkFields rejects the API element.
 
 #ifndef GFXRECON_SCHEMA_SCHEMA_H
 #define GFXRECON_SCHEMA_SCHEMA_H
@@ -38,12 +38,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(schema)
 
-// One traits-class template maps an API element to its canonical field list. A command keys on its command API element
-// and a structure on its API element.
+// Schema<ApiElement> is specialized in generated/generated_<api>_schema.h: Fields for a structure or command,
+// Alternatives for a union. A command keys on its command API element, a structure on its API element.
 template <typename ApiElement>
 struct Schema;
 
-// A structure the API discriminates by a type value in its first member carries that value on its API element.
+// TypedStructApiElement matches an API element with an enum structure_type: a structure the API discriminates by the
+// type value in its first member carries that value on its API element.
 template <typename Element>
 concept TypedStructApiElement = requires
 {
@@ -51,14 +52,16 @@ concept TypedStructApiElement = requires
 }
 &&std::is_enum_v<std::remove_cv_t<decltype(Element::structure_type)>>;
 
-// A bits enum, the registry's bitvalues: an enum whose group the registry declares type="bitmask".
+// BitvaluesApiElement matches a bits enum, the registry's bitvalues: an enum whose group the registry declares
+// type="bitmask". The generator marks it with kBitvalues.
 template <typename Element>
 concept BitvaluesApiElement = EnumApiElement<Element> && requires
 {
     requires Element::kBitvalues;
 };
 
-// A union's Schema lists Alternatives, not Fields, so a union does not satisfy this; the generated checks assert it.
+// HasSchemaFields is true when Schema<ApiElement> lists Fields. A union's Schema lists Alternatives, not Fields, so a
+// union does not satisfy it; generated/generated_<api>_schema_checks.cpp asserts that.
 template <typename ApiElement>
 concept HasSchemaFields = requires
 {
@@ -66,7 +69,7 @@ concept HasSchemaFields = requires
     requires util::IsTypeList_v<typename Schema<ApiElement>::Fields>;
 };
 
-// The return predicate treats an absent is_return member as false.
+// kIsReturnField treats an absent is_return member as false, so only a command's return Field states it.
 inline constexpr auto kIsReturnField = []<typename Field>() {
     return requires
     {
@@ -77,8 +80,8 @@ inline constexpr auto kIsReturnField = []<typename Field>() {
 template <HasSchemaFields ApiElement>
 using ReturnFields_t = decltype(util::TypeListKeep(typename Schema<ApiElement>::Fields{}, kIsReturnField));
 
-// A command schema is invalid when the partition finds zero or more than one return Field. The same validation
-// distinguishes a command schema from a structure schema.
+// HasCommandSchema is true when the Schema has exactly one is_return Field, which makes it a command Schema; a
+// structure Schema has none.
 template <typename ApiElement>
 concept HasCommandSchema = HasSchemaFields<ApiElement> && requires
 {
@@ -97,8 +100,9 @@ concept FieldActionFor = requires(Action& action, Field field, Storage& storage)
     action.Apply(field, storage);
 };
 
-// One field walk serves every operation family. The Action supplies one Apply overload set, and overload resolution
-// selects the implementation from the field's logical category and shape.
+// Calls action.Apply(Field{}, storage) for each Field in Schema order; overload resolution selects the Apply from the
+// Field's category and form. If no overload accepts a Field, the static_assert below stops the compile and the
+// diagnostic shows the Field.
 template <HasSchemaFields ApiElement, typename Action, typename Storage>
 void WalkFields(Action& action, Storage& storage)
 {
@@ -133,8 +137,8 @@ template <typename ApiElement, typename Function, typename Storage>
 concept InvocableFromFields = HasCommandSchema<ApiElement> &&
     detail::InvocableFromFieldsImpl<ApiElement, Function, Storage>(ParameterFields_t<ApiElement>{});
 
-// The positional invocation step. This expands to the same positional call that the hand-written replay path already
-// makes, in canonical parameter order.
+// Calls function(GetRef(storage, parameter)...) with the command's parameters in Schema order and returns its result.
+// InvocableFromFields requires the result to be the return Field's C type.
 template <HasCommandSchema ApiElement, typename Function, typename Storage>
 requires InvocableFromFields<ApiElement, Function, Storage>
 decltype(auto) InvokeFromFields(Function&& function, Storage& storage)

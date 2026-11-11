@@ -20,10 +20,30 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// The structure Encode Action. schema::WalkFields applies one Apply overload set to a schema's Fields over the API's
-// own structure. Each Apply reads its shape from storage and hands the value, pointer or run to EncoderAdapter,
-// which makes the one encoder call the field's category and shape select. The Action is the only party that touches
-// storage; the adapter sees field contents and never the structure they came from.
+// EncodeStructAction is the Apply overload set schema::WalkFields applies to an API structure's schema. If no Apply
+// accepts a Field, a static_assert in WalkFields stops the compile and shows the Field.
+//
+// Each Apply reads its Field's member with schema::Get, and for a run its count from LengthOf_t<Field>, and passes
+// what it read to EncoderAdapter, which selects the encoder call by the category of the Field's API element and reads
+// no storage. The extension-chain and GenericHandle overloads call the encoder directly.
+//
+// Limitations:
+//   - A Field that an Apply accepts but no EncoderAdapter overload does fails to compile inside that Apply, as a call
+//     with no matching EncoderAdapter overload, not at the WalkFields static_assert. No adapter overload takes a
+//     pointer to a pointer, a Pointer to a handle, a PointerArray of scalars or handles, or a run of opaque or
+//     function-pointer API elements.
+//   - A FixedArray above two dimensions, or of two dimensions with a count member, fails a static_assert in its Apply.
+//
+// Lifetime: the Action holds the ParameterEncoder pointer without owning it and keeps no other state, so one instance
+// may walk any number of structures.
+//
+// Typical pattern (encode/vulkan_encode_struct_impl.h), after EncodeStructAction action(encoder):
+//   schema::WalkFields<ApiElement>(action, value);
+//
+// Future work, for the Apply set to serve another API:
+//   1. EncodeStructAction takes its adapter as a template parameter instead of spelling EncoderAdapter.
+//   2. The Vulkan facts in the Apply set, vulkan_wrappers::GetWrappedId in the GenericHandle overload, move into the
+//      adapter or the schema.
 
 #ifndef GFXRECON_ENCODE_VULKAN_ENCODE_ACTION_H
 #define GFXRECON_ENCODE_VULKAN_ENCODE_ACTION_H
@@ -34,8 +54,7 @@
 #include "binding/vulkan_wire_type.h"
 #include "schema/field.h"
 
-// This operation reads Vulkan's own structures. Keep the complete generated member-binding population beside the
-// Action and private to the translation unit that owns the generic EncodeStruct instantiations.
+// Required by the FieldStoreFor and Addressable constraints below.
 #include "generated/generated_vulkan_schema_api_struct_members.h"
 
 #include "util/defines.h"
@@ -47,24 +66,18 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-// Adapters from a Field to the ParameterEncoder and umbrella entry points. The concepts read the Field's category and
-// shape; the entry points know nothing of Fields, and each operator() makes the one call the procedural bodies made
-// for that combination. Nothing here reads storage, which is what lets a command Action reuse this table unchanged.
-//
-// Direction, not taken yet: the Action names this type directly. Taking it as a template parameter instead, the way a
-// traits type is passed, would make the shape Apply set API-agnostic; the Vulkan facts would then live in this
-// adapter and in the schema, and the same Action would serve another API given its adapter.
-// Interim until plan 2.4 stage 3: the text attribute word is read from the interim text category; the revision makes
-// it a binding on the API element.
+// Interim until stage 3: the text attribute word becomes a binding on the API element.
 template <schema::TextApiElement Element>
 inline constexpr format::PointerAttributes TextAttributeOf_v =
     std::same_as<schema::CategoryOf_t<Element>, schema::category::WChar> ? format::PointerAttributes::kIsWString
                                                                          : format::PointerAttributes::kIsString;
 
+// Each operator() makes one encoder call for one category and shape of the Field's API element.
 struct EncoderAdapter
 {
-    // A platform typedef is its own API element, so a scalar member's DeclaredType is its API element type; an opaque
-    // or funcpointer member is some pointer type, cast to the address.
+    // Encodes a scalar, opaque or function-pointer value as its WireTypeOf. A scalar member is declared as its API
+    // element type, since a platform typedef is its own API element; an opaque or function-pointer member is a pointer
+    // type, which EncodeAs reinterpret_casts to the address.
     template <typename Field, typename DeclaredType>
     requires schema::GeneralScalarApiElement<typename Field::api_element> && schema::ValueField<Field>
     void operator()(Field, ParameterEncoder* encoder, const DeclaredType& value) const
@@ -75,7 +88,6 @@ struct EncoderAdapter
         encoder->EncodeAs<binding::WireTypeOf_t<typename Field::api_element>>(value);
     }
 
-    // A pointer to one scalar.
     template <typename Field>
     requires schema::ScalarApiElement<typename Field::api_element> && schema::PointerField<Field>
     void
@@ -84,18 +96,16 @@ struct EncoderAdapter
         encoder->EncodePointerAs<binding::WireTypeOf_t<typename Field::api_element>>(pointer);
     }
 
-    // A pointer to an opaque object, Pointer<ANativeWindow>, or to void, Pointer<Void>: what it points at is never
-    // described, so the pointer's value is the record.
-    template <typename Field, typename Pointee>
+    // Records the pointer's address only: what an opaque or void pointer points at is never described.
+    template <typename Field, typename T>
     requires(schema::OpaqueApiElement<typename Field::api_element> ||
              schema::VoidApiElement<typename Field::api_element>) &&
         schema::PointerField<Field> &&
-        (!schema::PointerToPointerField<Field>)void operator()(Field, ParameterEncoder* encoder, Pointee* pointer) const
+        (!schema::PointerToPointerField<Field>)void operator()(Field, ParameterEncoder* encoder, T* pointer) const
     {
         encoder->EncodeVoidPtr(pointer);
     }
 
-    // A counted run of scalars.
     template <typename Field>
     requires schema::ScalarApiElement<typename Field::api_element> && schema::AnyArrayField<Field>
     void operator()(Field,
@@ -106,7 +116,6 @@ struct EncoderAdapter
         encoder->EncodeArrayAs<binding::WireTypeOf_t<typename Field::api_element>>(array, count);
     }
 
-    // A counted run of bytes the API declares as void: Array<Const<Void>, n>.
     template <typename Field>
     requires schema::VoidApiElement<typename Field::api_element> && schema::ArrayField<Field>
     void operator()(Field, ParameterEncoder* encoder, const void* bytes, size_t count) const
@@ -114,8 +123,8 @@ struct EncoderAdapter
         encoder->EncodeUInt8Array(bytes, count);
     }
 
-    // Handle category: value, pointer, run. A handle is recorded as its capture wrapper's id, so each entry needs the
-    // wrapper type CaptureWrapperOf maps its API element to, and requires ApiElementWithCaptureWrapper.
+    // Encodes a handle, by value or in a run, as its capture wrapper's id. CaptureWrapperOf gives the wrapper type; a
+    // handle API element without a CaptureWrapperOf specialization matches neither overload.
     template <typename Field>
     requires schema::HandleApiElement<typename Field::api_element> && schema::ValueField<Field> &&
         ApiElementWithCaptureWrapper<typename Field::api_element>
@@ -125,21 +134,6 @@ struct EncoderAdapter
     {
         using Wrapper = CaptureWrapperOf_t<typename Field::api_element>;
         encoder->template EncodeVulkanHandleValue<Wrapper>(handle);
-    }
-
-    template <typename Field>
-    requires schema::HandleApiElement<typename Field::api_element> && schema::PointerField<Field> &&
-        ApiElementWithCaptureWrapper<typename Field::api_element>
-    void operator()(Field,
-                    ParameterEncoder*                                       encoder,
-                    const schema::ApiTypeOf_t<typename Field::api_element>* handle_pointer) const
-    {
-        using Wrapper = CaptureWrapperOf_t<typename Field::api_element>;
-        // No structure field has this shape; the entry is here for the command Action's output parameters and has no
-        // byte gate yet. TODO: determine a mechanism to pass omit_output_data when the adapter serves command
-        // parameters: potentially a Field-level fact beside the Return Field, or the generated encoders' result-based
-        // rule if it proves uniform enough to import.
-        encoder->template EncodeVulkanHandlePtr<Wrapper>(handle_pointer /*, omit_output_data */);
     }
 
     template <typename Field>
@@ -154,7 +148,8 @@ struct EncoderAdapter
         encoder->template EncodeVulkanHandleArray<Wrapper>(array, count);
     }
 
-    // Struct category: value, pointer, run. Each calls the EncodeStruct overload for the API element's type.
+    // Encodes a structure by value, by pointer or in a run through EncodeStruct; EncodeStructPtr and EncodeStructArray
+    // call it per element. A union or a CUSTOM_ENCODE structure reaches its hand-written overload.
     template <typename Field>
     requires schema::StructApiElement<typename Field::api_element> && schema::ValueField<Field>
     void
@@ -181,9 +176,8 @@ struct EncoderAdapter
         EncodeStructArray(encoder, array, count);
     }
 
-    // A run of pointers to structures. On the wire a pointer to one structure is a row of length one, so this is the
-    // two-dimensional structure array with every row of length 1. The 1 is the encoder's spelling of the shape, not a
-    // schema fact, which is why the API element carries no extent for it.
+    // Encodes a run of pointers, each to one structure, as EncodeStructArray2D with every inner length 1. The 1 is the
+    // Pointer shape, not an extent, so the schema records none.
     template <typename Field>
     requires schema::StructApiElement<typename Field::api_element> && schema::PointerArrayField<Field>
     void operator()(Field,
@@ -203,8 +197,8 @@ struct EncoderAdapter
                                 TextAttributeOf_v<typename Field::api_element>>(text);
     }
 
-    // A text typedef held by value: the API element is the pointer type the header spells, LPCWSTR, and the value is
-    // the null-terminated string it points at.
+    // Encodes a text typedef held by value, LPCWSTR: the API element is the pointer type the header spells, and the
+    // value is the null-terminated string it points at.
     template <typename Field>
     requires schema::TextApiElement<typename Field::api_element> && schema::ValueField<Field>
     void operator()(Field, ParameterEncoder* encoder, schema::ApiTypeOf_t<typename Field::api_element> text) const
@@ -243,21 +237,18 @@ class EncodeStructAction
   public:
     explicit EncodeStructAction(ParameterEncoder* encoder) : encoder_(encoder) {}
 
-    // A value-shaped field of any category the adapter encodes. Get references an ordinary member in place, or yields the
-    // value of a non-addressable one (e.g. a bitfield), so one overload serves both.
+    // Encodes a value of any category EncoderAdapter takes. schema::Get references an ordinary member in place, or
+    // reads a bitfield through its generated accessor, so one overload serves both.
     template <typename Field, typename Storage>
     requires schema::ValueField<Field> && schema::FieldStoreFor<Storage, Field>
     void Apply(Field field, const Storage& storage) { EncoderAdapter()(field, encoder_, schema::Get(storage, field)); }
 
-    // A pointer to one element. The member holds the pointer, and the pointer is what the encoder needs, so it is
-    // read as a value like any other; nothing here takes the member's address.
     template <typename Field, typename Storage>
     requires schema::PointerField<Field> && schema::FieldStoreFor<Storage, Field>
     void Apply(Field field, const Storage& storage) { EncoderAdapter()(field, encoder_, schema::Get(storage, field)); }
 
-    // A counted run, with a sibling member that holds the count: a pointer to a run of elements (Array), or a run of
-    // pointers each to one element (PointerArray). Either way the member holds a pointer, and the pointer is what the
-    // encoder needs, so it is read as a value like any other; nothing here takes the member's address.
+    // Encodes an Array, a pointer to a run, or a PointerArray, a run of pointers each to one item, with its count:
+    // LengthOf_t<Field> evaluated on the structure, a member or an expression over members (e.g. pCode's codeSize / 4).
     template <typename Field, typename Storage>
     requires schema::AnyCountedField<Field> && schema::FieldStoreFor<Storage, Field> &&
         schema::FieldWithLength<Storage, Field>
@@ -269,10 +260,9 @@ class EncodeStructAction
         EncoderAdapter()(field, encoder_, schema::Get(storage, field), count);
     }
 
-    // A fixed-extent array of elements, of one or two dimensions. Every named fixed-array entry point, the 2DMatrix
-    // family included, is one run over a flat pointer and a length, so a matrix is a run of the extent product and
-    // the two ranks share a body. The extents are read from the API member's declared type, as they are on the decode
-    // side; the Field records the same extents and the static_assert below holds the two to agree.
+    // Encodes a fixed-extent array of one or two dimensions as one run from the first element: a two-dimensional array
+    // is a run of the extent product, as the 2DMatrix entry points do. The extents come from the API member's declared
+    // type; the static_asserts hold the Field's recorded extents equal to them.
     //
     // If a count field is present the static extent is treated as the capacity, and count elements up to capacity are
     // written.
@@ -284,9 +274,9 @@ class EncodeStructAction
         using ArrayType       = std::remove_cvref_t<decltype(array_ref)>;
 
         static_assert(std::is_array_v<ArrayType>,
-                      "A StaticArray field must be declared as an array in the API type it belongs to");
+                      "A FixedArray field must be declared as an array in the API type it belongs to");
         static_assert(schema::DeclaredExtentsMatch_v<ArrayType, Field>,
-                      "A StaticArray field's recorded extents must equal the extents the API type declares");
+                      "A FixedArray field's recorded extents must equal the extents the API type declares");
         static_assert(std::rank_v<ArrayType> <= 2, "The encoder writes fixed arrays of one and two dimensions only");
 
         size_t count = std::extent_v<ArrayType, 0> * (std::rank_v<ArrayType> == 2 ? std::extent_v<ArrayType, 1> : 1);
@@ -302,7 +292,8 @@ class EncodeStructAction
             if constexpr (schema::FieldWithLength<Storage, Field>)
             {
                 using Length = schema::LengthOf_t<Field>;
-                // The count member's value in its own type; the clamp bounds it by the capacity and reports.
+                // Read in the count member's own type, not narrowed to size_t: ClampStaticArrayLength compares in
+                // that type and logs, so a negative count encodes nothing and one above the extent is clamped.
                 const auto count_value = Length::Get(storage);
                 count = ParameterEncoder::ClampStaticArrayLength(count_value, count, Field::field_name.data());
             }
@@ -310,11 +301,10 @@ class EncodeStructAction
         }
     }
 
-    // The extension chain. The Field records the registry fact, whether anything is declared to chain onto the
-    // owner, and this overload applies the capture policy the procedural bodies applied: a chain the registry
-    // provides for is walked trusting the pointer, and a chain the registry has nothing for is probed first, since
-    // the spec then usually says the pointer is null, driver-written memory may hold garbage there, and vendors
-    // chain unregistered structures anyway. Both walks resolve each node's type at run time from its sType.
+    // Encodes the extension chain. Field::has_extensions is true when the registry lists this structure on either side
+    // of structextends: EncodePNextStruct then walks the chain trusting the pointer. Otherwise EncodePNextStructIfValid
+    // probes the pointer first, since the spec then usually requires NULL, driver-written memory may hold garbage
+    // there, and vendors chain unregistered structures anyway. Both walks find each node's type by its sType.
     template <typename Field, typename Storage>
     requires schema::ExtensionChainField<Field> && schema::FieldStoreFor<Storage, Field>
     void Apply(Field field, const Storage& storage)
@@ -331,8 +321,8 @@ class EncodeStructAction
         }
     }
 
-    // A true special case, general to no shape: a generic handle scalar, whose value is the handle plus its selector
-    // sibling's object type. Both members are accessed by value.
+    // Encodes a GenericHandle, a uint64_t handle of any object type: GetWrappedId maps it to its capture id using the
+    // object type in the selector Field. EncoderAdapter reads no storage, so this overload reads the selector.
     template <typename Field, typename Storage>
     requires schema::HandleValueField<Field> && schema::FieldStoreFor<Storage, Field> &&
         schema::FieldWithSelector<Storage, Field>

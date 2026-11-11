@@ -54,9 +54,9 @@
 #endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-// The Vulkan WireTypeOf rows: the format typedef each scalar and enum element is recorded as. A bitmask
-// reads its width through its flags element, and a handle or an address is a partial specialization by
-// category, both in binding/wire_type_of.h; a struct and a void have no width of their own.
+// WireTypeOf for the scalar, enum and text API elements: the format typedef each is recorded as. Bitmask,
+// handle, funcpointer and opaque are partial specializations in binding/wire_type_of.h; struct and void
+// have no width of their own.
 GFXRECON_BEGIN_NAMESPACE(binding)
 
 template <> struct WireTypeOf<schema::vulkan::api_elements::Char> { using type = format::CharEncodeType; };

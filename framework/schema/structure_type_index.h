@@ -20,7 +20,9 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// The index over a list of structure API elements by their structure_type, for the sieves that discriminate on it.
+// StructureTypeIndex indexes a list of structure API elements by their structure_type. The pNext decoder and encoder
+// and the deep-copy dispatch call StructureTypeVisit over it to reach the API element for a run-time sType. Two API
+// elements with the same structure_type fail to compile: the index is a constexpr util::KeyIndex.
 #ifndef GFXRECON_SCHEMA_STRUCTURE_TYPE_INDEX_H
 #define GFXRECON_SCHEMA_STRUCTURE_TYPE_INDEX_H
 
@@ -40,10 +42,9 @@ GFXRECON_BEGIN_NAMESPACE(schema)
 
 GFXRECON_BEGIN_NAMESPACE(detail)
 
-// The structure_type of each API element, as an array parallel to the list. Every API element carries one, and the
-// key type is the first API element's, which every other API element's must agree with. When an API element has no
-// structure_type, the assertion's message prints the list of those that do not; the filter that builds the list
-// is instantiated only then.
+// Returns the structure_type of each API element, as an array parallel to the list. Every API element must have one,
+// of the first API element's enum type, or this fails to compile. When one has none, the failing static_assert
+// condition lists the API elements without one; the filter that builds that list is instantiated only then.
 template <typename... Elements>
 constexpr auto StructureTypesOf(util::TypeList<Elements...>)
 {
@@ -52,7 +53,7 @@ constexpr auto StructureTypesOf(util::TypeList<Elements...>)
     if constexpr (util::TypeListCountIf(List{}, kHasStructureType) != sizeof...(Elements))
     {
         static_assert(std::same_as<decltype(util::TypeListDrop(List{}, kHasStructureType)), util::TypeList<>>,
-                      "StructureTypeIndex: descriptors without a structure_type");
+                      "StructureTypeIndex: API elements without a structure_type");
     }
     using Key                  = std::remove_cv_t<decltype(util::TypeListAt_t<0, List>::structure_type)>;
     constexpr auto kHasKeyType = []<typename Element>() {
@@ -65,7 +66,7 @@ constexpr auto StructureTypesOf(util::TypeList<Elements...>)
 
 GFXRECON_END_NAMESPACE(detail)
 
-// Find(structure_type) is a position in List, or End(). Visit takes a position that is not End().
+// Find returns the position of a structure_type in List, or End(). util::Visit takes a position that is not End().
 template <typename List>
 requires util::IsTypeList_v<List>
 class StructureTypeIndex

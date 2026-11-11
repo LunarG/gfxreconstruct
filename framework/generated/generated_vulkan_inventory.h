@@ -29,10 +29,10 @@
 
 // THIS FILE IS A LIST, NOT A HEADER. IT HAS NO INCLUDE GUARD, AND IT DECLARES NOTHING.
 //
-// It holds one macro call per Vulkan API type and per command, and nothing else: no declarations, no namespace,
-// no includes. It does not define the macros it calls. You define them, include this file, and each row expands
-// into whatever you defined. Include it once for each thing you want built from the list, inside the namespace
-// the result belongs in. The idiom is the X macro: Meyers, "The X Macro", Dr. Dobb's Journal, 2001.
+// It holds one macro call per Vulkan structure, union, handle, C enum and command, and nothing else: no
+// declarations, no namespace, no includes. It does not define the macros it calls: define them, include
+// this file, and each macro call expands into what you defined. Include it once per thing you build from
+// the list, inside the namespace the result belongs in.
 //
 // To use it:
 //   1. Define the visit macros for the categories you want:
@@ -41,34 +41,31 @@
 //        GFXRECON_INVENTORY_VISIT_ENUM(Name)        GFXRECON_INVENTORY_VISIT_FLAG_BITS(Name)
 //        GFXRECON_INVENTORY_VISIT_COMMAND(Name)
 //      A category you leave undefined expands to nothing. Defining none is an error.
-//   2. Optionally define GFXRECON_INVENTORY_REQUIRE and GFXRECON_INVENTORY_FORBID as masks of the row properties
-//      below. A structure or union row expands only if it has every REQUIRE property and no FORBID property.
-//      Both default to 0. Handles, enumerated types and commands carry no properties and are not filtered.
+//   2. Optionally define GFXRECON_INVENTORY_REQUIRE and GFXRECON_INVENTORY_FORBID as masks of the
+//      inventory properties below. A structure or union inventory entry expands only if it has every
+//      REQUIRE property and no FORBID property. Both default to 0. Handles, enumerated types and
+//      commands carry no properties and are not filtered.
 //   3. #include "generated/generated_vulkan_inventory.h"
 // Every visit, REQUIRE and FORBID definition is #undef'd at the end, so the next include starts clean. The
 // property macros stay defined.
 //
-// Organization: the structure rows and the union rows are each grouped by property set, one #if per group and
-// none per row, and the groups are only the property sets that occur. A row's group is its complete property
-// set, so a property a row does not have is as readable as one it has.
+// Where to put a new expansion: one that yields types, specializations, aliases or declarations
+// goes in a header, since the compiler needs them wherever the type is asked for. One that yields
+// definitions with linkage, explicit instantiations or function bodies goes in one .cpp -- in a
+// header, every includer would define them again.
 //
-// Where a stanza lives follows what its visitor yields. A visitor that yields a type, a specialization, an alias
-// or a declaration, lives in a header, because the compiler needs it wherever the type is asked for and nothing
-// links a type. A visitor that yields a definition with linkage, an explicit instantiation or a function body,
-// lives in one .cpp and is linked from everywhere else.
-//
-// Row properties. Each is a fact the preprocessor cannot derive, and each is read back into C++ by a visit,
-// as the trait or the catalog list named beside it, so the property and its C++ form cannot disagree. The
-// name follows what reads it: HAS_ a concept, MAY_ and a bare adjective a catalog list.
-//   GFXRECON_INVENTORY_HAS_DECODED_TYPE       binding::ApiElementWithDecodedType        a Decoded_ wrapper exists and the decoded-type rows reach it
-//   GFXRECON_INVENTORY_MAY_REACH_HANDLES      binding::vulkan::MayReachHandles_v        a handle is reachable through its fields, pNext included
-//   GFXRECON_INVENTORY_EXTERNAL               binding::vulkan::IsExternal_v             a platform header defines it, not the registry, so it has a API element and no Schema
-//   GFXRECON_INVENTORY_CUSTOM_ENCODE          binding::vulkan::IsCustomEncode_v         its encoder is hand-written
-//   GFXRECON_INVENTORY_CUSTOM_DECODE          binding::vulkan::IsCustomDecode_v         its decoder is hand-written
-//   GFXRECON_INVENTORY_CUSTOM_HANDLE_MAPPING  binding::vulkan::IsCustomHandleMapping_v  its unwrap and map bodies are hand-written, or absent
-//   GFXRECON_INVENTORY_GENERIC_HANDLE         binding::vulkan::HasGenericHandle_v       a member is a runtime-typed handle, an integer its sibling object type names the type of
-//   GFXRECON_INVENTORY_DEEP_COPY_EXCLUDED     binding::vulkan::IsDeepCopyExcluded_v     vulkan_struct_deep_copy does not handle it
-//   GFXRECON_INVENTORY_HAS_STRUCTURE_TYPE     schema::TypedStructApiElement             the registry gives it a structure type, which its API element carries, so a pNext chain can hold it
+// Inventory properties: the mask macro, the C++ name a visit reads it back as, its meaning, and the input it
+// is read from. The json files and vulkan_base_generator.py are in
+// framework/generated/khronos_generators/vulkan_generators/.
+//   GFXRECON_INVENTORY_HAS_DECODED_TYPE       binding::ApiElementWithDecodedType                          binding::DecodedTypeOf maps it to its Decoded_ wrapper -- vk.xml: every structure with members but the two base structures
+//   GFXRECON_INVENTORY_MAY_REACH_HANDLES      no C++ reader                                               a handle is reachable through its fields, pNext included -- vk.xml: a handle member, a generic handle, a pNext, or a member that can hold one
+//   GFXRECON_INVENTORY_EXTERNAL               binding::vulkan::catalog::external_structures               a platform header defines it: an API element, no Schema -- platform_types.json "structs"
+//   GFXRECON_INVENTORY_CUSTOM_ENCODE          binding::vulkan::catalog::custom_encode_structures          its encoder is hand-written -- blacklists.json "structures" and "structures-encoder", plus platform_types.json "structs"
+//   GFXRECON_INVENTORY_CUSTOM_DECODE          binding::vulkan::catalog::custom_decode_structures          its decoder is hand-written -- blacklists.json "structures" and "structures-decoder", plus platform_types.json "structs"
+//   GFXRECON_INVENTORY_CUSTOM_HANDLE_MAPPING  binding::vulkan::catalog::custom_handle_mapping_structures  its unwrap and map bodies are hand-written, or absent -- blacklists.json "structures" plus platform_types.json "structs" (STRUCT_BLACKLIST), and STRUCT_MAPPERS_BLACKLIST in vulkan_base_generator.py
+//   GFXRECON_INVENTORY_GENERIC_HANDLE         binding::vulkan::catalog::generic_handle_structures         an integer member holds a handle; a sibling object-type member gives its type -- GENERIC_HANDLE_STRUCTS in vulkan_base_generator.py
+//   GFXRECON_INVENTORY_DEEP_COPY_EXCLUDED     binding::vulkan::catalog::deep_copy_exclusions              vulkan_struct_deep_copy does not handle it -- blacklists.json "structures-deep-copy"
+//   GFXRECON_INVENTORY_HAS_STRUCTURE_TYPE     schema::TypedStructApiElement                               it has a structure type, so a pNext chain can hold it -- vk.xml: a structure type
 //
 // To read the list as C++, use the catalog, binding/vulkan_catalog.h, not this file.
 
@@ -1554,7 +1551,7 @@ GFXRECON_INVENTORY_VISIT_UNION(VkIndirectCommandsTokenDataEXT)
 GFXRECON_INVENTORY_VISIT_UNION(VkIndirectExecutionSetInfoEXT)
 #endif
 
-// Handles, with the stem the capture wrapper is named by: the handle name without its Vk prefix.
+// Handles. Stem is the handle name without its Vk prefix; vulkan_encode_capture_wrappers.h pastes Stem##Wrapper.
 GFXRECON_INVENTORY_VISIT_HANDLE(VkAccelerationStructureKHR, AccelerationStructureKHR)
 GFXRECON_INVENTORY_VISIT_HANDLE(VkAccelerationStructureNV, AccelerationStructureNV)
 GFXRECON_INVENTORY_VISIT_HANDLE(VkBuffer, Buffer)
@@ -1608,7 +1605,7 @@ GFXRECON_INVENTORY_VISIT_HANDLE(VkValidationCacheEXT, ValidationCacheEXT)
 GFXRECON_INVENTORY_VISIT_HANDLE(VkVideoSessionKHR, VideoSessionKHR)
 GFXRECON_INVENTORY_VISIT_HANDLE(VkVideoSessionParametersKHR, VideoSessionParametersKHR)
 
-// Enumerated types: a flag-bits enum, whose values compose into a mask, and every other enum.
+// C enums: FLAG_BITS for a flag-bits enum, whose values compose into a mask, ENUM for every other enum.
 GFXRECON_INVENTORY_VISIT_ENUM(StdVideoAV1ChromaSamplePosition)
 GFXRECON_INVENTORY_VISIT_ENUM(StdVideoAV1ColorPrimaries)
 GFXRECON_INVENTORY_VISIT_ENUM(StdVideoAV1FrameRestorationType)

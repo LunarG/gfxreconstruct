@@ -20,13 +20,15 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// A binding joins a schema entity to a C++ type that exists without the schema. This one maps a structure the API's
-// headers declare to its API element, the inverse of the API element's element_type, which C++ cannot invert by
-// lookup. The rows are keyed on the API's types, which never collide across APIs.
+// ApiElementOf maps an API's C type -- a structure, union or enum, flag-bits enums included -- to its API element. It
+// is the inverse of the API element's element_type, which C++ cannot compute by lookup. The specializations are keyed
+// on the API's own C types, which do not collide across APIs.
 //
-// This header declares the binding and nothing more. An API's rows are a visitor invoked across its inventory in
-// binding/<api>_api_element_of.h, which is the header API code includes; with this one alone, ApiTypeWithApiElement
-// answers no for every type.
+// This header declares the template and nothing more. An API's specializations are an inventory visitor in
+// binding/<api>_api_element_of.h, which is the header API code includes; with this header alone,
+// ApiTypeWithApiElement is false for every type.
+// NOTE: a translation unit that evaluates ApiTypeWithApiElement before including binding/<api>_api_element_of.h gets
+// false, silently, and the compiler is not required to diagnose the late specialization.
 
 #ifndef GFXRECON_BINDING_API_ELEMENT_OF_H
 #define GFXRECON_BINDING_API_ELEMENT_OF_H
@@ -49,7 +51,7 @@ concept ApiTypeWithApiElement = requires
 template <ApiTypeWithApiElement ApiType>
 using ApiElementOf_t = typename ApiElementOf<ApiType>::type;
 
-// The structure's API element carries a structure type.
+// TypedStructApiType matches an API structure whose API element carries a structure type.
 template <typename ApiStruct>
 concept TypedStructApiType =
     ApiTypeWithApiElement<ApiStruct> && schema::TypedStructApiElement<ApiElementOf_t<ApiStruct>>;

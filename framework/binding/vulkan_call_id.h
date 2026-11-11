@@ -20,8 +20,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// The Vulkan CallId rows, a visitor invoked across the inventory: every command to its ApiCallId, formed from the
-// command's name.
+// This header is an inventory visitor that specializes CallId for each command Name in the inventory as
+// format::ApiCallId::ApiCall_vk<Name>, the enumerator named for the command.
 
 #ifndef GFXRECON_BINDING_VULKAN_CALL_ID_H
 #define GFXRECON_BINDING_VULKAN_CALL_ID_H
@@ -44,7 +44,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(binding)
 
-// A struct visitor: it yields a specialization, a type, so this lives in a header.
 #define GFXRECON_INVENTORY_VISIT_COMMAND(Name) \
     GFXRECON_INVENTORY_CALL_ID(schema::vulkan::api_elements::Name, format::ApiCallId::ApiCall_vk##Name);
 #include "generated/generated_vulkan_inventory.h"

@@ -20,10 +20,11 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// Explicit specializations of util/to_string.h's primaries, one per API enum and one more per flag-bits enum,
-// a visitor invoked across the inventory, defined in generated_vulkan_enum_to_string.cpp over the enumerant tables. A
-// specialization is found wherever the primary is, by the generic formatters too, which an overload would not be.
-// Callers include only this; the tables stay in the .cpp.
+// This header declares the explicit specializations of util/to_string.h's ToString primaries for every Vulkan enum,
+// plus a VkFlags form per flag-bits enum, as an inventory visitor. They are defined over the enumerant tables in
+// generated/generated_vulkan_enum_to_string.cpp. Specializations, not overloads: a specialization is found wherever
+// the primary is, by the generic formatters in util/to_string.h too, and an overload would not be. Callers include
+// only this header; the tables stay in the .cpp.
 
 #ifndef GFXRECON_UTIL_VULKAN_ENUM_TO_STRING_H
 #define GFXRECON_UTIL_VULKAN_ENUM_TO_STRING_H
@@ -45,24 +46,25 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-// Keyed on the API type descriptor, for the types spelled as a bare integer in C: the 64-bit flag-bits types,
-// instantiated in generated_vulkan_enum_to_string.cpp.
+// The two templates below are keyed on the API element, for the 64-bit flag-bits and mask types: C spells them
+// VkFlags64, which cannot key an explicit specialization. They are explicitly instantiated in
+// generated/generated_vulkan_enum_to_string.cpp. A call for an API element missing from that instantiation list is a
+// link error (unresolved external), not a compile error.
 
-// Requires a descriptor with an enumerant table: one enumerant to its name.
-template <schema::EnumApiElement Descriptor>
-std::string ToString(typename Descriptor::element_type value,
-                     ToStringFlags                     toStringFlags = kToString_Default,
-                     uint32_t                          tabCount      = kToStringDefaultTabCount,
-                     uint32_t                          tabSize       = kToStringDefaultTabSize);
+// Returns the name of one enumerant of Element.
+template <schema::EnumApiElement Element>
+std::string ToString(typename Element::element_type value,
+                     ToStringFlags                  toStringFlags = kToString_Default,
+                     uint32_t                       tabCount      = kToStringDefaultTabCount,
+                     uint32_t                       tabSize       = kToStringDefaultTabSize);
 
-// Requires a mask typedef's descriptor: the set bits of a mask, by name.
-template <schema::BitmaskApiElement Descriptor>
+// Returns the set bits of a mask of Element, by name.
+template <schema::BitmaskApiElement Element>
 std::string ToString(VkFlags64     flags,
                      ToStringFlags toStringFlags = kToString_Default,
                      uint32_t      tabCount      = kToStringDefaultTabCount,
                      uint32_t      tabSize       = kToStringDefaultTabSize);
 
-// A declaration visitor: it yields a declaration, so this lives in a header; the definitions are in the .cpp.
 #define GFXRECON_INVENTORY_VISIT_ENUM(Enum) \
     template <>                             \
     std::string ToString<Enum>(const Enum& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);

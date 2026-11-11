@@ -20,8 +20,9 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// The structure type of an API structure, read through its API element binding, and the cast a sieve makes once it
-// has matched one.
+// This header declares StructureTypeOf, which reads an API structure's structure type through its ApiElementOf binding,
+// and StructureTypeCast, the cast the pNext and deep-copy dispatch make once they have matched a structure type. Both
+// need binding/<api>_api_element_of.h included: without it TypedStructApiType is false, and neither accepts any type.
 
 #ifndef GFXRECON_BINDING_STRUCTURE_TYPE_H
 #define GFXRECON_BINDING_STRUCTURE_TYPE_H
@@ -37,15 +38,14 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(binding)
 
-// The structure type the API structure's API element carries.
 template <TypedStructApiType ApiType>
 constexpr auto StructureTypeOf()
 {
     return ApiElementOf<ApiType>::type::structure_type;
 }
 
-// A pointer to a chained structure, as the API type its structure type names, constness carried over from the
-// pointer. Checked in debug through the first member, which every chainable structure's type is.
+// Casts a pointer to a chained structure to Specific*, keeping the constness of what the pointer points at. Asserts in
+// DEBUG that a non-null pointer's first member, its sType, equals Specific's structure type.
 template <TypedStructApiType Specific, typename Generic>
 requires std::is_pointer_v<Generic> && std::negation_v<std::is_pointer<Specific>>
 auto StructureTypeCast(Generic generic)
@@ -58,7 +58,7 @@ auto StructureTypeCast(Generic generic)
     return specific;
 }
 
-// The same, keyed on the API element.
+// Casts as above, keyed on the API element.
 template <schema::TypedStructApiElement Element, typename Generic>
 requires std::is_pointer_v<Generic>
 auto StructureTypeCast(Generic generic)
