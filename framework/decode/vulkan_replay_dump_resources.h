@@ -40,6 +40,7 @@
 #include "util/defines.h"
 #include "vulkan/vulkan_core.h"
 
+#include <algorithm>
 #include <cstdint>
 #include <type_traits>
 #include <memory>
@@ -921,12 +922,35 @@ class VulkanReplayDumpResourcesBase
     }
 
     // Transfer dumping records its snapshot copies into the stream where the command sits. With a draw call
-    // context the clones are the only execution, so the snapshots belong in the clone taking work.
+    // context the clones are the only execution, so the snapshots belong in the clone taking work. Without one, a
+    // dispatch/trace rays clone replaces the original the same way.
     VkCommandBuffer TransferRecordingCommandBuffer(VkCommandBuffer original_command_buffer)
     {
         VkCommandBuffer clone = VK_NULL_HANDLE;
         ForEachDrawCallWorkCommandBuffer(original_command_buffer, [&clone](VkCommandBuffer cb) { clone = cb; });
+        if (clone == VK_NULL_HANDLE)
+        {
+            for (const auto& dr_context : FindDispatchTraceRaysContexts(original_command_buffer))
+            {
+                if (dr_context->GetDispatchRaysCommandBuffer() != VK_NULL_HANDLE)
+                {
+                    clone = dr_context->GetDispatchRaysCommandBuffer();
+                }
+            }
+        }
         return (clone != VK_NULL_HANDLE) ? clone : original_command_buffer;
+    }
+
+    // Whether the draw call context hosts one of the dispatch/trace rays contexts. The hosted context records the
+    // dispatch/trace rays command itself, between its resource snapshots, so the draw call clone must not record it
+    // a second time.
+    static bool
+    HostsDispatchTraceRaysContext(const std::shared_ptr<DrawCallsDumpingContext>&                      dc_context,
+                                  const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>>& dr_contexts)
+    {
+        return std::any_of(dr_contexts.begin(), dr_contexts.end(), [&dc_context](const auto& dr_context) {
+            return dr_context->GetHost() == dc_context;
+        });
     }
 
     // Transfer contexts search funcs
