@@ -148,6 +148,7 @@ CommonCaptureManager::~CommonCaptureManager()
         util::PageGuardManager::Destroy();
     }
 
+    file_stream_ = nullptr;
     UnlockOutputFile(&capture_lock_fd_);
     UnlockOutputFile(&asset_lock_fd_);
 
