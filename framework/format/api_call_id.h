@@ -874,7 +874,6 @@ enum ApiCallId : uint32_t
     ApiCall_vkUnregisterCustomBorderColorEXT                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x1380),
     ApiCall_vkWriteResourceDescriptorsEXT                                                         = MakeApiCallId(ApiFamily_Vulkan, 0x1381),
     ApiCall_vkWriteSamplerDescriptorsEXT                                                          = MakeApiCallId(ApiFamily_Vulkan, 0x1382),
-    ApiCall_vkCmdBindSamplerHeapEXT                                                               = MakeApiCallId(ApiFamily_Vulkan, 0x1383),
 
     ApiCall_VulkanLast,
 
