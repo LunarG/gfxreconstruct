@@ -19,11 +19,18 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
+set -e
+
+# WARNING: after expand, ci-gfxr-suites holds symlinks to shared, read-only
+# files on the NAS blob store. "rm -rf" is safe: it removes only the links.
+# NEVER add a step that follows links to delete or write, for example
+# "find -L ... -delete", "rsync --copy-links", or a copy over a file in the clone.
 rm -rf ci-gfxr-suites
 
 if [ -z "${TEST_SUITE_BRANCH:-}" ]; then
   if [ -f "test_suite.ref" ]; then
-    IFS= read -r TEST_SUITE_BRANCH < test_suite.ref
+    # read returns 1 when the file has no newline at the end, also when it read the value.
+    IFS= read -r TEST_SUITE_BRANCH < test_suite.ref || [ -n "$TEST_SUITE_BRANCH" ]
   else
     TEST_SUITE_BRANCH="master"
   fi
@@ -38,11 +45,14 @@ git config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*
 git config remote.origin.promisor true
 git config remote.origin.partialclonefilter "blob:none"
 git sparse-checkout init --cone
-git sparse-checkout set $GFXRECON_TRACE_SUBDIR
+git sparse-checkout set $GFXRECON_TRACE_SUBDIR tools
 
 git fetch --depth 1 --filter=blob:none --verbose origin $TEST_SUITE_BRANCH
 
 git checkout FETCH_HEAD
 git describe --tags --always
+
+# Make a symlink at each virtual path (a stub without ".blob") to its object in the blob store.
+"$WORKSPACE/python-venv/bin/python3" tools/blobstore.py expand
 ls .
 cd ..

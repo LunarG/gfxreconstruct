@@ -19,6 +19,10 @@
 @REM FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 @REM DEALINGS IN THE SOFTWARE.
 
+@REM WARNING: after expand, ci-gfxr-suites holds symlinks to shared, read-only
+@REM files on the NAS blob store. "rmdir /s /q" is safe: it removes only the links.
+@REM NEVER add a step that follows links to delete or write, for example
+@REM a copy over a file in the clone.
 if exist ci-gfxr-suites rmdir /s /q ci-gfxr-suites
 
 if not defined TEST_SUITE_BRANCH (
@@ -37,7 +41,7 @@ git config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*
 git config remote.origin.promisor true
 git config remote.origin.partialclonefilter "blob:none"
 git sparse-checkout init --cone
-git sparse-checkout set "%GFXRECON_TRACE_SUBDIR%"
+git sparse-checkout set "%GFXRECON_TRACE_SUBDIR%" tools
 
 set /a clonetestloop=0
 :fetch_suites
@@ -54,5 +58,8 @@ goto :fetch_suites
 
 git checkout FETCH_HEAD || exit /b
 git describe --tags --always
+
+@REM Make a symlink at each virtual path (a stub without ".blob") to its object in the blob store.
+"%WORKSPACE%\python-venv\Scripts\python" tools\blobstore.py expand || exit /b
 dir
 cd ..
