@@ -171,7 +171,7 @@ void XcbContext::ProcessEvents(bool wait_for_input)
                             break;
                         case 0x21: // p
                         case 0x41: // Space
-                            application_->SetPaused(!application_->GetPaused());
+                            application_->SetPaused(!application_->GetPaused(), "a key press");
                             break;
                         default:
                             break;

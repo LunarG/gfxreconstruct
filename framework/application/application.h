@@ -81,7 +81,9 @@ class Application final
 
     bool GetPaused() const { return paused_; }
 
-    void SetPaused(bool paused);
+    // The optional reason describes what caused the pause state to change (for example "a user tap") and is included in
+    // the message logged when the state changes.
+    void SetPaused(bool paused, const char* reason = nullptr);
 
     void SetPauseFrame(uint32_t pause_frame) { pause_frame_ = pause_frame; }
 
