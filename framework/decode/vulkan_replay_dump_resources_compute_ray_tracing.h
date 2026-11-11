@@ -41,10 +41,13 @@
 #include <memory>
 #include <map>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+class DrawCallsDumpingContext;
 
 // This class handles the context related to dumping Dispatch and TraceRays resouces
 class DispatchTraceRaysDumpingContext
@@ -70,7 +73,15 @@ class DispatchTraceRaysDumpingContext
                                 const graphics::VulkanInstanceTable*       inst_table,
                                 const VkCommandBufferBeginInfo*            begin_info);
 
+    // If a DispatchTraceRaysDumpingContext is hosted by a DrawCallsDumpingContext then DR_command_buffer_ will be null.
     VkCommandBuffer GetDispatchRaysCommandBuffer() const { return DR_command_buffer_; }
+
+    // A draw call context on the same command buffer owns the only execution of that command buffer. Hosted by it,
+    // this context keeps no clone of its own: its dispatch/trace rays commands and resource snapshots are recorded
+    // into the draw call clone taking work. Otherwise the two would each execute the command buffer once more.
+    void SetHost(std::shared_ptr<DrawCallsDumpingContext> host) { host_ = std::move(host); }
+    bool IsHosted() const { return host_ != nullptr; }
+    const std::shared_ptr<DrawCallsDumpingContext>& GetHost() const { return host_; }
 
     VkCommandBuffer GetOriginalCommandBuffer() const
     {
@@ -195,17 +206,21 @@ class DispatchTraceRaysDumpingContext
 
     VkResult DumpDescriptors(const DumpedResourceBase& dumped_resource_base, bool is_dispatch);
 
-    const VulkanCommandBufferInfo* original_command_buffer_info_;
-    decode::Index                  bcb_index_;
-    decode::Index                  qs_index_;
-    VkCommandBuffer                DR_command_buffer_;
-    CommandIndices                 dispatch_indices_;
-    CommandImageSubresource        disp_subresources_;
-    CommandIndices                 trace_rays_indices_;
-    CommandImageSubresource        tr_subresources_;
-    VulkanDumpResourcesDelegate&   delegate_;
-    const VulkanReplayOptions&     options_;
-    const util::Compressor*        compressor_;
+    // The command buffer this context records into: the host's clone taking work, or its own clone
+    VkCommandBuffer RecordingCommandBuffer() const;
+
+    const VulkanCommandBufferInfo*           original_command_buffer_info_;
+    decode::Index                            bcb_index_;
+    decode::Index                            qs_index_;
+    VkCommandBuffer                          DR_command_buffer_;
+    std::shared_ptr<DrawCallsDumpingContext> host_;
+    CommandIndices                           dispatch_indices_;
+    CommandImageSubresource                  disp_subresources_;
+    CommandIndices                           trace_rays_indices_;
+    CommandImageSubresource                  tr_subresources_;
+    VulkanDumpResourcesDelegate&             delegate_;
+    const VulkanReplayOptions&               options_;
+    const util::Compressor*                  compressor_;
 
     // One entry per descriptor set for each compute and ray tracing binding points
     BoundDescriptorSets bound_descriptor_sets_compute_;
@@ -235,7 +250,9 @@ class DispatchTraceRaysDumpingContext
                 object_info_table(oit)
             {}
 
-            ~ClonedDescriptorBase()
+            // Deleted through this base (unique_ptr<ClonedDescriptorBase>): the derived destructors destroy the
+            // cloned buffer or image
+            virtual ~ClonedDescriptorBase()
             {
                 const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(parent_device_id);
                 GFXRECON_ASSERT(device_info != nullptr);

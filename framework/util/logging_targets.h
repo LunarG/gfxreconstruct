@@ -49,6 +49,7 @@ enum LoggingTargetType
     kTarget_StdErr,
     kTarget_FileOut,
     kTarget_DebugView,
+    kTarget_Remote,
 
     kTarget_Count
 };
@@ -200,6 +201,18 @@ class LoggingTargetFile : public LoggingTargetBase
     bool                     create_new_{ true };
     bool                     leave_open_{ false };
     inline static std::mutex file_mut_;
+};
+
+class LoggingTargetRemote : public LoggingTargetBase
+{
+  public:
+    LoggingTargetRemote()
+    {
+        // Sends the same formatted line as the console, without indentation.
+        use_indent_ = false;
+    }
+
+    void LogMessage(LoggingSeverity severity, const std::string& message) override;
 };
 
 GFXRECON_END_NAMESPACE(logging)

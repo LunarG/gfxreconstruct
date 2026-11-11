@@ -27,6 +27,7 @@
 
 #include "util/remote_channel.h"
 
+#include "util/logging.h"
 #include "util/output_file.h"
 
 #include "nlohmann/json.hpp"
@@ -43,6 +44,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <filesystem>
 #include <future>
 #include <map>
 #include <memory>
@@ -102,7 +104,7 @@ void SetTestRecvTimeout(TestSocket sock)
 #endif
 
 // The controller half of the connection: binds an ephemeral loopback port, accepts one RemoteChannel, and reads and
-// writes length-prefixed frames directly.
+// writes length-prefixed frames directly. Declared after the channel, so it closes first as Disconnect() expects.
 class TestController
 {
   public:
@@ -193,6 +195,18 @@ class TestController
         SendFrame(payload.data(), static_cast<uint32_t>(payload.size()));
     }
 
+    // A length prefix with no payload, for frames too large to actually send.
+    void SendLengthPrefix(uint32_t length)
+    {
+        SendAll(&length, sizeof(length));
+    }
+
+    void Close()
+    {
+        CloseTestSocket(conn_fd_);
+        conn_fd_ = kInvalidTestSock;
+    }
+
   private:
     bool RecvExact(void* buf, size_t size)
     {
@@ -268,6 +282,16 @@ json SettingsMessage()
     return json{ { "type", "settings" }, { "options", { { "capture_file", "capture.gfxr" } } } };
 }
 
+// SendDone() waits for the controller to close, so it runs off the test thread while the test reads "done" and closes.
+json SendDoneAndClose(util::RemoteChannel& channel, TestController& controller, bool success)
+{
+    auto       sent = std::async(std::launch::async, [&channel, success]() { channel.SendDone(success); });
+    const json done = controller.RecvJson();
+    controller.Close();
+    REQUIRE(sent.wait_for(std::chrono::seconds(kSocketTimeoutSeconds)) == std::future_status::ready);
+    return done;
+}
+
 // Clears the process-wide channel even when a failed REQUIRE unwinds the test, so later tests never see a dead one.
 class ActiveChannelScope
 {
@@ -283,8 +307,8 @@ class ActiveChannelScope
 
 TEST_CASE("RemoteChannel hello announces the protocol version", "[remote_channel]")
 {
-    TestController                     controller;
     util::RemoteChannel                channel;
+    TestController                     controller;
     std::map<std::string, std::string> settings;
     ChannelRunner                      runner(channel, controller.Address(), settings);
 
@@ -308,8 +332,8 @@ TEST_CASE("RemoteChannel handshake rejects a malformed opening turn", "[remote_c
     // Every case here must fail the handshake rather than degrade silently, so a controller bug surfaces at startup.
     SECTION("settings carrying a non-string value")
     {
-        TestController                     controller;
         util::RemoteChannel                channel;
+        TestController                     controller;
         std::map<std::string, std::string> settings;
         ChannelRunner                      runner(channel, controller.Address(), settings);
 
@@ -321,8 +345,8 @@ TEST_CASE("RemoteChannel handshake rejects a malformed opening turn", "[remote_c
 
     SECTION("settings with no options at all")
     {
-        TestController                     controller;
         util::RemoteChannel                channel;
+        TestController                     controller;
         std::map<std::string, std::string> settings;
         ChannelRunner                      runner(channel, controller.Address(), settings);
 
@@ -334,8 +358,8 @@ TEST_CASE("RemoteChannel handshake rejects a malformed opening turn", "[remote_c
 
     SECTION("an unparseable frame")
     {
-        TestController                     controller;
         util::RemoteChannel                channel;
+        TestController                     controller;
         std::map<std::string, std::string> settings;
         ChannelRunner                      runner(channel, controller.Address(), settings);
 
@@ -349,8 +373,8 @@ TEST_CASE("RemoteChannel handshake rejects a malformed opening turn", "[remote_c
 
 TEST_CASE("RemoteChannel sends a file as a header frame followed by its payload", "[remote_channel]")
 {
-    TestController                     controller;
     util::RemoteChannel                channel;
+    TestController                     controller;
     std::map<std::string, std::string> settings;
     ChannelRunner                      runner(channel, controller.Address(), settings);
 
@@ -380,8 +404,8 @@ TEST_CASE("RemoteChannel sends a file as a header frame followed by its payload"
 
 TEST_CASE("OpenOutputFile sends the whole file to the active channel when the stream is destroyed", "[remote_channel]")
 {
-    TestController                     controller;
     util::RemoteChannel                channel;
+    TestController                     controller;
     std::map<std::string, std::string> settings;
     ChannelRunner                      runner(channel, controller.Address(), settings);
 
@@ -413,10 +437,10 @@ TEST_CASE("OpenOutputFile sends the whole file to the active channel when the st
     CHECK(std::string(received.begin(), received.end()) == expected);
 }
 
-TEST_CASE("RemoteChannel reports completion", "[remote_channel]")
+TEST_CASE("RemoteChannel reports status and completion", "[remote_channel]")
 {
-    TestController                     controller;
     util::RemoteChannel                channel;
+    TestController                     controller;
     std::map<std::string, std::string> settings;
     ChannelRunner                      runner(channel, controller.Address(), settings);
 
@@ -425,8 +449,237 @@ TEST_CASE("RemoteChannel reports completion", "[remote_channel]")
     REQUIRE(controller.RecvJson().at("type") == "ready");
     REQUIRE(runner.Result());
 
-    channel.SendDone(true);
-    const json done = controller.RecvJson();
+    channel.SendStatus("paused", 42, 1337);
+    const json status = controller.RecvJson();
+    CHECK(status.at("type") == "status");
+    CHECK(status.at("state") == "paused");
+    CHECK(status.at("frame") == 42);
+    CHECK(status.at("block") == 1337);
+
+    const json done = SendDoneAndClose(channel, controller, true);
     CHECK(done.at("type") == "done");
     CHECK(done.at("success") == true);
+}
+
+TEST_CASE("RemoteChannel waits for the controller to close after done", "[remote_channel]")
+{
+    util::RemoteChannel                channel;
+    TestController                     controller;
+    std::map<std::string, std::string> settings;
+    ChannelRunner                      runner(channel, controller.Address(), settings);
+
+    AcceptAndReadHello(controller);
+    controller.SendJson(SettingsMessage());
+    REQUIRE(controller.RecvJson().at("type") == "ready");
+    REQUIRE(runner.Result());
+
+    auto sent = std::async(std::launch::async, [&channel]() { channel.SendDone(true); });
+    CHECK(controller.RecvJson().at("type") == "done");
+
+    // The half-close follows "done" while SendDone() still waits for the controller.
+    std::vector<uint8_t> frame;
+    CHECK_FALSE(controller.RecvFrame(frame));
+    CHECK(sent.wait_for(std::chrono::milliseconds(200)) == std::future_status::timeout);
+
+    // Well under the close timeout, so the controller's close ended the wait.
+    controller.Close();
+    CHECK(sent.wait_for(std::chrono::seconds(1)) == std::future_status::ready);
+}
+
+TEST_CASE("RemoteChannel queues control actions from the controller", "[remote_channel]")
+{
+    util::RemoteChannel                channel;
+    TestController                     controller;
+    std::map<std::string, std::string> settings;
+    ChannelRunner                      runner(channel, controller.Address(), settings);
+
+    AcceptAndReadHello(controller);
+    controller.SendJson(SettingsMessage());
+    REQUIRE(controller.RecvJson().at("type") == "ready");
+    REQUIRE(runner.Result());
+
+    controller.SendJson({ { "type", "control" }, { "action", "pause" } });
+
+    std::string action;
+    CHECK(channel.WaitPopControl(&action, std::chrono::seconds(kSocketTimeoutSeconds)));
+    CHECK(action == "pause");
+
+    // Actions are delivered in the order the controller sent them.
+    controller.SendJson({ { "type", "control" }, { "action", "step" } });
+    controller.SendJson({ { "type", "control" }, { "action", "resume" } });
+
+    CHECK(channel.WaitPopControl(&action, std::chrono::seconds(kSocketTimeoutSeconds)));
+    CHECK(action == "step");
+    CHECK(channel.WaitPopControl(&action, std::chrono::seconds(kSocketTimeoutSeconds)));
+    CHECK(action == "resume");
+}
+
+TEST_CASE("RemoteChannel ignores malformed control messages", "[remote_channel]")
+{
+    util::RemoteChannel                channel;
+    TestController                     controller;
+    std::map<std::string, std::string> settings;
+    ChannelRunner                      runner(channel, controller.Address(), settings);
+
+    AcceptAndReadHello(controller);
+    controller.SendJson(SettingsMessage());
+    REQUIRE(controller.RecvJson().at("type") == "ready");
+    REQUIRE(runner.Result());
+
+    const std::string not_json = "not json";
+    controller.SendFrame(not_json.data(), static_cast<uint32_t>(not_json.size()));
+    controller.SendJson({ { "type", "control" } });
+    controller.SendJson({ { "type", "control" }, { "action", 5 } });
+    controller.SendJson({ { "type", "control" }, { "action", "" } });
+    controller.SendJson({ { "type", "control" }, { "action", "pause" } });
+
+    // Only the valid action arrives, which also shows the receiver thread survived the others.
+    std::string action;
+    CHECK(channel.WaitPopControl(&action, std::chrono::seconds(kSocketTimeoutSeconds)));
+    CHECK(action == "pause");
+    CHECK_FALSE(channel.TryPopControl(&action));
+    CHECK(channel.IsConnected());
+}
+
+TEST_CASE("RemoteChannel rejects an oversized frame from the controller", "[remote_channel]")
+{
+    util::RemoteChannel                channel;
+    TestController                     controller;
+    std::map<std::string, std::string> settings;
+    ChannelRunner                      runner(channel, controller.Address(), settings);
+
+    AcceptAndReadHello(controller);
+    controller.SendLengthPrefix(0xFFFFFFFF);
+
+    CHECK_FALSE(runner.Result());
+}
+
+TEST_CASE("RemoteChannel reports when the controller closes", "[remote_channel]")
+{
+    util::RemoteChannel                channel;
+    TestController                     controller;
+    std::map<std::string, std::string> settings;
+    ChannelRunner                      runner(channel, controller.Address(), settings);
+
+    AcceptAndReadHello(controller);
+    controller.SendJson(SettingsMessage());
+    REQUIRE(controller.RecvJson().at("type") == "ready");
+    REQUIRE(runner.Result());
+    CHECK_FALSE(channel.IsControllerClosed());
+
+    controller.Close();
+
+    // The close wakes the wait early rather than letting it run out the timeout.
+    const auto  start = std::chrono::steady_clock::now();
+    std::string action;
+    CHECK_FALSE(channel.WaitPopControl(&action, std::chrono::seconds(kSocketTimeoutSeconds)));
+    CHECK(std::chrono::steady_clock::now() - start < std::chrono::seconds(kSocketTimeoutSeconds / 2));
+    CHECK(channel.IsControllerClosed());
+    CHECK_FALSE(channel.IsConnected());
+}
+
+TEST_CASE("RemoteChannel reports progress on the active channel", "[remote_channel]")
+{
+    util::RemoteChannel                channel;
+    TestController                     controller;
+    std::map<std::string, std::string> settings;
+    ChannelRunner                      runner(channel, controller.Address(), settings);
+
+    AcceptAndReadHello(controller);
+    controller.SendJson(SettingsMessage());
+    REQUIRE(controller.RecvJson().at("type") == "ready");
+    REQUIRE(runner.Result());
+
+    {
+        ActiveChannelScope active(channel);
+        util::RemoteChannel::SendActiveProgress("dump_resources", 3, 7);
+    }
+
+    const json progress = controller.RecvJson();
+    CHECK(progress.at("type") == "progress");
+    CHECK(progress.at("operation") == "dump_resources");
+    CHECK(progress.at("current") == 3);
+    CHECK(progress.at("total") == 7);
+}
+
+TEST_CASE("RemoteChannel relays log output from the logging target", "[remote_channel]")
+{
+    util::RemoteChannel                channel;
+    TestController                     controller;
+    std::map<std::string, std::string> settings;
+    ChannelRunner                      runner(channel, controller.Address(), settings);
+
+    AcceptAndReadHello(controller);
+    controller.SendJson(SettingsMessage());
+    REQUIRE(controller.RecvJson().at("type") == "ready");
+    REQUIRE(runner.Result());
+
+    // Other tests leave the process-wide log level raised.
+    util::Log::Init(util::LoggingSeverity::kInfo);
+    {
+        ActiveChannelScope active(channel);
+        GFXRECON_LOG_WARNING("relayed %d", 7);
+        GFXRECON_WRITE_CONSOLE("console");
+    }
+    util::Log::Release();
+
+    const json warning = controller.RecvJson();
+    CHECK(warning.at("type") == "log");
+    CHECK(warning.at("level") == "warning");
+    CHECK(warning.at("message").get<std::string>().find("relayed 7") != std::string::npos);
+
+    // Output the log level never filters has no level of its own.
+    const json console = controller.RecvJson();
+    CHECK(console.at("type") == "log");
+    CHECK(console.at("level") == "info");
+    CHECK(console.at("message") == "console");
+}
+
+TEST_CASE("RemoteChannel replaces invalid UTF-8 instead of failing", "[remote_channel]")
+{
+    util::RemoteChannel                channel;
+    TestController                     controller;
+    std::map<std::string, std::string> settings;
+    ChannelRunner                      runner(channel, controller.Address(), settings);
+
+    AcceptAndReadHello(controller);
+    controller.SendJson(SettingsMessage());
+    REQUIRE(controller.RecvJson().at("type") == "ready");
+    REQUIRE(runner.Result());
+
+    channel.SendLog(util::LoggingSeverity::kInfo, "bad \xff byte");
+    const json log = controller.RecvJson();
+    CHECK(log.at("message") == "bad \xEF\xBF\xBD byte");
+
+    CHECK(SendDoneAndClose(channel, controller, true).at("type") == "done");
+}
+
+TEST_CASE("OpenOutputFile writes nothing to disk after the controller closes", "[remote_channel]")
+{
+    util::RemoteChannel                channel;
+    TestController                     controller;
+    std::map<std::string, std::string> settings;
+    ChannelRunner                      runner(channel, controller.Address(), settings);
+
+    AcceptAndReadHello(controller);
+    controller.SendJson(SettingsMessage());
+    REQUIRE(controller.RecvJson().at("type") == "ready");
+    REQUIRE(runner.Result());
+
+    controller.Close();
+    std::string action;
+    channel.WaitPopControl(&action, std::chrono::seconds(kSocketTimeoutSeconds));
+    REQUIRE(channel.IsControllerClosed());
+
+    const std::filesystem::path path =
+        std::filesystem::temp_directory_path() / "gfxrecon_test_remote_channel_discarded.bin";
+    std::filesystem::remove(path);
+
+    {
+        ActiveChannelScope                  active(channel);
+        std::unique_ptr<util::OutputStream> stream = util::OpenOutputFile(path.string());
+        util::Write(*stream, "dropped");
+    }
+
+    CHECK_FALSE(std::filesystem::exists(path));
 }

@@ -33,6 +33,7 @@ struct android_app;
 #include "application/application.h"
 #include "decode/file_processor.h"
 #include "util/argument_parser.h"
+#include "util/remote_channel.h"
 
 #include <functional>
 #include <memory>
@@ -40,10 +41,6 @@ struct android_app;
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-
-GFXRECON_BEGIN_NAMESPACE(util)
-class RemoteChannel;
-GFXRECON_END_NAMESPACE(util)
 
 GFXRECON_BEGIN_NAMESPACE(replay)
 
@@ -95,11 +92,15 @@ void RunPreProcessConsumer(const std::string& filename, std::vector<std::unique_
 //                     global reference so the extern "C" query callbacks work.
 // make_application    Platform factory called with the new FileProcessor
 //                     pointer; should return a fully constructed Application.
+// remote_channel      Optional, non-owning channel to a connected controller,
+//                     which receives replay status and sends playback controls;
+//                     nullptr when no controller is connected.
 bool RunReplay(std::unique_ptr<decode::FileProcessor>&                                          file_processor_out,
                std::vector<std::unique_ptr<ReplayFeatureBase>>&                                 features,
                util::ArgumentParser&                                                            arg_parser,
                const std::string&                                                               filename,
-               std::function<std::shared_ptr<application::Application>(decode::FileProcessor*)> make_application);
+               std::function<std::shared_ptr<application::Application>(decode::FileProcessor*)> make_application,
+               util::RemoteChannel* remote_channel = nullptr);
 
 GFXRECON_END_NAMESPACE(replay)
 GFXRECON_END_NAMESPACE(gfxrecon)

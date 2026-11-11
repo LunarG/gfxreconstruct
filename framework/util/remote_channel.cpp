@@ -62,6 +62,12 @@ constexpr int kAcceptTimeoutSeconds = 30;
 
 constexpr int kHandshakeTimeoutSeconds = 5;
 
+// How long Disconnect() waits for the controller to close its end before closing anyway.
+constexpr int kCloseTimeoutSeconds = 2;
+
+// The controller only sends small JSON messages; a larger length prefix is a protocol error, not an allocation request.
+constexpr uint32_t kMaxRecvFrameSize = 1024 * 1024;
+
 // The rest of this block adapts Winsock and BSD sockets to the one interface used by the logic below.
 #if defined(_WIN32)
 
@@ -144,6 +150,17 @@ void CloseSocket(SocketHandle& fd)
     fd = kInvalidSocket;
 }
 
+void ShutdownSend(SocketHandle fd)
+{
+    shutdown(fd, SD_SEND);
+}
+
+// Winsock's shutdown() leaves an in-progress recv() parked; only closesocket() cancels it, resetting the connection.
+void WakeReceiver(SocketHandle& fd)
+{
+    CloseSocket(fd);
+}
+
 // A timeout_seconds of 0 restores indefinite blocking. Windows takes SO_RCVTIMEO in milliseconds, POSIX as a timeval.
 void SetRecvTimeout(SocketHandle fd, int timeout_seconds)
 {
@@ -210,6 +227,17 @@ void CloseSocket(SocketHandle& fd)
 {
     close(fd);
     fd = kInvalidSocket;
+}
+
+void ShutdownSend(SocketHandle fd)
+{
+    shutdown(fd, SHUT_WR);
+}
+
+// shutdown() unblocks a parked recv() without closing, so fd stays valid for the caller.
+void WakeReceiver(SocketHandle& fd)
+{
+    shutdown(fd, SHUT_RDWR);
 }
 
 // A timeout_seconds of 0 restores indefinite blocking.
@@ -393,6 +421,39 @@ std::string AddrInfoErrorString(int error)
 #endif
 }
 
+// Log text and file names may not be UTF-8; replace bad bytes rather than throw from inside whatever logged.
+std::string ToWireString(const nlohmann::json& msg)
+{
+    return msg.dump(-1, ' ', false, nlohmann::json::error_handler_t::replace);
+}
+
+const char* SeverityToLevelString(LoggingSeverity severity)
+{
+    switch (severity)
+    {
+        case LoggingSeverity::kVerbose:
+            return "verbose";
+        case LoggingSeverity::kDebug:
+            return "debug";
+        case LoggingSeverity::kInfo:
+            return "info";
+        case LoggingSeverity::kWarning:
+            return "warning";
+        case LoggingSeverity::kError:
+            return "error";
+        case LoggingSeverity::kFatal:
+            return "fatal";
+        case LoggingSeverity::kAlwaysOutput:
+            // Console output the log level does not filter; it has no level of its own.
+            return "info";
+        case LoggingSeverity::kDisabled:
+            break;
+    }
+
+    GFXRECON_ASSERT(false);
+    return "info";
+}
+
 // Connect a TCP socket described by "host:port". Returns a connected fd, or kInvalidSocket on failure.
 SocketHandle ConnectTcp(const std::string& host_port)
 {
@@ -568,6 +629,7 @@ bool RemoteChannel::Connect(const std::string& address)
         sender_active_ = true;
     }
     sender_thread_ = std::thread(&RemoteChannel::SenderThread, this);
+    connected_     = true;
     return true;
 }
 
@@ -619,16 +681,25 @@ bool RemoteChannel::Listen(const std::string& address)
         sender_active_ = true;
     }
     sender_thread_ = std::thread(&RemoteChannel::SenderThread, this);
+    connected_     = true;
     return true;
 }
 
 bool RemoteChannel::IsConnected() const
 {
-    return (fd_ != kInvalidSocket) && !send_failed_;
+    return connected_ && !send_failed_ && !controller_closed_;
+}
+
+bool RemoteChannel::IsControllerClosed() const
+{
+    return controller_closed_;
 }
 
 void RemoteChannel::Disconnect()
 {
+    // First, so threads still holding the active-channel pointer stop queueing while the rest is torn down.
+    connected_ = false;
+
     if (sender_thread_.joinable())
     {
         // Flush: the sender thread drains the queue before honoring the stop request.
@@ -641,16 +712,46 @@ void RemoteChannel::Disconnect()
         sender_thread_.join();
     }
 
+    receiver_stop_requested_ = true;
+    if (receiver_thread_.joinable())
+    {
+        // Let the controller close first: closing under a pending recv() resets the connection on Windows, and a reset
+        // discards whatever the controller has not yet read.
+        ShutdownSend(fd_);
+        bool receiver_exited = false;
+        {
+            std::unique_lock<std::mutex> lock(control_mutex_);
+            receiver_exited = control_cv_.wait_for(
+                lock, std::chrono::seconds(kCloseTimeoutSeconds), [this] { return receiver_exited_; });
+        }
+        if (!receiver_exited)
+        {
+            // Wake the receiver thread out of a blocking recv; on Windows that closes the socket, clearing fd_.
+            WakeReceiver(fd_);
+        }
+        receiver_thread_.join();
+    }
+
     if (fd_ != kInvalidSocket)
     {
         CloseSocket(fd_);
     }
 
-    send_queue_.clear();
-    queue_bytes_    = 0;
-    stop_requested_ = false;
-    sender_active_  = false;
-    send_failed_    = false;
+    {
+        const std::lock_guard<std::mutex> lock(queue_mutex_);
+        send_queue_.clear();
+        queue_bytes_    = 0;
+        stop_requested_ = false;
+        sender_active_  = false;
+        send_failed_    = false;
+    }
+    {
+        const std::lock_guard<std::mutex> lock(control_mutex_);
+        control_queue_.clear();
+        controller_closed_ = false;
+        receiver_exited_   = false;
+    }
+    receiver_stop_requested_ = false;
 }
 
 bool RemoteChannel::Handshake(std::map<std::string, std::string>& settings)
@@ -667,7 +768,7 @@ bool RemoteChannel::Handshake(std::map<std::string, std::string>& settings)
     SetRecvTimeout(fd_, kHandshakeTimeoutSeconds);
 
     std::vector<uint8_t> frame;
-    if (!RecvFrame(frame))
+    if (!RecvFrame(fd_, frame))
     {
         GFXRECON_LOG_ERROR("Remote channel: handshake failed waiting for settings");
         return false;
@@ -707,6 +808,39 @@ bool RemoteChannel::Handshake(std::map<std::string, std::string>& settings)
 
     SendJson({ { "type", "ready" } });
 
+    // Restore blocking receives for the receiver thread.
+    SetRecvTimeout(fd_, 0);
+    receiver_thread_ = std::thread(&RemoteChannel::ReceiverThread, this, fd_);
+
+    return true;
+}
+
+bool RemoteChannel::TryPopControl(std::string* action)
+{
+    GFXRECON_ASSERT(action != nullptr);
+
+    const std::lock_guard<std::mutex> lock(control_mutex_);
+    if (control_queue_.empty())
+    {
+        return false;
+    }
+    *action = std::move(control_queue_.front());
+    control_queue_.pop_front();
+    return true;
+}
+
+bool RemoteChannel::WaitPopControl(std::string* action, std::chrono::milliseconds timeout)
+{
+    GFXRECON_ASSERT(action != nullptr);
+
+    std::unique_lock<std::mutex> lock(control_mutex_);
+    control_cv_.wait_for(lock, timeout, [this] { return !control_queue_.empty() || controller_closed_; });
+    if (control_queue_.empty())
+    {
+        return false;
+    }
+    *action = std::move(control_queue_.front());
+    control_queue_.pop_front();
     return true;
 }
 
@@ -717,7 +851,7 @@ void RemoteChannel::SendJson(const nlohmann::json& msg)
         return;
     }
 
-    std::string          payload = msg.dump();
+    std::string          payload = ToWireString(msg);
     std::vector<uint8_t> buffer;
     buffer.reserve(sizeof(uint32_t) + payload.size());
     AppendFrame(buffer, payload.data(), static_cast<uint32_t>(payload.size()));
@@ -732,7 +866,7 @@ void RemoteChannel::SendFile(const std::string& name, const void* data, size_t s
     }
 
     nlohmann::json header  = { { "type", "file" }, { "name", name }, { "size", size } };
-    std::string    payload = header.dump();
+    std::string    payload = ToWireString(header);
 
     // Queue both frames as one buffer so the JSON header and binary data are never interleaved with other senders.
     std::vector<uint8_t> buffer;
@@ -764,6 +898,16 @@ void RemoteChannel::LogSendQueueStats() const
                     static_cast<double>(kSendQueueLimit) / (1024.0 * 1024.0),
                     stalls,
                     static_cast<double>(stat_stall_ns_.load()) / 1e6);
+}
+
+void RemoteChannel::SendLog(LoggingSeverity severity, const std::string& message)
+{
+    SendJson({ { "type", "log" }, { "level", SeverityToLevelString(severity) }, { "message", message } });
+}
+
+void RemoteChannel::SendStatus(const std::string& state, uint64_t frame, uint64_t block)
+{
+    SendJson({ { "type", "status" }, { "state", state }, { "frame", frame }, { "block", block } });
 }
 
 void RemoteChannel::SendDone(bool success)
@@ -819,6 +963,51 @@ void RemoteChannel::EnqueueFrames(std::vector<uint8_t>&& buffer, bool stall_when
     queue_cv_.notify_one();
 }
 
+void RemoteChannel::ReceiverThread(SocketHandle fd)
+{
+    std::vector<uint8_t> frame;
+    while (RecvFrame(fd, frame))
+    {
+        nlohmann::json msg = nlohmann::json::parse(frame.begin(), frame.end(), nullptr, false);
+        if (msg.is_discarded() || !msg.contains("type"))
+        {
+            GFXRECON_LOG_WARNING("Remote channel: ignoring malformed message from controller");
+            continue;
+        }
+
+        if (msg["type"] == "control")
+        {
+            // Not value(), which throws on a type mismatch and would take down replay from this thread.
+            const auto action = msg.find("action");
+            if ((action == msg.end()) || !action->is_string() || action->get_ref<const std::string&>().empty())
+            {
+                GFXRECON_LOG_WARNING("Remote channel: ignoring control message without a string action");
+                continue;
+            }
+            {
+                const std::lock_guard<std::mutex> lock(control_mutex_);
+                control_queue_.push_back(action->get<std::string>());
+            }
+            control_cv_.notify_one();
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Remote channel: ignoring unexpected message type '%s'", msg["type"].dump().c_str());
+        }
+    }
+
+    // Under the lock so a waiter checking its predicate cannot miss the wakeup.
+    {
+        const std::lock_guard<std::mutex> lock(control_mutex_);
+        if (!receiver_stop_requested_)
+        {
+            controller_closed_ = true;
+        }
+        receiver_exited_ = true;
+    }
+    control_cv_.notify_all();
+}
+
 void RemoteChannel::SenderThread()
 {
     for (;;)
@@ -862,11 +1051,19 @@ void RemoteChannel::SenderThread()
     }
 }
 
-bool RemoteChannel::RecvFrame(std::vector<uint8_t>& out)
+bool RemoteChannel::RecvFrame(SocketHandle fd, std::vector<uint8_t>& out)
 {
     uint32_t length = 0;
-    if (!RecvExact(&length, sizeof(length)))
+    if (!RecvExact(fd, &length, sizeof(length)))
     {
+        return false;
+    }
+
+    if (length > kMaxRecvFrameSize)
+    {
+        GFXRECON_LOG_ERROR("Remote channel: controller sent a %" PRIu32 "-byte frame, over the %" PRIu32 "-byte limit",
+                           length,
+                           kMaxRecvFrameSize);
         return false;
     }
 
@@ -875,7 +1072,7 @@ bool RemoteChannel::RecvFrame(std::vector<uint8_t>& out)
     {
         return true;
     }
-    return RecvExact(out.data(), length);
+    return RecvExact(fd, out.data(), length);
 }
 
 bool RemoteChannel::SendAll(const void* buf, size_t size)
@@ -899,13 +1096,13 @@ bool RemoteChannel::SendAll(const void* buf, size_t size)
     return true;
 }
 
-bool RemoteChannel::RecvExact(void* buf, size_t size)
+bool RemoteChannel::RecvExact(SocketHandle fd, void* buf, size_t size)
 {
     uint8_t* ptr       = static_cast<uint8_t*>(buf);
     size_t   remaining = size;
     while (remaining > 0)
     {
-        int64_t received = SocketRecv(fd_, ptr, remaining);
+        int64_t received = SocketRecv(fd, ptr, remaining);
         if (received <= 0)
         {
             if (received < 0 && SocketErrorIsInterrupt())
@@ -920,16 +1117,17 @@ bool RemoteChannel::RecvExact(void* buf, size_t size)
     return true;
 }
 
-RemoteChannel* RemoteChannel::active_channel_ = nullptr;
+std::atomic<RemoteChannel*> RemoteChannel::active_channel_{ nullptr };
 
 void RemoteChannel::SetActiveChannel(RemoteChannel* channel)
 {
     active_channel_ = channel;
+    Log::UpdateRemoteTarget(channel != nullptr);
 }
 
 bool RemoteChannel::IsActive()
 {
-    return active_channel_ != nullptr && active_channel_->IsConnected();
+    return active_channel_ != nullptr;
 }
 
 void RemoteChannel::SendActiveFile(const std::string& name, const void* data, size_t size)
@@ -938,6 +1136,25 @@ void RemoteChannel::SendActiveFile(const std::string& name, const void* data, si
     if (channel != nullptr && channel->IsConnected())
     {
         channel->SendFile(name, data, size);
+    }
+}
+
+void RemoteChannel::SendActiveProgress(const char* operation, uint64_t current, uint64_t total)
+{
+    RemoteChannel* channel = active_channel_;
+    if (channel != nullptr && channel->IsConnected())
+    {
+        channel->SendJson(
+            { { "type", "progress" }, { "operation", operation }, { "current", current }, { "total", total } });
+    }
+}
+
+void RemoteChannel::SendActiveLog(LoggingSeverity severity, const std::string& message)
+{
+    RemoteChannel* channel = active_channel_;
+    if (channel != nullptr && channel->IsConnected())
+    {
+        channel->SendLog(severity, message);
     }
 }
 

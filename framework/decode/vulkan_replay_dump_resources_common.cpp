@@ -34,6 +34,7 @@
 #include "graphics/vulkan_util.h"
 #include "util/logging.h"
 #include "util/platform.h"
+#include "util/remote_channel.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 
 #include <algorithm>
@@ -46,6 +47,32 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+uint64_t DumpResourcesProgress::total_     = 0;
+uint64_t DumpResourcesProgress::completed_ = 0;
+bool     DumpResourcesProgress::announced_ = false;
+
+void DumpResourcesProgress::Begin(uint64_t total)
+{
+    total_     = total;
+    completed_ = 0;
+    announced_ = false;
+}
+
+void DumpResourcesProgress::Announce()
+{
+    if (!announced_)
+    {
+        announced_ = true;
+        util::RemoteChannel::SendActiveProgress("dump_resources", completed_, total_);
+    }
+}
+
+void DumpResourcesProgress::Advance()
+{
+    ++completed_;
+    util::RemoteChannel::SendActiveProgress("dump_resources", completed_, total_);
+}
 
 ImageDumpResult CanDumpImage(const graphics::VulkanInstanceTable*              instance_table,
                              VkPhysicalDevice                                  phys_dev,

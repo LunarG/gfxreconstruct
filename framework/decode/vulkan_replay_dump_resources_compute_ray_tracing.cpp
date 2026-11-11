@@ -26,6 +26,7 @@
 #include "decode/vulkan_replay_dump_resources_compute_ray_tracing.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "decode/vulkan_replay_dump_resources_delegate.h"
+#include "decode/vulkan_replay_dump_resources_draw_calls.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "generated/generated_vulkan_struct_decoders.h"
@@ -62,7 +63,7 @@ DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(
     const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
     const VulkanPerDeviceAddressTrackers&             address_trackers) :
     original_command_buffer_info_(nullptr),
-    bcb_index_(bcb_index), qs_index_(qs_index), DR_command_buffer_(VK_NULL_HANDLE),
+    bcb_index_(bcb_index), qs_index_(qs_index), DR_command_buffer_(VK_NULL_HANDLE), host_(nullptr),
     disp_subresources_(disp_subresources), tr_subresources_(tr_subresources), delegate_(delegate), options_(options),
     compressor_(compressor), bound_pipeline_compute_(nullptr), bound_pipeline_trace_rays_(nullptr),
     command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary), parent_device_(VK_NULL_HANDLE),
@@ -90,14 +91,15 @@ void DispatchTraceRaysDumpingContext::Release()
 {
     if (original_command_buffer_info_)
     {
-        if (DR_command_buffer_ != VK_NULL_HANDLE)
+        const VulkanDeviceInfo* device_info =
+            object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
+        if (device_info != nullptr)
         {
-            const VulkanDeviceInfo* device_info =
-                object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
-            if (device_info != nullptr)
-            {
-                ReleaseIndirectParams();
+            ReleaseIndirectParams();
 
+            // A hosted context has no clone of its own
+            if (DR_command_buffer_ != VK_NULL_HANDLE)
+            {
                 VkDevice device = device_info->handle;
 
                 assert(device_table_.IsValid());
@@ -144,7 +146,7 @@ void DispatchTraceRaysDumpingContext::CmdDispatch(const ApiCallInfo& call_info,
         FinalizeCommandBuffer(true);
     }
 
-    VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer();
+    VkCommandBuffer dispatch_rays_command_buffer = RecordingCommandBuffer();
     if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
     {
         func(dispatch_rays_command_buffer, groupCountX, groupCountY, groupCountZ);
@@ -177,8 +179,11 @@ void DispatchTraceRaysDumpingContext::CmdDispatchIndirect(const ApiCallInfo&    
         FinalizeCommandBuffer(true);
     }
 
-    VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer();
-    func(dispatch_rays_command_buffer, buffer_info->handle, offset);
+    VkCommandBuffer dispatch_rays_command_buffer = RecordingCommandBuffer();
+    if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+    {
+        func(dispatch_rays_command_buffer, buffer_info->handle, offset);
+    }
 
     if (must_dump)
     {
@@ -225,7 +230,7 @@ void DispatchTraceRaysDumpingContext::CmdTraceRaysKHR(
         FinalizeCommandBuffer(true);
     }
 
-    VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer();
+    VkCommandBuffer dispatch_rays_command_buffer = RecordingCommandBuffer();
     if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
     {
         func(dispatch_rays_command_buffer,
@@ -279,7 +284,7 @@ void DispatchTraceRaysDumpingContext::CmdTraceRaysIndirectKHR(
         FinalizeCommandBuffer(true);
     }
 
-    VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer();
+    VkCommandBuffer dispatch_rays_command_buffer = RecordingCommandBuffer();
     if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
     {
         func(dispatch_rays_command_buffer,
@@ -316,7 +321,7 @@ void DispatchTraceRaysDumpingContext::CmdTraceRaysIndirect2KHR(const ApiCallInfo
         FinalizeCommandBuffer(true);
     }
 
-    VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer();
+    VkCommandBuffer dispatch_rays_command_buffer = RecordingCommandBuffer();
     if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
     {
         func(dispatch_rays_command_buffer, indirectDeviceAddress);
@@ -339,34 +344,38 @@ VkResult DispatchTraceRaysDumpingContext::BeginCommandBuffer(VulkanCommandBuffer
     GFXRECON_ASSERT(inst_table != nullptr);
     GFXRECON_ASSERT(begin_info != nullptr);
 
-    const VulkanCommandPoolInfo* cb_pool_info = object_info_table_.GetVkCommandPoolInfo(orig_cmd_buf_info->pool_id);
-
-    const VkCommandBufferAllocateInfo ai{ VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-                                          nullptr,
-                                          cb_pool_info->handle,
-                                          command_buffer_level_ == DumpResourcesCommandBufferLevel::kPrimary
-                                              ? VK_COMMAND_BUFFER_LEVEL_PRIMARY
-                                              : VK_COMMAND_BUFFER_LEVEL_SECONDARY,
-                                          1 };
-
-    const VulkanDeviceInfo* dev_info = object_info_table_.GetVkDeviceInfo(orig_cmd_buf_info->parent_id);
-
-    auto     injected = dev_table.Open();
-    VkResult res      = injected->AllocateCommandBuffers(dev_info->handle, &ai, &DR_command_buffer_);
-    if (res != VK_SUCCESS)
+    // Hosted by a draw call context, this context records into the draw call clones and needs no clone of its own
+    if (host_ == nullptr)
     {
-        GFXRECON_LOG_ERROR("AllocateCommandBuffers failed with %s", util::ToString<VkResult>(res).c_str());
-        return res;
-    }
+        const VulkanCommandPoolInfo* cb_pool_info = object_info_table_.GetVkCommandPoolInfo(orig_cmd_buf_info->pool_id);
 
-    res = injected.BeginCommandBuffer(
-        DR_command_buffer_, begin_info, "DispatchTraceRaysDumpingContext::BeginCommandBuffer");
-    if (res != VK_SUCCESS)
-    {
-        injected->FreeCommandBuffers(dev_info->handle, cb_pool_info->handle, 1, &DR_command_buffer_);
-        DR_command_buffer_ = VK_NULL_HANDLE;
-        GFXRECON_LOG_ERROR("BeginCommandBuffer failed with %s", util::ToString<VkResult>(res).c_str());
-        return res;
+        const VkCommandBufferAllocateInfo ai{ VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+                                              nullptr,
+                                              cb_pool_info->handle,
+                                              command_buffer_level_ == DumpResourcesCommandBufferLevel::kPrimary
+                                                  ? VK_COMMAND_BUFFER_LEVEL_PRIMARY
+                                                  : VK_COMMAND_BUFFER_LEVEL_SECONDARY,
+                                              1 };
+
+        const VulkanDeviceInfo* dev_info = object_info_table_.GetVkDeviceInfo(orig_cmd_buf_info->parent_id);
+
+        auto     injected = dev_table.Open();
+        VkResult res      = injected->AllocateCommandBuffers(dev_info->handle, &ai, &DR_command_buffer_);
+        if (res != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("AllocateCommandBuffers failed with %s", util::ToString<VkResult>(res).c_str());
+            return res;
+        }
+
+        res = injected.BeginCommandBuffer(
+            DR_command_buffer_, begin_info, "DispatchTraceRaysDumpingContext::BeginCommandBuffer");
+        if (res != VK_SUCCESS)
+        {
+            injected->FreeCommandBuffers(dev_info->handle, cb_pool_info->handle, 1, &DR_command_buffer_);
+            DR_command_buffer_ = VK_NULL_HANDLE;
+            GFXRECON_LOG_ERROR("BeginCommandBuffer failed with %s", util::ToString<VkResult>(res).c_str());
+            return res;
+        }
     }
 
     assert(original_command_buffer_info_ == nullptr);
@@ -390,6 +399,11 @@ VkResult DispatchTraceRaysDumpingContext::BeginCommandBuffer(VulkanCommandBuffer
     replay_device_phys_mem_props_ = &phys_dev_info->replay_device_info->memory_properties.value();
 
     return VK_SUCCESS;
+}
+
+VkCommandBuffer DispatchTraceRaysDumpingContext::RecordingCommandBuffer() const
+{
+    return host_ != nullptr ? host_->GetWorkCommandBuffer() : DR_command_buffer_;
 }
 
 void DispatchTraceRaysDumpingContext::FinalizeCommandBuffer(bool is_dispatch)
@@ -564,7 +578,7 @@ void DispatchTraceRaysDumpingContext::CopyBufferResource(const VulkanBufferInfo*
 
     assert(device_table_.IsValid());
     auto injected = device_table_.Open();
-    injected->CmdPipelineBarrier(DR_command_buffer_,
+    injected->CmdPipelineBarrier(RecordingCommandBuffer(),
                                  VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                                  VK_PIPELINE_STAGE_TRANSFER_BIT,
                                  VkDependencyFlags(0),
@@ -576,7 +590,7 @@ void DispatchTraceRaysDumpingContext::CopyBufferResource(const VulkanBufferInfo*
                                  nullptr);
 
     const std::vector<VkBufferCopy> copy_region{ VkBufferCopy{ offset, 0, size } };
-    CopyBufferAndBarrier(DR_command_buffer_, device_table_, src_buffer_info->handle, dst_buffer, copy_region);
+    CopyBufferAndBarrier(RecordingCommandBuffer(), device_table_, src_buffer_info->handle, dst_buffer, copy_region);
 }
 
 void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* src_image_info, VkImage dst_image)
@@ -619,7 +633,7 @@ void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* s
 
     assert(device_table_.IsValid());
     auto injected = device_table_.Open();
-    injected->CmdPipelineBarrier(DR_command_buffer_,
+    injected->CmdPipelineBarrier(RecordingCommandBuffer(),
                                  VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                                  VK_PIPELINE_STAGE_TRANSFER_BIT,
                                  VkDependencyFlags(0),
@@ -637,7 +651,7 @@ void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* s
     img_barrier.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
     img_barrier.image         = dst_image;
 
-    injected->CmdPipelineBarrier(DR_command_buffer_,
+    injected->CmdPipelineBarrier(RecordingCommandBuffer(),
                                  VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                  VK_PIPELINE_STAGE_TRANSFER_BIT,
                                  VkDependencyFlags(0),
@@ -676,7 +690,7 @@ void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* s
         copies[i] = copy;
     }
 
-    injected->CmdCopyImage(DR_command_buffer_,
+    injected->CmdCopyImage(RecordingCommandBuffer(),
                            src_image_info->handle,
                            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                            dst_image,
@@ -691,7 +705,7 @@ void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* s
     img_barrier.newLayout     = old_layout;
     img_barrier.image         = src_image_info->handle;
 
-    injected->CmdPipelineBarrier(DR_command_buffer_,
+    injected->CmdPipelineBarrier(RecordingCommandBuffer(),
                                  VK_PIPELINE_STAGE_TRANSFER_BIT,
                                  VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                                  VkDependencyFlags(0),
@@ -1294,6 +1308,8 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(Index submit_inf
         const VulkanDelegateDumpDrawCallContext draw_call_info(
             DumpResourcesPipelineStage::kCompute, instance_table_, device_table_, disp_params.get());
         delegate_.DumpDrawCallInfo(draw_call_info);
+
+        DumpResourcesProgress::Advance();
     }
 
     index = 0;
@@ -1345,6 +1361,8 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(Index submit_inf
         const VulkanDelegateDumpDrawCallContext draw_call_info(
             DumpResourcesPipelineStage::kRayTracing, instance_table_, device_table_, tr_params.get());
         delegate_.DumpDrawCallInfo(draw_call_info);
+
+        DumpResourcesProgress::Advance();
     }
 
     // Clean up references to dumped descriptors in case this command buffer is submitted again
@@ -2072,7 +2090,7 @@ VkResult DispatchTraceRaysDumpingContext::CopyDispatchIndirectParameters(Dispatc
     // Inject a cmdCopyBuffer to copy the dispatch params into the new buffer
     {
         const VkDeviceSize offset  = disp_params.dispatch_params_union.dispatch_indirect.params_buffer_offset;
-        VkCommandBuffer    cmd_buf = DR_command_buffer_;
+        VkCommandBuffer    cmd_buf = RecordingCommandBuffer();
 
         const std::vector<VkBufferCopy> copy_region{ VkBufferCopy{ offset, 0, size } };
         CopyBufferAndBarrier(cmd_buf,
@@ -2144,7 +2162,8 @@ VkResult DispatchTraceRaysDumpingContext::CopyTraceRaysIndirectParameters(TraceR
 
     // Copy the parameters from one buffer into the other
     const std::vector<VkBufferCopy> copy_region{ VkBufferCopy{ 0, 0, size } };
-    CopyBufferAndBarrier(DR_command_buffer_, device_table_, buffer_on_device_address, new_params_buffer, copy_region);
+    CopyBufferAndBarrier(
+        RecordingCommandBuffer(), device_table_, buffer_on_device_address, new_params_buffer, copy_region);
 
     if (params.type == kTraceRaysIndirect)
     {
@@ -2343,8 +2362,12 @@ void DispatchTraceRaysDumpingContext::InsertNewTraceRaysIndirect2Parameters(uint
 
 void DispatchTraceRaysDumpingContext::EndCommandBuffer()
 {
-    auto injected = device_table_.Open();
-    injected->EndCommandBuffer(DR_command_buffer_);
+    // A hosted context has no clone of its own to end
+    if (DR_command_buffer_ != VK_NULL_HANDLE)
+    {
+        auto injected = device_table_.Open();
+        injected->EndCommandBuffer(DR_command_buffer_);
+    }
 }
 
 void DispatchTraceRaysDumpingContext::AssignSecondary(

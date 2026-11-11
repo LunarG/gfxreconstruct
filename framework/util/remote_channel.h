@@ -91,17 +91,27 @@ class RemoteChannel
     bool IsConnected() const;
     void Disconnect();
 
+    // True once the controller has closed its end of the connection, after which no further control actions arrive.
+    bool IsControllerClosed() const;
+
     // Perform the startup handshake. Sends "hello", waits for a "settings" message, then sends "ready". On success
     // fills settings with the controller-supplied option name/value pairs (keys as described by ArgumentParser's
-    // settings-map constructor, values always strings).
+    // settings-map constructor, values always strings) and starts the receiver thread for control messages.
     bool Handshake(std::map<std::string, std::string>& settings);
+
+    // Pop the next control action, if any. Thread-safe. WaitPopControl also returns early if the controller closes.
+    bool TryPopControl(std::string* action);
+    bool WaitPopControl(std::string* action, std::chrono::milliseconds timeout);
 
     // The following are thread-safe and no-ops when disconnected. Messages are queued and delivered in order by a
     // background sender thread; if a send fails, queued messages are dropped and the channel reports disconnected.
-    // Disconnect() flushes any queued messages before closing the socket. All are non-blocking except SendFile, which
-    // applies backpressure once the queue is full (see kSendQueueLimit).
+    // Disconnect() flushes any queued messages, then waits briefly for the controller to close before closing the
+    // socket. All are non-blocking except SendFile, which applies backpressure once the queue is full (see
+    // kSendQueueLimit).
     void SendJson(const nlohmann::json& msg);
     void SendFile(const std::string& name, const void* data, size_t size);
+    void SendLog(LoggingSeverity severity, const std::string& message);
+    void SendStatus(const std::string& state, uint64_t frame, uint64_t block);
     void SendDone(bool success); // Also calls Disconnect().
 
     // Log how often, and for how long, file sends stalled waiting on socket backpressure. Call before SendDone so the
@@ -112,13 +122,22 @@ class RemoteChannel
     // shutdown, both on the main thread.
     static void SetActiveChannel(RemoteChannel* channel);
 
-    // Returns true when a connected channel is registered.
+    // Returns true when a channel is registered, even if its controller has since gone. File writers check this so a
+    // remote session never falls back to writing on the device.
     static bool IsActive();
 
     // Send data to the active channel as a "file" message; a no-op when no channel is registered or connected. Lets
     // file writers (screenshots, dump-resources) stream their output without threading a channel pointer through the
     // decode layer.
     static void SendActiveFile(const std::string& name, const void* data, size_t size);
+
+    // Report progress of a bounded operation (with a total, unlike the frame in SendStatus) on the active channel; a
+    // no-op when no channel is connected. Emits {"type":"progress","operation":<op>,"current":X,"total":Y}.
+    static void SendActiveProgress(const char* operation, uint64_t current, uint64_t total);
+
+    // Relay a log message to the active channel; a no-op when none is connected. Safe from any thread and from inside
+    // a log call, since the send path never logs.
+    static void SendActiveLog(LoggingSeverity severity, const std::string& message);
 
   private:
     // Append a length-prefixed frame to buffer.
@@ -131,9 +150,13 @@ class RemoteChannel
     // Sender thread entry point: sends queued buffers in order until stopped or a send fails.
     void SenderThread();
 
-    bool RecvFrame(std::vector<uint8_t>& out);
-    bool SendAll(const void* buf, size_t size);
-    bool RecvExact(void* buf, size_t size);
+    // Receiver thread entry point: queues incoming control actions until the controller disconnects.
+    void ReceiverThread(SocketHandle fd);
+
+    // Take the socket as a parameter so the receiver thread never reads fd_ while Disconnect() changes it.
+    static bool RecvFrame(SocketHandle fd, std::vector<uint8_t>& out);
+    static bool RecvExact(SocketHandle fd, void* buf, size_t size);
+    bool        SendAll(const void* buf, size_t size);
 
     SocketHandle fd_{ kInvalidSocket };
 
@@ -146,15 +169,24 @@ class RemoteChannel
     bool                             stop_requested_{ false }; // Guarded by queue_mutex_.
     bool                             sender_active_{ false };  // Sender thread is running; guarded by queue_mutex_.
     std::atomic<bool>                send_failed_{ false };
+    std::atomic<bool>                connected_{ false }; // Read by IsConnected() from any thread, unlike fd_.
 
     // Backpressure accounting for LogSendQueueStats().
     std::atomic<size_t>   stat_queue_peak_{ 0 }; // Updated under queue_mutex_, read from anywhere.
     std::atomic<uint64_t> stat_stalls_{ 0 };
     std::atomic<uint64_t> stat_stall_ns_{ 0 };
 
+    std::thread             receiver_thread_;
+    std::mutex              control_mutex_;
+    std::condition_variable control_cv_;
+    std::deque<std::string> control_queue_; // Guarded by control_mutex_.
+    std::atomic<bool>       controller_closed_{ false };
+    std::atomic<bool>       receiver_stop_requested_{ false }; // Set by Disconnect() so its own wakeup isn't a close.
+    bool                    receiver_exited_{ false };         // Guarded by control_mutex_.
+
     // Process-wide channel behind the static helpers, for callers that cannot be handed a pointer to it. Only one
     // controller connection exists per process.
-    static RemoteChannel* active_channel_;
+    static std::atomic<RemoteChannel*> active_channel_;
 };
 
 GFXRECON_END_NAMESPACE(util)
