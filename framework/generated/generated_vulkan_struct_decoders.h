@@ -6656,6 +6656,24 @@ struct Decoded_VkSharedPresentSurfaceCapabilities2KHR
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceMaintenance12FeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceMaintenance12FeaturesKHR;
+
+    VkPhysicalDeviceMaintenance12FeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceMaintenance12PropertiesKHR
+{
+    using struct_type = VkPhysicalDeviceMaintenance12PropertiesKHR;
+
+    VkPhysicalDeviceMaintenance12PropertiesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkDebugReportCallbackCreateInfoEXT
 {
     using struct_type = VkDebugReportCallbackCreateInfoEXT;
@@ -12528,6 +12546,15 @@ struct Decoded_VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceCooperativeMatrixLayoutsFeaturesARM
+{
+    using struct_type = VkPhysicalDeviceCooperativeMatrixLayoutsFeaturesARM;
+
+    VkPhysicalDeviceCooperativeMatrixLayoutsFeaturesARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT
 {
     using struct_type = VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT;
@@ -12600,6 +12627,15 @@ struct Decoded_VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceVertexAddressBindingUnrestrictedFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceVertexAddressBindingUnrestrictedFeaturesEXT;
+
+    VkPhysicalDeviceVertexAddressBindingUnrestrictedFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceImageTilingControlFeaturesEXT
 {
     using struct_type = VkPhysicalDeviceImageTilingControlFeaturesEXT;
@@ -12668,6 +12704,34 @@ struct Decoded_VkBufferDeviceAddressAlignmentAllocateInfoVALVE
     using struct_type = VkBufferDeviceAddressAlignmentAllocateInfoVALVE;
 
     VkBufferDeviceAddressAlignmentAllocateInfoVALVE* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceHdrSmpteSt209450FeaturesGOOGLE
+{
+    using struct_type = VkPhysicalDeviceHdrSmpteSt209450FeaturesGOOGLE;
+
+    VkPhysicalDeviceHdrSmpteSt209450FeaturesGOOGLE* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkHdrSmpteSt209450GOOGLE
+{
+    using struct_type = VkHdrSmpteSt209450GOOGLE;
+
+    VkHdrSmpteSt209450GOOGLE* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<uint8_t> pMetadata;
+};
+
+struct Decoded_VkSurfaceCapabilitiesHdrSmpteSt209450GOOGLE
+{
+    using struct_type = VkSurfaceCapabilitiesHdrSmpteSt209450GOOGLE;
+
+    VkSurfaceCapabilitiesHdrSmpteSt209450GOOGLE* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };

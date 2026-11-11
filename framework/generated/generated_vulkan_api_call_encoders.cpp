@@ -30183,6 +30183,142 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCooperativeMatrixProperties2EX
 
 }
 
+VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceInternalHandleNV(
+    VkPhysicalDevice                            physicalDevice,
+    VkInternalHandleNV*                         pHandle)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceInternalHandleNV>::Dispatch(manager, physicalDevice, pHandle);
+
+    vulkan_wrappers::GetInstanceTable(physicalDevice)->GetPhysicalDeviceInternalHandleNV(physicalDevice, pHandle);
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkGetPhysicalDeviceInternalHandleNV);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::PhysicalDeviceWrapper>(physicalDevice);
+        encoder->EncodeVoidPtrPtr(pHandle);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceInternalHandleNV>::Dispatch(manager, physicalDevice, pHandle);
+
+}
+
+VKAPI_ATTR void VKAPI_CALL vkGetDeviceInternalHandleNV(
+    VkDevice                                    device,
+    VkInternalHandleNV*                         pHandle)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceInternalHandleNV>::Dispatch(manager, device, pHandle);
+
+    vulkan_wrappers::GetDeviceTable(device)->GetDeviceInternalHandleNV(device, pHandle);
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkGetDeviceInternalHandleNV);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
+        encoder->EncodeVoidPtrPtr(pHandle);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceInternalHandleNV>::Dispatch(manager, device, pHandle);
+
+}
+
+VKAPI_ATTR void VKAPI_CALL vkGetQueueInternalHandleNV(
+    VkQueue                                     queue,
+    VkInternalHandleNV*                         pHandle)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetQueueInternalHandleNV>::Dispatch(manager, queue, pHandle);
+
+    vulkan_wrappers::GetDeviceTable(queue)->GetQueueInternalHandleNV(queue, pHandle);
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkGetQueueInternalHandleNV);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::QueueWrapper>(queue);
+        encoder->EncodeVoidPtrPtr(pHandle);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetQueueInternalHandleNV>::Dispatch(manager, queue, pHandle);
+
+}
+
+VKAPI_ATTR void VKAPI_CALL vkGetCommandBufferInternalHandleNV(
+    VkCommandBuffer                             commandBuffer,
+    VkInternalHandleNV*                         pHandle)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetCommandBufferInternalHandleNV>::Dispatch(manager, commandBuffer, pHandle);
+
+    vulkan_wrappers::GetDeviceTable(commandBuffer)->GetCommandBufferInternalHandleNV(commandBuffer, pHandle);
+
+    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkGetCommandBufferInternalHandleNV);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
+        encoder->EncodeVoidPtrPtr(pHandle);
+        manager->EndCommandApiCallCapture(commandBuffer);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetCommandBufferInternalHandleNV>::Dispatch(manager, commandBuffer, pHandle);
+
+}
+
 VKAPI_ATTR void VKAPI_CALL vkCmdSetPrimitiveRestartIndexEXT(
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    primitiveRestartIndex)

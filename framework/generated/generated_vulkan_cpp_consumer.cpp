@@ -16371,6 +16371,89 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixProperties2E
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT);
 }
+void VulkanCppConsumer::Process_vkGetCommandBufferInternalHandleNV(
+    const ApiCallInfo&                          call_info,
+    args::GetCommandBufferInternalHandleNV&     args)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::string phandle_name = "NULL";
+    if (!args.pHandle.IsNull()) {
+        phandle_name = "pHandle_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint8_t* %s = %s;\n", phandle_name.c_str(), util::ToString(*args.pHandle.GetPointer()).c_str());
+        phandle_name.insert(0, "&");
+    }
+    pfn_loader_.AddMethodName("vkGetCommandBufferInternalHandleNV");
+    fprintf(file,
+            "\t\tloaded_vkGetCommandBufferInternalHandleNV(%s, %s);\n",
+            this->GetHandle(args.commandBuffer).c_str(),
+            phandle_name.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetCommandBufferInternalHandleNV);
+}
+
+void VulkanCppConsumer::Process_vkGetDeviceInternalHandleNV(
+    const ApiCallInfo&                          call_info,
+    args::GetDeviceInternalHandleNV&            args)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::string phandle_name = "NULL";
+    if (!args.pHandle.IsNull()) {
+        phandle_name = "pHandle_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint8_t* %s = %s;\n", phandle_name.c_str(), util::ToString(*args.pHandle.GetPointer()).c_str());
+        phandle_name.insert(0, "&");
+    }
+    pfn_loader_.AddMethodName("vkGetDeviceInternalHandleNV");
+    fprintf(file,
+            "\t\tloaded_vkGetDeviceInternalHandleNV(%s, %s);\n",
+            this->GetHandle(args.device).c_str(),
+            phandle_name.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetDeviceInternalHandleNV);
+}
+
+void VulkanCppConsumer::Process_vkGetPhysicalDeviceInternalHandleNV(
+    const ApiCallInfo&                          call_info,
+    args::GetPhysicalDeviceInternalHandleNV&    args)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::string phandle_name = "NULL";
+    if (!args.pHandle.IsNull()) {
+        phandle_name = "pHandle_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint8_t* %s = %s;\n", phandle_name.c_str(), util::ToString(*args.pHandle.GetPointer()).c_str());
+        phandle_name.insert(0, "&");
+    }
+    pfn_loader_.AddMethodName("vkGetPhysicalDeviceInternalHandleNV");
+    fprintf(file,
+            "\t\tloaded_vkGetPhysicalDeviceInternalHandleNV(%s, %s);\n",
+            this->GetHandle(args.physicalDevice).c_str(),
+            phandle_name.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceInternalHandleNV);
+}
+
+void VulkanCppConsumer::Process_vkGetQueueInternalHandleNV(
+    const ApiCallInfo&                          call_info,
+    args::GetQueueInternalHandleNV&             args)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::string phandle_name = "NULL";
+    if (!args.pHandle.IsNull()) {
+        phandle_name = "pHandle_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint8_t* %s = %s;\n", phandle_name.c_str(), util::ToString(*args.pHandle.GetPointer()).c_str());
+        phandle_name.insert(0, "&");
+    }
+    pfn_loader_.AddMethodName("vkGetQueueInternalHandleNV");
+    fprintf(file,
+            "\t\tloaded_vkGetQueueInternalHandleNV(%s, %s);\n",
+            this->GetHandle(args.queue).c_str(),
+            phandle_name.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetQueueInternalHandleNV);
+}
 void VulkanCppConsumer::Process_vkCmdSetPrimitiveRestartIndexEXT(
     const ApiCallInfo&                          call_info,
     args::CmdSetPrimitiveRestartIndexEXT&       args)

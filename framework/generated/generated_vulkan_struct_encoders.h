@@ -729,6 +729,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkImageViewUsage2CreateInfoKH
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceExtendedFlagsFeaturesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageStencilUsage2CreateInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSharedPresentSurfaceCapabilities2KHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance12FeaturesKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance12PropertiesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugReportCallbackCreateInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineRasterizationStateRasterizationOrderAMD& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugMarkerObjectNameInfoEXT& value);
@@ -1354,6 +1356,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCooperativeMatrixProperties
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCooperativeMatrixInfo2EXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCooperativeMatrixLayoutsFeaturesARM& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkThrottleHintSubmitInfoSEC& value);
@@ -1362,6 +1365,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDataGraphNeur
 void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineNeuralStatisticsCreateInfoARM& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineSessionNeuralStatisticsCreateInfoARM& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceVertexAddressBindingUnrestrictedFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageTilingControlFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageTilingControlCreateInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV& value);
@@ -1370,6 +1374,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceInfoPropertie
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkBufferDeviceAddressAlignmentAllocateInfoVALVE& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceHdrSmpteSt209450FeaturesGOOGLE& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkHdrSmpteSt209450GOOGLE& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkSurfaceCapabilitiesHdrSmpteSt209450GOOGLE& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildRangeInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryTrianglesDataKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryAabbsDataKHR& value);

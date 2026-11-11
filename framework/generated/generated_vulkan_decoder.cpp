@@ -13734,6 +13734,74 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT(
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkGetPhysicalDeviceInternalHandleNV(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    args::GetPhysicalDeviceInternalHandleNV args;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.physicalDevice);
+    bytes_read += args.pHandle.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetPhysicalDeviceInternalHandleNV(call_info, args);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetDeviceInternalHandleNV(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    args::GetDeviceInternalHandleNV args;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.device);
+    bytes_read += args.pHandle.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetDeviceInternalHandleNV(call_info, args);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetQueueInternalHandleNV(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    args::GetQueueInternalHandleNV args;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.queue);
+    bytes_read += args.pHandle.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetQueueInternalHandleNV(call_info, args);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetCommandBufferInternalHandleNV(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    args::GetCommandBufferInternalHandleNV args;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
+    bytes_read += args.pHandle.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetCommandBufferInternalHandleNV(call_info, args);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkCmdSetPrimitiveRestartIndexEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -16382,6 +16450,18 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT:
         Decode_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceInternalHandleNV:
+        Decode_vkGetPhysicalDeviceInternalHandleNV(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetDeviceInternalHandleNV:
+        Decode_vkGetDeviceInternalHandleNV(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetQueueInternalHandleNV:
+        Decode_vkGetQueueInternalHandleNV(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetCommandBufferInternalHandleNV:
+        Decode_vkGetCommandBufferInternalHandleNV(call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkCmdSetPrimitiveRestartIndexEXT:
         Decode_vkCmdSetPrimitiveRestartIndexEXT(call_info, parameter_buffer, buffer_size);

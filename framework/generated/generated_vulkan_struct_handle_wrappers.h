@@ -1129,6 +1129,10 @@ void UnwrapStructHandles(VkImageStencilUsage2CreateInfoKHR* value, HandleUnwrapM
 
 void UnwrapStructHandles(VkSharedPresentSurfaceCapabilities2KHR* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(VkPhysicalDeviceMaintenance12FeaturesKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceMaintenance12PropertiesKHR* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(VkDebugReportCallbackCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPipelineRasterizationStateRasterizationOrderAMD* value, HandleUnwrapMemory* unwrap_memory);
@@ -2265,6 +2269,8 @@ void UnwrapStructHandles(VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEX
 
 void UnwrapStructHandles(VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(VkPhysicalDeviceCooperativeMatrixLayoutsFeaturesARM* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE* value, HandleUnwrapMemory* unwrap_memory);
@@ -2281,6 +2287,8 @@ void UnwrapStructHandles(VkDataGraphPipelineSessionNeuralStatisticsCreateInfoARM
 
 void UnwrapStructHandles(VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(VkPhysicalDeviceVertexAddressBindingUnrestrictedFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(VkPhysicalDeviceImageTilingControlFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkImageTilingControlCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
@@ -2296,6 +2304,12 @@ void UnwrapStructHandles(VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentF
 void UnwrapStructHandles(VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkBufferDeviceAddressAlignmentAllocateInfoVALVE* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceHdrSmpteSt209450FeaturesGOOGLE* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkHdrSmpteSt209450GOOGLE* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkSurfaceCapabilitiesHdrSmpteSt209450GOOGLE* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkAccelerationStructureGeometryTrianglesDataKHR* value, HandleUnwrapMemory* unwrap_memory);
 

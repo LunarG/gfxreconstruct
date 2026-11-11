@@ -1343,7 +1343,7 @@ class KhronosBaseGenerator(OutputGenerator):
         """ Override for API specific base_type handling"""
         self.base_types[name] = type_info
 
-    def genType(self, typeinfo, name, alias):
+    def genType(self, typeinfo, name, alias, protect=None):
         """Method override. Type generation."""
         OutputGenerator.genType(self, typeinfo, name, alias)
         type_elem = typeinfo.elem
@@ -1354,7 +1354,7 @@ class KhronosBaseGenerator(OutputGenerator):
             self.struct_names.add(name)
             # Skip code generation for union encode/decode functions.
             if category == 'struct':
-                self.genStruct(typeinfo, name, alias)
+                self.genStruct(typeinfo, name, alias, protect)
             else:
                 self.union_names.add(name)
                 self.genUnion(typeinfo, name, alias)
@@ -1404,7 +1404,7 @@ class KhronosBaseGenerator(OutputGenerator):
             self.add_remaining_base_types(name, type_elem.find('type').text)
 
 
-    def genStruct(self, typeinfo, typename, alias):
+    def genStruct(self, typeinfo, typename, alias, protect=None):
         """Method override.
         Struct (e.g. C "struct" type) generation.
         This is a special case of the <type> tag where the contents are
@@ -1653,7 +1653,7 @@ class KhronosBaseGenerator(OutputGenerator):
         self.all_union_members[name] = value_info
         self.feature_union_members[name] = value_info
 
-    def genGroup(self, groupinfo, group_name, alias):
+    def genGroup(self, groupinfo, group_name, alias, protect=None):
         """Method override.
         Group (e.g. C "enum" type) generation.
         These are concatenated together with other types.
@@ -1682,7 +1682,7 @@ class KhronosBaseGenerator(OutputGenerator):
             else:
                 self.enumAliases[group_name] = alias
 
-    def genEnum(self, enuminfo, name, alias):
+    def genEnum(self, enuminfo, name, alias, protect=None):
         """Method override.
         Enumerant generation
         <enum> tags may specify their values in several ways, but are usually
@@ -1690,7 +1690,7 @@ class KhronosBaseGenerator(OutputGenerator):
         """
         OutputGenerator.genEnum(self, enuminfo, name, alias)
 
-    def genCmd(self, cmdinfo, name, alias):
+    def genCmd(self, cmdinfo, name, alias, protect=None):
         """Method override. Command generation."""
         OutputGenerator.genCmd(self, cmdinfo, name, alias)
 

@@ -7905,6 +7905,42 @@ struct GetPhysicalDeviceCooperativeMatrixProperties2EXT
 };
 
 
+struct GetPhysicalDeviceInternalHandleNV
+{
+    format::HandleId physicalDevice;
+    PointerDecoder<uint64_t, void*> pHandle;
+
+    auto GetTuple() const { return std::tie(physicalDevice, pHandle); }
+};
+
+
+struct GetDeviceInternalHandleNV
+{
+    format::HandleId device;
+    PointerDecoder<uint64_t, void*> pHandle;
+
+    auto GetTuple() const { return std::tie(device, pHandle); }
+};
+
+
+struct GetQueueInternalHandleNV
+{
+    format::HandleId queue;
+    PointerDecoder<uint64_t, void*> pHandle;
+
+    auto GetTuple() const { return std::tie(queue, pHandle); }
+};
+
+
+struct GetCommandBufferInternalHandleNV
+{
+    format::HandleId commandBuffer;
+    PointerDecoder<uint64_t, void*> pHandle;
+
+    auto GetTuple() const { return std::tie(commandBuffer, pHandle); }
+};
+
+
 struct CmdSetPrimitiveRestartIndexEXT
 {
     format::HandleId commandBuffer;

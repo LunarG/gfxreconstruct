@@ -124,9 +124,9 @@ class VulkanStructDeepCopySTypeBodyGenerator(VulkanBaseGenerator):
                         ]:
             return False
         return True
-    def genStruct(self, typeinfo, typename, alias):
+    def genStruct(self, typeinfo, typename, alias, protect=None):
         """Method override."""
-        VulkanBaseGenerator.genStruct(self, typeinfo, typename, alias)
+        VulkanBaseGenerator.genStruct(self, typeinfo, typename, alias, protect)
 
         if alias:
             return

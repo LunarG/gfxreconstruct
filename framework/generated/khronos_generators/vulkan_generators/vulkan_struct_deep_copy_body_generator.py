@@ -368,9 +368,9 @@ class VulkanStructDeepCopyBodyGenerator(VulkanBaseGenerator):
         """ some unions do not provide an stype and require special treatment. """
         return typename in ["VkIndirectCommandsLayoutTokenEXT", "VkDescriptorGetInfoEXT"] and value.name == "data"
 
-    def genStruct(self, typeinfo, typename, alias):
+    def genStruct(self, typeinfo, typename, alias, protect=None):
         """Method override."""
-        VulkanBaseGenerator.genStruct(self, typeinfo, typename, alias)
+        VulkanBaseGenerator.genStruct(self, typeinfo, typename, alias, protect)
 
         if alias or not self.checkType(typeinfo, typename):
             return
