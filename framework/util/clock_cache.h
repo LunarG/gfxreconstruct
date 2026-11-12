@@ -20,6 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 #ifndef GFXRECON_UTIL_CLOCK_CACHE_H
+#define GFXRECON_UTIL_CLOCK_CACHE_H
 
 #include "util/defines.h"
 #include "util/logging.h"
