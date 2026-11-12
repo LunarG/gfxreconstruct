@@ -206,5 +206,22 @@ TEST_CASE("AppendTransferLayoutBarriers and ReverseLayoutBarriers", "[image-layo
     CHECK(barriers[0].newLayout == VK_IMAGE_LAYOUT_GENERAL);
 }
 
+TEST_CASE("AppendTransferLayoutBarriers leaves excluded ranges untouched", "[image-layout-map-util]")
+{
+    const VkImageSubresourceRange excluded = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 2, 1 };
+
+    ImageLayoutMap current = MakeUniformMap(1, 3, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_GENERAL);
+    current.SetLayout(excluded, VK_IMAGE_LAYOUT_UNDEFINED);
+
+    std::vector<VkImageMemoryBarrier> barriers;
+    AppendTransferLayoutBarriers(VK_NULL_HANDLE, current, { excluded }, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, barriers);
+
+    REQUIRE(barriers.size() == 2);
+    CHECK(barriers[0].newLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+    CheckRange(barriers[0].subresourceRange, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
+    CHECK(barriers[1].newLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+    CheckRange(barriers[1].subresourceRange, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 1, 1 });
+}
+
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
