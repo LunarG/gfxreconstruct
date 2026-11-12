@@ -281,7 +281,7 @@ bool RunReplay(std::unique_ptr<decode::FileProcessor>&                          
 
 #if defined(BUILD_ANDROID_APP)
     // Start paused; replay begins once APP_CMD_GAINED_FOCUS fires.
-    application->SetPaused(true);
+    application->SetPaused(true, "waiting for the application to gain focus");
 #endif
 
     application->SetFpsInfo(&fps_info);

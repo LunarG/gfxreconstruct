@@ -202,13 +202,13 @@ void ProcessAppCmd(struct android_app* app, int32_t cmd)
             case APP_CMD_GAINED_FOCUS:
             {
                 GFXRECON_LOG_INFO("Application gained focus.")
-                application->SetPaused(false);
+                application->SetPaused(false, "the application gaining focus");
                 break;
             }
             case APP_CMD_LOST_FOCUS:
             {
                 GFXRECON_LOG_INFO("Application lost focus.")
-                application->SetPaused(true);
+                application->SetPaused(true, "the application losing focus");
                 break;
             }
         }
@@ -258,7 +258,7 @@ int32_t ProcessInputEvent(struct android_app* app, AInputEvent* event)
                 else
                 {
                     // Treat as a tap to toggle pause state.
-                    application->SetPaused(!application->GetPaused());
+                    application->SetPaused(!application->GetPaused(), "a user tap");
                 }
 
                 return 1;
@@ -289,7 +289,7 @@ int32_t ProcessInputEvent(struct android_app* app, AInputEvent* event)
                 {
                     case AKEYCODE_SPACE:
                     case AKEYCODE_P:
-                        application->SetPaused(!application->GetPaused());
+                        application->SetPaused(!application->GetPaused(), "a key press");
                         break;
                     default:
                         break;

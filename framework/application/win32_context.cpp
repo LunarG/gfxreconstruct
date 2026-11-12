@@ -90,7 +90,7 @@ LRESULT WINAPI Win32Context::WindowProc(HWND window, unsigned int msg, WPARAM wp
                     auto win32_context = reinterpret_cast<Win32Context*>(GetWindowLongPtr(window, GWLP_USERDATA));
                     auto app           = win32_context ? win32_context->application_ : nullptr;
                     assert(app);
-                    app->SetPaused(!app->GetPaused());
+                    app->SetPaused(!app->GetPaused(), "a key press");
                     break;
                 }
                 case VK_ESCAPE:
