@@ -64,6 +64,16 @@ class EditStage : public VulkanConsumerStage
     }
 };
 
+class IncrementStage : public VulkanConsumerStage
+{
+  public:
+    void Process_vkCmdDraw(const ApiCallInfo& call_info, args::CmdDraw& args) override
+    {
+        ++args.vertexCount;
+        Forward(call_info, args);
+    }
+};
+
 class ExpandStage : public VulkanConsumerStage
 {
   public:
@@ -458,4 +468,35 @@ TEST_CASE("Stage stops sending to a finished consumer", "[stage]")
     CHECK(replay.frames == 1);
 
     CHECK(stage.IsComplete(200));
+}
+
+TEST_CASE("Chained stages apply in order", "[stage]")
+{
+    EditStage         outer;
+    IncrementStage    inner;
+    RecordingConsumer recorder;
+    outer.AddNext(&inner);
+    inner.AddNext(&recorder);
+
+    args::CmdDraw draw{ 1, 3, 1, 0, 0 };
+    outer.Process_vkCmdDraw(ApiCallInfo{}, draw);
+
+    // The outer stage sets 42 and the inner one adds 1. The reverse order would give 42.
+    REQUIRE(recorder.draws.size() == 1);
+    CHECK(recorder.draws[0].vertexCount == 43);
+}
+
+TEST_CASE("Chained stage completes when the consumer at the end does", "[stage]")
+{
+    VulkanConsumerStage outer;
+    VulkanConsumerStage inner;
+    FinishingConsumer   replay(200);
+    outer.AddNext(&inner);
+    inner.AddNext(&replay);
+
+    CHECK_FALSE(outer.IsComplete(100));
+
+    // The inner stage drops the finished consumer and reports complete,
+    // so the outer stage drops the inner one.
+    CHECK(outer.IsComplete(200));
 }
