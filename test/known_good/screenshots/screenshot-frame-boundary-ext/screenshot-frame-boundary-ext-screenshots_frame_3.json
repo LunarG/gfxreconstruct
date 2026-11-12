@@ -1,8 +1,7 @@
 {
   "header": {
-    "schemaVersion": 2,
-    "layout": "perFrame",
-    "gfxreconVersion": "1.0.5-dev (json_for_screenshots:0946ce0*) Debug",
+    "schemaVersion": 1,
+    "gfxreconVersion": "1.0.5-dev (screenshots_separate_json_per_frame:23819a3*) Debug",
     "vulkanVersion": "1.4.363",
     "api": "vulkan",
     "captureFile": "screenshot-frame-boundary-ext.gfxr",
