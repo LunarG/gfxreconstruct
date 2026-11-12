@@ -18,6 +18,8 @@
 
 LIBRARY VkLayer_gfxreconstruct
 EXPORTS
+GFXRSetTrimmingState
+GFXRGetCaptureMode
 vkGetInstanceProcAddr
 vkGetDeviceProcAddr
 vkEnumerateInstanceLayerProperties
