@@ -290,6 +290,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_state_recording_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_temporary_objects.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_temporary_objects.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_trim_state_binding_consumer.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_trim_state_binding_consumer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_tracked_object_info.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_tracked_object_info_table.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_tracked_object_info.cpp
