@@ -1465,6 +1465,7 @@ VkResult VulkanCaptureManager::OverrideAllocateMemory(VkDevice                  
 
         GFXRECON_ASSERT(pMemory != nullptr);
         auto* memory_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(*pMemory);
+        memory_wrapper->memory_type_index = pAllocateInfo->memoryTypeIndex;
 
         if (uses_address)
         {
@@ -2852,6 +2853,10 @@ void VulkanCaptureManager::PostProcess_vkMapMemory(VkResult         result,
                             manager->AllocatePersistentShadowMemory(static_cast<size_t>(wrapper->allocation_size));
                     }
 
+                    const bool use_streaming_loads =
+                        (GetMemoryProperties(wrapper->parent_device, wrapper->memory_type_index) &
+                         VK_MEMORY_PROPERTY_HOST_CACHED_BIT) == 0;
+
                     // Return the pointer provided by the pageguard manager, which may be a pointer to shadow memory,
                     // not the mapped memory.
                     (*ppData) = manager->AddTrackedMemory(wrapper->handle_id,
@@ -2860,7 +2865,8 @@ void VulkanCaptureManager::PostProcess_vkMapMemory(VkResult         result,
                                                           static_cast<size_t>(size),
                                                           wrapper->shadow_allocation,
                                                           use_shadow_memory,
-                                                          use_write_watch);
+                                                          use_write_watch,
+                                                          use_streaming_loads);
                 }
             }
             else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
