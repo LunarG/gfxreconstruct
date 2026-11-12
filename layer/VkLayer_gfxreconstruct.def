@@ -26,3 +26,5 @@ vkEnumerateInstanceExtensionProperties
 vkEnumerateDeviceExtensionProperties
 vkNegotiateLoaderLayerInterfaceVersion
 xrNegotiateLoaderApiLayerInterface
+GFXRSetTrimmingState
+GFXRGetCaptureMode
