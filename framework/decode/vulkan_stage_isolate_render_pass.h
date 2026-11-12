@@ -23,20 +23,15 @@
 #ifndef GFXRECON_DECODE_VULKAN_STAGE_ISOLATE_RENDER_PASS_H
 #define GFXRECON_DECODE_VULKAN_STAGE_ISOLATE_RENDER_PASS_H
 
-#include "generated/generated_vulkan_consumer_stage.h"
+#include "generated/generated_vulkan_stage_command_buffer.h"
 
 #include <unordered_map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class VulkanStageIsolateRenderPass : public VulkanConsumerStage
+class VulkanStageIsolateRenderPass : public VulkanStageCommandBuffer
 {
-  public:
-  protected:
-
-  private:
-  std::unordered_map<format::HandleId, format::ApiCallLog<ApiCallInfo>> logs_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
