@@ -73,11 +73,19 @@ struct CmdPushDescriptorSetWithTemplate
     DescriptorUpdateTemplateDecoder pData;
 };
 
+// Same fields as the core command, in a separate type so the args type names the call.
+struct CmdPushDescriptorSetWithTemplateKHR : CmdPushDescriptorSetWithTemplate
+{};
+
 struct CmdPushDescriptorSetWithTemplate2
 {
     format::HandleId                                                  commandBuffer;
     StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo> pPushDescriptorSetWithTemplateInfo;
 };
+
+// Same fields as the core command, in a separate type so the args type names the call.
+struct CmdPushDescriptorSetWithTemplate2KHR : CmdPushDescriptorSetWithTemplate2
+{};
 
 struct CreateRayTracingPipelinesKHR
 {
