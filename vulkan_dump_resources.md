@@ -103,6 +103,19 @@ the top-level `StateSetup` key instead of a command buffer's `Transfer` list (se
 
 The block indices along with other dump resources options are specified using a json file which is used as input during replay.
 
+The format is also described by a [JSON Schema](https://json-schema.org) document,
+[vulkan_dump_resources_schema.json](vulkan_dump_resources_schema.json), which any JSON Schema validator can use to
+check an input file without running GFXReconstruct. For example, with the Python `jsonschema` package:
+
+```sh
+python3 -m jsonschema -i input.json vulkan_dump_resources_schema.json
+```
+
+The schema checks the shape of a file: keys, types and value ranges. Rules that span several values (such as
+duplicate block indices across lists) or that depend on the capture file are only checked by the replayer. The
+schema is also stricter than the replayer in one respect: it accepts option names and values only in the spelling
+shown in [Dumping options](#dumping-options).
+
 ### Structure
 
 The input json is a tree that follows how work is submitted. A queue submit contains command buffers. A command

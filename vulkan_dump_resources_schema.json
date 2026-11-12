@@ -1,0 +1,524 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "GFXReconstruct Vulkan dump resources input",
+    "description": "Input json of gfxrecon-replay --dump-resources, tree format, schema version 1.x. See vulkan_dump_resources.md. The legacy flat format (recognized by its top-level BeginCommandBuffer key) is not described here. This schema checks the shape of a request. Rules that depend on several values at once (a block index listed twice in different forms, strictly increasing render pass ranges, the same secondary requested differently under two vkCmdExecuteCommands) and rules that depend on the capture file are checked by gfxrecon-replay only.",
+    "type": "object",
+    "properties": {
+        "SchemaVersion": {
+            "description": "Version of the format the file is written in, as \"<major>.<minor>\". The current version is \"1.0\".",
+            "type": "string",
+            "pattern": "^1\\.(0|[1-9][0-9]?|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$"
+        },
+        "DumpingOptions": {
+            "$ref": "#/$defs/dumpingOptions"
+        },
+        "QueueSubmits": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "$ref": "#/$defs/queueSubmit"
+            }
+        },
+        "StateSetup": {
+            "description": "Meta commands of the state-setup block of a trimmed capture.",
+            "type": "object",
+            "properties": {
+                "Transfer": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                        "$ref": "#/$defs/command"
+                    }
+                }
+            },
+            "required": [ "Transfer" ],
+            "additionalProperties": false
+        },
+        "Resources": {
+            "description": "Resource snapshots after blocks that are not recorded in a command buffer. Part of the format, but not implemented by the replayer yet: a non-empty list is rejected.",
+            "$ref": "#/$defs/resourceList"
+        }
+    },
+    "required": [ "SchemaVersion" ],
+    "anyOf": [
+        { "required": [ "QueueSubmits" ] },
+        { "required": [ "StateSetup" ] },
+        { "required": [ "Resources" ] }
+    ],
+    "additionalProperties": false,
+    "$defs": {
+        "blockIndex": {
+            "description": "Block index of a command in the capture file.",
+            "type": "integer",
+            "minimum": 0
+        },
+        "nodeBlockIndex": {
+            "description": "Block index of a vkQueueSubmit, vkBeginCommandBuffer or vkCmdExecuteCommands. Block index 0 is reserved for the state-setup block.",
+            "type": "integer",
+            "minimum": 1
+        },
+        "uint32": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4294967295
+        },
+        "queueSubmit": {
+            "type": "object",
+            "properties": {
+                "Index": {
+                    "description": "vkQueueSubmit / vkQueueSubmit2 block index, or a list of them to dump the same command buffers from several submissions.",
+                    "oneOf": [
+                        {
+                            "$ref": "#/$defs/nodeBlockIndex"
+                        },
+                        {
+                            "type": "array",
+                            "minItems": 1,
+                            "uniqueItems": true,
+                            "items": {
+                                "$ref": "#/$defs/nodeBlockIndex"
+                            }
+                        }
+                    ]
+                },
+                "CommandBuffers": {
+                    "description": "Primary command buffers of the submission.",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "allOf": [
+                            {
+                                "$ref": "#/$defs/commandBuffer"
+                            },
+                            {
+                                "properties": {
+                                    "Position": {
+                                        "$ref": "#/$defs/submitPosition"
+                                    }
+                                }
+                            },
+                            {
+                                "description": "The draw calls of a primary are inside a render pass it begins itself, so Draw requires RenderPasses.",
+                                "if": {
+                                    "properties": {
+                                        "Draw": {
+                                            "minItems": 1
+                                        }
+                                    },
+                                    "required": [ "Draw" ]
+                                },
+                                "then": {
+                                    "properties": {
+                                        "RenderPasses": {
+                                            "minItems": 1
+                                        }
+                                    },
+                                    "required": [ "RenderPasses" ]
+                                }
+                            }
+                        ]
+                    }
+                }
+            },
+            "required": [ "Index", "CommandBuffers" ],
+            "additionalProperties": false
+        },
+        "executeCommands": {
+            "type": "object",
+            "properties": {
+                "Index": {
+                    "description": "vkCmdExecuteCommands block index.",
+                    "$ref": "#/$defs/nodeBlockIndex"
+                },
+                "CommandBuffers": {
+                    "description": "Secondary command buffers to dump.",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "allOf": [
+                            {
+                                "$ref": "#/$defs/commandBuffer"
+                            },
+                            {
+                                "properties": {
+                                    "Position": {
+                                        "$ref": "#/$defs/executePosition"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            },
+            "required": [ "Index", "CommandBuffers" ],
+            "additionalProperties": false
+        },
+        "commandBuffer": {
+            "description": "A primary command buffer under a QueueSubmit, or a secondary under an ExecuteCommands.",
+            "type": "object",
+            "properties": {
+                "Index": {
+                    "description": "vkBeginCommandBuffer block index.",
+                    "$ref": "#/$defs/nodeBlockIndex"
+                },
+                "Position": {
+                    "description": "Which appearances of the command buffer to dump. Its form depends on the parent node: see submitPosition and executePosition. Part of the format, but not implemented by the replayer yet: it is rejected, and the first appearance is dumped when it is omitted."
+                },
+                "RenderPasses": {
+                    "description": "One range per render pass or dynamic rendering instance that contains requested draw calls. Omitted by a secondary that inherits the render pass of its primary.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/renderPassRange"
+                    }
+                },
+                "Draw": {
+                    "$ref": "#/$defs/commandList"
+                },
+                "Dispatch": {
+                    "$ref": "#/$defs/commandList"
+                },
+                "TraceRays": {
+                    "$ref": "#/$defs/commandList"
+                },
+                "Transfer": {
+                    "$ref": "#/$defs/commandList"
+                },
+                "ExecuteCommands": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/executeCommands"
+                    }
+                },
+                "Resources": {
+                    "description": "Part of the format, but not implemented by the replayer yet: a non-empty list is rejected.",
+                    "$ref": "#/$defs/resourceList"
+                }
+            },
+            "required": [ "Index" ],
+            "additionalProperties": false
+        },
+        "submitPosition": {
+            "description": "Position of a command buffer under a QueueSubmit: a [pSubmits index, pCommandBuffers index] pair, or a non-empty list of such pairs.",
+            "oneOf": [
+                {
+                    "$ref": "#/$defs/submitPositionPair"
+                },
+                {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                        "$ref": "#/$defs/submitPositionPair"
+                    }
+                }
+            ]
+        },
+        "submitPositionPair": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+                "$ref": "#/$defs/uint32"
+            }
+        },
+        "executePosition": {
+            "description": "Position of a command buffer under an ExecuteCommands: a pCommandBuffers index, or a non-empty list of them.",
+            "oneOf": [
+                {
+                    "$ref": "#/$defs/uint32"
+                },
+                {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                        "$ref": "#/$defs/uint32"
+                    }
+                }
+            ]
+        },
+        "renderPassRange": {
+            "description": "[begin, nextSubpass..., end] block indices of a render pass, or [beginRendering, endRendering] for dynamic rendering. Strictly increasing.",
+            "type": "array",
+            "minItems": 2,
+            "uniqueItems": true,
+            "items": {
+                "$ref": "#/$defs/blockIndex"
+            }
+        },
+        "commandList": {
+            "description": "Commands to dump. A block index may appear only once, and in only one of the Draw, Dispatch, TraceRays and Transfer lists of a command buffer.",
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+                "$ref": "#/$defs/command"
+            }
+        },
+        "command": {
+            "description": "A command to dump: its block index, or an object that also culls descriptors or overrides dumping options.",
+            "oneOf": [
+                {
+                    "$ref": "#/$defs/blockIndex"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "Index": {
+                            "$ref": "#/$defs/blockIndex"
+                        },
+                        "Descriptors": {
+                            "description": "Descriptors to dump. All bound descriptors are dumped when the key is omitted, none when the list is empty.",
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                                "$ref": "#/$defs/descriptor"
+                            }
+                        },
+                        "DumpingOptions": {
+                            "description": "Options for this command only. Part of the format, but not implemented by the replayer yet: a non-empty object is rejected.",
+                            "$ref": "#/$defs/commandDumpingOptions"
+                        }
+                    },
+                    "required": [ "Index" ],
+                    "additionalProperties": false
+                }
+            ]
+        },
+        "descriptor": {
+            "type": "object",
+            "properties": {
+                "Set": {
+                    "$ref": "#/$defs/uint32"
+                },
+                "Binding": {
+                    "$ref": "#/$defs/uint32"
+                },
+                "ArrayIndex": {
+                    "$ref": "#/$defs/uint32"
+                },
+                "SubresourceRange": {
+                    "description": "For image descriptors, the subresources to dump.",
+                    "$ref": "#/$defs/subresourceRange"
+                }
+            },
+            "required": [ "Set", "Binding", "ArrayIndex" ],
+            "additionalProperties": false
+        },
+        "subresourceRange": {
+            "type": "object",
+            "properties": {
+                "AspectMask": {
+                    "description": "VkImageAspectFlagBits names separated by '|'. VK_IMAGE_ASPECT_NONE selects all valid aspects of the format of the image.",
+                    "type": "string",
+                    "pattern": "^\\s*VK_IMAGE_ASPECT_(NONE|COLOR_BIT|DEPTH_BIT|STENCIL_BIT|METADATA_BIT|PLANE_[0-2]_BIT(_KHR)?|MEMORY_PLANE_[0-3]_BIT_EXT)(\\s*\\|\\s*VK_IMAGE_ASPECT_(NONE|COLOR_BIT|DEPTH_BIT|STENCIL_BIT|METADATA_BIT|PLANE_[0-2]_BIT(_KHR)?|MEMORY_PLANE_[0-3]_BIT_EXT))*\\s*$"
+                },
+                "BaseMipLevel": {
+                    "$ref": "#/$defs/uint32",
+                    "default": 0
+                },
+                "LevelCount": {
+                    "oneOf": [
+                        {
+                            "$ref": "#/$defs/uint32"
+                        },
+                        {
+                            "const": "VK_REMAINING_MIP_LEVELS"
+                        }
+                    ],
+                    "default": "VK_REMAINING_MIP_LEVELS"
+                },
+                "BaseArrayLayer": {
+                    "$ref": "#/$defs/uint32",
+                    "default": 0
+                },
+                "LayerCount": {
+                    "oneOf": [
+                        {
+                            "$ref": "#/$defs/uint32"
+                        },
+                        {
+                            "const": "VK_REMAINING_ARRAY_LAYERS"
+                        }
+                    ],
+                    "default": "VK_REMAINING_ARRAY_LAYERS"
+                },
+                "BaseZIndex": {
+                    "description": "First depth slice of a 3D image.",
+                    "$ref": "#/$defs/uint32",
+                    "default": 0
+                },
+                "ZCount": {
+                    "oneOf": [
+                        {
+                            "$ref": "#/$defs/uint32"
+                        },
+                        {
+                            "const": "REMAINING_Z_INDICES"
+                        }
+                    ],
+                    "default": "REMAINING_Z_INDICES"
+                }
+            },
+            "required": [ "AspectMask" ],
+            "additionalProperties": false
+        },
+        "resourceList": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+                "$ref": "#/$defs/resource"
+            }
+        },
+        "resource": {
+            "description": "Snapshot of the live images, buffers and acceleration structures right after a block: its block index, or an object that also selects resources or overrides dumping options.",
+            "oneOf": [
+                {
+                    "$ref": "#/$defs/blockIndex"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "Index": {
+                            "$ref": "#/$defs/blockIndex"
+                        },
+                        "IDs": {
+                            "description": "Capture object IDs of the resources to dump. Every live resource is dumped when the key is omitted or the list is empty.",
+                            "type": "array",
+                            "items": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/$defs/objectId"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "Id": {
+                                                "$ref": "#/$defs/objectId"
+                                            },
+                                            "SubresourceRange": {
+                                                "$ref": "#/$defs/subresourceRange"
+                                            }
+                                        },
+                                        "required": [ "Id" ],
+                                        "additionalProperties": false
+                                    }
+                                ]
+                            }
+                        },
+                        "DumpingOptions": {
+                            "$ref": "#/$defs/commandDumpingOptions"
+                        }
+                    },
+                    "required": [ "Index" ],
+                    "additionalProperties": false
+                }
+            ]
+        },
+        "objectId": {
+            "description": "Capture object ID of a Vulkan object.",
+            "type": "integer",
+            "minimum": 0
+        },
+        "dumpingOptions": {
+            "description": "Dumping options. gfxrecon-replay matches option names without regard to case; this schema accepts only the spelling used here. The ImageFormat and BinaryFileCompressionType values are accepted in any letter case.",
+            "type": "object",
+            "properties": {
+                "Scale": {
+                    "description": "Scales dumped images. Values above 10 are capped at 10.",
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "default": 1.0
+                },
+                "ImageFormat": {
+                    "description": "File format of dumped images: bmp or png, in any letter case.",
+                    "type": "string",
+                    "pattern": "^([bB][mM][pP]|[pP][nN][gG])$",
+                    "default": "bmp"
+                },
+                "OutputDir": {
+                    "description": "Output directory. Overrides --dump-resources-dir.",
+                    "type": "string"
+                },
+                "DumpBeforeCommand": {
+                    "description": "Also dump resources before each draw, dispatch and trace rays command, not only after. Top-level DumpingOptions only.",
+                    "type": "boolean",
+                    "default": false
+                },
+                "DumpDepth": {
+                    "description": "Dump the depth attachment of draw calls.",
+                    "type": "boolean",
+                    "default": false
+                },
+                "ColorAttachmentIndex": {
+                    "description": "Color attachment to dump for draw calls. -1 dumps all of them.",
+                    "type": "integer",
+                    "minimum": -1,
+                    "default": -1
+                },
+                "DumpVertexIndexBuffer": {
+                    "description": "Dump the vertex and index buffers of draw calls.",
+                    "type": "boolean",
+                    "default": false
+                },
+                "DumpAllDescriptors": {
+                    "description": "Dump every descriptor referenced by the bound pipeline.",
+                    "type": "boolean",
+                    "default": false
+                },
+                "DumpAllImageSubresources": {
+                    "description": "Dump every mip level and array layer of images.",
+                    "type": "boolean",
+                    "default": false
+                },
+                "DumpRawImages": {
+                    "description": "Dump images unchanged, as raw binary files.",
+                    "type": "boolean",
+                    "default": false
+                },
+                "DumpSeparateAlpha": {
+                    "description": "Write the alpha channel of images to a separate file.",
+                    "type": "boolean",
+                    "default": false
+                },
+                "DumpUnusedVertexBindings": {
+                    "description": "Dump all bound vertex buffers, not only the ones the active pipeline uses.",
+                    "type": "boolean",
+                    "default": false
+                },
+                "JsonOutputPerCommand": {
+                    "description": "Write one output json file per dumped command instead of one file for all commands. Top-level DumpingOptions only.",
+                    "type": "boolean",
+                    "default": false
+                },
+                "BinaryFileCompressionType": {
+                    "description": "Compression of binary files: none, lz4, zlib or zstd, in any letter case. Top-level DumpingOptions only.",
+                    "type": "string",
+                    "pattern": "^([nN][oO][nN][eE]|[lL][zZ]4|[zZ][lL][iI][bB]|[zZ][sS][tT][dD])$",
+                    "default": "none"
+                },
+                "DumpBuildAccelerationStructuresInputBuffers": {
+                    "description": "Dump the vertex, index, transform, AABB and instance buffers used by vkCmdBuildAccelerationStructuresKHR.",
+                    "type": "boolean",
+                    "default": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "commandDumpingOptions": {
+            "description": "DumpingOptions of a single command or resource snapshot: the top-level options except the ones that apply to the whole run.",
+            "allOf": [
+                {
+                    "$ref": "#/$defs/dumpingOptions"
+                },
+                {
+                    "properties": {
+                        "DumpBeforeCommand": false,
+                        "JsonOutputPerCommand": false,
+                        "BinaryFileCompressionType": false
+                    }
+                }
+            ]
+        }
+    }
+}
