@@ -487,10 +487,20 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
 
         encode::AccelerationStructureKHRBuildCommandData dst_command{};
 
+        // Deep-copy the build info (pNext, pGeometries and ppGeometries) so it outlives application memory.
+        const auto* tracked_info  = vulkan_trackers::TrackStructs(&build_info, 1, dst_command.geometry_info_memory);
+        dst_command.geometry_info = *tracked_info;
+
+        dst_command.build_range_infos.assign(pp_buildRange_infos[i], pp_buildRange_infos[i] + build_info.geometryCount);
+
+        auto get_geometry = [&build_info](uint32_t g) -> const VkAccelerationStructureGeometryKHR* {
+            return build_info.pGeometries != nullptr ? build_info.pGeometries + g : build_info.ppGeometries[g];
+        };
+
         // Extract command information for 1 AccelerationStructure
         for (uint32_t g = 0; g < build_info.geometryCount; ++g)
         {
-            auto geometry = build_info.pGeometries != nullptr ? build_info.pGeometries + g : build_info.ppGeometries[g];
+            const auto* geometry = get_geometry(g);
 
             // scratch space for buffer-addresses. we extract and keep track of associated buffers.
             std::vector<VkDeviceAddress> to_extract;
@@ -553,15 +563,6 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
                     buffer.usage              = target_buffer_wrapper->usage;
                 }
             }
-
-            dst_command.geometry_info                     = build_info;
-            VkAccelerationStructureGeometryKHR* unwrapped = gfxrecon::encode::vulkan_trackers::TrackStructs(
-                build_info.pGeometries, build_info.geometryCount, dst_command.geometry_info_memory);
-            dst_command.geometry_info.pGeometries = unwrapped;
-
-            dst_command.build_range_infos.insert(dst_command.build_range_infos.end(),
-                                                 pp_buildRange_infos[i],
-                                                 pp_buildRange_infos[i] + build_info.geometryCount);
         }
 
         // track all AS builds as regular builds, we'll have no AS to 'update'
@@ -581,19 +582,21 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
 
         for (uint32_t g = 0; g < build_info.geometryCount; ++g)
         {
-            if (build_info.pGeometries[g].geometryType != VK_GEOMETRY_TYPE_INSTANCES_KHR)
+            const auto* geometry = get_geometry(g);
+            if (geometry->geometryType != VK_GEOMETRY_TYPE_INSTANCES_KHR)
             {
                 continue;
             }
-            const VkDeviceAddress address         = build_info.pGeometries[g].geometry.instances.data.deviceAddress;
-            const uint32_t        primitive_count = pp_buildRange_infos[i]->primitiveCount;
+
+            const VkDeviceAddress address = geometry->geometry.instances.data.deviceAddress;
+            const auto&           range   = pp_buildRange_infos[i][g];
             // According to spec both address and primitiveCount can be 0.
             // Nothing to handle in these cases.
-            if (address && primitive_count)
+            if (address && range.primitiveCount)
             {
-                const vulkan_wrappers::CommandBufferWrapper::tlas_build_info tlas_info = {
-                    address, primitive_count, pp_buildRange_infos[i]->primitiveOffset
-                };
+                const vulkan_wrappers::CommandBufferWrapper::tlas_build_info tlas_info = { address,
+                                                                                           range.primitiveCount,
+                                                                                           range.primitiveOffset };
 
                 cmd_buf_wrapper->tlas_build_info_map.emplace_back(wrapper, tlas_info);
             }
