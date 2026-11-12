@@ -4083,5 +4083,37 @@ VkDeviceSize GetBufferSizeFromCopyImage(const VkImageToMemoryCopy& region, uint3
     return GetBufferSizeFromCopyImage<VkImageToMemoryCopy>(region, array_layers, format);
 }
 
+void BuildImageCopyRegions(VkFormat                                    format,
+                           const VkExtent3D&                           extent,
+                           const std::vector<VkImageSubresourceRange>& ranges,
+                           std::vector<VkImageCopy>&                   regions)
+{
+    regions.reserve(regions.size() + ranges.size());
+
+    for (const VkImageSubresourceRange& range : ranges)
+    {
+        const VkImageSubresourceLayers subresource = {
+            range.aspectMask, range.baseMipLevel, range.baseArrayLayer, range.layerCount
+        };
+
+        VkExtent3D mip_extent = ScaleToMipLevel(extent, range.baseMipLevel);
+
+        if (vkuFormatIsMultiplane(format))
+        {
+            const VkExtent2D divisors =
+                vkuFindMultiplaneExtentDivisors(format, static_cast<VkImageAspectFlagBits>(range.aspectMask));
+
+            mip_extent.width /= divisors.width;
+            mip_extent.height /= divisors.height;
+        }
+
+        VkImageCopy region    = {};
+        region.srcSubresource = subresource;
+        region.dstSubresource = subresource;
+        region.extent         = mip_extent;
+        regions.push_back(region);
+    }
+}
+
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(encode)
