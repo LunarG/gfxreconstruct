@@ -455,6 +455,35 @@ TEST_CASE("tree: descriptor culling (example 4.6)", "[vdr-parse][tree]")
     REQUIRE(descriptors[0].second == kAllSubresources);
 }
 
+TEST_CASE("tree: descriptor subresource ranges", "[vdr-parse][tree]")
+{
+    const auto r = Parse(R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 2548, "CommandBuffers": [ {
+        "Index": 2525, "Dispatch": [ { "Index": 2533, "Descriptors": [
+            { "Set": 0, "Binding": 1, "ArrayIndex": 0,
+              "SubresourceRange": { "AspectMask": "VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT",
+                                    "BaseMipLevel": 2, "LevelCount": 1, "BaseArrayLayer": 3,
+                                    "LayerCount": "VK_REMAINING_ARRAY_LAYERS", "BaseZIndex": 4, "ZCount": 4294967295 } },
+            { "Set": 0, "Binding": 2, "ArrayIndex": 0,
+              "SubresourceRange": { "AspectMask": "VK_IMAGE_ASPECT_PLANE_0_BIT_KHR|VK_IMAGE_ASPECT_MEMORY_PLANE_1_BIT_EXT" } },
+            { "Set": 4294967295, "Binding": 3, "ArrayIndex": 0,
+              "SubresourceRange": { "AspectMask": " VK_IMAGE_ASPECT_NONE " } } ] } ] } ] } ] })");
+    REQUIRE(r.ok);
+    const auto& descriptors = r.options.DispatchSubresources.at(decode::CommandLocation(2525, 2548, 2533));
+    REQUIRE(descriptors.size() == 3);
+    REQUIRE(descriptors[0].second ==
+            decode::ImageSubresourceRanges{ VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT,
+                                            2,
+                                            1,
+                                            3,
+                                            VK_REMAINING_ARRAY_LAYERS,
+                                            4,
+                                            decode::REMAINING_Z_INDICES });
+    REQUIRE(descriptors[1].second.aspect_mask ==
+            (VK_IMAGE_ASPECT_PLANE_0_BIT | VK_IMAGE_ASPECT_MEMORY_PLANE_1_BIT_EXT));
+    REQUIRE(descriptors[2].first == decode::DescriptorLocation(4294967295u, 3, 0));
+    REQUIRE(descriptors[2].second == kAllSubresources);
+}
+
 TEST_CASE("tree: state setup meta commands (example 4.7)", "[vdr-parse][tree]")
 {
     const auto r = Parse(R"({ "SchemaVersion": "1.0", "StateSetup": { "Transfer": [ 267, 266 ] } })");
@@ -708,6 +737,35 @@ TEST_CASE("tree: malformed requests are rejected", "[vdr-parse][tree]")
              { "Set": 0, "Binding": 1, "ArrayIndex": 0 }, { "Set": 0, "Binding": 1, "ArrayIndex": 0 } ] } ] } ] } ] })",
         R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
              { "Set": 0, "Binding": 1, "ArrayIndex": 0, "SubresourceRange": { "AspectMask": "VK_IMAGE_ASPECT_COLOR_BIT", "LevelCount": "ALL" } } ] } ] } ] } ] })",
+        // descriptors: unknown keys
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+             { "Set": 0, "Binding": 1, "ArrayIndex": 0, "SubresourceRanges": { "AspectMask": "VK_IMAGE_ASPECT_COLOR_BIT" } } ] } ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+             { "Set": 0, "Binding": 1, "ArrayIndex": 0, "SubresourceRange": { "AspectMask": "VK_IMAGE_ASPECT_COLOR_BIT", "BaseMip": 1 } } ] } ] } ] } ] })",
+        // descriptors: types and ranges
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+             { "Set": 4294967296, "Binding": 1, "ArrayIndex": 0 } ] } ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+             { "Set": 0, "Binding": -1, "ArrayIndex": 0 } ] } ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+             { "Set": 0, "Binding": 1, "ArrayIndex": 0, "SubresourceRange": { "AspectMask": "VK_IMAGE_ASPECT_COLOR_BIT", "BaseMipLevel": -1 } } ] } ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+             { "Set": 0, "Binding": 1, "ArrayIndex": 0, "SubresourceRange": { "AspectMask": "VK_IMAGE_ASPECT_COLOR_BIT", "BaseArrayLayer": 2.5 } } ] } ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+             { "Set": 0, "Binding": 1, "ArrayIndex": 0, "SubresourceRange": { "AspectMask": "VK_IMAGE_ASPECT_COLOR_BIT", "BaseZIndex": "0" } } ] } ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+             { "Set": 0, "Binding": 1, "ArrayIndex": 0, "SubresourceRange": { "AspectMask": "VK_IMAGE_ASPECT_COLOR_BIT", "ZCount": 4294967296 } } ] } ] } ] } ] })",
+        // descriptors: aspect masks
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+             { "Set": 0, "Binding": 1, "ArrayIndex": 0, "SubresourceRange": { "AspectMask": "COLOR" } } ] } ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+             { "Set": 0, "Binding": 1, "ArrayIndex": 0, "SubresourceRange": { "AspectMask": "" } } ] } ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+             { "Set": 0, "Binding": 1, "ArrayIndex": 0, "SubresourceRange": { "AspectMask": "VK_IMAGE_ASPECT_DEPTH_BIT | " } } ] } ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+             { "Set": 0, "Binding": 1, "ArrayIndex": 0, "SubresourceRange": { "AspectMask": "VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_ASPECT_STENCIL_BIT" } } ] } ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+             { "Set": 0, "Binding": 1, "ArrayIndex": 0, "SubresourceRange": { "AspectMask": "VK_IMAGE_ASPECT_DEPTH_BITS" } } ] } ] } ] } ] })",
         // DumpingOptions
         R"({ "SchemaVersion": "1.0", "DumpingOptions": { "Sclae": 1.0 }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
         R"({ "SchemaVersion": "1.0", "DumpingOptions": { "Scale": "1.0" }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
