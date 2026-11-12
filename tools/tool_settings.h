@@ -51,6 +51,7 @@ const char kApplicationName[] = "GFXReconstruct Replay";
 
 const char kLogLevelArgument[]                   = "--log-level";
 const char kLogTimestampsOption[]                = "--log-timestamps";
+const char kLogFlushOption[]                     = "--log-flush";
 const char kLogFileArgument[]                    = "--log-file";
 const char kLogDebugView[]                       = "--log-debugview";
 const char kNoDebugPopup[]                       = "--no-debug-popup";
@@ -369,6 +370,7 @@ static void GetLogSettings(const gfxrecon::util::ArgumentParser& arg_parser,
     // Update settings
     log_settings.min_severity              = log_level;
     log_settings.output_timestamps         = arg_parser.IsOptionSet(kLogTimestampsOption);
+    log_settings.flush_after_write         = arg_parser.IsOptionSet(kLogFlushOption);
     log_settings.file_name                 = arg_parser.GetArgumentValue(kLogFileArgument);
     log_settings.output_to_os_debug_string = arg_parser.IsOptionSet(kLogDebugView);
     if (log_settings.file_name.size() > 0)
