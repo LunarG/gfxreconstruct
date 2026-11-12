@@ -248,28 +248,30 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
     return false;
 }
 
+static const std::map<std::string, VkImageAspectFlagBits> kImageAspectFlagNames = {
+    { "VK_IMAGE_ASPECT_COLOR_BIT", VK_IMAGE_ASPECT_COLOR_BIT },
+    { "VK_IMAGE_ASPECT_DEPTH_BIT", VK_IMAGE_ASPECT_DEPTH_BIT },
+    { "VK_IMAGE_ASPECT_STENCIL_BIT", VK_IMAGE_ASPECT_STENCIL_BIT },
+    { "VK_IMAGE_ASPECT_METADATA_BIT", VK_IMAGE_ASPECT_METADATA_BIT },
+    { "VK_IMAGE_ASPECT_PLANE_0_BIT", VK_IMAGE_ASPECT_PLANE_0_BIT },
+    { "VK_IMAGE_ASPECT_PLANE_1_BIT", VK_IMAGE_ASPECT_PLANE_1_BIT },
+    { "VK_IMAGE_ASPECT_PLANE_2_BIT", VK_IMAGE_ASPECT_PLANE_2_BIT },
+    { "VK_IMAGE_ASPECT_MEMORY_PLANE_0_BIT_EXT", VK_IMAGE_ASPECT_MEMORY_PLANE_0_BIT_EXT },
+    { "VK_IMAGE_ASPECT_MEMORY_PLANE_1_BIT_EXT", VK_IMAGE_ASPECT_MEMORY_PLANE_1_BIT_EXT },
+    { "VK_IMAGE_ASPECT_MEMORY_PLANE_2_BIT_EXT", VK_IMAGE_ASPECT_MEMORY_PLANE_2_BIT_EXT },
+    { "VK_IMAGE_ASPECT_MEMORY_PLANE_3_BIT_EXT", VK_IMAGE_ASPECT_MEMORY_PLANE_3_BIT_EXT },
+    { "VK_IMAGE_ASPECT_PLANE_0_BIT_KHR", VK_IMAGE_ASPECT_PLANE_0_BIT_KHR },
+    { "VK_IMAGE_ASPECT_PLANE_1_BIT_KHR", VK_IMAGE_ASPECT_PLANE_1_BIT_KHR },
+    { "VK_IMAGE_ASPECT_PLANE_2_BIT_KHR", VK_IMAGE_ASPECT_PLANE_2_BIT_KHR }
+};
+
+// Lenient conversion of the legacy schema: every aspect name found anywhere in the string is used and anything else
+// is ignored.
 static VkImageAspectFlags StrToImageAspectFlagBits(const std::string& str)
 {
-    static const std::map<std::string, VkImageAspectFlagBits> aspect_flags = {
-        { "VK_IMAGE_ASPECT_COLOR_BIT", VK_IMAGE_ASPECT_COLOR_BIT },
-        { "VK_IMAGE_ASPECT_DEPTH_BIT", VK_IMAGE_ASPECT_DEPTH_BIT },
-        { "VK_IMAGE_ASPECT_STENCIL_BIT", VK_IMAGE_ASPECT_STENCIL_BIT },
-        { "VK_IMAGE_ASPECT_METADATA_BIT", VK_IMAGE_ASPECT_METADATA_BIT },
-        { "VK_IMAGE_ASPECT_PLANE_0_BIT", VK_IMAGE_ASPECT_PLANE_0_BIT },
-        { "VK_IMAGE_ASPECT_PLANE_1_BIT", VK_IMAGE_ASPECT_PLANE_1_BIT },
-        { "VK_IMAGE_ASPECT_PLANE_2_BIT", VK_IMAGE_ASPECT_PLANE_2_BIT },
-        { "VK_IMAGE_ASPECT_MEMORY_PLANE_0_BIT_EXT", VK_IMAGE_ASPECT_MEMORY_PLANE_0_BIT_EXT },
-        { "VK_IMAGE_ASPECT_MEMORY_PLANE_1_BIT_EXT", VK_IMAGE_ASPECT_MEMORY_PLANE_1_BIT_EXT },
-        { "VK_IMAGE_ASPECT_MEMORY_PLANE_2_BIT_EXT", VK_IMAGE_ASPECT_MEMORY_PLANE_2_BIT_EXT },
-        { "VK_IMAGE_ASPECT_MEMORY_PLANE_3_BIT_EXT", VK_IMAGE_ASPECT_MEMORY_PLANE_3_BIT_EXT },
-        { "VK_IMAGE_ASPECT_PLANE_0_BIT_KHR", VK_IMAGE_ASPECT_PLANE_0_BIT_KHR },
-        { "VK_IMAGE_ASPECT_PLANE_1_BIT_KHR", VK_IMAGE_ASPECT_PLANE_1_BIT_KHR },
-        { "VK_IMAGE_ASPECT_PLANE_2_BIT_KHR", VK_IMAGE_ASPECT_PLANE_2_BIT_KHR }
-    };
-
     VkImageAspectFlags flags = VK_IMAGE_ASPECT_NONE;
 
-    for (const auto& aspect : aspect_flags)
+    for (const auto& aspect : kImageAspectFlagNames)
     {
         if (str.find(aspect.first) != std::string::npos)
         {
@@ -301,6 +303,52 @@ static std::string FormatElementPath(const std::string& path, size_t i)
 {
     return path + "[" + std::to_string(i) + "]";
 }
+
+// Strict conversion of the tree schema: VkImageAspectFlagBits names separated by '|'. VK_IMAGE_ASPECT_NONE selects
+// all valid aspects of the format of the image.
+static VkImageAspectFlags ParseAspectMask(const std::string& str, const std::string& path)
+{
+    static const char* const whitespace = " \t\n\r\f\v";
+
+    VkImageAspectFlags flags = VK_IMAGE_ASPECT_NONE;
+
+    std::string::size_type begin = 0;
+    while (true)
+    {
+        const std::string::size_type end = str.find('|', begin);
+        std::string name = str.substr(begin, end == std::string::npos ? std::string::npos : end - begin);
+
+        const std::string::size_type first = name.find_first_not_of(whitespace);
+        const std::string::size_type last  = name.find_last_not_of(whitespace);
+
+        name = (first == std::string::npos) ? std::string() : name.substr(first, last - first + 1);
+
+        const auto aspect = kImageAspectFlagNames.find(name);
+        if (aspect != kImageAspectFlagNames.end())
+        {
+            flags |= aspect->second;
+        }
+        else if (name.empty())
+        {
+            Fail(path, "must be VkImageAspectFlagBits names separated by '|', such as \"VK_IMAGE_ASPECT_COLOR_BIT\"");
+        }
+        else if (name != "VK_IMAGE_ASPECT_NONE")
+        {
+            Fail(path, "unrecognized image aspect \"" + name + "\"");
+        }
+
+        if (end == std::string::npos)
+        {
+            break;
+        }
+        begin = end + 1;
+    }
+
+    return flags;
+}
+
+static void CheckAllowedKeys(const json& object, const std::string& path, std::initializer_list<const char*> allowed);
+static uint32_t RequireUnsigned32(const json& value, const std::string& path);
 
 static void ClearDumpResourcesRequest(decode::VulkanReplayOptions& vulkan_replay_options)
 {
@@ -572,9 +620,10 @@ static uint32_t ExtractAndFilterSubresourceRange(const json&        range,
     {
         if (range[range_name].is_number())
         {
-            if (strict && !range[range_name].is_number_unsigned())
+            if (strict && (!range[range_name].is_number_unsigned() ||
+                           range[range_name].get<uint64_t>() > std::numeric_limits<uint32_t>::max()))
             {
-                Fail(context, range_name + " must be an unsigned integer or " + alternative_end_range_name);
+                Fail(context, range_name + " must be an unsigned 32-bit integer or " + alternative_end_range_name);
             }
             count = range[range_name];
         }
@@ -620,10 +669,28 @@ ParseSubresourceRange(const json& range, const std::string& path, const std::str
         Fail(path, "AspectMask is required and must be a string such as \"VK_IMAGE_ASPECT_COLOR_BIT\"");
     }
 
-    const VkImageAspectFlags aspect     = StrToImageAspectFlagBits(range["AspectMask"]);
-    const uint32_t           base_level = range.value("BaseMipLevel", 0u);
-    const uint32_t           base_layer = range.value("BaseArrayLayer", 0u);
-    const uint32_t           base_z     = range.value("BaseZIndex", 0u);
+    if (strict)
+    {
+        CheckAllowedKeys(
+            range,
+            path,
+            { "AspectMask", "BaseMipLevel", "LevelCount", "BaseArrayLayer", "LayerCount", "BaseZIndex", "ZCount" });
+    }
+
+    // The legacy schema converts whatever number it is given.
+    auto read_base = [&](const char* key) -> uint32_t {
+        if (strict && range.contains(key))
+        {
+            return RequireUnsigned32(range[key], FormatKeyPath(path, key));
+        }
+        return range.value(key, 0u);
+    };
+
+    const VkImageAspectFlags aspect = strict ? ParseAspectMask(range["AspectMask"], FormatKeyPath(path, "AspectMask"))
+                                             : StrToImageAspectFlagBits(range["AspectMask"]);
+    const uint32_t           base_level = read_base("BaseMipLevel");
+    const uint32_t           base_layer = read_base("BaseArrayLayer");
+    const uint32_t           base_z     = read_base("BaseZIndex");
 
     const uint32_t level_count =
         ExtractAndFilterSubresourceRange(range, "LevelCount", "VK_REMAINING_MIP_LEVELS", context, strict);
@@ -656,10 +723,12 @@ static void ParseDescriptors(const json&                                descript
             Fail(sr_path, "a descriptor is an object with \"Set\", \"Binding\" and \"ArrayIndex\"");
         }
 
-        if (strict && (!sr["Set"].is_number_unsigned() || !sr["Binding"].is_number_unsigned() ||
-                       !sr["ArrayIndex"].is_number_unsigned()))
+        if (strict)
         {
-            Fail(sr_path, "\"Set\", \"Binding\" and \"ArrayIndex\" must be unsigned integers");
+            CheckAllowedKeys(sr, sr_path, { "Set", "Binding", "ArrayIndex", "SubresourceRange" });
+            RequireUnsigned32(sr["Set"], FormatKeyPath(sr_path, "Set"));
+            RequireUnsigned32(sr["Binding"], FormatKeyPath(sr_path, "Binding"));
+            RequireUnsigned32(sr["ArrayIndex"], FormatKeyPath(sr_path, "ArrayIndex"));
         }
 
         const uint32_t set     = sr["Set"];
