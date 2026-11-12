@@ -186,19 +186,21 @@ file_processor::ProcessBlockState BlockProcessor::ProcessBlock(Policy& policy, B
         block_parser.SetFrameNumber(frame_tracker_.GetFrameNumber());
         ParsedBlock& parsed_block = block_parser.ParseBlock(block_buffer);
 
-        if (parsed_block.Holds<FrameEndMarkerArgs>())
-        {
-            // Older traces can use frame markers without declaring them. When processing the first frame, if we reach a
-            // frame marker when already emitting an implicit frame marker, mark the explicit as redundant.
-            parsed_block.Get<FrameEndMarkerArgs>().redundant =
-                !frame_tracker_.UsesFrameMarkers() && (frame_tracker_.GetFrameNumber() != file_processor::kFirstFrame);
-        }
-
         if (parsed_block.IsVisitable())
         {
             std::visit(process_visitor, parsed_block.GetArgs());
             if (process_visitor.IsSuccess())
             {
+                if (parsed_block.Holds<FrameEndMarkerArgs>())
+                {
+                    // Older traces can use frame markers without declaring them. When processing the first frame, if we
+                    // reach a frame marker when already emitting an implicit frame marker, mark the explicit as
+                    // redundant.
+                    parsed_block.Get<FrameEndMarkerArgs>().redundant =
+                        !frame_tracker_.UsesFrameMarkers() &&
+                        (frame_tracker_.GetFrameNumber() == file_processor::kFirstFrame + 1);
+                }
+
                 process_state = policy.Dispatch(block_index_, parsed_block);
                 if ((file_processor::ProcessBlockState::kContinue == process_state) &&
                     process_visitor.IsFrameDelimiter())
