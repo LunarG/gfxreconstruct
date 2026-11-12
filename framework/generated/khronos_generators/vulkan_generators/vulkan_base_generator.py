@@ -328,6 +328,9 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
 
         self.generate_video = False
 
+    def is_command_buffer_entry_point(self, command):
+        return command in self.COMMAND_BUFFER_STATE or command[0:5] == "vkCmd"
+
     def beginFeature(self, interface, emit):
         """Method override. Start processing in superclass."""
         KhronosBaseGenerator.beginFeature(self, interface, emit)

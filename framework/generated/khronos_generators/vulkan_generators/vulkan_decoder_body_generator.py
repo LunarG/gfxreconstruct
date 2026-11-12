@@ -38,7 +38,8 @@ class VulkanDecoderBodyGeneratorOptions(VulkanBaseGeneratorOptions):
         prefix_text='',
         protect_file=False,
         protect_feature=True,
-        extra_headers=[]
+        extra_headers=[],
+        replay_frame_loop_overrides=None,
     ):
         VulkanBaseGeneratorOptions.__init__(
             self,
@@ -49,7 +50,8 @@ class VulkanDecoderBodyGeneratorOptions(VulkanBaseGeneratorOptions):
             prefix_text,
             protect_file,
             protect_feature,
-            extra_headers=extra_headers
+            extra_headers=extra_headers,
+            replay_frame_loop_overrides=replay_frame_loop_overrides
         )
 
         self.begin_end_file_data.specific_headers.extend((
@@ -150,6 +152,28 @@ class VulkanDecoderBodyGenerator(VulkanBaseGenerator, KhronosDecoderBodyGenerato
         if arglist[-2:] == ', ':
             arglist = arglist[:-2]
         arglist = 'call_info, ' + arglist
+
+        # If this entry point modifies command buffer state,
+        # generate the code to store the API call
+        if self.is_command_buffer_entry_point(name):
+            main_body += '    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();\n'
+            main_body += '    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())\n'
+            main_body += '    {\n'
+            main_body += '        // Must copy parameter buffer in case the original is deallocated\n'
+            main_body += '        std::vector<uint8_t> buffer_copy;\n'
+            main_body += '        buffer_copy.resize(buffer_size);\n'
+            main_body += '        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);\n'
+            main_body += '\n'
+            main_body += '        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];\n'
+            main_body += '        StoredCommand new_command = {\n'
+            main_body += '            format::ApiCall_{},\n'.format(name)
+            main_body += '            call_info,\n'
+            main_body += '            buffer_copy,\n'
+            main_body += '            buffer_size,\n'
+            main_body += '        };\n'
+            main_body += '        command_list.push_back(new_command);\n'
+            main_body += '    }\n'
+            main_body += '\n'
 
         main_body += '    for (auto consumer : GetConsumers())\n'
         main_body += '    {\n'
