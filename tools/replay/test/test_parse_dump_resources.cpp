@@ -720,6 +720,9 @@ TEST_CASE("tree: malformed requests are rejected", "[vdr-parse][tree]")
         R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ [ 313, 302 ] ], "Draw": [ 307 ] } ] } ] })",
         R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ [ 302, 313 ], [ 302, 320 ] ], "Draw": [ 307 ] } ] } ] })",
         R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ 302, 313 ], "Draw": [ 307 ] } ] } ] })",
+        // a primary with draw calls and no render pass range
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Draw": [ 307 ] } ] } ] })",
+        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ ], "Draw": [ 307 ] } ] } ] })",
         // Position shapes
         R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Position": [ 0 ], "Dispatch": [ 303 ] } ] } ] })",
         R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Position": 0, "Dispatch": [ 303 ] } ] } ] })",
