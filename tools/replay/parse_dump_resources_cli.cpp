@@ -1486,6 +1486,16 @@ ParseCommandBuffer(const json& value, const std::string& path, CommandBufferPare
         }
     }
 
+    // The draw calls of a primary are always inside a render pass it begins itself. A secondary may inherit the render
+    // pass of the command buffer that executes it, in which case it lists none.
+    if (parent == CommandBufferParent::kQueueSubmit && !command_buffer.draws.empty() &&
+        command_buffer.render_passes.empty())
+    {
+        Fail(path,
+             "Draw requires RenderPasses: list the [begin, nextSubpass..., end] range of each render pass "
+             "([beginRendering, endRendering] for dynamic rendering) that contains the draw calls");
+    }
+
     // Parse ExecuteCommands
     if (value.contains(decode::kDumpResourcesRequestExecuteCommands))
     {
