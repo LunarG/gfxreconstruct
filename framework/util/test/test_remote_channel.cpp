@@ -27,6 +27,7 @@
 
 #include "util/remote_channel.h"
 
+#include "util/input_file_store.h"
 #include "util/logging.h"
 #include "util/output_file.h"
 
@@ -45,9 +46,12 @@
 #include <cstdint>
 #include <cstring>
 #include <filesystem>
+#include <fstream>
 #include <future>
+#include <iterator>
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -255,8 +259,8 @@ class ChannelRunner
                   const std::string&                  address,
                   std::map<std::string, std::string>& settings)
     {
-        future_ = std::async(std::launch::async, [&channel, address, &settings]() {
-            return channel.Connect(address) && channel.Handshake(settings);
+        future_ = std::async(std::launch::async, [this, &channel, address, &settings]() {
+            return channel.Connect(address) && channel.Handshake(settings, input_files_);
         });
     }
 
@@ -266,8 +270,12 @@ class ChannelRunner
         return future_.get();
     }
 
+    // Call only after Result(), which is when the handshake thread stops using the store.
+    util::InputFileStore& InputFiles() { return input_files_; }
+
   private:
-    std::future<bool> future_;
+    util::InputFileStore input_files_; // Before future_, whose destructor joins the thread using it.
+    std::future<bool>    future_;
 };
 
 // The hello the tool sends first, after the controller has accepted.
@@ -327,6 +335,36 @@ TEST_CASE("RemoteChannel hello announces the protocol version", "[remote_channel
     CHECK(settings["capture_file"] == "capture.gfxr");
 }
 
+TEST_CASE("RemoteChannel handshake accepts input files pushed before settings", "[remote_channel]")
+{
+    TestController                     controller;
+    util::RemoteChannel                channel;
+    std::map<std::string, std::string> settings;
+    ChannelRunner                      runner(channel, controller.Address(), settings);
+
+    AcceptAndReadHello(controller);
+
+    const std::string contents = "{\"draw\": 1}";
+    controller.SendJson({ { "type", "file" }, { "name", "dr.json" }, { "size", contents.size() } });
+    controller.SendFrame(contents.data(), static_cast<uint32_t>(contents.size()));
+
+    controller.SendJson(SettingsMessage());
+
+    CHECK(controller.RecvJson().at("type") == "ready");
+    CHECK(runner.Result());
+
+    const std::optional<std::string> path = runner.InputFiles().Resolve("dr.json");
+    REQUIRE(path.has_value());
+    {
+        std::ifstream stored(*path, std::ios::binary);
+        CHECK(std::string(std::istreambuf_iterator<char>(stored), {}) == contents);
+    }
+
+    runner.InputFiles().Cleanup();
+    CHECK_FALSE(runner.InputFiles().Resolve("dr.json").has_value());
+    CHECK_FALSE(std::filesystem::exists(*path));
+}
+
 TEST_CASE("RemoteChannel handshake rejects a malformed opening turn", "[remote_channel]")
 {
     // Every case here must fail the handshake rather than degrade silently, so a controller bug surfaces at startup.
@@ -366,6 +404,51 @@ TEST_CASE("RemoteChannel handshake rejects a malformed opening turn", "[remote_c
         AcceptAndReadHello(controller);
         const std::string garbage = "not json";
         controller.SendFrame(garbage.data(), static_cast<uint32_t>(garbage.size()));
+
+        CHECK_FALSE(runner.Result());
+    }
+
+    SECTION("an input file named by a path")
+    {
+        util::RemoteChannel                channel;
+        TestController                     controller;
+        std::map<std::string, std::string> settings;
+        ChannelRunner                      runner(channel, controller.Address(), settings);
+
+        AcceptAndReadHello(controller);
+        const std::string contents = "{\"draw\": 1}";
+        controller.SendJson({ { "type", "file" }, { "name", "sub/dr.json" }, { "size", contents.size() } });
+        controller.SendFrame(contents.data(), static_cast<uint32_t>(contents.size()));
+
+        CHECK_FALSE(runner.Result());
+    }
+
+    SECTION("an input file longer than its declared size")
+    {
+        util::RemoteChannel                channel;
+        TestController                     controller;
+        std::map<std::string, std::string> settings;
+        ChannelRunner                      runner(channel, controller.Address(), settings);
+
+        AcceptAndReadHello(controller);
+        const std::string contents = "{\"draw\": 1}";
+        controller.SendJson({ { "type", "file" }, { "name", "dr.json" }, { "size", contents.size() - 1 } });
+        controller.SendFrame(contents.data(), static_cast<uint32_t>(contents.size()));
+
+        CHECK_FALSE(runner.Result());
+    }
+
+    SECTION("an input file shorter than its declared size")
+    {
+        util::RemoteChannel                channel;
+        TestController                     controller;
+        std::map<std::string, std::string> settings;
+        ChannelRunner                      runner(channel, controller.Address(), settings);
+
+        AcceptAndReadHello(controller);
+        const std::string contents = "{\"draw\": 1}";
+        controller.SendJson({ { "type", "file" }, { "name", "dr.json" }, { "size", contents.size() + 1 } });
+        controller.SendFrame(contents.data(), static_cast<uint32_t>(contents.size()));
 
         CHECK_FALSE(runner.Result());
     }

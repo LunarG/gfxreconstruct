@@ -28,6 +28,7 @@
 
 #include "application/application.h"
 #include "decode/file_processor.h"
+#include "util/input_file_store.h"
 #include "util/logging.h"
 #include "util/remote_channel.h"
 #include "parse_dump_resources_cli.h"
@@ -96,9 +97,10 @@ int main(int argc, const char** argv)
     // If --remote-connect or --remote-listen is specified, the controller supplies the replay settings. Because the
     // user explicitly requested remote control, treat any failure to establish it as fatal rather than silently
     // falling back to the command-line arguments.
+    gfxrecon::util::InputFileStore            input_files;
     gfxrecon::util::RemoteChannel             remote_channel;
     const gfxrecon::replay::RemoteSetupResult remote_setup =
-        gfxrecon::replay::SetupRemoteChannel(remote_channel, arg_parser, options, arguments);
+        gfxrecon::replay::SetupRemoteChannel(remote_channel, input_files, arg_parser, options, arguments);
     if (remote_setup == gfxrecon::replay::RemoteSetupResult::kFailed)
     {
         gfxrecon::util::Log::Release();
@@ -171,7 +173,7 @@ int main(int argc, const char** argv)
     }
 
     // Notify the controller that replay is complete. A no-op when no remote controller is connected.
-    gfxrecon::replay::ShutdownRemoteChannel(remote_channel, return_code == 0);
+    gfxrecon::replay::ShutdownRemoteChannel(remote_channel, input_files, return_code == 0);
 
     WaitForExit();
 
