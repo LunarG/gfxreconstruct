@@ -889,6 +889,11 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
         std::stringstream filename;
         filename << "DrawCall_" << dumped_resources.cmd_index << "_qs_" << dumped_resources.qs_index << "_bcb_"
                  << dumped_resources.bcb_index;
+        if (dumped_resources.execute_cmds_index != UNDEFINED_INDEX)
+        {
+            // The same secondary draw call can be executed more than once from a primary. Keep one file per execution.
+            filename << "_ec_" << dumped_resources.execute_cmds_index;
+        }
         dump_json_.Open(filename.str(), options_.dump_resources_output_dir);
         dump_json_.BlockStart();
     }
@@ -911,6 +916,13 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
     draw_call_entry["drawIndex"]               = dumped_resources.cmd_index;
     draw_call_entry["beginCommandBufferIndex"] = dumped_resources.bcb_index;
     draw_call_entry["queueSubmitIndex"]        = dumped_resources.qs_index;
+
+    // Draw calls recorded in a secondary command buffer report the vkCmdExecuteCommands that executed them. For draw
+    // calls recorded directly in the primary the entry is left empty (null).
+    if (dumped_resources.execute_cmds_index != UNDEFINED_INDEX)
+    {
+        draw_call_entry["executeCommandsIndex"] = dumped_resources.execute_cmds_index;
+    }
 
     // Write draw call params
     auto& dc_params_json_entry           = draw_call_entry["parameters"];
