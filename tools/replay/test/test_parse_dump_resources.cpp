@@ -679,134 +679,137 @@ TEST_CASE("tree: features the replayer does not support yet are rejected", "[vdr
 
 TEST_CASE("tree: malformed requests are rejected", "[vdr-parse][tree]")
 {
-    const char* malformed[] = {
-        // unknown and legacy keys at the top level
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ], "QueueSubmit": [ 315 ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ], "DumpResourcesOptions": { } })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ], "Foo": 1 })",
-        R"({ "SchemaVersion": "1.0" })",
-        R"({ "SchemaVersion": "1.0", "DumpingOptions": { "Scale": 1.0 } })",
-        R"([ 1, 2, 3 ])",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ ] })",
-        // unknown keys inside nodes
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ], "Extra": 1 } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPass": [ [ 302, 313 ] ], "Draw": [ 307 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Draw": [ { "Index": 307, "Descriptor": [ ] } ] } ] } ] })",
-        // missing or malformed indices
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": -1, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315.0, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": "315", "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 0, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": [ ], "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": [ 315, 315 ], "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303, "304" ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": 303 } ] } ] })",
-        // duplicates
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] }, { "Index": 301, "Dispatch": [ 304 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] },
+    const char*
+        malformed
+            [] = {
+                // unknown and legacy keys at the top level
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ], "QueueSubmit": [ 315 ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ], "DumpResourcesOptions": { } })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ], "Foo": 1 })",
+                R"({ "SchemaVersion": "1.0" })",
+                R"({ "SchemaVersion": "1.0", "DumpingOptions": { "Scale": 1.0 } })",
+                R"([ 1, 2, 3 ])",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ ] })",
+                // unknown keys inside nodes
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ], "Extra": 1 } ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPass": [ [ 302, 313 ] ], "Draw": [ 307 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Draw": [ { "Index": 307, "Descriptor": [ ] } ] } ] } ] })",
+                // missing or malformed indices
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": -1, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315.0, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": "315", "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 0, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": [ ], "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": [ 315, 315 ], "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303, "304" ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": 303 } ] } ] })",
+                // duplicates
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] }, { "Index": 301, "Dispatch": [ 304 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] },
                                { "Index": 315, "CommandBuffers": [ { "Index": 302, "Dispatch": [ 304 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303, 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ], "Draw": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "ExecuteCommands": [
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303, 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ], "Draw": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "ExecuteCommands": [
              { "Index": 310, "CommandBuffers": [ { "Index": 100, "Dispatch": [ 103 ] } ] },
              { "Index": 310, "CommandBuffers": [ { "Index": 200, "Dispatch": [ 203 ] } ] } ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "ExecuteCommands": [
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "ExecuteCommands": [
              { "Index": 310, "CommandBuffers": [ { "Index": 100, "Dispatch": [ 103 ] }, { "Index": 100, "Dispatch": [ 103 ] } ] } ] } ] } ] })",
-        // render pass ranges
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ [ 302 ] ], "Draw": [ 307 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ [ ] ], "Draw": [ 307 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ [ 313, 302 ] ], "Draw": [ 307 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ [ 302, 313 ], [ 302, 320 ] ], "Draw": [ 307 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ 302, 313 ], "Draw": [ 307 ] } ] } ] })",
-        // a primary with draw calls and no render pass range
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Draw": [ 307 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ ], "Draw": [ 307 ] } ] } ] })",
-        // Position shapes
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Position": [ 0 ], "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Position": 0, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Position": [ 0, 1, 2 ], "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Position": [ [ 0, 0 ], [ 0, 0 ] ], "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "ExecuteCommands": [
+                // render pass ranges
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ [ 302 ] ], "Draw": [ 307 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ [ ] ], "Draw": [ 307 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ [ 313, 302 ] ], "Draw": [ 307 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ [ 302, 313 ], [ 302, 320 ] ], "Draw": [ 307 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ 302, 313 ], "Draw": [ 307 ] } ] } ] })",
+                // a primary with draw calls and no render pass range
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Draw": [ 307 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "RenderPasses": [ ], "Draw": [ 307 ] } ] } ] })",
+                // Position shapes
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Position": [ 0 ], "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Position": 0, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Position": [ 0, 1, 2 ], "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Position": [ [ 0, 0 ], [ 0, 0 ] ], "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "ExecuteCommands": [
              { "Index": 310, "CommandBuffers": [ { "Index": 100, "Position": [ [ 0, 1 ] ], "Dispatch": [ 103 ] } ] } ] } ] } ] })",
-        // ExecuteCommands shapes
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "ExecuteCommands": [ { "Index": 310, "CommandBuffers": [ ] } ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "ExecuteCommands": [ { "Index": 310 } ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "ExecuteCommands": [ [ 310, 100 ] ] } ] } ] })",
-        // descriptors
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [ { "Binding": 1, "ArrayIndex": 0 } ] } ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+                // ExecuteCommands shapes
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "ExecuteCommands": [ { "Index": 310, "CommandBuffers": [ ] } ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "ExecuteCommands": [ { "Index": 310 } ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "ExecuteCommands": [ [ 310, 100 ] ] } ] } ] })",
+                // descriptors
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [ { "Binding": 1, "ArrayIndex": 0 } ] } ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
              { "Set": 0, "Binding": 1, "ArrayIndex": 0 }, { "Set": 0, "Binding": 1, "ArrayIndex": 0 } ] } ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
              { "Set": 0, "Binding": 1, "ArrayIndex": 0, "SubresourceRange": { "AspectMask": "VK_IMAGE_ASPECT_COLOR_BIT", "LevelCount": "ALL" } } ] } ] } ] } ] })",
-        // descriptors: unknown keys
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+                // descriptors: unknown keys
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
              { "Set": 0, "Binding": 1, "ArrayIndex": 0, "SubresourceRanges": { "AspectMask": "VK_IMAGE_ASPECT_COLOR_BIT" } } ] } ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
              { "Set": 0, "Binding": 1, "ArrayIndex": 0, "SubresourceRange": { "AspectMask": "VK_IMAGE_ASPECT_COLOR_BIT", "BaseMip": 1 } } ] } ] } ] } ] })",
-        // descriptors: types and ranges
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+                // descriptors: types and ranges
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
              { "Set": 4294967296, "Binding": 1, "ArrayIndex": 0 } ] } ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
              { "Set": 0, "Binding": -1, "ArrayIndex": 0 } ] } ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
              { "Set": 0, "Binding": 1, "ArrayIndex": 0, "SubresourceRange": { "AspectMask": "VK_IMAGE_ASPECT_COLOR_BIT", "BaseMipLevel": -1 } } ] } ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
              { "Set": 0, "Binding": 1, "ArrayIndex": 0, "SubresourceRange": { "AspectMask": "VK_IMAGE_ASPECT_COLOR_BIT", "BaseArrayLayer": 2.5 } } ] } ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
              { "Set": 0, "Binding": 1, "ArrayIndex": 0, "SubresourceRange": { "AspectMask": "VK_IMAGE_ASPECT_COLOR_BIT", "BaseZIndex": "0" } } ] } ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
              { "Set": 0, "Binding": 1, "ArrayIndex": 0, "SubresourceRange": { "AspectMask": "VK_IMAGE_ASPECT_COLOR_BIT", "ZCount": 4294967296 } } ] } ] } ] } ] })",
-        // descriptors: aspect masks
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+                // descriptors: aspect masks
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
              { "Set": 0, "Binding": 1, "ArrayIndex": 0, "SubresourceRange": { "AspectMask": "COLOR" } } ] } ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
              { "Set": 0, "Binding": 1, "ArrayIndex": 0, "SubresourceRange": { "AspectMask": "" } } ] } ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
              { "Set": 0, "Binding": 1, "ArrayIndex": 0, "SubresourceRange": { "AspectMask": "VK_IMAGE_ASPECT_DEPTH_BIT | " } } ] } ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
              { "Set": 0, "Binding": 1, "ArrayIndex": 0, "SubresourceRange": { "AspectMask": "VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_ASPECT_STENCIL_BIT" } } ] } ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "Descriptors": [
              { "Set": 0, "Binding": 1, "ArrayIndex": 0, "SubresourceRange": { "AspectMask": "VK_IMAGE_ASPECT_DEPTH_BITS" } } ] } ] } ] } ] })",
-        // DumpingOptions
-        R"({ "SchemaVersion": "1.0", "DumpingOptions": { "Sclae": 1.0 }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "DumpingOptions": { "Scale": "1.0" }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "DumpingOptions": { "Scale": 0 }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "DumpingOptions": { "DumpDepth": 1 }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "DumpingOptions": { "ImageFormat": "jpg" }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "DumpingOptions": { "BinaryFileCompressionType": "gzip" }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "DumpingOptions": { "ColorAttachmentIndex": -2 }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "DumpingOptions": { "JsonOutputPerCommand": true } } ] } ] } ] })",
-        // StateSetup
-        R"({ "SchemaVersion": "1.0", "StateSetup": { "Draw": [ 266 ] } })",
-        R"({ "SchemaVersion": "1.0", "StateSetup": { } })",
-        R"({ "SchemaVersion": "1.0", "StateSetup": [ 266 ] })",
-        // SchemaVersion: missing, wrong type or shape, the legacy major 0, and a different major than the implemented
-        // one
-        R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": 1.0, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": 1, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": [ 1, 0 ], "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": { "Major": 1, "Minor": 0 }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "1", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": ".0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "v1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.0 ", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "-1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "1.256", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "0.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "0.1", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "2.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        R"({ "SchemaVersion": "255.255", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
-        // a legacy file may not carry a SchemaVersion
-        R"({ "SchemaVersion": "1.0", "BeginCommandBuffer": [ 301 ], "Dispatch": [ [ 303 ] ], "QueueSubmit": [ 315 ] })",
-        // syntax error
-        R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, )",
-    };
+                // DumpingOptions
+                R"({ "SchemaVersion": "1.0", "DumpingOptions": { "Sclae": 1.0 }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "DumpingOptions": { "Scale": "1.0" }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "DumpingOptions": { "Scale": 0 }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "DumpingOptions": { "DumpDepth": 1 }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "DumpingOptions": { "ImageFormat": "jpg" }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "DumpingOptions": { "BinaryFileCompressionType": "gzip" }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "DumpingOptions": { "ColorAttachmentIndex": -2 }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ { "Index": 303, "DumpingOptions": { "JsonOutputPerCommand": true } } ] } ] } ] })",
+                // StateSetup
+                R"({ "SchemaVersion": "1.0", "StateSetup": { "Draw": [ 266 ] } })",
+                R"({ "SchemaVersion": "1.0", "StateSetup": { } })",
+                R"({ "SchemaVersion": "1.0", "StateSetup": [ 266 ] })",
+                // SchemaVersion: missing, wrong type or shape, the legacy major 0, and a different major than the
+                // implemented
+                // one
+                R"({ "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": 1.0, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": 1, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": [ 1, 0 ], "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": { "Major": 1, "Minor": 0 }, "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "1", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": ".0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "v1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.0 ", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "-1.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "1.256", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "0.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "0.1", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "2.0", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                R"({ "SchemaVersion": "255.255", "QueueSubmits": [ { "Index": 315, "CommandBuffers": [ { "Index": 301, "Dispatch": [ 303 ] } ] } ] })",
+                // a legacy file may not carry a SchemaVersion
+                R"({ "SchemaVersion": "1.0", "BeginCommandBuffer": [ 301 ], "Dispatch": [ [ 303 ] ], "QueueSubmit": [ 315 ] })",
+                // syntax error
+                R"({ "SchemaVersion": "1.0", "QueueSubmits": [ { "Index": 315, )",
+            };
 
     for (const char* text : malformed)
     {
