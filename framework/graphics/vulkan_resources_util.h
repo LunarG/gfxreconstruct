@@ -650,6 +650,14 @@ VkDeviceSize GetBufferSizeFromCopyImage(const VkMemoryToImageCopy& region, uint3
  */
 VkDeviceSize GetBufferSizeFromCopyImage(const VkImageToMemoryCopy& region, uint32_t array_layers, VkFormat format);
 
+/**
+ * @brief Appends one image-to-image copy region per subresource range, covering the whole of its mip level.
+ */
+void BuildImageCopyRegions(VkFormat                                    format,
+                           const VkExtent3D&                           extent,
+                           const std::vector<VkImageSubresourceRange>& ranges,
+                           std::vector<VkImageCopy>&                   regions);
+
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
