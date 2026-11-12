@@ -312,8 +312,19 @@ struct Decoded_VkLayerSettingEXT
 
     VkLayerSettingEXT* decoded_value{ nullptr };
 
-    StringDecoder           pLayerName;
-    StringDecoder           pSettingName;
+    StringDecoder pLayerName;
+    StringDecoder pSettingName;
+
+    // One per value type: a PointerDecoder converts each value to its own element type, so decoding a uint32_t
+    // array into a uint8_t one would keep only the low byte of every value.
+    PointerDecoder<uint32_t> uint32_values; // VK_LAYER_SETTING_TYPE_BOOL32_EXT and VK_LAYER_SETTING_TYPE_UINT32_EXT
+    PointerDecoder<int32_t>  int32_values;
+    PointerDecoder<int64_t>  int64_values;
+    PointerDecoder<uint64_t> uint64_values;
+    PointerDecoder<float>    float_values;
+    PointerDecoder<double>   double_values;
+
+    // A string setting captured before 23f420bd, encoded as void*.
     PointerDecoder<uint8_t> pValues;
 
     // if type is VK_LAYER_SETTING_TYPE_STRING_EXT we need to decode an array of strings
