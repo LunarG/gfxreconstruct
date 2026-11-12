@@ -8934,12 +8934,16 @@ void MapStructHandles(Decoded_VkPhysicalDeviceDeviceMemoryReportFeaturesEXT* wra
 
 void MapStructHandles(Decoded_VkDeviceMemoryReportCallbackDataEXT* wrapper, const CommonObjectInfoTable& object_info_table)
 {
-    if (wrapper != nullptr)
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
+        VkDeviceMemoryReportCallbackDataEXT* value = wrapper->decoded_value;
+
         if (wrapper->pNext)
         {
             MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
+
+        value->objectHandle = handle_mapping::MapHandle(wrapper->objectHandle, value->objectType, object_info_table);
     }
 }
 
