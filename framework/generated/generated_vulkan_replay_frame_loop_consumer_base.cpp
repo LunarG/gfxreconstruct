@@ -723,6 +723,56 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkFreeCommandBuffers(
     VulkanReplayConsumer::Process_vkFreeCommandBuffers(call_info, args);
 }
 
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyBuffer(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyBuffer&                        args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyBuffer(call_info, args);
+
+    // Record the buffers this command writes.
+    TrackBufferWrite(args.commandBuffer, args.dstBuffer);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyImageToBuffer(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyImageToBuffer&                 args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyImageToBuffer(call_info, args);
+
+    // Record the buffers this command writes.
+    TrackBufferWrite(args.commandBuffer, args.dstBuffer);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdUpdateBuffer(
+    const ApiCallInfo&                          call_info,
+    args::CmdUpdateBuffer&                      args)
+{
+    VulkanReplayConsumer::Process_vkCmdUpdateBuffer(call_info, args);
+
+    // Record the buffers this command writes.
+    TrackBufferWrite(args.commandBuffer, args.dstBuffer);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdFillBuffer(
+    const ApiCallInfo&                          call_info,
+    args::CmdFillBuffer&                        args)
+{
+    VulkanReplayConsumer::Process_vkCmdFillBuffer(call_info, args);
+
+    // Record the buffers this command writes.
+    TrackBufferWrite(args.commandBuffer, args.dstBuffer);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyQueryPoolResults(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyQueryPoolResults&              args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyQueryPoolResults(call_info, args);
+
+    // Record the buffers this command writes.
+    TrackBufferWrite(args.commandBuffer, args.dstBuffer);
+}
+
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateEvent(
     const ApiCallInfo&                          call_info,
     args::CreateEvent&                          args)
@@ -1379,6 +1429,27 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDescriptorPool(
     }
 }
 
+void VulkanReplayFrameLoopConsumerBase::Process_vkUpdateDescriptorSets(
+    const ApiCallInfo&                          call_info,
+    args::UpdateDescriptorSets&                 args)
+{
+    VulkanReplayConsumer::Process_vkUpdateDescriptorSets(call_info, args);
+
+    // Record the descriptor sets this command binds, writes or copies.
+    TrackDescriptorSetWrites(&args.pDescriptorWrites);
+    TrackDescriptorSetCopies(&args.pDescriptorCopies);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdBindDescriptorSets(
+    const ApiCallInfo&                          call_info,
+    args::CmdBindDescriptorSets&                args)
+{
+    VulkanReplayConsumer::Process_vkCmdBindDescriptorSets(call_info, args);
+
+    // Record the descriptor sets this command binds, writes or copies.
+    TrackBoundDescriptorSets(args.commandBuffer, args.pDescriptorSets);
+}
+
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateGraphicsPipelines(
     const ApiCallInfo&                          call_info,
     args::CreateGraphicsPipelines&              args)
@@ -1938,6 +2009,34 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPrivateDataSlot(
     }
 }
 
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyBuffer2(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyBuffer2&                       args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyBuffer2(call_info, args);
+
+    // Record the buffers this command writes.
+    const Decoded_VkCopyBufferInfo2* pCopyBufferInfo_meta = args.pCopyBufferInfo.GetMetaStructPointer();
+    if (pCopyBufferInfo_meta != nullptr)
+    {
+        TrackBufferWrite(args.commandBuffer, pCopyBufferInfo_meta->dstBuffer);
+    }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyImageToBuffer2(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyImageToBuffer2&                args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyImageToBuffer2(call_info, args);
+
+    // Record the buffers this command writes.
+    const Decoded_VkCopyImageToBufferInfo2* pCopyImageToBufferInfo_meta = args.pCopyImageToBufferInfo.GetMetaStructPointer();
+    if (pCopyImageToBufferInfo_meta != nullptr)
+    {
+        TrackBufferWrite(args.commandBuffer, pCopyImageToBufferInfo_meta->dstBuffer);
+    }
+}
+
 void VulkanReplayFrameLoopConsumerBase::Process_vkMapMemory2(
     const ApiCallInfo&                          call_info,
     args::MapMemory2&                           args)
@@ -1975,6 +2074,44 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkTransitionImageLayout(
         return;
     }
     VulkanReplayConsumer::Process_vkTransitionImageLayout(call_info, args);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdPushDescriptorSet(
+    const ApiCallInfo&                          call_info,
+    args::CmdPushDescriptorSet&                 args)
+{
+    VulkanReplayConsumer::Process_vkCmdPushDescriptorSet(call_info, args);
+
+    // Record the descriptor sets this command binds, writes or copies.
+    TrackPushDescriptorWrites(args.commandBuffer, &args.pDescriptorWrites);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdBindDescriptorSets2(
+    const ApiCallInfo&                          call_info,
+    args::CmdBindDescriptorSets2&               args)
+{
+    VulkanReplayConsumer::Process_vkCmdBindDescriptorSets2(call_info, args);
+
+    // Record the descriptor sets this command binds, writes or copies.
+    const Decoded_VkBindDescriptorSetsInfo* pBindDescriptorSetsInfo_meta = args.pBindDescriptorSetsInfo.GetMetaStructPointer();
+    if (pBindDescriptorSetsInfo_meta != nullptr)
+    {
+        TrackBoundDescriptorSets(args.commandBuffer, pBindDescriptorSetsInfo_meta->pDescriptorSets);
+    }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdPushDescriptorSet2(
+    const ApiCallInfo&                          call_info,
+    args::CmdPushDescriptorSet2&                args)
+{
+    VulkanReplayConsumer::Process_vkCmdPushDescriptorSet2(call_info, args);
+
+    // Record the descriptor sets this command binds, writes or copies.
+    const Decoded_VkPushDescriptorSetInfo* pPushDescriptorSetInfo_meta = args.pPushDescriptorSetInfo.GetMetaStructPointer();
+    if (pPushDescriptorSetInfo_meta != nullptr)
+    {
+        TrackPushDescriptorWrites(args.commandBuffer, pPushDescriptorSetInfo_meta->pDescriptorWrites);
+    }
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySurfaceKHR(
@@ -2516,6 +2653,16 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkImportSemaphoreFdKHR(
     VulkanReplayConsumer::Process_vkImportSemaphoreFdKHR(call_info, args);
 }
 
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdPushDescriptorSetKHR(
+    const ApiCallInfo&                          call_info,
+    args::CmdPushDescriptorSetKHR&              args)
+{
+    VulkanReplayConsumer::Process_vkCmdPushDescriptorSetKHR(call_info, args);
+
+    // Record the descriptor sets this command binds, writes or copies.
+    TrackPushDescriptorWrites(args.commandBuffer, &args.pDescriptorWrites);
+}
+
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDescriptorUpdateTemplateKHR(
     const ApiCallInfo&                          call_info,
     args::CreateDescriptorUpdateTemplateKHR&    args)
@@ -2877,6 +3024,48 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkUnmapMemory2KHR(
     VulkanReplayConsumer::Process_vkUnmapMemory2KHR(call_info, args);
 }
 
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdEncodeVideoKHR(
+    const ApiCallInfo&                          call_info,
+    args::CmdEncodeVideoKHR&                    args)
+{
+    VulkanReplayConsumer::Process_vkCmdEncodeVideoKHR(call_info, args);
+
+    // Record the buffers this command writes.
+    const Decoded_VkVideoEncodeInfoKHR* pEncodeInfo_meta = args.pEncodeInfo.GetMetaStructPointer();
+    if (pEncodeInfo_meta != nullptr)
+    {
+        TrackBufferWrite(args.commandBuffer, pEncodeInfo_meta->dstBuffer);
+    }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyBuffer2KHR(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyBuffer2KHR&                    args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyBuffer2KHR(call_info, args);
+
+    // Record the buffers this command writes.
+    const Decoded_VkCopyBufferInfo2* pCopyBufferInfo_meta = args.pCopyBufferInfo.GetMetaStructPointer();
+    if (pCopyBufferInfo_meta != nullptr)
+    {
+        TrackBufferWrite(args.commandBuffer, pCopyBufferInfo_meta->dstBuffer);
+    }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyImageToBuffer2KHR(
+    const ApiCallInfo&                          call_info,
+    args::CmdCopyImageToBuffer2KHR&             args)
+{
+    VulkanReplayConsumer::Process_vkCmdCopyImageToBuffer2KHR(call_info, args);
+
+    // Record the buffers this command writes.
+    const Decoded_VkCopyImageToBufferInfo2* pCopyImageToBufferInfo_meta = args.pCopyImageToBufferInfo.GetMetaStructPointer();
+    if (pCopyImageToBufferInfo_meta != nullptr)
+    {
+        TrackBufferWrite(args.commandBuffer, pCopyImageToBufferInfo_meta->dstBuffer);
+    }
+}
+
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreatePipelineBinariesKHR(
     const ApiCallInfo&                          call_info,
     args::CreatePipelineBinariesKHR&            args)
@@ -2956,6 +3145,34 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkReleaseSwapchainImagesKHR(
         return;
     }
     VulkanReplayConsumer::Process_vkReleaseSwapchainImagesKHR(call_info, args);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdBindDescriptorSets2KHR(
+    const ApiCallInfo&                          call_info,
+    args::CmdBindDescriptorSets2KHR&            args)
+{
+    VulkanReplayConsumer::Process_vkCmdBindDescriptorSets2KHR(call_info, args);
+
+    // Record the descriptor sets this command binds, writes or copies.
+    const Decoded_VkBindDescriptorSetsInfo* pBindDescriptorSetsInfo_meta = args.pBindDescriptorSetsInfo.GetMetaStructPointer();
+    if (pBindDescriptorSetsInfo_meta != nullptr)
+    {
+        TrackBoundDescriptorSets(args.commandBuffer, pBindDescriptorSetsInfo_meta->pDescriptorSets);
+    }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdPushDescriptorSet2KHR(
+    const ApiCallInfo&                          call_info,
+    args::CmdPushDescriptorSet2KHR&             args)
+{
+    VulkanReplayConsumer::Process_vkCmdPushDescriptorSet2KHR(call_info, args);
+
+    // Record the descriptor sets this command binds, writes or copies.
+    const Decoded_VkPushDescriptorSetInfo* pPushDescriptorSetInfo_meta = args.pPushDescriptorSetInfo.GetMetaStructPointer();
+    if (pPushDescriptorSetInfo_meta != nullptr)
+    {
+        TrackPushDescriptorWrites(args.commandBuffer, pPushDescriptorSetInfo_meta->pDescriptorWrites);
+    }
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDebugReportCallbackEXT(
@@ -3481,6 +3698,26 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRayTracingPipelinesNV(
         meta_infos[0].decoded_value = &raw_infos[0];
         meta_infos[i].decoded_value = &raw_infos[i];
     }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdWriteBufferMarkerAMD(
+    const ApiCallInfo&                          call_info,
+    args::CmdWriteBufferMarkerAMD&              args)
+{
+    VulkanReplayConsumer::Process_vkCmdWriteBufferMarkerAMD(call_info, args);
+
+    // Record the buffers this command writes.
+    TrackBufferWrite(args.commandBuffer, args.dstBuffer);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdWriteBufferMarker2AMD(
+    const ApiCallInfo&                          call_info,
+    args::CmdWriteBufferMarker2AMD&             args)
+{
+    VulkanReplayConsumer::Process_vkCmdWriteBufferMarker2AMD(call_info, args);
+
+    // Record the buffers this command writes.
+    TrackBufferWrite(args.commandBuffer, args.dstBuffer);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkReleasePerformanceConfigurationINTEL(
