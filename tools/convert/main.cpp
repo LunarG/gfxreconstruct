@@ -450,6 +450,11 @@ int main(int argc, const char** argv)
             }
         }
     }
+    else
+    {
+        // Initialize() has logged why the file could not be read.
+        ret_code = 1;
+    }
 
 exit:
     gfxrecon::util::Log::Release();
