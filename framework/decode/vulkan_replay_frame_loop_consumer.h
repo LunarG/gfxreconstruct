@@ -105,6 +105,19 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     void Process_vkFreeMemory(const ApiCallInfo& call_info, args::FreeMemory& args) override;
 
+    void ProcessCreateHardwareBufferCommand(format::HandleId                                    device_id,
+                                            format::HandleId                                    memory_id,
+                                            uint64_t                                            buffer_id,
+                                            uint32_t                                            format,
+                                            uint32_t                                            width,
+                                            uint32_t                                            height,
+                                            uint32_t                                            stride,
+                                            uint64_t                                            usage,
+                                            uint32_t                                            layers,
+                                            const std::vector<format::HardwareBufferPlaneInfo>& plane_info) override;
+
+    void ProcessDestroyHardwareBufferCommand(uint64_t buffer_id) override;
+
     virtual void StartLooping() override;
 
     // Private declarations
@@ -415,6 +428,9 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     // Support for vkAcquireProfilingLockKHR/vkReleaseProfilingLockKHR
     std::unordered_map<format::HandleId, bool> profilingLockState;
+
+    // AHardwareBuffer ids created within the loop range.
+    std::unordered_set<uint64_t> allocated_loop_hardware_buffers_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
