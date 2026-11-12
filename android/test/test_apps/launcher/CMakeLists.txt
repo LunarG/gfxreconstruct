@@ -50,6 +50,7 @@ target_include_directories(${PROJECT_NAME}
 set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
     gfxrecon-testapp-acquired-image
     gfxrecon-testapp-debug-utils
+    gfxrecon-testapp-draw-dispatch-vdr
     gfxrecon-testapp-host-image-copy
     gfxrecon-testapp-isolate-render-passes
     gfxrecon-testapp-multisample-depth

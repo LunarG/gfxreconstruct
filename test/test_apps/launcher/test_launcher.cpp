@@ -31,6 +31,7 @@
 #include <shader_objects_app.h>
 #include <sparse_resources_app.h>
 #include <debug_utils_app.h>
+#include <draw_dispatch_vdr_app.h>
 #include <isolate_render_passes_app.h>
 #include <serialize_compute_and_transfer_app.h>
 #include <serialize_queue_submissions_app.h>
@@ -69,6 +70,7 @@ const char kArguments[] = "--wsi";
 static const char* kAppNames[] = {
     "acquired-image",
     "debug-utils",
+    "draw-dispatch-vdr",
     "host-image-copy",
     "isolate-render-passes",
     "serialize-compute-and-transfer",
@@ -155,6 +157,10 @@ CreateTestApp(std::unique_ptr<gfxrecon::application::Application> application,
     else if (app_name == "debug-utils")
     {
         app = std::make_unique<gfxrecon::test_app::debug_utils::App>();
+    }
+    else if (app_name == "draw-dispatch-vdr")
+    {
+        app = std::make_unique<gfxrecon::test_app::draw_dispatch_vdr::App>();
     }
     else if (app_name == "triangle")
     {
