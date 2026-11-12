@@ -73,6 +73,8 @@ endif()
 if(${RUN_TESTS})
     set(TEST_TARGET_NAME gfxrecon_replay_event_plugin_loader_test)
     add_executable(${TEST_TARGET_NAME} "")
+    # The tests load the sample plugin at runtime, so linking does not establish this dependency.
+    add_dependencies(${TEST_TARGET_NAME} gfxrecon_print_replay_plugin)
     target_sources(${TEST_TARGET_NAME}
         PRIVATE
             ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
