@@ -433,6 +433,7 @@ class VulkanAddressReplacer
     {
         VkAccelerationStructureKHR handle  = VK_NULL_HANDLE;
         VkDeviceAddress            address = 0;
+        VkDeviceSize               size    = 0;
         buffer_context_t           storage = {};
         buffer_context_t           scratch = {};
 
@@ -558,6 +559,10 @@ class VulkanAddressReplacer
 
     // resources related to acceleration-structures
     std::unordered_map<VkDeviceAddress, acceleration_structure_asset_t> shadow_as_map_;
+
+    // too-small shadow-structures that may still be in use, freed when the acceleration-structure is destroyed
+    std::unordered_map<VkAccelerationStructureKHR, std::vector<decltype(shadow_as_map_)::node_type>>
+        retired_shadow_as_map_;
 
     // replacement scratch-buffers for builds only lacking a usable scratch-buffer
     std::unordered_map<VkAccelerationStructureKHR, buffer_context_t> shadow_scratch_map_;
