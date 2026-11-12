@@ -63,7 +63,7 @@ class Dx12AddEntriesHeaderGenerator(Dx12BaseGenerator):
 
         write('template <typename ParentWrapper>', file=self.outFile)
         write(
-            'const std::unordered_map<IID, std::function<void(typename void**, format::ApiCallId, ParentWrapper*, const util::MemoryOutputStream*, std::mutex &state_table_mutex, Dx12StateTable &state_table)>,IidHash> kAddEntryFunctionTable',
+            'const std::unordered_map<IID, std::function<void(void**, format::ApiCallId, ParentWrapper*, const util::MemoryOutputStream*, std::mutex &state_table_mutex, Dx12StateTable &state_table)>,IidHash> kAddEntryFunctionTable',
             file=self.outFile
         )
         write('{', file=self.outFile)
@@ -83,7 +83,7 @@ class Dx12AddEntriesHeaderGenerator(Dx12BaseGenerator):
         self.newline()
 
         write(
-            'const std::unordered_map<IID, std::function<void(typename void**, format::ApiCallId, void*, const util::MemoryOutputStream*, std::mutex &state_table_mutex, Dx12StateTable &state_table)>,IidHash> kAddEntryVoidFunctionTable',
+            'const std::unordered_map<IID, std::function<void(void**, format::ApiCallId, void*, const util::MemoryOutputStream*, std::mutex &state_table_mutex, Dx12StateTable &state_table)>,IidHash> kAddEntryVoidFunctionTable',
             file=self.outFile
         )
         write('{', file=self.outFile)
@@ -202,7 +202,7 @@ class Dx12AddEntriesHeaderGenerator(Dx12BaseGenerator):
         self.newline()
 
         decl = 'template <typename Wrapper, typename ParentWrapper>\n'
-        decl += 'void AddEntry(typename void** new_handle, format::ApiCallId create_call_id, ParentWrapper* create_object_wrapper, const util::MemoryOutputStream* create_parameter_buffer, std::mutex &state_table_mutex, Dx12StateTable &state_table)\n'
+        decl += 'void AddEntry(void** new_handle, format::ApiCallId create_call_id, ParentWrapper* create_object_wrapper, const util::MemoryOutputStream* create_parameter_buffer, std::mutex &state_table_mutex, Dx12StateTable &state_table)\n'
         decl += '{\n'
         decl += '    assert(create_object_wrapper != nullptr);\n'
         decl += '    if (*new_handle != nullptr)\n'
@@ -219,7 +219,7 @@ class Dx12AddEntriesHeaderGenerator(Dx12BaseGenerator):
         decl += '}\n'
         decl += '\n'
         decl += 'template <typename Wrapper>\n'
-        decl += 'void AddEntry(typename void** new_handle, format::ApiCallId create_call_id, void* create_object_wrapper, const util::MemoryOutputStream* create_parameter_buffer, std::mutex &state_table_mutex, Dx12StateTable &state_table)\n'
+        decl += 'void AddEntry(void** new_handle, format::ApiCallId create_call_id, void* create_object_wrapper, const util::MemoryOutputStream* create_parameter_buffer, std::mutex &state_table_mutex, Dx12StateTable &state_table)\n'
         decl += '{\n'
         decl += '    assert(create_object_wrapper == nullptr);\n'
         decl += '    if (*new_handle != nullptr)\n'
