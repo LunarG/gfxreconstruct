@@ -1,2 +1,2 @@
 *.json
-!screenshots/*.json
+!screenshots/**/*.json
