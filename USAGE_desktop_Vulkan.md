@@ -619,7 +619,6 @@ gfxrecon-replay         [-h | --help] [--version] [--cpu-mask <binary-mask>] [--
                         [--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]
                         [--screenshot-scale SCALE] [--screenshot-size WIDTHxHEIGHT]
                         [--screenshot-interval <N>] [--screenshot-results]
-                        [--screenshot-results-single-file]
                         [--capture]
                         [--sfa | --skip-failed-allocations] [--replace-shaders <dir>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
@@ -741,11 +740,6 @@ Optional arguments:
                         that records which files were written and why any
                         image was skipped, plus a summary over all frames
                         named after the screenshot prefix.
-  --screenshot-results-single-file
-                        Write the screenshot results as a single JSON file
-                        named after the screenshot prefix, holding every
-                        requested frame and the summary, instead of one file
-                        per frame. Implies --screenshot-results.
   --capture             Capture the replaying GFXR file. Capture uses the same log
                         options as replay. All other capture option behavior and
                         usage is the same as when capturing with the GFXR layer. The

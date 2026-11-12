@@ -617,19 +617,10 @@ void replay_and_record_draw_states(const char*                 test_name,
 }
 
 // Keeps everything in a screenshot results json but the header: its versions, capture path and options differ
-// between builds and machines, while the frame records and the summary are what the test checks. The header is a key
-// of the document in the per-frame layout, and a block of its own in the single-file layout.
+// between builds and machines, while the frame records and the summary are what the test checks.
 static bool clean_screenshot_json(int depth, nlohmann::json::parse_event_t event, nlohmann::json& parsed)
 {
-    if (event == nlohmann::json::parse_event_t::key && depth == 1 && parsed == "header")
-    {
-        return false;
-    }
-    if (event == nlohmann::json::parse_event_t::object_end && depth == 1 && parsed.contains("header"))
-    {
-        return false;
-    }
-    return true;
+    return !(event == nlohmann::json::parse_event_t::key && depth == 1 && parsed == "header");
 }
 
 // The names of the screenshot results json files in directory: the summary "<prefix>.json" and one
@@ -648,9 +639,7 @@ static std::set<std::string> screenshot_json_names(const std::filesystem::path& 
     return names;
 }
 
-void capture_and_verify_screenshots(const char*              test_name,
-                                    std::vector<std::string> screenshot_args,
-                                    const char*              reference_name)
+void capture_and_verify_screenshots(const char* test_name, std::vector<std::string> screenshot_args)
 {
     EnvironmentVariables env_vars;
 
@@ -681,7 +670,7 @@ void capture_and_verify_screenshots(const char*              test_name,
     std::filesystem::path reference_dir{ paths.base_path };
     reference_dir.append("known_good");
     reference_dir.append("screenshots");
-    reference_dir.append((reference_name != nullptr) ? reference_name : test_name);
+    reference_dir.append(test_name);
     ASSERT_TRUE(std::filesystem::is_directory(reference_dir))
         << "reference screenshot results directory is missing: " << reference_dir;
 
@@ -736,28 +725,23 @@ void capture_and_verify_screenshots(const char*              test_name,
         auto diff = nlohmann::json::diff(reference_json, result_json);
         ASSERT_EQ(diff.size(), 0) << name << ": " << std::setw(4) << diff;
 
-        // Every output a frame record reports as written must be on disk. A per-frame json is one record; a single
-        // file is an array of them.
-        const nlohmann::json records = result_json.is_array() ? result_json : nlohmann::json::array({ result_json });
-        for (const auto& record : records)
+        // Every output a frame record reports as written must be on disk. The summary has no outputs.
+        if (!result_json.contains("outputs"))
         {
-            if (!record.contains("outputs"))
+            continue;
+        }
+
+        for (const auto& output : result_json["outputs"])
+        {
+            if (output.value("status", "") != "written")
             {
                 continue;
             }
 
-            for (const auto& output : record["outputs"])
-            {
-                if (output.value("status", "") != "written")
-                {
-                    continue;
-                }
-
-                std::filesystem::path file_path{ paths.base_path };
-                file_path.append(output["file"].get<std::string>());
-                ASSERT_TRUE(std::filesystem::exists(file_path))
-                    << "screenshot file reported as written is missing: " << file_path;
-            }
+            std::filesystem::path file_path{ paths.base_path };
+            file_path.append(output["file"].get<std::string>());
+            ASSERT_TRUE(std::filesystem::exists(file_path))
+                << "screenshot file reported as written is missing: " << file_path;
         }
     }
 }

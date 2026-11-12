@@ -780,7 +780,6 @@ usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--log-level LEVEL]
                           [--screenshot-interval INTERVAL]
                           [--screenshot-size SIZE] [--screenshot-scale SCALE]
                           [--screenshot-results]
-                          [--screenshot-results-single-file]
                           [--capture]
                           [--sfa] [--opcd] [--surface-index N] [--sync]
                           [--remove-unsupported] [--validate] [--onhb]
@@ -909,12 +908,6 @@ options:
                         that records which files were written and why any
                         image was skipped, plus a summary over all frames
                         named after the screenshot prefix (forwarded to
-                        replay tool)
-  --screenshot-results-single-file
-                        Write the screenshot results as a single JSON file
-                        named after the screenshot prefix, holding every
-                        requested frame and the summary, instead of one file
-                        per frame. Implies --screenshot-results (forwarded to
                         replay tool)
   --capture             Capture the replaying GFXR file. Capture uses the same log
                         options as replay. All other capture option behavior and
