@@ -26,9 +26,9 @@
 #include "graphics/vulkan_resources_util.h"
 #include "graphics/vulkan_struct_get_pnext.h"
 #include "graphics/vulkan_util.h"
+#include "graphics/vulkan_image_layout_map_util.h"
 #include "util/alignment_utils.h"
 #include "util/callbacks.h"
-#include "Vulkan-Utility-Libraries/vk_format_utils.h"
 #include "generated/generated_vulkan_replay_consumer.h"
 #include "generated/generated_vulkan_replay_frame_loop_consumer_base.h"
 #include "decode/vulkan_replay_frame_loop_consumer.h"
@@ -1476,264 +1476,6 @@ void VulkanReplayFrameLoopConsumer::FrameBoundaryEndOfFrame(format::HandleId que
     }
 }
 
-static bool IsRestorableLayout(VkImageLayout layout)
-{
-    return (layout != VK_IMAGE_LAYOUT_UNDEFINED) && (layout != VK_IMAGE_LAYOUT_PREINITIALIZED);
-}
-
-static VkImageMemoryBarrier MakeLayoutRestoreBarrier(VkImage                        image,
-                                                     VkImageLayout                  old_layout,
-                                                     VkImageLayout                  new_layout,
-                                                     const VkImageSubresourceRange& subresource_range)
-{
-    VkImageMemoryBarrier barrier = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
-    barrier.srcAccessMask        = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
-    barrier.dstAccessMask        = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
-    barrier.oldLayout            = old_layout;
-    barrier.newLayout            = new_layout;
-    barrier.srcQueueFamilyIndex  = VK_QUEUE_FAMILY_IGNORED;
-    barrier.dstQueueFamilyIndex  = VK_QUEUE_FAMILY_IGNORED;
-    barrier.image                = image;
-    barrier.subresourceRange     = subresource_range;
-    return barrier;
-}
-
-// Accounts for multi-planar formats, which require that all planes be transitioned together.
-static VkImageAspectFlags ToBarrierAspects(VkImageAspectFlags transition_aspects, VkImageAspectFlags image_aspects)
-{
-    constexpr VkImageAspectFlags kPlaneAspects =
-        VK_IMAGE_ASPECT_PLANE_0_BIT | VK_IMAGE_ASPECT_PLANE_1_BIT | VK_IMAGE_ASPECT_PLANE_2_BIT;
-
-    const VkImageAspectFlags planes = transition_aspects & kPlaneAspects;
-    if ((planes != 0) && (planes == (image_aspects & kPlaneAspects)))
-    {
-        return (transition_aspects & ~kPlaneAspects) | VK_IMAGE_ASPECT_COLOR_BIT;
-    }
-
-    return transition_aspects;
-}
-
-static void AppendImageLayoutBarriers(const VulkanImageInfo*             image_info,
-                                      const graphics::ImageLayoutMap&    initial_layouts,
-                                      std::vector<VkImageMemoryBarrier>& barriers)
-{
-    const graphics::ImageLayoutMap& current_layouts = image_info->subresource_layouts;
-
-    if (!initial_layouts.IsInitialized() || !current_layouts.IsInitialized())
-    {
-        return;
-    }
-
-    const VkImageAspectFlags aspects      = initial_layouts.GetAspects();
-    const uint32_t           mip_levels   = initial_layouts.GetMipLevels();
-    const uint32_t           array_layers = initial_layouts.GetArrayLayers();
-
-    // Uniform fast path.
-    if (initial_layouts.IsUniform() && current_layouts.IsUniform())
-    {
-        const VkImageAspectFlagBits first_aspect = static_cast<VkImageAspectFlagBits>(aspects & ~(aspects - 1));
-        const VkImageLayout         initial      = initial_layouts.GetSubresourceLayout(first_aspect, 0, 0);
-        const VkImageLayout         current      = current_layouts.GetSubresourceLayout(first_aspect, 0, 0);
-
-        if ((initial != current) && IsRestorableLayout(initial))
-        {
-            barriers.push_back(
-                MakeLayoutRestoreBarrier(image_info->handle,
-                                         current,
-                                         initial,
-                                         { ToBarrierAspects(aspects, aspects), 0, mip_levels, 0, array_layers }));
-        }
-        return;
-    }
-
-    struct AspectTransition
-    {
-        VkImageAspectFlags aspects;
-        VkImageLayout      old_layout;
-        VkImageLayout      new_layout;
-    };
-    // Map to group aspects sharing the same transition.
-    AspectTransition transitions[std::size(graphics::kLayoutMapAspects)];
-
-    // Restore each subresource individually, while coalescing aspects.
-    for (uint32_t mip_level = 0; mip_level < mip_levels; ++mip_level)
-    {
-        for (uint32_t array_layer = 0; array_layer < array_layers; ++array_layer)
-        {
-            uint32_t transition_count = 0;
-
-            for (VkImageAspectFlagBits aspect : graphics::kLayoutMapAspects)
-            {
-                if ((aspects & aspect) == 0)
-                {
-                    continue;
-                }
-
-                const VkImageLayout initial = initial_layouts.GetSubresourceLayout(aspect, mip_level, array_layer);
-                const VkImageLayout current = current_layouts.GetSubresourceLayout(aspect, mip_level, array_layer);
-
-                if ((initial == current) || !IsRestorableLayout(initial))
-                {
-                    continue;
-                }
-
-                // Check if there is an existing transition (uses the same old and new layouts).
-                uint32_t index = 0;
-                while ((index < transition_count) &&
-                       ((transitions[index].old_layout != current) || (transitions[index].new_layout != initial)))
-                {
-                    ++index;
-                }
-                // Otherwise create a new transition.
-                if (index == transition_count)
-                {
-                    transitions[transition_count++] = { 0, current, initial };
-                }
-
-                transitions[index].aspects |= aspect;
-            }
-
-            for (uint32_t index = 0; index < transition_count; ++index)
-            {
-                const AspectTransition& transition = transitions[index];
-
-                barriers.push_back(MakeLayoutRestoreBarrier(
-                    image_info->handle,
-                    transition.old_layout,
-                    transition.new_layout,
-                    { ToBarrierAspects(transition.aspects, aspects), mip_level, 1, array_layer, 1 }));
-            }
-        }
-    }
-}
-
-static bool IsSubresourceCopyable(const graphics::ImageLayoutMap& layouts,
-                                  VkImageAspectFlags              aspects,
-                                  uint32_t                        mip_level,
-                                  uint32_t                        array_layer)
-{
-    for (VkImageAspectFlagBits aspect : graphics::kLayoutMapAspects)
-    {
-        if (((aspects & aspect) != 0) &&
-            !IsRestorableLayout(layouts.GetSubresourceLayout(aspect, mip_level, array_layer)))
-        {
-            return false;
-        }
-    }
-    return true;
-}
-
-// Collects the subresources whose layout at the start of the loop range can be
-// transitioned away from and back to.
-static void BuildCopyableSubresourceRanges(const VulkanImageInfo*                image_info,
-                                           const graphics::ImageLayoutMap&       initial_layouts,
-                                           std::vector<VkImageSubresourceRange>& ranges,
-                                           std::vector<VkImageSubresourceRange>& excluded_ranges)
-{
-    std::vector<VkImageAspectFlagBits> aspects;
-    bool                               combined_depth_stencil = false;
-    graphics::GetFormatAspects(image_info->format, &aspects, &combined_depth_stencil);
-
-    // The depth and stencil aspects of a combined format
-    if (combined_depth_stencil)
-    {
-        aspects.assign(1, static_cast<VkImageAspectFlagBits>(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT));
-    }
-
-    for (VkImageAspectFlagBits aspect : aspects)
-    {
-        const VkImageAspectFlags aspect_mask = static_cast<VkImageAspectFlags>(aspect);
-
-        for (uint32_t mip_level = 0; mip_level < image_info->level_count; ++mip_level)
-        {
-            // Coalesce neighbouring layers
-            uint32_t run_start    = 0;
-            uint32_t run_count    = 0;
-            bool     run_copyable = false;
-
-            for (uint32_t array_layer = 0; array_layer < image_info->layer_count; ++array_layer)
-            {
-                const bool copyable = IsSubresourceCopyable(initial_layouts, aspect_mask, mip_level, array_layer);
-
-                if ((run_count != 0) && (copyable != run_copyable))
-                {
-                    (run_copyable ? ranges : excluded_ranges)
-                        .push_back({ aspect_mask, mip_level, 1, run_start, run_count });
-                    run_count = 0;
-                }
-
-                if (run_count == 0)
-                {
-                    run_start    = array_layer;
-                    run_copyable = copyable;
-                }
-                ++run_count;
-            }
-
-            if (run_count != 0)
-            {
-                (run_copyable ? ranges : excluded_ranges)
-                    .push_back({ aspect_mask, mip_level, 1, run_start, run_count });
-            }
-        }
-    }
-}
-
-static void BuildImageCopyRegions(const VulkanImageInfo*                      image_info,
-                                  const std::vector<VkImageSubresourceRange>& ranges,
-                                  std::vector<VkImageCopy>&                   regions)
-{
-    regions.reserve(ranges.size());
-
-    for (const VkImageSubresourceRange& range : ranges)
-    {
-        const VkImageSubresourceLayers subresource = {
-            range.aspectMask, range.baseMipLevel, range.baseArrayLayer, range.layerCount
-        };
-
-        VkExtent3D extent = graphics::ScaleToMipLevel(image_info->extent, range.baseMipLevel);
-
-        if (vkuFormatIsMultiplane(image_info->format))
-        {
-            const VkExtent2D divisors = vkuFindMultiplaneExtentDivisors(
-                image_info->format, static_cast<VkImageAspectFlagBits>(range.aspectMask));
-
-            extent.width /= divisors.width;
-            extent.height /= divisors.height;
-        }
-
-        VkImageCopy region    = {};
-        region.srcSubresource = subresource;
-        region.dstSubresource = subresource;
-        region.extent         = extent;
-        regions.push_back(region);
-    }
-}
-
-static void AppendTransferLayoutBarriers(const VulkanImageInfo*                      image_info,
-                                         const std::vector<VkImageSubresourceRange>& excluded_ranges,
-                                         VkImageLayout                               transfer_layout,
-                                         std::vector<VkImageMemoryBarrier>&          barriers)
-{
-    graphics::ImageLayoutMap target_layouts = image_info->subresource_layouts;
-    target_layouts.SetUniformLayout(transfer_layout);
-
-    for (const VkImageSubresourceRange& range : excluded_ranges)
-    {
-        target_layouts.SetLayout(range, VK_IMAGE_LAYOUT_UNDEFINED);
-    }
-
-    AppendImageLayoutBarriers(image_info, target_layouts, barriers);
-}
-
-static void ReverseLayoutBarriers(std::vector<VkImageMemoryBarrier>& barriers, size_t first = 0)
-{
-    for (size_t i = first; i < barriers.size(); ++i)
-    {
-        std::swap(barriers[i].oldLayout, barriers[i].newLayout);
-    }
-}
-
 static void CmdImageLayoutBarriers(const graphics::VulkanDeviceTable&       device_table,
                                    VkCommandBuffer                          command_buffer,
                                    const std::vector<VkImageMemoryBarrier>& barriers)
@@ -1959,8 +1701,9 @@ bool VulkanReplayFrameLoopConsumer::ImageTracking::CreateShadowImage(format::Han
         return false;
     }
 
-    const VkImageAspectFlags aspects = state.initial_layouts.GetAspects();
-    state.shadow_range = { ToBarrierAspects(aspects, aspects), 0, image_info->level_count, 0, image_info->layer_count };
+    const VkImageAspectFlags aspects         = state.initial_layouts.GetAspects();
+    const VkImageAspectFlags barrier_aspects = graphics::ToBarrierAspects(aspects, aspects);
+    state.shadow_range = { barrier_aspects, 0, image_info->level_count, 0, image_info->layer_count };
 
     return true;
 }
@@ -2029,7 +1772,12 @@ void VulkanReplayFrameLoopConsumer::ImageTracking::RecordInitialState(
 
         ImageState& state = image_states_[image_id];
 
-        BuildCopyableSubresourceRanges(image_info, state.initial_layouts, state.copyable_ranges, state.excluded_ranges);
+        graphics::BuildCopyableSubresourceRanges(image_info->format,
+                                                 image_info->level_count,
+                                                 image_info->layer_count,
+                                                 state.initial_layouts,
+                                                 state.copyable_ranges,
+                                                 state.excluded_ranges);
 
         if (state.copyable_ranges.empty())
         {
@@ -2042,7 +1790,8 @@ void VulkanReplayFrameLoopConsumer::ImageTracking::RecordInitialState(
             continue;
         }
 
-        BuildImageCopyRegions(image_info, state.copyable_ranges, state.copy_regions);
+        graphics::BuildImageCopyRegions(
+            image_info->format, image_info->extent, state.copyable_ranges, state.copy_regions);
 
         if (!CreateShadowImage(image_id, image_info, state))
         {
@@ -2066,26 +1815,29 @@ void VulkanReplayFrameLoopConsumer::ImageTracking::RecordInitialState(
         const VulkanImageInfo* image_info = object_table_.GetVkImageInfo(image_id);
         const ImageState&      state      = image_states_.at(image_id);
 
-        AppendTransferLayoutBarriers(
-            image_info, state.excluded_ranges, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, pre_barriers);
+        graphics::AppendTransferLayoutBarriers(image_info->handle,
+                                               image_info->subresource_layouts,
+                                               state.excluded_ranges,
+                                               VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                               pre_barriers);
     }
 
     // Transitions those subresources back out of VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL.
     std::vector<VkImageMemoryBarrier> post_barriers = pre_barriers;
 
-    ReverseLayoutBarriers(post_barriers);
+    graphics::ReverseLayoutBarriers(post_barriers);
 
     // Transition shadows
     for (format::HandleId image_id : recorded_ids)
     {
         const ImageState& state = image_states_.at(image_id);
 
-        pre_barriers.push_back(MakeLayoutRestoreBarrier(
+        pre_barriers.push_back(graphics::MakeLayoutRestoreBarrier(
             state.shadow_image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, state.shadow_range));
-        post_barriers.push_back(MakeLayoutRestoreBarrier(state.shadow_image,
-                                                         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                                         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                                         state.shadow_range));
+        post_barriers.push_back(graphics::MakeLayoutRestoreBarrier(state.shadow_image,
+                                                                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                                                   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                                                   state.shadow_range));
     }
 
     // Transition images to VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL and shadows to VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL.
@@ -2129,19 +1881,26 @@ void VulkanReplayFrameLoopConsumer::ImageTracking::BuildRestoreCommands()
 
         if (state.HasShadow())
         {
-            AppendTransferLayoutBarriers(
-                image_info, state.excluded_ranges, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, commands.pre_barriers);
+            graphics::AppendTransferLayoutBarriers(image_info->handle,
+                                                   image_info->subresource_layouts,
+                                                   state.excluded_ranges,
+                                                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                                   commands.pre_barriers);
 
             image_info->subresource_layouts = state.initial_layouts;
-            AppendTransferLayoutBarriers(
-                image_info, state.excluded_ranges, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, commands.post_barriers);
-            ReverseLayoutBarriers(commands.post_barriers, first_post_barrier);
+            graphics::AppendTransferLayoutBarriers(image_info->handle,
+                                                   image_info->subresource_layouts,
+                                                   state.excluded_ranges,
+                                                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                                   commands.post_barriers);
+            graphics::ReverseLayoutBarriers(commands.post_barriers, first_post_barrier);
 
             commands.copy_ids.push_back(image_id);
         }
         else // Image contents could not be restored but still restore the layouts to their initial state.
         {
-            AppendImageLayoutBarriers(image_info, state.initial_layouts, commands.post_barriers);
+            graphics::AppendImageLayoutBarriers(
+                image_info->handle, image_info->subresource_layouts, state.initial_layouts, commands.post_barriers);
             if (commands.post_barriers.size() == first_post_barrier)
             {
                 continue;
