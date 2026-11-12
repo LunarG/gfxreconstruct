@@ -12,6 +12,7 @@
     SetSignalTrimmingCallbacks;
     GFXRSetTrimmingState;
     GFXRGetCaptureMode;
+    GFXRGetHeapStats;
   local:
     *;
 };
