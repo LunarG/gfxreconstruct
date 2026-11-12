@@ -33,6 +33,7 @@
 #include "util/memory_output_stream.h"
 
 #include <filesystem>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -116,6 +117,43 @@ std::vector<std::string> KnownGoodCaptures()
     return paths;
 }
 
+// Describes the first line where the two JSON outputs differ, and the block that holds it.
+// Returns an empty string when they match. Catch would print both outputs in full.
+std::string FirstDifference(const std::string& direct, const std::string& staged)
+{
+    // Only the block index key sits at two-space indentation. Nested keys sit deeper.
+    const std::string index_key = "  \"index\": ";
+
+    std::istringstream direct_lines(direct);
+    std::istringstream staged_lines(staged);
+    std::string        direct_line;
+    std::string        staged_line;
+    std::string        block = "header";
+
+    for (size_t line = 1;; ++line)
+    {
+        const bool has_direct = static_cast<bool>(std::getline(direct_lines, direct_line));
+        const bool has_staged = static_cast<bool>(std::getline(staged_lines, staged_line));
+
+        if (!has_direct && !has_staged)
+        {
+            return {};
+        }
+
+        if (direct_line.compare(0, index_key.size(), index_key) == 0)
+        {
+            block = "block " + std::to_string(std::stoull(direct_line.substr(index_key.size())));
+        }
+
+        if (has_direct != has_staged || direct_line != staged_line)
+        {
+            return block + ", line " + std::to_string(line) +
+                   "\n  direct: " + (has_direct ? direct_line : "<end of output>") +
+                   "\n  staged: " + (has_staged ? staged_line : "<end of output>");
+        }
+    }
+}
+
 } // namespace
 
 // An empty stage must be invisible. Every known-good capture converts to the same JSON
@@ -133,6 +171,9 @@ TEST_CASE("Empty stage leaves the JSON of every known-good capture unchanged", "
         const std::string staged = ConvertToJson(path, true);
 
         REQUIRE_FALSE(direct.empty());
-        CHECK(staged == direct);
+
+        const std::string difference = FirstDifference(direct, staged);
+        INFO(difference);
+        CHECK(difference.empty());
     }
 }
