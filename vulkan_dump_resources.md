@@ -136,7 +136,7 @@ QueueSubmits[] → CommandBuffers[] → RenderPasses, Draw, Dispatch, TraceRays,
 | Key | Type | Required | Meaning |
 |---|---|---|---|
 | `Index` | index | Yes | `vkBeginCommandBuffer` block index |
-| `RenderPasses` | `[[index...]]` | When `Draw` is given | One range per render pass or dynamic rendering instance |
+| `RenderPasses` | `[[index...]]` | Primary with Draw; secondaries: see Rules| One range per render pass or dynamic rendering instance |
 | `Draw`, `Dispatch`, `TraceRays`, `Transfer` | `[Command]` | No | Commands to dump |
 | `ExecuteCommands` | `[ExecuteCommands]` | No | |
 | `Position` | | No | Which appearance of the command buffer to dump. Not implemented yet |
