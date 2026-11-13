@@ -306,6 +306,8 @@ Optional arguments:
                         the index; frame/state markers and annotations are always preserved.
                         Invalid entries are ignored with a warning.
                         Example: --skip-index 0,7,10-20.
+                        Advanced debugging option for developers investigating capture block streams;
+                        use it to isolate API calls that may cause replay failures. Not intended for routine replay.
 
   --fwo <x,y>           Force windowed mode if not already, and allow setting of a custom window location.
                         (Same as --force-windowed-origin)

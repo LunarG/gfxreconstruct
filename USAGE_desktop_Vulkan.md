@@ -882,6 +882,8 @@ Optional arguments:
               the index; frame/state markers and annotations are always preserved.
               Invalid entries are ignored with a warning.
               Example: --skip-index 0,7,10-20.
+              Advanced debugging option for developers investigating capture block streams;
+              use it to isolate API calls that may cause replay failures. Not intended for routine replay.
   --pipeline-creation-jobs | --pcj <num_jobs>
               Specify the number of asynchronous pipeline-creation jobs as integer.
               If <num_jobs> is negative it will be added to the number of cpu-cores, e.g. -1 -> num_cores - 1.
