@@ -13703,7 +13703,7 @@ void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(const A
         in_descriptorUpdateTemplate = update_template_info->handle;
     }
 
-    if (options_.dumping_resources)
+    if (UseExtraDescriptorInfo(object_info_table_->GetVkDeviceInfo(args.device)))
     {
         VulkanDescriptorSetInfo* desc_set_info = object_info_table_->GetVkDescriptorSetInfo(args.descriptorSet);
         UpdateDescriptorSetInfoWithTemplate(desc_set_info, update_template_info, &args.pData);
@@ -13864,7 +13864,7 @@ void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(
         in_descriptorUpdateTemplate = update_template_info->handle;
     }
 
-    if (options_.dumping_resources)
+    if (UseExtraDescriptorInfo(object_info_table_->GetVkDeviceInfo(args.device)))
     {
         VulkanDescriptorSetInfo* desc_set_info = object_info_table_->GetVkDescriptorSetInfo(args.descriptorSet);
         UpdateDescriptorSetInfoWithTemplate(desc_set_info, update_template_info, &args.pData);
