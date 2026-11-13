@@ -13248,10 +13248,11 @@ void VulkanReplayConsumerBase::UpdateDescriptorSetInfoWithTemplate(
                     for (uint32_t i = 0; i < count; ++i)
                     {
                         const uint32_t array_index = dst_array_element + i;
-                        const auto*    as_info     = object_info_table_->GetVkAccelerationStructureKHRInfo(as_ids[i]);
+                        const auto*    as_info =
+                            object_info_table_->GetVkAccelerationStructureKHRInfo(as_ids[accel_struct_count]);
                         desc_set_info->descriptors[binding_index].acceleration_structs_khr_info[array_index] = as_info;
+                        ++accel_struct_count;
                     }
-                    accel_struct_count += count;
                 }
                 break;
 
