@@ -23,9 +23,6 @@
 
 #if defined(D3D12_SUPPORT)
 
-// This needs to be included before d3d12.h so that IIDs are defined and not just declared.
-#include <initguid.h>
-
 #include "optimize_dx12_feature.h"
 
 #include "tool_settings.h"
