@@ -48,6 +48,7 @@ constexpr uint32_t kStructPointer     = format::kIsStruct | format::kIsSingle | 
 constexpr uint32_t kNullStructPointer = format::kIsStruct | format::kIsSingle | format::kIsNull;
 constexpr uint32_t kNullStructArray   = format::kIsStruct | format::kIsArray | format::kIsNull;
 constexpr uint32_t kNullArray         = format::kIsArray | format::kIsNull;
+constexpr uint32_t kHandlePointer     = format::kIsSingle | format::kHasAddress | format::kHasData;
 constexpr uint32_t kArrayPointer      = format::kIsArray | format::kHasAddress | format::kHasData;
 constexpr uint32_t kStructArray       = format::kIsStruct | kArrayPointer;
 
@@ -821,6 +822,52 @@ class Rig
         Send(format::ApiCall_vkAllocateCommandBuffers, bytes);
     }
 
+    void CreateCommandPool(format::HandleId pool, VkCommandPoolCreateFlags flags)
+    {
+        Bytes bytes;
+        bytes.Put<format::HandleId>(kDevice)
+            .Put<uint32_t>(kStructPointer) // pCreateInfo
+            .Put<uint64_t>(1)
+            .Put<uint32_t>(VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO)
+            .Put<uint32_t>(kNullStructPointer)
+            .Put<uint32_t>(flags)
+            .Put<uint32_t>(0)                  // queueFamilyIndex
+            .Put<uint32_t>(kNullStructPointer) // pAllocator
+            .Put<uint32_t>(kHandlePointer)     // pCommandPool
+            .Put<uint64_t>(1)
+            .Put<format::HandleId>(pool)
+            .Put<int32_t>(VK_SUCCESS);
+        Send(format::ApiCall_vkCreateCommandPool, bytes);
+    }
+
+    void ResetCommandPool(format::HandleId pool)
+    {
+        Send(format::ApiCall_vkResetCommandPool,
+             Bytes().Put<format::HandleId>(kDevice).Put<format::HandleId>(pool).Put<uint32_t>(0).Put<int32_t>(
+                 VK_SUCCESS));
+    }
+
+    void DestroyCommandPool(format::HandleId pool)
+    {
+        Send(format::ApiCall_vkDestroyCommandPool,
+             Bytes().Put<format::HandleId>(kDevice).Put<format::HandleId>(pool).Put<uint32_t>(kNullStructPointer));
+    }
+
+    void FreeCommandBuffers(const std::vector<format::HandleId>& command_buffers)
+    {
+        Bytes bytes;
+        bytes.Put<format::HandleId>(kDevice).Put<format::HandleId>(kPool).Put<uint32_t>(
+            static_cast<uint32_t>(command_buffers.size()));
+        PutArray(bytes, command_buffers);
+        Send(format::ApiCall_vkFreeCommandBuffers, bytes);
+    }
+
+    void ResetCommandBuffer(format::HandleId command_buffer)
+    {
+        Send(format::ApiCall_vkResetCommandBuffer,
+             Bytes().Put<format::HandleId>(command_buffer).Put<uint32_t>(0).Put<int32_t>(VK_SUCCESS));
+    }
+
     void Begin(format::HandleId command_buffer, VkCommandBufferUsageFlags flags = 0)
     {
         Bytes bytes;
@@ -1547,4 +1594,161 @@ TEST_CASE("Isolate stage rewrites vkQueueSubmit2 and vkQueueSubmit2KHR", "[stage
               name + " wait 30 [10:1 S1:1 S2:1 11:2] count 4 [12:4] count 1 signal 31 [13:8 S3:8] count 2 fence 40");
         CHECK(probe.replaced == std::vector<bool>{ true, false, true });
     }
+}
+
+TEST_CASE("Isolate stage reuses the parts of a command buffer that the app records again",
+          "[stage][isolate][lifecycle]")
+{
+    Rig rig;
+    rig.CreateCommandPool(kPool, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+    rig.Allocate({ 10 });
+    rig.RecordCopyAndRenderPasses(10, 2);
+
+    rig.log.lines.clear();
+    rig.RecordCopyAndRenderPasses(10, 2);
+    rig.Submit({ { .command_buffers = { 10 } } });
+
+    // The spare list hands out the newest part first, so S2 comes before S1. No part is allocated again.
+    CHECK(rig.log.lines == Lines{
+                               "Begin 10 flags 0",
+                               "CopyBuffer 10",
+                               "End 10",
+                               "Begin S2 flags 0",
+                               "BeginRenderPass S2",
+                               "Draw S2",
+                               "EndRenderPass S2",
+                               "End S2",
+                               "Begin S1 flags 0",
+                               "BeginRenderPass S1",
+                               "Draw S1",
+                               "EndRenderPass S1",
+                               "End S1",
+                               "Submit [10 S2 S1] count 3",
+                           });
+}
+
+TEST_CASE("Isolate stage reuses a part of a pool without the reset bit only after a pool reset",
+          "[stage][isolate][lifecycle]")
+{
+    Rig rig;
+    rig.CreateCommandPool(kPool, 0);
+    rig.Allocate({ 10, 11 });
+    rig.RecordCopyAndRenderPasses(10, 1);
+
+    // S1 has not been reset, so 11 cannot begin it.
+    rig.FreeCommandBuffers({ 10 });
+    rig.log.lines.clear();
+    rig.RecordCopyAndRenderPasses(11, 1);
+    CHECK(rig.log.lines[3] == "Allocate 1 2 primary S2");
+
+    rig.ResetCommandPool(kPool);
+    rig.log.lines.clear();
+    rig.RecordCopyAndRenderPasses(11, 1);
+    CHECK(rig.log.lines == Lines{
+                               "Begin 11 flags 0",
+                               "CopyBuffer 11",
+                               "End 11",
+                               "Begin S2 flags 0",
+                               "BeginRenderPass S2",
+                               "Draw S2",
+                               "EndRenderPass S2",
+                               "End S2",
+                           });
+}
+
+TEST_CASE("Isolate stage releases each part once on a pool reset", "[stage][isolate][lifecycle]")
+{
+    Rig rig;
+    rig.CreateCommandPool(kPool, 0);
+    rig.Allocate({ 10 });
+    rig.RecordCopyAndRenderPasses(10, 1);
+    rig.ResetCommandPool(kPool);
+    rig.RecordCopyAndRenderPasses(10, 1);
+    rig.ResetCommandPool(kPool);
+
+    // Only S1 is spare, so the second split must allocate. A part that sits twice in the spare list would be
+    // begun twice in one recording.
+    rig.log.lines.clear();
+    rig.RecordCopyAndRenderPasses(10, 2);
+    CHECK(rig.log.lines == Lines{
+                               "Begin 10 flags 0",
+                               "CopyBuffer 10",
+                               "End 10",
+                               "Begin S1 flags 0",
+                               "BeginRenderPass S1",
+                               "Draw S1",
+                               "EndRenderPass S1",
+                               "End S1",
+                               "Allocate 1 2 primary S2",
+                               "Begin S2 flags 0",
+                               "BeginRenderPass S2",
+                               "Draw S2",
+                               "EndRenderPass S2",
+                               "End S2",
+                           });
+}
+
+TEST_CASE("Isolate stage gives the parts of a freed command buffer to another command buffer of the pool",
+          "[stage][isolate][lifecycle]")
+{
+    Rig rig;
+    rig.CreateCommandPool(kPool, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+    rig.Allocate({ 10, 11 });
+    rig.RecordCopyAndRenderPasses(10, 1);
+    rig.FreeCommandBuffers({ 10 });
+
+    rig.log.lines.clear();
+    rig.RecordCopyAndRenderPasses(11, 1);
+    rig.Submit({ { .command_buffers = { 11 } } });
+
+    CHECK(rig.log.lines == Lines{
+                               "Begin 11 flags 0",
+                               "CopyBuffer 11",
+                               "End 11",
+                               "Begin S1 flags 0",
+                               "BeginRenderPass S1",
+                               "Draw S1",
+                               "EndRenderPass S1",
+                               "End S1",
+                               "Submit [11 S1] count 2",
+                           });
+}
+
+TEST_CASE("Isolate stage gives the parts of a reset command buffer to the pool", "[stage][isolate][lifecycle]")
+{
+    Rig rig;
+    rig.CreateCommandPool(kPool, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+    rig.Allocate({ 10, 11 });
+    rig.RecordCopyAndRenderPasses(10, 1);
+    rig.ResetCommandBuffer(10);
+
+    // After the reset, 10 is one command buffer again, and 11 can begin its old part.
+    rig.Submit({ { .command_buffers = { 10 } } });
+    CHECK(rig.log.lines.back() == "Submit [10] count 1");
+    rig.log.lines.clear();
+    rig.RecordCopyAndRenderPasses(11, 1);
+
+    CHECK(rig.log.lines[3] == "Begin S1 flags 0");
+}
+
+TEST_CASE("Isolate stage forgets a destroyed pool and its command buffers", "[stage][isolate][lifecycle]")
+{
+    Rig rig;
+    rig.CreateCommandPool(kPool, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+    rig.Allocate({ 10, 11 });
+    rig.RecordCopyAndRenderPasses(10, 1);
+    rig.RecordCopyAndRenderPasses(11, 1);
+    rig.FreeCommandBuffers({ 10 });
+    rig.DestroyCommandPool(kPool);
+
+    // Destroying the pool frees 11, so the stage no longer expands it.
+    rig.Submit({ { .command_buffers = { 11 } } });
+    CHECK(rig.log.lines.back() == "Submit [11] count 1");
+
+    // A capture never reuses a pool id. The test reuses it to see that the spare S1 went with the old pool.
+    rig.CreateCommandPool(kPool, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+    rig.Allocate({ 12 });
+    rig.log.lines.clear();
+    rig.RecordCopyAndRenderPasses(12, 1);
+    CHECK(rig.log.lines[3] == "Allocate 1 2 primary S3");
 }
