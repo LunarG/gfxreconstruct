@@ -28,6 +28,7 @@
 
 #include <span>
 #include <unordered_map>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -70,6 +71,10 @@ class VulkanStageIsolateRenderPass : public VulkanStageCommandBuffer
         /// Keeps the state commands of the recording to send them again at the start
         /// of a new command buffer after a split.
         format::ApiCallLog<ApiCallInfo> state_log;
+
+        /// Command buffers that a split has ended, in recording order. The first one is the app's own.
+        /// These ids, followed by current_command_buffer_id, are every command buffer of the recording.
+        std::vector<format::HandleId> previous_command_buffer_ids;
     };
 
   public:
@@ -123,6 +128,7 @@ class VulkanStageIsolateRenderPass : public VulkanStageCommandBuffer
             recording.begin_flags               = args.pBeginInfo.GetPointer()->flags;
             recording.split_pending             = false;
             recording.state_log.Clear();
+            recording.previous_command_buffer_ids.clear();
         }
 
         Forward(call_info, args);
@@ -149,6 +155,16 @@ class VulkanStageIsolateRenderPass : public VulkanStageCommandBuffer
         Forward(call_info, args);
     }
 
+    // Submits
+
+    // Each submit override puts every command buffer of a split recording in place of the app's command buffer.
+    // A submit that names no split command buffer is forwarded unchanged.
+    void Process_vkQueueSubmit(const ApiCallInfo& call_info, args::QueueSubmit& args) override;
+    void Process_vkQueueSubmit2(const ApiCallInfo& call_info, args::QueueSubmit2& args) override;
+    void Process_vkQueueSubmit2KHR(const ApiCallInfo& call_info, args::QueueSubmit2KHR& args) override;
+
+    // Begin render
+
     void Process_vkCmdBeginRenderPass(const ApiCallInfo& call_info, args::CmdBeginRenderPass& args) override
     {
         ProcessBeginRender(call_info, args);
@@ -173,6 +189,8 @@ class VulkanStageIsolateRenderPass : public VulkanStageCommandBuffer
     {
         ProcessBeginRender(call_info, args);
     }
+
+    // End render
 
     void Process_vkCmdEndRenderPass(const ApiCallInfo& call_info, args::CmdEndRenderPass& args) override
     {
@@ -306,6 +324,15 @@ class VulkanStageIsolateRenderPass : public VulkanStageCommandBuffer
 
     /// Called after a split once recording has a new command buffer, to reissue all previously recorded state commands.
     void ReissueStateCommands(const Recording& recording);
+
+    /// Appends the command buffers to submit in place of one command buffer of the app.
+    /// Returns true when that command buffer was split.
+    bool AppendCommandBufferIdsToSubmit(format::HandleId               app_command_buffer_id,
+                                        std::vector<format::HandleId>& ids_to_submit) const;
+
+    // Serves vkQueueSubmit2 and vkQueueSubmit2KHR, whose args have the same members.
+    template <typename ArgsT>
+    void ProcessQueueSubmit2(const ApiCallInfo& call_info, ArgsT& args);
 
     // Synthetic ids set the top bit. Capture ids count up from 1 and never reach it, so the two never collide.
     static constexpr format::HandleId kSyntheticBit = 1ull << 63;
