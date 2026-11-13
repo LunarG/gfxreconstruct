@@ -105,6 +105,8 @@ std::vector<uint8_t> BeginBytes(format::HandleId command_buffer, VkCommandBuffer
 
 void VulkanStageIsolateRenderPass::Split(Recording& recording, const ApiCallInfo& call_info)
 {
+    recording.split_pending = false;
+
     const format::HandleId synthetic_id = kSyntheticBit | next_synthetic_id_++;
 
     Emit(format::ApiCallId::ApiCall_vkEndCommandBuffer, call_info, EndBytes(recording.current_command_buffer_id));
