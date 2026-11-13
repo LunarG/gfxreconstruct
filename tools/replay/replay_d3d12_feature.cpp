@@ -23,9 +23,6 @@
 
 #if defined(D3D12_SUPPORT)
 
-// This needs to be included before d3d12.h so that IIDs are defined and not just declared.
-#include <initguid.h>
-
 #include "replay_d3d12_feature.h"
 
 #include "decode/dx_replay_options.h"
