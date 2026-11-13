@@ -36,9 +36,9 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(schema)
 
-// Category is the registry's category attribute, with three exceptions. Scalar holds the registry's basetype types plus
-// the C types the registry does not mark (uint32_t, float). Void holds void and ExtensionChain. The interim categories
-// below have no registry counterpart.
+// Category is the registry's category attribute, with two exceptions. Scalar holds the registry's basetype types plus
+// the C types the registry does not mark (uint32_t, float, char). Void holds void, ExtensionChain and the platform
+// types curation gives no C definition (ANativeWindow, and deref_HWND for the type HWND points at).
 struct Category
 {};
 
@@ -61,20 +61,12 @@ struct Scalar : Category
 struct Void : Category
 {};
 
-// The generator emits ApiElementBase directly for these categories only; they have no base of their own.
-// Interim until stage 3: Opaque becomes Void or an API element for the type pointed at; Text, Char and WChar become a
-// Char or WChar scalar with a length token on the Field.
-struct Opaque : Category
-{};
-struct Text : Category
-{};
-struct Char : Text
-{};
-struct WChar : Text
-{};
-
 GFXRECON_END_NAMESPACE(category)
 
+// ApiElementBase holds the members every API element carries. An API element whose category or element_type departs
+// from what its registry source says keeps the source: a registry basetype states source_category, "basetype"; a
+// deref_ element, declared for the type a platform typedef points at, states the typedef as source_type (::HWND).
+// Neither member exists where the schema says what the source says.
 template <util::FixedString Name, typename ElementType, typename Category>
 struct ApiElementBase
 {

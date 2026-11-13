@@ -40,9 +40,12 @@ including the one before: generated_vulkan_schema_types.h is what code that refe
 generated_vulkan_schema_fields.h is what the MemberPointer partitions include; generated_vulkan_schema.h is what the
 field walk includes. Only the header that implements an operation includes the partitions it reads.
 
-A platform typedef that platform_types.json substitutes, e.g. DWORD for uint32_t, keeps an API element of its own,
-named and typed as the header spells it. The substituted type selects its category and its WireTypeOf
-specialization; see add_platform_api_type.
+A platform typedef has no definition in vk.xml; platform_types.json supplies its C definition. The schema does not let
+an element hide a pointer: every pointer is declared on the Field, so that a Field's shape is read from its
+declaration alone. So a typedef whose definition is a pointer, HWND, LPCWSTR, becomes the element deref_<typedef>,
+standing for the type pointed at, with the pointer on the Field and the typedef kept as source_type for the checks
+that compare the element to the header. A typedef whose definition is not a pointer, DWORD, ANativeWindow, is an
+element under its own name, categorized by its definition. See add_platform_api_type.
 
 A Field's declaration is its API element, or Const, Pointer, Array or FixedArray over a declaration, nested as the C
 declarator nests. It is read from the registry's full type, so each level's const lands where the header wrote it.
@@ -122,7 +125,7 @@ class VulkanSchemaTypesGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
             'util/defines.h',
             'util/type_list.h',
         ))
-        begin_end.system_headers.append('string_view')
+        begin_end.system_headers.extend(('string_view', 'type_traits'))
 
 
 class VulkanSchemaFieldsGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
@@ -403,9 +406,10 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         'void': 'Void',
     }
 
-    # The API element of every runtime-typed handle field. The API declares the field as an integer; a sibling field
-    # holds the handle type at run time.
-    GENERIC_HANDLE_DESCRIPTOR = 'GenericHandle'
+    # The one char member whose registry declaration lacks len="null-terminated" (vk.xml of Vulkan-Headers 1.4.363);
+    # the spec's refpage says "a null-terminated UTF-8 string", and Vulkan-Headers 1.4.365 carries the attribute.
+    # Delete this table when the submodule moves past 1.4.363.
+    NULL_TERMINATED_MEMBERS = {('VkPhysicalDeviceLayeredApiPropertiesKHR', 'deviceName')}
 
     RETURN_FIELD_NAME = 'result'
 
@@ -434,6 +438,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         self.api_type_wire_kinds = dict()  # API element name to the wire kind that selects its WireTypeOf.
         self.platform_api_types = set()  # Platform typedefs with an API element of their own, for the types header.
         self.api_type_elements = dict()  # API element name to its element_type expression.
+        self.api_type_sources = dict()  # deref_ API element name to the platform typedef it points through: source_type.
         self.defaulted_types = set()  # Registry types that reached the Scalar fallback without being classified.
         self.bitmask_types = set()  # Enum groups vk.xml declares type="bitmask".
 
@@ -464,6 +469,16 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         VulkanBaseGenerator.genGroup(self, groupinfo, group_name, alias)
         if groupinfo.elem.get('type') == 'bitmask':
             self.bitmask_types.add(group_name)
+
+    def make_value_info(self, params):
+        """Method override: keeps two registry attributes the base generator drops. registry_len is the len text as
+        written, with its null-terminated term; objecttype is the sibling that holds a handle member's object type."""
+        params = list(params)
+        values = VulkanBaseGenerator.make_value_info(self, params)
+        for value, param in zip(values, params):
+            value.registry_len = param.attrib.get('len')
+            value.objecttype = param.attrib.get('objecttype')
+        return values
 
     #
     # Utilities for the model
@@ -515,16 +530,14 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         self.custom_decode_structs = set(lists['structures']) | set(lists.get('structures-decoder', ())) | set(self.PLATFORM_STRUCTS)
         self.custom_handle_mapping_structs = set(self.STRUCT_BLACKLIST) | set(self.STRUCT_MAPPERS_BLACKLIST)
         self.external_structs = set(self.PLATFORM_STRUCTS)
-        self.generic_handle_structs = set(self.GENERIC_HANDLE_STRUCTS)
+        # A structure with a member vk.xml marks objecttype: an integer that holds a handle whose type a sibling gives.
+        self.generic_handle_structs = {
+            struct for struct, members in self.all_struct_members.items() if self.get_generic_handles(members)
+        }
         self.deep_copy_exclusions = lists['structures-deep-copy']
 
         # 'void' always has an API element, because a void command still has one Return Field.
         self.add_api_type('void')
-
-        # Registers GENERIC_HANDLE_DESCRIPTOR, the one API element every runtime-typed handle field refers to.
-        self.api_type_categories[self.GENERIC_HANDLE_DESCRIPTOR] = 'Handle'
-        self.api_type_wire_kinds[self.GENERIC_HANDLE_DESCRIPTOR] = 'Handle'
-        self.api_type_elements[self.GENERIC_HANDLE_DESCRIPTOR] = 'uint64_t'
 
         for struct in self.schema_structs:
             # Every structure that gets a Schema also gets an API element: the Schema and binding::DecodedTypeOf are
@@ -597,7 +610,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             return False
 
         self.may_reach_cache[name] = None
-        generic_handles = self.get_generic_handles(name, False, members)
+        generic_handles = self.get_generic_handles(members)
         result = any(
             value.name in generic_handles or self.get_logical_category(value.base_type) == 'Handle'
             or self.is_extension_chain(value)
@@ -658,23 +671,14 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         Lookup reaches schema::vulkan from there, so the vulkan component is not written."""
         return 'api_elements::{}'.format(name)
 
-    def get_generic_handles(self, owner, is_command, members):
-        """Maps member name to selector name for the fields GFXReconstruct treats as runtime-typed handles.
-
-        The API declares these as plain integers, so no type-level fact can express them. The knowledge is curated in
-        the base generator's generic-handle tables.
-        """
+    def get_generic_handles(self, members):
+        """Maps member name to selector name for the integer members vk.xml marks objecttype: the attribute holds the
+        sibling whose value gives the handle's type. The registry states it for every such member, so no table is
+        read."""
         generic = dict()
 
         for value in members:
-            if is_command:
-                if not self.is_generic_cmd_handle_value(owner, value.name):
-                    continue
-                selector = self.get_generic_cmd_handle_type_value(owner, value.name)
-            else:
-                if not self.is_generic_struct_handle_value(owner, value.name):
-                    continue
-                selector = self.get_generic_struct_handle_type_value(owner, value.name)
+            selector = getattr(value, 'objecttype', None)
 
             if selector and any(member.name == selector for member in members):
                 generic[value.name] = selector
@@ -783,7 +787,8 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
     def category_for(self, name, wire_kind):
         """Returns the API element's category, the registry's word, from its wire kind and the registry facts the wire
         kind collapses. Struct splits into Struct and Union. Flags and Flags64 split into Bitmask (a mask typedef),
-        Enum (a 64-bit bits enum) and Scalar (VkFlags, VkFlags64). Callback becomes Funcpointer."""
+        Enum (a 64-bit bits enum) and Scalar (VkFlags, VkFlags64). Callback becomes Funcpointer; Char and WChar are
+        Scalar."""
         if wire_kind == 'Struct':
             return 'Union' if name in self.all_union_members else 'Struct'
         if wire_kind == 'Callback':
@@ -794,21 +799,37 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             if self.is_enum(name):
                 return 'Enum'
             return 'Scalar'
-        if wire_kind in ('Handle', 'Enum', 'Void', 'Opaque', 'Char', 'WChar'):
+        if wire_kind in ('Handle', 'Enum', 'Void'):
             return wire_kind
         return 'Scalar'
 
     def get_field_element_name(self, value):
-        """Returns the name of a field's API element: the platform typedef's own when the header spells one
-        that PLATFORM_TYPES substitutes, else the registry type's. The API element keeps the header's name; the
-        substituted type selects its category."""
+        """Returns the name of a field's API element: the platform typedef's own when the header spells one that
+        PLATFORM_TYPES substitutes, deref_<typedef> when its replaceWith adds a star, else the registry type's."""
         platform = value.platform_base_type
 
         if platform:
             self.add_platform_api_type(platform, value)
-            return platform
+            return self.get_platform_element_name(platform)
 
         return self.get_api_element_name(value.base_type)
+
+    def get_platform_element_name(self, platform_type):
+        """Returns deref_<typedef> for a platform typedef whose replaceWith adds a star, else the typedef's name."""
+        if '*' in self.PLATFORM_TYPES[platform_type]['replaceWith']:
+            return 'deref_' + platform_type
+        return platform_type
+
+    def is_null_terminated(self, owner, value):
+        """Returns True for a string: a char or wchar_t member or parameter whose registry len carries the
+        null-terminated term, a platform text typedef (LPCWSTR), or a NULL_TERMINATED_MEMBERS entry."""
+        if value.base_type not in ('char', 'wchar_t'):
+            return False
+        if 'null-terminated' in (getattr(value, 'registry_len', None) or ''):
+            return True
+        if value.platform_base_type:
+            return True
+        return (owner, value.name) in self.NULL_TERMINATED_MEMBERS
 
     def add_field_api_type(self, value):
         """Registers a member's or parameter's API element, the platform typedef's own where it has one."""
@@ -816,24 +837,32 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             self.add_api_type(value.base_type)
 
     def add_platform_api_type(self, platform_type, value):
-        """Registers an API element for a platform typedef, named and typed as the header spells it. Its category is
-        Opaque when PLATFORM_TYPES gives baseType void: an opaque structure the header reaches through a pointer, or a
-        handle typedef held by value. Otherwise it is the category of the substituted type: WChar for LPCWSTR,
-        Scalar for DWORD."""
-        if platform_type in self.api_type_categories:
+        """Registers the API element of a platform typedef (platform_types.json, REPLACE_TYPE). A typedef whose
+        replaceWith adds a star, HWND for void*, LPCWSTR for const wchar_t*, is a deref_ element for the type it points
+        at, with the star on the Field and the typedef kept as source_type. Any other keeps the header's name. The
+        category is Void when baseType is void (ANativeWindow, deref_HWND), else the substituted type's: Scalar for
+        DWORD and deref_LPCWSTR."""
+        name = self.get_platform_element_name(platform_type)
+
+        if name in self.api_type_categories:
             return
 
         if self.PLATFORM_TYPES[platform_type]['baseType'] == 'void':
-            wire_kind = 'Opaque'
+            wire_kind = 'Void'
         else:
             wire_kind = self.get_logical_category(value.base_type)
 
         # element_type is qualified from the global namespace: inside the API element, the unqualified name is
         # the API element itself.
-        self.api_type_wire_kinds[platform_type] = wire_kind
-        self.api_type_categories[platform_type] = self.category_for(platform_type, wire_kind)
-        self.api_type_elements[platform_type] = '::' + platform_type
-        self.platform_api_types.add(platform_type)
+        self.api_type_wire_kinds[name] = wire_kind
+        self.api_type_categories[name] = self.category_for(name, wire_kind)
+        self.platform_api_types.add(name)
+
+        if name != platform_type:
+            self.api_type_elements[name] = 'std::remove_cv_t<std::remove_pointer_t<::{}>>'.format(platform_type)
+            self.api_type_sources[name] = '::' + platform_type
+        else:
+            self.api_type_elements[name] = '::' + platform_type
 
     def add_api_type(self, base_type):
         name = self.get_api_element_name(base_type)
@@ -867,11 +896,6 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         PointerArray, StaticArray or ExtensionChain. The length and declaration logic read it; it is not emitted."""
         if self.is_extension_chain(value):
             return 'ExtensionChain'
-
-        # A platform typedef has its own API element, so the shape follows the header's declarator around the typedef:
-        # LPCWSTR name and HANDLE handle are values, HANDLE* pHandle is a pointer.
-        if value.platform_base_type and '*' not in value.platform_full_type and not value.is_array:
-            return 'Value'
 
         if value.is_array and not value.is_dynamic:
             return 'StaticArray'
@@ -1015,22 +1039,25 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         return self.count_expression_siblings(tree[1]) + self.count_expression_siblings(tree[2])
 
     def make_count_expression(self, tree, members):
-        """Returns the StoreValue type for a count expression tree.
+        """Returns the ExpressionValue type for a count expression tree.
 
-        A literal is written unsigned unless an enum sibling takes part, so that it meets an unsigned sibling or an
-        unsigned API constant without a sign conversion, and an enum's promotion to int stays an int.
+        An enum sibling is read through AsInteger as its underlying integer, whose signedness is the compiler's
+        choice for a C enum. A literal is written unsigned unless an enum sibling takes part, so that it meets an
+        unsigned sibling or an unsigned API constant without a sign conversion.
         """
         siblings = self.count_expression_siblings(tree)
-        has_enum = any(
-            self.is_enum(member.base_type) for member in members if member.name in siblings
-        )
-        suffix = '' if has_enum else 'u'
+        enum_siblings = {
+            member.name for member in members if member.name in siblings and self.is_enum(member.base_type)
+        }
+        suffix = '' if enum_siblings else 'u'
         operators = {'+': 'Sum', '*': 'Product', '/': 'Quotient'}
 
         def emit(node):
             if node[0] == 'number':
                 return 'Literal<{}{}>'.format(node[1], suffix)
             if node[0] == 'sibling':
+                if node[1] in enum_siblings:
+                    return 'AsInteger<FieldValue<{}>>'.format(node[1])
                 return 'FieldValue<{}>'.format(node[1])
             if node[0] == 'constant':
                 return 'Literal<{}>'.format(node[1])
@@ -1048,7 +1075,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         count_member = self.get_count_member(value, members)
 
         if count_member:
-            return 'FieldValue<{}, {}>'.format(*count_member)
+            return 'StoragePtrValue<{}, {}>'.format(*count_member)
 
         tree = self.parse_count_expression(value, members)
 
@@ -1076,21 +1103,16 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         shape = self.get_field_shape(value)
         generic_selector = generic_handles.get(value.name)
 
-        # selector_field is the sibling whose value chooses what this field holds: the object type of a
-        # runtime-typed handle, from the generic-handle tables, or the registry's selector on a union-typed member.
+        # selector_field is the sibling whose value chooses what this field holds: the registry's objecttype on an
+        # integer member that holds a handle, or its selector on a union-typed member.
         selector = generic_selector if generic_selector is not None else self.member_selectors.get((owner, value.name))
 
-        if generic_selector is not None:
-            api_element = self.get_api_element_reference(self.GENERIC_HANDLE_DESCRIPTOR)
-        elif value.platform_base_type:
-            # A platform typedef has its own API element. This branch precedes the base_type branch because
-            # value.base_type holds the substituted type, e.g. void for HANDLE.
-            api_element = self.get_api_element_reference(self.get_field_element_name(value))
-        else:
-            api_element = self.get_api_element_reference(self.get_api_element_name(value.base_type))
+        # get_field_element_name reads the platform typedef first: value.base_type holds the substituted type, e.g.
+        # void for HANDLE.
+        api_element = self.get_api_element_reference(self.get_field_element_name(value))
 
         length = self.get_field_length(value, members)
-        declaration = self.make_declaration(value, api_element, shape, length)
+        declaration = self.make_declaration(value, api_element, shape, length, self.is_null_terminated(owner, value))
 
         # Facts the declarator does not spell stay as members of the derived struct.
         parts = []
@@ -1125,19 +1147,18 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             value.name, value.name, declaration, ' ' + ' '.join(parts) + ' ' if parts else ''
         )
 
-    def make_declaration(self, value, api_element, shape, length):
+    def make_declaration(self, value, api_element, shape, length, null_terminated):
         """Returns the declaration of one field use: the API element, or Const, Pointer, Array or FixedArray over
-        it as the C declarator nests. It is read from the registry's full type, so each level's const lands where
-        the header wrote it."""
+        it as the C declarator nests. It is read from the registry's full type, with a platform typedef replaced by
+        its replaceWith, so each level's const lands where the header wrote it and a typedef's hidden star is a level.
+        A string's innermost level takes the NullTerminated length."""
         if shape == 'ExtensionChain':
             # ExtensionChain resolves unqualified here: the Field is emitted inside the schema namespace.
             element = 'ExtensionChain'
         else:
             element = api_element
 
-        # Reads the header's spelling: for a platform typedef, the declarator around the typedef, not around what the
-        # base generator substituted for it.
-        segments = (value.platform_full_type or value.full_type).split('*')
+        segments = value.full_type.split('*')
         levels = segments[1:]
 
         declaration = element
@@ -1146,7 +1167,9 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             declaration = 'Const<{}>'.format(declaration)
 
         for index, segment in enumerate(levels):
-            if index == len(levels) - 1 and shape in ('Array', 'PointerArray'):
+            if null_terminated and index == 0:
+                declaration = 'Array<{}, NullTerminated>'.format(declaration)
+            elif index == len(levels) - 1 and shape in ('Array', 'PointerArray'):
                 declaration = 'Array<{}, {}>'.format(declaration, length if length else 'UnknownLength')
             else:
                 declaration = 'Pointer<{}>'.format(declaration)
@@ -1155,14 +1178,19 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
                 declaration = 'Const<{}>'.format(declaration)
 
         if shape == 'StaticArray':
-            # Nests from the innermost extent outward; a bounded array's sibling length sits on the outermost level.
+            # Nests from the innermost extent outward; a bounded array's sibling length sits on the outermost level,
+            # and a string's terminator on the innermost.
             extents = self.get_static_array_extents(value)
 
             for index, extent in enumerate(reversed(extents)):
                 outermost = index == len(extents) - 1
-                declaration = 'FixedArray<{}, {}, {}>'.format(
-                    declaration, length if (outermost and length) else 'UseCapacity', extent
-                )
+                if null_terminated and index == 0:
+                    extent_length = 'NullTerminated'
+                elif outermost and length:
+                    extent_length = length
+                else:
+                    extent_length = 'UseCapacity'
+                declaration = 'FixedArray<{}, {}, {}>'.format(declaration, extent_length, extent)
 
         return declaration
 
@@ -1181,7 +1209,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             'GFXRECON_BEGIN_NAMESPACE({})'.format(element), file=self.outFile
         )
 
-        generic_handles = self.get_generic_handles(owner, is_command, members)
+        generic_handles = self.get_generic_handles(members)
 
         # A length or selector_field refers to a sibling Field, and vk.xml always declares that sibling before the
         # member that refers to it, so Fields are written in member order with no forward declarations. A sibling
@@ -1190,6 +1218,12 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             note = self.get_count_note(value, members)
             if note:
                 write(note, file=self.outFile)
+            if (owner, value.name) in self.NULL_TERMINATED_MEMBERS:
+                write(
+                    '// NullTerminated from NULL_TERMINATED_MEMBERS in vulkan_schema_generator.py: this vk.xml omits\n'
+                    '// len="null-terminated".',
+                    file=self.outFile
+                )
             write(
                 self.make_field_definition(value, members, generic_handles, owner),
                 file=self.outFile
@@ -1278,9 +1312,10 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         if self.platform_api_types:
             write(
-                '// Platform typedefs (platform_types.json and REPLACE_TYPE): each has an API element named and\n'
-                '// typed as the platform header spells it. Its category is Opaque when the substituted base type\n'
-                '// is void, else the substituted type\'s category, e.g. Scalar for DWORD.',
+                '// Platform typedefs (platform_types.json and REPLACE_TYPE in vulkan_base_generator.py): a typedef\n'
+                '// whose replaceWith adds a star is a deref_ element for the type it points at, with the typedef as\n'
+                '// source_type; any other keeps the platform header\'s name and type. The category is Void\n'
+                '// when the substituted base type is void, else the substituted type\'s, e.g. Scalar for DWORD.',
                 file=self.outFile
             )
 
@@ -1291,19 +1326,19 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         self.newline()
 
         # Each API element derives from its category's base in schema/api_element.h, which supplies the members the
-        # category carries. Interim until stage 3: Opaque, Char and WChar derive from ApiElementBase. The table and API
-        # element template arguments are qualified from the global namespace: inside an ApiElementEnum, an
-        # unqualified enumerants:: resolves to the inherited enumerants member.
+        # category carries. A registry basetype adds source_category and a deref_ element source_type, the facts the
+        # schema replaced. The table and API element template arguments are qualified from the global namespace:
+        # inside an ApiElementEnum, an unqualified enumerants:: resolves to the inherited enumerants member.
         bitvalues = self.get_bitvalues_of_bitmasks()
         elements = '::gfxrecon::schema::vulkan::api_elements::'
         for name in sorted(self.api_type_categories):
             element = self.api_type_elements[name]
-            # An API element is named for the type it describes; EmptyBitvalues and EmptyBitvalues64 describe none and
-            # are named for themselves.
-            spelled = name if name in self.empty_bitvalues.values() else element.lstrip(':')
+            # An API element carries the name of the type it describes; EmptyBitvalues and EmptyBitvalues64 describe none,
+            # and a deref_ element describes a type with no name of its own, so each carries its own.
+            spelled = name if (name in self.empty_bitvalues.values() or name in self.api_type_sources) else element.lstrip(':')
             args = '"{}", {}'.format(spelled, element)
             category = self.api_type_categories[name]
-            body = ''
+            body = self.get_source_members(name)
             if category == 'Struct':
                 structure_type = self.get_structure_type(name)
                 if structure_type is not None:
@@ -1313,20 +1348,42 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             elif category == 'Enum':
                 base = 'ApiElementEnum<{}, ::gfxrecon::schema::vulkan::enumerants::{}>'.format(args, name)
                 if name in self.bitmask_types or name in self.empty_bitvalues.values():
-                    body = ' static constexpr bool kBitvalues = true; '
+                    body += ' static constexpr bool kBitvalues = true; '
             elif category == 'Bitmask':
                 flags = self.flags_types[name]
                 bits = bitvalues.get(name, self.empty_bitvalues[flags])
                 base = 'ApiElementBitmask<{}, {}{}, {}{}>'.format(args, elements, flags, elements, bits)
-            elif category in ('Union', 'Handle', 'Funcpointer', 'Scalar', 'Void'):
-                base = 'ApiElement{}<{}>'.format(category, args)
             else:
-                base = 'ApiElementBase<{}, category::{}>'.format(args, category)
+                assert category in ('Union', 'Handle', 'Funcpointer', 'Scalar', 'Void'), (name, category)
+                base = 'ApiElement{}<{}>'.format(category, args)
             write('struct {} : {} {{{}}};'.format(name, base, body), file=self.outFile)
 
         write('GFXRECON_END_NAMESPACE(api_elements)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(vulkan)', file=self.outFile)
         self.newline()
+
+    def get_source_members(self, name):
+        """Returns the body members that keep what the schema replaced: source_category, "basetype", for an API
+        element whose registry declaration is category basetype, and source_type for a deref_ element. Empty
+        otherwise; EmptyBitvalues and EmptyBitvalues64 describe no registry type."""
+        if name in self.empty_bitvalues.values():
+            return ''
+        source = self.api_type_sources.get(name)
+        registry_name = (source or self.api_type_elements[name]).lstrip(':')
+        parts = []
+        if self.get_registry_category(registry_name) == 'basetype':
+            parts.append('static constexpr std::string_view source_category = "basetype";')
+        if source:
+            parts.append('using source_type = {};'.format(source))
+        return ' ' + ' '.join(parts) + ' ' if parts else ''
+
+    def get_registry_category(self, name):
+        """Returns the registry's category attribute of a type, or None for a type vk.xml does not declare or marks
+        with none."""
+        info = self.registry.typedict.get(name)
+        if info is None:
+            return None
+        return info.elem.get('category')
 
     def get_deep_copy_excluded_api_elements(self):
         """Returns the deep-copy exclusions that are structure API elements, by name. An alias in the list has no
@@ -1497,12 +1554,9 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             self.newline()
 
     def get_inventory_handles(self):
-        """Returns every handle API element but GenericHandle, by name. Each gets an encode::CaptureWrapperOf
-        specialization from the inventory."""
-        return [
-            name for name in sorted(self.api_type_categories)
-            if self.api_type_categories[name] == 'Handle' and name != self.GENERIC_HANDLE_DESCRIPTOR
-        ]
+        """Returns every handle API element, by name. Each gets an encode::CaptureWrapperOf specialization from the
+        inventory."""
+        return [name for name in sorted(self.api_type_categories) if self.api_type_categories[name] == 'Handle']
 
     def get_inventory_enums(self):
         """Returns (name, is_flag_bits) for every C enum, by name."""
@@ -1539,7 +1593,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
          'blacklists.json "structures" plus platform_types.json "structs" (STRUCT_BLACKLIST), and STRUCT_MAPPERS_BLACKLIST in vulkan_base_generator.py'),
         ('GENERIC_HANDLE', 'binding::vulkan::catalog::generic_handle_structures',
          'an integer member holds a handle; a sibling object-type member gives its type',
-         'GENERIC_HANDLE_STRUCTS in vulkan_base_generator.py'),
+         'vk.xml: a member with an objecttype attribute'),
         ('DEEP_COPY_EXCLUDED', 'binding::vulkan::catalog::deep_copy_exclusions', 'vulkan_struct_deep_copy does not handle it',
          'blacklists.json "structures-deep-copy"'),
         ('HAS_STRUCTURE_TYPE', 'schema::TypedStructApiElement',
@@ -1782,8 +1836,8 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         self.newline()
         write('// sizeof each API element == sizeof its WireTypeOf: an API element narrower than its wire type would', file=self.outFile)
         write('// compile and desynchronize the stream. Skipped: size_t (4 or 8 bytes in memory, 8 on the wire, which', file=self.outFile)
-        write('// ValueDecoder converts), text, and the kinds with no generated WireTypeOf (handle, funcpointer and', file=self.outFile)
-        write('// opaque are recorded as 64-bit identifiers or addresses; struct and void have no width).', file=self.outFile)
+        write('// ValueDecoder converts), text, and the kinds with no generated WireTypeOf (handle and funcpointer are', file=self.outFile)
+        write('// recorded as 64-bit identifiers or addresses; struct and void have no width).', file=self.outFile)
 
         for name in sorted(self.api_type_wire_kinds):
             kind = self.api_type_wire_kinds[name]
@@ -1814,6 +1868,37 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
                 ),
                 file=self.outFile
             )
+
+        self.newline()
+        write('// No API element hides a pointer: a platform typedef over a pointer is a deref_ element for the type pointed', file=self.outFile)
+        write('// at, with the star on the Field. Handles and function pointers are the pointer types the API declares.', file=self.outFile)
+
+        for name in sorted(self.api_type_categories):
+            if self.api_type_categories[name] in ('Handle', 'Funcpointer'):
+                continue
+            write(
+                'static_assert(!std::is_pointer_v<schema::ApiTypeOf_t<schema::vulkan::api_elements::{}>>);'.format(name),
+                file=self.outFile
+            )
+
+        self.newline()
+        write('// A deref_ element is the type its source typedef points at, and a registry basetype is a scalar or void.', file=self.outFile)
+
+        for name in sorted(self.api_type_sources):
+            write(
+                'static_assert(std::is_same_v<std::remove_cv_t<std::remove_pointer_t<'
+                'schema::vulkan::api_elements::{0}::source_type>>, '
+                'schema::ApiTypeOf_t<schema::vulkan::api_elements::{0}>>);'.format(name),
+                file=self.outFile
+            )
+
+        for name in sorted(self.api_type_categories):
+            if 'source_category' in self.get_source_members(name):
+                write(
+                    'static_assert(schema::ScalarApiElement<schema::vulkan::api_elements::{0}> || '
+                    'schema::VoidApiElement<schema::vulkan::api_elements::{0}>);'.format(name),
+                    file=self.outFile
+                )
 
         self.newline()
         self.newline()
@@ -2112,12 +2197,12 @@ class VulkanSchemaEnumerantsGenerator(VulkanSchemaBaseGenerator):
 
 class VulkanWireTypesGenerator(VulkanSchemaBaseGenerator):
     """Generates generated_vulkan_wire_types.h: the WireTypeOf specializations
-    of the scalar, enum and text API elements."""
+    of the scalar and enum API elements."""
 
     def write_part(self):
-        write('// WireTypeOf for the scalar, enum and text API elements: the format typedef each is recorded as. Bitmask,', file=self.outFile)
-        write('// handle, funcpointer and opaque are partial specializations in binding/wire_type_of.h; struct and void', file=self.outFile)
-        write('// have no width of their own.', file=self.outFile)
+        write('// WireTypeOf for the scalar and enum API elements: the format typedef each is recorded as. Bitmask,', file=self.outFile)
+        write('// handle and funcpointer are partial specializations in binding/wire_type_of.h; struct and void have no', file=self.outFile)
+        write('// width of their own.', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(binding)', file=self.outFile)
         self.newline()
 

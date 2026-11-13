@@ -833,9 +833,9 @@ GFXRECON_END_NAMESPACE(VkAllocationCallbacks)
 GFXRECON_BEGIN_NAMESPACE(VkApplicationInfo)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr bool has_extensions = false; };
-struct pApplicationName : Field<"pApplicationName", Pointer<Const<api_elements::Char>>> {};
+struct pApplicationName : Field<"pApplicationName", Array<Const<api_elements::Char>, NullTerminated>> {};
 struct applicationVersion : Field<"applicationVersion", api_elements::UInt32> {};
-struct pEngineName : Field<"pEngineName", Pointer<Const<api_elements::Char>>> {};
+struct pEngineName : Field<"pEngineName", Array<Const<api_elements::Char>, NullTerminated>> {};
 struct engineVersion : Field<"engineVersion", api_elements::UInt32> {};
 struct apiVersion : Field<"apiVersion", api_elements::UInt32> {};
 GFXRECON_END_NAMESPACE(VkApplicationInfo)
@@ -860,9 +860,9 @@ struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr
 struct flags : Field<"flags", api_elements::VkInstanceCreateFlags> {};
 struct pApplicationInfo : Field<"pApplicationInfo", Pointer<Const<api_elements::VkApplicationInfo>>> {};
 struct enabledLayerCount : Field<"enabledLayerCount", api_elements::UInt32> {};
-struct ppEnabledLayerNames : Field<"ppEnabledLayerNames", Array<Const<Pointer<Const<api_elements::Char>>>, FieldValue<enabledLayerCount>>> {};
+struct ppEnabledLayerNames : Field<"ppEnabledLayerNames", Array<Const<Array<Const<api_elements::Char>, NullTerminated>>, FieldValue<enabledLayerCount>>> {};
 struct enabledExtensionCount : Field<"enabledExtensionCount", api_elements::UInt32> {};
-struct ppEnabledExtensionNames : Field<"ppEnabledExtensionNames", Array<Const<Pointer<Const<api_elements::Char>>>, FieldValue<enabledExtensionCount>>> {};
+struct ppEnabledExtensionNames : Field<"ppEnabledExtensionNames", Array<Const<Array<Const<api_elements::Char>, NullTerminated>>, FieldValue<enabledExtensionCount>>> {};
 GFXRECON_END_NAMESPACE(VkInstanceCreateInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkMemoryHeap)
@@ -1063,7 +1063,7 @@ struct driverVersion : Field<"driverVersion", api_elements::UInt32> {};
 struct vendorID : Field<"vendorID", api_elements::UInt32> {};
 struct deviceID : Field<"deviceID", api_elements::UInt32> {};
 struct deviceType : Field<"deviceType", api_elements::VkPhysicalDeviceType> {};
-struct deviceName : Field<"deviceName", FixedArray<api_elements::Char, UseCapacity, VK_MAX_PHYSICAL_DEVICE_NAME_SIZE>> {};
+struct deviceName : Field<"deviceName", FixedArray<api_elements::Char, NullTerminated, VK_MAX_PHYSICAL_DEVICE_NAME_SIZE>> {};
 struct pipelineCacheUUID : Field<"pipelineCacheUUID", FixedArray<api_elements::UInt8, UseCapacity, VK_UUID_SIZE>> {};
 struct limits : Field<"limits", api_elements::VkPhysicalDeviceLimits> {};
 struct sparseProperties : Field<"sparseProperties", api_elements::VkPhysicalDeviceSparseProperties> {};
@@ -1092,22 +1092,22 @@ struct flags : Field<"flags", api_elements::VkDeviceCreateFlags> {};
 struct queueCreateInfoCount : Field<"queueCreateInfoCount", api_elements::UInt32> {};
 struct pQueueCreateInfos : Field<"pQueueCreateInfos", Array<Const<api_elements::VkDeviceQueueCreateInfo>, FieldValue<queueCreateInfoCount>>> {};
 struct enabledLayerCount : Field<"enabledLayerCount", api_elements::UInt32> {};
-struct ppEnabledLayerNames : Field<"ppEnabledLayerNames", Array<Const<Pointer<Const<api_elements::Char>>>, FieldValue<enabledLayerCount>>> {};
+struct ppEnabledLayerNames : Field<"ppEnabledLayerNames", Array<Const<Array<Const<api_elements::Char>, NullTerminated>>, FieldValue<enabledLayerCount>>> {};
 struct enabledExtensionCount : Field<"enabledExtensionCount", api_elements::UInt32> {};
-struct ppEnabledExtensionNames : Field<"ppEnabledExtensionNames", Array<Const<Pointer<Const<api_elements::Char>>>, FieldValue<enabledExtensionCount>>> {};
+struct ppEnabledExtensionNames : Field<"ppEnabledExtensionNames", Array<Const<Array<Const<api_elements::Char>, NullTerminated>>, FieldValue<enabledExtensionCount>>> {};
 struct pEnabledFeatures : Field<"pEnabledFeatures", Pointer<Const<api_elements::VkPhysicalDeviceFeatures>>> {};
 GFXRECON_END_NAMESPACE(VkDeviceCreateInfo)
 
 GFXRECON_BEGIN_NAMESPACE(VkExtensionProperties)
-struct extensionName : Field<"extensionName", FixedArray<api_elements::Char, UseCapacity, VK_MAX_EXTENSION_NAME_SIZE>> {};
+struct extensionName : Field<"extensionName", FixedArray<api_elements::Char, NullTerminated, VK_MAX_EXTENSION_NAME_SIZE>> {};
 struct specVersion : Field<"specVersion", api_elements::UInt32> {};
 GFXRECON_END_NAMESPACE(VkExtensionProperties)
 
 GFXRECON_BEGIN_NAMESPACE(VkLayerProperties)
-struct layerName : Field<"layerName", FixedArray<api_elements::Char, UseCapacity, VK_MAX_EXTENSION_NAME_SIZE>> {};
+struct layerName : Field<"layerName", FixedArray<api_elements::Char, NullTerminated, VK_MAX_EXTENSION_NAME_SIZE>> {};
 struct specVersion : Field<"specVersion", api_elements::UInt32> {};
 struct implementationVersion : Field<"implementationVersion", api_elements::UInt32> {};
-struct description : Field<"description", FixedArray<api_elements::Char, UseCapacity, VK_MAX_DESCRIPTION_SIZE>> {};
+struct description : Field<"description", FixedArray<api_elements::Char, NullTerminated, VK_MAX_DESCRIPTION_SIZE>> {};
 GFXRECON_END_NAMESPACE(VkLayerProperties)
 
 GFXRECON_BEGIN_NAMESPACE(VkSubmitInfo)
@@ -1458,7 +1458,7 @@ struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr
 struct flags : Field<"flags", api_elements::VkPipelineShaderStageCreateFlags> {};
 struct stage : Field<"stage", api_elements::VkShaderStageFlagBits> {};
 struct module : Field<"module", api_elements::VkShaderModule> {};
-struct pName : Field<"pName", Pointer<Const<api_elements::Char>>> {};
+struct pName : Field<"pName", Array<Const<api_elements::Char>, NullTerminated>> {};
 struct pSpecializationInfo : Field<"pSpecializationInfo", Pointer<Const<api_elements::VkSpecializationInfo>>> {};
 GFXRECON_END_NAMESPACE(VkPipelineShaderStageCreateInfo)
 
@@ -1692,7 +1692,7 @@ struct rasterizationSamples : Field<"rasterizationSamples", api_elements::VkSamp
 struct sampleShadingEnable : Field<"sampleShadingEnable", api_elements::VkBool32> {};
 struct minSampleShading : Field<"minSampleShading", api_elements::Float> {};
 // NOTE: length evaluates (rasterizationSamples + 31) / 32
-struct pSampleMask : Field<"pSampleMask", Array<Const<api_elements::VkSampleMask>, Quotient<Sum<FieldValue<rasterizationSamples>, Literal<31>>, Literal<32>>>> {};
+struct pSampleMask : Field<"pSampleMask", Array<Const<api_elements::VkSampleMask>, Quotient<Sum<AsInteger<FieldValue<rasterizationSamples>>, Literal<31>>, Literal<32>>>> {};
 struct alphaToCoverageEnable : Field<"alphaToCoverageEnable", api_elements::VkBool32> {};
 struct alphaToOneEnable : Field<"alphaToOneEnable", api_elements::VkBool32> {};
 GFXRECON_END_NAMESPACE(VkPipelineMultisampleStateCreateInfo)
@@ -2363,8 +2363,8 @@ GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceDriverProperties)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<ExtensionChain>> { static constexpr bool has_extensions = true; };
 struct driverID : Field<"driverID", api_elements::VkDriverId> {};
-struct driverName : Field<"driverName", FixedArray<api_elements::Char, UseCapacity, VK_MAX_DRIVER_NAME_SIZE>> {};
-struct driverInfo : Field<"driverInfo", FixedArray<api_elements::Char, UseCapacity, VK_MAX_DRIVER_INFO_SIZE>> {};
+struct driverName : Field<"driverName", FixedArray<api_elements::Char, NullTerminated, VK_MAX_DRIVER_NAME_SIZE>> {};
+struct driverInfo : Field<"driverInfo", FixedArray<api_elements::Char, NullTerminated, VK_MAX_DRIVER_INFO_SIZE>> {};
 struct conformanceVersion : Field<"conformanceVersion", api_elements::VkConformanceVersion> {};
 GFXRECON_END_NAMESPACE(VkPhysicalDeviceDriverProperties)
 
@@ -2461,8 +2461,8 @@ GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceVulkan12Properties)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<ExtensionChain>> { static constexpr bool has_extensions = true; };
 struct driverID : Field<"driverID", api_elements::VkDriverId> {};
-struct driverName : Field<"driverName", FixedArray<api_elements::Char, UseCapacity, VK_MAX_DRIVER_NAME_SIZE>> {};
-struct driverInfo : Field<"driverInfo", FixedArray<api_elements::Char, UseCapacity, VK_MAX_DRIVER_INFO_SIZE>> {};
+struct driverName : Field<"driverName", FixedArray<api_elements::Char, NullTerminated, VK_MAX_DRIVER_NAME_SIZE>> {};
+struct driverInfo : Field<"driverInfo", FixedArray<api_elements::Char, NullTerminated, VK_MAX_DRIVER_INFO_SIZE>> {};
 struct conformanceVersion : Field<"conformanceVersion", api_elements::VkConformanceVersion> {};
 struct denormBehaviorIndependence : Field<"denormBehaviorIndependence", api_elements::VkShaderFloatControlsIndependence> {};
 struct roundingModeIndependence : Field<"roundingModeIndependence", api_elements::VkShaderFloatControlsIndependence> {};
@@ -2982,11 +2982,11 @@ GFXRECON_END_NAMESPACE(VkPhysicalDeviceVulkan13Properties)
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceToolProperties)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<ExtensionChain>> { static constexpr bool has_extensions = false; };
-struct name : Field<"name", FixedArray<api_elements::Char, UseCapacity, VK_MAX_EXTENSION_NAME_SIZE>> {};
-struct version : Field<"version", FixedArray<api_elements::Char, UseCapacity, VK_MAX_EXTENSION_NAME_SIZE>> {};
+struct name : Field<"name", FixedArray<api_elements::Char, NullTerminated, VK_MAX_EXTENSION_NAME_SIZE>> {};
+struct version : Field<"version", FixedArray<api_elements::Char, NullTerminated, VK_MAX_EXTENSION_NAME_SIZE>> {};
 struct purposes : Field<"purposes", api_elements::VkToolPurposeFlags> {};
-struct description : Field<"description", FixedArray<api_elements::Char, UseCapacity, VK_MAX_DESCRIPTION_SIZE>> {};
-struct layer : Field<"layer", FixedArray<api_elements::Char, UseCapacity, VK_MAX_EXTENSION_NAME_SIZE>> {};
+struct description : Field<"description", FixedArray<api_elements::Char, NullTerminated, VK_MAX_DESCRIPTION_SIZE>> {};
+struct layer : Field<"layer", FixedArray<api_elements::Char, NullTerminated, VK_MAX_EXTENSION_NAME_SIZE>> {};
 GFXRECON_END_NAMESPACE(VkPhysicalDeviceToolProperties)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDevicePrivateDataFeatures)
@@ -4008,7 +4008,7 @@ GFXRECON_END_NAMESPACE(VkDisplayPlanePropertiesKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkDisplayPropertiesKHR)
 struct display : Field<"display", api_elements::VkDisplayKHR> {};
-struct displayName : Field<"displayName", Pointer<Const<api_elements::Char>>> {};
+struct displayName : Field<"displayName", Array<Const<api_elements::Char>, NullTerminated>> {};
 struct physicalDimensions : Field<"physicalDimensions", api_elements::VkExtent2D> {};
 struct physicalResolution : Field<"physicalResolution", api_elements::VkExtent2D> {};
 struct supportedTransforms : Field<"supportedTransforms", api_elements::VkSurfaceTransformFlagsKHR> {};
@@ -4072,8 +4072,8 @@ GFXRECON_BEGIN_NAMESPACE(VkWin32SurfaceCreateInfoKHR)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr bool has_extensions = false; };
 struct flags : Field<"flags", api_elements::VkWin32SurfaceCreateFlagsKHR> {};
-struct hinstance : Field<"hinstance", api_elements::HINSTANCE> {};
-struct hwnd : Field<"hwnd", api_elements::HWND> {};
+struct hinstance : Field<"hinstance", Pointer<api_elements::deref_HINSTANCE>> {};
+struct hwnd : Field<"hwnd", Pointer<api_elements::deref_HWND>> {};
 GFXRECON_END_NAMESPACE(VkWin32SurfaceCreateInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkQueueFamilyQueryResultStatusPropertiesKHR)
@@ -4433,8 +4433,8 @@ GFXRECON_BEGIN_NAMESPACE(VkImportMemoryWin32HandleInfoKHR)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr bool has_extensions = true; };
 struct handleType : Field<"handleType", api_elements::VkExternalMemoryHandleTypeFlagBits> {};
-struct handle : Field<"handle", api_elements::HANDLE> {};
-struct name : Field<"name", api_elements::LPCWSTR> {};
+struct handle : Field<"handle", Pointer<api_elements::deref_HANDLE>> {};
+struct name : Field<"name", Array<Const<api_elements::deref_LPCWSTR>, NullTerminated>> {};
 GFXRECON_END_NAMESPACE(VkImportMemoryWin32HandleInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkExportMemoryWin32HandleInfoKHR)
@@ -4442,7 +4442,7 @@ struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr bool has_extensions = true; };
 struct pAttributes : Field<"pAttributes", Pointer<Const<api_elements::SECURITY_ATTRIBUTES>>> {};
 struct dwAccess : Field<"dwAccess", api_elements::DWORD> {};
-struct name : Field<"name", api_elements::LPCWSTR> {};
+struct name : Field<"name", Array<Const<api_elements::deref_LPCWSTR>, NullTerminated>> {};
 GFXRECON_END_NAMESPACE(VkExportMemoryWin32HandleInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkMemoryWin32HandlePropertiesKHR)
@@ -4496,8 +4496,8 @@ struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr
 struct semaphore : Field<"semaphore", api_elements::VkSemaphore> {};
 struct flags : Field<"flags", api_elements::VkSemaphoreImportFlags> {};
 struct handleType : Field<"handleType", api_elements::VkExternalSemaphoreHandleTypeFlagBits> {};
-struct handle : Field<"handle", api_elements::HANDLE> {};
-struct name : Field<"name", api_elements::LPCWSTR> {};
+struct handle : Field<"handle", Pointer<api_elements::deref_HANDLE>> {};
+struct name : Field<"name", Array<Const<api_elements::deref_LPCWSTR>, NullTerminated>> {};
 GFXRECON_END_NAMESPACE(VkImportSemaphoreWin32HandleInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkExportSemaphoreWin32HandleInfoKHR)
@@ -4505,7 +4505,7 @@ struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr bool has_extensions = true; };
 struct pAttributes : Field<"pAttributes", Pointer<Const<api_elements::SECURITY_ATTRIBUTES>>> {};
 struct dwAccess : Field<"dwAccess", api_elements::DWORD> {};
-struct name : Field<"name", api_elements::LPCWSTR> {};
+struct name : Field<"name", Array<Const<api_elements::deref_LPCWSTR>, NullTerminated>> {};
 GFXRECON_END_NAMESPACE(VkExportSemaphoreWin32HandleInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkD3D12FenceSubmitInfoKHR)
@@ -4570,8 +4570,8 @@ struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr
 struct fence : Field<"fence", api_elements::VkFence> {};
 struct flags : Field<"flags", api_elements::VkFenceImportFlags> {};
 struct handleType : Field<"handleType", api_elements::VkExternalFenceHandleTypeFlagBits> {};
-struct handle : Field<"handle", api_elements::HANDLE> {};
-struct name : Field<"name", api_elements::LPCWSTR> {};
+struct handle : Field<"handle", Pointer<api_elements::deref_HANDLE>> {};
+struct name : Field<"name", Array<Const<api_elements::deref_LPCWSTR>, NullTerminated>> {};
 GFXRECON_END_NAMESPACE(VkImportFenceWin32HandleInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkExportFenceWin32HandleInfoKHR)
@@ -4579,7 +4579,7 @@ struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr bool has_extensions = true; };
 struct pAttributes : Field<"pAttributes", Pointer<Const<api_elements::SECURITY_ATTRIBUTES>>> {};
 struct dwAccess : Field<"dwAccess", api_elements::DWORD> {};
-struct name : Field<"name", api_elements::LPCWSTR> {};
+struct name : Field<"name", Array<Const<api_elements::deref_LPCWSTR>, NullTerminated>> {};
 GFXRECON_END_NAMESPACE(VkExportFenceWin32HandleInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkFenceGetWin32HandleInfoKHR)
@@ -4631,9 +4631,9 @@ GFXRECON_BEGIN_NAMESPACE(VkPerformanceCounterDescriptionKHR)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<ExtensionChain>> { static constexpr bool has_extensions = false; };
 struct flags : Field<"flags", api_elements::VkPerformanceCounterDescriptionFlagsKHR> {};
-struct name : Field<"name", FixedArray<api_elements::Char, UseCapacity, VK_MAX_DESCRIPTION_SIZE>> {};
-struct category : Field<"category", FixedArray<api_elements::Char, UseCapacity, VK_MAX_DESCRIPTION_SIZE>> {};
-struct description : Field<"description", FixedArray<api_elements::Char, UseCapacity, VK_MAX_DESCRIPTION_SIZE>> {};
+struct name : Field<"name", FixedArray<api_elements::Char, NullTerminated, VK_MAX_DESCRIPTION_SIZE>> {};
+struct category : Field<"category", FixedArray<api_elements::Char, NullTerminated, VK_MAX_DESCRIPTION_SIZE>> {};
+struct description : Field<"description", FixedArray<api_elements::Char, NullTerminated, VK_MAX_DESCRIPTION_SIZE>> {};
 GFXRECON_END_NAMESPACE(VkPerformanceCounterDescriptionKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkQueryPoolPerformanceCreateInfoKHR)
@@ -4865,8 +4865,8 @@ GFXRECON_BEGIN_NAMESPACE(VkPipelineExecutablePropertiesKHR)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<ExtensionChain>> { static constexpr bool has_extensions = false; };
 struct stages : Field<"stages", api_elements::VkShaderStageFlags> {};
-struct name : Field<"name", FixedArray<api_elements::Char, UseCapacity, VK_MAX_DESCRIPTION_SIZE>> {};
-struct description : Field<"description", FixedArray<api_elements::Char, UseCapacity, VK_MAX_DESCRIPTION_SIZE>> {};
+struct name : Field<"name", FixedArray<api_elements::Char, NullTerminated, VK_MAX_DESCRIPTION_SIZE>> {};
+struct description : Field<"description", FixedArray<api_elements::Char, NullTerminated, VK_MAX_DESCRIPTION_SIZE>> {};
 struct subgroupSize : Field<"subgroupSize", api_elements::UInt32> {};
 GFXRECON_END_NAMESPACE(VkPipelineExecutablePropertiesKHR)
 
@@ -4880,8 +4880,8 @@ GFXRECON_END_NAMESPACE(VkPipelineExecutableInfoKHR)
 GFXRECON_BEGIN_NAMESPACE(VkPipelineExecutableStatisticKHR)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<ExtensionChain>> { static constexpr bool has_extensions = false; };
-struct name : Field<"name", FixedArray<api_elements::Char, UseCapacity, VK_MAX_DESCRIPTION_SIZE>> {};
-struct description : Field<"description", FixedArray<api_elements::Char, UseCapacity, VK_MAX_DESCRIPTION_SIZE>> {};
+struct name : Field<"name", FixedArray<api_elements::Char, NullTerminated, VK_MAX_DESCRIPTION_SIZE>> {};
+struct description : Field<"description", FixedArray<api_elements::Char, NullTerminated, VK_MAX_DESCRIPTION_SIZE>> {};
 struct format : Field<"format", api_elements::VkPipelineExecutableStatisticFormatKHR> {};
 struct value : Field<"value", api_elements::VkPipelineExecutableStatisticValueKHR> { using selector_field = format; };
 GFXRECON_END_NAMESPACE(VkPipelineExecutableStatisticKHR)
@@ -4889,8 +4889,8 @@ GFXRECON_END_NAMESPACE(VkPipelineExecutableStatisticKHR)
 GFXRECON_BEGIN_NAMESPACE(VkPipelineExecutableInternalRepresentationKHR)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<ExtensionChain>> { static constexpr bool has_extensions = false; };
-struct name : Field<"name", FixedArray<api_elements::Char, UseCapacity, VK_MAX_DESCRIPTION_SIZE>> {};
-struct description : Field<"description", FixedArray<api_elements::Char, UseCapacity, VK_MAX_DESCRIPTION_SIZE>> {};
+struct name : Field<"name", FixedArray<api_elements::Char, NullTerminated, VK_MAX_DESCRIPTION_SIZE>> {};
+struct description : Field<"description", FixedArray<api_elements::Char, NullTerminated, VK_MAX_DESCRIPTION_SIZE>> {};
 struct isText : Field<"isText", api_elements::VkBool32> {};
 struct dataSize : Field<"dataSize", api_elements::SizeT> {};
 struct pData : Field<"pData", Array<api_elements::Void, FieldValue<dataSize>>> {};
@@ -5885,7 +5885,9 @@ struct pNext : Field<"pNext", Pointer<ExtensionChain>> { static constexpr bool h
 struct vendorID : Field<"vendorID", api_elements::UInt32> {};
 struct deviceID : Field<"deviceID", api_elements::UInt32> {};
 struct layeredAPI : Field<"layeredAPI", api_elements::VkPhysicalDeviceLayeredApiKHR> {};
-struct deviceName : Field<"deviceName", FixedArray<api_elements::Char, UseCapacity, VK_MAX_PHYSICAL_DEVICE_NAME_SIZE>> {};
+// NullTerminated from NULL_TERMINATED_MEMBERS in vulkan_schema_generator.py: this vk.xml omits
+// len="null-terminated".
+struct deviceName : Field<"deviceName", FixedArray<api_elements::Char, NullTerminated, VK_MAX_PHYSICAL_DEVICE_NAME_SIZE>> {};
 GFXRECON_END_NAMESPACE(VkPhysicalDeviceLayeredApiPropertiesKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceLayeredApiPropertiesListKHR)
@@ -5923,7 +5925,7 @@ struct addressPrecision : Field<"addressPrecision", api_elements::VkDeviceSize> 
 GFXRECON_END_NAMESPACE(VkDeviceFaultAddressInfoKHR)
 
 GFXRECON_BEGIN_NAMESPACE(VkDeviceFaultVendorInfoKHR)
-struct description : Field<"description", FixedArray<api_elements::Char, UseCapacity, VK_MAX_DESCRIPTION_SIZE>> {};
+struct description : Field<"description", FixedArray<api_elements::Char, NullTerminated, VK_MAX_DESCRIPTION_SIZE>> {};
 struct vendorFaultCode : Field<"vendorFaultCode", api_elements::UInt64> {};
 struct vendorFaultData : Field<"vendorFaultData", api_elements::UInt64> {};
 GFXRECON_END_NAMESPACE(VkDeviceFaultVendorInfoKHR)
@@ -5933,7 +5935,7 @@ struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<ExtensionChain>> { static constexpr bool has_extensions = false; };
 struct flags : Field<"flags", api_elements::VkDeviceFaultFlagsKHR> {};
 struct groupId : Field<"groupId", api_elements::UInt64> {};
-struct description : Field<"description", FixedArray<api_elements::Char, UseCapacity, VK_MAX_DESCRIPTION_SIZE>> {};
+struct description : Field<"description", FixedArray<api_elements::Char, NullTerminated, VK_MAX_DESCRIPTION_SIZE>> {};
 struct faultAddressInfo : Field<"faultAddressInfo", api_elements::VkDeviceFaultAddressInfoKHR> {};
 struct instructionAddressInfo : Field<"instructionAddressInfo", api_elements::VkDeviceFaultAddressInfoKHR> {};
 struct vendorInfo : Field<"vendorInfo", api_elements::VkDeviceFaultVendorInfoKHR> {};
@@ -6208,15 +6210,15 @@ GFXRECON_BEGIN_NAMESPACE(VkDebugMarkerObjectNameInfoEXT)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr bool has_extensions = false; };
 struct objectType : Field<"objectType", api_elements::VkDebugReportObjectTypeEXT> {};
-struct object : Field<"object", api_elements::GenericHandle> { using selector_field = objectType; };
-struct pObjectName : Field<"pObjectName", Pointer<Const<api_elements::Char>>> {};
+struct object : Field<"object", api_elements::UInt64> { using selector_field = objectType; };
+struct pObjectName : Field<"pObjectName", Array<Const<api_elements::Char>, NullTerminated>> {};
 GFXRECON_END_NAMESPACE(VkDebugMarkerObjectNameInfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkDebugMarkerObjectTagInfoEXT)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr bool has_extensions = false; };
 struct objectType : Field<"objectType", api_elements::VkDebugReportObjectTypeEXT> {};
-struct object : Field<"object", api_elements::GenericHandle> { using selector_field = objectType; };
+struct object : Field<"object", api_elements::UInt64> { using selector_field = objectType; };
 struct tagName : Field<"tagName", api_elements::UInt64> {};
 struct tagSize : Field<"tagSize", api_elements::SizeT> {};
 struct pTag : Field<"pTag", Array<Const<api_elements::Void>, FieldValue<tagSize>>> {};
@@ -6225,7 +6227,7 @@ GFXRECON_END_NAMESPACE(VkDebugMarkerObjectTagInfoEXT)
 GFXRECON_BEGIN_NAMESPACE(VkDebugMarkerMarkerInfoEXT)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr bool has_extensions = false; };
-struct pMarkerName : Field<"pMarkerName", Pointer<Const<api_elements::Char>>> {};
+struct pMarkerName : Field<"pMarkerName", Array<Const<api_elements::Char>, NullTerminated>> {};
 struct color : Field<"color", FixedArray<api_elements::Float, UseCapacity, 4>> {};
 GFXRECON_END_NAMESPACE(VkDebugMarkerMarkerInfoEXT)
 
@@ -6352,7 +6354,7 @@ GFXRECON_BEGIN_NAMESPACE(VkImportMemoryWin32HandleInfoNV)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr bool has_extensions = true; };
 struct handleType : Field<"handleType", api_elements::VkExternalMemoryHandleTypeFlagsNV> {};
-struct handle : Field<"handle", api_elements::HANDLE> {};
+struct handle : Field<"handle", Pointer<api_elements::deref_HANDLE>> {};
 GFXRECON_END_NAMESPACE(VkImportMemoryWin32HandleInfoNV)
 
 GFXRECON_BEGIN_NAMESPACE(VkExportMemoryWin32HandleInfoNV)
@@ -6617,7 +6619,7 @@ GFXRECON_END_NAMESPACE(VkMacOSSurfaceCreateInfoMVK)
 GFXRECON_BEGIN_NAMESPACE(VkDebugUtilsLabelEXT)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr bool has_extensions = false; };
-struct pLabelName : Field<"pLabelName", Pointer<Const<api_elements::Char>>> {};
+struct pLabelName : Field<"pLabelName", Array<Const<api_elements::Char>, NullTerminated>> {};
 struct color : Field<"color", FixedArray<api_elements::Float, UseCapacity, 4>> {};
 GFXRECON_END_NAMESPACE(VkDebugUtilsLabelEXT)
 
@@ -6625,17 +6627,17 @@ GFXRECON_BEGIN_NAMESPACE(VkDebugUtilsObjectNameInfoEXT)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr bool has_extensions = true; };
 struct objectType : Field<"objectType", api_elements::VkObjectType> {};
-struct objectHandle : Field<"objectHandle", api_elements::GenericHandle> { using selector_field = objectType; };
-struct pObjectName : Field<"pObjectName", Pointer<Const<api_elements::Char>>> {};
+struct objectHandle : Field<"objectHandle", api_elements::UInt64> { using selector_field = objectType; };
+struct pObjectName : Field<"pObjectName", Array<Const<api_elements::Char>, NullTerminated>> {};
 GFXRECON_END_NAMESPACE(VkDebugUtilsObjectNameInfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkDebugUtilsMessengerCallbackDataEXT)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr bool has_extensions = true; };
 struct flags : Field<"flags", api_elements::VkDebugUtilsMessengerCallbackDataFlagsEXT> {};
-struct pMessageIdName : Field<"pMessageIdName", Pointer<Const<api_elements::Char>>> {};
+struct pMessageIdName : Field<"pMessageIdName", Array<Const<api_elements::Char>, NullTerminated>> {};
 struct messageIdNumber : Field<"messageIdNumber", api_elements::Int32> {};
-struct pMessage : Field<"pMessage", Pointer<Const<api_elements::Char>>> {};
+struct pMessage : Field<"pMessage", Array<Const<api_elements::Char>, NullTerminated>> {};
 struct queueLabelCount : Field<"queueLabelCount", api_elements::UInt32> {};
 struct pQueueLabels : Field<"pQueueLabels", Array<Const<api_elements::VkDebugUtilsLabelEXT>, FieldValue<queueLabelCount>>> {};
 struct cmdBufLabelCount : Field<"cmdBufLabelCount", api_elements::UInt32> {};
@@ -6658,7 +6660,7 @@ GFXRECON_BEGIN_NAMESPACE(VkDebugUtilsObjectTagInfoEXT)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr bool has_extensions = false; };
 struct objectType : Field<"objectType", api_elements::VkObjectType> {};
-struct objectHandle : Field<"objectHandle", api_elements::GenericHandle> { using selector_field = objectType; };
+struct objectHandle : Field<"objectHandle", api_elements::UInt64> { using selector_field = objectType; };
 struct tagName : Field<"tagName", api_elements::UInt64> {};
 struct tagSize : Field<"tagSize", api_elements::SizeT> {};
 struct pTag : Field<"pTag", Array<Const<api_elements::Void>, FieldValue<tagSize>>> {};
@@ -7723,7 +7725,7 @@ GFXRECON_END_NAMESPACE(VkSurfaceCapabilitiesFullScreenExclusiveEXT)
 GFXRECON_BEGIN_NAMESPACE(VkSurfaceFullScreenExclusiveWin32InfoEXT)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr bool has_extensions = true; };
-struct hmonitor : Field<"hmonitor", api_elements::HMONITOR> {};
+struct hmonitor : Field<"hmonitor", Pointer<api_elements::deref_HMONITOR>> {};
 GFXRECON_END_NAMESPACE(VkSurfaceFullScreenExclusiveWin32InfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkHeadlessSurfaceCreateInfoEXT)
@@ -7982,7 +7984,7 @@ struct type : Field<"type", api_elements::VkDeviceMemoryReportEventTypeEXT> {};
 struct memoryObjectId : Field<"memoryObjectId", api_elements::UInt64> {};
 struct size : Field<"size", api_elements::VkDeviceSize> {};
 struct objectType : Field<"objectType", api_elements::VkObjectType> {};
-struct objectHandle : Field<"objectHandle", api_elements::GenericHandle> { using selector_field = objectType; };
+struct objectHandle : Field<"objectHandle", api_elements::UInt64> { using selector_field = objectType; };
 struct heapIndex : Field<"heapIndex", api_elements::UInt32> {};
 GFXRECON_END_NAMESPACE(VkDeviceMemoryReportCallbackDataEXT)
 
@@ -8460,7 +8462,7 @@ GFXRECON_END_NAMESPACE(VkDeviceFaultCountsEXT)
 GFXRECON_BEGIN_NAMESPACE(VkDeviceFaultInfoEXT)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<ExtensionChain>> { static constexpr bool has_extensions = false; };
-struct description : Field<"description", FixedArray<api_elements::Char, UseCapacity, VK_MAX_DESCRIPTION_SIZE>> {};
+struct description : Field<"description", FixedArray<api_elements::Char, NullTerminated, VK_MAX_DESCRIPTION_SIZE>> {};
 struct pAddressInfos : Field<"pAddressInfos", Pointer<api_elements::VkDeviceFaultAddressInfoKHR>> {};
 struct pVendorInfos : Field<"pVendorInfos", Pointer<api_elements::VkDeviceFaultVendorInfoKHR>> {};
 struct pVendorBinaryData : Field<"pVendorBinaryData", Pointer<api_elements::Void>> {};
@@ -9306,7 +9308,7 @@ GFXRECON_END_NAMESPACE(VkRenderPassCreationFeedbackCreateInfoEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkRenderPassSubpassFeedbackInfoEXT)
 struct subpassMergeStatus : Field<"subpassMergeStatus", api_elements::VkSubpassMergeStatusEXT> {};
-struct description : Field<"description", FixedArray<api_elements::Char, UseCapacity, VK_MAX_DESCRIPTION_SIZE>> {};
+struct description : Field<"description", FixedArray<api_elements::Char, NullTerminated, VK_MAX_DESCRIPTION_SIZE>> {};
 struct postMergeIndex : Field<"postMergeIndex", api_elements::UInt32> {};
 GFXRECON_END_NAMESPACE(VkRenderPassSubpassFeedbackInfoEXT)
 
@@ -9684,7 +9686,7 @@ struct nextStage : Field<"nextStage", api_elements::VkShaderStageFlags> {};
 struct codeType : Field<"codeType", api_elements::VkShaderCodeTypeEXT> {};
 struct codeSize : Field<"codeSize", api_elements::SizeT> {};
 struct pCode : Field<"pCode", Array<Const<api_elements::Void>, FieldValue<codeSize>>> {};
-struct pName : Field<"pName", Pointer<Const<api_elements::Char>>> {};
+struct pName : Field<"pName", Array<Const<api_elements::Char>, NullTerminated>> {};
 struct setLayoutCount : Field<"setLayoutCount", api_elements::UInt32> {};
 struct pSetLayouts : Field<"pSetLayouts", Array<Const<api_elements::VkDescriptorSetLayout>, FieldValue<setLayoutCount>>> {};
 struct pushConstantRangeCount : Field<"pushConstantRangeCount", api_elements::UInt32> {};
@@ -9813,8 +9815,8 @@ struct nativeUnalignedPerformance : Field<"nativeUnalignedPerformance", api_elem
 GFXRECON_END_NAMESPACE(VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT)
 
 GFXRECON_BEGIN_NAMESPACE(VkLayerSettingEXT)
-struct pLayerName : Field<"pLayerName", Pointer<Const<api_elements::Char>>> {};
-struct pSettingName : Field<"pSettingName", Pointer<Const<api_elements::Char>>> {};
+struct pLayerName : Field<"pLayerName", Array<Const<api_elements::Char>, NullTerminated>> {};
+struct pSettingName : Field<"pSettingName", Array<Const<api_elements::Char>, NullTerminated>> {};
 struct type : Field<"type", api_elements::VkLayerSettingTypeEXT> {};
 struct valueCount : Field<"valueCount", api_elements::UInt32> {};
 struct pValues : Field<"pValues", Array<Const<api_elements::Void>, FieldValue<valueCount>>> {};
@@ -9948,7 +9950,7 @@ GFXRECON_END_NAMESPACE(VkDataGraphPipelineResourceInfoARM)
 GFXRECON_BEGIN_NAMESPACE(VkDataGraphPipelineCompilerControlCreateInfoARM)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr bool has_extensions = true; };
-struct pVendorOptions : Field<"pVendorOptions", Pointer<Const<api_elements::Char>>> {};
+struct pVendorOptions : Field<"pVendorOptions", Array<Const<api_elements::Char>, NullTerminated>> {};
 GFXRECON_END_NAMESPACE(VkDataGraphPipelineCompilerControlCreateInfoARM)
 
 GFXRECON_BEGIN_NAMESPACE(VkDataGraphPipelineCreateInfoARM)
@@ -9964,7 +9966,7 @@ GFXRECON_BEGIN_NAMESPACE(VkDataGraphPipelineShaderModuleCreateInfoARM)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<Const<ExtensionChain>>> { static constexpr bool has_extensions = true; };
 struct module : Field<"module", api_elements::VkShaderModule> {};
-struct pName : Field<"pName", Pointer<Const<api_elements::Char>>> {};
+struct pName : Field<"pName", Array<Const<api_elements::Char>, NullTerminated>> {};
 struct pSpecializationInfo : Field<"pSpecializationInfo", Pointer<Const<api_elements::VkSpecializationInfo>>> {};
 struct constantCount : Field<"constantCount", api_elements::UInt32> {};
 struct pConstants : Field<"pConstants", Array<Const<api_elements::VkDataGraphPipelineConstantARM>, FieldValue<constantCount>>> {};
@@ -10044,7 +10046,7 @@ GFXRECON_END_NAMESPACE(VkPhysicalDeviceDataGraphProcessingEngineARM)
 
 GFXRECON_BEGIN_NAMESPACE(VkPhysicalDeviceDataGraphOperationSupportARM)
 struct operationType : Field<"operationType", api_elements::VkPhysicalDeviceDataGraphOperationTypeARM> {};
-struct name : Field<"name", FixedArray<api_elements::Char, UseCapacity, VK_MAX_PHYSICAL_DEVICE_DATA_GRAPH_OPERATION_SET_NAME_SIZE_ARM>> {};
+struct name : Field<"name", FixedArray<api_elements::Char, NullTerminated, VK_MAX_PHYSICAL_DEVICE_DATA_GRAPH_OPERATION_SET_NAME_SIZE_ARM>> {};
 struct version : Field<"version", api_elements::UInt32> {};
 GFXRECON_END_NAMESPACE(VkPhysicalDeviceDataGraphOperationSupportARM)
 
@@ -10717,7 +10719,7 @@ GFXRECON_BEGIN_NAMESPACE(VkPerformanceCounterDescriptionARM)
 struct sType : Field<"sType", api_elements::VkStructureType> {};
 struct pNext : Field<"pNext", Pointer<ExtensionChain>> { static constexpr bool has_extensions = false; };
 struct flags : Field<"flags", api_elements::VkPerformanceCounterDescriptionFlagsARM> {};
-struct name : Field<"name", FixedArray<api_elements::Char, UseCapacity, VK_MAX_DESCRIPTION_SIZE>> {};
+struct name : Field<"name", FixedArray<api_elements::Char, NullTerminated, VK_MAX_DESCRIPTION_SIZE>> {};
 GFXRECON_END_NAMESPACE(VkPerformanceCounterDescriptionARM)
 
 GFXRECON_BEGIN_NAMESPACE(VkRenderPassPerformanceCountersByRegionBeginInfoARM)
@@ -11380,7 +11382,7 @@ struct value32 : Field<"value32", api_elements::UInt32> { static constexpr auto 
 struct value64 : Field<"value64", api_elements::UInt64> { static constexpr auto selections = std::array{ VK_PERFORMANCE_VALUE_TYPE_UINT64_INTEL }; };
 struct valueFloat : Field<"valueFloat", api_elements::Float> { static constexpr auto selections = std::array{ VK_PERFORMANCE_VALUE_TYPE_FLOAT_INTEL }; };
 struct valueBool : Field<"valueBool", api_elements::VkBool32> { static constexpr auto selections = std::array{ VK_PERFORMANCE_VALUE_TYPE_BOOL_INTEL }; };
-struct valueString : Field<"valueString", Pointer<Const<api_elements::Char>>> { static constexpr auto selections = std::array{ VK_PERFORMANCE_VALUE_TYPE_STRING_INTEL }; };
+struct valueString : Field<"valueString", Array<Const<api_elements::Char>, NullTerminated>> { static constexpr auto selections = std::array{ VK_PERFORMANCE_VALUE_TYPE_STRING_INTEL }; };
 GFXRECON_END_NAMESPACE(VkPerformanceValueDataINTEL)
 
 GFXRECON_BEGIN_NAMESPACE(VkDescriptorDataEXT)
@@ -11800,7 +11802,7 @@ GFXRECON_END_NAMESPACE(ResetCommandPool)
 GFXRECON_BEGIN_NAMESPACE(AllocateCommandBuffers)
 struct device : Field<"device", api_elements::VkDevice> {};
 struct pAllocateInfo : Field<"pAllocateInfo", Pointer<Const<api_elements::VkCommandBufferAllocateInfo>>> {};
-struct pCommandBuffers : Field<"pCommandBuffers", Array<api_elements::VkCommandBuffer, FieldValue<pAllocateInfo, vulkan::fields::VkCommandBufferAllocateInfo::commandBufferCount>>> {};
+struct pCommandBuffers : Field<"pCommandBuffers", Array<api_elements::VkCommandBuffer, StoragePtrValue<pAllocateInfo, vulkan::fields::VkCommandBufferAllocateInfo::commandBufferCount>>> {};
 struct result : Field<"result", api_elements::VkResult> { static constexpr bool is_return = true; };
 GFXRECON_END_NAMESPACE(AllocateCommandBuffers)
 
@@ -12132,7 +12134,7 @@ GFXRECON_END_NAMESPACE(ResetDescriptorPool)
 GFXRECON_BEGIN_NAMESPACE(AllocateDescriptorSets)
 struct device : Field<"device", api_elements::VkDevice> {};
 struct pAllocateInfo : Field<"pAllocateInfo", Pointer<Const<api_elements::VkDescriptorSetAllocateInfo>>> {};
-struct pDescriptorSets : Field<"pDescriptorSets", Array<api_elements::VkDescriptorSet, FieldValue<pAllocateInfo, vulkan::fields::VkDescriptorSetAllocateInfo::descriptorSetCount>>> {};
+struct pDescriptorSets : Field<"pDescriptorSets", Array<api_elements::VkDescriptorSet, StoragePtrValue<pAllocateInfo, vulkan::fields::VkDescriptorSetAllocateInfo::descriptorSetCount>>> {};
 struct result : Field<"result", api_elements::VkResult> { static constexpr bool is_return = true; };
 GFXRECON_END_NAMESPACE(AllocateDescriptorSets)
 
@@ -12770,7 +12772,7 @@ GFXRECON_END_NAMESPACE(DestroyPrivateDataSlot)
 GFXRECON_BEGIN_NAMESPACE(SetPrivateData)
 struct device : Field<"device", api_elements::VkDevice> {};
 struct objectType : Field<"objectType", api_elements::VkObjectType> {};
-struct objectHandle : Field<"objectHandle", api_elements::GenericHandle> { using selector_field = objectType; };
+struct objectHandle : Field<"objectHandle", api_elements::UInt64> { using selector_field = objectType; };
 struct privateDataSlot : Field<"privateDataSlot", api_elements::VkPrivateDataSlot> {};
 struct data : Field<"data", api_elements::UInt64> {};
 struct result : Field<"result", api_elements::VkResult> { static constexpr bool is_return = true; };
@@ -12779,7 +12781,7 @@ GFXRECON_END_NAMESPACE(SetPrivateData)
 GFXRECON_BEGIN_NAMESPACE(GetPrivateData)
 struct device : Field<"device", api_elements::VkDevice> {};
 struct objectType : Field<"objectType", api_elements::VkObjectType> {};
-struct objectHandle : Field<"objectHandle", api_elements::GenericHandle> { using selector_field = objectType; };
+struct objectHandle : Field<"objectHandle", api_elements::UInt64> { using selector_field = objectType; };
 struct privateDataSlot : Field<"privateDataSlot", api_elements::VkPrivateDataSlot> {};
 struct pData : Field<"pData", Pointer<api_elements::UInt64>> {};
 struct result : Field<"result", api_elements::Void> { static constexpr bool is_return = true; };
@@ -13553,14 +13555,14 @@ GFXRECON_END_NAMESPACE(GetPhysicalDeviceExternalBufferPropertiesKHR)
 GFXRECON_BEGIN_NAMESPACE(GetMemoryWin32HandleKHR)
 struct device : Field<"device", api_elements::VkDevice> {};
 struct pGetWin32HandleInfo : Field<"pGetWin32HandleInfo", Pointer<Const<api_elements::VkMemoryGetWin32HandleInfoKHR>>> {};
-struct pHandle : Field<"pHandle", Pointer<api_elements::HANDLE>> {};
+struct pHandle : Field<"pHandle", Pointer<Pointer<api_elements::deref_HANDLE>>> {};
 struct result : Field<"result", api_elements::VkResult> { static constexpr bool is_return = true; };
 GFXRECON_END_NAMESPACE(GetMemoryWin32HandleKHR)
 
 GFXRECON_BEGIN_NAMESPACE(GetMemoryWin32HandlePropertiesKHR)
 struct device : Field<"device", api_elements::VkDevice> {};
 struct handleType : Field<"handleType", api_elements::VkExternalMemoryHandleTypeFlagBits> {};
-struct handle : Field<"handle", api_elements::HANDLE> {};
+struct handle : Field<"handle", Pointer<api_elements::deref_HANDLE>> {};
 struct pMemoryWin32HandleProperties : Field<"pMemoryWin32HandleProperties", Pointer<api_elements::VkMemoryWin32HandlePropertiesKHR>> {};
 struct result : Field<"result", api_elements::VkResult> { static constexpr bool is_return = true; };
 GFXRECON_END_NAMESPACE(GetMemoryWin32HandlePropertiesKHR)
@@ -13596,7 +13598,7 @@ GFXRECON_END_NAMESPACE(ImportSemaphoreWin32HandleKHR)
 GFXRECON_BEGIN_NAMESPACE(GetSemaphoreWin32HandleKHR)
 struct device : Field<"device", api_elements::VkDevice> {};
 struct pGetWin32HandleInfo : Field<"pGetWin32HandleInfo", Pointer<Const<api_elements::VkSemaphoreGetWin32HandleInfoKHR>>> {};
-struct pHandle : Field<"pHandle", Pointer<api_elements::HANDLE>> {};
+struct pHandle : Field<"pHandle", Pointer<Pointer<api_elements::deref_HANDLE>>> {};
 struct result : Field<"result", api_elements::VkResult> { static constexpr bool is_return = true; };
 GFXRECON_END_NAMESPACE(GetSemaphoreWin32HandleKHR)
 
@@ -13688,7 +13690,7 @@ GFXRECON_END_NAMESPACE(ImportFenceWin32HandleKHR)
 GFXRECON_BEGIN_NAMESPACE(GetFenceWin32HandleKHR)
 struct device : Field<"device", api_elements::VkDevice> {};
 struct pGetWin32HandleInfo : Field<"pGetWin32HandleInfo", Pointer<Const<api_elements::VkFenceGetWin32HandleInfoKHR>>> {};
-struct pHandle : Field<"pHandle", Pointer<api_elements::HANDLE>> {};
+struct pHandle : Field<"pHandle", Pointer<Pointer<api_elements::deref_HANDLE>>> {};
 struct result : Field<"result", api_elements::VkResult> { static constexpr bool is_return = true; };
 GFXRECON_END_NAMESPACE(GetFenceWin32HandleKHR)
 
@@ -14483,11 +14485,11 @@ GFXRECON_BEGIN_NAMESPACE(DebugReportMessageEXT)
 struct instance : Field<"instance", api_elements::VkInstance> {};
 struct flags : Field<"flags", api_elements::VkDebugReportFlagsEXT> {};
 struct objectType : Field<"objectType", api_elements::VkDebugReportObjectTypeEXT> {};
-struct object : Field<"object", api_elements::GenericHandle> { using selector_field = objectType; };
+struct object : Field<"object", api_elements::UInt64> { using selector_field = objectType; };
 struct location : Field<"location", api_elements::SizeT> {};
 struct messageCode : Field<"messageCode", api_elements::Int32> {};
-struct pLayerPrefix : Field<"pLayerPrefix", Pointer<Const<api_elements::Char>>> {};
-struct pMessage : Field<"pMessage", Pointer<Const<api_elements::Char>>> {};
+struct pLayerPrefix : Field<"pLayerPrefix", Array<Const<api_elements::Char>, NullTerminated>> {};
+struct pMessage : Field<"pMessage", Array<Const<api_elements::Char>, NullTerminated>> {};
 struct result : Field<"result", api_elements::Void> { static constexpr bool is_return = true; };
 GFXRECON_END_NAMESPACE(DebugReportMessageEXT)
 
@@ -14658,7 +14660,7 @@ GFXRECON_BEGIN_NAMESPACE(GetMemoryWin32HandleNV)
 struct device : Field<"device", api_elements::VkDevice> {};
 struct memory : Field<"memory", api_elements::VkDeviceMemory> {};
 struct handleType : Field<"handleType", api_elements::VkExternalMemoryHandleTypeFlagsNV> {};
-struct pHandle : Field<"pHandle", Pointer<api_elements::HANDLE>> {};
+struct pHandle : Field<"pHandle", Pointer<Pointer<api_elements::deref_HANDLE>>> {};
 struct result : Field<"result", api_elements::VkResult> { static constexpr bool is_return = true; };
 GFXRECON_END_NAMESPACE(GetMemoryWin32HandleNV)
 
@@ -15664,7 +15666,7 @@ GFXRECON_END_NAMESPACE(DestroyPrivateDataSlotEXT)
 GFXRECON_BEGIN_NAMESPACE(SetPrivateDataEXT)
 struct device : Field<"device", api_elements::VkDevice> {};
 struct objectType : Field<"objectType", api_elements::VkObjectType> {};
-struct objectHandle : Field<"objectHandle", api_elements::GenericHandle> { using selector_field = objectType; };
+struct objectHandle : Field<"objectHandle", api_elements::UInt64> { using selector_field = objectType; };
 struct privateDataSlot : Field<"privateDataSlot", api_elements::VkPrivateDataSlot> {};
 struct data : Field<"data", api_elements::UInt64> {};
 struct result : Field<"result", api_elements::VkResult> { static constexpr bool is_return = true; };
@@ -15673,7 +15675,7 @@ GFXRECON_END_NAMESPACE(SetPrivateDataEXT)
 GFXRECON_BEGIN_NAMESPACE(GetPrivateDataEXT)
 struct device : Field<"device", api_elements::VkDevice> {};
 struct objectType : Field<"objectType", api_elements::VkObjectType> {};
-struct objectHandle : Field<"objectHandle", api_elements::GenericHandle> { using selector_field = objectType; };
+struct objectHandle : Field<"objectHandle", api_elements::UInt64> { using selector_field = objectType; };
 struct privateDataSlot : Field<"privateDataSlot", api_elements::VkPrivateDataSlot> {};
 struct pData : Field<"pData", Pointer<api_elements::UInt64>> {};
 struct result : Field<"result", api_elements::Void> { static constexpr bool is_return = true; };
@@ -15841,7 +15843,7 @@ GFXRECON_END_NAMESPACE(CmdBindInvocationMaskHUAWEI)
 GFXRECON_BEGIN_NAMESPACE(GetMemoryRemoteAddressNV)
 struct device : Field<"device", api_elements::VkDevice> {};
 struct pMemoryGetRemoteAddressInfo : Field<"pMemoryGetRemoteAddressInfo", Pointer<Const<api_elements::VkMemoryGetRemoteAddressInfoNV>>> {};
-struct pAddress : Field<"pAddress", Pointer<api_elements::VkRemoteAddressNV>> {};
+struct pAddress : Field<"pAddress", Pointer<Pointer<api_elements::deref_VkRemoteAddressNV>>> {};
 struct result : Field<"result", api_elements::VkResult> { static constexpr bool is_return = true; };
 GFXRECON_END_NAMESPACE(GetMemoryRemoteAddressNV)
 
@@ -16107,7 +16109,7 @@ GFXRECON_BEGIN_NAMESPACE(CmdSetSampleMaskEXT)
 struct commandBuffer : Field<"commandBuffer", api_elements::VkCommandBuffer> {};
 struct samples : Field<"samples", api_elements::VkSampleCountFlagBits> {};
 // NOTE: length evaluates (samples + 31) / 32
-struct pSampleMask : Field<"pSampleMask", Array<Const<api_elements::VkSampleMask>, Quotient<Sum<FieldValue<samples>, Literal<31>>, Literal<32>>>> {};
+struct pSampleMask : Field<"pSampleMask", Array<Const<api_elements::VkSampleMask>, Quotient<Sum<AsInteger<FieldValue<samples>>, Literal<31>>, Literal<32>>>> {};
 struct result : Field<"result", api_elements::Void> { static constexpr bool is_return = true; };
 GFXRECON_END_NAMESPACE(CmdSetSampleMaskEXT)
 
@@ -16893,7 +16895,7 @@ GFXRECON_BEGIN_NAMESPACE(GetAccelerationStructureBuildSizesKHR)
 struct device : Field<"device", api_elements::VkDevice> {};
 struct buildType : Field<"buildType", api_elements::VkAccelerationStructureBuildTypeKHR> {};
 struct pBuildInfo : Field<"pBuildInfo", Pointer<Const<api_elements::VkAccelerationStructureBuildGeometryInfoKHR>>> {};
-struct pMaxPrimitiveCounts : Field<"pMaxPrimitiveCounts", Array<Const<api_elements::UInt32>, FieldValue<pBuildInfo, vulkan::fields::VkAccelerationStructureBuildGeometryInfoKHR::geometryCount>>> {};
+struct pMaxPrimitiveCounts : Field<"pMaxPrimitiveCounts", Array<Const<api_elements::UInt32>, StoragePtrValue<pBuildInfo, vulkan::fields::VkAccelerationStructureBuildGeometryInfoKHR::geometryCount>>> {};
 struct pSizeInfo : Field<"pSizeInfo", Pointer<api_elements::VkAccelerationStructureBuildSizesInfoKHR>> {};
 struct result : Field<"result", api_elements::Void> { static constexpr bool is_return = true; };
 GFXRECON_END_NAMESPACE(GetAccelerationStructureBuildSizesKHR)

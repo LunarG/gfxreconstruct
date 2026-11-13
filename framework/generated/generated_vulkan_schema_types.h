@@ -45,6 +45,7 @@
 #include "vk_video/vulkan_video_codecs_common.h"
 
 #include <string_view>
+#include <type_traits>
 
 #ifdef WIN32
 #ifdef CreateEvent
@@ -426,9 +427,10 @@ struct EmptyBitvalues64;
 GFXRECON_END_NAMESPACE(enumerants)
 
 GFXRECON_BEGIN_NAMESPACE(api_elements)
-// Platform typedefs (platform_types.json and REPLACE_TYPE): each has an API element named and
-// typed as the platform header spells it. Its category is Opaque when the substituted base type
-// is void, else the substituted type's category, e.g. Scalar for DWORD.
+// Platform typedefs (platform_types.json and REPLACE_TYPE in vulkan_base_generator.py): a typedef
+// whose replaceWith adds a star is a deref_ element for the type it points at, with the typedef as
+// source_type; any other keeps the platform header's name and type. The category is Void
+// when the substituted base type is void, else the substituted type's, e.g. Scalar for DWORD.
 struct AHardwareBuffer;
 struct ANativeWindow;
 struct CAMetalLayer;
@@ -439,13 +441,8 @@ struct Double;
 struct EmptyBitvalues;
 struct EmptyBitvalues64;
 struct Float;
-struct GenericHandle;
 struct GgpFrameToken;
 struct GgpStreamDescriptor;
-struct HANDLE;
-struct HINSTANCE;
-struct HMONITOR;
-struct HWND;
 struct IDirectFB;
 struct IDirectFBSurface;
 struct Int;
@@ -453,7 +450,6 @@ struct Int16;
 struct Int32;
 struct Int64;
 struct Int8;
-struct LPCWSTR;
 struct PFN_vkAllocationFunction;
 struct PFN_vkDebugReportCallbackEXT;
 struct PFN_vkDebugUtilsMessengerCallbackEXT;
@@ -2049,7 +2045,6 @@ struct VkRectLayerKHR;
 struct VkRefreshCycleDurationGOOGLE;
 struct VkReleaseCapturedPipelineDataInfoKHR;
 struct VkReleaseSwapchainImagesInfoKHR;
-struct VkRemoteAddressNV;
 struct VkRenderPass;
 struct VkRenderPassAttachmentBeginInfo;
 struct VkRenderPassBeginInfo;
@@ -2483,6 +2478,12 @@ struct Void;
 struct Window;
 struct _screen_context;
 struct _screen_window;
+struct deref_HANDLE;
+struct deref_HINSTANCE;
+struct deref_HMONITOR;
+struct deref_HWND;
+struct deref_LPCWSTR;
+struct deref_VkRemoteAddressNV;
 struct wl_display;
 struct wl_surface;
 struct xcb_connection_t;
@@ -2490,31 +2491,25 @@ struct xcb_visualid_t;
 struct xcb_window_t;
 struct zx_handle_t;
 
-struct AHardwareBuffer : ApiElementBase<"AHardwareBuffer", ::AHardwareBuffer, category::Opaque> {};
-struct ANativeWindow : ApiElementBase<"ANativeWindow", ::ANativeWindow, category::Opaque> {};
-struct CAMetalLayer : ApiElementBase<"CAMetalLayer", ::CAMetalLayer, category::Opaque> {};
-struct Char : ApiElementBase<"char", char, category::Char> {};
+struct AHardwareBuffer : ApiElementVoid<"AHardwareBuffer", ::AHardwareBuffer> { static constexpr std::string_view source_category = "basetype"; };
+struct ANativeWindow : ApiElementVoid<"ANativeWindow", ::ANativeWindow> { static constexpr std::string_view source_category = "basetype"; };
+struct CAMetalLayer : ApiElementVoid<"CAMetalLayer", ::CAMetalLayer> { static constexpr std::string_view source_category = "basetype"; };
+struct Char : ApiElementScalar<"char", char> {};
 struct DWORD : ApiElementScalar<"DWORD", ::DWORD> {};
-struct Display : ApiElementBase<"Display", ::Display, category::Opaque> {};
+struct Display : ApiElementVoid<"Display", ::Display> {};
 struct Double : ApiElementScalar<"double", double> {};
 struct EmptyBitvalues : ApiElementEnum<"EmptyBitvalues", ::VkFlags, ::gfxrecon::schema::vulkan::enumerants::EmptyBitvalues> { static constexpr bool kBitvalues = true; };
 struct EmptyBitvalues64 : ApiElementEnum<"EmptyBitvalues64", ::VkFlags64, ::gfxrecon::schema::vulkan::enumerants::EmptyBitvalues64> { static constexpr bool kBitvalues = true; };
 struct Float : ApiElementScalar<"float", float> {};
-struct GenericHandle : ApiElementHandle<"uint64_t", uint64_t> {};
 struct GgpFrameToken : ApiElementScalar<"GgpFrameToken", ::GgpFrameToken> {};
 struct GgpStreamDescriptor : ApiElementScalar<"GgpStreamDescriptor", ::GgpStreamDescriptor> {};
-struct HANDLE : ApiElementBase<"HANDLE", ::HANDLE, category::Opaque> {};
-struct HINSTANCE : ApiElementBase<"HINSTANCE", ::HINSTANCE, category::Opaque> {};
-struct HMONITOR : ApiElementBase<"HMONITOR", ::HMONITOR, category::Opaque> {};
-struct HWND : ApiElementBase<"HWND", ::HWND, category::Opaque> {};
-struct IDirectFB : ApiElementBase<"IDirectFB", ::IDirectFB, category::Opaque> {};
-struct IDirectFBSurface : ApiElementBase<"IDirectFBSurface", ::IDirectFBSurface, category::Opaque> {};
+struct IDirectFB : ApiElementVoid<"IDirectFB", ::IDirectFB> {};
+struct IDirectFBSurface : ApiElementVoid<"IDirectFBSurface", ::IDirectFBSurface> {};
 struct Int : ApiElementScalar<"int", int> {};
 struct Int16 : ApiElementScalar<"int16_t", int16_t> {};
 struct Int32 : ApiElementScalar<"int32_t", int32_t> {};
 struct Int64 : ApiElementScalar<"int64_t", int64_t> {};
 struct Int8 : ApiElementScalar<"int8_t", int8_t> {};
-struct LPCWSTR : ApiElementBase<"LPCWSTR", ::LPCWSTR, category::WChar> {};
 struct PFN_vkAllocationFunction : ApiElementFuncpointer<"PFN_vkAllocationFunction", ::PFN_vkAllocationFunction> {};
 struct PFN_vkDebugReportCallbackEXT : ApiElementFuncpointer<"PFN_vkDebugReportCallbackEXT", ::PFN_vkDebugReportCallbackEXT> {};
 struct PFN_vkDebugUtilsMessengerCallbackEXT : ApiElementFuncpointer<"PFN_vkDebugUtilsMessengerCallbackEXT", ::PFN_vkDebugUtilsMessengerCallbackEXT> {};
@@ -2740,7 +2735,7 @@ struct VkBlendOverlapEXT : ApiElementEnum<"VkBlendOverlapEXT", ::VkBlendOverlapE
 struct VkBlitImageCubicWeightsInfoQCOM : ApiElementTypedStruct<"VkBlitImageCubicWeightsInfoQCOM", ::VkBlitImageCubicWeightsInfoQCOM, VK_STRUCTURE_TYPE_BLIT_IMAGE_CUBIC_WEIGHTS_INFO_QCOM> {};
 struct VkBlitImageInfo2 : ApiElementTypedStruct<"VkBlitImageInfo2", ::VkBlitImageInfo2, VK_STRUCTURE_TYPE_BLIT_IMAGE_INFO_2> {};
 struct VkBlockMatchWindowCompareModeQCOM : ApiElementEnum<"VkBlockMatchWindowCompareModeQCOM", ::VkBlockMatchWindowCompareModeQCOM, ::gfxrecon::schema::vulkan::enumerants::VkBlockMatchWindowCompareModeQCOM> {};
-struct VkBool32 : ApiElementScalar<"VkBool32", ::VkBool32> {};
+struct VkBool32 : ApiElementScalar<"VkBool32", ::VkBool32> { static constexpr std::string_view source_category = "basetype"; };
 struct VkBorderColor : ApiElementEnum<"VkBorderColor", ::VkBorderColor, ::gfxrecon::schema::vulkan::enumerants::VkBorderColor> {};
 struct VkBuffer : ApiElementHandle<"VkBuffer", ::VkBuffer> {};
 struct VkBufferCaptureDescriptorDataInfoEXT : ApiElementTypedStruct<"VkBufferCaptureDescriptorDataInfoEXT", ::VkBufferCaptureDescriptorDataInfoEXT, VK_STRUCTURE_TYPE_BUFFER_CAPTURE_DESCRIPTOR_DATA_INFO_EXT> {};
@@ -2984,7 +2979,7 @@ struct VkDescriptorUpdateTemplateCreateInfo : ApiElementTypedStruct<"VkDescripto
 struct VkDescriptorUpdateTemplateEntry : ApiElementStruct<"VkDescriptorUpdateTemplateEntry", ::VkDescriptorUpdateTemplateEntry> {};
 struct VkDescriptorUpdateTemplateType : ApiElementEnum<"VkDescriptorUpdateTemplateType", ::VkDescriptorUpdateTemplateType, ::gfxrecon::schema::vulkan::enumerants::VkDescriptorUpdateTemplateType> {};
 struct VkDevice : ApiElementHandle<"VkDevice", ::VkDevice> {};
-struct VkDeviceAddress : ApiElementScalar<"VkDeviceAddress", ::VkDeviceAddress> {};
+struct VkDeviceAddress : ApiElementScalar<"VkDeviceAddress", ::VkDeviceAddress> { static constexpr std::string_view source_category = "basetype"; };
 struct VkDeviceAddressBindingCallbackDataEXT : ApiElementTypedStruct<"VkDeviceAddressBindingCallbackDataEXT", ::VkDeviceAddressBindingCallbackDataEXT, VK_STRUCTURE_TYPE_DEVICE_ADDRESS_BINDING_CALLBACK_DATA_EXT> {};
 struct VkDeviceAddressBindingFlagBitsEXT : ApiElementEnum<"VkDeviceAddressBindingFlagBitsEXT", ::VkDeviceAddressBindingFlagBitsEXT, ::gfxrecon::schema::vulkan::enumerants::VkDeviceAddressBindingFlagBitsEXT> { static constexpr bool kBitvalues = true; };
 struct VkDeviceAddressBindingFlagsEXT : ApiElementBitmask<"VkDeviceAddressBindingFlagsEXT", ::VkDeviceAddressBindingFlagsEXT, ::gfxrecon::schema::vulkan::api_elements::VkFlags, ::gfxrecon::schema::vulkan::api_elements::VkDeviceAddressBindingFlagBitsEXT> {};
@@ -3041,7 +3036,7 @@ struct VkDeviceQueueCreateInfo : ApiElementTypedStruct<"VkDeviceQueueCreateInfo"
 struct VkDeviceQueueGlobalPriorityCreateInfo : ApiElementTypedStruct<"VkDeviceQueueGlobalPriorityCreateInfo", ::VkDeviceQueueGlobalPriorityCreateInfo, VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO> {};
 struct VkDeviceQueueInfo2 : ApiElementTypedStruct<"VkDeviceQueueInfo2", ::VkDeviceQueueInfo2, VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2> {};
 struct VkDeviceQueueShaderCoreControlCreateInfoARM : ApiElementTypedStruct<"VkDeviceQueueShaderCoreControlCreateInfoARM", ::VkDeviceQueueShaderCoreControlCreateInfoARM, VK_STRUCTURE_TYPE_DEVICE_QUEUE_SHADER_CORE_CONTROL_CREATE_INFO_ARM> {};
-struct VkDeviceSize : ApiElementScalar<"VkDeviceSize", ::VkDeviceSize> {};
+struct VkDeviceSize : ApiElementScalar<"VkDeviceSize", ::VkDeviceSize> { static constexpr std::string_view source_category = "basetype"; };
 struct VkDeviceTensorMemoryRequirementsARM : ApiElementTypedStruct<"VkDeviceTensorMemoryRequirementsARM", ::VkDeviceTensorMemoryRequirementsARM, VK_STRUCTURE_TYPE_DEVICE_TENSOR_MEMORY_REQUIREMENTS_ARM> {};
 struct VkDirectDriverLoadingFlagsLUNARG : ApiElementBitmask<"VkDirectDriverLoadingFlagsLUNARG", ::VkDirectDriverLoadingFlagsLUNARG, ::gfxrecon::schema::vulkan::api_elements::VkFlags, ::gfxrecon::schema::vulkan::api_elements::EmptyBitvalues> {};
 struct VkDirectDriverLoadingInfoLUNARG : ApiElementTypedStruct<"VkDirectDriverLoadingInfoLUNARG", ::VkDirectDriverLoadingInfoLUNARG, VK_STRUCTURE_TYPE_DIRECT_DRIVER_LOADING_INFO_LUNARG> {};
@@ -3149,8 +3144,8 @@ struct VkFenceImportFlagBits : ApiElementEnum<"VkFenceImportFlagBits", ::VkFence
 struct VkFenceImportFlags : ApiElementBitmask<"VkFenceImportFlags", ::VkFenceImportFlags, ::gfxrecon::schema::vulkan::api_elements::VkFlags, ::gfxrecon::schema::vulkan::api_elements::VkFenceImportFlagBits> {};
 struct VkFilter : ApiElementEnum<"VkFilter", ::VkFilter, ::gfxrecon::schema::vulkan::enumerants::VkFilter> {};
 struct VkFilterCubicImageViewImageFormatPropertiesEXT : ApiElementTypedStruct<"VkFilterCubicImageViewImageFormatPropertiesEXT", ::VkFilterCubicImageViewImageFormatPropertiesEXT, VK_STRUCTURE_TYPE_FILTER_CUBIC_IMAGE_VIEW_IMAGE_FORMAT_PROPERTIES_EXT> {};
-struct VkFlags : ApiElementScalar<"VkFlags", ::VkFlags> {};
-struct VkFlags64 : ApiElementScalar<"VkFlags64", ::VkFlags64> {};
+struct VkFlags : ApiElementScalar<"VkFlags", ::VkFlags> { static constexpr std::string_view source_category = "basetype"; };
+struct VkFlags64 : ApiElementScalar<"VkFlags64", ::VkFlags64> { static constexpr std::string_view source_category = "basetype"; };
 struct VkFormat : ApiElementEnum<"VkFormat", ::VkFormat, ::gfxrecon::schema::vulkan::enumerants::VkFormat> {};
 struct VkFormatFeatureFlagBits : ApiElementEnum<"VkFormatFeatureFlagBits", ::VkFormatFeatureFlagBits, ::gfxrecon::schema::vulkan::enumerants::VkFormatFeatureFlagBits> { static constexpr bool kBitvalues = true; };
 struct VkFormatFeatureFlagBits2 : ApiElementEnum<"VkFormatFeatureFlagBits2", ::VkFormatFeatureFlagBits2, ::gfxrecon::schema::vulkan::enumerants::VkFormatFeatureFlagBits2> { static constexpr bool kBitvalues = true; };
@@ -4110,7 +4105,6 @@ struct VkRectLayerKHR : ApiElementStruct<"VkRectLayerKHR", ::VkRectLayerKHR> {};
 struct VkRefreshCycleDurationGOOGLE : ApiElementStruct<"VkRefreshCycleDurationGOOGLE", ::VkRefreshCycleDurationGOOGLE> {};
 struct VkReleaseCapturedPipelineDataInfoKHR : ApiElementTypedStruct<"VkReleaseCapturedPipelineDataInfoKHR", ::VkReleaseCapturedPipelineDataInfoKHR, VK_STRUCTURE_TYPE_RELEASE_CAPTURED_PIPELINE_DATA_INFO_KHR> {};
 struct VkReleaseSwapchainImagesInfoKHR : ApiElementTypedStruct<"VkReleaseSwapchainImagesInfoKHR", ::VkReleaseSwapchainImagesInfoKHR, VK_STRUCTURE_TYPE_RELEASE_SWAPCHAIN_IMAGES_INFO_KHR> {};
-struct VkRemoteAddressNV : ApiElementBase<"VkRemoteAddressNV", ::VkRemoteAddressNV, category::Opaque> {};
 struct VkRenderPass : ApiElementHandle<"VkRenderPass", ::VkRenderPass> {};
 struct VkRenderPassAttachmentBeginInfo : ApiElementTypedStruct<"VkRenderPassAttachmentBeginInfo", ::VkRenderPassAttachmentBeginInfo, VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO> {};
 struct VkRenderPassBeginInfo : ApiElementTypedStruct<"VkRenderPassBeginInfo", ::VkRenderPassBeginInfo, VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO> {};
@@ -4159,7 +4153,7 @@ struct VkSampleCountFlagBits : ApiElementEnum<"VkSampleCountFlagBits", ::VkSampl
 struct VkSampleCountFlags : ApiElementBitmask<"VkSampleCountFlags", ::VkSampleCountFlags, ::gfxrecon::schema::vulkan::api_elements::VkFlags, ::gfxrecon::schema::vulkan::api_elements::VkSampleCountFlagBits> {};
 struct VkSampleLocationEXT : ApiElementStruct<"VkSampleLocationEXT", ::VkSampleLocationEXT> {};
 struct VkSampleLocationsInfoEXT : ApiElementTypedStruct<"VkSampleLocationsInfoEXT", ::VkSampleLocationsInfoEXT, VK_STRUCTURE_TYPE_SAMPLE_LOCATIONS_INFO_EXT> {};
-struct VkSampleMask : ApiElementScalar<"VkSampleMask", ::VkSampleMask> {};
+struct VkSampleMask : ApiElementScalar<"VkSampleMask", ::VkSampleMask> { static constexpr std::string_view source_category = "basetype"; };
 struct VkSampler : ApiElementHandle<"VkSampler", ::VkSampler> {};
 struct VkSamplerAddressMode : ApiElementEnum<"VkSamplerAddressMode", ::VkSamplerAddressMode, ::gfxrecon::schema::vulkan::enumerants::VkSamplerAddressMode> {};
 struct VkSamplerBlockMatchWindowCreateInfoQCOM : ApiElementTypedStruct<"VkSamplerBlockMatchWindowCreateInfoQCOM", ::VkSamplerBlockMatchWindowCreateInfoQCOM, VK_STRUCTURE_TYPE_SAMPLER_BLOCK_MATCH_WINDOW_CREATE_INFO_QCOM> {};
@@ -4542,11 +4536,17 @@ struct VkXlibSurfaceCreateFlagsKHR : ApiElementBitmask<"VkXlibSurfaceCreateFlags
 struct VkXlibSurfaceCreateInfoKHR : ApiElementTypedStruct<"VkXlibSurfaceCreateInfoKHR", ::VkXlibSurfaceCreateInfoKHR, VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR> {};
 struct Void : ApiElementVoid<"void", void> {};
 struct Window : ApiElementScalar<"Window", ::Window> {};
-struct _screen_context : ApiElementBase<"_screen_context", ::_screen_context, category::Opaque> {};
-struct _screen_window : ApiElementBase<"_screen_window", ::_screen_window, category::Opaque> {};
-struct wl_display : ApiElementBase<"wl_display", ::wl_display, category::Opaque> {};
-struct wl_surface : ApiElementBase<"wl_surface", ::wl_surface, category::Opaque> {};
-struct xcb_connection_t : ApiElementBase<"xcb_connection_t", ::xcb_connection_t, category::Opaque> {};
+struct _screen_context : ApiElementVoid<"_screen_context", ::_screen_context> {};
+struct _screen_window : ApiElementVoid<"_screen_window", ::_screen_window> {};
+struct deref_HANDLE : ApiElementVoid<"deref_HANDLE", std::remove_cv_t<std::remove_pointer_t<::HANDLE>>> { using source_type = ::HANDLE; };
+struct deref_HINSTANCE : ApiElementVoid<"deref_HINSTANCE", std::remove_cv_t<std::remove_pointer_t<::HINSTANCE>>> { using source_type = ::HINSTANCE; };
+struct deref_HMONITOR : ApiElementVoid<"deref_HMONITOR", std::remove_cv_t<std::remove_pointer_t<::HMONITOR>>> { using source_type = ::HMONITOR; };
+struct deref_HWND : ApiElementVoid<"deref_HWND", std::remove_cv_t<std::remove_pointer_t<::HWND>>> { using source_type = ::HWND; };
+struct deref_LPCWSTR : ApiElementScalar<"deref_LPCWSTR", std::remove_cv_t<std::remove_pointer_t<::LPCWSTR>>> { using source_type = ::LPCWSTR; };
+struct deref_VkRemoteAddressNV : ApiElementVoid<"deref_VkRemoteAddressNV", std::remove_cv_t<std::remove_pointer_t<::VkRemoteAddressNV>>> { static constexpr std::string_view source_category = "basetype"; using source_type = ::VkRemoteAddressNV; };
+struct wl_display : ApiElementVoid<"wl_display", ::wl_display> {};
+struct wl_surface : ApiElementVoid<"wl_surface", ::wl_surface> {};
+struct xcb_connection_t : ApiElementVoid<"xcb_connection_t", ::xcb_connection_t> {};
 struct xcb_visualid_t : ApiElementScalar<"xcb_visualid_t", ::xcb_visualid_t> {};
 struct xcb_window_t : ApiElementScalar<"xcb_window_t", ::xcb_window_t> {};
 struct zx_handle_t : ApiElementScalar<"zx_handle_t", ::zx_handle_t> {};

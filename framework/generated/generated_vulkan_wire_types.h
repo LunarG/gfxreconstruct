@@ -54,9 +54,9 @@
 #endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-// WireTypeOf for the scalar, enum and text API elements: the format typedef each is recorded as. Bitmask,
-// handle, funcpointer and opaque are partial specializations in binding/wire_type_of.h; struct and void
-// have no width of their own.
+// WireTypeOf for the scalar and enum API elements: the format typedef each is recorded as. Bitmask,
+// handle and funcpointer are partial specializations in binding/wire_type_of.h; struct and void have no
+// width of their own.
 GFXRECON_BEGIN_NAMESPACE(binding)
 
 template <> struct WireTypeOf<schema::vulkan::api_elements::Char> { using type = format::CharEncodeType; };
@@ -72,7 +72,6 @@ template <> struct WireTypeOf<schema::vulkan::api_elements::Int16> { using type 
 template <> struct WireTypeOf<schema::vulkan::api_elements::Int32> { using type = format::Int32EncodeType; };
 template <> struct WireTypeOf<schema::vulkan::api_elements::Int64> { using type = format::Int64EncodeType; };
 template <> struct WireTypeOf<schema::vulkan::api_elements::Int8> { using type = format::Int8EncodeType; };
-template <> struct WireTypeOf<schema::vulkan::api_elements::LPCWSTR> { using type = format::WCharEncodeType; };
 template <> struct WireTypeOf<schema::vulkan::api_elements::RROutput> { using type = format::SizeTEncodeType; };
 template <> struct WireTypeOf<schema::vulkan::api_elements::SizeT> { using type = format::SizeTEncodeType; };
 template <> struct WireTypeOf<schema::vulkan::api_elements::StdVideoAV1ChromaSamplePosition> { using type = format::EnumEncodeType; };
@@ -442,6 +441,7 @@ template <> struct WireTypeOf<schema::vulkan::api_elements::VkVideoSessionCreate
 template <> struct WireTypeOf<schema::vulkan::api_elements::VkVideoSessionParametersCreateFlagBitsKHR> { using type = format::EnumEncodeType; };
 template <> struct WireTypeOf<schema::vulkan::api_elements::VkViewportCoordinateSwizzleNV> { using type = format::EnumEncodeType; };
 template <> struct WireTypeOf<schema::vulkan::api_elements::Window> { using type = format::SizeTEncodeType; };
+template <> struct WireTypeOf<schema::vulkan::api_elements::deref_LPCWSTR> { using type = format::WCharEncodeType; };
 template <> struct WireTypeOf<schema::vulkan::api_elements::xcb_visualid_t> { using type = format::UInt32EncodeType; };
 template <> struct WireTypeOf<schema::vulkan::api_elements::xcb_window_t> { using type = format::UInt32EncodeType; };
 template <> struct WireTypeOf<schema::vulkan::api_elements::zx_handle_t> { using type = format::UInt32EncodeType; };

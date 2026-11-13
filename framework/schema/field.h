@@ -39,13 +39,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(schema)
 
-// A store value derives from StoreValueBase and has a static Get(const Store&) that yields a value. An Array or
-// FixedArray takes one as its length, and an Action evaluates it on the storage that holds the Field.
-struct StoreValueBase
+// An expression value derives from ExpressionValueBase and has a static Get(const Storage&) that yields a value. An
+// Array or FixedArray takes one as its length, and an Action evaluates it on the storage that holds the Field.
+struct ExpressionValueBase
 {};
 
 template <typename T>
-concept StoreValue = std::derived_from<T, StoreValueBase>;
+concept ExpressionValue = std::derived_from<T, ExpressionValueBase>;
 
 // A Field's declaration is an API element, or a form over a declaration. The forms nest as the C declarator nests:
 // `const T* const*` with length n is Array<Const<Pointer<Const<T>>>, n>, and the API element is the leaf. Each form
@@ -71,16 +71,20 @@ struct ArrayDeclaration
 struct FixedArrayDeclaration
 {};
 
-// UseCapacity and UnknownLength are the length tokens, used in place of a store value. UseCapacity: a FixedArray's
-// length is all N items. UnknownLength: the generator could not map the registry len attribute to a store value, and
-// the Field carries the text as length_expression. A token has no Get, so FieldWithLength is false for its Field.
+// UseCapacity, NullTerminated and UnknownLength are the length tokens, used in place of an expression value.
+// UseCapacity: a FixedArray's length is all N items. NullTerminated: the run ends at its first zero item, the
+// registry's len="null-terminated"; a run of char or wchar_t with it is a string. UnknownLength: the registry's len
+// attribute maps to no expression value, and the Field carries its text as length_expression. A token is not an
+// expression value, so FieldWithLength is false for its Field, and a token has no Get.
 struct UseCapacity
+{};
+struct NullTerminated
 {};
 struct UnknownLength
 {};
 
 template <typename T>
-concept LengthDescriptor = StoreValue<T> || std::same_as<T, UnknownLength>;
+concept LengthDescriptor = ExpressionValue<T> || std::same_as<T, UnknownLength> || std::same_as<T, NullTerminated>;
 
 // Const applies const at this level of the declaration.
 template <typename D>
@@ -103,13 +107,14 @@ struct Array : Declaration<D>, ArrayDeclaration
 };
 
 // FixedArray declares an array of N items of D inside the storage type, with Length of them valid: UseCapacity for all
-// N, or the store value of a sibling count member, which the encode Action clamps to N.
+// N, NullTerminated for a string, or the expression value of a sibling count member, which the encode Action clamps to
+// N.
 template <typename D, typename Length, size_t N>
 requires IsDeclaration_v<D>
 struct FixedArray : Declaration<D>, FixedArrayDeclaration
 {
-    static_assert(StoreValue<Length> || std::same_as<Length, UseCapacity>,
-                  "A FixedArray's length is UseCapacity or a store value");
+    static_assert(ExpressionValue<Length> || std::same_as<Length, UseCapacity> || std::same_as<Length, NullTerminated>,
+                  "A FixedArray's length is UseCapacity, NullTerminated or an expression value");
     using length                     = Length;
     static constexpr size_t capacity = N;
 };
@@ -228,9 +233,8 @@ inline constexpr bool IsField_v = std::is_base_of_v<FieldBase, T>;
 //   length_expression An Array whose length is UnknownLength: the registry len text as written, kept so it is not lost.
 //                     Nothing reads it.
 //   selector_field    The sibling Field whose value selects this Field's meaning: the registry's selector attribute
-//                     on a union member, or the object type member of a GenericHandle member (GENERIC_HANDLE_STRUCTS
-//                     and GENERIC_HANDLE_APICALLS in vulkan_base_generator.py). The encode Action passes a
-//                     GenericHandle's selector to GetWrappedId.
+//                     on a union member, or its objecttype attribute on an integer member that holds a handle, the
+//                     sibling that holds the handle's type. The encode Action passes that sibling to GetWrappedId.
 //   selections        A union alternative the registry marks: the selector values that choose it, from the
 //                     registry's selection attribute.
 //   has_extensions    The pNext Field only: true when the registry lists the owner on either side of structextends.
@@ -240,8 +244,8 @@ inline constexpr bool IsField_v = std::is_base_of_v<FieldBase, T>;
 template <ApiElement E>
 using CategoryOf_t = typename E::category;
 
-// LengthOf_t is the length of an Array or FixedArray Field: a store value (FieldValue, Literal, Sum, Product,
-// Quotient), UseCapacity, or UnknownLength.
+// LengthOf_t is the length of an Array or FixedArray Field: an expression value (FieldValue, Literal, Sum, Product,
+// Quotient), UseCapacity, NullTerminated, or UnknownLength.
 template <typename Field>
 using LengthOf_t = typename RemoveConst_t<typename Field::declaration>::length;
 
@@ -267,7 +271,7 @@ inline constexpr bool DeclaredExtentsMatch_v = DeclaredExtentsMatch<ArrayType, F
 
 // MemberPointer<Storage, Field>::value points at the member of Storage that holds Field. The generator specializes it
 // for the API structures, the Decoded_ wrappers and the decode::args command storage. The primary template is
-// undefined: without a specialization FieldStoreFor and Addressable are false, not a hard error.
+// undefined: without a specialization StorageFor and Addressable are false, not a hard error.
 template <typename Storage, typename Field>
 struct MemberPointer;
 
@@ -283,16 +287,34 @@ struct NonAddressableMember
 };
 
 template <typename Storage, typename Field>
-concept FieldStoreFor = requires
+concept StorageFor = requires
 {
     MemberPointer<std::remove_cv_t<Storage>, Field>::value;
 };
 
-template <typename Storage, typename Field>
-concept FieldWithSelector = FieldStoreFor<Storage, typename Field::selector_field>;
+// FieldWithSelector matches a Field that carries selector_field: a union alternative, or an integer that holds a
+// handle. It tests the Field alone. StorageWithSelector adds that Storage holds the selector sibling, for a body
+// that reads the sibling's value.
+template <typename Field>
+concept FieldWithSelector = requires
+{
+    typename Field::selector_field;
+};
 
 template <typename Storage, typename Field>
-concept FieldWithLength = requires(const Storage& storage)
+concept StorageWithSelector = FieldWithSelector<Field> && StorageFor<Storage, typename Field::selector_field>;
+
+// FieldWithLength matches a Field whose declared length is an expression value, a count member or an expression over
+// members, and not a length token. It tests the Field alone. StorageWithLength adds that Storage can evaluate
+// that length, for a body that reads the count.
+template <typename Field>
+concept FieldWithLength = requires
+{
+    requires ExpressionValue<LengthOf_t<Field>>;
+};
+
+template <typename Storage, typename Field>
+concept StorageWithLength = FieldWithLength<Field> && requires(const Storage& storage)
 {
     LengthOf_t<Field>::Get(storage);
 };
@@ -304,7 +326,7 @@ concept Addressable = requires
 };
 
 template <typename Storage, typename Field>
-concept NonAddressable = FieldStoreFor<Storage, Field> &&(!Addressable<Storage, Field>);
+concept NonAddressable = StorageFor<Storage, Field> &&(!Addressable<Storage, Field>);
 
 // Returns a reference to an addressable member. The constraint removes it from the overload set for a bitfield member,
 // which Get and Set serve instead.
@@ -318,7 +340,7 @@ requires Addressable<Storage, Field>
 // Returns a const reference to an addressable member, or a bitfield member's value through the generated Get. Binding
 // the result to const auto& is safe in both cases; take a copy with auto.
 template <typename Storage, typename Field>
-requires FieldStoreFor<Storage, Field>
+requires StorageFor<Storage, Field>
 [[nodiscard]] decltype(auto) Get(const Storage& storage, Field field)
 {
     if constexpr (Addressable<Storage, Field>)
@@ -334,7 +356,7 @@ requires FieldStoreFor<Storage, Field>
 // Writes value to the member: through GetRef when addressable, through the generated Set for a bitfield member. It is
 // the only write available for a bitfield member.
 template <typename Storage, typename Field, typename ValueType>
-requires FieldStoreFor<Storage, Field>
+requires StorageFor<Storage, Field>
 void Set(Storage& storage, Field field, ValueType&& value)
 {
     if constexpr (Addressable<Storage, Field>)
@@ -392,8 +414,31 @@ concept ArrayField =
 template <typename Field>
 concept FixedArrayField = std::is_base_of_v<FixedArrayDeclaration, RemoveConst_t<typename Field::declaration>>;
 
+GFXRECON_BEGIN_NAMESPACE(detail)
+
+template <typename D>
+struct IsNullTerminated : std::false_type
+{};
+template <typename D>
+struct IsNullTerminated<Array<D, NullTerminated>> : std::true_type
+{};
+template <typename D, size_t N>
+struct IsNullTerminated<FixedArray<D, NullTerminated, N>> : std::true_type
+{};
+
+GFXRECON_END_NAMESPACE(detail)
+
+// NullTerminatedField matches a string: an Array or FixedArray whose length is NullTerminated, over a char or wchar_t
+// scalar. NullTerminatedArrayField matches a counted run of strings, const char* const*: an Array whose item is one.
+template <typename Field>
+concept NullTerminatedField = detail::IsNullTerminated<RemoveConst_t<typename Field::declaration>>::value;
+
+template <typename Field>
+concept NullTerminatedArrayField = ArrayField<Field> &&
+    detail::IsNullTerminated<RemoveConst_t<typename RemoveConst_t<typename Field::declaration>::element>>::value;
+
 // Category concepts take an API element, a Field's api_element; form concepts take the Field. Combine them:
-// OpaqueApiElement<typename F::api_element> && PointerField<F> is a pointer to an opaque object.
+// VoidApiElement<typename F::api_element> && PointerField<F> is a pointer to void.
 template <typename E>
 concept HandleApiElement = ApiElement<E> && std::same_as<CategoryOf_t<E>, category::Handle>;
 
@@ -408,11 +453,6 @@ concept ScalarApiElement = ApiElement<E> &&
 
 template <typename Field>
 concept ScalarValueField = ScalarApiElement<typename Field::api_element> && ValueField<Field>;
-
-// TextApiElement matches the text categories, Char and WChar.
-// Interim until stage 3: text becomes a Char or WChar scalar with a length token on the Field.
-template <typename E>
-concept TextApiElement = ApiElement<E> && std::derived_from<CategoryOf_t<E>, category::Text>;
 
 // StructApiElement matches structures and unions. A union Field takes the structure Apply;
 // decode/custom_vulkan_struct_decoders.cpp and encode/custom_vulkan_struct_encoders.cpp hold the hand-written
@@ -431,29 +471,20 @@ concept EnumApiElement = ApiElement<E> && std::same_as<CategoryOf_t<E>, category
 template <typename E>
 concept BitmaskApiElement = ApiElement<E> && std::same_as<CategoryOf_t<E>, category::Bitmask>;
 
-// OpaqueApiElement matches a type the API declares and never describes: a platform structure reached through a pointer
-// (ANativeWindow), or a platform handle typedef held by value (HWND). It is recorded as the address, never followed.
-template <typename E>
-concept OpaqueApiElement = ApiElement<E> && std::same_as<CategoryOf_t<E>, category::Opaque>;
-
 template <typename E>
 concept FuncpointerApiElement = ApiElement<E> && std::same_as<CategoryOf_t<E>, category::Funcpointer>;
 
-// VoidApiElement matches void. A Pointer to it is recorded as an address, an Array of it as a run of bytes, and a
-// value of it is a command's void return.
+// VoidApiElement matches void and the platform types with no C definition in the API headers (ANativeWindow,
+// deref_HWND). A Pointer to it is recorded as an address, an Array of it as a run of bytes, and a value of it is a
+// command's void return.
 template <typename E>
 concept VoidApiElement = ApiElement<E> && std::same_as<CategoryOf_t<E>, category::Void>;
 
 // IdentifierApiElement matches the API elements recorded as an identifier rather than the thing itself: a handle's
-// capture id, or the address of an opaque object or function. The decode Action writes the identifier to the Decoded_
-// wrapper member and nulls the API structure's member; replay maps handle members through MapStructHandles.
+// capture id, or a function's address. The decode Action writes the identifier to the Decoded_ wrapper member and
+// nulls the API structure's member; replay maps handle members through MapStructHandles.
 template <typename E>
-concept IdentifierApiElement = HandleApiElement<E> || OpaqueApiElement<E> || FuncpointerApiElement<E>;
-
-// GeneralScalarApiElement matches the API elements encoded from the member's own bits: scalar, enum, bitmask, opaque
-// and funcpointer. Handle is excluded: a handle value is encoded as its capture id.
-template <typename E>
-concept GeneralScalarApiElement = ScalarApiElement<E> || OpaqueApiElement<E> || FuncpointerApiElement<E>;
+concept IdentifierApiElement = HandleApiElement<E> || FuncpointerApiElement<E>;
 
 // AnyPointerField matches any pointer form. Constrain on it where the body ignores the length: a PointerDecoder reads
 // length and depth from the capture, so a pointer to one item is a run of one and a run of pointers is one more level.
@@ -468,79 +499,105 @@ concept AnyCountedField = ArrayField<Field> || PointerArrayField<Field>;
 template <typename Field>
 concept AnyArrayField = FixedArrayField<Field> || ArrayField<Field>;
 
-// IntegralLength matches what a count operand may yield: an integer, or a C enum standing for one, as
-// rasterizationSamples does. bool is excluded: it is an integer to the language, not a count.
+GFXRECON_BEGIN_NAMESPACE(detail)
+
+// Integer matches an operand of Sum, Product and Quotient: an integer other than bool, which is an integer to the
+// language and not a count. IntegerOrEnum matches a Literal's value: an integer or an enumerator.
 template <typename T>
-concept IntegralLength = (std::integral<T> && !std::same_as<T, bool>) || std::is_enum_v<T>;
+concept Integer = std::integral<T> && !std::same_as<T, bool>;
 
-template <typename Operand, typename Store>
-using OperandValue_t = decltype(Operand::Get(std::declval<const Store&>()));
+template <typename T>
+concept IntegerOrEnum = Integer<T> || std::is_enum_v<T>;
 
-// FieldValue reads a length from storage. FieldValue<F> reads F's member. FieldValue<F, Member> reads Member from the
-// structure F points at, e.g. FieldValue<pAllocateInfo, fields::VkCommandBufferAllocateInfo::commandBufferCount>.
-template <typename Field, typename... Member>
-struct FieldValue;
+GFXRECON_END_NAMESPACE(detail)
 
+template <typename Operand, typename Storage>
+using OperandValue_t = decltype(Operand::Get(std::declval<const Storage&>()));
+
+// FieldValue<F> reads F's member from storage.
 template <typename Field>
-struct FieldValue<Field> : StoreValueBase
+struct FieldValue : ExpressionValueBase
 {
-    template <typename Store>
-    requires FieldStoreFor<Store, Field>
-    [[nodiscard]] static auto Get(const Store& store) { return schema::Get(store, Field{}); }
+    template <typename Storage>
+    requires StorageFor<Storage, Field>
+    [[nodiscard]] static auto Get(const Storage& storage) { return schema::Get(storage, Field{}); }
 };
 
+// StoragePtrValue<F, Member> reads Member from the structure the pointer F points at, e.g.
+// StoragePtrValue<pAllocateInfo, fields::VkCommandBufferAllocateInfo::commandBufferCount>.
 template <typename Field, typename Member>
-struct FieldValue<Field, Member> : StoreValueBase
+struct StoragePtrValue : ExpressionValueBase
 {
     static_assert(PointerField<Field>,
                   "Pointer Field only. Struct Field: add a GetRef branch in Get and FieldStore.");
 
-    template <typename Store>
-    using FieldStore = std::remove_cvref_t<decltype(*FieldValue<Field>::Get(std::declval<const Store&>()))>;
+    template <typename Storage>
+    using FieldStore = std::remove_cvref_t<decltype(*FieldValue<Field>::Get(std::declval<const Storage&>()))>;
 
-    template <typename Store>
-    requires FieldStoreFor<FieldStore<Store>, Member>
-    [[nodiscard]] static auto Get(const Store& store) { return schema::Get(*FieldValue<Field>::Get(store), Member{}); }
+    template <typename Storage>
+    requires StorageFor<FieldStore<Storage>, Member>
+    [[nodiscard]] static auto Get(const Storage& storage)
+    {
+        return schema::Get(*FieldValue<Field>::Get(storage), Member{});
+    }
 };
 
-// Literal<V> yields V, in the type the generator gave the literal. An API constant such as VK_UUID_SIZE is a macro, so
+// Literal<V> yields V as declared, an integer or an enumerator. An API constant such as VK_UUID_SIZE is a macro, so
 // V carries its value and the NOTE comment above the generated Field carries its name.
-template <auto V>
-struct Literal : StoreValueBase
+template <detail::IntegerOrEnum auto V>
+struct Literal : ExpressionValueBase
 {
-    template <typename Store>
-    [[nodiscard]] static constexpr auto Get(const Store&)
+    using value_type = decltype(V);
+
+    template <typename Storage>
+    [[nodiscard]] static constexpr value_type Get(const Storage&)
     {
         return V;
     }
 };
 
+// AsInteger<Operand> yields an enum-valued Operand as its underlying integer type. The generator applies it where a
+// length reads an enum member, rasterizationSamples for pSampleMask, so the operators see integers only. For a C
+// enum the underlying type is the compiler's choice, so the result's signedness is not portable; its value is.
+template <ExpressionValue Operand>
+struct AsInteger : ExpressionValueBase
+{
+    template <typename Storage>
+    requires std::is_enum_v<OperandValue_t<Operand, Storage>>
+    [[nodiscard]] static constexpr auto Get(const Storage& storage)
+    {
+        using value_type = std::underlying_type_t<OperandValue_t<Operand, Storage>>;
+        return static_cast<value_type>(Operand::Get(storage));
+    }
+};
+
 // Sum, Product and Quotient compute in their operands' own types under the usual arithmetic conversions. The generator
-// writes a literal unsigned (Literal<4u>) unless an enum operand takes part, so no sign conversion occurs. The encode
+// writes a literal unsigned (Literal<4u>) unless an enum operand, read through AsInteger, takes part, so no sign
+// conversion occurs. The encode
 // Action narrows the result to size_t once. Registry len attributes use these three operators only; a new one is a
-// StoreValue here and a case in parse_count_expression (vulkan_schema_generator.py).
-template <StoreValue Left, StoreValue Right>
-struct Sum : StoreValueBase
+// ExpressionValue here and a case in parse_count_expression (vulkan_schema_generator.py).
+template <ExpressionValue Left, ExpressionValue Right>
+struct Sum : ExpressionValueBase
 {
-    template <typename Store>
-    requires IntegralLength<OperandValue_t<Left, Store>> && IntegralLength<OperandValue_t<Right, Store>>
-    [[nodiscard]] static constexpr auto Get(const Store& store) { return Left::Get(store) + Right::Get(store); }
+    template <typename Storage>
+    requires detail::Integer<OperandValue_t<Left, Storage>> && detail::Integer<OperandValue_t<Right, Storage>>
+    [[nodiscard]] static constexpr auto Get(const Storage& storage) { return Left::Get(storage) + Right::Get(storage); }
 };
 
-template <StoreValue Left, StoreValue Right>
-struct Product : StoreValueBase
+template <ExpressionValue Left, ExpressionValue Right>
+struct Product : ExpressionValueBase
 {
-    template <typename Store>
-    requires IntegralLength<OperandValue_t<Left, Store>> && IntegralLength<OperandValue_t<Right, Store>>
-    [[nodiscard]] static constexpr auto Get(const Store& store) { return Left::Get(store) * Right::Get(store); }
+    template <typename Storage>
+    requires detail::Integer<OperandValue_t<Left, Storage>> && detail::Integer<OperandValue_t<Right, Storage>>
+    [[nodiscard]] static constexpr auto Get(const Storage& storage) { return Left::Get(storage) * Right::Get(storage); }
 };
 
-template <StoreValue Left, StoreValue Right>
-struct Quotient : StoreValueBase
+template <ExpressionValue Left, ExpressionValue Right>
+struct Quotient : ExpressionValueBase
 {
-    template <typename Store>
-    requires IntegralLength<OperandValue_t<Left, Store>> && IntegralLength<OperandValue_t<Right, Store>>
-    [[nodiscard]] static constexpr auto Get(const Store& store) { return Left::Get(store) / Right::Get(store); }
+    template <typename Storage>
+    requires detail::Integer<OperandValue_t<Left, Storage>> && detail::Integer<OperandValue_t<Right, Storage>>
+    [[nodiscard]] static constexpr auto Get(const Storage& storage) { return Left::Get(storage) / Right::Get(storage); }
 };
 
 template <typename Storage, typename Field, typename ValueType>

@@ -20,10 +20,11 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-// WireTypeOf is the type an API element is encoded as in the capture file, e.g. format::DeviceSizeEncodeType for
-// VkDeviceSize. The scalar, enum and text specializations are generated into generated/generated_<api>_wire_types.h,
-// which binding/<api>_wire_type.h includes; the partial specializations below cover bitmask, handle, funcpointer and
-// opaque. To change how a type is recorded, change its specialization: the Actions only read WireTypeOf_t.
+// WireTypeOf maps api_elements::SomeApiType to the type it is encoded as in the capture file, a format encode
+// typedef such as format::UInt64EncodeType. A bitmask, handle or funcpointer element is encoded as every element of
+// its category is, so this header specializes WireTypeOf by category. A scalar or enum element has a width of its
+// own, so its API specializes WireTypeOf per element, in binding/<api>_wire_type.h, the header API code includes.
+// The representation of an API element on the wire is specified through its WireTypeOf specialization.
 
 #ifndef GFXRECON_BINDING_WIRE_TYPE_OF_H
 #define GFXRECON_BINDING_WIRE_TYPE_OF_H
@@ -37,7 +38,7 @@ GFXRECON_BEGIN_NAMESPACE(binding)
 
 // Undefined: an API element without a specialization is an incomplete type where WireTypeOf_t reads it.
 template <schema::ApiElement Element>
-requires schema::ScalarApiElement<Element> || schema::TextApiElement<Element> || schema::IdentifierApiElement<Element>
+requires schema::ScalarApiElement<Element> || schema::IdentifierApiElement<Element>
 struct WireTypeOf;
 
 template <schema::ApiElement Element>
@@ -58,7 +59,7 @@ struct WireTypeOf<Element>
 };
 
 template <schema::ApiElement Element>
-requires schema::FuncpointerApiElement<Element> || schema::OpaqueApiElement<Element>
+requires schema::FuncpointerApiElement<Element>
 struct WireTypeOf<Element>
 {
     using type = format::AddressEncodeType;

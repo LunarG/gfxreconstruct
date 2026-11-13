@@ -93,8 +93,8 @@ GFXRECON_INVENTORY_TYPE_LIST_BEGIN(custom_handle_mapping_structures)
 #include "generated/generated_vulkan_inventory.h"
 GFXRECON_INVENTORY_TYPE_LIST_END
 
-// generic_handle_structures lists the structures with a runtime-typed handle member: an integer whose sibling object
-// type member identifies the handle type.
+// generic_handle_structures lists the structures with a member the registry marks objecttype: an integer that holds a
+// handle whose type a sibling member gives.
 #define GFXRECON_INVENTORY_REQUIRE GFXRECON_INVENTORY_GENERIC_HANDLE
 #define GFXRECON_INVENTORY_VISIT_STRUCT(Name) GFXRECON_INVENTORY_TYPE_LIST_ENTRY(schema::vulkan::api_elements::Name)
 #define GFXRECON_INVENTORY_VISIT_UNION(Name) GFXRECON_INVENTORY_VISIT_STRUCT(Name)

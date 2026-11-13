@@ -169,20 +169,20 @@ static_assert(schema::Addressable<decode::args::CmdPipelineBarrier, cmd_field::p
 static_assert(schema::StoresElementField<VkBufferMemoryBarrier, barrier_field::buffer>);
 
 // A scalar that decode leaves in the wrapped API structure has no decoded-wrapper mapping.
-static_assert(schema::FieldStoreFor<VkBufferMemoryBarrier, barrier_field::srcAccessMask>);
-static_assert(!schema::FieldStoreFor<decode::Decoded_VkBufferMemoryBarrier, barrier_field::srcAccessMask>);
+static_assert(schema::StorageFor<VkBufferMemoryBarrier, barrier_field::srcAccessMask>);
+static_assert(!schema::StorageFor<decode::Decoded_VkBufferMemoryBarrier, barrier_field::srcAccessMask>);
 
-// objectHandle is a uint64_t in vk.xml that GFXReconstruct maps as a handle: its API element is GenericHandle, and
-// its selector_field is objectType, which selects the handle type at run time.
+// objectHandle is a uint64_t vk.xml marks objecttype="objectType": its API element is UInt64, and its selector_field
+// is objectType, the sibling that holds the handle type at run time.
 namespace debug_field = schema::vulkan::fields::VkDebugUtilsObjectNameInfoEXT;
-static_assert(std::is_same_v<debug_field::objectHandle::api_element, schema::vulkan::api_elements::GenericHandle>);
+static_assert(std::is_same_v<debug_field::objectHandle::api_element, schema::vulkan::api_elements::UInt64>);
 static_assert(std::is_same_v<debug_field::objectHandle::selector_field, debug_field::objectType>);
-static_assert(schema::HandleValueField<debug_field::objectHandle>);
+static_assert(schema::ScalarValueField<debug_field::objectHandle>);
 
 // VkAccelerationStructureInstanceKHR::mask is a bitfield: it has a MemberPointer specialization but no address, so
 // GetRef does not accept it and Get and Set go through the generated accessors.
-static_assert(schema::FieldStoreFor<VkAccelerationStructureInstanceKHR,
-                                    schema::vulkan::fields::VkAccelerationStructureInstanceKHR::mask>);
+static_assert(schema::StorageFor<VkAccelerationStructureInstanceKHR,
+                                 schema::vulkan::fields::VkAccelerationStructureInstanceKHR::mask>);
 static_assert(schema::NonAddressable<VkAccelerationStructureInstanceKHR,
                                      schema::vulkan::fields::VkAccelerationStructureInstanceKHR::mask>);
 
@@ -213,8 +213,8 @@ struct CountingAction
     }
 };
 
-// Stands in for vkCmdPipelineBarrier in the InvokeFromFields test: the same signature, an empty body. ApiCallStore
-// and AllocateCallStore below are hand-written command stores for the InvokeFromFields and FieldValue tests.
+// Stands in for vkCmdPipelineBarrier in the InvokeFromFields test: the same signature, an empty body. ApiCallStorage
+// and AllocateCallStorage below are hand-written command stores for the InvokeFromFields and FieldValue tests.
 void RecordPipelineBarrier(VkCommandBuffer,
                            VkPipelineStageFlags,
                            VkPipelineStageFlags,
@@ -227,7 +227,7 @@ void RecordPipelineBarrier(VkCommandBuffer,
                            const VkImageMemoryBarrier*)
 {}
 
-struct ApiCallStore
+struct ApiCallStorage
 {
     VkCommandBuffer              commandBuffer;
     VkPipelineStageFlags         srcStageMask;
@@ -243,7 +243,7 @@ struct ApiCallStore
 
 namespace alloc_field = schema::vulkan::fields::AllocateCommandBuffers;
 
-struct AllocateCallStore
+struct AllocateCallStorage
 {
     VkDevice                           device;
     const VkCommandBufferAllocateInfo* pAllocateInfo;
@@ -257,70 +257,70 @@ GFXRECON_BEGIN_NAMESPACE(schema)
 // Maps command Fields onto the hand-written stores. MemberPointer keys on the storage type and the Field, not on
 // the Field alone, so a hand-written store maps the same Fields as the API structure and its Decoded_ wrapper.
 template <>
-struct MemberPointer<ApiCallStore, cmd_field::commandBuffer>
+struct MemberPointer<ApiCallStorage, cmd_field::commandBuffer>
 {
-    static constexpr auto value = &ApiCallStore::commandBuffer;
+    static constexpr auto value = &ApiCallStorage::commandBuffer;
 };
 template <>
-struct MemberPointer<ApiCallStore, cmd_field::srcStageMask>
+struct MemberPointer<ApiCallStorage, cmd_field::srcStageMask>
 {
-    static constexpr auto value = &ApiCallStore::srcStageMask;
+    static constexpr auto value = &ApiCallStorage::srcStageMask;
 };
 template <>
-struct MemberPointer<ApiCallStore, cmd_field::dstStageMask>
+struct MemberPointer<ApiCallStorage, cmd_field::dstStageMask>
 {
-    static constexpr auto value = &ApiCallStore::dstStageMask;
+    static constexpr auto value = &ApiCallStorage::dstStageMask;
 };
 template <>
-struct MemberPointer<ApiCallStore, cmd_field::dependencyFlags>
+struct MemberPointer<ApiCallStorage, cmd_field::dependencyFlags>
 {
-    static constexpr auto value = &ApiCallStore::dependencyFlags;
+    static constexpr auto value = &ApiCallStorage::dependencyFlags;
 };
 template <>
-struct MemberPointer<ApiCallStore, cmd_field::memoryBarrierCount>
+struct MemberPointer<ApiCallStorage, cmd_field::memoryBarrierCount>
 {
-    static constexpr auto value = &ApiCallStore::memoryBarrierCount;
+    static constexpr auto value = &ApiCallStorage::memoryBarrierCount;
 };
 template <>
-struct MemberPointer<ApiCallStore, cmd_field::pMemoryBarriers>
+struct MemberPointer<ApiCallStorage, cmd_field::pMemoryBarriers>
 {
-    static constexpr auto value = &ApiCallStore::pMemoryBarriers;
+    static constexpr auto value = &ApiCallStorage::pMemoryBarriers;
 };
 template <>
-struct MemberPointer<ApiCallStore, cmd_field::bufferMemoryBarrierCount>
+struct MemberPointer<ApiCallStorage, cmd_field::bufferMemoryBarrierCount>
 {
-    static constexpr auto value = &ApiCallStore::bufferMemoryBarrierCount;
+    static constexpr auto value = &ApiCallStorage::bufferMemoryBarrierCount;
 };
 template <>
-struct MemberPointer<ApiCallStore, cmd_field::pBufferMemoryBarriers>
+struct MemberPointer<ApiCallStorage, cmd_field::pBufferMemoryBarriers>
 {
-    static constexpr auto value = &ApiCallStore::pBufferMemoryBarriers;
+    static constexpr auto value = &ApiCallStorage::pBufferMemoryBarriers;
 };
 template <>
-struct MemberPointer<ApiCallStore, cmd_field::imageMemoryBarrierCount>
+struct MemberPointer<ApiCallStorage, cmd_field::imageMemoryBarrierCount>
 {
-    static constexpr auto value = &ApiCallStore::imageMemoryBarrierCount;
+    static constexpr auto value = &ApiCallStorage::imageMemoryBarrierCount;
 };
 template <>
-struct MemberPointer<ApiCallStore, cmd_field::pImageMemoryBarriers>
+struct MemberPointer<ApiCallStorage, cmd_field::pImageMemoryBarriers>
 {
-    static constexpr auto value = &ApiCallStore::pImageMemoryBarriers;
+    static constexpr auto value = &ApiCallStorage::pImageMemoryBarriers;
 };
 
 template <>
-struct MemberPointer<AllocateCallStore, alloc_field::device>
+struct MemberPointer<AllocateCallStorage, alloc_field::device>
 {
-    static constexpr auto value = &AllocateCallStore::device;
+    static constexpr auto value = &AllocateCallStorage::device;
 };
 template <>
-struct MemberPointer<AllocateCallStore, alloc_field::pAllocateInfo>
+struct MemberPointer<AllocateCallStorage, alloc_field::pAllocateInfo>
 {
-    static constexpr auto value = &AllocateCallStore::pAllocateInfo;
+    static constexpr auto value = &AllocateCallStorage::pAllocateInfo;
 };
 template <>
-struct MemberPointer<AllocateCallStore, alloc_field::pCommandBuffers>
+struct MemberPointer<AllocateCallStorage, alloc_field::pCommandBuffers>
 {
-    static constexpr auto value = &AllocateCallStore::pCommandBuffers;
+    static constexpr auto value = &AllocateCallStorage::pCommandBuffers;
 };
 
 GFXRECON_END_NAMESPACE(schema)
@@ -1476,14 +1476,15 @@ TEST_CASE("Schema EncodeStruct matches counted fixed-extent array wire bytes", "
     namespace group_field  = schema::vulkan::fields::VkPhysicalDeviceGroupProperties;
     static_assert(schema::FixedArrayField<group_field::physicalDevices>);
     static_assert(schema::HandleApiElement<group_field::physicalDevices::api_element>);
-    static_assert(schema::FieldWithLength<VkPhysicalDeviceGroupProperties, group_field::physicalDevices>);
+    static_assert(schema::FieldWithLength<group_field::physicalDevices>);
+    static_assert(schema::StorageWithLength<VkPhysicalDeviceGroupProperties, group_field::physicalDevices>);
     static_assert(std::is_same_v<schema::LengthOf_t<group_field::physicalDevices>,
                                  schema::FieldValue<group_field::physicalDeviceCount>>);
     static_assert(encode::ApiElementWithCaptureWrapper<schema::vulkan::api_elements::VkPhysicalDevice>);
     static_assert(schema::FixedArrayField<memory_field::memoryTypes>);
     static_assert(schema::FixedArrayField<memory_field::memoryHeaps>);
-    static_assert(schema::FieldWithLength<VkPhysicalDeviceMemoryProperties, memory_field::memoryTypes>);
-    static_assert(schema::FieldWithLength<VkPhysicalDeviceMemoryProperties, memory_field::memoryHeaps>);
+    static_assert(schema::StorageWithLength<VkPhysicalDeviceMemoryProperties, memory_field::memoryTypes>);
+    static_assert(schema::StorageWithLength<VkPhysicalDeviceMemoryProperties, memory_field::memoryHeaps>);
     static_assert(std::is_same_v<schema::LengthOf_t<memory_field::memoryTypes>,
                                  schema::FieldValue<memory_field::memoryTypeCount>>);
     static_assert(std::is_same_v<schema::LengthOf_t<memory_field::memoryHeaps>,
@@ -1646,16 +1647,17 @@ TEST_CASE("Schema EncodeStruct matches counted fixed-extent array wire bytes", "
 
 TEST_CASE("Schema EncodeStruct matches pointer-array wire bytes", "[schema][encode]")
 {
-    // Checks PointerArrayField: an array of count pointers, each to one element. The storage is the same for a run of
-    // strings and a run of structures, and the wire is not: text is written as a one-dimensional string array,
-    // structures as EncodeStructArray2D with every inner length 1, the encoder's form of a pointer to one structure.
+    // Checks a counted run of pointers, each to one item: NullTerminatedArrayField for strings, PointerArrayField for
+    // structures. The storage is the same for both, and the wire is not: text is written as a one-dimensional string
+    // array, structures as EncodeStructArray2D with every inner length 1, the encoder's form of a pointer to one
+    // structure.
     // VkInstanceCreateInfo and VkDeviceCreateInfo carry string runs; VkAccelerationStructureGeometryMicromapDataKHR and
     // VkMicromapBuildInfoEXT carry a structure run and a pointer run over the same count.
     namespace instance_field = schema::vulkan::fields::VkInstanceCreateInfo;
     namespace micromap_field = schema::vulkan::fields::VkAccelerationStructureGeometryMicromapDataKHR;
 
-    static_assert(schema::PointerArrayField<instance_field::ppEnabledLayerNames>);
-    static_assert(schema::TextApiElement<instance_field::ppEnabledLayerNames::api_element>);
+    static_assert(schema::NullTerminatedArrayField<instance_field::ppEnabledLayerNames>);
+    static_assert(!schema::PointerArrayField<instance_field::ppEnabledLayerNames>);
     static_assert(std::is_pointer_v<
                   std::remove_pointer_t<schema::ApiTypeOf_t<instance_field::ppEnabledLayerNames::declaration>>>);
     static_assert(std::is_same_v<schema::LengthOf_t<instance_field::ppEnabledExtensionNames>,
@@ -1832,7 +1834,7 @@ TEST_CASE("Schema EncodeStruct matches computed-count wire bytes", "[schema][enc
     // Checks run lengths that are vk.xml altlen arithmetic rather than one count Field, one per operator: a size_t
     // Field over a constant (VkShaderModuleCreateInfo, codeSize / 4), an enum Field plus a constant over a constant
     // (VkPipelineMultisampleStateCreateInfo, (rasterizationSamples + 31) / 32), and two constants with no Field at all
-    // (VkMicromapVersionInfoEXT, 2*VK_UUID_SIZE). The Field's Array declaration holds the expression as StoreValue
+    // (VkMicromapVersionInfoEXT, 2*VK_UUID_SIZE). The Field's Array declaration holds the expression as ExpressionValue
     // types, and EncodeStructAction's counted-run Apply evaluates it through LengthOf_t::Get.
     namespace shader_field      = schema::vulkan::fields::VkShaderModuleCreateInfo;
     namespace multisample_field = schema::vulkan::fields::VkPipelineMultisampleStateCreateInfo;
@@ -1843,35 +1845,39 @@ TEST_CASE("Schema EncodeStruct matches computed-count wire bytes", "[schema][enc
     static_assert(std::is_same_v<schema::LengthOf_t<shader_field::pCode>,
                                  schema::Quotient<schema::FieldValue<shader_field::codeSize>, schema::Literal<4u>>>);
     static_assert(
-        std::is_same_v<schema::LengthOf_t<multisample_field::pSampleMask>,
-                       schema::Quotient<schema::Sum<schema::FieldValue<multisample_field::rasterizationSamples>,
-                                                    schema::Literal<31>>,
-                                        schema::Literal<32>>>);
+        std::is_same_v<
+            schema::LengthOf_t<multisample_field::pSampleMask>,
+            schema::Quotient<schema::Sum<schema::AsInteger<schema::FieldValue<multisample_field::rasterizationSamples>>,
+                                         schema::Literal<31>>,
+                             schema::Literal<32>>>);
     static_assert(std::is_same_v<schema::LengthOf_t<micromap_field::pVersionData>,
                                  schema::Product<schema::Literal<2u>, schema::Literal<VK_UUID_SIZE>>>);
 
-    // FieldValue, Literal and Sum are StoreValues, and int and a Field are not. IntegralLength admits integers and
-    // enums, and not bool or float.
-    static_assert(schema::StoreValue<schema::FieldValue<shader_field::codeSize>>);
-    static_assert(schema::StoreValue<schema::Literal<4u>>);
-    static_assert(schema::StoreValue<schema::Sum<schema::Literal<1u>, schema::Literal<2u>>>);
-    static_assert(!schema::StoreValue<int>);
-    static_assert(!schema::StoreValue<shader_field::codeSize>);
-    static_assert(schema::IntegralLength<size_t>);
-    static_assert(schema::IntegralLength<VkSampleCountFlagBits>);
-    static_assert(!schema::IntegralLength<bool>);
-    static_assert(!schema::IntegralLength<float>);
+    // FieldValue, Literal and Sum are ExpressionValues, and int and a Field are not. detail::Integer admits integers
+    // and not bool, float or an enum; detail::IntegerOrEnum admits an enum too, for a Literal.
+    static_assert(schema::ExpressionValue<schema::FieldValue<shader_field::codeSize>>);
+    static_assert(schema::ExpressionValue<schema::Literal<4u>>);
+    static_assert(schema::ExpressionValue<schema::Sum<schema::Literal<1u>, schema::Literal<2u>>>);
+    static_assert(!schema::ExpressionValue<int>);
+    static_assert(!schema::ExpressionValue<shader_field::codeSize>);
+    static_assert(schema::detail::Integer<size_t>);
+    static_assert(!schema::detail::Integer<VkSampleCountFlagBits>);
+    static_assert(schema::detail::IntegerOrEnum<VkSampleCountFlagBits>);
+    static_assert(!schema::detail::Integer<bool>);
+    static_assert(!schema::detail::Integer<float>);
+    static_assert(std::is_same_v<schema::Literal<31>::value_type, int>);
+    static_assert(std::is_same_v<schema::Literal<4u>::value_type, unsigned>);
 
     // A constant-only count evaluates on any store, and the arithmetic runs in the operands' own types.
-    static_assert(schema::FieldWithLength<VkMicromapVersionInfoEXT, micromap_field::pVersionData>);
-    static_assert(schema::FieldWithLength<VkShaderModuleCreateInfo, shader_field::pCode>);
-    static_assert(schema::FieldWithLength<VkPipelineMultisampleStateCreateInfo, multisample_field::pSampleMask>);
+    static_assert(schema::StorageWithLength<VkMicromapVersionInfoEXT, micromap_field::pVersionData>);
+    static_assert(schema::StorageWithLength<VkShaderModuleCreateInfo, shader_field::pCode>);
+    static_assert(schema::StorageWithLength<VkPipelineMultisampleStateCreateInfo, multisample_field::pSampleMask>);
     static_assert(std::is_same_v<decltype(schema::LengthOf_t<shader_field::pCode>::Get(
                                      std::declval<const VkShaderModuleCreateInfo&>())),
                                  size_t>);
-    static_assert(std::is_same_v<decltype(schema::LengthOf_t<multisample_field::pSampleMask>::Get(
-                                     std::declval<const VkPipelineMultisampleStateCreateInfo&>())),
-                                 int>);
+    // An enum operand's underlying type is the compiler's choice, so the length's type is asserted an integer, not int.
+    static_assert(schema::detail::Integer<decltype(schema::LengthOf_t<multisample_field::pSampleMask>::Get(
+                      std::declval<const VkPipelineMultisampleStateCreateInfo&>()))>);
     static_assert(schema::LengthOf_t<micromap_field::pVersionData>::Get(VkMicromapVersionInfoEXT{}) == 32u);
 
     auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
@@ -2022,9 +2028,9 @@ TEST_CASE("Get yields a Field's value in place or by copy", "[schema]")
 TEST_CASE("A length reads a length through a pointer sibling", "[schema]")
 {
     // Three command parameters have a vk.xml len of the form param->member, with no parameter that holds the count
-    // itself. The generator emits FieldValue<param, member> for each; its Get reads param, dereferences it, and reads
-    // member from the structure it points at. That structure's own Fields and MemberPointer specializations serve the
-    // inner read, so the schema declares the member and emits nothing else for it.
+    // itself. The generator emits StoragePtrValue<param, member> for each; its Get reads param, dereferences it, and
+    // reads member from the structure it points at. That structure's own Fields and MemberPointer specializations serve
+    // the inner read, so the schema declares the member and emits nothing else for it.
     namespace alloc_info_field = schema::vulkan::fields::VkCommandBufferAllocateInfo;
     namespace set_field        = schema::vulkan::fields::AllocateDescriptorSets;
     namespace set_info_field   = schema::vulkan::fields::VkDescriptorSetAllocateInfo;
@@ -2032,22 +2038,24 @@ TEST_CASE("A length reads a length through a pointer sibling", "[schema]")
     namespace build_field      = schema::vulkan::fields::VkAccelerationStructureBuildGeometryInfoKHR;
 
     static_assert(schema::PointerField<alloc_field::pAllocateInfo>);
-    static_assert(std::is_same_v<schema::LengthOf_t<alloc_field::pCommandBuffers>,
-                                 schema::FieldValue<alloc_field::pAllocateInfo, alloc_info_field::commandBufferCount>>);
-    static_assert(std::is_same_v<schema::LengthOf_t<set_field::pDescriptorSets>,
-                                 schema::FieldValue<set_field::pAllocateInfo, set_info_field::descriptorSetCount>>);
+    static_assert(
+        std::is_same_v<schema::LengthOf_t<alloc_field::pCommandBuffers>,
+                       schema::StoragePtrValue<alloc_field::pAllocateInfo, alloc_info_field::commandBufferCount>>);
+    static_assert(
+        std::is_same_v<schema::LengthOf_t<set_field::pDescriptorSets>,
+                       schema::StoragePtrValue<set_field::pAllocateInfo, set_info_field::descriptorSetCount>>);
     static_assert(std::is_same_v<schema::LengthOf_t<sizes_field::pMaxPrimitiveCounts>,
-                                 schema::FieldValue<sizes_field::pBuildInfo, build_field::geometryCount>>);
+                                 schema::StoragePtrValue<sizes_field::pBuildInfo, build_field::geometryCount>>);
 
     // The two-argument form is a length the Action can evaluate on a store that holds the pointer parameter
-    // (FieldWithLength); its FieldStore, the store member is read from, is the structure the pointer points at.
-    static_assert(schema::FieldWithLength<AllocateCallStore, alloc_field::pCommandBuffers>);
-    static_assert(std::is_same_v<schema::LengthOf_t<alloc_field::pCommandBuffers>::FieldStore<AllocateCallStore>,
+    // (StorageWithLength); its FieldStore, the store member is read from, is the structure the pointer points at.
+    static_assert(schema::StorageWithLength<AllocateCallStorage, alloc_field::pCommandBuffers>);
+    static_assert(std::is_same_v<schema::LengthOf_t<alloc_field::pCommandBuffers>::FieldStore<AllocateCallStorage>,
                                  VkCommandBufferAllocateInfo>);
 
     VkCommandBufferAllocateInfo info{};
     info.commandBufferCount = 3u;
-    AllocateCallStore store{ VK_NULL_HANDLE, &info, nullptr };
+    AllocateCallStorage store{ VK_NULL_HANDLE, &info, nullptr };
 
     CHECK(schema::LengthOf_t<alloc_field::pCommandBuffers>::Get(store) == 3u);
     CHECK(schema::FieldValue<alloc_field::pAllocateInfo>::Get(store) == &info);
@@ -2092,7 +2100,7 @@ TEST_CASE("A length reads a length through a pointer sibling", "[schema]")
 
 TEST_CASE("A generated command schema invokes a positional call in parameter order", "[schema]")
 {
-    ApiCallStore store{};
+    ApiCallStorage store{};
 
     // The requires clause on InvokeFromFields is the assertion: it is satisfied only when every parameter Field
     // reaches the store and the resulting positional call matches the command's signature.

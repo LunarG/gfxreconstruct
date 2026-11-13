@@ -63,7 +63,7 @@
 //   GFXRECON_INVENTORY_CUSTOM_ENCODE          binding::vulkan::catalog::custom_encode_structures          its encoder is hand-written -- blacklists.json "structures" and "structures-encoder", plus platform_types.json "structs"
 //   GFXRECON_INVENTORY_CUSTOM_DECODE          binding::vulkan::catalog::custom_decode_structures          its decoder is hand-written -- blacklists.json "structures" and "structures-decoder", plus platform_types.json "structs"
 //   GFXRECON_INVENTORY_CUSTOM_HANDLE_MAPPING  binding::vulkan::catalog::custom_handle_mapping_structures  its unwrap and map bodies are hand-written, or absent -- blacklists.json "structures" plus platform_types.json "structs" (STRUCT_BLACKLIST), and STRUCT_MAPPERS_BLACKLIST in vulkan_base_generator.py
-//   GFXRECON_INVENTORY_GENERIC_HANDLE         binding::vulkan::catalog::generic_handle_structures         an integer member holds a handle; a sibling object-type member gives its type -- GENERIC_HANDLE_STRUCTS in vulkan_base_generator.py
+//   GFXRECON_INVENTORY_GENERIC_HANDLE         binding::vulkan::catalog::generic_handle_structures         an integer member holds a handle; a sibling object-type member gives its type -- vk.xml: a member with an objecttype attribute
 //   GFXRECON_INVENTORY_DEEP_COPY_EXCLUDED     binding::vulkan::catalog::deep_copy_exclusions              vulkan_struct_deep_copy does not handle it -- blacklists.json "structures-deep-copy"
 //   GFXRECON_INVENTORY_HAS_STRUCTURE_TYPE     schema::TypedStructApiElement                               it has a structure type, so a pNext chain can hold it -- vk.xml: a structure type
 //
