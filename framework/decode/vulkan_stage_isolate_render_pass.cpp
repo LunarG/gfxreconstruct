@@ -26,6 +26,7 @@
 #include "generated/generated_vulkan_decoder.h"
 
 #include <vector>
+#include <cstring>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -116,7 +117,25 @@ void VulkanStageIsolateRenderPass::Split(Recording& recording, const ApiCallInfo
     Emit(format::ApiCallId::ApiCall_vkBeginCommandBuffer, call_info, BeginBytes(synthetic_id, recording.begin_flags));
 
     recording.current_command_buffer_id = synthetic_id;
-    recording.command_count             = 0;
+    recording.working_command_count     = 0;
+
+    ReissueStateCommands(recording);
+}
+
+void VulkanStageIsolateRenderPass::ReissueStateCommands(const Recording& recording)
+{
+    recording.state_log.ForEach([this, &recording](format::ApiCallId  call_id,
+                                                   const ApiCallInfo& call_info,
+                                                   const uint8_t*     parameter_buffer,
+                                                   size_t             buffer_size) {
+        std::vector<uint8_t> modified_buffer(parameter_buffer, parameter_buffer + buffer_size);
+        // First 8 bytes of the parameter buffer contain the original command buffer ID.
+        // Before emitting the state commands, overwrite it with the current command buffer ID.
+        GFXRECON_ASSERT(buffer_size >= sizeof(format::HandleId));
+        std::memcpy(modified_buffer.data(), &recording.current_command_buffer_id, sizeof(format::HandleId));
+
+        Emit(call_id, call_info, modified_buffer);
+    });
 }
 
 void VulkanStageIsolateRenderPass::Emit(format::ApiCallId        call_id,

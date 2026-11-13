@@ -27,6 +27,7 @@
 #include "decode/vulkan_stage_isolate_render_pass.h"
 #include "generated/generated_vulkan_decoder.h"
 
+#include <algorithm>
 #include <initializer_list>
 #include <map>
 #include <string>
@@ -45,6 +46,10 @@ constexpr uint32_t kStructPointer     = format::kIsStruct | format::kIsSingle | 
 constexpr uint32_t kNullStructPointer = format::kIsStruct | format::kIsSingle | format::kIsNull;
 constexpr uint32_t kNullStructArray   = format::kIsStruct | format::kIsArray | format::kIsNull;
 constexpr uint32_t kArrayPointer      = format::kIsArray | format::kHasAddress | format::kHasData;
+constexpr uint32_t kStructArray       = format::kIsStruct | kArrayPointer;
+
+constexpr format::HandleId kPipeline = 80;
+constexpr format::HandleId kLayout   = 81;
 
 // Writes call parameters in capture file order. The stage's own writer is private to its .cpp.
 class Bytes
@@ -149,6 +154,81 @@ class CallLog : public VulkanConsumer
         lines.push_back("EndRenderingKHR " + Name(args.commandBuffer));
     }
 
+    // Each state command prints its values, and the values that sit behind pointers too, so a test sees
+    // whether a reissue kept them.
+
+    void Process_vkCmdBindPipeline(const ApiCallInfo&, args::CmdBindPipeline& args) override
+    {
+        lines.push_back("BindPipeline " + Name(args.commandBuffer) + " " + std::to_string(args.pipeline));
+    }
+
+    void Process_vkCmdBindDescriptorSets(const ApiCallInfo&, args::CmdBindDescriptorSets& args) override
+    {
+        std::string line = "BindDescriptorSets " + Name(args.commandBuffer) + " sets";
+        for (const format::HandleId set : args.pDescriptorSets.GetSpan())
+        {
+            line += " " + std::to_string(set);
+        }
+        line += " offsets";
+        for (const uint32_t offset : args.pDynamicOffsets.GetSpan())
+        {
+            line += " " + std::to_string(offset);
+        }
+        lines.push_back(line);
+    }
+
+    void Process_vkCmdBindIndexBuffer(const ApiCallInfo&, args::CmdBindIndexBuffer& args) override
+    {
+        lines.push_back("BindIndexBuffer " + Name(args.commandBuffer) + " " + std::to_string(args.buffer) + " " +
+                        std::to_string(args.offset));
+    }
+
+    void Process_vkCmdBindVertexBuffers(const ApiCallInfo&, args::CmdBindVertexBuffers& args) override
+    {
+        std::string line = "BindVertexBuffers " + Name(args.commandBuffer) + " buffers";
+        for (const format::HandleId buffer : args.pBuffers.GetSpan())
+        {
+            line += " " + std::to_string(buffer);
+        }
+        line += " offsets";
+        for (const VkDeviceSize offset : args.pOffsets.GetSpan())
+        {
+            line += " " + std::to_string(offset);
+        }
+        lines.push_back(line);
+    }
+
+    void Process_vkCmdSetViewport(const ApiCallInfo&, args::CmdSetViewport& args) override
+    {
+        std::string line = "SetViewport " + Name(args.commandBuffer);
+        for (const VkViewport& viewport : args.pViewports.GetSpan())
+        {
+            line += " " + std::to_string(static_cast<int>(viewport.width)) + "x" +
+                    std::to_string(static_cast<int>(viewport.height));
+        }
+        lines.push_back(line);
+    }
+
+    void Process_vkCmdSetScissor(const ApiCallInfo&, args::CmdSetScissor& args) override
+    {
+        std::string line = "SetScissor " + Name(args.commandBuffer);
+        for (const VkRect2D& scissor : args.pScissors.GetSpan())
+        {
+            line += " " + std::to_string(scissor.extent.width) + "x" + std::to_string(scissor.extent.height);
+        }
+        lines.push_back(line);
+    }
+
+    void Process_vkCmdPushConstants(const ApiCallInfo&, args::CmdPushConstants& args) override
+    {
+        std::string line = "PushConstants " + Name(args.commandBuffer);
+        for (const uint8_t value : args.pValues.GetSpan())
+        {
+            line += " " + std::to_string(value);
+        }
+        lines.push_back(line);
+    }
+
     std::vector<std::string> lines;
 
   private:
@@ -179,6 +259,20 @@ class CallBytesProbe : public VulkanConsumer
 
     CallBytes current;
     CallBytes seen_at_render_pass;
+};
+
+// Edits the viewports that it receives. The stage must reissue the values of the capture, not the edits.
+class ViewportEditor : public VulkanConsumer
+{
+  public:
+    void Process_vkCmdSetViewport(const ApiCallInfo&, args::CmdSetViewport& args) override
+    {
+        for (VkViewport& viewport : args.pViewports.GetSpan())
+        {
+            viewport.width  = 1;
+            viewport.height = 1;
+        }
+    }
 };
 
 // A VkRenderPassBeginInfo with no clear values.
@@ -307,6 +401,151 @@ const std::vector<RenderPassCalls> kRenderPassCalls = {
       EncodeEndRenderPass },
 };
 
+Bytes EncodeBindPipeline(format::HandleId command_buffer, format::HandleId pipeline)
+{
+    Bytes bytes;
+    bytes.Put<format::HandleId>(command_buffer)
+        .Put<uint32_t>(VK_PIPELINE_BIND_POINT_GRAPHICS)
+        .Put<format::HandleId>(pipeline);
+    return bytes;
+}
+
+Bytes EncodeBindPipeline(format::HandleId command_buffer)
+{
+    return EncodeBindPipeline(command_buffer, kPipeline);
+}
+
+// Two sets, 60 and 61, and one dynamic offset of 8.
+Bytes EncodeBindDescriptorSets(format::HandleId command_buffer)
+{
+    Bytes bytes;
+    bytes.Put<format::HandleId>(command_buffer)
+        .Put<uint32_t>(VK_PIPELINE_BIND_POINT_GRAPHICS)
+        .Put<format::HandleId>(kLayout)
+        .Put<uint32_t>(0) // firstSet
+        .Put<uint32_t>(2) // descriptorSetCount
+        .Put<uint32_t>(kArrayPointer)
+        .Put<uint64_t>(1)
+        .Put<uint64_t>(2)
+        .Put<format::HandleId>(60)
+        .Put<format::HandleId>(61)
+        .Put<uint32_t>(1) // dynamicOffsetCount
+        .Put<uint32_t>(kArrayPointer)
+        .Put<uint64_t>(1)
+        .Put<uint64_t>(1)
+        .Put<uint32_t>(8);
+    return bytes;
+}
+
+// Buffer 52 at offset 256.
+Bytes EncodeBindIndexBuffer(format::HandleId command_buffer)
+{
+    Bytes bytes;
+    bytes.Put<format::HandleId>(command_buffer)
+        .Put<format::HandleId>(52)
+        .Put<uint64_t>(256)
+        .Put<uint32_t>(VK_INDEX_TYPE_UINT16);
+    return bytes;
+}
+
+// Buffers 53 and 54 at offsets 0 and 128.
+Bytes EncodeBindVertexBuffers(format::HandleId command_buffer)
+{
+    Bytes bytes;
+    bytes.Put<format::HandleId>(command_buffer)
+        .Put<uint32_t>(0) // firstBinding
+        .Put<uint32_t>(2) // bindingCount
+        .Put<uint32_t>(kArrayPointer)
+        .Put<uint64_t>(1)
+        .Put<uint64_t>(2)
+        .Put<format::HandleId>(53)
+        .Put<format::HandleId>(54)
+        .Put<uint32_t>(kArrayPointer)
+        .Put<uint64_t>(1)
+        .Put<uint64_t>(2)
+        .Put<uint64_t>(0)
+        .Put<uint64_t>(128);
+    return bytes;
+}
+
+// Two viewports, 640x480 and 320x240.
+Bytes EncodeSetViewport(format::HandleId command_buffer)
+{
+    Bytes bytes;
+    bytes.Put<format::HandleId>(command_buffer)
+        .Put<uint32_t>(0) // firstViewport
+        .Put<uint32_t>(2) // viewportCount
+        .Put<uint32_t>(kStructArray)
+        .Put<uint64_t>(1)
+        .Put<uint64_t>(2);
+    for (const float width : { 640.0f, 320.0f })
+    {
+        bytes.Put<float>(0).Put<float>(0).Put<float>(width).Put<float>(width * 0.75f).Put<float>(0).Put<float>(1);
+    }
+    return bytes;
+}
+
+// One scissor, 640x480.
+Bytes EncodeSetScissor(format::HandleId command_buffer)
+{
+    Bytes bytes;
+    bytes.Put<format::HandleId>(command_buffer)
+        .Put<uint32_t>(0) // firstScissor
+        .Put<uint32_t>(1) // scissorCount
+        .Put<uint32_t>(kStructArray)
+        .Put<uint64_t>(1)
+        .Put<uint64_t>(1)
+        .Put<int32_t>(0) // offset
+        .Put<int32_t>(0)
+        .Put<uint32_t>(640) // extent
+        .Put<uint32_t>(480);
+    return bytes;
+}
+
+// Four bytes, 1 2 3 4.
+Bytes EncodePushConstants(format::HandleId command_buffer)
+{
+    Bytes bytes;
+    bytes.Put<format::HandleId>(command_buffer)
+        .Put<format::HandleId>(kLayout)
+        .Put<uint32_t>(VK_SHADER_STAGE_VERTEX_BIT)
+        .Put<uint32_t>(0) // offset
+        .Put<uint32_t>(4) // size
+        .Put<uint32_t>(kArrayPointer)
+        .Put<uint64_t>(1)
+        .Put<uint64_t>(4)
+        .Put<uint8_t>(1)
+        .Put<uint8_t>(2)
+        .Put<uint8_t>(3)
+        .Put<uint8_t>(4);
+    return bytes;
+}
+
+// One state command, with the text that CallLog prints after the command buffer id.
+struct StateCall
+{
+    std::string       name;
+    format::ApiCallId id;
+    Bytes (*encode)(format::HandleId);
+    std::string values;
+};
+
+const std::vector<StateCall> kStateCalls = {
+    { "BindPipeline", format::ApiCall_vkCmdBindPipeline, EncodeBindPipeline, " 80" },
+    { "BindDescriptorSets",
+      format::ApiCall_vkCmdBindDescriptorSets,
+      EncodeBindDescriptorSets,
+      " sets 60 61 offsets 8" },
+    { "BindIndexBuffer", format::ApiCall_vkCmdBindIndexBuffer, EncodeBindIndexBuffer, " 52 256" },
+    { "BindVertexBuffers",
+      format::ApiCall_vkCmdBindVertexBuffers,
+      EncodeBindVertexBuffers,
+      " buffers 53 54 offsets 0 128" },
+    { "SetViewport", format::ApiCall_vkCmdSetViewport, EncodeSetViewport, " 640x480 320x240" },
+    { "SetScissor", format::ApiCall_vkCmdSetScissor, EncodeSetScissor, " 640x480" },
+    { "PushConstants", format::ApiCall_vkCmdPushConstants, EncodePushConstants, " 1 2 3 4" },
+};
+
 // Sends app calls through decoder -> stage -> log, the way the file processor would.
 class Rig
 {
@@ -389,6 +628,16 @@ class Rig
     void EndRenderPass(format::HandleId command_buffer)
     {
         Send(format::ApiCall_vkCmdEndRenderPass, EncodeEndRenderPass(command_buffer));
+    }
+
+    void BindPipeline(format::HandleId command_buffer, format::HandleId pipeline = kPipeline)
+    {
+        Send(format::ApiCall_vkCmdBindPipeline, EncodeBindPipeline(command_buffer, pipeline));
+    }
+
+    void SetViewport(format::HandleId command_buffer)
+    {
+        Send(format::ApiCall_vkCmdSetViewport, EncodeSetViewport(command_buffer));
     }
 
     // The guard opens the allocator scope for one call, as the file processor does.
@@ -703,4 +952,231 @@ TEST_CASE("Isolate stage splits around every begin and end call of a render pass
                                    "End S2",
                                });
     }
+}
+
+TEST_CASE("Isolate stage turns the lesson's example into the stream of section 2", "[stage][isolate]")
+{
+    Rig rig;
+    rig.Allocate({ 10 });
+    rig.Begin(10);
+    rig.BindPipeline(10);
+    rig.CopyBuffer(10);
+    rig.BeginRenderPass(10);
+    rig.Draw(10);
+    rig.EndRenderPass(10);
+    rig.BeginRenderPass(10);
+    rig.Draw(10);
+    rig.EndRenderPass(10);
+    rig.End(10);
+
+    CHECK(rig.log.lines == Lines{
+                               "Allocate 1 2 primary 10",
+                               "Begin 10 flags 0",
+                               "BindPipeline 10 80",
+                               "CopyBuffer 10",
+                               "End 10",
+                               "Allocate 1 2 primary S1",
+                               "Begin S1 flags 0",
+                               "BindPipeline S1 80",
+                               "BeginRenderPass S1",
+                               "Draw S1",
+                               "EndRenderPass S1",
+                               "End S1",
+                               "Allocate 1 2 primary S2",
+                               "Begin S2 flags 0",
+                               "BindPipeline S2 80",
+                               "BeginRenderPass S2",
+                               "Draw S2",
+                               "EndRenderPass S2",
+                               "End S2",
+                           });
+}
+
+TEST_CASE("Isolate stage reissues every state command with the data behind its pointers", "[stage][isolate]")
+{
+    for (const StateCall& call : kStateCalls)
+    {
+        INFO(call.name);
+
+        Rig rig;
+        rig.Allocate({ 10 });
+        rig.Begin(10);
+        rig.Send(call.id, call.encode(10));
+        rig.CopyBuffer(10);
+        rig.BeginRenderPass(10);
+
+        CHECK(rig.log.lines == Lines{
+                                   "Allocate 1 2 primary 10",
+                                   "Begin 10 flags 0",
+                                   call.name + " 10" + call.values,
+                                   "CopyBuffer 10",
+                                   "End 10",
+                                   "Allocate 1 2 primary S1",
+                                   "Begin S1 flags 0",
+                                   call.name + " S1" + call.values,
+                                   "BeginRenderPass S1",
+                               });
+    }
+}
+
+TEST_CASE("Isolate stage reissues state commands in the order that the app recorded them", "[stage][isolate]")
+{
+    Rig rig;
+    rig.Allocate({ 10 });
+    rig.Begin(10);
+    rig.BindPipeline(10, 80);
+    rig.SetViewport(10);
+    rig.BindPipeline(10, 81);
+    rig.CopyBuffer(10);
+    rig.BeginRenderPass(10);
+
+    // The last bind wins on the GPU, so the order decides which pipeline the part draws with.
+    CHECK(rig.log.lines == Lines{
+                               "Allocate 1 2 primary 10",
+                               "Begin 10 flags 0",
+                               "BindPipeline 10 80",
+                               "SetViewport 10 640x480 320x240",
+                               "BindPipeline 10 81",
+                               "CopyBuffer 10",
+                               "End 10",
+                               "Allocate 1 2 primary S1",
+                               "Begin S1 flags 0",
+                               "BindPipeline S1 80",
+                               "SetViewport S1 640x480 320x240",
+                               "BindPipeline S1 81",
+                               "BeginRenderPass S1",
+                           });
+}
+
+TEST_CASE("Isolate stage sends a state command that follows a pass to the next part once", "[stage][isolate]")
+{
+    Rig rig;
+    rig.Allocate({ 10 });
+    rig.Begin(10);
+    rig.BeginRenderPass(10);
+    rig.Draw(10);
+    rig.EndRenderPass(10);
+    rig.BindPipeline(10);
+    rig.Draw(10);
+    rig.End(10);
+
+    // The bind opens the new part. The part must not get the bind both as a reissue and as the app's call.
+    CHECK(rig.log.lines == Lines{
+                               "Allocate 1 2 primary 10",
+                               "Begin 10 flags 0",
+                               "BeginRenderPass 10",
+                               "Draw 10",
+                               "EndRenderPass 10",
+                               "End 10",
+                               "Allocate 1 2 primary S1",
+                               "Begin S1 flags 0",
+                               "BindPipeline S1 80",
+                               "Draw S1",
+                               "End S1",
+                           });
+}
+
+TEST_CASE("Isolate stage lets state commands share the part of the render pass after them", "[stage][isolate]")
+{
+    Rig rig;
+    rig.Allocate({ 10 });
+    rig.Begin(10);
+    rig.BindPipeline(10, 80);
+    rig.BeginRenderPass(10);
+    rig.EndRenderPass(10);
+    rig.BindPipeline(10, 81);
+    rig.BeginRenderPass(10);
+    rig.EndRenderPass(10);
+    rig.End(10);
+
+    // A state command is not work. A part that holds only state commands is still fresh, so the render pass
+    // after it does not split again.
+    CHECK(rig.log.lines == Lines{
+                               "Allocate 1 2 primary 10",
+                               "Begin 10 flags 0",
+                               "BindPipeline 10 80",
+                               "BeginRenderPass 10",
+                               "EndRenderPass 10",
+                               "End 10",
+                               "Allocate 1 2 primary S1",
+                               "Begin S1 flags 0",
+                               "BindPipeline S1 80",
+                               "BindPipeline S1 81",
+                               "BeginRenderPass S1",
+                               "EndRenderPass S1",
+                               "End S1",
+                           });
+}
+
+TEST_CASE("Isolate stage reissues clean values after a consumer edits the arguments", "[stage][isolate]")
+{
+    ViewportEditor editor;
+
+    Rig rig;
+    rig.AddNext(&editor);
+    rig.Allocate({ 10 });
+    rig.Begin(10);
+    rig.SetViewport(10);
+    rig.CopyBuffer(10);
+    rig.BeginRenderPass(10);
+    rig.EndRenderPass(10);
+    rig.CopyBuffer(10);
+    rig.End(10);
+
+    // The editor runs after the log. A stage that sent the same decoded viewports again would show the
+    // editor's 1x1 in the log on the second and third line.
+    Lines viewports;
+    for (const std::string& line : rig.log.lines)
+    {
+        if (line.rfind("SetViewport", 0) == 0)
+        {
+            viewports.push_back(line);
+        }
+    }
+    CHECK(viewports == Lines{
+                           "SetViewport 10 640x480 320x240",
+                           "SetViewport S1 640x480 320x240",
+                           "SetViewport S2 640x480 320x240",
+                       });
+}
+
+TEST_CASE("Isolate stage keeps its own copy of the bytes of a state command", "[stage][isolate]")
+{
+    Rig rig;
+    rig.Allocate({ 10 });
+    rig.Begin(10);
+
+    // The file processor reuses its buffer for the next block, so the bytes change after the call returns.
+    Bytes bind = EncodeBindPipeline(10);
+    rig.Send(format::ApiCall_vkCmdBindPipeline, bind);
+    std::fill(bind.data.begin(), bind.data.end(), uint8_t{ 0xAB });
+
+    rig.CopyBuffer(10);
+    rig.BeginRenderPass(10);
+
+    REQUIRE(rig.log.lines.size() == 9);
+    CHECK(rig.log.lines[7] == "BindPipeline S1 80");
+}
+
+TEST_CASE("Isolate stage does not reissue the state of an earlier recording", "[stage][isolate]")
+{
+    Rig rig;
+    rig.Allocate({ 10 });
+    rig.Begin(10);
+    rig.BindPipeline(10);
+    rig.End(10);
+
+    rig.log.lines.clear();
+    rig.Begin(10);
+    rig.CopyBuffer(10);
+    rig.BeginRenderPass(10);
+
+    CHECK(rig.log.lines == Lines{
+                               "Begin 10 flags 0",
+                               "CopyBuffer 10",
+                               "End 10",
+                               "Allocate 1 2 primary S1",
+                               "Begin S1 flags 0",
+                               "BeginRenderPass S1",
+                           });
 }

@@ -24,6 +24,7 @@
 #define GFXRECON_DECODE_VULKAN_STAGE_ISOLATE_RENDER_PASS_H
 
 #include "generated/generated_vulkan_stage_command_buffer.h"
+#include "format/api_call_log.h"
 
 #include <span>
 #include <unordered_map>
@@ -46,9 +47,10 @@ class VulkanStageIsolateRenderPass : public VulkanStageCommandBuffer
         // Flags of the app's vkBeginCommandBuffer. Each new part begins with the same flags.
         VkCommandBufferUsageFlags begin_flags = 0;
 
-        // Commands in the current part. The stage splits only when this is not zero,
-        // so a recording that starts with a render pass gets no empty part.
-        size_t command_count = 0;
+        /// Working commands in the current part. The stage splits only when this is not zero,
+        /// so a recording that starts with a render pass gets no empty part.
+        /// Note: a state command is not counted as a working command.
+        size_t working_command_count = 0;
 
         // Command buffer that receives the app's commands. It is the app's own id
         // until the first split, and the newest part after that.
@@ -64,6 +66,10 @@ class VulkanStageIsolateRenderPass : public VulkanStageCommandBuffer
         /// It also means that, if a BeginRenderPass is encountered after an EndRenderPass, a split
         /// will naturally occur before the new render pass begins.
         bool split_pending = false;
+
+        /// Keeps the state commands of the recording to send them again at the start
+        /// of a new command buffer after a split.
+        format::ApiCallLog<ApiCallInfo> state_log;
     };
 
   public:
@@ -97,7 +103,7 @@ class VulkanStageIsolateRenderPass : public VulkanStageCommandBuffer
                 Split(recording, call_info);
             }
 
-            recording.command_count++;
+            recording.working_command_count++;
 
             // Send the command to the current part. Before the first split, the current part is
             // the app's own command buffer.
@@ -113,9 +119,10 @@ class VulkanStageIsolateRenderPass : public VulkanStageCommandBuffer
             // Each recording starts in the app's own command buffer.
             Recording& recording                = entry->second;
             recording.current_command_buffer_id = args.commandBuffer;
-            recording.command_count             = 0;
+            recording.working_command_count     = 0;
             recording.begin_flags               = args.pBeginInfo.GetPointer()->flags;
             recording.split_pending             = false;
+            recording.state_log.Clear();
         }
 
         Forward(call_info, args);
@@ -192,6 +199,43 @@ class VulkanStageIsolateRenderPass : public VulkanStageCommandBuffer
         ProcessEndRender(call_info, args);
     }
 
+    // State commands
+
+    void Process_vkCmdBindPipeline(const ApiCallInfo& call_info, args::CmdBindPipeline& args) override
+    {
+        ProcessStateCommand(call_info, args);
+    }
+
+    void Process_vkCmdBindDescriptorSets(const ApiCallInfo& call_info, args::CmdBindDescriptorSets& args) override
+    {
+        ProcessStateCommand(call_info, args);
+    }
+
+    void Process_vkCmdBindIndexBuffer(const ApiCallInfo& call_info, args::CmdBindIndexBuffer& args) override
+    {
+        ProcessStateCommand(call_info, args);
+    }
+
+    void Process_vkCmdBindVertexBuffers(const ApiCallInfo& call_info, args::CmdBindVertexBuffers& args) override
+    {
+        ProcessStateCommand(call_info, args);
+    }
+
+    void Process_vkCmdSetViewport(const ApiCallInfo& call_info, args::CmdSetViewport& args) override
+    {
+        ProcessStateCommand(call_info, args);
+    }
+
+    void Process_vkCmdSetScissor(const ApiCallInfo& call_info, args::CmdSetScissor& args) override
+    {
+        ProcessStateCommand(call_info, args);
+    }
+
+    void Process_vkCmdPushConstants(const ApiCallInfo& call_info, args::CmdPushConstants& args) override
+    {
+        ProcessStateCommand(call_info, args);
+    }
+
   private:
     template <typename ArgsT>
     void ProcessBeginRender(const ApiCallInfo& call_info, ArgsT& args)
@@ -203,7 +247,7 @@ class VulkanStageIsolateRenderPass : public VulkanStageCommandBuffer
             // Instead of splitting immediately here, we can set a flag to indicate
             // that a split should occur before the next command.
             // In this case, the next command is expected to be the beginning of a renderpass/rendering.
-            recording.split_pending = recording.command_count > 0;
+            recording.split_pending = recording.working_command_count > 0;
         }
 
         ProcessCommand(call_info, args);
@@ -230,12 +274,38 @@ class VulkanStageIsolateRenderPass : public VulkanStageCommandBuffer
         }
     }
 
+    template <typename ArgsT>
+    void ProcessStateCommand(const ApiCallInfo& call_info, ArgsT& args)
+    {
+        if (auto entry = command_buffer_to_recording_map_.find(args.commandBuffer);
+            entry != command_buffer_to_recording_map_.end())
+        {
+            Recording& recording = entry->second;
+
+            if (recording.split_pending)
+            {
+                Split(recording, call_info);
+            }
+
+            // Append the current call to the recording's state log.
+            auto& bytes = GetCurrentCallBytes();
+            recording.state_log.Append(bytes.call_id, call_info, bytes.parameter_buffer, bytes.buffer_size);
+
+            args.commandBuffer = recording.current_command_buffer_id;
+        }
+
+        Forward(call_info, args);
+    }
+
     // Split ends the current part and begins a new one, so the command that follows starts in its own
     // command buffer.
     void Split(Recording& recording, const ApiCallInfo& call_info);
 
     // Emit decodes the bytes of a call that the stage invents, and sends the call to the next consumers.
     void Emit(format::ApiCallId call_id, const ApiCallInfo& call_info, std::span<const uint8_t> bytes);
+
+    /// Called after a split once recording has a new command buffer, to reissue all previously recorded state commands.
+    void ReissueStateCommands(const Recording& recording);
 
     // Synthetic ids set the top bit. Capture ids count up from 1 and never reach it, so the two never collide.
     static constexpr format::HandleId kSyntheticBit = 1ull << 63;
