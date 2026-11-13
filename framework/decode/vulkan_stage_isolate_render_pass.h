@@ -31,8 +31,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-// This stage splits a primary command buffer of the app before each render pass that follows other
-// commands. The app's commands after the split go to a new command buffer, which the stage allocates.
+/// This stage splits a primary command buffer of the app around each render pass,
+/// so each pass runs in a command buffer of its own.
 class VulkanStageIsolateRenderPass : public VulkanStageCommandBuffer
 {
   private:
@@ -53,6 +53,17 @@ class VulkanStageIsolateRenderPass : public VulkanStageCommandBuffer
         // Command buffer that receives the app's commands. It is the app's own id
         // until the first split, and the newest part after that.
         format::HandleId current_command_buffer_id = format::kNullHandleId;
+
+        /// This flag is the core of the splitting algorithm, here's how it works:
+        /// - before processing BeginRenderPass, the flag is set to indicate that a split should occur.
+        /// - after processing EndRenderPass, the flag is set to indicate that a split should occur.
+        /// - just before processing a command (OnCommand hook), if the flag is set, a split occurs.
+        ///   so that the command is sent to a new command buffer.
+        ///
+        /// This means that, if no commands are processed after EndRenderPass, no split would occur.
+        /// It also means that, if a BeginRenderPass is encountered after an EndRenderPass, a split
+        /// will naturally occur before the new render pass begins.
+        bool split_pending = false;
     };
 
   public:
@@ -80,6 +91,12 @@ class VulkanStageIsolateRenderPass : public VulkanStageCommandBuffer
             entry != command_buffer_to_recording_map_.end())
         {
             Recording& recording = entry->second;
+
+            if (recording.split_pending)
+            {
+                Split(recording, call_info);
+            }
+
             recording.command_count++;
 
             // Send the command to the current part. Before the first split, the current part is
@@ -98,7 +115,9 @@ class VulkanStageIsolateRenderPass : public VulkanStageCommandBuffer
             recording.current_command_buffer_id = args.commandBuffer;
             recording.command_count             = 0;
             recording.begin_flags               = args.pBeginInfo.GetPointer()->flags;
+            recording.split_pending             = false;
         }
+
         Forward(call_info, args);
     }
 
@@ -107,30 +126,110 @@ class VulkanStageIsolateRenderPass : public VulkanStageCommandBuffer
         if (auto entry = command_buffer_to_recording_map_.find(args.commandBuffer);
             entry != command_buffer_to_recording_map_.end())
         {
-            // A split has already ended the app's command buffer, so the app's End goes to the current part.
-            // Before any split, the current part is the app's own command buffer.
-            args.commandBuffer = entry->second.current_command_buffer_id;
+            Recording& recording    = entry->second;
+            recording.split_pending = false;
+
+            // Explanation of why this works:
+            // Case 1, no split happens:
+            // - recording.current_command_buffer_id is the original app command buffer id
+            //   which means it is just the normal course of events.
+            // Case 2, a split has occurred:
+            // - original command buffer has already been ended by the split
+            // - recording.current_command_buffer_id is the new synthetic command buffer id
+            //   which must be ended, so we redirect the End call to it.
+            args.commandBuffer = recording.current_command_buffer_id;
         }
         Forward(call_info, args);
     }
 
     void Process_vkCmdBeginRenderPass(const ApiCallInfo& call_info, args::CmdBeginRenderPass& args) override
     {
-        // Split before ProcessCommand, so that ProcessCommand sends the render pass to the new part.
+        ProcessBeginRender(call_info, args);
+    }
+
+    void Process_vkCmdBeginRenderPass2(const ApiCallInfo& call_info, args::CmdBeginRenderPass2& args) override
+    {
+        ProcessBeginRender(call_info, args);
+    }
+
+    void Process_vkCmdBeginRenderPass2KHR(const ApiCallInfo& call_info, args::CmdBeginRenderPass2KHR& args) override
+    {
+        ProcessBeginRender(call_info, args);
+    }
+
+    void Process_vkCmdBeginRendering(const ApiCallInfo& call_info, args::CmdBeginRendering& args) override
+    {
+        ProcessBeginRender(call_info, args);
+    }
+
+    void Process_vkCmdBeginRenderingKHR(const ApiCallInfo& call_info, args::CmdBeginRenderingKHR& args) override
+    {
+        ProcessBeginRender(call_info, args);
+    }
+
+    void Process_vkCmdEndRenderPass(const ApiCallInfo& call_info, args::CmdEndRenderPass& args) override
+    {
+        ProcessEndRender(call_info, args);
+    }
+
+    void Process_vkCmdEndRenderPass2(const ApiCallInfo& call_info, args::CmdEndRenderPass2& args) override
+    {
+        ProcessEndRender(call_info, args);
+    }
+
+    void Process_vkCmdEndRenderPass2KHR(const ApiCallInfo& call_info, args::CmdEndRenderPass2KHR& args) override
+    {
+        ProcessEndRender(call_info, args);
+    }
+
+    void Process_vkCmdEndRendering(const ApiCallInfo& call_info, args::CmdEndRendering& args) override
+    {
+        ProcessEndRender(call_info, args);
+    }
+
+    void Process_vkCmdEndRenderingKHR(const ApiCallInfo& call_info, args::CmdEndRenderingKHR& args) override
+    {
+        ProcessEndRender(call_info, args);
+    }
+
+  private:
+    template <typename ArgsT>
+    void ProcessBeginRender(const ApiCallInfo& call_info, ArgsT& args)
+    {
         if (auto entry = command_buffer_to_recording_map_.find(args.commandBuffer);
             entry != command_buffer_to_recording_map_.end())
         {
             Recording& recording = entry->second;
-
-            if (recording.command_count > 0)
-            {
-                Split(recording, call_info);
-            }
+            // Instead of splitting immediately here, we can set a flag to indicate
+            // that a split should occur before the next command.
+            // In this case, the next command is expected to be the beginning of a renderpass/rendering.
+            recording.split_pending = recording.command_count > 0;
         }
+
         ProcessCommand(call_info, args);
     }
 
-  private:
+    template <typename ArgsT>
+    void ProcessEndRender(const ApiCallInfo& call_info, ArgsT& args)
+    {
+        // Save the original command buffer ID before processing the command,
+        // as `args.commandBuffer` may be modified during processing.
+        const format::HandleId original_command_buffer_id = args.commandBuffer;
+
+        ProcessCommand(call_info, args);
+
+        if (auto entry = command_buffer_to_recording_map_.find(original_command_buffer_id);
+            entry != command_buffer_to_recording_map_.end())
+        {
+            Recording& recording = entry->second;
+            // Do not split yet, just mark that a split is pending for this recording.
+            // Reason is that we might not need to split if the next call is `vkEndCommandBuffer`,
+            // or we might want to emit different calls if the next command is `vkBeginRenderPass`
+            // in case we want to avoid an empty recording between render passes.
+            recording.split_pending = true;
+        }
+    }
+
     // Split ends the current part and begins a new one, so the command that follows starts in its own
     // command buffer.
     void Split(Recording& recording, const ApiCallInfo& call_info);

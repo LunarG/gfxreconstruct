@@ -109,6 +109,46 @@ class CallLog : public VulkanConsumer
         lines.push_back("EndRenderPass " + Name(args.commandBuffer));
     }
 
+    void Process_vkCmdBeginRenderPass2(const ApiCallInfo&, args::CmdBeginRenderPass2& args) override
+    {
+        lines.push_back("BeginRenderPass2 " + Name(args.commandBuffer));
+    }
+
+    void Process_vkCmdBeginRenderPass2KHR(const ApiCallInfo&, args::CmdBeginRenderPass2KHR& args) override
+    {
+        lines.push_back("BeginRenderPass2KHR " + Name(args.commandBuffer));
+    }
+
+    void Process_vkCmdBeginRendering(const ApiCallInfo&, args::CmdBeginRendering& args) override
+    {
+        lines.push_back("BeginRendering " + Name(args.commandBuffer));
+    }
+
+    void Process_vkCmdBeginRenderingKHR(const ApiCallInfo&, args::CmdBeginRenderingKHR& args) override
+    {
+        lines.push_back("BeginRenderingKHR " + Name(args.commandBuffer));
+    }
+
+    void Process_vkCmdEndRenderPass2(const ApiCallInfo&, args::CmdEndRenderPass2& args) override
+    {
+        lines.push_back("EndRenderPass2 " + Name(args.commandBuffer));
+    }
+
+    void Process_vkCmdEndRenderPass2KHR(const ApiCallInfo&, args::CmdEndRenderPass2KHR& args) override
+    {
+        lines.push_back("EndRenderPass2KHR " + Name(args.commandBuffer));
+    }
+
+    void Process_vkCmdEndRendering(const ApiCallInfo&, args::CmdEndRendering& args) override
+    {
+        lines.push_back("EndRendering " + Name(args.commandBuffer));
+    }
+
+    void Process_vkCmdEndRenderingKHR(const ApiCallInfo&, args::CmdEndRenderingKHR& args) override
+    {
+        lines.push_back("EndRenderingKHR " + Name(args.commandBuffer));
+    }
+
     std::vector<std::string> lines;
 
   private:
@@ -139,6 +179,132 @@ class CallBytesProbe : public VulkanConsumer
 
     CallBytes current;
     CallBytes seen_at_render_pass;
+};
+
+// A VkRenderPassBeginInfo with no clear values.
+void PutRenderPassBeginInfo(Bytes& bytes)
+{
+    bytes.Put<uint32_t>(kStructPointer)
+        .Put<uint64_t>(1)
+        .Put<uint32_t>(VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO)
+        .Put<uint32_t>(kNullStructPointer)
+        .Put<format::HandleId>(70) // renderPass
+        .Put<format::HandleId>(71) // framebuffer
+        .Put<int32_t>(0)           // renderArea.offset
+        .Put<int32_t>(0)
+        .Put<uint32_t>(4) // renderArea.extent
+        .Put<uint32_t>(4)
+        .Put<uint32_t>(0) // clearValueCount
+        .Put<uint32_t>(kNullStructArray);
+}
+
+Bytes EncodeBeginRenderPass(format::HandleId command_buffer)
+{
+    Bytes bytes;
+    bytes.Put<format::HandleId>(command_buffer);
+    PutRenderPassBeginInfo(bytes);
+    bytes.Put<uint32_t>(VK_SUBPASS_CONTENTS_INLINE);
+    return bytes;
+}
+
+// Also the bytes of vkCmdBeginRenderPass2KHR.
+Bytes EncodeBeginRenderPass2(format::HandleId command_buffer)
+{
+    Bytes bytes;
+    bytes.Put<format::HandleId>(command_buffer);
+    PutRenderPassBeginInfo(bytes);
+    bytes
+        .Put<uint32_t>(kStructPointer) // pSubpassBeginInfo
+        .Put<uint64_t>(1)
+        .Put<uint32_t>(VK_STRUCTURE_TYPE_SUBPASS_BEGIN_INFO)
+        .Put<uint32_t>(kNullStructPointer)
+        .Put<uint32_t>(VK_SUBPASS_CONTENTS_INLINE);
+    return bytes;
+}
+
+// Also the bytes of vkCmdBeginRenderingKHR. The VkRenderingInfo has no attachments.
+Bytes EncodeBeginRendering(format::HandleId command_buffer)
+{
+    Bytes bytes;
+    bytes.Put<format::HandleId>(command_buffer)
+        .Put<uint32_t>(kStructPointer) // pRenderingInfo
+        .Put<uint64_t>(1)
+        .Put<uint32_t>(VK_STRUCTURE_TYPE_RENDERING_INFO)
+        .Put<uint32_t>(kNullStructPointer)
+        .Put<uint32_t>(0) // flags
+        .Put<int32_t>(0)  // renderArea.offset
+        .Put<int32_t>(0)
+        .Put<uint32_t>(4) // renderArea.extent
+        .Put<uint32_t>(4)
+        .Put<uint32_t>(1)                   // layerCount
+        .Put<uint32_t>(0)                   // viewMask
+        .Put<uint32_t>(0)                   // colorAttachmentCount
+        .Put<uint32_t>(kNullStructArray)    // pColorAttachments
+        .Put<uint32_t>(kNullStructPointer)  // pDepthAttachment
+        .Put<uint32_t>(kNullStructPointer); // pStencilAttachment
+    return bytes;
+}
+
+// Also the bytes of vkCmdEndRendering and vkCmdEndRenderingKHR.
+Bytes EncodeEndRenderPass(format::HandleId command_buffer)
+{
+    return Bytes().Put<format::HandleId>(command_buffer);
+}
+
+// Also the bytes of vkCmdEndRenderPass2KHR.
+Bytes EncodeEndRenderPass2(format::HandleId command_buffer)
+{
+    Bytes bytes;
+    bytes.Put<format::HandleId>(command_buffer)
+        .Put<uint32_t>(kStructPointer) // pSubpassEndInfo
+        .Put<uint64_t>(1)
+        .Put<uint32_t>(VK_STRUCTURE_TYPE_SUBPASS_END_INFO)
+        .Put<uint32_t>(kNullStructPointer);
+    return bytes;
+}
+
+// One way to begin and end a render pass, with the names that CallLog prints for it.
+struct RenderPassCalls
+{
+    std::string       begin_name;
+    format::ApiCallId begin_id;
+    Bytes (*encode_begin)(format::HandleId);
+    std::string       end_name;
+    format::ApiCallId end_id;
+    Bytes (*encode_end)(format::HandleId);
+};
+
+const std::vector<RenderPassCalls> kRenderPassCalls = {
+    { "BeginRenderPass",
+      format::ApiCall_vkCmdBeginRenderPass,
+      EncodeBeginRenderPass,
+      "EndRenderPass",
+      format::ApiCall_vkCmdEndRenderPass,
+      EncodeEndRenderPass },
+    { "BeginRenderPass2",
+      format::ApiCall_vkCmdBeginRenderPass2,
+      EncodeBeginRenderPass2,
+      "EndRenderPass2",
+      format::ApiCall_vkCmdEndRenderPass2,
+      EncodeEndRenderPass2 },
+    { "BeginRenderPass2KHR",
+      format::ApiCall_vkCmdBeginRenderPass2KHR,
+      EncodeBeginRenderPass2,
+      "EndRenderPass2KHR",
+      format::ApiCall_vkCmdEndRenderPass2KHR,
+      EncodeEndRenderPass2 },
+    { "BeginRendering",
+      format::ApiCall_vkCmdBeginRendering,
+      EncodeBeginRendering,
+      "EndRendering",
+      format::ApiCall_vkCmdEndRendering,
+      EncodeEndRenderPass },
+    { "BeginRenderingKHR",
+      format::ApiCall_vkCmdBeginRenderingKHR,
+      EncodeBeginRendering,
+      "EndRenderingKHR",
+      format::ApiCall_vkCmdEndRenderingKHR,
+      EncodeEndRenderPass },
 };
 
 // Sends app calls through decoder -> stage -> log, the way the file processor would.
@@ -208,21 +374,7 @@ class Rig
     // Returns the bytes of the call, so a test can compare them with what a consumer saw.
     std::vector<uint8_t> BeginRenderPass(format::HandleId command_buffer)
     {
-        Bytes bytes;
-        bytes.Put<format::HandleId>(command_buffer)
-            .Put<uint32_t>(kStructPointer)
-            .Put<uint64_t>(1)
-            .Put<uint32_t>(VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO)
-            .Put<uint32_t>(kNullStructPointer)
-            .Put<format::HandleId>(70) // renderPass
-            .Put<format::HandleId>(71) // framebuffer
-            .Put<int32_t>(0)           // renderArea.offset
-            .Put<int32_t>(0)
-            .Put<uint32_t>(4) // renderArea.extent
-            .Put<uint32_t>(4)
-            .Put<uint32_t>(0) // clearValueCount
-            .Put<uint32_t>(kNullStructArray)
-            .Put<uint32_t>(VK_SUBPASS_CONTENTS_INLINE);
+        const Bytes bytes = EncodeBeginRenderPass(command_buffer);
         Send(format::ApiCall_vkCmdBeginRenderPass, bytes);
         return bytes.data;
     }
@@ -236,14 +388,9 @@ class Rig
 
     void EndRenderPass(format::HandleId command_buffer)
     {
-        Send(format::ApiCall_vkCmdEndRenderPass, Bytes().Put<format::HandleId>(command_buffer));
+        Send(format::ApiCall_vkCmdEndRenderPass, EncodeEndRenderPass(command_buffer));
     }
 
-    void AddNext(VulkanConsumer* next) { stage_.AddNext(next); }
-
-    CallLog log;
-
-  private:
     // The guard opens the allocator scope for one call, as the file processor does.
     void Send(format::ApiCallId call_id, const Bytes& bytes)
     {
@@ -251,6 +398,11 @@ class Rig
         decoder_.DecodeFunctionCall(call_id, ApiCallInfo{}, bytes.data.data(), bytes.data.size());
     }
 
+    void AddNext(VulkanConsumer* next) { stage_.AddNext(next); }
+
+    CallLog log;
+
+  private:
     VulkanDecoder                decoder_;
     VulkanStageIsolateRenderPass stage_;
 };
@@ -424,4 +576,131 @@ TEST_CASE("Isolate stage gives the app call's bytes back after a split", "[stage
     // The invented calls set their own bytes on the probe first. The app call's bytes must win.
     CHECK(probe.seen_at_render_pass.call_id == format::ApiCall_vkCmdBeginRenderPass);
     CHECK(probe.seen_at_render_pass.buffer_size == bytes.size());
+}
+
+TEST_CASE("Isolate stage gives back-to-back render passes one part each", "[stage][isolate]")
+{
+    Rig rig;
+    rig.Allocate({ 10 });
+    rig.Begin(10);
+    rig.BeginRenderPass(10);
+    rig.Draw(10);
+    rig.EndRenderPass(10);
+    rig.BeginRenderPass(10);
+    rig.Draw(10);
+    rig.EndRenderPass(10);
+    rig.End(10);
+
+    // The split after the first pass and the split before the second are one split, so no part is empty.
+    CHECK(rig.log.lines == Lines{
+                               "Allocate 1 2 primary 10",
+                               "Begin 10 flags 0",
+                               "BeginRenderPass 10",
+                               "Draw 10",
+                               "EndRenderPass 10",
+                               "End 10",
+                               "Allocate 1 2 primary S1",
+                               "Begin S1 flags 0",
+                               "BeginRenderPass S1",
+                               "Draw S1",
+                               "EndRenderPass S1",
+                               "End S1",
+                           });
+}
+
+TEST_CASE("Isolate stage puts a command after a split render pass in its own part", "[stage][isolate]")
+{
+    Rig rig;
+    rig.Allocate({ 10 });
+    rig.Begin(10);
+    rig.CopyBuffer(10);
+    rig.BeginRenderPass(10);
+    rig.EndRenderPass(10);
+    rig.CopyBuffer(10);
+    rig.End(10);
+
+    // The render pass runs in S1, so the stage must find the recording of 10 after the pass ends there.
+    CHECK(rig.log.lines == Lines{
+                               "Allocate 1 2 primary 10",
+                               "Begin 10 flags 0",
+                               "CopyBuffer 10",
+                               "End 10",
+                               "Allocate 1 2 primary S1",
+                               "Begin S1 flags 0",
+                               "BeginRenderPass S1",
+                               "EndRenderPass S1",
+                               "End S1",
+                               "Allocate 1 2 primary S2",
+                               "Begin S2 flags 0",
+                               "CopyBuffer S2",
+                               "End S2",
+                           });
+}
+
+TEST_CASE("Isolate stage puts a command between two render passes in its own part", "[stage][isolate]")
+{
+    Rig rig;
+    rig.Allocate({ 10 });
+    rig.Begin(10);
+    rig.CopyBuffer(10);
+    rig.BeginRenderPass(10);
+    rig.EndRenderPass(10);
+    rig.CopyBuffer(10);
+    rig.BeginRenderPass(10);
+    rig.EndRenderPass(10);
+    rig.End(10);
+
+    CHECK(rig.log.lines == Lines{
+                               "Allocate 1 2 primary 10",
+                               "Begin 10 flags 0",
+                               "CopyBuffer 10",
+                               "End 10",
+                               "Allocate 1 2 primary S1",
+                               "Begin S1 flags 0",
+                               "BeginRenderPass S1",
+                               "EndRenderPass S1",
+                               "End S1",
+                               "Allocate 1 2 primary S2",
+                               "Begin S2 flags 0",
+                               "CopyBuffer S2",
+                               "End S2",
+                               "Allocate 1 2 primary S3",
+                               "Begin S3 flags 0",
+                               "BeginRenderPass S3",
+                               "EndRenderPass S3",
+                               "End S3",
+                           });
+}
+
+TEST_CASE("Isolate stage splits around every begin and end call of a render pass", "[stage][isolate]")
+{
+    for (const RenderPassCalls& calls : kRenderPassCalls)
+    {
+        INFO(calls.begin_name);
+
+        Rig rig;
+        rig.Allocate({ 10 });
+        rig.Begin(10);
+        rig.CopyBuffer(10);
+        rig.Send(calls.begin_id, calls.encode_begin(10));
+        rig.Send(calls.end_id, calls.encode_end(10));
+        rig.CopyBuffer(10);
+        rig.End(10);
+
+        CHECK(rig.log.lines == Lines{
+                                   "Allocate 1 2 primary 10",
+                                   "Begin 10 flags 0",
+                                   "CopyBuffer 10",
+                                   "End 10",
+                                   "Allocate 1 2 primary S1",
+                                   "Begin S1 flags 0",
+                                   calls.begin_name + " S1",
+                                   calls.end_name + " S1",
+                                   "End S1",
+                                   "Allocate 1 2 primary S2",
+                                   "Begin S2 flags 0",
+                                   "CopyBuffer S2",
+                                   "End S2",
+                               });
+    }
 }
