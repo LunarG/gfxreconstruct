@@ -14205,7 +14205,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceMemoryRepo
         jdata["memoryObjectId"] = decoded_value.memoryObjectId;
         jdata["size"] = decoded_value.size;
         jdata["objectType"] = decoded_value.objectType;
-        jdata["objectHandle"] = decoded_value.objectHandle;
+        HandleToJson(jdata["objectHandle"], meta_struct.objectHandle);
         jdata["heapIndex"] = decoded_value.heapIndex;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
@@ -28508,30 +28508,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
                 GFXRECON_LOG_WARNING("Unknown pnext node type: %u.", (unsigned) s_type);
             }
         }
-    }
-}
-
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBaseOutStructure* data)
-{
-    if (data && data->decoded_value)
-    {
-        const auto& decoded_value = *data->decoded_value;
-        switch (decoded_value.sType)
-        {
-            case VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_OPTICAL_FLOW_PROPERTIES_ARM:
-                FieldToJson(jdata, reinterpret_cast<const Decoded_VkQueueFamilyDataGraphOpticalFlowPropertiesARM*>(data));
-                return;
-            case VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_PROCESSING_ENGINE_PROPERTIES_ARM:
-                FieldToJson(jdata, reinterpret_cast<const Decoded_VkQueueFamilyDataGraphProcessingEnginePropertiesARM*>(data));
-                return;
-            default:
-                break;
-        }
-
-        const auto& meta_struct = *data;
-        jdata["sType"] = decoded_value.sType;
-        FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
 

@@ -1,0 +1,92 @@
+/*
+** Copyright (c) 2026 LunarG, Inc.
+**
+** Permission is hereby granted, free of charge, to any person obtaining a
+** copy of this software and associated documentation files (the "Software"),
+** to deal in the Software without restriction, including without limitation
+** the rights to use, copy, modify, merge, publish, distribute, sublicense,
+** and/or sell copies of the Software, and to permit persons to whom the
+** Software is furnished to do so, subject to the following conditions:
+**
+** The above copyright notice and this permission notice shall be included in
+** all copies or substantial portions of the Software.
+**
+** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+** DEALINGS IN THE SOFTWARE.
+*/
+
+// The lookup over an enumerant table: an `entries` array of Enumerant<ApiElement>.
+#ifndef GFXRECON_BINDING_ENUMERANTS_H
+#define GFXRECON_BINDING_ENUMERANTS_H
+
+#include "binding/api_element_of.h"
+#include "schema/schema.h"
+#include "util/defines.h"
+#include "util/key_index.h"
+
+#include <array>
+#include <cstddef>
+#include <string_view>
+#include <type_traits>
+
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(binding)
+
+// Enumerant holds one enumerant of the type Element describes: its value and the name the API spells it with.
+template <typename Element>
+struct Enumerant
+{
+    using api_element = Element;
+
+    typename Element::element_type value;
+    std::string_view                  name;
+};
+
+// EnumerantApiElementOf_t is the API element of the type whose enumerants Table holds.
+template <typename Table>
+using EnumerantApiElementOf_t = typename std::remove_cv_t<decltype(Table::entries)>::value_type::api_element;
+
+// EnumerantLookup holds the sorted index over Table::entries; two entries of one value fail to compile here.
+template <typename Table>
+struct EnumerantLookup
+{
+    using value_type = typename EnumerantApiElementOf_t<Table>::element_type;
+
+    static constexpr size_t kSize = Table::entries.size();
+
+    using Index = util::KeyIndex<value_type, kSize>;
+
+    static constexpr Index index{ Table::entries,
+                                  [](const Enumerant<EnumerantApiElementOf_t<Table>>& entry) { return entry.value; } };
+};
+
+// Returns the name of an enumerant in Table, or an empty view when value is not one.
+template <typename Table>
+constexpr std::string_view NameIn(typename EnumerantApiElementOf_t<Table>::element_type value)
+{
+    using Lookup          = EnumerantLookup<Table>;
+    const size_t position = Lookup::index.Find(value);
+    return (position == Lookup::Index::kMiss) ? std::string_view{} : Table::entries[position].name;
+}
+
+template <typename Enum>
+concept EnumApiType = ApiTypeWithApiElement<Enum> && schema::EnumApiElement<ApiElementOf_t<Enum>>;
+
+template <EnumApiType Enum>
+using EnumerantTableOf_t = typename ApiElementOf_t<Enum>::enumerants;
+
+template <EnumApiType Enum>
+constexpr std::string_view NameOf(Enum value)
+{
+    return NameIn<EnumerantTableOf_t<Enum>>(value);
+}
+
+GFXRECON_END_NAMESPACE(binding)
+GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // GFXRECON_BINDING_ENUMERANTS_H

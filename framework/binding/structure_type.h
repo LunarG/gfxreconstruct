@@ -1,0 +1,72 @@
+/*
+** Copyright (c) 2026 LunarG, Inc.
+**
+** Permission is hereby granted, free of charge, to any person obtaining a
+** copy of this software and associated documentation files (the "Software"),
+** to deal in the Software without restriction, including without limitation
+** the rights to use, copy, modify, merge, publish, distribute, sublicense,
+** and/or sell copies of the Software, and to permit persons to whom the
+** Software is furnished to do so, subject to the following conditions:
+**
+** The above copyright notice and this permission notice shall be included in
+** all copies or substantial portions of the Software.
+**
+** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+** THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+** DEALINGS IN THE SOFTWARE.
+*/
+
+// This header declares StructureTypeOf, which reads an API structure's structure type through its ApiElementOf binding,
+// and StructureTypeCast, the cast the pNext and deep-copy dispatch make once they have matched a structure type. Both
+// need binding/<api>_api_element_of.h included: without it TypedStructApiType is false, and neither accepts any type.
+
+#ifndef GFXRECON_BINDING_STRUCTURE_TYPE_H
+#define GFXRECON_BINDING_STRUCTURE_TYPE_H
+
+#include "binding/api_element_of.h"
+#include "schema/schema.h"
+#include "util/defines.h"
+#include "util/logging.h"
+#include "util/type_traits_extras.h"
+
+#include <type_traits>
+
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(binding)
+
+template <TypedStructApiType ApiType>
+constexpr auto StructureTypeOf()
+{
+    return ApiElementOf<ApiType>::type::structure_type;
+}
+
+// Casts a pointer to a chained structure to Specific*, keeping the constness of what the pointer points at. Asserts in
+// DEBUG that a non-null pointer's first member, its sType, equals Specific's structure type.
+template <TypedStructApiType Specific, typename Generic>
+requires std::is_pointer_v<Generic> && std::negation_v<std::is_pointer<Specific>>
+auto StructureTypeCast(Generic generic)
+{
+    using Result        = util::CopyPointerConst_t<Generic, Specific>;
+    using StructureType = std::remove_cv_t<decltype(StructureTypeOf<Specific>())>;
+    Result specific     = reinterpret_cast<Result>(generic);
+    GFXRECON_ASSERT((specific == nullptr) ||
+                    (*reinterpret_cast<const StructureType*>(specific) == StructureTypeOf<Specific>()));
+    return specific;
+}
+
+// Casts as above, keyed on the API element.
+template <schema::TypedStructApiElement Element, typename Generic>
+requires std::is_pointer_v<Generic>
+auto StructureTypeCast(Generic generic)
+{
+    return StructureTypeCast<typename Element::element_type>(generic);
+}
+
+GFXRECON_END_NAMESPACE(binding)
+GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // GFXRECON_BINDING_STRUCTURE_TYPE_H

@@ -154,6 +154,12 @@ class PointerDecoder : public PointerDecoderBase
     size_t DecodeLUID(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<int64_t>(buffer, buffer_size); }
     // clang-format on
 
+    template <typename WireType>
+    requires std::is_arithmetic_v<WireType> size_t DecodeAs(const uint8_t* buffer, size_t buffer_size)
+    {
+        return DecodeFrom<WireType>(buffer, buffer_size);
+    }
+
   private:
     template <typename SrcT>
     size_t DecodeFrom(const uint8_t* buffer, size_t buffer_size)
@@ -296,6 +302,12 @@ class PointerDecoder<T*> : public PointerDecoderBase
     size_t DecodeVkDeviceAddress(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<format::DeviceAddressEncodeType>(buffer, buffer_size); }
     size_t DecodeSizeT(const uint8_t* buffer, size_t buffer_size)           { return DecodeFrom<format::SizeTEncodeType>(buffer, buffer_size); }
     // clang-format on
+
+    template <typename WireType>
+    requires std::is_arithmetic_v<WireType> size_t DecodeAs(const uint8_t* buffer, size_t buffer_size)
+    {
+        return DecodeFrom<WireType>(buffer, buffer_size);
+    }
 
   private:
     template <typename SrcT>

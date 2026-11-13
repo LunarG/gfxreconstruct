@@ -27,7 +27,7 @@
 #include "graphics/vulkan_resources_util.h"
 #include "decode/vulkan_swapchain_format.h"
 #include "decode/vulkan_temporary_objects.h"
-#include "generated/generated_vulkan_enum_to_string.h"
+#include "util/vulkan_enum_to_string.h"
 #include "vulkan/vulkan_core.h"
 #include <cmath>
 #include <sstream>

@@ -25,7 +25,7 @@
 
 #include "format/platform_types.h"
 #include "decode/vulkan_object_info.h"
-#include "generated/generated_vulkan_struct_decoders_forward.h"
+#include "decode/vulkan_decode_struct.h"
 #include "decode/common_object_info_table.h"
 #include "util/spirv_parsing_util.h"
 #include "util/logging.h"

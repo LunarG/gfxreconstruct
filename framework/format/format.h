@@ -33,6 +33,8 @@
 #include "util/driver_info.h"
 
 #include <cinttypes>
+#include <concepts>
+#include <limits>
 #include <type_traits>
 
 #define GFXRECON_FOURCC GFXRECON_MAKE_FOURCC('G', 'F', 'X', 'R')
@@ -64,8 +66,40 @@ typedef uint16_t WCharEncodeType; // Encoding type for LPCWSTR (UTF-16) strings.
 typedef uint32_t FormatEncodeType;
 typedef uint32_t D3D_FEATURE_LEVELEncodeType;
 
+// The integral types are recorded as themselves. The typedefs exist so WireTypeOf never names a bare C type.
+typedef int8_t   Int8EncodeType;
+typedef int16_t  Int16EncodeType;
+typedef int32_t  Int32EncodeType;
+typedef int64_t  Int64EncodeType;
+typedef uint8_t  UInt8EncodeType;
+typedef uint16_t UInt16EncodeType;
+typedef uint32_t UInt32EncodeType;
+typedef uint64_t UInt64EncodeType;
+
+// The capture format assumes float and double as IEEE 754 binary32 and binary64.
+static_assert(std::numeric_limits<float>::is_iec559 && sizeof(float) == 4, "float must be IEEE 754 binary32");
+static_assert(std::numeric_limits<double>::is_iec559 && sizeof(double) == 8, "double must be IEEE 754 binary64");
+typedef float    FloatEncodeType;
+typedef double   DoubleEncodeType;
+
 typedef HandleEncodeType HandleId;
 typedef uint64_t         ThreadId;
+
+static_assert(sizeof(EnumEncodeType) == 4);
+static_assert(sizeof(FlagsEncodeType) == 4);
+static_assert(sizeof(Flags64EncodeType) == 8);
+static_assert(sizeof(SampleMaskEncodeType) == 4);
+static_assert(sizeof(SizeTEncodeType) == 8);
+static_assert(sizeof(DeviceSizeEncodeType) == 8);
+static_assert(sizeof(DeviceAddressEncodeType) == 8);
+static_assert(sizeof(AddressEncodeType) == 8);
+static_assert(sizeof(CharEncodeType) == 1);
+static_assert(sizeof(WCharEncodeType) == 2);
+static_assert(sizeof(HandleEncodeType) == 8);
+
+// HandleId is the capture-file identity of an API handle. It is HandleEncodeType, so an Action may write a HandleId as
+// a handle's wire type; this assertion fails to compile if the two diverge.
+static_assert(std::is_same_v<HandleId, HandleEncodeType>);
 
 const uint32_t kCompressedBlockTypeBit    = 0x80000000;
 const size_t   kUuidSize                  = 16;

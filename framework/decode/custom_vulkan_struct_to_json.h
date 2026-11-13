@@ -23,6 +23,7 @@
 #define GFXRECON_DECODE_CUSTOM_VULKAN_STRUCT_TO_JSON_H
 
 #include "decode/custom_vulkan_struct_decoders.h"
+#include "decode/vulkan_decode_typed_struct.h"
 #include "generated/generated_vulkan_enum_to_json.h"
 #include "generated/generated_vulkan_struct_to_json.h"
 #include "generated/generated_vulkan_struct_decoders.h"
@@ -111,6 +112,10 @@ void FieldToJson(nlohmann::ordered_json& jdata, const std::vector<T>& data)
 }
 
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkLayerSettingEXT* data);
+
+// Emits a command parameter declared VkBaseOutStructure* as the concrete structure its sType selects, or nothing when
+// the decoder holds none.
+void FieldToJson(nlohmann::ordered_json& jdata, const TypedStructDecoder* data);
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
