@@ -147,6 +147,7 @@ def CreateReplayParser():
     parser.add_argument('--save-pipeline-cache', metavar='DEVICE_FILE', help='If set, produces pipeline caches at replay time instead of using the one saved at capture time and save those caches in DEVICE_FILE. (forwarded to replay tool)')
     parser.add_argument('--load-pipeline-cache', metavar='DEVICE_FILE', help='If set, loads data created by the `--save-pipeline-cache` option in DEVICE_FILE and uses it to create the pipelines instead of the pipeline caches saved at capture time. (forwarded to replay tool)')
     parser.add_argument('--add-new-pipeline-caches', action='store_true', default=False, help='If set, allows gfxreconstruct to create new vkPipelineCache objects when it encounters a pipeline created without cache. This option can be used in coordination with `--save-pipeline-cache` and `--load-pipeline-cache`. (forwarded to replay tool)')
+    parser.add_argument('--skip-index', metavar='RANGES', help='Skip API calls and metadata at zero-based block indices, preserving markers and annotations. Accepts comma-separated indices and inclusive ranges, e.g. 0,7,10-20 (forwarded to replay tool)')
     parser.add_argument('--quit-after-frame', metavar='FRAME', help='Specify a frame after which replay will terminate.')
     parser.add_argument('--screenshot-ignore-FrameBoundaryANDROID', action='store_true', default=False, help='If set, frames switced with vkFrameBoundANDROID will be ignored from the screenshot handler.')
     parser.add_argument('--wait-before-first-submit', metavar='MILLISECONDS', help='Wait for the specified amount of milliseconds before processing the first submit. (forwarded to replay tool)')
@@ -335,6 +336,10 @@ def MakeExtrasString(args):
     if args.pbis:
         arg_list.append('--pbis')
         arg_list.append('{}'.format(args.pbis))
+
+    if args.skip_index:
+        arg_list.append('--skip-index')
+        arg_list.append('{}'.format(args.skip_index))
 
     if args.pcj:
         arg_list.append('--pcj')

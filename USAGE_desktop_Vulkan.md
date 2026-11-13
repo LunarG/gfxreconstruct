@@ -638,6 +638,7 @@ gfxrecon-replay         [-h | --help] [--version] [--cpu-mask <binary-mask>] [--
                         [--dump-resources <filename>.json]
                         [--dump-resources-dir <dir>]
                         [--pbi-all] [--pbis <index1,index2>]
+                        [--skip-index <index[,index|start-end]...>]
                         [--pipeline-creation-jobs | --pcj <num_jobs>]
                         [--deduplicate-device]
                         [--wait-before-first-submit MILLISECONDS]
@@ -884,6 +885,14 @@ Optional arguments:
               Print all block information.
   --pbis <index1,index2>
               Print block information between block index1 and block index2.
+  --skip-index <index[,index|start-end]...>
+              Skip API calls and metadata at 0-based block indices (0 to 4294967295).
+              Accepts comma-separated indices and inclusive ranges. All blocks count toward
+              the index; frame/state markers and annotations are always preserved.
+              Invalid entries are ignored with a warning.
+              Example: --skip-index 0,7,10-20.
+              Advanced debugging option for developers investigating capture block streams;
+              use it to isolate API calls that may cause replay failures. Not intended for routine replay.
   --pipeline-creation-jobs | --pcj <num_jobs>
               Specify the number of asynchronous pipeline-creation jobs as integer.
               If <num_jobs> is negative it will be added to the number of cpu-cores, e.g. -1 -> num_cores - 1.
