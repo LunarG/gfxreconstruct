@@ -77,83 +77,36 @@ class VulkanStageIsolateRenderPass : public VulkanStageCommandBuffer
         std::vector<format::HandleId> previous_command_buffer_ids;
     };
 
+    // A CommandPoolInfo holds the parts that the stage can hand out again for one command pool of the app.
+    struct CommandPoolInfo
+    {
+        /// Whether the pool has the VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT set.
+        bool reset_bit = false;
+
+        /// Command buffers that are available for reuse.
+        std::vector<format::HandleId> spare_command_buffer_ids;
+
+        /// Command buffers that wait for a pool reset.
+        std::vector<format::HandleId> dirty_command_buffer_ids;
+    };
+
   public:
-    void Process_vkAllocateCommandBuffers(const ApiCallInfo& call_info, args::AllocateCommandBuffers& args) override
-    {
-        const auto* allocate_info = args.pAllocateInfo.GetMetaStructPointer();
+    // Command pools
 
-        // vkCmdBeginRenderPass is valid only in a primary command buffer, so only primaries are tracked.
-        // Commands on a secondary find no recording and pass through unchanged.
-        if (allocate_info->decoded_value->level == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
-        {
-            const format::HandleId pool_id = allocate_info->commandPool;
-            for (const format::HandleId command_buffer_id : args.pCommandBuffers.GetSpan())
-            {
-                command_buffer_to_recording_map_[command_buffer_id] = Recording{ args.device, pool_id };
-            }
-        }
+    void Process_vkCreateCommandPool(const ApiCallInfo& call_info, args::CreateCommandPool& args) override;
+    void Process_vkDestroyCommandPool(const ApiCallInfo& call_info, args::DestroyCommandPool& args) override;
+    void Process_vkResetCommandPool(const ApiCallInfo& call_info, args::ResetCommandPool& args) override;
 
-        Forward(call_info, args);
-    }
+    // Command buffers
 
-    void OnCommand(const ApiCallInfo& call_info, format::HandleId& command_buffer_id) override
-    {
-        if (auto entry = command_buffer_to_recording_map_.find(command_buffer_id);
-            entry != command_buffer_to_recording_map_.end())
-        {
-            Recording& recording = entry->second;
+    void Process_vkAllocateCommandBuffers(const ApiCallInfo& call_info, args::AllocateCommandBuffers& args) override;
+    void Process_vkFreeCommandBuffers(const ApiCallInfo& call_info, args::FreeCommandBuffers& args) override;
+    void Process_vkResetCommandBuffer(const ApiCallInfo& call_info, args::ResetCommandBuffer& args) override;
+    void Process_vkBeginCommandBuffer(const ApiCallInfo& call_info, args::BeginCommandBuffer& args) override;
+    void Process_vkEndCommandBuffer(const ApiCallInfo& call_info, args::EndCommandBuffer& args) override;
 
-            if (recording.split_pending)
-            {
-                Split(recording, call_info);
-            }
-
-            recording.working_command_count++;
-
-            // Send the command to the current part. Before the first split, the current part is
-            // the app's own command buffer.
-            command_buffer_id = recording.current_command_buffer_id;
-        }
-    }
-
-    void Process_vkBeginCommandBuffer(const ApiCallInfo& call_info, args::BeginCommandBuffer& args) override
-    {
-        if (auto entry = command_buffer_to_recording_map_.find(args.commandBuffer);
-            entry != command_buffer_to_recording_map_.end())
-        {
-            // Each recording starts in the app's own command buffer.
-            Recording& recording                = entry->second;
-            recording.current_command_buffer_id = args.commandBuffer;
-            recording.working_command_count     = 0;
-            recording.begin_flags               = args.pBeginInfo.GetPointer()->flags;
-            recording.split_pending             = false;
-            recording.state_log.Clear();
-            recording.previous_command_buffer_ids.clear();
-        }
-
-        Forward(call_info, args);
-    }
-
-    void Process_vkEndCommandBuffer(const ApiCallInfo& call_info, args::EndCommandBuffer& args) override
-    {
-        if (auto entry = command_buffer_to_recording_map_.find(args.commandBuffer);
-            entry != command_buffer_to_recording_map_.end())
-        {
-            Recording& recording    = entry->second;
-            recording.split_pending = false;
-
-            // Explanation of why this works:
-            // Case 1, no split happens:
-            // - recording.current_command_buffer_id is the original app command buffer id
-            //   which means it is just the normal course of events.
-            // Case 2, a split has occurred:
-            // - original command buffer has already been ended by the split
-            // - recording.current_command_buffer_id is the new synthetic command buffer id
-            //   which must be ended, so we redirect the End call to it.
-            args.commandBuffer = recording.current_command_buffer_id;
-        }
-        Forward(call_info, args);
-    }
+    // OnCommand sends every vkCmd* of a tracked command buffer to the current part.
+    void OnCommand(const ApiCallInfo& call_info, format::HandleId& command_buffer_id) override;
 
     // Submits
 
@@ -165,155 +118,42 @@ class VulkanStageIsolateRenderPass : public VulkanStageCommandBuffer
 
     // Begin render
 
-    void Process_vkCmdBeginRenderPass(const ApiCallInfo& call_info, args::CmdBeginRenderPass& args) override
-    {
-        ProcessBeginRender(call_info, args);
-    }
-
-    void Process_vkCmdBeginRenderPass2(const ApiCallInfo& call_info, args::CmdBeginRenderPass2& args) override
-    {
-        ProcessBeginRender(call_info, args);
-    }
-
-    void Process_vkCmdBeginRenderPass2KHR(const ApiCallInfo& call_info, args::CmdBeginRenderPass2KHR& args) override
-    {
-        ProcessBeginRender(call_info, args);
-    }
-
-    void Process_vkCmdBeginRendering(const ApiCallInfo& call_info, args::CmdBeginRendering& args) override
-    {
-        ProcessBeginRender(call_info, args);
-    }
-
-    void Process_vkCmdBeginRenderingKHR(const ApiCallInfo& call_info, args::CmdBeginRenderingKHR& args) override
-    {
-        ProcessBeginRender(call_info, args);
-    }
+    void Process_vkCmdBeginRenderPass(const ApiCallInfo& call_info, args::CmdBeginRenderPass& args) override;
+    void Process_vkCmdBeginRenderPass2(const ApiCallInfo& call_info, args::CmdBeginRenderPass2& args) override;
+    void Process_vkCmdBeginRenderPass2KHR(const ApiCallInfo& call_info, args::CmdBeginRenderPass2KHR& args) override;
+    void Process_vkCmdBeginRendering(const ApiCallInfo& call_info, args::CmdBeginRendering& args) override;
+    void Process_vkCmdBeginRenderingKHR(const ApiCallInfo& call_info, args::CmdBeginRenderingKHR& args) override;
 
     // End render
 
-    void Process_vkCmdEndRenderPass(const ApiCallInfo& call_info, args::CmdEndRenderPass& args) override
-    {
-        ProcessEndRender(call_info, args);
-    }
-
-    void Process_vkCmdEndRenderPass2(const ApiCallInfo& call_info, args::CmdEndRenderPass2& args) override
-    {
-        ProcessEndRender(call_info, args);
-    }
-
-    void Process_vkCmdEndRenderPass2KHR(const ApiCallInfo& call_info, args::CmdEndRenderPass2KHR& args) override
-    {
-        ProcessEndRender(call_info, args);
-    }
-
-    void Process_vkCmdEndRendering(const ApiCallInfo& call_info, args::CmdEndRendering& args) override
-    {
-        ProcessEndRender(call_info, args);
-    }
-
-    void Process_vkCmdEndRenderingKHR(const ApiCallInfo& call_info, args::CmdEndRenderingKHR& args) override
-    {
-        ProcessEndRender(call_info, args);
-    }
+    void Process_vkCmdEndRenderPass(const ApiCallInfo& call_info, args::CmdEndRenderPass& args) override;
+    void Process_vkCmdEndRenderPass2(const ApiCallInfo& call_info, args::CmdEndRenderPass2& args) override;
+    void Process_vkCmdEndRenderPass2KHR(const ApiCallInfo& call_info, args::CmdEndRenderPass2KHR& args) override;
+    void Process_vkCmdEndRendering(const ApiCallInfo& call_info, args::CmdEndRendering& args) override;
+    void Process_vkCmdEndRenderingKHR(const ApiCallInfo& call_info, args::CmdEndRenderingKHR& args) override;
 
     // State commands
 
-    void Process_vkCmdBindPipeline(const ApiCallInfo& call_info, args::CmdBindPipeline& args) override
-    {
-        ProcessStateCommand(call_info, args);
-    }
-
-    void Process_vkCmdBindDescriptorSets(const ApiCallInfo& call_info, args::CmdBindDescriptorSets& args) override
-    {
-        ProcessStateCommand(call_info, args);
-    }
-
-    void Process_vkCmdBindIndexBuffer(const ApiCallInfo& call_info, args::CmdBindIndexBuffer& args) override
-    {
-        ProcessStateCommand(call_info, args);
-    }
-
-    void Process_vkCmdBindVertexBuffers(const ApiCallInfo& call_info, args::CmdBindVertexBuffers& args) override
-    {
-        ProcessStateCommand(call_info, args);
-    }
-
-    void Process_vkCmdSetViewport(const ApiCallInfo& call_info, args::CmdSetViewport& args) override
-    {
-        ProcessStateCommand(call_info, args);
-    }
-
-    void Process_vkCmdSetScissor(const ApiCallInfo& call_info, args::CmdSetScissor& args) override
-    {
-        ProcessStateCommand(call_info, args);
-    }
-
-    void Process_vkCmdPushConstants(const ApiCallInfo& call_info, args::CmdPushConstants& args) override
-    {
-        ProcessStateCommand(call_info, args);
-    }
+    void Process_vkCmdBindPipeline(const ApiCallInfo& call_info, args::CmdBindPipeline& args) override;
+    void Process_vkCmdBindDescriptorSets(const ApiCallInfo& call_info, args::CmdBindDescriptorSets& args) override;
+    void Process_vkCmdBindIndexBuffer(const ApiCallInfo& call_info, args::CmdBindIndexBuffer& args) override;
+    void Process_vkCmdBindVertexBuffers(const ApiCallInfo& call_info, args::CmdBindVertexBuffers& args) override;
+    void Process_vkCmdSetViewport(const ApiCallInfo& call_info, args::CmdSetViewport& args) override;
+    void Process_vkCmdSetScissor(const ApiCallInfo& call_info, args::CmdSetScissor& args) override;
+    void Process_vkCmdPushConstants(const ApiCallInfo& call_info, args::CmdPushConstants& args) override;
 
   private:
+    // ProcessBeginRender marks a split before the render pass when the current part already holds work.
     template <typename ArgsT>
-    void ProcessBeginRender(const ApiCallInfo& call_info, ArgsT& args)
-    {
-        if (auto entry = command_buffer_to_recording_map_.find(args.commandBuffer);
-            entry != command_buffer_to_recording_map_.end())
-        {
-            Recording& recording = entry->second;
-            // Instead of splitting immediately here, we can set a flag to indicate
-            // that a split should occur before the next command.
-            // In this case, the next command is expected to be the beginning of a renderpass/rendering.
-            recording.split_pending = recording.working_command_count > 0;
-        }
+    void ProcessBeginRender(const ApiCallInfo& call_info, ArgsT& args);
 
-        ProcessCommand(call_info, args);
-    }
-
+    // ProcessEndRender marks a split after the render pass. The next command performs it.
     template <typename ArgsT>
-    void ProcessEndRender(const ApiCallInfo& call_info, ArgsT& args)
-    {
-        // Save the original command buffer ID before processing the command,
-        // as `args.commandBuffer` may be modified during processing.
-        const format::HandleId original_command_buffer_id = args.commandBuffer;
+    void ProcessEndRender(const ApiCallInfo& call_info, ArgsT& args);
 
-        ProcessCommand(call_info, args);
-
-        if (auto entry = command_buffer_to_recording_map_.find(original_command_buffer_id);
-            entry != command_buffer_to_recording_map_.end())
-        {
-            Recording& recording = entry->second;
-            // Do not split yet, just mark that a split is pending for this recording.
-            // Reason is that we might not need to split if the next call is `vkEndCommandBuffer`,
-            // or we might want to emit different calls if the next command is `vkBeginRenderPass`
-            // in case we want to avoid an empty recording between render passes.
-            recording.split_pending = true;
-        }
-    }
-
+    // ProcessStateCommand keeps a state command, so that each new part can reissue it.
     template <typename ArgsT>
-    void ProcessStateCommand(const ApiCallInfo& call_info, ArgsT& args)
-    {
-        if (auto entry = command_buffer_to_recording_map_.find(args.commandBuffer);
-            entry != command_buffer_to_recording_map_.end())
-        {
-            Recording& recording = entry->second;
-
-            if (recording.split_pending)
-            {
-                Split(recording, call_info);
-            }
-
-            // Append the current call to the recording's state log.
-            auto& bytes = GetCurrentCallBytes();
-            recording.state_log.Append(bytes.call_id, call_info, bytes.parameter_buffer, bytes.buffer_size);
-
-            args.commandBuffer = recording.current_command_buffer_id;
-        }
-
-        Forward(call_info, args);
-    }
+    void ProcessStateCommand(const ApiCallInfo& call_info, ArgsT& args);
 
     // Split ends the current part and begins a new one, so the command that follows starts in its own
     // command buffer.
@@ -334,6 +174,10 @@ class VulkanStageIsolateRenderPass : public VulkanStageCommandBuffer
     template <typename ArgsT>
     void ProcessQueueSubmit2(const ApiCallInfo& call_info, ArgsT& args);
 
+    // Release gives the parts of a recording to its pool, and makes the app's command buffer current again.
+    // The parts go to the spare list when the pool has the reset bit, and to the dirty list otherwise.
+    void Release(Recording& recording);
+
     // Synthetic ids set the top bit. Capture ids count up from 1 and never reach it, so the two never collide.
     static constexpr format::HandleId kSyntheticBit = 1ull << 63;
 
@@ -341,6 +185,9 @@ class VulkanStageIsolateRenderPass : public VulkanStageCommandBuffer
 
     // The map holds the recording of each primary command buffer of the app, keyed by the app's id.
     std::unordered_map<format::HandleId, Recording> command_buffer_to_recording_map_;
+
+    /// Holds information about command pools.
+    std::unordered_map<format::HandleId, CommandPoolInfo> pool_info_map_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
