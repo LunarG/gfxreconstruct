@@ -57,6 +57,7 @@ class ByteWriter
 constexpr uint32_t kStructPointer     = format::kIsStruct | format::kIsSingle | format::kHasAddress | format::kHasData;
 constexpr uint32_t kNullStructPointer = format::kIsStruct | format::kIsSingle | format::kIsNull;
 constexpr uint32_t kArrayPointer      = format::kIsArray | format::kHasAddress | format::kHasData;
+constexpr uint32_t kStructArrayPointer = format::kIsStruct | kArrayPointer;
 
 // The decoder reads the address of a pointer, but these calls never use it, so any non-zero value works.
 constexpr uint64_t kUnusedAddress = 1;
@@ -88,6 +89,42 @@ std::vector<uint8_t> AllocateBytes(format::HandleId device, format::HandleId poo
         .Bytes();
 }
 
+// The pCommandBuffers array of a VkSubmitInfo.
+std::vector<uint8_t> CommandBufferIdArrayBytes(std::span<const format::HandleId> command_buffer_ids)
+{
+    ByteWriter writer;
+    writer.Put<uint32_t>(kArrayPointer).Put<uint64_t>(kUnusedAddress).Put<uint64_t>(command_buffer_ids.size());
+    for (const format::HandleId command_buffer_id : command_buffer_ids)
+    {
+        writer.Put<format::HandleId>(command_buffer_id);
+    }
+    return writer.Bytes();
+}
+
+// One entry of the pCommandBufferInfos array of a VkSubmitInfo2. It holds the capture id of the command buffer,
+// because VkCommandBufferSubmitInfo holds a driver handle, and replay maps the id to the handle later.
+struct CommandBufferInfo
+{
+    format::HandleId command_buffer_id = format::kNullHandleId;
+    uint32_t         device_mask       = 0;
+};
+
+// The pCommandBufferInfos array of a VkSubmitInfo2.
+std::vector<uint8_t> CommandBufferInfoArrayBytes(std::span<const CommandBufferInfo> command_buffer_infos)
+{
+    ByteWriter writer;
+    writer.Put<uint32_t>(kStructArrayPointer).Put<uint64_t>(kUnusedAddress).Put<uint64_t>(command_buffer_infos.size());
+    for (const CommandBufferInfo& info : command_buffer_infos)
+    {
+        writer
+            .Put<uint32_t>(VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO) // sType
+            .Put<uint32_t>(kNullStructPointer)                           // pNext
+            .Put<format::HandleId>(info.command_buffer_id)               // commandBuffer
+            .Put<uint32_t>(info.device_mask);                            // deviceMask
+    }
+    return writer.Bytes();
+}
+
 std::vector<uint8_t> BeginBytes(format::HandleId command_buffer, VkCommandBufferUsageFlags flags)
 {
     return ByteWriter()
@@ -116,6 +153,7 @@ void VulkanStageIsolateRenderPass::Split(Recording& recording, const ApiCallInfo
          AllocateBytes(recording.device_id, recording.pool_id, synthetic_id));
     Emit(format::ApiCallId::ApiCall_vkBeginCommandBuffer, call_info, BeginBytes(synthetic_id, recording.begin_flags));
 
+    recording.previous_command_buffer_ids.push_back(recording.current_command_buffer_id);
     recording.current_command_buffer_id = synthetic_id;
     recording.working_command_count     = 0;
 
@@ -156,6 +194,115 @@ void VulkanStageIsolateRenderPass::Emit(format::ApiCallId        call_id,
     // The local decoder gave the next consumers the bytes of the invented call. Give them back the bytes
     // of the app call, because the stage forwards that call next.
     Broadcast(&VulkanConsumer::SetCurrentCallBytes, GetCurrentCallBytes());
+}
+
+bool VulkanStageIsolateRenderPass::AppendCommandBufferIdsToSubmit(format::HandleId               app_command_buffer_id,
+                                                                  std::vector<format::HandleId>& ids_to_submit) const
+{
+    if (auto entry = command_buffer_to_recording_map_.find(app_command_buffer_id);
+        entry != command_buffer_to_recording_map_.end())
+    {
+        const Recording& recording = entry->second;
+        if (!recording.previous_command_buffer_ids.empty())
+        {
+            ids_to_submit.insert(ids_to_submit.end(),
+                                 recording.previous_command_buffer_ids.begin(),
+                                 recording.previous_command_buffer_ids.end());
+            ids_to_submit.push_back(recording.current_command_buffer_id);
+            return true;
+        }
+    }
+
+    ids_to_submit.push_back(app_command_buffer_id);
+    return false;
+}
+
+void VulkanStageIsolateRenderPass::Process_vkQueueSubmit(const ApiCallInfo& call_info, args::QueueSubmit& args)
+{
+    // Patch the command buffer array of each submit info to account for any command buffer splits.
+    for (uint32_t submit_index = 0; submit_index < args.submitCount; ++submit_index)
+    {
+        Decoded_VkSubmitInfo& meta_submit_info   = args.pSubmits.GetMetaStructPointer()[submit_index];
+        VkSubmitInfo&         native_submit_info = args.pSubmits.GetPointer()[submit_index];
+
+        std::vector<format::HandleId> ids_to_submit;
+        bool                          any_split = false;
+        for (const format::HandleId app_command_buffer_id : meta_submit_info.pCommandBuffers.GetSpan())
+        {
+            any_split |= AppendCommandBufferIdsToSubmit(app_command_buffer_id, ids_to_submit);
+        }
+
+        if (!any_split)
+        {
+            continue;
+        }
+
+        // Decode() copies the ids into the arena, so the bytes can be a local.
+        const std::vector<uint8_t> command_buffer_ids_bytes = CommandBufferIdArrayBytes(ids_to_submit);
+        meta_submit_info.pCommandBuffers                    = HandlePointerDecoder<VkCommandBuffer>();
+        meta_submit_info.pCommandBuffers.Decode(command_buffer_ids_bytes.data(), command_buffer_ids_bytes.size());
+
+        // Replay fills native_submit_info.pCommandBuffers later, when MapHandleArray() maps the meta ids.
+        // That does not change commandBufferCount, so the stage sets it here.
+        native_submit_info.commandBufferCount = static_cast<uint32_t>(ids_to_submit.size());
+    }
+
+    Forward(call_info, args);
+}
+
+template <typename ArgsT>
+void VulkanStageIsolateRenderPass::ProcessQueueSubmit2(const ApiCallInfo& call_info, ArgsT& args)
+{
+    // Patch the command buffer infos of each submit info to account for any command buffer splits.
+    for (uint32_t submit_index = 0; submit_index < args.submitCount; ++submit_index)
+    {
+        Decoded_VkSubmitInfo2& meta_submit_info   = args.pSubmits.GetMetaStructPointer()[submit_index];
+        VkSubmitInfo2&         native_submit_info = args.pSubmits.GetPointer()[submit_index];
+
+        std::vector<CommandBufferInfo> infos_to_submit;
+        std::vector<format::HandleId>  ids_to_submit;
+        bool                           any_split = false;
+        for (const Decoded_VkCommandBufferSubmitInfo& app_info :
+             meta_submit_info.pCommandBufferInfos->GetMetaStructSpan())
+        {
+            ids_to_submit.clear();
+            any_split |= AppendCommandBufferIdsToSubmit(app_info.commandBuffer, ids_to_submit);
+
+            // Every command buffer of a split recording takes the device mask of the app's entry.
+            for (const format::HandleId command_buffer_id : ids_to_submit)
+            {
+                infos_to_submit.push_back({ command_buffer_id, app_info.decoded_value->deviceMask });
+            }
+        }
+
+        if (!any_split)
+        {
+            continue;
+        }
+
+        // Decoded_VkSubmitInfo2 points to its decoder, so the new decoder must live in the arena until the call
+        // has been forwarded.
+        const std::vector<uint8_t> command_buffer_infos_bytes = CommandBufferInfoArrayBytes(infos_to_submit);
+        auto*                      command_buffer_infos =
+            DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkCommandBufferSubmitInfo>>();
+        command_buffer_infos->Decode(command_buffer_infos_bytes.data(), command_buffer_infos_bytes.size());
+
+        meta_submit_info.pCommandBufferInfos      = command_buffer_infos;
+        native_submit_info.commandBufferInfoCount = static_cast<uint32_t>(infos_to_submit.size());
+        native_submit_info.pCommandBufferInfos    = command_buffer_infos->GetPointer();
+    }
+
+    Forward(call_info, args);
+}
+
+void VulkanStageIsolateRenderPass::Process_vkQueueSubmit2(const ApiCallInfo& call_info, args::QueueSubmit2& args)
+{
+    ProcessQueueSubmit2(call_info, args);
+}
+
+void VulkanStageIsolateRenderPass::Process_vkQueueSubmit2KHR(const ApiCallInfo& call_info, args::QueueSubmit2KHR& args)
+{
+    ProcessQueueSubmit2(call_info, args);
 }
 
 GFXRECON_END_NAMESPACE(decode)
