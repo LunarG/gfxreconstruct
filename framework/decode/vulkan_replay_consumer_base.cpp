@@ -289,7 +289,7 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
     {
         FILE*      file = nullptr;
         const bool file_exists =
-            (util::platform::FileOpen(&file, options_.save_pipeline_cache_filename.c_str(), "r") == 0);
+            (util::platform::FileOpen(&file, options_.save_pipeline_cache_filename.c_str(), "rb") == 0);
         if (file_exists)
         {
             util::platform::FileClose(file);
@@ -303,7 +303,7 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
         if ((!load_save_caches_in_same_file || !load_pipeline_caches_from_file) ||
             (load_pipeline_caches_from_file && !file_exists))
         {
-            const auto error = util::platform::FileOpen(&file, options_.save_pipeline_cache_filename.c_str(), "w");
+            const auto error = util::platform::FileOpen(&file, options_.save_pipeline_cache_filename.c_str(), "wb");
             if (error)
             {
                 GFXRECON_LOG_FATAL("Could not open pipeline cache file '%s'. Error: '%s'",
@@ -15270,7 +15270,7 @@ bool VulkanReplayConsumerBase::CheckPipelineCacheUUID(const VulkanDeviceInfo*   
 bool VulkanReplayConsumerBase::LoadPipelineCacheFromFile(format::HandleId id, std::vector<uint8_t>& cache_data)
 {
     FILE*   file  = nullptr;
-    int32_t error = util::platform::FileOpen(&file, options_.load_pipeline_cache_filename.c_str(), "r");
+    int32_t error = util::platform::FileOpen(&file, options_.load_pipeline_cache_filename.c_str(), "rb");
     if (error)
     {
         GFXRECON_LOG_ERROR("Could not open pipeline cache file '%s' for loading. Error: '%s'",
@@ -15337,7 +15337,7 @@ void VulkanReplayConsumerBase::SavePipelineCache(format::HandleId id, const Trac
     }
 
     FILE*   file  = nullptr;
-    int32_t error = util::platform::FileOpen(&file, options_.save_pipeline_cache_filename.c_str(), "a");
+    int32_t error = util::platform::FileOpen(&file, options_.save_pipeline_cache_filename.c_str(), "ab");
     if (error)
     {
         GFXRECON_LOG_FATAL("Could not open pipeline cache file '%s' for saving. Error: '%s'",
