@@ -56,7 +56,7 @@ The tool's output is an ordered list of JSON structures, or a single JSON struct
 
 ```json
 {"header":{"source-path":"..\\captures\\vkcube_frames_1_through_20_20240321T112609.gfxr","gfxrecon-version":"1.0.3-dev (dev:52a52d3+dx12)","vulkan-version":"1.3.280"}}
-{"index":1,"annotation":{"type":"kJson","label":"operation","data":"{\n    \"tool\": \"capture\",\n    \"timestamp\": \"2024-03-21T15:26:09Z\",\n    \"gfxrecon-version\": \"1.0.3-dev (dev:52a52d3+dx12...
+{"index":1,"annotation":{"type":"kJson","label":"operation","data":{"tool":"capture","timestamp":"2024-03-21T15:26:09Z","gfxrecon-version":"1.0.3-dev (dev:52a52d3+dx12)","vulkan-version":"1.3...
 {"index":2,"function":{"name":"vkCreateInstance","thread":1,"return":"VK_SUCCESS","args":{"pCreateInfo":...{"sType":"VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO","flags":"0x00000001","pApplicationInfo":{"sTyp...
 {"index":3,"function":{"name":"vkEnumeratePhysicalDevices","thread":1,"return":"VK_SUCCESS","args":{"instance":1,"pPhysicalDeviceCount":2,"pPhysicalDevices":null}}}
 {"index":4,"function":{"name":"vkEnumeratePhysicalDevices","thread":1,"return":"VK_SUCCESS","args":{"instance":1,"pPhysicalDeviceCount":2,"pPhysicalDevices":[2,3]}}}
@@ -101,10 +101,19 @@ straightforward terms, this is the version of GFXReconstruct that created the `.
   "annotation": {
     "type": "kJson",
     "label": "operation",
-    "data": "{\n    \"tool\": \"capture\",\n    \"timestamp\": \"2024-03-21T15:26:09Z\",\n    \"gfxrecon-version\": \"1.0.3-dev (dev:52a52d3+dx12)\",\n    \"vulkan-version\": \"1.3.280\"\n}"
+    "data": {
+      "tool": "capture",
+      "timestamp": "2024-03-21T15:26:09Z",
+      "gfxrecon-version": "1.0.3-dev (dev:52a52d3+dx12)",
+      "vulkan-version": "1.3.280"
+    }
   }
 }
 ```
+
+The `"data"` of a `kJson` annotation is embedded as a JSON value.
+The `"data"` of other annotation types, or of a `kJson` annotation that does not
+contain valid JSON, is written as a string.
 
 ### Vulkan function
 For Vulkan, the first Vulkan function of the capture follows.
