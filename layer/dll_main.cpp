@@ -48,16 +48,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
             break;
         case DLL_PROCESS_DETACH:
             gfxrecon::vulkan_layer::LayerVulkanEntry::DestroySingleton();
-            // TODO: We assume that lpvReserved will always be NULL, because FreeLibrary should be
-            //       invoked by the loader from vkDestroyInstance.  If this is not always the case,
-            //       we will need to split destroy_layer into a shutdown function, responsible for
-            //       performing any finalization work, that would always run and a destroy function,
-            //       responsible for releasing resources, that would only run when the process was
-            //       not terminating.
-            if (lpvReserved == nullptr)
-            {
-                // TODO: Ensure that the trace is finalized.
-            }
+            // The capture file does not need to be finalized here: the C runtime flushes and closes it on
+            // normal process exit, and CommonCaptureManager::AtExit tears the capture manager down when
+            // the layer ends the process itself.
             break;
     }
 
@@ -79,7 +72,9 @@ __attribute__((constructor)) static void create_trace_layer()
 __attribute__((destructor)) static void destroy_trace_layer()
 {
     gfxrecon::vulkan_layer::LayerVulkanEntry::DestroySingleton();
-    // TODO: Ensure that the trace is finalized.
+    // The capture file does not need to be finalized here: the C runtime flushes and closes it on normal
+    // process exit, and CommonCaptureManager::AtExit tears the capture manager down when the layer ends
+    // the process itself.
 }
 
 #endif // WIN32
