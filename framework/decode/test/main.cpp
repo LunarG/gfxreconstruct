@@ -39,6 +39,7 @@
 
 #include "decode/block_buffer.h"
 #include "decode/block_parser.h"
+#include "decode/custom_vulkan_struct_decoders.h"
 #include "decode/decode_allocator.h"
 #include "decode/vulkan_pnext_node.h"
 
@@ -887,4 +888,65 @@ TEST_CASE("An aliasing group that cannot be allocated is rejected", "[rebind]")
 
         REQUIRE_FALSE(layout.valid);
     }
+}
+
+// Encodes a VkLayerSettingEXT as EncodeStruct does, with null names, and decodes it back.
+template <typename T>
+static void CheckLayerSettingValues(VkLayerSettingTypeEXT type, const std::vector<T>& values)
+{
+    using gfxrecon::format::PointerAttributes;
+
+    const uint32_t                         null_string  = PointerAttributes::kIsString | PointerAttributes::kIsNull;
+    const gfxrecon::format::EnumEncodeType encoded_type = type;
+    const uint32_t                         value_count  = static_cast<uint32_t>(values.size());
+    const uint32_t                         array_attrib =
+        PointerAttributes::kIsArray | PointerAttributes::kHasAddress | PointerAttributes::kHasData;
+    const gfxrecon::format::AddressEncodeType address = 0x1000;
+    const gfxrecon::format::SizeTEncodeType   length  = values.size();
+
+    std::vector<uint8_t> buffer;
+    auto                 append = [&buffer](const void* data, size_t size) {
+        const auto* bytes = static_cast<const uint8_t*>(data);
+        buffer.insert(buffer.end(), bytes, bytes + size);
+    };
+    append(&null_string, sizeof(null_string));
+    append(&null_string, sizeof(null_string));
+    append(&encoded_type, sizeof(encoded_type));
+    append(&value_count, sizeof(value_count));
+    append(&array_attrib, sizeof(array_attrib));
+    append(&address, sizeof(address));
+    append(&length, sizeof(length));
+    append(values.data(), values.size() * sizeof(T));
+
+    gfxrecon::decode::DecodeAllocator::Begin();
+
+    VkLayerSettingEXT                           setting{};
+    gfxrecon::decode::Decoded_VkLayerSettingEXT wrapper;
+    wrapper.decoded_value = &setting;
+
+    const size_t bytes_read = gfxrecon::decode::DecodeStruct(buffer.data(), buffer.size(), &wrapper);
+
+    REQUIRE(bytes_read == buffer.size());
+    REQUIRE(setting.type == type);
+    REQUIRE(setting.valueCount == value_count);
+    REQUIRE(setting.pValues != nullptr);
+
+    const auto* decoded = static_cast<const T*>(setting.pValues);
+    for (size_t i = 0; i < values.size(); ++i)
+    {
+        CHECK(decoded[i] == values[i]);
+    }
+
+    gfxrecon::decode::DecodeAllocator::End();
+}
+
+TEST_CASE("DecodeStruct keeps every byte of a numeric VkLayerSettingEXT value", "[layer_settings]")
+{
+    CheckLayerSettingValues<uint32_t>(VK_LAYER_SETTING_TYPE_UINT32_EXT, { 0x12345678, 300 });
+    CheckLayerSettingValues<VkBool32>(VK_LAYER_SETTING_TYPE_BOOL32_EXT, { VK_TRUE, VK_FALSE });
+    CheckLayerSettingValues<int32_t>(VK_LAYER_SETTING_TYPE_INT32_EXT, { -70000, 256 });
+    CheckLayerSettingValues<int64_t>(VK_LAYER_SETTING_TYPE_INT64_EXT, { -0x123456789ll, 1 });
+    CheckLayerSettingValues<uint64_t>(VK_LAYER_SETTING_TYPE_UINT64_EXT, { 0xfedcba9876543210ull });
+    CheckLayerSettingValues<float>(VK_LAYER_SETTING_TYPE_FLOAT32_EXT, { 1.5f, -1024.25f });
+    CheckLayerSettingValues<double>(VK_LAYER_SETTING_TYPE_FLOAT64_EXT, { 3.25, -1e100 });
 }
