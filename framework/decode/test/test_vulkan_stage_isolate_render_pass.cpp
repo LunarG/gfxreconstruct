@@ -264,6 +264,18 @@ class CallLog : public VulkanConsumer
 
     std::vector<std::string> lines;
 
+    // A capture id prints as itself. A synthetic id prints as S1, S2, … in the order the log first sees it.
+    std::string Name(format::HandleId id)
+    {
+        if ((id >> 63) == 0)
+        {
+            return std::to_string(id);
+        }
+
+        const auto entry = synthetic_names_.try_emplace(id, synthetic_names_.size() + 1).first;
+        return "S" + std::to_string(entry->second);
+    }
+
   private:
     // Each command buffer prints as id:deviceMask. The mask comes from the native array, so a submit info whose
     // native pointer no longer matches its meta array prints "stale".
@@ -328,17 +340,6 @@ class CallLog : public VulkanConsumer
             text += (text.empty() ? "" : " ") + Name(id);
         }
         return text;
-    }
-
-    std::string Name(format::HandleId id)
-    {
-        if ((id >> 63) == 0)
-        {
-            return std::to_string(id);
-        }
-
-        const auto entry = synthetic_names_.try_emplace(id, synthetic_names_.size() + 1).first;
-        return "S" + std::to_string(entry->second);
     }
 
     std::map<format::HandleId, size_t> synthetic_names_;
@@ -790,6 +791,25 @@ Bytes EncodeQueueSubmit2(const std::vector<AppSubmitInfo>& submits, format::Hand
 }
 
 // Sends app calls through decoder -> stage -> log, the way the file processor would.
+// The stage, with its planner in reach of the tests. When a test asks, it plans the next vkQueueSubmit, then it
+// processes the call as usual.
+class PlanningStage : public VulkanStageIsolateRenderPass
+{
+  public:
+    void Process_vkQueueSubmit(const ApiCallInfo& call_info, args::QueueSubmit& args) override
+    {
+        if (plan_next_submit)
+        {
+            plan_next_submit = false;
+            plan             = PlanSubmits(args);
+        }
+        VulkanStageIsolateRenderPass::Process_vkQueueSubmit(call_info, args);
+    }
+
+    bool                       plan_next_submit = false;
+    std::vector<PlannedSubmit> plan;
+};
+
 class Rig
 {
   public:
@@ -949,6 +969,29 @@ class Rig
         Send(format::ApiCall_vkQueueSubmit, EncodeQueueSubmit(submits, fence));
     }
 
+    // Sends a vkQueueSubmit, and returns the stage's plan for it with one line per planned submit. A line holds
+    // the index of the app's submit info, "wait" when it takes that info's waits, the command buffers, and
+    // "signal" when it takes that info's signals. For example "1 wait [10]".
+    std::vector<std::string> Plan(const std::vector<AppSubmitInfo>& submits)
+    {
+        stage_.plan_next_submit = true;
+        Submit(submits);
+
+        std::vector<std::string> lines;
+        for (const PlannedSubmit& planned : stage_.plan)
+        {
+            std::string line = std::to_string(planned.original_submit_info_index);
+            line += planned.waits ? " wait [" : " [";
+            for (size_t i = 0; i < planned.command_buffers.size(); ++i)
+            {
+                line += (i == 0 ? "" : " ") + log.Name(planned.command_buffers[i].command_buffer_id);
+            }
+            line += planned.signals ? "] signal" : "]";
+            lines.push_back(line);
+        }
+        return lines;
+    }
+
     // The guard opens the allocator scope for one call, as the file processor does.
     void Send(format::ApiCallId call_id, const Bytes& bytes)
     {
@@ -961,8 +1004,8 @@ class Rig
     CallLog log;
 
   private:
-    VulkanDecoder                decoder_;
-    VulkanStageIsolateRenderPass stage_;
+    VulkanDecoder decoder_;
+    PlanningStage stage_;
 };
 
 using Lines = std::vector<std::string>;
@@ -1751,4 +1794,164 @@ TEST_CASE("Isolate stage forgets a destroyed pool and its command buffers", "[st
     rig.log.lines.clear();
     rig.RecordCopyAndRenderPasses(12, 1);
     CHECK(rig.log.lines[3] == "Allocate 1 2 primary S3");
+}
+
+// The planner. A plan line reads "<app submit info> wait [<command buffers>] signal", where "wait" and "signal" say
+// whether the planned submit takes that submit info's waits and signals.
+
+TEST_CASE("Isolate stage plans nothing for a submit with no split command buffer", "[stage][isolate][plan]")
+{
+    Rig rig;
+    rig.Allocate({ 10, 11 });
+    rig.RecordCopyAndRenderPasses(10, 0);
+    rig.RecordCopyAndRenderPasses(11, 0);
+
+    // An empty plan tells the caller to forward the app's call unchanged.
+    CHECK(rig.Plan({ { .command_buffers = { 10 } }, { .command_buffers = { 11 } } }).empty());
+}
+
+TEST_CASE("Isolate stage plans a submit per part, with the waits first and the signals last", "[stage][isolate][plan]")
+{
+    Rig rig;
+    rig.Allocate({ 10 });
+    rig.RecordCopyAndRenderPasses(10, 2);
+
+    CHECK(rig.Plan({ { .command_buffers = { 10 } } }) == Lines{
+                                                             "0 wait [10]",
+                                                             "0 [S1]",
+                                                             "0 [S2] signal",
+                                                         });
+}
+
+TEST_CASE("Isolate stage plans a submit of its own for an unsplit neighbour of a split command buffer",
+          "[stage][isolate][plan]")
+{
+    Rig rig;
+    rig.Allocate({ 10, 11 });
+    rig.RecordCopyAndRenderPasses(10, 2);
+    rig.RecordCopyAndRenderPasses(11, 0);
+
+    // After the split command buffer, the neighbour takes the signals and no waits.
+    CHECK(rig.Plan({ { .command_buffers = { 10, 11 } } }) == Lines{
+                                                                 "0 wait [10]",
+                                                                 "0 [S1]",
+                                                                 "0 [S2]",
+                                                                 "0 [11] signal",
+                                                             });
+
+    // Before it, the neighbour takes the waits and no signals.
+    CHECK(rig.Plan({ { .command_buffers = { 11, 10 } } }) == Lines{
+                                                                 "0 wait [11]",
+                                                                 "0 [10]",
+                                                                 "0 [S1]",
+                                                                 "0 [S2] signal",
+                                                             });
+}
+
+TEST_CASE("Isolate stage plans a submit info with no split command buffer whole", "[stage][isolate][plan]")
+{
+    Rig rig;
+    rig.Allocate({ 10, 11, 12 });
+    rig.RecordCopyAndRenderPasses(10, 2);
+    rig.RecordCopyAndRenderPasses(11, 0);
+    rig.RecordCopyAndRenderPasses(12, 0);
+
+    CHECK(rig.Plan({ { .command_buffers = { 11, 12 } }, { .command_buffers = { 10 } } }) == Lines{
+                                                                                                "0 wait [11 12] signal",
+                                                                                                "1 wait [10]",
+                                                                                                "1 [S1]",
+                                                                                                "1 [S2] signal",
+                                                                                            });
+}
+
+TEST_CASE("Isolate stage plans the waits and signals of each split submit info on its own", "[stage][isolate][plan]")
+{
+    Rig rig;
+    rig.Allocate({ 10, 11 });
+    rig.RecordCopyAndRenderPasses(10, 2);
+    rig.RecordCopyAndRenderPasses(11, 1);
+
+    // The second submit info's waits go on its own first part, 11, and on no part of the first submit info.
+    CHECK(rig.Plan({ { .command_buffers = { 10 } }, { .command_buffers = { 11 } } }) == Lines{
+                                                                                            "0 wait [10]",
+                                                                                            "0 [S1]",
+                                                                                            "0 [S2] signal",
+                                                                                            "1 wait [11]",
+                                                                                            "1 [S3] signal",
+                                                                                        });
+}
+
+TEST_CASE("Isolate stage plans every part of one command buffer before the next command buffer",
+          "[stage][isolate][plan]")
+{
+    Rig rig;
+    rig.Allocate({ 10, 11 });
+    rig.RecordCopyAndRenderPasses(10, 2);
+    rig.RecordCopyAndRenderPasses(11, 1);
+
+    CHECK(rig.Plan({ { .command_buffers = { 10, 11 } } }) == Lines{
+                                                                 "0 wait [10]",
+                                                                 "0 [S1]",
+                                                                 "0 [S2]",
+                                                                 "0 [11]",
+                                                                 "0 [S3] signal",
+                                                             });
+}
+
+TEST_CASE("Isolate stage plans a submit info with no command buffers whole", "[stage][isolate][plan]")
+{
+    Rig rig;
+    rig.Allocate({ 10 });
+    rig.RecordCopyAndRenderPasses(10, 2);
+
+    // A submit info may hold only semaphores. Its planned submit keeps them.
+    CHECK(rig.Plan({ {}, { .command_buffers = { 10 } } }) == Lines{
+                                                                 "0 wait [] signal",
+                                                                 "1 wait [10]",
+                                                                 "1 [S1]",
+                                                                 "1 [S2] signal",
+                                                             });
+}
+
+TEST_CASE("Isolate stage does not start to track a command buffer when it plans a submit", "[stage][isolate][plan]")
+{
+    Rig rig;
+    rig.Allocate({ 10 });
+    rig.RecordCopyAndRenderPasses(10, 2);
+
+    // The stage tracks no command buffer 99, so it must not split 99 after the plan either.
+    CHECK(rig.Plan({ { .command_buffers = { 10, 99 } } }) == Lines{
+                                                                 "0 wait [10]",
+                                                                 "0 [S1]",
+                                                                 "0 [S2]",
+                                                                 "0 [99] signal",
+                                                             });
+    rig.log.lines.clear();
+    rig.RecordCopyAndRenderPasses(99, 1);
+    CHECK(rig.log.lines == Lines{
+                               "Begin 99 flags 0",
+                               "CopyBuffer 99",
+                               "BeginRenderPass 99",
+                               "Draw 99",
+                               "EndRenderPass 99",
+                               "End 99",
+                           });
+}
+
+// The existing tests "forwards a submit with no split command buffer untouched" and "forgets a destroyed pool and
+// its command buffers" also submit command buffers that the stage does not track.
+TEST_CASE("Isolate stage plans a command buffer that it does not track as unsplit", "[stage][isolate][plan]")
+{
+    Rig rig;
+    rig.Allocate({ 10, 11 });
+    rig.RecordCopyAndRenderPasses(10, 2);
+    rig.RecordCopyAndRenderPasses(11, 0);
+
+    CHECK(rig.Plan({ { .command_buffers = { 11, 99 } } }).empty());
+    CHECK(rig.Plan({ { .command_buffers = { 99, 10 } } }) == Lines{
+                                                                 "0 wait [99]",
+                                                                 "0 [10]",
+                                                                 "0 [S1]",
+                                                                 "0 [S2] signal",
+                                                             });
 }
