@@ -54,11 +54,15 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     void Process_vkCreateBuffer(const ApiCallInfo& call_info, args::CreateBuffer& args) override;
 
+    void Process_vkDestroyBuffer(const ApiCallInfo& call_info, args::DestroyBuffer& args) override;
+
     void Process_vkCreateImage(const ApiCallInfo& call_info, args::CreateImage& args) override;
 
     void Process_vkCreateCommandPool(const ApiCallInfo& call_info, args::CreateCommandPool& args) override;
 
     void Process_vkBeginCommandBuffer(const ApiCallInfo& call_info, args::BeginCommandBuffer& args) override;
+
+    void Process_vkCmdExecuteCommands(const ApiCallInfo& call_info, args::CmdExecuteCommands& args) override;
 
     void Process_vkDestroyDescriptorPool(const ApiCallInfo& call_info, args::DestroyDescriptorPool& args) override;
 
@@ -109,6 +113,15 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     // Private declarations
   private:
+    void TrackBufferWrite(format::HandleId commandBuffer, format::HandleId buffer) override;
+
+    void TrackBoundDescriptorSets(format::HandleId                             commandBuffer,
+                                  const HandlePointerDecoder<VkDescriptorSet>& descriptorSets) override;
+    void TrackPushDescriptorWrites(format::HandleId                                          commandBuffer,
+                                   const StructPointerDecoder<Decoded_VkWriteDescriptorSet>* descriptorWrites) override;
+    void TrackDescriptorSetWrites(const StructPointerDecoder<Decoded_VkWriteDescriptorSet>* descriptorWrites) override;
+    void TrackDescriptorSetCopies(const StructPointerDecoder<Decoded_VkCopyDescriptorSet>* descriptorCopies) override;
+
     void RemovePoolDanglingCreateDescriptors(format::HandleId descriptorPool);
 
     struct FenceTracking
@@ -273,7 +286,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
             TemporaryBuffer  shadow;
         };
 
-        void RecordInitialState(const std::vector<format::HandleId>& buffer_ids);
+        void RecordInitialState(const std::unordered_set<format::HandleId>& buffer_ids);
         void Restore();
         void DestroyShadowBuffers();
 
@@ -302,10 +315,14 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     };
 
     BufferTracking& GetBufferTracking(format::HandleId device);
-    void            RecordBufferStates();
-    void            FixupDeviceBuffers(format::HandleId device);
-    void            ResetBufferTracking();
-    void            ResetBufferTracking(format::HandleId device);
+
+    void ShadowBufferWrites(const std::vector<format::HandleId>& command_buffer_ids);
+
+    void RemovePoolDescriptorSetBuffers(format::HandleId descriptor_pool);
+
+    void FixupDeviceBuffers(format::HandleId device);
+    void ResetBufferTracking();
+    void ResetBufferTracking(format::HandleId device);
 
     struct ImageTracking
     {
@@ -409,6 +426,16 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     std::unordered_set<format::HandleId> restorable_images_;
 
     std::unordered_map<format::HandleId, ImageTracking> per_device_image_tracking_;
+
+    std::unordered_map<format::HandleId, std::unordered_set<format::HandleId>> command_buffer_modified_buffers_;
+
+    std::unordered_map<format::HandleId, std::unordered_set<format::HandleId>> descriptor_set_storage_buffers_;
+
+    std::unordered_map<format::HandleId, std::unordered_set<format::HandleId>> command_buffer_bound_descriptor_sets_;
+
+    std::unordered_map<format::HandleId, std::unordered_set<format::HandleId>> command_buffer_executed_secondaries_;
+
+    std::unordered_set<format::HandleId> device_address_buffers_;
 
     // Support for vkMapMemory/vkUnMapMemory
     std::set<format::HandleId> mapped_loop_memory;
