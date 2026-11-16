@@ -122,11 +122,11 @@ bool FrameLoopLifetimeTracker::OnPoolReset(const std::unordered_set<format::Hand
     {
         for (auto handle : handles)
         {
-            if ((pending_.count(handle) > 0) || (persistent_.count(handle) > 0) ||
-                (deferred_destroy_.count(handle) > 0))
+            // Only a transient set is allocated again by every repetition. Any other set may still be used by a
+            // repetition without being allocated again: a set allocated before the loop (whether or not its free is
+            // deferred), or one allocated by the first iteration. So the reset is deferred to the final iteration.
+            if (transient_.count(handle) == 0)
             {
-                // Repetitions keep using this handle without allocating it again,
-                // so the reset is deferred to the final iteration.
                 return false;
             }
         }

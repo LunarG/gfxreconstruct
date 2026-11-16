@@ -1299,4 +1299,35 @@ TEST_CASE("FrameLoopLifetimeTracker replays a call depending on whether its hand
             EndIteration(frame_loop_info, tracker);
         }
     }
+
+    SECTION("allocated before the loop, then freed with its pool within it: the reset replays on the final iteration")
+    {
+        // Repetitions use the set allocated before the loop before resetting its pool, so the reset has to keep it
+        // alive.
+        constexpr HandleId kBeforeLoop = 2;
+
+        const bool                expected_reset[kLoopCount] = { false, false, true };
+        const HandlesPerIteration expected_allocated         = { { kSet }, {}, { kSet } };
+
+        Allocate(tracker, { kBeforeLoop }); // Before the loop starts
+        pool_sets.insert(kBeforeLoop);
+
+        frame_loop_info.SetLooping(true);
+        for (uint32_t iteration = 0; iteration < kLoopCount; ++iteration)
+        {
+            CAPTURE(iteration);
+
+            const bool reset = tracker.OnPoolReset(pool_sets); // vkResetDescriptorPool
+            CHECK(reset == expected_reset[iteration]);
+            if (reset)
+            {
+                pool_sets.clear();
+            }
+
+            CHECK(Allocate(tracker, sets) == expected_allocated[iteration]); // vkAllocateDescriptorSets
+            pool_sets.insert(kSet);
+
+            EndIteration(frame_loop_info, tracker);
+        }
+    }
 }
