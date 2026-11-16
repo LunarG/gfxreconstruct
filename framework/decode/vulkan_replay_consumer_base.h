@@ -41,6 +41,7 @@
 #include "decode/vulkan_replay_options.h"
 #include "decode/vulkan_command_buffer_util.h"
 #include "decode/vulkan_resource_allocator.h"
+#include "decode/vulkan_trim_state_binding_consumer.h"
 #include "decode/vulkan_submit_job.h"
 #include "decode/vulkan_swapchain.h"
 #include "format/api_call_id.h"
@@ -1970,6 +1971,13 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     //// End recapture members
 
+    // The memory objects a trimmed capture's state setup binds to one resource each, from
+    // ScanTrimStateMemoryBindings().
+    void SetTrimStateMemoryBindings(TrimStateMemoryBindings bindings)
+    {
+        trim_state_memory_bindings_ = std::move(bindings);
+    }
+
   private:
     static bool SupportsDataGraphOpticalFlowPipeline(const VulkanReplayDeviceInfo::DataGraphOpticalFlowInfo& info,
                                                      const VkDataGraphPipelineOpticalFlowCreateInfoARM& create_info);
@@ -2299,6 +2307,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void ReleaseDeviceResources(const VulkanDeviceInfo* device_info);
 
+    // Grows an allocation made while loading trim state to the replay requirements of the one resource bound to it.
+    void GrowTrimStateAllocation(const VulkanDeviceInfo* device_info,
+                                 format::HandleId        memory_id,
+                                 VkMemoryAllocateInfo*   allocate_info);
+
   private:
     struct HardwareBufferInfo
     {
@@ -2395,6 +2408,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     CommonObjectInfoTable*                                                   object_info_table_;
     bool                                                                     loading_trim_state_;
     bool                                                                     replaying_trimmed_capture_;
+    TrimStateMemoryBindings                                                  trim_state_memory_bindings_;
     SwapchainImageTracker                                                    swapchain_image_tracker_;
     HardwareBufferMap                                                        hardware_buffers_;
     HardwareBufferMemoryMap                                                  hardware_buffer_memory_info_;

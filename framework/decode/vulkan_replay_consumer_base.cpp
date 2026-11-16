@@ -6772,6 +6772,11 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         }
 #endif
 
+        if (loading_trim_state_)
+        {
+            GrowTrimStateAllocation(device_info, capture_id, modified_allocate_info);
+        }
+
         // The file descriptor in VkImportMemoryFdInfoKHR is only valid in the capture process. The allocator replaces
         // it with a valid one when it can preserve the external memory.
         if (!CanPreserveExternalMemory(device_info))
@@ -6896,6 +6901,65 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
     }
 
     return result;
+}
+
+void VulkanReplayConsumerBase::GrowTrimStateAllocation(const VulkanDeviceInfo* device_info,
+                                                       format::HandleId        memory_id,
+                                                       VkMemoryAllocateInfo*   allocate_info)
+{
+    const auto binding = trim_state_memory_bindings_.find(memory_id);
+    if (binding == trim_state_memory_bindings_.end())
+    {
+        return;
+    }
+
+    const TrimStateMemoryBinding& bound = binding->second;
+    VkMemoryRequirements          requirements{};
+    auto                          device_table = GetInjectedDeviceCalls(device_info->handle);
+    auto                          injected     = device_table.Open();
+
+    if (bound.is_image)
+    {
+        const VulkanImageInfo* image_info = object_info_table_->GetVkImageInfo(bound.resource);
+        if ((image_info == nullptr) || (image_info->handle == VK_NULL_HANDLE) ||
+            (image_info->parent_id != device_info->capture_id))
+        {
+            return;
+        }
+        injected->GetImageMemoryRequirements(device_info->handle, image_info->handle, &requirements);
+    }
+    else
+    {
+        const VulkanBufferInfo* buffer_info = object_info_table_->GetVkBufferInfo(bound.resource);
+        if ((buffer_info == nullptr) || (buffer_info->handle == VK_NULL_HANDLE) ||
+            (buffer_info->parent_id != device_info->capture_id))
+        {
+            return;
+        }
+        injected->GetBufferMemoryRequirements(device_info->handle, buffer_info->handle, &requirements);
+    }
+
+    const std::optional<VkDeviceSize> needed =
+        GrownTrimStateAllocationSize(allocate_info->allocationSize, bound.offset, requirements);
+    if (!needed)
+    {
+        GFXRECON_LOG_WARNING("VkDeviceMemory object (ID = %" PRIu64 ") binds its resource at offset %" PRIu64
+                             ", which the replay alignment of %" PRIu64 " does not allow",
+                             memory_id,
+                             bound.offset,
+                             requirements.alignment);
+        return;
+    }
+
+    if (*needed > allocate_info->allocationSize)
+    {
+        GFXRECON_LOG_DEBUG("Growing VkDeviceMemory object (ID = %" PRIu64 ") from %" PRIu64 " to %" PRIu64
+                           " bytes, the replay requirement of the one resource bound to it",
+                           memory_id,
+                           allocate_info->allocationSize,
+                           *needed);
+        allocate_info->allocationSize = *needed;
+    }
 }
 
 VkResult VulkanReplayConsumerBase::OverrideMapMemory(PFN_vkMapMemory         func,
