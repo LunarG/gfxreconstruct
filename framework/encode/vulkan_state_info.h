@@ -32,6 +32,8 @@
 #include "vulkan/vulkan.h"
 #include "vulkan/vulkan_core.h"
 
+#include "encode/vulkan_queue_family_ownership.h"
+
 #include <limits>
 #include <memory>
 #include <vector>

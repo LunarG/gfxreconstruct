@@ -228,6 +228,8 @@ class VulkanStateWriter
 
     void WriteMappedMemoryState(const VulkanStateTable& state_table);
 
+    void WriteQueueFamilyOwnershipState(const VulkanStateTable& state_table);
+
     void WriteSwapchainImageState(const VulkanStateTable& state_table);
 
     void WritePhysicalDevicePropertiesMetaData(const vulkan_wrappers::PhysicalDeviceWrapper* physical_device_wrapper);
