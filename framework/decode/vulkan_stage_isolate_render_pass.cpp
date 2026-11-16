@@ -102,14 +102,6 @@ std::vector<uint8_t> CommandBufferIdArrayBytes(std::span<const format::HandleId>
     return writer.Bytes();
 }
 
-// One entry of the pCommandBufferInfos array of a VkSubmitInfo2. It holds the capture id of the command buffer,
-// because VkCommandBufferSubmitInfo holds a driver handle, and replay maps the id to the handle later.
-struct CommandBufferInfo
-{
-    format::HandleId command_buffer_id = format::kNullHandleId;
-    uint32_t         device_mask       = 0;
-};
-
 // The pCommandBufferInfos array of a VkSubmitInfo2.
 std::vector<uint8_t> CommandBufferInfoArrayBytes(std::span<const CommandBufferInfo> command_buffer_infos)
 {
@@ -549,6 +541,118 @@ bool VulkanStageIsolateRenderPass::AppendCommandBufferIdsToSubmit(format::Handle
 
     ids_to_submit.push_back(app_command_buffer_id);
     return false;
+}
+
+bool VulkanStageIsolateRenderPass::AnySplitInSubmit(const Decoded_VkSubmitInfo& meta_submit_info)
+{
+    for (const format::HandleId app_command_buffer_id : meta_submit_info.pCommandBuffers.GetSpan())
+    {
+        if (auto entry = command_buffer_to_recording_map_.find(app_command_buffer_id);
+            entry != command_buffer_to_recording_map_.end())
+        {
+            Recording& recording = entry->second;
+            if (recording.IsSplit())
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool VulkanStageIsolateRenderPass::AnySplitInSubmits(const args::QueueSubmit& args)
+{
+    for (auto& meta_submit_info : args.pSubmits.GetMetaStructSpan())
+    {
+        if (AnySplitInSubmit(meta_submit_info))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+std::vector<PlannedSubmit> VulkanStageIsolateRenderPass::PlanSubmits(args::QueueSubmit& args)
+{
+    if (!AnySplitInSubmits(args))
+    {
+        return {};
+    }
+
+    std::vector<PlannedSubmit> planned_submits;
+
+    for (uint32_t submit_index = 0; submit_index < args.submitCount; ++submit_index)
+    {
+        Decoded_VkSubmitInfo& meta_submit_info = args.pSubmits.GetMetaStructPointer()[submit_index];
+        if (!AnySplitInSubmit(meta_submit_info))
+        {
+            PlannedSubmit planned_submit;
+            planned_submit.original_submit_info_index = submit_index;
+            // No split command buffers, so this planned submit waits and signals as the original.
+            planned_submit.waits   = true;
+            planned_submit.signals = true;
+            for (const format::HandleId app_command_buffer_id : meta_submit_info.pCommandBuffers.GetSpan())
+            {
+                planned_submit.command_buffers.push_back({ app_command_buffer_id });
+            }
+            planned_submits.push_back(planned_submit);
+        }
+        else
+        {
+            size_t planned_submit_offset = planned_submits.size();
+
+            for (const format::HandleId app_command_buffer_id : meta_submit_info.pCommandBuffers.GetSpan())
+            {
+                if (auto entry = command_buffer_to_recording_map_.find(app_command_buffer_id);
+                    entry != command_buffer_to_recording_map_.end())
+                {
+                    Recording& recording = entry->second;
+                    if (recording.IsSplit())
+                    {
+                        // First planned submits correspond to the previous command buffers.
+                        for (const format::HandleId split_command_buffer_id : recording.previous_command_buffer_ids)
+                        {
+                            PlannedSubmit planned_submit;
+                            planned_submit.original_submit_info_index = submit_index;
+                            planned_submit.command_buffers.push_back({ split_command_buffer_id });
+                            planned_submits.push_back(planned_submit);
+                        }
+                        // Last planned submit corresponds to the current command buffer.
+                        PlannedSubmit planned_submit;
+                        planned_submit.original_submit_info_index = submit_index;
+                        planned_submit.command_buffers.push_back({ recording.current_command_buffer_id });
+                        planned_submits.push_back(planned_submit);
+                    }
+                    else // this command buffer was not split
+                    {
+                        PlannedSubmit planned_submit;
+                        planned_submit.original_submit_info_index = submit_index;
+                        planned_submit.command_buffers.push_back({ app_command_buffer_id });
+                        planned_submits.push_back(planned_submit);
+                    }
+                }
+                else
+                {
+                    // The command buffer was not found in the map, so treat it as a regular command buffer.
+                    PlannedSubmit planned_submit;
+                    planned_submit.original_submit_info_index = submit_index;
+                    planned_submit.command_buffers.push_back({ app_command_buffer_id });
+                    planned_submits.push_back(planned_submit);
+                }
+            }
+
+            size_t batch_count = planned_submits.size() - planned_submit_offset;
+            if (batch_count > 0)
+            {
+                // The first planned submit of this batch waits.
+                planned_submits[planned_submit_offset].waits = true;
+                // The last planned submit of this batch signals.
+                planned_submits.back().signals = true;
+            }
+        }
+    }
+
+    return planned_submits;
 }
 
 void VulkanStageIsolateRenderPass::Process_vkQueueSubmit(const ApiCallInfo& call_info, args::QueueSubmit& args)
