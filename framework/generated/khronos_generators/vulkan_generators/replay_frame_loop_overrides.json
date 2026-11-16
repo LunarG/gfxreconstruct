@@ -183,5 +183,12 @@
     "vkReleasePerformanceConfigurationINTEL",
     "vkReleaseSwapchainImagesEXT",
     "vkReleaseSwapchainImagesKHR"
+  ],
+
+  "comment" : "These are entry points for command buffer state commands",
+  "comment" : "that don't start with vkCmd",
+  "commandBufferState": [
+      "vkBeginCommandBuffer",
+      "vkEndCommandBuffer"
   ]
 }

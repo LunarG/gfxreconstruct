@@ -1034,6 +1034,24 @@ size_t VulkanDecoder::Decode_vkBeginCommandBuffer(const ApiCallInfo& call_info, 
     bytes_read += args.pBeginInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.result);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkBeginCommandBuffer,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkBeginCommandBuffer(call_info, args);
@@ -1050,6 +1068,24 @@ size_t VulkanDecoder::Decode_vkEndCommandBuffer(const ApiCallInfo& call_info, co
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.result);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkEndCommandBuffer,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -1089,6 +1125,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyBuffer(const ApiCallInfo& call_info, const
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.regionCount);
     bytes_read += args.pRegions.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyBuffer,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdCopyBuffer(call_info, args);
@@ -1111,6 +1165,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyImage(const ApiCallInfo& call_info, const 
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.regionCount);
     bytes_read += args.pRegions.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyImage,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdCopyImage(call_info, args);
@@ -1131,6 +1203,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyBufferToImage(const ApiCallInfo& call_info
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.dstImageLayout);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.regionCount);
     bytes_read += args.pRegions.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyBufferToImage,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -1153,6 +1243,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyImageToBuffer(const ApiCallInfo& call_info
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.regionCount);
     bytes_read += args.pRegions.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyImageToBuffer,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdCopyImageToBuffer(call_info, args);
@@ -1173,6 +1281,24 @@ size_t VulkanDecoder::Decode_vkCmdUpdateBuffer(const ApiCallInfo& call_info, con
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.dataSize);
     bytes_read += args.pData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdUpdateBuffer,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdUpdateBuffer(call_info, args);
@@ -1192,6 +1318,24 @@ size_t VulkanDecoder::Decode_vkCmdFillBuffer(const ApiCallInfo& call_info, const
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.dstOffset);
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.size);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.data);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdFillBuffer,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -1218,6 +1362,24 @@ size_t VulkanDecoder::Decode_vkCmdPipelineBarrier(const ApiCallInfo& call_info, 
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.imageMemoryBarrierCount);
     bytes_read += args.pImageMemoryBarriers.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdPipelineBarrier,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdPipelineBarrier(call_info, args);
@@ -1237,6 +1399,24 @@ size_t VulkanDecoder::Decode_vkCmdBeginQuery(const ApiCallInfo& call_info, const
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.query);
     bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.flags);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBeginQuery,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBeginQuery(call_info, args);
@@ -1254,6 +1434,24 @@ size_t VulkanDecoder::Decode_vkCmdEndQuery(const ApiCallInfo& call_info, const u
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.queryPool);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.query);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdEndQuery,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -1274,6 +1472,24 @@ size_t VulkanDecoder::Decode_vkCmdResetQueryPool(const ApiCallInfo& call_info, c
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.firstQuery);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.queryCount);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdResetQueryPool,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdResetQueryPool(call_info, args);
@@ -1292,6 +1508,24 @@ size_t VulkanDecoder::Decode_vkCmdWriteTimestamp(const ApiCallInfo& call_info, c
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.pipelineStage);
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.queryPool);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.query);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdWriteTimestamp,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -1316,6 +1550,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyQueryPoolResults(const ApiCallInfo& call_i
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.stride);
     bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.flags);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyQueryPoolResults,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdCopyQueryPoolResults(call_info, args);
@@ -1333,6 +1585,24 @@ size_t VulkanDecoder::Decode_vkCmdExecuteCommands(const ApiCallInfo& call_info, 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBufferCount);
     bytes_read += args.pCommandBuffers.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdExecuteCommands,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -1868,6 +2138,24 @@ size_t VulkanDecoder::Decode_vkCmdBindPipeline(const ApiCallInfo& call_info, con
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.pipelineBindPoint);
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.pipeline);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBindPipeline,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBindPipeline(call_info, args);
@@ -1891,6 +2179,24 @@ size_t VulkanDecoder::Decode_vkCmdBindDescriptorSets(const ApiCallInfo& call_inf
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.dynamicOffsetCount);
     bytes_read += args.pDynamicOffsets.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBindDescriptorSets,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBindDescriptorSets(call_info, args);
@@ -1912,6 +2218,24 @@ size_t VulkanDecoder::Decode_vkCmdClearColorImage(const ApiCallInfo& call_info, 
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.rangeCount);
     bytes_read += args.pRanges.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdClearColorImage,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdClearColorImage(call_info, args);
@@ -1931,6 +2255,24 @@ size_t VulkanDecoder::Decode_vkCmdDispatch(const ApiCallInfo& call_info, const u
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.groupCountY);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.groupCountZ);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDispatch,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdDispatch(call_info, args);
@@ -1948,6 +2290,24 @@ size_t VulkanDecoder::Decode_vkCmdDispatchIndirect(const ApiCallInfo& call_info,
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.buffer);
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.offset);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDispatchIndirect,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -1967,6 +2327,24 @@ size_t VulkanDecoder::Decode_vkCmdSetEvent(const ApiCallInfo& call_info, const u
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.event);
     bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.stageMask);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetEvent,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetEvent(call_info, args);
@@ -1984,6 +2362,24 @@ size_t VulkanDecoder::Decode_vkCmdResetEvent(const ApiCallInfo& call_info, const
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.event);
     bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.stageMask);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdResetEvent,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -2011,6 +2407,24 @@ size_t VulkanDecoder::Decode_vkCmdWaitEvents(const ApiCallInfo& call_info, const
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.imageMemoryBarrierCount);
     bytes_read += args.pImageMemoryBarriers.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdWaitEvents,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdWaitEvents(call_info, args);
@@ -2031,6 +2445,24 @@ size_t VulkanDecoder::Decode_vkCmdPushConstants(const ApiCallInfo& call_info, co
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.offset);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.size);
     bytes_read += args.pValues.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdPushConstants,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -2167,6 +2599,24 @@ size_t VulkanDecoder::Decode_vkCmdSetViewport(const ApiCallInfo& call_info, cons
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.viewportCount);
     bytes_read += args.pViewports.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetViewport,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetViewport(call_info, args);
@@ -2186,6 +2636,24 @@ size_t VulkanDecoder::Decode_vkCmdSetScissor(const ApiCallInfo& call_info, const
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.scissorCount);
     bytes_read += args.pScissors.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetScissor,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetScissor(call_info, args);
@@ -2202,6 +2670,24 @@ size_t VulkanDecoder::Decode_vkCmdSetLineWidth(const ApiCallInfo& call_info, con
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeFloatValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.lineWidth);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetLineWidth,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -2222,6 +2708,24 @@ size_t VulkanDecoder::Decode_vkCmdSetDepthBias(const ApiCallInfo& call_info, con
     bytes_read += ValueDecoder::DecodeFloatValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.depthBiasClamp);
     bytes_read += ValueDecoder::DecodeFloatValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.depthBiasSlopeFactor);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetDepthBias,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetDepthBias(call_info, args);
@@ -2238,6 +2742,24 @@ size_t VulkanDecoder::Decode_vkCmdSetBlendConstants(const ApiCallInfo& call_info
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.blendConstants.DecodeFloat((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetBlendConstants,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -2257,6 +2779,24 @@ size_t VulkanDecoder::Decode_vkCmdSetDepthBounds(const ApiCallInfo& call_info, c
     bytes_read += ValueDecoder::DecodeFloatValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.minDepthBounds);
     bytes_read += ValueDecoder::DecodeFloatValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.maxDepthBounds);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetDepthBounds,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetDepthBounds(call_info, args);
@@ -2274,6 +2814,24 @@ size_t VulkanDecoder::Decode_vkCmdSetStencilCompareMask(const ApiCallInfo& call_
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.faceMask);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.compareMask);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetStencilCompareMask,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -2293,6 +2851,24 @@ size_t VulkanDecoder::Decode_vkCmdSetStencilWriteMask(const ApiCallInfo& call_in
     bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.faceMask);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.writeMask);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetStencilWriteMask,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetStencilWriteMask(call_info, args);
@@ -2310,6 +2886,24 @@ size_t VulkanDecoder::Decode_vkCmdSetStencilReference(const ApiCallInfo& call_in
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.faceMask);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.reference);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetStencilReference,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -2329,6 +2923,24 @@ size_t VulkanDecoder::Decode_vkCmdBindIndexBuffer(const ApiCallInfo& call_info, 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.buffer);
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.offset);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.indexType);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBindIndexBuffer,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -2350,6 +2962,24 @@ size_t VulkanDecoder::Decode_vkCmdBindVertexBuffers(const ApiCallInfo& call_info
     bytes_read += args.pBuffers.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += args.pOffsets.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBindVertexBuffers,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBindVertexBuffers(call_info, args);
@@ -2369,6 +2999,24 @@ size_t VulkanDecoder::Decode_vkCmdDraw(const ApiCallInfo& call_info, const uint8
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.instanceCount);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.firstVertex);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.firstInstance);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDraw,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -2391,6 +3039,24 @@ size_t VulkanDecoder::Decode_vkCmdDrawIndexed(const ApiCallInfo& call_info, cons
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.vertexOffset);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.firstInstance);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDrawIndexed,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdDrawIndexed(call_info, args);
@@ -2411,6 +3077,24 @@ size_t VulkanDecoder::Decode_vkCmdDrawIndirect(const ApiCallInfo& call_info, con
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.drawCount);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.stride);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDrawIndirect,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdDrawIndirect(call_info, args);
@@ -2430,6 +3114,24 @@ size_t VulkanDecoder::Decode_vkCmdDrawIndexedIndirect(const ApiCallInfo& call_in
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.offset);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.drawCount);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.stride);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDrawIndexedIndirect,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -2454,6 +3156,24 @@ size_t VulkanDecoder::Decode_vkCmdBlitImage(const ApiCallInfo& call_info, const 
     bytes_read += args.pRegions.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.filter);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBlitImage,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBlitImage(call_info, args);
@@ -2475,6 +3195,24 @@ size_t VulkanDecoder::Decode_vkCmdClearDepthStencilImage(const ApiCallInfo& call
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.rangeCount);
     bytes_read += args.pRanges.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdClearDepthStencilImage,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdClearDepthStencilImage(call_info, args);
@@ -2494,6 +3232,24 @@ size_t VulkanDecoder::Decode_vkCmdClearAttachments(const ApiCallInfo& call_info,
     bytes_read += args.pAttachments.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.rectCount);
     bytes_read += args.pRects.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdClearAttachments,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -2517,6 +3273,24 @@ size_t VulkanDecoder::Decode_vkCmdResolveImage(const ApiCallInfo& call_info, con
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.regionCount);
     bytes_read += args.pRegions.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdResolveImage,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdResolveImage(call_info, args);
@@ -2535,6 +3309,24 @@ size_t VulkanDecoder::Decode_vkCmdBeginRenderPass(const ApiCallInfo& call_info, 
     bytes_read += args.pRenderPassBegin.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.contents);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBeginRenderPass,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBeginRenderPass(call_info, args);
@@ -2552,6 +3344,24 @@ size_t VulkanDecoder::Decode_vkCmdNextSubpass(const ApiCallInfo& call_info, cons
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.contents);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdNextSubpass,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdNextSubpass(call_info, args);
@@ -2567,6 +3377,24 @@ size_t VulkanDecoder::Decode_vkCmdEndRenderPass(const ApiCallInfo& call_info, co
     args::CmdEndRenderPass args;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdEndRenderPass,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -2642,6 +3470,24 @@ size_t VulkanDecoder::Decode_vkCmdSetDeviceMask(const ApiCallInfo& call_info, co
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.deviceMask);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetDeviceMask,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -2954,6 +3800,24 @@ size_t VulkanDecoder::Decode_vkCmdDispatchBase(const ApiCallInfo& call_info, con
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.groupCountY);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.groupCountZ);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDispatchBase,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdDispatchBase(call_info, args);
@@ -3199,6 +4063,24 @@ size_t VulkanDecoder::Decode_vkCmdDrawIndirectCount(const ApiCallInfo& call_info
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.maxDrawCount);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.stride);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDrawIndirectCount,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdDrawIndirectCount(call_info, args);
@@ -3220,6 +4102,24 @@ size_t VulkanDecoder::Decode_vkCmdDrawIndexedIndirectCount(const ApiCallInfo& ca
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.countBufferOffset);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.maxDrawCount);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.stride);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDrawIndexedIndirectCount,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -3259,6 +4159,24 @@ size_t VulkanDecoder::Decode_vkCmdBeginRenderPass2(const ApiCallInfo& call_info,
     bytes_read += args.pRenderPassBegin.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += args.pSubpassBeginInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBeginRenderPass2,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBeginRenderPass2(call_info, args);
@@ -3277,6 +4195,24 @@ size_t VulkanDecoder::Decode_vkCmdNextSubpass2(const ApiCallInfo& call_info, con
     bytes_read += args.pSubpassBeginInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += args.pSubpassEndInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdNextSubpass2,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdNextSubpass2(call_info, args);
@@ -3293,6 +4229,24 @@ size_t VulkanDecoder::Decode_vkCmdEndRenderPass2(const ApiCallInfo& call_info, c
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pSubpassEndInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdEndRenderPass2,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -3409,6 +4363,24 @@ size_t VulkanDecoder::Decode_vkCmdPipelineBarrier2(const ApiCallInfo& call_info,
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pDependencyInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdPipelineBarrier2,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdPipelineBarrier2(call_info, args);
@@ -3427,6 +4399,24 @@ size_t VulkanDecoder::Decode_vkCmdWriteTimestamp2(const ApiCallInfo& call_info, 
     bytes_read += ValueDecoder::DecodeFlags64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.stage);
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.queryPool);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.query);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdWriteTimestamp2,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -3465,6 +4455,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyBuffer2(const ApiCallInfo& call_info, cons
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pCopyBufferInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyBuffer2,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdCopyBuffer2(call_info, args);
@@ -3481,6 +4489,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyImage2(const ApiCallInfo& call_info, const
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pCopyImageInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyImage2,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -3499,6 +4525,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyBufferToImage2(const ApiCallInfo& call_inf
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pCopyBufferToImageInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyBufferToImage2,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdCopyBufferToImage2(call_info, args);
@@ -3515,6 +4559,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyImageToBuffer2(const ApiCallInfo& call_inf
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pCopyImageToBufferInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyImageToBuffer2,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -3589,6 +4651,24 @@ size_t VulkanDecoder::Decode_vkCmdSetEvent2(const ApiCallInfo& call_info, const 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.event);
     bytes_read += args.pDependencyInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetEvent2,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetEvent2(call_info, args);
@@ -3606,6 +4686,24 @@ size_t VulkanDecoder::Decode_vkCmdResetEvent2(const ApiCallInfo& call_info, cons
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.event);
     bytes_read += ValueDecoder::DecodeFlags64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.stageMask);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdResetEvent2,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -3626,6 +4724,24 @@ size_t VulkanDecoder::Decode_vkCmdWaitEvents2(const ApiCallInfo& call_info, cons
     bytes_read += args.pEvents.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += args.pDependencyInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdWaitEvents2,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdWaitEvents2(call_info, args);
@@ -3642,6 +4758,24 @@ size_t VulkanDecoder::Decode_vkCmdBlitImage2(const ApiCallInfo& call_info, const
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pBlitImageInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBlitImage2,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -3660,6 +4794,24 @@ size_t VulkanDecoder::Decode_vkCmdResolveImage2(const ApiCallInfo& call_info, co
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pResolveImageInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdResolveImage2,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdResolveImage2(call_info, args);
@@ -3677,6 +4829,24 @@ size_t VulkanDecoder::Decode_vkCmdBeginRendering(const ApiCallInfo& call_info, c
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pRenderingInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBeginRendering,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBeginRendering(call_info, args);
@@ -3692,6 +4862,24 @@ size_t VulkanDecoder::Decode_vkCmdEndRendering(const ApiCallInfo& call_info, con
     args::CmdEndRendering args;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdEndRendering,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -3710,6 +4898,24 @@ size_t VulkanDecoder::Decode_vkCmdSetCullMode(const ApiCallInfo& call_info, cons
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.cullMode);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetCullMode,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetCullMode(call_info, args);
@@ -3727,6 +4933,24 @@ size_t VulkanDecoder::Decode_vkCmdSetFrontFace(const ApiCallInfo& call_info, con
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.frontFace);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetFrontFace,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetFrontFace(call_info, args);
@@ -3743,6 +4967,24 @@ size_t VulkanDecoder::Decode_vkCmdSetPrimitiveTopology(const ApiCallInfo& call_i
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.primitiveTopology);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetPrimitiveTopology,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -3762,6 +5004,24 @@ size_t VulkanDecoder::Decode_vkCmdSetViewportWithCount(const ApiCallInfo& call_i
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.viewportCount);
     bytes_read += args.pViewports.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetViewportWithCount,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetViewportWithCount(call_info, args);
@@ -3779,6 +5039,24 @@ size_t VulkanDecoder::Decode_vkCmdSetScissorWithCount(const ApiCallInfo& call_in
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.scissorCount);
     bytes_read += args.pScissors.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetScissorWithCount,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -3802,6 +5080,24 @@ size_t VulkanDecoder::Decode_vkCmdBindVertexBuffers2(const ApiCallInfo& call_inf
     bytes_read += args.pSizes.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += args.pStrides.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBindVertexBuffers2,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBindVertexBuffers2(call_info, args);
@@ -3818,6 +5114,24 @@ size_t VulkanDecoder::Decode_vkCmdSetDepthTestEnable(const ApiCallInfo& call_inf
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.depthTestEnable);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetDepthTestEnable,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -3836,6 +5150,24 @@ size_t VulkanDecoder::Decode_vkCmdSetDepthWriteEnable(const ApiCallInfo& call_in
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.depthWriteEnable);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetDepthWriteEnable,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetDepthWriteEnable(call_info, args);
@@ -3852,6 +5184,24 @@ size_t VulkanDecoder::Decode_vkCmdSetDepthCompareOp(const ApiCallInfo& call_info
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.depthCompareOp);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetDepthCompareOp,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -3870,6 +5220,24 @@ size_t VulkanDecoder::Decode_vkCmdSetDepthBoundsTestEnable(const ApiCallInfo& ca
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.depthBoundsTestEnable);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetDepthBoundsTestEnable,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetDepthBoundsTestEnable(call_info, args);
@@ -3886,6 +5254,24 @@ size_t VulkanDecoder::Decode_vkCmdSetStencilTestEnable(const ApiCallInfo& call_i
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.stencilTestEnable);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetStencilTestEnable,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -3908,6 +5294,24 @@ size_t VulkanDecoder::Decode_vkCmdSetStencilOp(const ApiCallInfo& call_info, con
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.depthFailOp);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.compareOp);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetStencilOp,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetStencilOp(call_info, args);
@@ -3924,6 +5328,24 @@ size_t VulkanDecoder::Decode_vkCmdSetRasterizerDiscardEnable(const ApiCallInfo& 
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.rasterizerDiscardEnable);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetRasterizerDiscardEnable,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -3942,6 +5364,24 @@ size_t VulkanDecoder::Decode_vkCmdSetDepthBiasEnable(const ApiCallInfo& call_inf
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.depthBiasEnable);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetDepthBiasEnable,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetDepthBiasEnable(call_info, args);
@@ -3958,6 +5398,24 @@ size_t VulkanDecoder::Decode_vkCmdSetPrimitiveRestartEnable(const ApiCallInfo& c
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.primitiveRestartEnable);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetPrimitiveRestartEnable,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -4127,6 +5585,24 @@ size_t VulkanDecoder::Decode_vkCmdPushDescriptorSet(const ApiCallInfo& call_info
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.descriptorWriteCount);
     bytes_read += args.pDescriptorWrites.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdPushDescriptorSet,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdPushDescriptorSet(call_info, args);
@@ -4143,6 +5619,24 @@ size_t VulkanDecoder::Decode_vkCmdBindDescriptorSets2(const ApiCallInfo& call_in
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pBindDescriptorSetsInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBindDescriptorSets2,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -4161,6 +5655,24 @@ size_t VulkanDecoder::Decode_vkCmdPushConstants2(const ApiCallInfo& call_info, c
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pPushConstantsInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdPushConstants2,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdPushConstants2(call_info, args);
@@ -4177,6 +5689,24 @@ size_t VulkanDecoder::Decode_vkCmdPushDescriptorSet2(const ApiCallInfo& call_inf
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pPushDescriptorSetInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdPushDescriptorSet2,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -4195,6 +5725,24 @@ size_t VulkanDecoder::Decode_vkCmdSetLineStipple(const ApiCallInfo& call_info, c
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.lineStippleFactor);
     bytes_read += ValueDecoder::DecodeUInt16Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.lineStipplePattern);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetLineStipple,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -4215,6 +5763,24 @@ size_t VulkanDecoder::Decode_vkCmdBindIndexBuffer2(const ApiCallInfo& call_info,
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.offset);
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.size);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.indexType);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBindIndexBuffer2,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -4251,6 +5817,24 @@ size_t VulkanDecoder::Decode_vkCmdSetRenderingAttachmentLocations(const ApiCallI
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pLocationInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetRenderingAttachmentLocations,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetRenderingAttachmentLocations(call_info, args);
@@ -4267,6 +5851,24 @@ size_t VulkanDecoder::Decode_vkCmdSetRenderingInputAttachmentIndices(const ApiCa
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pInputAttachmentIndexInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetRenderingInputAttachmentIndices,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -5067,6 +6669,24 @@ size_t VulkanDecoder::Decode_vkCmdBeginVideoCodingKHR(const ApiCallInfo& call_in
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pBeginInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBeginVideoCodingKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBeginVideoCodingKHR(call_info, args);
@@ -5083,6 +6703,24 @@ size_t VulkanDecoder::Decode_vkCmdEndVideoCodingKHR(const ApiCallInfo& call_info
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pEndCodingInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdEndVideoCodingKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -5101,6 +6739,24 @@ size_t VulkanDecoder::Decode_vkCmdControlVideoCodingKHR(const ApiCallInfo& call_
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pCodingControlInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdControlVideoCodingKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdControlVideoCodingKHR(call_info, args);
@@ -5117,6 +6773,24 @@ size_t VulkanDecoder::Decode_vkCmdDecodeVideoKHR(const ApiCallInfo& call_info, c
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pDecodeInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDecodeVideoKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -5135,6 +6809,24 @@ size_t VulkanDecoder::Decode_vkCmdBeginRenderingKHR(const ApiCallInfo& call_info
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pRenderingInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBeginRenderingKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBeginRenderingKHR(call_info, args);
@@ -5150,6 +6842,24 @@ size_t VulkanDecoder::Decode_vkCmdEndRenderingKHR(const ApiCallInfo& call_info, 
     args::CmdEndRenderingKHR args;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdEndRenderingKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -5313,6 +7023,24 @@ size_t VulkanDecoder::Decode_vkCmdSetDeviceMaskKHR(const ApiCallInfo& call_info,
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.deviceMask);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetDeviceMaskKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetDeviceMaskKHR(call_info, args);
@@ -5334,6 +7062,24 @@ size_t VulkanDecoder::Decode_vkCmdDispatchBaseKHR(const ApiCallInfo& call_info, 
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.groupCountX);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.groupCountY);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.groupCountZ);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDispatchBaseKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -5581,6 +7327,24 @@ size_t VulkanDecoder::Decode_vkCmdPushDescriptorSetKHR(const ApiCallInfo& call_i
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.descriptorWriteCount);
     bytes_read += args.pDescriptorWrites.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdPushDescriptorSetKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdPushDescriptorSetKHR(call_info, args);
@@ -5657,6 +7421,24 @@ size_t VulkanDecoder::Decode_vkCmdBeginRenderPass2KHR(const ApiCallInfo& call_in
     bytes_read += args.pRenderPassBegin.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += args.pSubpassBeginInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBeginRenderPass2KHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBeginRenderPass2KHR(call_info, args);
@@ -5675,6 +7457,24 @@ size_t VulkanDecoder::Decode_vkCmdNextSubpass2KHR(const ApiCallInfo& call_info, 
     bytes_read += args.pSubpassBeginInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += args.pSubpassEndInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdNextSubpass2KHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdNextSubpass2KHR(call_info, args);
@@ -5691,6 +7491,24 @@ size_t VulkanDecoder::Decode_vkCmdEndRenderPass2KHR(const ApiCallInfo& call_info
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pSubpassEndInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdEndRenderPass2KHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -6162,6 +7980,24 @@ size_t VulkanDecoder::Decode_vkCmdDrawIndirectCountKHR(const ApiCallInfo& call_i
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.maxDrawCount);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.stride);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDrawIndirectCountKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdDrawIndirectCountKHR(call_info, args);
@@ -6183,6 +8019,24 @@ size_t VulkanDecoder::Decode_vkCmdDrawIndexedIndirectCountKHR(const ApiCallInfo&
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.countBufferOffset);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.maxDrawCount);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.stride);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDrawIndexedIndirectCountKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -6277,6 +8131,24 @@ size_t VulkanDecoder::Decode_vkCmdSetFragmentShadingRateKHR(const ApiCallInfo& c
     bytes_read += args.pFragmentSize.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += args.combinerOps.DecodeEnum((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetFragmentShadingRateKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetFragmentShadingRateKHR(call_info, args);
@@ -6294,6 +8166,24 @@ size_t VulkanDecoder::Decode_vkCmdSetRenderingAttachmentLocationsKHR(const ApiCa
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pLocationInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetRenderingAttachmentLocationsKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetRenderingAttachmentLocationsKHR(call_info, args);
@@ -6310,6 +8200,24 @@ size_t VulkanDecoder::Decode_vkCmdSetRenderingInputAttachmentIndicesKHR(const Ap
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pInputAttachmentIndexInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetRenderingInputAttachmentIndicesKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -6612,6 +8520,24 @@ size_t VulkanDecoder::Decode_vkCmdEncodeVideoKHR(const ApiCallInfo& call_info, c
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pEncodeInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdEncodeVideoKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdEncodeVideoKHR(call_info, args);
@@ -6630,6 +8556,24 @@ size_t VulkanDecoder::Decode_vkCmdSetEvent2KHR(const ApiCallInfo& call_info, con
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.event);
     bytes_read += args.pDependencyInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetEvent2KHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetEvent2KHR(call_info, args);
@@ -6647,6 +8591,24 @@ size_t VulkanDecoder::Decode_vkCmdResetEvent2KHR(const ApiCallInfo& call_info, c
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.event);
     bytes_read += ValueDecoder::DecodeFlags64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.stageMask);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdResetEvent2KHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -6667,6 +8629,24 @@ size_t VulkanDecoder::Decode_vkCmdWaitEvents2KHR(const ApiCallInfo& call_info, c
     bytes_read += args.pEvents.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += args.pDependencyInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdWaitEvents2KHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdWaitEvents2KHR(call_info, args);
@@ -6683,6 +8663,24 @@ size_t VulkanDecoder::Decode_vkCmdPipelineBarrier2KHR(const ApiCallInfo& call_in
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pDependencyInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdPipelineBarrier2KHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -6702,6 +8700,24 @@ size_t VulkanDecoder::Decode_vkCmdWriteTimestamp2KHR(const ApiCallInfo& call_inf
     bytes_read += ValueDecoder::DecodeFlags64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.stage);
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.queryPool);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.query);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdWriteTimestamp2KHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -6740,6 +8756,24 @@ size_t VulkanDecoder::Decode_vkCmdBindIndexBuffer3KHR(const ApiCallInfo& call_in
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBindIndexBuffer3KHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBindIndexBuffer3KHR(call_info, args);
@@ -6759,6 +8793,24 @@ size_t VulkanDecoder::Decode_vkCmdBindVertexBuffers3KHR(const ApiCallInfo& call_
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.bindingCount);
     bytes_read += args.pBindingInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBindVertexBuffers3KHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBindVertexBuffers3KHR(call_info, args);
@@ -6775,6 +8827,24 @@ size_t VulkanDecoder::Decode_vkCmdDrawIndirect2KHR(const ApiCallInfo& call_info,
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDrawIndirect2KHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -6793,6 +8863,24 @@ size_t VulkanDecoder::Decode_vkCmdDrawIndexedIndirect2KHR(const ApiCallInfo& cal
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDrawIndexedIndirect2KHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdDrawIndexedIndirect2KHR(call_info, args);
@@ -6809,6 +8897,24 @@ size_t VulkanDecoder::Decode_vkCmdDispatchIndirect2KHR(const ApiCallInfo& call_i
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDispatchIndirect2KHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -6827,6 +8933,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyMemoryKHR(const ApiCallInfo& call_info, co
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pCopyMemoryInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyMemoryKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdCopyMemoryKHR(call_info, args);
@@ -6844,6 +8968,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyMemoryToImageKHR(const ApiCallInfo& call_i
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pCopyMemoryInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyMemoryToImageKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdCopyMemoryToImageKHR(call_info, args);
@@ -6860,6 +9002,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyImageToMemoryKHR(const ApiCallInfo& call_i
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pCopyMemoryInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyImageToMemoryKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -6881,6 +9041,24 @@ size_t VulkanDecoder::Decode_vkCmdUpdateMemoryKHR(const ApiCallInfo& call_info, 
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.dataSize);
     bytes_read += args.pData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdUpdateMemoryKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdUpdateMemoryKHR(call_info, args);
@@ -6899,6 +9077,24 @@ size_t VulkanDecoder::Decode_vkCmdFillMemoryKHR(const ApiCallInfo& call_info, co
     bytes_read += args.pDstRange.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.dstFlags);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.data);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdFillMemoryKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -6922,6 +9118,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyQueryPoolResultsToMemoryKHR(const ApiCallI
     bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.dstFlags);
     bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.queryResultFlags);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyQueryPoolResultsToMemoryKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdCopyQueryPoolResultsToMemoryKHR(call_info, args);
@@ -6938,6 +9152,24 @@ size_t VulkanDecoder::Decode_vkCmdDrawIndirectCount2KHR(const ApiCallInfo& call_
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDrawIndirectCount2KHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -6956,6 +9188,24 @@ size_t VulkanDecoder::Decode_vkCmdDrawIndexedIndirectCount2KHR(const ApiCallInfo
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDrawIndexedIndirectCount2KHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdDrawIndexedIndirectCount2KHR(call_info, args);
@@ -6972,6 +9222,24 @@ size_t VulkanDecoder::Decode_vkCmdBeginConditionalRendering2EXT(const ApiCallInf
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pConditionalRenderingBegin.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBeginConditionalRendering2EXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -6992,6 +9260,24 @@ size_t VulkanDecoder::Decode_vkCmdBindTransformFeedbackBuffers2EXT(const ApiCall
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.bindingCount);
     bytes_read += args.pBindingInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBindTransformFeedbackBuffers2EXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBindTransformFeedbackBuffers2EXT(call_info, args);
@@ -7011,6 +9297,24 @@ size_t VulkanDecoder::Decode_vkCmdBeginTransformFeedback2EXT(const ApiCallInfo& 
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.counterRangeCount);
     bytes_read += args.pCounterInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBeginTransformFeedback2EXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBeginTransformFeedback2EXT(call_info, args);
@@ -7029,6 +9333,24 @@ size_t VulkanDecoder::Decode_vkCmdEndTransformFeedback2EXT(const ApiCallInfo& ca
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.firstCounterRange);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.counterRangeCount);
     bytes_read += args.pCounterInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdEndTransformFeedback2EXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -7051,6 +9373,24 @@ size_t VulkanDecoder::Decode_vkCmdDrawIndirectByteCount2EXT(const ApiCallInfo& c
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.counterOffset);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.vertexStride);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDrawIndirectByteCount2EXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdDrawIndirectByteCount2EXT(call_info, args);
@@ -7067,6 +9407,24 @@ size_t VulkanDecoder::Decode_vkCmdDrawMeshTasksIndirect2EXT(const ApiCallInfo& c
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDrawMeshTasksIndirect2EXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -7085,6 +9443,24 @@ size_t VulkanDecoder::Decode_vkCmdDrawMeshTasksIndirectCount2EXT(const ApiCallIn
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDrawMeshTasksIndirectCount2EXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdDrawMeshTasksIndirectCount2EXT(call_info, args);
@@ -7101,6 +9477,24 @@ size_t VulkanDecoder::Decode_vkCmdWriteMarkerToMemoryAMD(const ApiCallInfo& call
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdWriteMarkerToMemoryAMD,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -7139,6 +9533,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyBuffer2KHR(const ApiCallInfo& call_info, c
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pCopyBufferInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyBuffer2KHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdCopyBuffer2KHR(call_info, args);
@@ -7155,6 +9567,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyImage2KHR(const ApiCallInfo& call_info, co
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pCopyImageInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyImage2KHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -7173,6 +9603,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyBufferToImage2KHR(const ApiCallInfo& call_
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pCopyBufferToImageInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyBufferToImage2KHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdCopyBufferToImage2KHR(call_info, args);
@@ -7189,6 +9637,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyImageToBuffer2KHR(const ApiCallInfo& call_
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pCopyImageToBufferInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyImageToBuffer2KHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -7207,6 +9673,24 @@ size_t VulkanDecoder::Decode_vkCmdBlitImage2KHR(const ApiCallInfo& call_info, co
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pBlitImageInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBlitImage2KHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBlitImage2KHR(call_info, args);
@@ -7224,6 +9708,24 @@ size_t VulkanDecoder::Decode_vkCmdResolveImage2KHR(const ApiCallInfo& call_info,
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pResolveImageInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdResolveImage2KHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdResolveImage2KHR(call_info, args);
@@ -7240,6 +9742,24 @@ size_t VulkanDecoder::Decode_vkCmdTraceRaysIndirect2KHR(const ApiCallInfo& call_
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.indirectDeviceAddress);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdTraceRaysIndirect2KHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -7315,6 +9835,24 @@ size_t VulkanDecoder::Decode_vkCmdBindIndexBuffer2KHR(const ApiCallInfo& call_in
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.offset);
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.size);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.indexType);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBindIndexBuffer2KHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -7542,6 +10080,24 @@ size_t VulkanDecoder::Decode_vkCmdSetLineStippleKHR(const ApiCallInfo& call_info
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.lineStippleFactor);
     bytes_read += ValueDecoder::DecodeUInt16Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.lineStipplePattern);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetLineStippleKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetLineStippleKHR(call_info, args);
@@ -7599,6 +10155,24 @@ size_t VulkanDecoder::Decode_vkCmdBindDescriptorSets2KHR(const ApiCallInfo& call
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pBindDescriptorSetsInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBindDescriptorSets2KHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBindDescriptorSets2KHR(call_info, args);
@@ -7615,6 +10189,24 @@ size_t VulkanDecoder::Decode_vkCmdPushConstants2KHR(const ApiCallInfo& call_info
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pPushConstantsInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdPushConstants2KHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -7633,6 +10225,24 @@ size_t VulkanDecoder::Decode_vkCmdPushDescriptorSet2KHR(const ApiCallInfo& call_
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pPushDescriptorSetInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdPushDescriptorSet2KHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdPushDescriptorSet2KHR(call_info, args);
@@ -7649,6 +10259,24 @@ size_t VulkanDecoder::Decode_vkCmdSetDescriptorBufferOffsets2EXT(const ApiCallIn
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pSetDescriptorBufferOffsetsInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetDescriptorBufferOffsets2EXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -7667,6 +10295,24 @@ size_t VulkanDecoder::Decode_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(const
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pBindDescriptorBufferEmbeddedSamplersInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(call_info, args);
@@ -7684,6 +10330,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyMemoryIndirectKHR(const ApiCallInfo& call_
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pCopyMemoryIndirectInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyMemoryIndirectKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdCopyMemoryIndirectKHR(call_info, args);
@@ -7700,6 +10364,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyMemoryToImageIndirectKHR(const ApiCallInfo
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pCopyMemoryToImageIndirectInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyMemoryToImageIndirectKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -7755,6 +10437,24 @@ size_t VulkanDecoder::Decode_vkCmdEndRendering2KHR(const ApiCallInfo& call_info,
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pRenderingEndInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdEndRendering2KHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -7888,6 +10588,24 @@ size_t VulkanDecoder::Decode_vkCmdDebugMarkerBeginEXT(const ApiCallInfo& call_in
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pMarkerInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDebugMarkerBeginEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdDebugMarkerBeginEXT(call_info, args);
@@ -7903,6 +10621,24 @@ size_t VulkanDecoder::Decode_vkCmdDebugMarkerEndEXT(const ApiCallInfo& call_info
     args::CmdDebugMarkerEndEXT args;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDebugMarkerEndEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -7920,6 +10656,24 @@ size_t VulkanDecoder::Decode_vkCmdDebugMarkerInsertEXT(const ApiCallInfo& call_i
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pMarkerInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDebugMarkerInsertEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -7942,6 +10696,24 @@ size_t VulkanDecoder::Decode_vkCmdBindTransformFeedbackBuffersEXT(const ApiCallI
     bytes_read += args.pOffsets.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += args.pSizes.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBindTransformFeedbackBuffersEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBindTransformFeedbackBuffersEXT(call_info, args);
@@ -7961,6 +10733,24 @@ size_t VulkanDecoder::Decode_vkCmdBeginTransformFeedbackEXT(const ApiCallInfo& c
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.counterBufferCount);
     bytes_read += args.pCounterBuffers.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += args.pCounterBufferOffsets.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBeginTransformFeedbackEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -7982,6 +10772,24 @@ size_t VulkanDecoder::Decode_vkCmdEndTransformFeedbackEXT(const ApiCallInfo& cal
     bytes_read += args.pCounterBuffers.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += args.pCounterBufferOffsets.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdEndTransformFeedbackEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdEndTransformFeedbackEXT(call_info, args);
@@ -8002,6 +10810,24 @@ size_t VulkanDecoder::Decode_vkCmdBeginQueryIndexedEXT(const ApiCallInfo& call_i
     bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.flags);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.index);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBeginQueryIndexedEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBeginQueryIndexedEXT(call_info, args);
@@ -8020,6 +10846,24 @@ size_t VulkanDecoder::Decode_vkCmdEndQueryIndexedEXT(const ApiCallInfo& call_inf
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.queryPool);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.query);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.index);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdEndQueryIndexedEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -8042,6 +10886,24 @@ size_t VulkanDecoder::Decode_vkCmdDrawIndirectByteCountEXT(const ApiCallInfo& ca
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.counterBufferOffset);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.counterOffset);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.vertexStride);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDrawIndirectByteCountEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -8139,6 +11001,24 @@ size_t VulkanDecoder::Decode_vkCmdDrawIndirectCountAMD(const ApiCallInfo& call_i
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.maxDrawCount);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.stride);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDrawIndirectCountAMD,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdDrawIndirectCountAMD(call_info, args);
@@ -8160,6 +11040,24 @@ size_t VulkanDecoder::Decode_vkCmdDrawIndexedIndirectCountAMD(const ApiCallInfo&
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.countBufferOffset);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.maxDrawCount);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.stride);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDrawIndexedIndirectCountAMD,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -8284,6 +11182,24 @@ size_t VulkanDecoder::Decode_vkCmdBeginConditionalRenderingEXT(const ApiCallInfo
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pConditionalRenderingBegin.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBeginConditionalRenderingEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBeginConditionalRenderingEXT(call_info, args);
@@ -8299,6 +11215,24 @@ size_t VulkanDecoder::Decode_vkCmdEndConditionalRenderingEXT(const ApiCallInfo& 
     args::CmdEndConditionalRenderingEXT args;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdEndConditionalRenderingEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -8318,6 +11252,24 @@ size_t VulkanDecoder::Decode_vkCmdSetViewportWScalingNV(const ApiCallInfo& call_
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.firstViewport);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.viewportCount);
     bytes_read += args.pViewportWScalings.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetViewportWScalingNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -8533,6 +11485,24 @@ size_t VulkanDecoder::Decode_vkCmdSetDiscardRectangleEXT(const ApiCallInfo& call
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.discardRectangleCount);
     bytes_read += args.pDiscardRectangles.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetDiscardRectangleEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetDiscardRectangleEXT(call_info, args);
@@ -8550,6 +11520,24 @@ size_t VulkanDecoder::Decode_vkCmdSetDiscardRectangleEnableEXT(const ApiCallInfo
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.discardRectangleEnable);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetDiscardRectangleEnableEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetDiscardRectangleEnableEXT(call_info, args);
@@ -8566,6 +11554,24 @@ size_t VulkanDecoder::Decode_vkCmdSetDiscardRectangleModeEXT(const ApiCallInfo& 
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.discardRectangleMode);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetDiscardRectangleModeEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -8729,6 +11735,24 @@ size_t VulkanDecoder::Decode_vkCmdBeginDebugUtilsLabelEXT(const ApiCallInfo& cal
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pLabelInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBeginDebugUtilsLabelEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBeginDebugUtilsLabelEXT(call_info, args);
@@ -8744,6 +11768,24 @@ size_t VulkanDecoder::Decode_vkCmdEndDebugUtilsLabelEXT(const ApiCallInfo& call_
     args::CmdEndDebugUtilsLabelEXT args;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdEndDebugUtilsLabelEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -8761,6 +11803,24 @@ size_t VulkanDecoder::Decode_vkCmdInsertDebugUtilsLabelEXT(const ApiCallInfo& ca
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pLabelInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdInsertDebugUtilsLabelEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -8949,6 +12009,24 @@ size_t VulkanDecoder::Decode_vkCmdBeginGpaSessionAMD(const ApiCallInfo& call_inf
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.gpaSession);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.result);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBeginGpaSessionAMD,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBeginGpaSessionAMD(call_info, args);
@@ -8966,6 +12044,24 @@ size_t VulkanDecoder::Decode_vkCmdEndGpaSessionAMD(const ApiCallInfo& call_info,
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.gpaSession);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.result);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdEndGpaSessionAMD,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -8987,6 +12083,24 @@ size_t VulkanDecoder::Decode_vkCmdBeginGpaSampleAMD(const ApiCallInfo& call_info
     bytes_read += args.pSampleID.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.result);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBeginGpaSampleAMD,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBeginGpaSampleAMD(call_info, args);
@@ -9004,6 +12118,24 @@ size_t VulkanDecoder::Decode_vkCmdEndGpaSampleAMD(const ApiCallInfo& call_info, 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.gpaSession);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.sampleID);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdEndGpaSampleAMD,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -9079,6 +12211,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyGpaSessionResultsAMD(const ApiCallInfo& ca
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.gpaSession);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyGpaSessionResultsAMD,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdCopyGpaSessionResultsAMD(call_info, args);
@@ -9095,6 +12245,24 @@ size_t VulkanDecoder::Decode_vkCmdSetSampleLocationsEXT(const ApiCallInfo& call_
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pSampleLocationsInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetSampleLocationsEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -9229,6 +12397,24 @@ size_t VulkanDecoder::Decode_vkCmdBindShadingRateImageNV(const ApiCallInfo& call
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.imageView);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.imageLayout);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBindShadingRateImageNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBindShadingRateImageNV(call_info, args);
@@ -9248,6 +12434,24 @@ size_t VulkanDecoder::Decode_vkCmdSetViewportShadingRatePaletteNV(const ApiCallI
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.viewportCount);
     bytes_read += args.pShadingRatePalettes.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetViewportShadingRatePaletteNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetViewportShadingRatePaletteNV(call_info, args);
@@ -9266,6 +12470,24 @@ size_t VulkanDecoder::Decode_vkCmdSetCoarseSampleOrderNV(const ApiCallInfo& call
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.sampleOrderType);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.customSampleOrderCount);
     bytes_read += args.pCustomSampleOrders.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetCoarseSampleOrderNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -9366,6 +12588,24 @@ size_t VulkanDecoder::Decode_vkCmdBuildAccelerationStructureNV(const ApiCallInfo
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.scratch);
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.scratchOffset);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBuildAccelerationStructureNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBuildAccelerationStructureNV(call_info, args);
@@ -9384,6 +12624,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyAccelerationStructureNV(const ApiCallInfo&
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.dst);
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.src);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.mode);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyAccelerationStructureNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -9414,6 +12672,24 @@ size_t VulkanDecoder::Decode_vkCmdTraceRaysNV(const ApiCallInfo& call_info, cons
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.width);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.height);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.depth);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdTraceRaysNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -9522,6 +12798,24 @@ size_t VulkanDecoder::Decode_vkCmdWriteAccelerationStructuresPropertiesNV(const 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.queryPool);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.firstQuery);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdWriteAccelerationStructuresPropertiesNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdWriteAccelerationStructuresPropertiesNV(call_info, args);
@@ -9581,6 +12875,24 @@ size_t VulkanDecoder::Decode_vkCmdWriteBufferMarkerAMD(const ApiCallInfo& call_i
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.dstOffset);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.marker);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdWriteBufferMarkerAMD,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdWriteBufferMarkerAMD(call_info, args);
@@ -9600,6 +12912,24 @@ size_t VulkanDecoder::Decode_vkCmdWriteBufferMarker2AMD(const ApiCallInfo& call_
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.dstBuffer);
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.dstOffset);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.marker);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdWriteBufferMarker2AMD,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -9659,6 +12989,24 @@ size_t VulkanDecoder::Decode_vkCmdDrawMeshTasksNV(const ApiCallInfo& call_info, 
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.taskCount);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.firstTask);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDrawMeshTasksNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdDrawMeshTasksNV(call_info, args);
@@ -9678,6 +13026,24 @@ size_t VulkanDecoder::Decode_vkCmdDrawMeshTasksIndirectNV(const ApiCallInfo& cal
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.offset);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.drawCount);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.stride);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDrawMeshTasksIndirectNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -9701,6 +13067,24 @@ size_t VulkanDecoder::Decode_vkCmdDrawMeshTasksIndirectCountNV(const ApiCallInfo
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.maxDrawCount);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.stride);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDrawMeshTasksIndirectCountNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdDrawMeshTasksIndirectCountNV(call_info, args);
@@ -9719,6 +13103,24 @@ size_t VulkanDecoder::Decode_vkCmdSetExclusiveScissorEnableNV(const ApiCallInfo&
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.firstExclusiveScissor);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.exclusiveScissorCount);
     bytes_read += args.pExclusiveScissorEnables.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetExclusiveScissorEnableNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -9739,6 +13141,24 @@ size_t VulkanDecoder::Decode_vkCmdSetExclusiveScissorNV(const ApiCallInfo& call_
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.exclusiveScissorCount);
     bytes_read += args.pExclusiveScissors.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetExclusiveScissorNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetExclusiveScissorNV(call_info, args);
@@ -9755,6 +13175,24 @@ size_t VulkanDecoder::Decode_vkCmdSetCheckpointNV(const ApiCallInfo& call_info, 
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.pCheckpointMarker);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetCheckpointNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -9922,6 +13360,24 @@ size_t VulkanDecoder::Decode_vkCmdSetPerformanceMarkerINTEL(const ApiCallInfo& c
     bytes_read += args.pMarkerInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.result);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetPerformanceMarkerINTEL,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetPerformanceMarkerINTEL(call_info, args);
@@ -9940,6 +13396,24 @@ size_t VulkanDecoder::Decode_vkCmdSetPerformanceStreamMarkerINTEL(const ApiCallI
     bytes_read += args.pMarkerInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.result);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetPerformanceStreamMarkerINTEL,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetPerformanceStreamMarkerINTEL(call_info, args);
@@ -9957,6 +13431,24 @@ size_t VulkanDecoder::Decode_vkCmdSetPerformanceOverrideINTEL(const ApiCallInfo&
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pOverrideInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.result);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetPerformanceOverrideINTEL,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -10278,6 +13770,24 @@ size_t VulkanDecoder::Decode_vkCmdSetLineStippleEXT(const ApiCallInfo& call_info
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.lineStippleFactor);
     bytes_read += ValueDecoder::DecodeUInt16Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.lineStipplePattern);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetLineStippleEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetLineStippleEXT(call_info, args);
@@ -10314,6 +13824,24 @@ size_t VulkanDecoder::Decode_vkCmdSetCullModeEXT(const ApiCallInfo& call_info, c
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.cullMode);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetCullModeEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetCullModeEXT(call_info, args);
@@ -10331,6 +13859,24 @@ size_t VulkanDecoder::Decode_vkCmdSetFrontFaceEXT(const ApiCallInfo& call_info, 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.frontFace);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetFrontFaceEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetFrontFaceEXT(call_info, args);
@@ -10347,6 +13893,24 @@ size_t VulkanDecoder::Decode_vkCmdSetPrimitiveTopologyEXT(const ApiCallInfo& cal
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.primitiveTopology);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetPrimitiveTopologyEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -10366,6 +13930,24 @@ size_t VulkanDecoder::Decode_vkCmdSetViewportWithCountEXT(const ApiCallInfo& cal
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.viewportCount);
     bytes_read += args.pViewports.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetViewportWithCountEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetViewportWithCountEXT(call_info, args);
@@ -10383,6 +13965,24 @@ size_t VulkanDecoder::Decode_vkCmdSetScissorWithCountEXT(const ApiCallInfo& call
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.scissorCount);
     bytes_read += args.pScissors.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetScissorWithCountEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -10406,6 +14006,24 @@ size_t VulkanDecoder::Decode_vkCmdBindVertexBuffers2EXT(const ApiCallInfo& call_
     bytes_read += args.pSizes.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += args.pStrides.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBindVertexBuffers2EXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBindVertexBuffers2EXT(call_info, args);
@@ -10422,6 +14040,24 @@ size_t VulkanDecoder::Decode_vkCmdSetDepthTestEnableEXT(const ApiCallInfo& call_
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.depthTestEnable);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetDepthTestEnableEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -10440,6 +14076,24 @@ size_t VulkanDecoder::Decode_vkCmdSetDepthWriteEnableEXT(const ApiCallInfo& call
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.depthWriteEnable);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetDepthWriteEnableEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetDepthWriteEnableEXT(call_info, args);
@@ -10456,6 +14110,24 @@ size_t VulkanDecoder::Decode_vkCmdSetDepthCompareOpEXT(const ApiCallInfo& call_i
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.depthCompareOp);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetDepthCompareOpEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -10474,6 +14146,24 @@ size_t VulkanDecoder::Decode_vkCmdSetDepthBoundsTestEnableEXT(const ApiCallInfo&
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.depthBoundsTestEnable);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetDepthBoundsTestEnableEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetDepthBoundsTestEnableEXT(call_info, args);
@@ -10490,6 +14180,24 @@ size_t VulkanDecoder::Decode_vkCmdSetStencilTestEnableEXT(const ApiCallInfo& cal
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.stencilTestEnable);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetStencilTestEnableEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -10511,6 +14219,24 @@ size_t VulkanDecoder::Decode_vkCmdSetStencilOpEXT(const ApiCallInfo& call_info, 
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.passOp);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.depthFailOp);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.compareOp);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetStencilOpEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -10657,6 +14383,24 @@ size_t VulkanDecoder::Decode_vkCmdPreprocessGeneratedCommandsNV(const ApiCallInf
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pGeneratedCommandsInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdPreprocessGeneratedCommandsNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdPreprocessGeneratedCommandsNV(call_info, args);
@@ -10674,6 +14418,24 @@ size_t VulkanDecoder::Decode_vkCmdExecuteGeneratedCommandsNV(const ApiCallInfo& 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.isPreprocessed);
     bytes_read += args.pGeneratedCommandsInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdExecuteGeneratedCommandsNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -10693,6 +14455,24 @@ size_t VulkanDecoder::Decode_vkCmdBindPipelineShaderGroupNV(const ApiCallInfo& c
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.pipelineBindPoint);
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.pipeline);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.groupIndex);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBindPipelineShaderGroupNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -10748,6 +14528,24 @@ size_t VulkanDecoder::Decode_vkCmdSetDepthBias2EXT(const ApiCallInfo& call_info,
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pDepthBiasInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetDepthBias2EXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -10902,6 +14700,24 @@ size_t VulkanDecoder::Decode_vkCmdDispatchTileQCOM(const ApiCallInfo& call_info,
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pDispatchTileInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDispatchTileQCOM,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdDispatchTileQCOM(call_info, args);
@@ -10919,6 +14735,24 @@ size_t VulkanDecoder::Decode_vkCmdBeginPerTileExecutionQCOM(const ApiCallInfo& c
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pPerTileBeginInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBeginPerTileExecutionQCOM,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBeginPerTileExecutionQCOM(call_info, args);
@@ -10935,6 +14769,24 @@ size_t VulkanDecoder::Decode_vkCmdEndPerTileExecutionQCOM(const ApiCallInfo& cal
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pPerTileEndInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdEndPerTileExecutionQCOM,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -11010,6 +14862,24 @@ size_t VulkanDecoder::Decode_vkCmdBindDescriptorBuffersEXT(const ApiCallInfo& ca
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.bufferCount);
     bytes_read += args.pBindingInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBindDescriptorBuffersEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBindDescriptorBuffersEXT(call_info, args);
@@ -11032,6 +14902,24 @@ size_t VulkanDecoder::Decode_vkCmdSetDescriptorBufferOffsetsEXT(const ApiCallInf
     bytes_read += args.pBufferIndices.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += args.pOffsets.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetDescriptorBufferOffsetsEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetDescriptorBufferOffsetsEXT(call_info, args);
@@ -11051,6 +14939,24 @@ size_t VulkanDecoder::Decode_vkCmdBindDescriptorBufferEmbeddedSamplersEXT(const 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.layout);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.set);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBindDescriptorBufferEmbeddedSamplersEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBindDescriptorBufferEmbeddedSamplersEXT(call_info, args);
@@ -11068,6 +14974,24 @@ size_t VulkanDecoder::Decode_vkCmdSetFragmentShadingRateEnumNV(const ApiCallInfo
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.shadingRate);
     bytes_read += args.combinerOps.DecodeEnum((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetFragmentShadingRateEnumNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -11184,6 +15108,24 @@ size_t VulkanDecoder::Decode_vkCmdSetVertexInputEXT(const ApiCallInfo& call_info
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.vertexAttributeDescriptionCount);
     bytes_read += args.pVertexAttributeDescriptions.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetVertexInputEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetVertexInputEXT(call_info, args);
@@ -11278,6 +15220,24 @@ size_t VulkanDecoder::Decode_vkCmdBindInvocationMaskHUAWEI(const ApiCallInfo& ca
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.imageView);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.imageLayout);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBindInvocationMaskHUAWEI,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBindInvocationMaskHUAWEI(call_info, args);
@@ -11314,6 +15274,24 @@ size_t VulkanDecoder::Decode_vkCmdSetPatchControlPointsEXT(const ApiCallInfo& ca
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.patchControlPoints);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetPatchControlPointsEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetPatchControlPointsEXT(call_info, args);
@@ -11330,6 +15308,24 @@ size_t VulkanDecoder::Decode_vkCmdSetRasterizerDiscardEnableEXT(const ApiCallInf
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.rasterizerDiscardEnable);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetRasterizerDiscardEnableEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -11348,6 +15344,24 @@ size_t VulkanDecoder::Decode_vkCmdSetDepthBiasEnableEXT(const ApiCallInfo& call_
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.depthBiasEnable);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetDepthBiasEnableEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetDepthBiasEnableEXT(call_info, args);
@@ -11365,6 +15379,24 @@ size_t VulkanDecoder::Decode_vkCmdSetLogicOpEXT(const ApiCallInfo& call_info, co
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.logicOp);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetLogicOpEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetLogicOpEXT(call_info, args);
@@ -11381,6 +15413,24 @@ size_t VulkanDecoder::Decode_vkCmdSetPrimitiveRestartEnableEXT(const ApiCallInfo
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.primitiveRestartEnable);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetPrimitiveRestartEnableEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -11439,6 +15489,24 @@ size_t VulkanDecoder::Decode_vkCmdSetColorWriteEnableEXT(const ApiCallInfo& call
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.attachmentCount);
     bytes_read += args.pColorWriteEnables.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetColorWriteEnableEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetColorWriteEnableEXT(call_info, args);
@@ -11459,6 +15527,24 @@ size_t VulkanDecoder::Decode_vkCmdDrawMultiEXT(const ApiCallInfo& call_info, con
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.instanceCount);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.firstInstance);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.stride);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDrawMultiEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -11481,6 +15567,24 @@ size_t VulkanDecoder::Decode_vkCmdDrawMultiIndexedEXT(const ApiCallInfo& call_in
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.firstInstance);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.stride);
     bytes_read += args.pVertexOffset.DecodeInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDrawMultiIndexedEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -11537,6 +15641,24 @@ size_t VulkanDecoder::Decode_vkCmdBuildMicromapsEXT(const ApiCallInfo& call_info
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.infoCount);
     bytes_read += args.pInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBuildMicromapsEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -11655,6 +15777,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyMicromapEXT(const ApiCallInfo& call_info, 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyMicromapEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdCopyMicromapEXT(call_info, args);
@@ -11672,6 +15812,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyMicromapToMemoryEXT(const ApiCallInfo& cal
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyMicromapToMemoryEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdCopyMicromapToMemoryEXT(call_info, args);
@@ -11688,6 +15846,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyMemoryToMicromapEXT(const ApiCallInfo& cal
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyMemoryToMicromapEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -11709,6 +15885,24 @@ size_t VulkanDecoder::Decode_vkCmdWriteMicromapsPropertiesEXT(const ApiCallInfo&
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.queryType);
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.queryPool);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.firstQuery);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdWriteMicromapsPropertiesEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -11766,6 +15960,24 @@ size_t VulkanDecoder::Decode_vkCmdDrawClusterHUAWEI(const ApiCallInfo& call_info
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.groupCountY);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.groupCountZ);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDrawClusterHUAWEI,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdDrawClusterHUAWEI(call_info, args);
@@ -11783,6 +15995,24 @@ size_t VulkanDecoder::Decode_vkCmdDrawClusterIndirectHUAWEI(const ApiCallInfo& c
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.buffer);
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.offset);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDrawClusterIndirectHUAWEI,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -11818,6 +16048,24 @@ size_t VulkanDecoder::Decode_vkCmdSetDispatchParametersARM(const ApiCallInfo& ca
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pDispatchParameters.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetDispatchParametersARM,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -11891,6 +16139,24 @@ size_t VulkanDecoder::Decode_vkCmdUpdatePipelineIndirectBufferNV(const ApiCallIn
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.pipelineBindPoint);
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.pipeline);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdUpdatePipelineIndirectBufferNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdUpdatePipelineIndirectBufferNV(call_info, args);
@@ -11926,6 +16192,24 @@ size_t VulkanDecoder::Decode_vkCmdSetDepthClampEnableEXT(const ApiCallInfo& call
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.depthClampEnable);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetDepthClampEnableEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetDepthClampEnableEXT(call_info, args);
@@ -11943,6 +16227,24 @@ size_t VulkanDecoder::Decode_vkCmdSetPolygonModeEXT(const ApiCallInfo& call_info
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.polygonMode);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetPolygonModeEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetPolygonModeEXT(call_info, args);
@@ -11959,6 +16261,24 @@ size_t VulkanDecoder::Decode_vkCmdSetRasterizationSamplesEXT(const ApiCallInfo& 
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.rasterizationSamples);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetRasterizationSamplesEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -11978,6 +16298,24 @@ size_t VulkanDecoder::Decode_vkCmdSetSampleMaskEXT(const ApiCallInfo& call_info,
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.samples);
     bytes_read += args.pSampleMask.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetSampleMaskEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetSampleMaskEXT(call_info, args);
@@ -11994,6 +16332,24 @@ size_t VulkanDecoder::Decode_vkCmdSetAlphaToCoverageEnableEXT(const ApiCallInfo&
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.alphaToCoverageEnable);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetAlphaToCoverageEnableEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -12012,6 +16368,24 @@ size_t VulkanDecoder::Decode_vkCmdSetAlphaToOneEnableEXT(const ApiCallInfo& call
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.alphaToOneEnable);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetAlphaToOneEnableEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetAlphaToOneEnableEXT(call_info, args);
@@ -12028,6 +16402,24 @@ size_t VulkanDecoder::Decode_vkCmdSetLogicOpEnableEXT(const ApiCallInfo& call_in
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.logicOpEnable);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetLogicOpEnableEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -12048,6 +16440,24 @@ size_t VulkanDecoder::Decode_vkCmdSetColorBlendEnableEXT(const ApiCallInfo& call
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.attachmentCount);
     bytes_read += args.pColorBlendEnables.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetColorBlendEnableEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetColorBlendEnableEXT(call_info, args);
@@ -12066,6 +16476,24 @@ size_t VulkanDecoder::Decode_vkCmdSetColorBlendEquationEXT(const ApiCallInfo& ca
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.firstAttachment);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.attachmentCount);
     bytes_read += args.pColorBlendEquations.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetColorBlendEquationEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -12086,6 +16514,24 @@ size_t VulkanDecoder::Decode_vkCmdSetColorWriteMaskEXT(const ApiCallInfo& call_i
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.attachmentCount);
     bytes_read += args.pColorWriteMasks.DecodeFlags((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetColorWriteMaskEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetColorWriteMaskEXT(call_info, args);
@@ -12102,6 +16548,24 @@ size_t VulkanDecoder::Decode_vkCmdSetTessellationDomainOriginEXT(const ApiCallIn
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.domainOrigin);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetTessellationDomainOriginEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -12120,6 +16584,24 @@ size_t VulkanDecoder::Decode_vkCmdSetRasterizationStreamEXT(const ApiCallInfo& c
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.rasterizationStream);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetRasterizationStreamEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetRasterizationStreamEXT(call_info, args);
@@ -12136,6 +16618,24 @@ size_t VulkanDecoder::Decode_vkCmdSetConservativeRasterizationModeEXT(const ApiC
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.conservativeRasterizationMode);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetConservativeRasterizationModeEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -12154,6 +16654,24 @@ size_t VulkanDecoder::Decode_vkCmdSetExtraPrimitiveOverestimationSizeEXT(const A
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeFloatValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.extraPrimitiveOverestimationSize);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetExtraPrimitiveOverestimationSizeEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetExtraPrimitiveOverestimationSizeEXT(call_info, args);
@@ -12171,6 +16689,24 @@ size_t VulkanDecoder::Decode_vkCmdSetDepthClipEnableEXT(const ApiCallInfo& call_
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.depthClipEnable);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetDepthClipEnableEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetDepthClipEnableEXT(call_info, args);
@@ -12187,6 +16723,24 @@ size_t VulkanDecoder::Decode_vkCmdSetSampleLocationsEnableEXT(const ApiCallInfo&
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.sampleLocationsEnable);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetSampleLocationsEnableEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -12207,6 +16761,24 @@ size_t VulkanDecoder::Decode_vkCmdSetColorBlendAdvancedEXT(const ApiCallInfo& ca
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.attachmentCount);
     bytes_read += args.pColorBlendAdvanced.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetColorBlendAdvancedEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetColorBlendAdvancedEXT(call_info, args);
@@ -12223,6 +16795,24 @@ size_t VulkanDecoder::Decode_vkCmdSetProvokingVertexModeEXT(const ApiCallInfo& c
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.provokingVertexMode);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetProvokingVertexModeEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -12241,6 +16831,24 @@ size_t VulkanDecoder::Decode_vkCmdSetLineRasterizationModeEXT(const ApiCallInfo&
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.lineRasterizationMode);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetLineRasterizationModeEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetLineRasterizationModeEXT(call_info, args);
@@ -12257,6 +16865,24 @@ size_t VulkanDecoder::Decode_vkCmdSetLineStippleEnableEXT(const ApiCallInfo& cal
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.stippledLineEnable);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetLineStippleEnableEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -12275,6 +16901,24 @@ size_t VulkanDecoder::Decode_vkCmdSetDepthClipNegativeOneToOneEXT(const ApiCallI
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.negativeOneToOne);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetDepthClipNegativeOneToOneEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetDepthClipNegativeOneToOneEXT(call_info, args);
@@ -12291,6 +16935,24 @@ size_t VulkanDecoder::Decode_vkCmdSetViewportWScalingEnableNV(const ApiCallInfo&
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.viewportWScalingEnable);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetViewportWScalingEnableNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -12311,6 +16973,24 @@ size_t VulkanDecoder::Decode_vkCmdSetViewportSwizzleNV(const ApiCallInfo& call_i
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.viewportCount);
     bytes_read += args.pViewportSwizzles.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetViewportSwizzleNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetViewportSwizzleNV(call_info, args);
@@ -12327,6 +17007,24 @@ size_t VulkanDecoder::Decode_vkCmdSetCoverageToColorEnableNV(const ApiCallInfo& 
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.coverageToColorEnable);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetCoverageToColorEnableNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -12345,6 +17043,24 @@ size_t VulkanDecoder::Decode_vkCmdSetCoverageToColorLocationNV(const ApiCallInfo
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.coverageToColorLocation);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetCoverageToColorLocationNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetCoverageToColorLocationNV(call_info, args);
@@ -12362,6 +17078,24 @@ size_t VulkanDecoder::Decode_vkCmdSetCoverageModulationModeNV(const ApiCallInfo&
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.coverageModulationMode);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetCoverageModulationModeNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetCoverageModulationModeNV(call_info, args);
@@ -12378,6 +17112,24 @@ size_t VulkanDecoder::Decode_vkCmdSetCoverageModulationTableEnableNV(const ApiCa
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.coverageModulationTableEnable);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetCoverageModulationTableEnableNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -12397,6 +17149,24 @@ size_t VulkanDecoder::Decode_vkCmdSetCoverageModulationTableNV(const ApiCallInfo
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.coverageModulationTableCount);
     bytes_read += args.pCoverageModulationTable.DecodeFloat((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetCoverageModulationTableNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetCoverageModulationTableNV(call_info, args);
@@ -12413,6 +17183,24 @@ size_t VulkanDecoder::Decode_vkCmdSetShadingRateImageEnableNV(const ApiCallInfo&
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.shadingRateImageEnable);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetShadingRateImageEnableNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -12431,6 +17219,24 @@ size_t VulkanDecoder::Decode_vkCmdSetRepresentativeFragmentTestEnableNV(const Ap
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.representativeFragmentTestEnable);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetRepresentativeFragmentTestEnableNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetRepresentativeFragmentTestEnableNV(call_info, args);
@@ -12447,6 +17253,24 @@ size_t VulkanDecoder::Decode_vkCmdSetCoverageReductionModeNV(const ApiCallInfo& 
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.coverageReductionMode);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetCoverageReductionModeNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -12595,6 +17419,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyTensorARM(const ApiCallInfo& call_info, co
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pCopyTensorInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyTensorARM,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -12747,6 +17589,24 @@ size_t VulkanDecoder::Decode_vkCmdOpticalFlowExecuteNV(const ApiCallInfo& call_i
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.session);
     bytes_read += args.pExecuteInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdOpticalFlowExecuteNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdOpticalFlowExecuteNV(call_info, args);
@@ -12842,6 +17702,24 @@ size_t VulkanDecoder::Decode_vkCmdBindShadersEXT(const ApiCallInfo& call_info, c
     bytes_read += args.pStages.DecodeEnum((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += args.pShaders.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBindShadersEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBindShadersEXT(call_info, args);
@@ -12859,6 +17737,24 @@ size_t VulkanDecoder::Decode_vkCmdSetDepthClampRangeEXT(const ApiCallInfo& call_
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.depthClampMode);
     bytes_read += args.pDepthClampRange.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetDepthClampRangeEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -12953,6 +17849,24 @@ size_t VulkanDecoder::Decode_vkCmdConvertCooperativeVectorMatrixNV(const ApiCall
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.infoCount);
     bytes_read += args.pInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdConvertCooperativeVectorMatrixNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -13181,6 +18095,24 @@ size_t VulkanDecoder::Decode_vkCmdDispatchDataGraphARM(const ApiCallInfo& call_i
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.session);
     bytes_read += args.pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDispatchDataGraphARM,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdDispatchDataGraphARM(call_info, args);
@@ -13276,6 +18208,24 @@ size_t VulkanDecoder::Decode_vkCmdSetAttachmentFeedbackLoopEnableEXT(const ApiCa
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.aspectMask);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetAttachmentFeedbackLoopEnableEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(call_info, args);
@@ -13293,6 +18243,24 @@ size_t VulkanDecoder::Decode_vkCmdBindTileMemoryQCOM(const ApiCallInfo& call_inf
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pTileMemoryBindInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBindTileMemoryQCOM,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBindTileMemoryQCOM(call_info, args);
@@ -13309,6 +18277,24 @@ size_t VulkanDecoder::Decode_vkCmdDecompressMemoryEXT(const ApiCallInfo& call_in
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pDecompressMemoryInfoEXT.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDecompressMemoryEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -13330,6 +18316,24 @@ size_t VulkanDecoder::Decode_vkCmdDecompressMemoryIndirectCountEXT(const ApiCall
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.indirectCommandsCountAddress);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.maxDecompressionCount);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.stride);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDecompressMemoryIndirectCountEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -13365,6 +18369,24 @@ size_t VulkanDecoder::Decode_vkCmdBuildPartitionedAccelerationStructuresNV(const
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pBuildInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBuildPartitionedAccelerationStructuresNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -13402,6 +18424,24 @@ size_t VulkanDecoder::Decode_vkCmdPreprocessGeneratedCommandsEXT(const ApiCallIn
     bytes_read += args.pGeneratedCommandsInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.stateCommandBuffer);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdPreprocessGeneratedCommandsEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdPreprocessGeneratedCommandsEXT(call_info, args);
@@ -13419,6 +18459,24 @@ size_t VulkanDecoder::Decode_vkCmdExecuteGeneratedCommandsEXT(const ApiCallInfo&
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.isPreprocessed);
     bytes_read += args.pGeneratedCommandsInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdExecuteGeneratedCommandsEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -13630,6 +18688,24 @@ size_t VulkanDecoder::Decode_vkCmdEndRendering2EXT(const ApiCallInfo& call_info,
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pRenderingEndInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdEndRendering2EXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdEndRendering2EXT(call_info, args);
@@ -13646,6 +18722,24 @@ size_t VulkanDecoder::Decode_vkCmdBeginCustomResolveEXT(const ApiCallInfo& call_
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pBeginCustomResolveInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBeginCustomResolveEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -13706,6 +18800,24 @@ size_t VulkanDecoder::Decode_vkCmdSetComputeOccupancyPriorityNV(const ApiCallInf
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pParameters.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetComputeOccupancyPriorityNV,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetComputeOccupancyPriorityNV(call_info, args);
@@ -13742,6 +18854,24 @@ size_t VulkanDecoder::Decode_vkCmdSetPrimitiveRestartIndexEXT(const ApiCallInfo&
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.primitiveRestartIndex);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetPrimitiveRestartIndexEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -13800,6 +18930,24 @@ size_t VulkanDecoder::Decode_vkCmdBuildAccelerationStructuresKHR(const ApiCallIn
     bytes_read += args.pInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += args.ppBuildRangeInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBuildAccelerationStructuresKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdBuildAccelerationStructuresKHR(call_info, args);
@@ -13820,6 +18968,24 @@ size_t VulkanDecoder::Decode_vkCmdBuildAccelerationStructuresIndirectKHR(const A
     bytes_read += args.pIndirectDeviceAddresses.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += args.pIndirectStrides.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += args.ppMaxPrimitiveCounts.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdBuildAccelerationStructuresIndirectKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -13899,6 +19065,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyAccelerationStructureKHR(const ApiCallInfo
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyAccelerationStructureKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdCopyAccelerationStructureKHR(call_info, args);
@@ -13916,6 +19100,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyAccelerationStructureToMemoryKHR(const Api
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyAccelerationStructureToMemoryKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdCopyAccelerationStructureToMemoryKHR(call_info, args);
@@ -13932,6 +19134,24 @@ size_t VulkanDecoder::Decode_vkCmdCopyMemoryToAccelerationStructureKHR(const Api
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += args.pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdCopyMemoryToAccelerationStructureKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -13971,6 +19191,24 @@ size_t VulkanDecoder::Decode_vkCmdWriteAccelerationStructuresPropertiesKHR(const
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.queryType);
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.queryPool);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.firstQuery);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdWriteAccelerationStructuresPropertiesKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -14033,6 +19271,24 @@ size_t VulkanDecoder::Decode_vkCmdTraceRaysKHR(const ApiCallInfo& call_info, con
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.height);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.depth);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdTraceRaysKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdTraceRaysKHR(call_info, args);
@@ -14076,6 +19332,24 @@ size_t VulkanDecoder::Decode_vkCmdTraceRaysIndirectKHR(const ApiCallInfo& call_i
     bytes_read += args.pCallableShaderBindingTable.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.indirectDeviceAddress);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdTraceRaysIndirectKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdTraceRaysIndirectKHR(call_info, args);
@@ -14113,6 +19387,24 @@ size_t VulkanDecoder::Decode_vkCmdSetRayTracingPipelineStackSizeKHR(const ApiCal
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.pipelineStackSize);
 
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdSetRayTracingPipelineStackSizeKHR,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
+
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdSetRayTracingPipelineStackSizeKHR(call_info, args);
@@ -14131,6 +19423,24 @@ size_t VulkanDecoder::Decode_vkCmdDrawMeshTasksEXT(const ApiCallInfo& call_info,
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.groupCountX);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.groupCountY);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.groupCountZ);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDrawMeshTasksEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -14151,6 +19461,24 @@ size_t VulkanDecoder::Decode_vkCmdDrawMeshTasksIndirectEXT(const ApiCallInfo& ca
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.offset);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.drawCount);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.stride);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDrawMeshTasksIndirectEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {
@@ -14173,6 +19501,24 @@ size_t VulkanDecoder::Decode_vkCmdDrawMeshTasksIndirectCountEXT(const ApiCallInf
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.countBufferOffset);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.maxDrawCount);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.stride);
+
+    graphics::FrameLoopInfo* frame_loop_info = GetFrameLoopInfo();
+    if (frame_loop_info != nullptr && !frame_loop_info->IsLooping())
+    {
+        // Must copy parameter buffer in case the original is deallocated
+        std::vector<uint8_t> buffer_copy;
+        buffer_copy.resize(buffer_size);
+        util::platform::MemoryCopy(buffer_copy.data(), buffer_size, parameter_buffer, buffer_size);
+
+        std::vector<StoredCommand>& command_list = command_buffer_commands_[args.commandBuffer];
+        StoredCommand new_command = {
+            format::ApiCall_vkCmdDrawMeshTasksIndirectCountEXT,
+            call_info,
+            buffer_copy,
+            buffer_size,
+        };
+        command_list.push_back(new_command);
+    }
 
     for (auto consumer : GetConsumers())
     {

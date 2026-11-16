@@ -273,7 +273,8 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,
             protect_feature=False,
-            extra_headers=extra_headers
+            extra_headers=extra_headers,
+            replay_frame_loop_overrides=replay_frame_loop_overrides,
         )
     ]
 
