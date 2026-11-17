@@ -253,7 +253,7 @@ class ApiCaptureManager
     auto                    GetTrimBoundary() const { return common_manager_->GetTrimBoundary(); }
     auto                    GetTrimDrawCalls() const { return common_manager_->GetTrimDrawCalls(); }
     bool                    GetUseAssetFile() const { return common_manager_->GetUseAssetFile(); }
-    CommandWriter*          GetCommandWriter() { return common_manager_->GetCommandWriter(); }
+    CommandWriter           GetCommandWriter() { return common_manager_->GetCommandWriter(); }
     bool GetIgnoreFrameBoundaryAndroid() const { return common_manager_->GetIgnoreFrameBoundaryAndroid(); }
 
   protected:

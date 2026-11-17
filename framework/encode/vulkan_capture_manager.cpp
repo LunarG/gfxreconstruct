@@ -2300,12 +2300,12 @@ void VulkanCaptureManager::ProcessImportFdForBuffer(VkDevice device, VkBuffer bu
         {
             WriteBeginResourceInitCmd(device_wrapper->handle_id, buffer_wrapper->size, buffer_wrapper->size);
 
-            GetCommandWriter()->WriteInitBufferCmd(api_family_,
-                                                   device_wrapper->handle_id,
-                                                   buffer_wrapper->handle_id,
-                                                   memoryOffset,
-                                                   buffer_wrapper->size,
-                                                   data.data());
+            GetCommandWriter().WriteInitBufferCmd(api_family_,
+                                                  device_wrapper->handle_id,
+                                                  buffer_wrapper->handle_id,
+                                                  memoryOffset,
+                                                  buffer_wrapper->size,
+                                                  data.data());
             WriteEndResourceInitCmd(device_wrapper->handle_id);
         }
     }
@@ -2342,15 +2342,15 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
         GFXRECON_ASSERT(resource_size == num_bytes);
 
         WriteBeginResourceInitCmd(device_wrapper->handle_id, resource_size, resource_size);
-        GetCommandWriter()->WriteInitImageCmd(api_family_,
-                                              device_wrapper->handle_id,
-                                              img.handle_id,
-                                              img.aspect,
-                                              img.layout,
-                                              img.level_count,
-                                              level_sizes,
-                                              resource_size,
-                                              data);
+        GetCommandWriter().WriteInitImageCmd(api_family_,
+                                             device_wrapper->handle_id,
+                                             img.handle_id,
+                                             img.aspect,
+                                             img.layout,
+                                             img.level_count,
+                                             level_sizes,
+                                             resource_size,
+                                             data);
         WriteEndResourceInitCmd(device_wrapper->handle_id);
     };
 
