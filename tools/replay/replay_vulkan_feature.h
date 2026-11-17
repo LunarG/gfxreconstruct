@@ -26,6 +26,7 @@
 #include "decode/vulkan_replay_options.h"
 #include "decode/vulkan_tracked_object_info_table.h"
 #include "decode/vulkan_pre_process_consumer.h"
+#include "generated/generated_vulkan_consumer_stage.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "generated/generated_vulkan_replay_consumer.h"
 
@@ -71,6 +72,10 @@ class ReplayVulkanFeature : public ReplayPreProcessFeature<decode::VulkanReplayC
 
   private:
     decode::VulkanTrackedObjectInfoTable tracked_object_info_table_;
+
+    // The stage sits between the decoder and replay_consumer_ when an option needs it. The decoder sends every call
+    // to the stage, and the stage forwards it to the replay consumer.
+    std::unique_ptr<decode::VulkanConsumerStage> stage_;
 };
 
 GFXRECON_END_NAMESPACE(replay)

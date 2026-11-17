@@ -44,6 +44,7 @@
 #include "decode/vulkan_rebind_allocator.h"
 #include "decode/vulkan_remap_allocator.h"
 #include "decode/vulkan_resource_tracking_consumer.h"
+#include "decode/vulkan_stage_queue_wait.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "util/platform.h"
 #include "util/strings.h"
@@ -804,12 +805,32 @@ void ReplayVulkanFeature::RegisterDecodeComponents(graphics::FpsInfo* fps_info)
             auto* consumer = dynamic_cast<decode::VulkanReplayConsumerBase*>(replay_consumer_.get());
             GFXRECON_ASSERT(consumer != nullptr);
             consumer->SetDecoder(decoder.get());
-            RegisterConsumerAndDecoder(fps_info, std::move(decoder));
+            decoder_ = std::move(decoder);
+        }
+
+        // InitConsumer() must run first. A feature that does not call it has no decoder.
+        GFXRECON_ASSERT(decoder_ != nullptr);
+
+        // When an option needs the stage, the decoder talks to the stage, and the stage talks to the replay consumer.
+        // Otherwise the decoder talks to the replay consumer directly. Either way the feature keeps replay_consumer_
+        // for the calls that only a replay consumer accepts, such as SetFpsInfo() and SetupForRecapture().
+        if (replay_options_.idle_before_submit || replay_options_.wait_before_present)
+        {
+            decode::QueueWaitStageOptions queue_wait_options;
+            queue_wait_options.idle_before_submit  = replay_options_.idle_before_submit;
+            queue_wait_options.idle_before_present = replay_options_.wait_before_present;
+
+            stage_ = std::make_unique<decode::VulkanStageQueueWait>(queue_wait_options);
+            stage_->AddNext(replay_consumer_.get());
+            decoder_->AddConsumer(stage_.get());
         }
         else
         {
-            RegisterConsumerAndDecoder(fps_info);
+            decoder_->AddConsumer(replay_consumer_.get());
         }
+
+        replay_consumer_->SetFpsInfo(fps_info);
+        file_processor_->AddDecoder(decoder_.get());
 
         application_->SetPrintBlockInfoFlag(
             replay_options_.enable_print_block_info, replay_options_.block_index_from, replay_options_.block_index_to);
@@ -863,6 +884,7 @@ void ReplayVulkanFeature::CompletePreProcessingPass()
 
 void ReplayVulkanFeature::Destroy()
 {
+    stage_.reset();
     replay_consumer_.reset();
 
 #if defined(GFXRECON_ENABLE_VULKAN)
