@@ -44,14 +44,6 @@ namespace
 constexpr format::HandleId kDevice = 1;
 constexpr format::HandleId kPool   = 2;
 
-constexpr uint32_t kStructPointer     = format::kIsStruct | format::kIsSingle | format::kHasAddress | format::kHasData;
-constexpr uint32_t kNullStructPointer = format::kIsStruct | format::kIsSingle | format::kIsNull;
-constexpr uint32_t kNullStructArray   = format::kIsStruct | format::kIsArray | format::kIsNull;
-constexpr uint32_t kNullArray         = format::kIsArray | format::kIsNull;
-constexpr uint32_t kHandlePointer     = format::kIsSingle | format::kHasAddress | format::kHasData;
-constexpr uint32_t kArrayPointer      = format::kIsArray | format::kHasAddress | format::kHasData;
-constexpr uint32_t kStructArray       = format::kIsStruct | kArrayPointer;
-
 constexpr format::HandleId kPipeline = 80;
 constexpr format::HandleId kLayout   = 81;
 
@@ -607,7 +599,7 @@ Bytes EncodeSetViewport(format::HandleId command_buffer)
     bytes.Put<format::HandleId>(command_buffer)
         .Put<uint32_t>(0) // firstViewport
         .Put<uint32_t>(2) // viewportCount
-        .Put<uint32_t>(kStructArray)
+        .Put<uint32_t>(kStructArrayPointer)
         .Put<uint64_t>(1)
         .Put<uint64_t>(2);
     for (const float width : { 640.0f, 320.0f })
@@ -624,7 +616,7 @@ Bytes EncodeSetScissor(format::HandleId command_buffer)
     bytes.Put<format::HandleId>(command_buffer)
         .Put<uint32_t>(0) // firstScissor
         .Put<uint32_t>(1) // scissorCount
-        .Put<uint32_t>(kStructArray)
+        .Put<uint32_t>(kStructArrayPointer)
         .Put<uint64_t>(1)
         .Put<uint64_t>(1)
         .Put<int32_t>(0) // offset
@@ -712,7 +704,7 @@ Bytes EncodeQueueSubmit(const std::vector<AppSubmitInfo>& submits, format::Handl
     Bytes bytes;
     bytes.Put<format::HandleId>(kQueue)
         .Put<uint32_t>(static_cast<uint32_t>(submits.size()))
-        .Put<uint32_t>(kStructArray)
+        .Put<uint32_t>(kStructArrayPointer)
         .Put<uint64_t>(kAppArrayAddress)
         .Put<uint64_t>(submits.size());
     for (const AppSubmitInfo& submit : submits)
@@ -742,7 +734,7 @@ void PutSemaphoreInfos(Bytes& bytes, const std::vector<format::HandleId>& semaph
         return;
     }
 
-    bytes.Put<uint32_t>(kStructArray).Put<uint64_t>(kAppArrayAddress).Put<uint64_t>(semaphores.size());
+    bytes.Put<uint32_t>(kStructArrayPointer).Put<uint64_t>(kAppArrayAddress).Put<uint64_t>(semaphores.size());
     for (const format::HandleId semaphore : semaphores)
     {
         bytes.Put<uint32_t>(VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO)
@@ -760,7 +752,7 @@ Bytes EncodeQueueSubmit2(const std::vector<AppSubmitInfo>& submits, format::Hand
     Bytes bytes;
     bytes.Put<format::HandleId>(kQueue)
         .Put<uint32_t>(static_cast<uint32_t>(submits.size()))
-        .Put<uint32_t>(kStructArray)
+        .Put<uint32_t>(kStructArrayPointer)
         .Put<uint64_t>(kAppArrayAddress)
         .Put<uint64_t>(submits.size());
     for (const AppSubmitInfo& submit : submits)
@@ -772,7 +764,7 @@ Bytes EncodeQueueSubmit2(const std::vector<AppSubmitInfo>& submits, format::Hand
 
         const auto& command_buffers = submit.command_buffers;
         bytes.Put<uint32_t>(static_cast<uint32_t>(command_buffers.size()))
-            .Put<uint32_t>(kStructArray)
+            .Put<uint32_t>(kStructArrayPointer)
             .Put<uint64_t>(kAppArrayAddress)
             .Put<uint64_t>(command_buffers.size());
         for (size_t k = 0; k < command_buffers.size(); ++k)
