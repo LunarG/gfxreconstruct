@@ -537,7 +537,9 @@ void PageGuardManager::AddExceptionHandler()
                 // Install special signal handler with libsigchain
                 SigchainAction sc = {};
                 sc.sc_sigaction   = TryHandlePageGuardException;
-                sigemptyset(&sc.sc_mask);
+                // libsigchain applies sc_mask as the thread mask; keep app-blocked signals blocked
+                sigfillset(&sc.sc_mask);
+                sigdelset(&sc.sc_mask, MEMPROT_SIGNAL);
                 AddSpecialSignalHandlerFn(MEMPROT_SIGNAL, &sc);
 
                 // If we got this far then it was successful
