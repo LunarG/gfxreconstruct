@@ -9323,7 +9323,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
 
             util::MarkInjectedCommandsHelper mark_injected_commands_helper;
 
-            uint32_t present_mode_count;
+            uint32_t present_mode_count = 0;
             instance_table->GetPhysicalDeviceSurfacePresentModesKHR(
                 physical_device_info->handle, modified_create_info.surface, &present_mode_count, nullptr);
 
@@ -9344,8 +9344,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
             else
             {
                 GFXRECON_LOG_WARNING("Swapchain (ID = %" PRIu64
-                                     ") present mode `%s` was requested at capture time but is not supported by the "
-                                     "replay device. Replay will continue using `VK_PRESENT_MODE_FIFO_KHR`.",
+                                     ") present mode `%s` is not supported by the replay device. Replay will "
+                                     "continue using `VK_PRESENT_MODE_FIFO_KHR`.",
                                      *pSwapchain->GetPointer(),
                                      util::ToString<VkPresentModeKHR>(present_mode).c_str());
 
