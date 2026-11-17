@@ -578,7 +578,7 @@ def make_gen_opts(args):
             is_override=True,
             constructor_args="""const VulkanReplayOptions& options,
                               CommonObjectInfoTable* object_info_table,
-                              const VulkanPerDeviceAddressTrackers& address_trackers,
+                              const VulkanPerDeviceContexts& device_contexts,
                               const graphics::InstanceDispatchTablesMap& instance_tables,
                               const graphics::DeviceDispatchTablesMap& device_tables""",
             filename='generated_vulkan_replay_dump_resources.h',

@@ -25,7 +25,7 @@
 
 #include "decode/api_decoder.h"
 #include "decode/common_object_info_table.h"
-#include "decode/vulkan_device_address_tracker.h"
+#include "decode/vulkan_replay_device_context.h"
 #include "decode/vulkan_replay_dump_resources_as.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "decode/vulkan_object_info.h"
@@ -79,7 +79,7 @@ class DrawCallsDumpingContext
                             VulkanDumpResourcesDelegate&                      delegate,
                             const util::Compressor*                           compressor,
                             const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
-                            const VulkanPerDeviceAddressTrackers&             address_trackers);
+                            const VulkanPerDeviceContexts&                    device_contexts);
 
     ~DrawCallsDumpingContext();
 
@@ -921,7 +921,7 @@ class DrawCallsDumpingContext
 
     const DumpResourcesAccelerationStructuresContext& acceleration_structures_context_;
 
-    const VulkanPerDeviceAddressTrackers& address_trackers_;
+    const VulkanPerDeviceContexts& device_contexts_;
 
     void SecondaryUpdateContextFromPrimary(const VulkanPipelineInfo*     gr_pipeline,
                                            const BoundVertexBuffersInfo& vertex_buffers,

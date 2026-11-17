@@ -54,12 +54,12 @@ TransferDumpingContext::TransferDumpingContext(
     const graphics::DeviceDispatchTablesMap&          device_tables,
     const VulkanReplayOptions&                        options,
     VulkanDumpResourcesDelegate&                      delegate,
-    const VulkanPerDeviceAddressTrackers&             address_trackers,
+    const VulkanPerDeviceContexts&                    device_contexts,
     const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
     const util::Compressor*                           compressor) :
     object_info_table_(object_info_table),
     bcb_index_(bcb_index), qs_index_(qs_index), instance_tables_(instance_tables), device_tables_(device_tables),
-    options_(options), delegate_(delegate), address_trackers_(address_trackers),
+    options_(options), delegate_(delegate), device_contexts_(device_contexts),
     acceleration_structures_context_(acceleration_structures_context), compressor_(compressor), device_info_(nullptr)
 {
     if (transfer_indices != nullptr)
@@ -988,7 +988,7 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
 
             GFXRECON_ASSERT(device_table_.IsValid());
             auto& new_build_info = build_params->build_infos.emplace_back(
-                src_as, dst_as, p_infos[i].mode, device_table_, object_info_table_, address_trackers_);
+                src_as, dst_as, p_infos[i].mode, device_table_, object_info_table_, device_contexts_);
 
             if (!before_command)
             {
@@ -1141,7 +1141,7 @@ VkResult TransferDumpingContext::HandleCmdCopyAccelerationStructureKHR(
                                                                device_table_,
                                                                device_info_,
                                                                object_info_table_,
-                                                               address_trackers_,
+                                                               device_contexts_,
                                                                before_command,
                                                                TransferCommandTypes::kCmdCopyAccelerationStructure));
             GFXRECON_ASSERT(success);
@@ -1825,7 +1825,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
                                                              device_table_,
                                                              object_info_table_,
                                                              *instance_table_,
-                                                             address_trackers_);
+                                                             device_contexts_);
                     if (res != VK_SUCCESS)
                     {
                         GFXRECON_LOG_ERROR("Error dumping build acceleration structure command (%s)",
@@ -1865,7 +1865,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
                                                                  device_table_,
                                                                  object_info_table_,
                                                                  *instance_table_,
-                                                                 address_trackers_);
+                                                                 device_contexts_);
                         if (res != VK_SUCCESS)
                         {
                             GFXRECON_LOG_ERROR("Error dumping build acceleration structure command (%s)",
@@ -1909,7 +1909,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
                                                          device_table_,
                                                          object_info_table_,
                                                          *instance_table_,
-                                                         address_trackers_,
+                                                         device_contexts_,
                                                          true);
                 if (res != VK_SUCCESS)
                 {
@@ -1936,7 +1936,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
                                                              device_table_,
                                                              object_info_table_,
                                                              *instance_table_,
-                                                             address_trackers_,
+                                                             device_contexts_,
                                                              true);
                     if (res != VK_SUCCESS)
                     {

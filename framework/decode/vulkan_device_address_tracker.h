@@ -189,9 +189,6 @@ class VulkanDeviceAddressTracker
     std::unordered_map<VkDeviceAddress, device_address_range_t> address_lookup_helper_map_;
 };
 
-using VulkanPerDeviceAddressTrackers =
-    std::unordered_map<const decode::VulkanDeviceInfo*, decode::VulkanDeviceAddressTracker>;
-
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

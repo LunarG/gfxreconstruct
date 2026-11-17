@@ -263,8 +263,6 @@ class VulkanSubmitJobExecutor
     std::vector<std::unique_ptr<VulkanInjectedSemaphoreInfo>> injected_semaphore_infos_;
 };
 
-using VulkanPerDeviceSubmitJobExecutors = std::unordered_map<const VulkanDeviceInfo*, VulkanSubmitJobExecutor>;
-
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

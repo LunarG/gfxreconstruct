@@ -57,15 +57,15 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayOptions&            options,
-                                                             CommonObjectInfoTable*                object_info_table,
-                                                             const VulkanPerDeviceAddressTrackers& address_trackers,
+VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayOptions&     options,
+                                                             CommonObjectInfoTable*         object_info_table,
+                                                             const VulkanPerDeviceContexts& device_contexts,
                                                              const graphics::InstanceDispatchTablesMap& instance_tables,
                                                              const graphics::DeviceDispatchTablesMap&   device_tables) :
     BeginCommandBufferQueueSubmit_Indices_(options.BeginCommandBufferQueueSubmit_Indices),
     active_contexts_(0), dump_resources_before_(options.dump_resources_before), object_info_table_(object_info_table),
     output_json_per_command(options.dump_resources_json_per_command), default_delegate_(nullptr),
-    user_delegate_(nullptr), active_delegate_(nullptr), address_trackers_(address_trackers),
+    user_delegate_(nullptr), active_delegate_(nullptr), device_contexts_(device_contexts),
     dump_as_build_input_buffers_(options.dump_resources_dump_build_AS_input_buffers)
 {
     capture_filename = std::filesystem::path(options.capture_filename).stem().string();
@@ -144,7 +144,7 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                                                                                 *active_delegate_,
                                                                                 compressor_.get(),
                                                                                 acceleration_structures_context_,
-                                                                                address_trackers)));
+                                                                                device_contexts)));
         }
 
         if (has_dispatch)
@@ -167,7 +167,7 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                                                *active_delegate_,
                                                compressor_.get(),
                                                acceleration_structures_context_,
-                                               address_trackers)));
+                                               device_contexts)));
         }
 
         if (has_transfer)
@@ -183,7 +183,7 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                                                                                device_tables,
                                                                                options,
                                                                                *active_delegate_,
-                                                                               address_trackers,
+                                                                               device_contexts,
                                                                                acceleration_structures_context_,
                                                                                compressor_.get())));
         }
@@ -252,7 +252,7 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                                 *active_delegate_,
                                 compressor_.get(),
                                 acceleration_structures_context_,
-                                address_trackers)));
+                                device_contexts)));
                         GFXRECON_ASSERT(success);
                         primary_dc_context = new_primary_it->second;
                     }
@@ -292,7 +292,7 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                                                                                   *active_delegate_,
                                                                                   compressor_.get(),
                                                                                   acceleration_structures_context_,
-                                                                                  address_trackers)));
+                                                                                  device_contexts)));
                         GFXRECON_ASSERT(success);
                         primary_disp_context = new_primary_it->second;
                     }
@@ -2651,7 +2651,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBuildAccelerationStructuresKHR(
         auto new_entry =
             acceleration_structures_context_.emplace(dst_as,
                                                      std::make_shared<AccelerationStructureDumpResourcesContext>(
-                                                         dst_as, device_table, *object_info_table_, address_trackers_));
+                                                         dst_as, device_table, *object_info_table_, device_contexts_));
 
         VkResult res = new_entry.first->second->CloneBuildAccelerationStructuresInputBuffers(
             (original_command_buffer != nullptr) ? original_command_buffer->handle : VK_NULL_HANDLE,
@@ -2690,7 +2690,7 @@ void VulkanReplayDumpResourcesBase::HandleCmdCopyAccelerationStructureKHR(
     auto new_entry =
         acceleration_structures_context_.emplace(dst,
                                                  std::make_shared<AccelerationStructureDumpResourcesContext>(
-                                                     dst, device_table, *object_info_table_, address_trackers_));
+                                                     dst, device_table, *object_info_table_, device_contexts_));
     new_entry.first->second->CloneBuildAccelerationStructuresInputBuffers(
         (original_command_buffer != nullptr) ? original_command_buffer->handle : VK_NULL_HANDLE,
         *src_context_entry->second,

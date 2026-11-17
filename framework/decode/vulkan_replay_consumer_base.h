@@ -38,6 +38,7 @@
 #include "decode/vulkan_handle_mapping_util.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/common_object_info_table.h"
+#include "decode/vulkan_replay_device_context.h"
 #include "decode/vulkan_replay_options.h"
 #include "decode/vulkan_command_buffer_util.h"
 #include "decode/vulkan_resource_allocator.h"
@@ -2183,6 +2184,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     VulkanCommandBufferUtil&            GetDeviceCommandBufferUtil(const VulkanDeviceInfo* device_info);
     VulkanSubmitJobExecutor&            GetDeviceSubmitJobExecutor(const VulkanDeviceInfo* device_info);
 
+    //! Returns the device's resource initializer while one is active, otherwise nullptr.
+    VulkanResourceInitializer* GetDeviceResourceInitializer(const VulkanDeviceInfo* device_info);
+
     /**
      * @brief   UseExtraDescriptorInfo returns true if additional information about layouts/descriptors/bindings etc.
      *          should be collected and can be used during replay.
@@ -2407,11 +2411,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     std::once_flag wait_before_first_submit_flag_;
 
-    VulkanPerDeviceAddressTrackers    device_address_trackers_;
-    VulkanPerDeviceAddressReplacers   device_address_replacers_;
-    VulkanPerDeviceFrameWarmUp        device_frame_warmups_;
-    VulkanPerDeviceCommandBufferUtils device_command_buffer_utils_;
-    VulkanPerDeviceSubmitJobExecutors device_submit_job_executors_;
+    VulkanPerDeviceContexts device_contexts_;
 
     util::ThreadPool main_thread_queue_;
     util::ThreadPool background_queue_;

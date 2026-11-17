@@ -335,15 +335,8 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
     // Idle all devices before destroying other resources.
     VulkanReplayConsumerBase::WaitDevicesIdle();
 
-    // free replacer internal vulkan-resources
-    device_address_replacers_.clear();
-    device_command_buffer_utils_.clear();
-
-    // free frame warm up resources
-    device_frame_warmups_.clear();
-
-    // free injected timeline semaphores
-    device_submit_job_executors_.clear();
+    // free per-device replay resources: replacers, command buffer utils, frame warm up, injected timeline semaphores
+    device_contexts_.clear();
 
     // process queued async tasks
     background_queue_.join_all();
@@ -639,7 +632,7 @@ void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id
 
                 ProcessBeginResourceInitCommand(buffer_info.device_id, size, size);
 
-                VulkanResourceInitializer* initializer = device_info->resource_initializer.get();
+                VulkanResourceInitializer* initializer = GetDeviceResourceInitializer(device_info);
 
                 std::vector<VkImageAspectFlagBits> aspects;
                 graphics::GetFormatAspects(image_info.format, &aspects);
@@ -1115,14 +1108,14 @@ void VulkanReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId 
             have_shader_stencil_write = true;
         }
 
-        device_info->resource_initializer = std::make_shared<VulkanResourceInitializer>(device_info,
-                                                                                        total_copy_size,
-                                                                                        max_copy_size,
-                                                                                        properties,
-                                                                                        memory_properties,
-                                                                                        have_shader_stencil_write,
-                                                                                        allocator,
-                                                                                        GetInjectedDeviceCalls(device));
+        device_contexts_[device_info].resource_initializer.emplace(device_info,
+                                                                   total_copy_size,
+                                                                   max_copy_size,
+                                                                   properties,
+                                                                   memory_properties,
+                                                                   have_shader_stencil_write,
+                                                                   allocator,
+                                                                   GetInjectedDeviceCalls(device));
     }
 }
 
@@ -1130,9 +1123,9 @@ void VulkanReplayConsumerBase::ProcessEndResourceInitCommand(format::HandleId de
 {
     VulkanDeviceInfo* device_info = object_info_table_->GetVkDeviceInfo(device_id);
 
-    if ((device_info != nullptr) && (device_info->resource_initializer != nullptr))
+    if (auto it = device_contexts_.find(device_info); it != device_contexts_.end())
     {
-        device_info->resource_initializer.reset();
+        it->second.resource_initializer.reset();
     }
 }
 
@@ -1149,7 +1142,7 @@ void VulkanReplayConsumerBase::ProcessInitBufferCommand(format::HandleId device_
         VkResult                   result      = VK_SUCCESS;
         VkDevice                   device      = device_info->handle;
         VkBuffer                   buffer      = buffer_info->handle;
-        VulkanResourceInitializer* initializer = device_info->resource_initializer.get();
+        VulkanResourceInitializer* initializer = GetDeviceResourceInitializer(device_info);
 
         assert((device != VK_NULL_HANDLE) && (buffer != VK_NULL_HANDLE));
 
@@ -1227,7 +1220,7 @@ void VulkanReplayConsumerBase::ProcessInitTensorCommand(format::HandleId device_
     {
         GFXRECON_ASSERT((device_info->handle != VK_NULL_HANDLE) && (tensor_info->handle != VK_NULL_HANDLE));
 
-        VulkanResourceInitializer* initializer = device_info->resource_initializer.get();
+        VulkanResourceInitializer* initializer = GetDeviceResourceInitializer(device_info);
         if (initializer != nullptr)
         {
             VkResult result = initializer->LoadData(data_size, data, tensor_info->allocator_data);
@@ -1276,7 +1269,7 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
         VkResult                   result      = VK_SUCCESS;
         VkDevice                   device      = device_info->handle;
         VkImage                    image       = image_info->handle;
-        VulkanResourceInitializer* initializer = device_info->resource_initializer.get();
+        VulkanResourceInitializer* initializer = GetDeviceResourceInitializer(device_info);
 
         assert((device != VK_NULL_HANDLE) && (image != VK_NULL_HANDLE));
 
@@ -2215,7 +2208,7 @@ void VulkanReplayConsumerBase::InitializeReplayDumpResources()
     if (resource_dumper_ == nullptr)
     {
         resource_dumper_ = std::make_unique<VulkanReplayDumpResources>(
-            options_, object_info_table_, device_address_trackers_, instance_tables_, device_tables_);
+            options_, object_info_table_, device_contexts_, instance_tables_, device_tables_);
         GFXRECON_ASSERT(resource_dumper_);
     }
 }
@@ -4317,20 +4310,12 @@ void VulkanReplayConsumerBase::ReleaseDeviceResources(const VulkanDeviceInfo* de
         const auto device       = device_info->handle;
         const auto device_table = GetInjectedDeviceCalls(device);
 
-        // free replacer internal vulkan-resources for the device
-        device_address_replacers_.erase(device_info);
-
-        device_command_buffer_utils_.erase(device_info);
+        // free per-device replay resources before the device is destroyed
+        device_contexts_.erase(device_info);
 
         // free potential swapchain-resources for the device
         GFXRECON_ASSERT(swapchain_)
         swapchain_->CleanDeviceResources(device_info->handle, &device_table);
-
-        // free frame warm up resources before the device is destroyed
-        device_frame_warmups_.erase(device_info);
-
-        // free the timeline semaphores injected to serialize submits, while the device that owns them still exists
-        device_submit_job_executors_.erase(device_info);
 
         device_info->allocator->Destroy();
     }
@@ -13275,58 +13260,48 @@ void VulkanReplayConsumerBase::UpdateDescriptorSetInfoWithTemplate(
 VulkanDeviceAddressTracker&
 VulkanReplayConsumerBase::GetDeviceAddressTracker(const decode::VulkanDeviceInfo* device_info)
 {
-    if (auto it = device_address_trackers_.find(device_info); it != device_address_trackers_.end())
+    auto& address_tracker = device_contexts_[device_info].address_tracker;
+    if (!address_tracker)
     {
-        return it->second;
+        address_tracker.emplace(*object_info_table_);
     }
-
-    auto [new_it, success] =
-        device_address_trackers_.insert({ device_info, VulkanDeviceAddressTracker(*object_info_table_) });
-    GFXRECON_ASSERT(success);
-    return new_it->second;
+    return *address_tracker;
 }
 
 VulkanAddressReplacer& VulkanReplayConsumerBase::GetDeviceAddressReplacer(const decode::VulkanDeviceInfo* device_info)
 {
-    if (auto it = device_address_replacers_.find(device_info); it != device_address_replacers_.end())
+    auto& address_replacer = device_contexts_[device_info].address_replacer;
+    if (!address_replacer)
     {
-        return it->second;
+        address_replacer.emplace(device_info,
+                                 GetInjectedDeviceCalls(device_info->handle),
+                                 GetInstanceTable(device_info->parent),
+                                 *object_info_table_);
     }
-
-    auto [new_it, success] =
-        device_address_replacers_.insert({ device_info,
-                                           VulkanAddressReplacer(device_info,
-                                                                 GetInjectedDeviceCalls(device_info->handle),
-                                                                 GetInstanceTable(device_info->parent),
-                                                                 *object_info_table_) });
-    GFXRECON_ASSERT(success);
-    return new_it->second;
+    return *address_replacer;
 }
 
 VulkanFrameWarmUp& VulkanReplayConsumerBase::GetDeviceFrameWarmUp(const VulkanDeviceInfo* device_info)
 {
-    if (auto it = device_frame_warmups_.find(device_info); it != device_frame_warmups_.end())
+    auto& frame_warm_up = device_contexts_[device_info].frame_warm_up;
+    if (!frame_warm_up)
     {
-        return it->second;
+        frame_warm_up.emplace(device_info,
+                              GetInjectedDeviceCalls(device_info->handle),
+                              GetInstanceTable(device_info->parent),
+                              *object_info_table_,
+                              options_.frame_warm_up_spirv_path,
+                              options_.frame_warm_up_load);
     }
-
-    auto [new_it, success] =
-        device_frame_warmups_.insert({ device_info,
-                                       VulkanFrameWarmUp(device_info,
-                                                         GetInjectedDeviceCalls(device_info->handle),
-                                                         GetInstanceTable(device_info->parent),
-                                                         *object_info_table_,
-                                                         options_.frame_warm_up_spirv_path,
-                                                         options_.frame_warm_up_load) });
-    GFXRECON_ASSERT(success);
-    return new_it->second;
+    return *frame_warm_up;
 }
 
 VulkanCommandBufferUtil& VulkanReplayConsumerBase::GetDeviceCommandBufferUtil(const VulkanDeviceInfo* device_info)
 {
-    if (auto it = device_command_buffer_utils_.find(device_info); it != device_command_buffer_utils_.end())
+    auto& command_buffer_util = device_contexts_[device_info].command_buffer_util;
+    if (command_buffer_util)
     {
-        return it->second;
+        return *command_buffer_util;
     }
 
     auto* decoder = dynamic_cast<VulkanStateRecordingDecoder*>(GetDecoder());
@@ -13337,25 +13312,27 @@ VulkanCommandBufferUtil& VulkanReplayConsumerBase::GetDeviceCommandBufferUtil(co
         std::abort();
     }
 
-    auto [new_it, success] = device_command_buffer_utils_.insert(
-        { device_info,
-          VulkanCommandBufferUtil(
-              device_info, GetInjectedDeviceCalls(device_info->handle), object_info_table_, decoder) });
-    GFXRECON_ASSERT(success);
-    return new_it->second;
+    command_buffer_util.emplace(device_info, GetInjectedDeviceCalls(device_info->handle), object_info_table_, decoder);
+    return *command_buffer_util;
 }
 
 VulkanSubmitJobExecutor& VulkanReplayConsumerBase::GetDeviceSubmitJobExecutor(const VulkanDeviceInfo* device_info)
 {
-    if (auto it = device_submit_job_executors_.find(device_info); it != device_submit_job_executors_.end())
+    auto& submit_job_executor = device_contexts_[device_info].submit_job_executor;
+    if (!submit_job_executor)
     {
-        return it->second;
+        submit_job_executor.emplace(device_info, GetInjectedDeviceCalls(device_info->handle));
     }
+    return *submit_job_executor;
+}
 
-    auto [new_it, success] = device_submit_job_executors_.insert(
-        { device_info, VulkanSubmitJobExecutor(device_info, GetInjectedDeviceCalls(device_info->handle)) });
-    GFXRECON_ASSERT(success);
-    return new_it->second;
+VulkanResourceInitializer* VulkanReplayConsumerBase::GetDeviceResourceInitializer(const VulkanDeviceInfo* device_info)
+{
+    if (auto it = device_contexts_.find(device_info); it != device_contexts_.end() && it->second.resource_initializer)
+    {
+        return &*it->second.resource_initializer;
+    }
+    return nullptr;
 }
 
 bool VulkanReplayConsumerBase::UseExtraDescriptorInfo(const VulkanDeviceInfo* device_info) const

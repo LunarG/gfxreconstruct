@@ -55,7 +55,7 @@ class TransferDumpingContext
                            const graphics::DeviceDispatchTablesMap&          device_tables,
                            const VulkanReplayOptions&                        options,
                            VulkanDumpResourcesDelegate&                      delegate,
-                           const VulkanPerDeviceAddressTrackers&             address_trackers,
+                           const VulkanPerDeviceContexts&                    device_contexts,
                            const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
                            const util::Compressor*                           compressor);
 
@@ -533,10 +533,10 @@ class TransferDumpingContext
 
             CopiedAccelerationStructure(const graphics::VulkanInjectedDeviceCalls& dt,
                                         const CommonObjectInfoTable&               oit,
-                                        const VulkanPerDeviceAddressTrackers&      at,
+                                        const VulkanPerDeviceContexts&             dc,
                                         const VulkanAccelerationStructureKHRInfo*  asi) :
                 as_info(std::make_shared<VulkanAccelerationStructureKHRInfo>()),
-                as_context(as_info.get(), dt, oit, at), as_memory(VK_NULL_HANDLE), device_table(dt)
+                as_context(as_info.get(), dt, oit, dc), as_memory(VK_NULL_HANDLE), device_table(dt)
             {
                 // Clone information stored in the destination as info. Later this will be updated with the new objects
                 GFXRECON_ASSERT(asi != nullptr);
@@ -596,9 +596,9 @@ class TransferDumpingContext
                           VkBuildAccelerationStructureModeKHR        m,
                           const graphics::VulkanInjectedDeviceCalls& dt,
                           const CommonObjectInfoTable&               oit,
-                          const VulkanPerDeviceAddressTrackers&      at) :
+                          const VulkanPerDeviceContexts&             dc) :
                     src_as(s != nullptr ? s->capture_id : format::kNullHandleId),
-                    dst_as(d->capture_id), mode(m), vk_objects(dt, oit, at, d)
+                    dst_as(d->capture_id), mode(m), vk_objects(dt, oit, dc, d)
                 {}
 
                 format::HandleId                    src_as;
@@ -624,9 +624,9 @@ class TransferDumpingContext
                                       const VulkanAccelerationStructureKHRInfo*  d,
                                       VkCopyAccelerationStructureModeKHR         m,
                                       const CommonObjectInfoTable&               oit,
-                                      const VulkanPerDeviceAddressTrackers&      at) :
+                                      const VulkanPerDeviceContexts&             dc) :
                 TransferParamsBase(t, hb, dt, pdi),
-                src_as(s), dst_as(d->capture_id), mode(m), vk_objects(dt, oit, at, d)
+                src_as(s), dst_as(d->capture_id), mode(m), vk_objects(dt, oit, dc, d)
             {}
 
             format::HandleId                   src_as;
@@ -776,16 +776,16 @@ class TransferDumpingContext
                        const graphics::VulkanInjectedDeviceCalls& dt,
                        const VulkanDeviceInfo*                    pdi,
                        const CommonObjectInfoTable&               oit,
-                       const VulkanPerDeviceAddressTrackers&      at,
+                       const VulkanPerDeviceContexts&             dc,
                        bool                                       bc,
                        TransferCommandTypes                       t) :
-            params(std::make_unique<CopyAccelerationStructure>(t, bc, dt, pdi, s, d, m, oit, at))
+            params(std::make_unique<CopyAccelerationStructure>(t, bc, dt, pdi, s, d, m, oit, dc))
         {
             GFXRECON_ASSERT(t == TransferCommandTypes::kCmdCopyAccelerationStructure);
 
             if (bc)
             {
-                before_params = std::make_unique<CopyAccelerationStructure>(t, bc, dt, pdi, s, d, m, oit, at);
+                before_params = std::make_unique<CopyAccelerationStructure>(t, bc, dt, pdi, s, d, m, oit, dc);
             }
         }
 
@@ -815,7 +815,7 @@ class TransferDumpingContext
     VulkanDumpResourcesDelegate&                      delegate_;
     const util::Compressor*                           compressor_;
     const VkPhysicalDeviceMemoryProperties*           replay_device_phys_mem_props_;
-    const VulkanPerDeviceAddressTrackers&             address_trackers_;
+    const VulkanPerDeviceContexts&                    device_contexts_;
     const DumpResourcesAccelerationStructuresContext& acceleration_structures_context_;
 
     const graphics::VulkanInstanceTable* instance_table_;
