@@ -1613,7 +1613,7 @@ static VkResult DumpBLAS(DumpedAccelerationStructure&                      dumpe
                          const graphics::VulkanInjectedDeviceCalls&        device_table,
                          const CommonObjectInfoTable&                      object_info_table,
                          const graphics::VulkanInstanceTable&              instance_table,
-                         const VulkanPerDeviceAddressTrackers&             address_trackers)
+                         const VulkanPerDeviceContexts&                    device_contexts)
 {
     for (const auto& build_data : as_context->as_build_objects)
     {
@@ -1750,7 +1750,7 @@ static VkResult DumpTLAS(DumpedAccelerationStructure&                      dumpe
                          const graphics::VulkanInjectedDeviceCalls&        device_table,
                          const CommonObjectInfoTable&                      object_info_table,
                          const graphics::VulkanInstanceTable&              instance_table,
-                         const VulkanPerDeviceAddressTrackers&             address_trackers,
+                         const VulkanPerDeviceContexts&                    device_contexts,
                          bool                                              use_capture_addresses)
 {
     const VulkanAccelerationStructureKHRInfo* as_info = dumped_as.as_info;
@@ -1758,13 +1758,13 @@ static VkResult DumpTLAS(DumpedAccelerationStructure&                      dumpe
     GFXRECON_ASSERT(as_info->type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR);
 
     std::unordered_set<AccelerationStructureDumpResourcesContext*> referenced_BLASes;
-    const auto address_tracker_entry = address_trackers.find(device_info);
-    if (address_tracker_entry == address_trackers.end())
+    const auto device_context_entry = device_contexts.find(device_info);
+    if (device_context_entry == device_contexts.end() || !device_context_entry->second.address_tracker)
     {
         GFXRECON_LOG_WARNING("Could not detect address tracker for device %" PRIu64, device_info->capture_id);
         return VK_SUCCESS;
     }
-    const VulkanDeviceAddressTracker& device_address_tracker = address_tracker_entry->second;
+    const VulkanDeviceAddressTracker& device_address_tracker = *device_context_entry->second.address_tracker;
 
     for (const auto& tlas_build_object : as_context->as_build_objects)
     {
@@ -1851,7 +1851,7 @@ static VkResult DumpTLAS(DumpedAccelerationStructure&                      dumpe
                                 device_table,
                                 object_info_table,
                                 instance_table,
-                                address_trackers);
+                                device_contexts);
         if (res != VK_SUCCESS)
         {
             return res;
@@ -1899,7 +1899,7 @@ VkResult DumpAccelerationStructure(DumpedAccelerationStructure&                 
                                    const graphics::VulkanInjectedDeviceCalls&        device_table,
                                    const CommonObjectInfoTable&                      object_info_table,
                                    const graphics::VulkanInstanceTable&              instance_table,
-                                   const VulkanPerDeviceAddressTrackers&             address_trackers,
+                                   const VulkanPerDeviceContexts&                    device_contexts,
                                    bool                                              use_capture_addresses)
 {
     const VulkanAccelerationStructureKHRInfo* as_info = dumped_as.as_info;
@@ -1916,7 +1916,7 @@ VkResult DumpAccelerationStructure(DumpedAccelerationStructure&                 
                        device_table,
                        object_info_table,
                        instance_table,
-                       address_trackers,
+                       device_contexts,
                        use_capture_addresses);
     }
     else
@@ -1929,7 +1929,7 @@ VkResult DumpAccelerationStructure(DumpedAccelerationStructure&                 
                        device_table,
                        object_info_table,
                        instance_table,
-                       address_trackers);
+                       device_contexts);
     }
 
     return res;

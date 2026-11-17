@@ -25,7 +25,7 @@
 
 #include "decode/api_decoder.h"
 #include "decode/common_object_info_table.h"
-#include "decode/vulkan_device_address_tracker.h"
+#include "decode/vulkan_replay_device_context.h"
 #include "decode/vulkan_replay_dump_resources_as.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "decode/vulkan_object_info.h"
@@ -64,7 +64,7 @@ class DispatchTraceRaysDumpingContext
                                     VulkanDumpResourcesDelegate&                      delegate,
                                     const util::Compressor*                           compressor,
                                     const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
-                                    const VulkanPerDeviceAddressTrackers&             address_trackers);
+                                    const VulkanPerDeviceContexts&                    device_contexts);
 
     ~DispatchTraceRaysDumpingContext();
 
@@ -685,7 +685,7 @@ class DispatchTraceRaysDumpingContext
 
     const DumpResourcesAccelerationStructuresContext& acceleration_structures_context_;
 
-    const VulkanPerDeviceAddressTrackers& address_trackers_;
+    const VulkanPerDeviceContexts& device_contexts_;
 
     graphics::VulkanInjectedDeviceCalls     device_table_;
     VkDevice                                parent_device_;

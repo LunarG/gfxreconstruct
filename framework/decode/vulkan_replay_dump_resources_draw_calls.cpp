@@ -60,14 +60,14 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(
     VulkanDumpResourcesDelegate&                      delegate,
     const util::Compressor*                           compressor,
     const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
-    const VulkanPerDeviceAddressTrackers&             address_trackers) :
+    const VulkanPerDeviceContexts&                    device_contexts) :
     original_command_buffer_info_(nullptr),
     bcb_index_(bcb_index), qs_index_(qs_index), current_cb_index_(0),
     dc_subresources_(dc_subresources), bound_gr_pipeline_{ nullptr }, delegate_(delegate), options_(options),
     compressor_(compressor), command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary),
     aux_command_buffer_(VK_NULL_HANDLE), aux_fence_(VK_NULL_HANDLE), instance_table_(nullptr),
     object_info_table_(object_info_table), replay_device_phys_mem_props_(nullptr),
-    acceleration_structures_context_(acceleration_structures_context), address_trackers_(address_trackers),
+    acceleration_structures_context_(acceleration_structures_context), device_contexts_(device_contexts),
     inside_renderpass_(false), has_tail_clone_(false)
 {
     if (draw_indices != nullptr)
@@ -2029,7 +2029,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t                  cmd_
                                                              device_table_,
                                                              object_info_table_,
                                                              *instance_table_,
-                                                             address_trackers_);
+                                                             device_contexts_);
                     if (res != VK_SUCCESS)
                     {
                         GFXRECON_LOG_ERROR("Dumping acceleration structure %" PRIu64 " failed (%s)",

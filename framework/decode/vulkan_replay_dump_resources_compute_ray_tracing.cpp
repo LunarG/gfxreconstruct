@@ -61,7 +61,7 @@ DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(
     VulkanDumpResourcesDelegate&                      delegate,
     const util::Compressor*                           compressor,
     const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
-    const VulkanPerDeviceAddressTrackers&             address_trackers) :
+    const VulkanPerDeviceContexts&                    device_contexts) :
     original_command_buffer_info_(nullptr),
     bcb_index_(bcb_index), qs_index_(qs_index), DR_command_buffer_(VK_NULL_HANDLE), host_(nullptr),
     disp_subresources_(disp_subresources), tr_subresources_(tr_subresources), delegate_(delegate), options_(options),
@@ -69,7 +69,7 @@ DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(
     command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary), parent_device_(VK_NULL_HANDLE),
     instance_table_(nullptr), object_info_table_(object_info_table), replay_device_phys_mem_props_(nullptr),
     current_dispatch_index_(0), current_trace_rays_index_(0),
-    acceleration_structures_context_(acceleration_structures_context), address_trackers_(address_trackers)
+    acceleration_structures_context_(acceleration_structures_context), device_contexts_(device_contexts)
 {
     if (dispatch_indices != nullptr)
     {
@@ -2026,7 +2026,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(const DumpedResourceBa
                                                              device_table_,
                                                              object_info_table_,
                                                              *instance_table_,
-                                                             address_trackers_);
+                                                             device_contexts_);
                     if (res != VK_SUCCESS)
                     {
                         GFXRECON_LOG_ERROR("Dumping acceleration structure %" PRIu64 " failed (%s)",

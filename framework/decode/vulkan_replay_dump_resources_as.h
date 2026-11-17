@@ -23,7 +23,7 @@
 #ifndef GFXRECON_VULKAN_REPLAY_DUMP_RESOURCES_AS_H
 #define GFXRECON_VULKAN_REPLAY_DUMP_RESOURCES_AS_H
 
-#include "decode/vulkan_device_address_tracker.h"
+#include "decode/vulkan_replay_device_context.h"
 #include "decode/common_object_info_table.h"
 #include "decode/vulkan_object_info.h"
 #include "generated/generated_vulkan_struct_decoders.h"
@@ -45,9 +45,9 @@ struct AccelerationStructureDumpResourcesContext
     AccelerationStructureDumpResourcesContext(const VulkanAccelerationStructureKHRInfo*  ai,
                                               const graphics::VulkanInjectedDeviceCalls& dt,
                                               const CommonObjectInfoTable&               oit,
-                                              const VulkanPerDeviceAddressTrackers&      at) :
+                                              const VulkanPerDeviceContexts&             dc) :
         as_info(ai),
-        device_table(dt), object_info_table(oit), address_trackers(at)
+        device_table(dt), object_info_table(oit), device_contexts(dc)
     {}
 
     ~AccelerationStructureDumpResourcesContext() { ReleaseResources(); }
@@ -127,7 +127,7 @@ struct AccelerationStructureDumpResourcesContext
     const graphics::VulkanInjectedDeviceCalls device_table;
     const CommonObjectInfoTable&              object_info_table;
     const VulkanAccelerationStructureKHRInfo* as_info;
-    const VulkanPerDeviceAddressTrackers&     address_trackers;
+    const VulkanPerDeviceContexts&            device_contexts;
 };
 
 using DumpResourcesAccelerationStructuresContext =

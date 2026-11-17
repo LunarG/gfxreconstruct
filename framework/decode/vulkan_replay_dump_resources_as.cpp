@@ -128,14 +128,14 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
 
     const VkPhysicalDeviceMemoryProperties& mem_props = phys_dev_info->replay_device_info->memory_properties.value();
 
-    const auto address_tracker_entry = address_trackers.find(device_info);
-    if (address_tracker_entry == address_trackers.end())
+    const auto device_context_entry = device_contexts.find(device_info);
+    if (device_context_entry == device_contexts.end() || !device_context_entry->second.address_tracker)
     {
         GFXRECON_LOG_WARNING("Could not detect address tracker for device %" PRIu64, device_info->capture_id);
         return VK_ERROR_UNKNOWN;
     }
 
-    const VulkanDeviceAddressTracker& device_address_tracker = address_tracker_entry->second;
+    const VulkanDeviceAddressTracker& device_address_tracker = *device_context_entry->second.address_tracker;
 
     for (uint32_t g = 0; g < build_info.geometryCount; ++g)
     {

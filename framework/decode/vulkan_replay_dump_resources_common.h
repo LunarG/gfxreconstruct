@@ -23,7 +23,7 @@
 #ifndef GFXRECON_GENERATED_VULKAN_REPLAY_DUMP_RESOURCES_COMMON_H
 #define GFXRECON_GENERATED_VULKAN_REPLAY_DUMP_RESOURCES_COMMON_H
 
-#include "decode/vulkan_device_address_tracker.h"
+#include "decode/vulkan_replay_device_context.h"
 #include "decode/common_object_info_table.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_dump_resources_as.h"
@@ -146,7 +146,7 @@ VkResult DumpAccelerationStructure(DumpedAccelerationStructure&                 
                                    const graphics::VulkanInjectedDeviceCalls&        device_table,
                                    const CommonObjectInfoTable&                      object_info_table,
                                    const graphics::VulkanInstanceTable&              instance_table,
-                                   const VulkanPerDeviceAddressTrackers&             address_trackers,
+                                   const VulkanPerDeviceContexts&                    device_contexts,
                                    bool                                              use_capture_addresses = false);
 
 std::string ShaderStageToStr(VkShaderStageFlagBits shader_stage);

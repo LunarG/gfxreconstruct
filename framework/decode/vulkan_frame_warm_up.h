@@ -81,8 +81,6 @@ class VulkanFrameWarmUp
     graphics::VulkanSemaphore semaphore_{ VK_NULL_HANDLE };
 };
 
-using VulkanPerDeviceFrameWarmUp = std::unordered_map<const VulkanDeviceInfo*, VulkanFrameWarmUp>;
-
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

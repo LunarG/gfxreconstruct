@@ -53,9 +53,9 @@ class VulkanReplayDumpResources : public VulkanReplayDumpResourcesBase
   public:
     VulkanReplayDumpResources(const VulkanReplayOptions& options,
                               CommonObjectInfoTable* object_info_table,
-                              const VulkanPerDeviceAddressTrackers& address_trackers,
+                              const VulkanPerDeviceContexts& device_contexts,
                               const graphics::InstanceDispatchTablesMap& instance_tables,
-                              const graphics::DeviceDispatchTablesMap& device_tables) : VulkanReplayDumpResourcesBase(options, object_info_table, address_trackers, instance_tables, device_tables) { }
+                              const graphics::DeviceDispatchTablesMap& device_tables) : VulkanReplayDumpResourcesBase(options, object_info_table, device_contexts, instance_tables, device_tables) { }
 
     ~VulkanReplayDumpResources() { }
 

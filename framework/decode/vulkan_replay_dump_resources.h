@@ -25,7 +25,7 @@
 
 #include "decode/api_decoder.h"
 #include "decode/common_object_info_table.h"
-#include "decode/vulkan_device_address_tracker.h"
+#include "decode/vulkan_replay_device_context.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_options.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
@@ -58,7 +58,7 @@ class VulkanReplayDumpResourcesBase
 
     VulkanReplayDumpResourcesBase(const VulkanReplayOptions&                 options,
                                   CommonObjectInfoTable*                     object_info_table,
-                                  const VulkanPerDeviceAddressTrackers&      address_trackers,
+                                  const VulkanPerDeviceContexts&             device_contexts,
                                   const graphics::InstanceDispatchTablesMap& instance_tables,
                                   const graphics::DeviceDispatchTablesMap&   device_tables);
 
@@ -1035,7 +1035,7 @@ class VulkanReplayDumpResourcesBase
 
     std::string capture_filename;
 
-    const VulkanPerDeviceAddressTrackers& address_trackers_;
+    const VulkanPerDeviceContexts& device_contexts_;
 
     DumpResourcesAccelerationStructuresContext acceleration_structures_context_;
     bool                                       dump_as_build_input_buffers_;

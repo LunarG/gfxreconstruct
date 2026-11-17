@@ -138,7 +138,7 @@ class VulkanCommandBufferAssociatedInfo
 /// earlier parts first, one queue submit for each part. An injected timeline semaphore
 /// keeps these submits in order. The reset, begin, and free entry points keep the split
 /// handles and the recorded state of the decoder consistent. Replay creates one instance
-/// of this class for each device (see VulkanPerDeviceCommandBufferUtils).
+/// of this class for each device (see VulkanReplayDeviceContext).
 class VulkanCommandBufferUtil
 {
   public:
@@ -270,8 +270,6 @@ class VulkanCommandBufferUtil
 };
 
 /// One VulkanCommandBufferUtil for each device.
-using VulkanPerDeviceCommandBufferUtils = std::unordered_map<const VulkanDeviceInfo*, VulkanCommandBufferUtil>;
-
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
