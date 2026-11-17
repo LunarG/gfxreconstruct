@@ -169,6 +169,12 @@ int main(int argc, const char** argv)
             GFXRECON_WRITE_CONSOLE("File did not contain any frames");
         }
     }
+    else
+    {
+        // Initialize() has logged why the file could not be read.
+        gfxrecon::util::Log::Release();
+        exit(-1);
+    }
 
     gfxrecon::util::Log::Release();
     return 0;

@@ -53,6 +53,7 @@ ALL_TESTS = collections.OrderedDict({
     'gfxrecon_format_test': [],
     'gfxrecon_framework_test': [],
     'gfxrecon_optimize_test': [],
+    'gfxrecon_tools_test': [],
     'gfxrecon_util_test': [],
     'VkLayer_gfxreconstruct_test': [],
 })

@@ -42,6 +42,10 @@ add_subdirectory(capture)
 add_subdirectory(gfxrecon)
 add_subdirectory(convert)
 
+if (${RUN_TESTS})
+    add_subdirectory(test)
+endif()
+
 if(MSVC)
     add_subdirectory(launcher)
 endif()
