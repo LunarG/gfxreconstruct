@@ -75,6 +75,7 @@ _remove_extensions = [
     "VK_NV_cuda_kernel_launch",
     "VK_NV_cluster_acceleration_structure",
     "VK_NV_external_compute_queue",
+    "VK_NV_internal_handle",
     "VK_NV_low_latency",
     "VK_OHOS_surface",
     "VK_OHOS_external_memory",

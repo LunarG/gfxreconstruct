@@ -9643,6 +9643,18 @@ void to_json(nlohmann::ordered_json& jdata, const VkDriverId& value)
         case VK_DRIVER_ID_RESERVED_31:
             jdata = "VK_DRIVER_ID_RESERVED_31";
             break;
+        case VK_DRIVER_ID_APEX:
+            jdata = "VK_DRIVER_ID_APEX";
+            break;
+        case VK_DRIVER_ID_NIKKI:
+            jdata = "VK_DRIVER_ID_NIKKI";
+            break;
+        case VK_DRIVER_ID_MOMOTEN:
+            jdata = "VK_DRIVER_ID_MOMOTEN";
+            break;
+        case VK_DRIVER_ID_AURORA_BOREALIS:
+            jdata = "VK_DRIVER_ID_AURORA_BOREALIS";
+            break;
         default:
             jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
@@ -11619,6 +11631,21 @@ void to_json(nlohmann::ordered_json& jdata, const VkGraphicsPipelineLibraryFlagB
             break;
         case VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_OUTPUT_INTERFACE_BIT_EXT:
             jdata = "VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_OUTPUT_INTERFACE_BIT_EXT";
+            break;
+        default:
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void to_json(nlohmann::ordered_json& jdata, const VkHdrSmpteSt209450PowerPreferenceGOOGLE& value)
+{
+    switch (value) {
+        case VK_HDR_SMPTE_ST_209450_POWER_PREFERENCE_COLOR_ACCURACY_GOOGLE:
+            jdata = "VK_HDR_SMPTE_ST_209450_POWER_PREFERENCE_COLOR_ACCURACY_GOOGLE";
+            break;
+        case VK_HDR_SMPTE_ST_209450_POWER_PREFERENCE_LOW_POWER_GOOGLE:
+            jdata = "VK_HDR_SMPTE_ST_209450_POWER_PREFERENCE_LOW_POWER_GOOGLE";
             break;
         default:
             jdata = gfxrecon::decode::to_hex_fixed_width(value);
@@ -18929,6 +18956,9 @@ void to_json(nlohmann::ordered_json& jdata, const VkStructureType& value)
         case VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_2_KHR:
             jdata = "VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_2_KHR";
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_LAYOUTS_FEATURES_ARM:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_LAYOUTS_FEATURES_ARM";
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OCP_MICROSCALING_TYPES_FEATURES_EXT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OCP_MICROSCALING_TYPES_FEATURES_EXT";
             break;
@@ -18953,6 +18983,15 @@ void to_json(nlohmann::ordered_json& jdata, const VkStructureType& value)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_RESTART_INDEX_FEATURES_EXT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_RESTART_INDEX_FEATURES_EXT";
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ADDRESS_BINDING_UNRESTRICTED_FEATURES_EXT:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ADDRESS_BINDING_UNRESTRICTED_FEATURES_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_12_FEATURES_KHR:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_12_FEATURES_KHR";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_12_PROPERTIES_KHR:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_12_PROPERTIES_KHR";
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT";
             break;
@@ -18976,6 +19015,15 @@ void to_json(nlohmann::ordered_json& jdata, const VkStructureType& value)
             break;
         case VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_ALIGNMENT_ALLOCATE_INFO_VALVE:
             jdata = "VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_ALIGNMENT_ALLOCATE_INFO_VALVE";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HDR_SMPTE_ST_209450_FEATURES_GOOGLE:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HDR_SMPTE_ST_209450_FEATURES_GOOGLE";
+            break;
+        case VK_STRUCTURE_TYPE_HDR_SMPTE_ST_209450_GOOGLE:
+            jdata = "VK_STRUCTURE_TYPE_HDR_SMPTE_ST_209450_GOOGLE";
+            break;
+        case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_HDR_SMPTE_ST_209450_GOOGLE:
+            jdata = "VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_HDR_SMPTE_ST_209450_GOOGLE";
             break;
         default:
             jdata = gfxrecon::decode::to_hex_fixed_width(value);
@@ -19495,6 +19543,9 @@ void to_json(nlohmann::ordered_json& jdata, const VkVendorId& value)
             break;
         case VK_VENDOR_ID_APE:
             jdata = "VK_VENDOR_ID_APE";
+            break;
+        case VK_VENDOR_ID_APEX:
+            jdata = "VK_VENDOR_ID_APEX";
             break;
         default:
             jdata = gfxrecon::decode::to_hex_fixed_width(value);

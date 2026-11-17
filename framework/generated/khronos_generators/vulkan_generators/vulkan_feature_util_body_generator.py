@@ -109,9 +109,9 @@ class VulkanFeatureUtilBodyGenerator(VulkanBaseGenerator):
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)
 
-    def genStruct(self, typeinfo, typename, alias):
+    def genStruct(self, typeinfo, typename, alias, protect=None):
         """Method override."""
-        VulkanBaseGenerator.genStruct(self, typeinfo, typename, alias)
+        VulkanBaseGenerator.genStruct(self, typeinfo, typename, alias, protect)
 
         if alias:
             self.struct_aliases[typename] = alias
@@ -138,9 +138,9 @@ class VulkanFeatureUtilBodyGenerator(VulkanBaseGenerator):
                 for member in self.feature_struct_members[typename]:
                     self.physical_device_features.append(member.name)
 
-    def genType(self, typeinfo, typename, alias):
+    def genType(self, typeinfo, typename, alias, protect=None):
         """Method override."""
-        VulkanBaseGenerator.genType(self, typeinfo, typename, alias)
+        VulkanBaseGenerator.genType(self, typeinfo, typename, alias, protect)
         if alias:
             self.struct_aliases[typename] = alias
 

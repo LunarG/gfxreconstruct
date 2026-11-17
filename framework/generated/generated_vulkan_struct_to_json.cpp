@@ -10803,6 +10803,32 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSharedPresentSur
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMaintenance12FeaturesKHR* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceMaintenance12FeaturesKHR& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceMaintenance12FeaturesKHR& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["maintenance12"] = static_cast<bool>(decoded_value.maintenance12);
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMaintenance12PropertiesKHR* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceMaintenance12PropertiesKHR& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceMaintenance12PropertiesKHR& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["maxInputAttachmentIndex"] = decoded_value.maxInputAttachmentIndex;
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugReportCallbackCreateInfoEXT* data)
 {
     if (data && data->decoded_value)
@@ -19925,6 +19951,19 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCooperativeMatrixLayoutsFeaturesARM* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceCooperativeMatrixLayoutsFeaturesARM& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceCooperativeMatrixLayoutsFeaturesARM& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["cooperativeMatrixArmLayouts"] = static_cast<bool>(decoded_value.cooperativeMatrixArmLayouts);
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT* data)
 {
     if (data && data->decoded_value)
@@ -20035,6 +20074,19 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePr
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVertexAddressBindingUnrestrictedFeaturesEXT* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceVertexAddressBindingUnrestrictedFeaturesEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceVertexAddressBindingUnrestrictedFeaturesEXT& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["vertexAddressBindingUnrestricted"] = static_cast<bool>(decoded_value.vertexAddressBindingUnrestricted);
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceImageTilingControlFeaturesEXT* data)
 {
     if (data && data->decoded_value)
@@ -20137,6 +20189,47 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferDeviceAddr
 
         jdata["sType"] = decoded_value.sType;
         jdata["alignment"] = decoded_value.alignment;
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceHdrSmpteSt209450FeaturesGOOGLE* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceHdrSmpteSt209450FeaturesGOOGLE& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceHdrSmpteSt209450FeaturesGOOGLE& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["hdrSmpteSt209450"] = static_cast<bool>(decoded_value.hdrSmpteSt209450);
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkHdrSmpteSt209450GOOGLE* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkHdrSmpteSt209450GOOGLE& decoded_value = *data->decoded_value;
+        const Decoded_VkHdrSmpteSt209450GOOGLE& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["metadataSize"] = decoded_value.metadataSize;
+        FieldToJson(jdata["pMetadata"], meta_struct.pMetadata);
+        jdata["powerPreference"] = decoded_value.powerPreference;
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfaceCapabilitiesHdrSmpteSt209450GOOGLE* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkSurfaceCapabilitiesHdrSmpteSt209450GOOGLE& decoded_value = *data->decoded_value;
+        const Decoded_VkSurfaceCapabilitiesHdrSmpteSt209450GOOGLE& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["hdrSmpteSt209450Supported"] = static_cast<bool>(decoded_value.hdrSmpteSt209450Supported);
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -22532,6 +22625,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_HDR_SMPTE_ST_209450_GOOGLE:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkHdrSmpteSt209450GOOGLE*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_HDR_VIVID_DYNAMIC_METADATA_HUAWEI:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkHdrVividDynamicMetadataHUAWEI*>(data->GetMetaStructPointer());
@@ -23701,6 +23801,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_LAYOUTS_FEATURES_ARM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCooperativeMatrixLayoutsFeaturesARM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_MAINTENANCE_1_FEATURES_EXT:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT*>(data->GetMetaStructPointer());
@@ -24387,6 +24494,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HDR_SMPTE_ST_209450_FEATURES_GOOGLE:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceHdrSmpteSt209450FeaturesGOOGLE*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HDR_VIVID_FEATURES_HUAWEI:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceHdrVividFeaturesHUAWEI*>(data->GetMetaStructPointer());
@@ -24684,6 +24798,20 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_11_FEATURES_KHR:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMaintenance11FeaturesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_12_FEATURES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMaintenance12FeaturesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_12_PROPERTIES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMaintenance12PropertiesKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext);
                 break;
             }
@@ -26109,6 +26237,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ADDRESS_BINDING_UNRESTRICTED_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceVertexAddressBindingUnrestrictedFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceVertexAttributeDivisorFeatures*>(data->GetMetaStructPointer());
@@ -27505,6 +27640,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
             case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_FULL_SCREEN_EXCLUSIVE_EXT:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkSurfaceCapabilitiesFullScreenExclusiveEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_HDR_SMPTE_ST_209450_GOOGLE:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSurfaceCapabilitiesHdrSmpteSt209450GOOGLE*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext);
                 break;
             }
