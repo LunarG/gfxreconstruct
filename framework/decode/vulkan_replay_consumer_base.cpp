@@ -5344,13 +5344,6 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
     GFXRECON_ASSERT(allocator != nullptr);
     allocator->ClearStagingResources();
 
-    if (options_.idle_before_submit)
-    {
-        auto device_table = GetInjectedDeviceCalls(device_info->handle);
-        auto injected     = device_table.Open();
-        injected->DeviceWaitIdle(device_info->handle);
-    }
-
     VulkanSubmitJobPlan plan;
 
     if (options_.isolate_render_passes)
@@ -5620,13 +5613,6 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
     auto allocator = device_info->allocator.get();
     GFXRECON_ASSERT(allocator != nullptr);
     allocator->ClearStagingResources();
-
-    if (options_.idle_before_submit)
-    {
-        auto device_table = GetInjectedDeviceCalls(device_info->handle);
-        auto injected     = device_table.Open();
-        injected->DeviceWaitIdle(device_info->handle);
-    }
 
     VulkanSubmitJobPlan plan;
 
@@ -10163,14 +10149,6 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
 
             graphics::vulkan_struct_add_pnext(&modified_present_info, &modified_present_timings_info);
         }
-    }
-
-    if (options_.wait_before_present)
-    {
-        VkDevice device = MapHandle<VulkanDeviceInfo>(queue_info->parent_id, &CommonObjectInfoTable::GetVkDeviceInfo);
-        auto     device_table = GetInjectedDeviceCalls(device);
-        auto     injected     = device_table.Open();
-        injected->DeviceWaitIdle(device);
     }
 
     if ((options_.swapchain_option != util::SwapchainOption::kOffscreen) && (modified_present_info.swapchainCount > 0))
