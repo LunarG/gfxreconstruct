@@ -805,13 +805,14 @@ Optional arguments:
                                         capture directly on the swapchain setup for replay.
                             offscreen   Disable creating swapchains, surfaces
                                         and windows. To see rendering, add the --screenshots option.
-  --present-mode <mode> Set swapchain's VkPresentModeKHR.
-                        Available modes are:
-                            capture: Present mode used at capture time.
-                            immediate: VK_PRESENT_MODE_IMMEDIATE_KHR
-                            mailbox: VK_PRESENT_MODE_MAILBOX_KHR
-                            fifo: VK_PRESENT_MODE_FIFO_KHR
-                            fifo_relaxed: VK_PRESENT_MODE_FIFO_RELAXED_KHR
+  --present-mode <mode> Set the VkPresentModeKHR of the swapchain. VK_PRESENT_MODE_FIFO_KHR is
+                        used if the selected present mode is not available on the replay
+                        device. Available present modes:
+                            capture       The present mode used at capture time. (default)
+                            immediate     VK_PRESENT_MODE_IMMEDIATE_KHR
+                            mailbox       VK_PRESENT_MODE_MAILBOX_KHR
+                            fifo          VK_PRESENT_MODE_FIFO_KHR
+                            fifo_relaxed  VK_PRESENT_MODE_FIFO_RELAXED_KHR
   --present-override <debug-name>
                         Additionally present an image identified by a substring
                         match against its VK_EXT_debug_utils object name
