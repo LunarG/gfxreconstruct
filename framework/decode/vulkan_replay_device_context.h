@@ -28,6 +28,7 @@
 #include "decode/vulkan_device_address_tracker.h"
 #include "decode/vulkan_frame_warm_up.h"
 #include "decode/vulkan_object_info.h"
+#include "decode/vulkan_resource_initializer.h"
 #include "decode/vulkan_submit_job.h"
 #include "util/defines.h"
 
@@ -41,6 +42,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 //! Members are destroyed in reverse order, so the address replacer goes first.
 struct VulkanReplayDeviceContext
 {
+    std::optional<VulkanResourceInitializer>  resource_initializer;
     std::optional<VulkanDeviceAddressTracker> address_tracker;
     std::optional<VulkanSubmitJobExecutor>    submit_job_executor;
     std::optional<VulkanFrameWarmUp>          frame_warm_up;

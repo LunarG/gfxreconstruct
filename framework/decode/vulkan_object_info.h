@@ -25,7 +25,6 @@
 #define GFXRECON_DECODE_VULKAN_OBJECT_INFO_H
 
 #include "decode/vulkan_resource_allocator.h"
-#include "decode/vulkan_resource_initializer.h"
 #include "decode/window.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_dispatch_table.h"
@@ -388,9 +387,8 @@ struct VulkanDeviceInfo : public VulkanObjectInfo<VkDevice>
     // Map pipeline ID to ray tracing shader group handle capture replay data.
     std::unordered_map<format::HandleId, std::vector<uint8_t>> shader_group_handles;
 
-    // The following values are only used when loading the initial state for trimmed files.
-    std::vector<std::string>                   extensions;
-    std::shared_ptr<VulkanResourceInitializer> resource_initializer;
+    // Only used when loading the initial state for trimmed files.
+    std::vector<std::string> extensions;
 
     // Physical device property & feature state at device creation
     graphics::VulkanDevicePropertyFeatureInfo property_feature_info;
@@ -413,7 +411,6 @@ struct VulkanDeviceInfo : public VulkanObjectInfo<VkDevice>
         opaque_addresses           = source_info->opaque_addresses;
         shader_group_handles       = source_info->shader_group_handles;
         extensions                 = source_info->extensions;
-        resource_initializer       = source_info->resource_initializer;
         property_feature_info      = source_info->property_feature_info;
         version_extension_info     = source_info->version_extension_info;
         enabled_queue_family_flags = source_info->enabled_queue_family_flags;

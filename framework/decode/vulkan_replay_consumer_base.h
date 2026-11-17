@@ -2184,6 +2184,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     VulkanCommandBufferUtil&            GetDeviceCommandBufferUtil(const VulkanDeviceInfo* device_info);
     VulkanSubmitJobExecutor&            GetDeviceSubmitJobExecutor(const VulkanDeviceInfo* device_info);
 
+    //! Returns the device's resource initializer while one is active, otherwise nullptr.
+    VulkanResourceInitializer* GetDeviceResourceInitializer(const VulkanDeviceInfo* device_info);
+
     /**
      * @brief   UseExtraDescriptorInfo returns true if additional information about layouts/descriptors/bindings etc.
      *          should be collected and can be used during replay.

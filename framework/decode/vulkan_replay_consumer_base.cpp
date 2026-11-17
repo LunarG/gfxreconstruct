@@ -632,7 +632,7 @@ void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id
 
                 ProcessBeginResourceInitCommand(buffer_info.device_id, size, size);
 
-                VulkanResourceInitializer* initializer = device_info->resource_initializer.get();
+                VulkanResourceInitializer* initializer = GetDeviceResourceInitializer(device_info);
 
                 std::vector<VkImageAspectFlagBits> aspects;
                 graphics::GetFormatAspects(image_info.format, &aspects);
@@ -1108,14 +1108,14 @@ void VulkanReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId 
             have_shader_stencil_write = true;
         }
 
-        device_info->resource_initializer = std::make_shared<VulkanResourceInitializer>(device_info,
-                                                                                        total_copy_size,
-                                                                                        max_copy_size,
-                                                                                        properties,
-                                                                                        memory_properties,
-                                                                                        have_shader_stencil_write,
-                                                                                        allocator,
-                                                                                        GetInjectedDeviceCalls(device));
+        device_contexts_[device_info].resource_initializer.emplace(device_info,
+                                                                   total_copy_size,
+                                                                   max_copy_size,
+                                                                   properties,
+                                                                   memory_properties,
+                                                                   have_shader_stencil_write,
+                                                                   allocator,
+                                                                   GetInjectedDeviceCalls(device));
     }
 }
 
@@ -1123,9 +1123,9 @@ void VulkanReplayConsumerBase::ProcessEndResourceInitCommand(format::HandleId de
 {
     VulkanDeviceInfo* device_info = object_info_table_->GetVkDeviceInfo(device_id);
 
-    if ((device_info != nullptr) && (device_info->resource_initializer != nullptr))
+    if (auto it = device_contexts_.find(device_info); it != device_contexts_.end())
     {
-        device_info->resource_initializer.reset();
+        it->second.resource_initializer.reset();
     }
 }
 
@@ -1142,7 +1142,7 @@ void VulkanReplayConsumerBase::ProcessInitBufferCommand(format::HandleId device_
         VkResult                   result      = VK_SUCCESS;
         VkDevice                   device      = device_info->handle;
         VkBuffer                   buffer      = buffer_info->handle;
-        VulkanResourceInitializer* initializer = device_info->resource_initializer.get();
+        VulkanResourceInitializer* initializer = GetDeviceResourceInitializer(device_info);
 
         assert((device != VK_NULL_HANDLE) && (buffer != VK_NULL_HANDLE));
 
@@ -1220,7 +1220,7 @@ void VulkanReplayConsumerBase::ProcessInitTensorCommand(format::HandleId device_
     {
         GFXRECON_ASSERT((device_info->handle != VK_NULL_HANDLE) && (tensor_info->handle != VK_NULL_HANDLE));
 
-        VulkanResourceInitializer* initializer = device_info->resource_initializer.get();
+        VulkanResourceInitializer* initializer = GetDeviceResourceInitializer(device_info);
         if (initializer != nullptr)
         {
             VkResult result = initializer->LoadData(data_size, data, tensor_info->allocator_data);
@@ -1269,7 +1269,7 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
         VkResult                   result      = VK_SUCCESS;
         VkDevice                   device      = device_info->handle;
         VkImage                    image       = image_info->handle;
-        VulkanResourceInitializer* initializer = device_info->resource_initializer.get();
+        VulkanResourceInitializer* initializer = GetDeviceResourceInitializer(device_info);
 
         assert((device != VK_NULL_HANDLE) && (image != VK_NULL_HANDLE));
 
@@ -13324,6 +13324,15 @@ VulkanSubmitJobExecutor& VulkanReplayConsumerBase::GetDeviceSubmitJobExecutor(co
         submit_job_executor.emplace(device_info, GetInjectedDeviceCalls(device_info->handle));
     }
     return *submit_job_executor;
+}
+
+VulkanResourceInitializer* VulkanReplayConsumerBase::GetDeviceResourceInitializer(const VulkanDeviceInfo* device_info)
+{
+    if (auto it = device_contexts_.find(device_info); it != device_contexts_.end() && it->second.resource_initializer)
+    {
+        return &*it->second.resource_initializer;
+    }
+    return nullptr;
 }
 
 bool VulkanReplayConsumerBase::UseExtraDescriptorInfo(const VulkanDeviceInfo* device_info) const
