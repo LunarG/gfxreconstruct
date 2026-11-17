@@ -190,9 +190,6 @@ class VulkanStageIsolateRenderPass : public VulkanStageCommandBuffer
     // command buffer.
     void Split(Recording& recording, const ApiCallInfo& call_info);
 
-    // Emit decodes the bytes of a call that the stage invents, and sends the call to the next consumers.
-    void Emit(format::ApiCallId call_id, const ApiCallInfo& call_info, std::span<const uint8_t> bytes);
-
     /// Called after a split once recording has a new command buffer, to reissue all previously recorded state commands.
     void ReissueStateCommands(const Recording& recording);
 

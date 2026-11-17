@@ -35,34 +35,6 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 namespace
 {
 
-// ByteWriter appends values to a byte vector. Each Put returns the writer, so the calls chain.
-class ByteWriter
-{
-  public:
-    template <typename T>
-    ByteWriter& Put(T value)
-    {
-        const auto* first = reinterpret_cast<const uint8_t*>(&value);
-        bytes_.insert(bytes_.end(), first, first + sizeof(T));
-        return *this;
-    }
-
-    const std::vector<uint8_t>& Bytes() const { return bytes_; }
-
-  private:
-    std::vector<uint8_t> bytes_;
-};
-
-// A pointer starts with an attribute word. An address follows when kHasAddress is set, and the data
-// follows when kHasData is set. Array data starts with its length.
-constexpr uint32_t kStructPointer      = format::kIsStruct | format::kIsSingle | format::kHasAddress | format::kHasData;
-constexpr uint32_t kNullStructPointer  = format::kIsStruct | format::kIsSingle | format::kIsNull;
-constexpr uint32_t kArrayPointer       = format::kIsArray | format::kHasAddress | format::kHasData;
-constexpr uint32_t kStructArrayPointer = format::kIsStruct | kArrayPointer;
-
-// The decoder reads the address of a pointer, but these calls never use it, so any non-zero value works.
-constexpr uint64_t kUnusedAddress = 1;
-
 // Each function below writes the parameters of one call in the order that its Decode_vk* function
 // reads them. The result always comes last.
 
@@ -500,26 +472,6 @@ void VulkanStageIsolateRenderPass::ReissueStateCommands(const Recording& recordi
 
         Emit(call_id, call_info, modified_buffer);
     });
-}
-
-void VulkanStageIsolateRenderPass::Emit(format::ApiCallId        call_id,
-                                        const ApiCallInfo&       call_info,
-                                        std::span<const uint8_t> bytes)
-{
-    // The local decoder hands the call to the next consumers only, so the call never comes back into this stage.
-    VulkanDecoder decoder;
-    for (auto* consumer : GetNextConsumers())
-    {
-        decoder.AddConsumer(consumer);
-    }
-
-    // Emit opens no DecoderAllocGuard, because the app call's allocator scope is still open
-    // and a nested Begin asserts.
-    decoder.DecodeFunctionCall(call_id, call_info, bytes.data(), bytes.size());
-
-    // The local decoder gave the next consumers the bytes of the invented call. Give them back the bytes
-    // of the app call, because the stage forwards that call next.
-    Broadcast(&VulkanConsumer::SetCurrentCallBytes, GetCurrentCallBytes());
 }
 
 bool VulkanStageIsolateRenderPass::AppendCommandBufferIdsToSubmit(format::HandleId               app_command_buffer_id,
