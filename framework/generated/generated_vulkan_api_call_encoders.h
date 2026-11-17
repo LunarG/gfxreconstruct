@@ -3903,22 +3903,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCooperativeMatrixProperties2EX
     uint32_t*                                   pPropertyCount,
     VkCooperativeMatrixProperties2EXT*          pProperties);
 
-VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceInternalHandleNV(
-    VkPhysicalDevice                            physicalDevice,
-    VkInternalHandleNV*                         pHandle);
-
-VKAPI_ATTR void VKAPI_CALL vkGetDeviceInternalHandleNV(
-    VkDevice                                    device,
-    VkInternalHandleNV*                         pHandle);
-
-VKAPI_ATTR void VKAPI_CALL vkGetQueueInternalHandleNV(
-    VkQueue                                     queue,
-    VkInternalHandleNV*                         pHandle);
-
-VKAPI_ATTR void VKAPI_CALL vkGetCommandBufferInternalHandleNV(
-    VkCommandBuffer                             commandBuffer,
-    VkInternalHandleNV*                         pHandle);
-
 VKAPI_ATTR void VKAPI_CALL vkCmdSetPrimitiveRestartIndexEXT(
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    primitiveRestartIndex);
