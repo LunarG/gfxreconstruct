@@ -1657,6 +1657,12 @@ void VulkanReplayConsumerBase::CheckResult(const char*                func_name,
                                            VkResult                   replay,
                                            const decode::ApiCallInfo& call_info)
 {
+    // A call that a stage injects has no result in the capture file to compare with.
+    if (util::InjectedCommandsActive())
+    {
+        return;
+    }
+
     if (original != replay)
     {
         // a poll or wait landing on the other side is caused by replay-timing alone, nothing to report
