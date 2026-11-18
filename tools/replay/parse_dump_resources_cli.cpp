@@ -28,6 +28,7 @@
 #include "decode/vulkan_replay_dump_resources_request.h"
 #include "decode/vulkan_replay_options.h"
 #include "decode/vulkan_pre_process_consumer.h"
+#include "util/file_path.h"
 #include "util/json_util.h"
 #include "util/logging.h"
 #include "util/options.h"
@@ -1989,7 +1990,9 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
     // Vulkan dump resources expects only a json file
     if (ends_with(to_lower(vulkan_replay_options.dump_resources_block_indices), ".json"))
     {
-        std::ifstream dr_json_file(vulkan_replay_options.dump_resources_block_indices, std::ifstream::binary);
+        // From a std::string, ifstream would read the UTF-8 path as the ANSI code page on Windows.
+        std::ifstream dr_json_file(util::filepath::PathFromUtf8(vulkan_replay_options.dump_resources_block_indices),
+                                   std::ifstream::binary);
         if (!dr_json_file.is_open())
         {
             GFXRECON_LOG_ERROR("Could not open \"%s\" for input",

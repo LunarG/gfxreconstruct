@@ -665,6 +665,11 @@ def run_replay(options,
 
 
 def main():
+    # Replay's relayed log text can hold characters a redirected stdout cannot encode (cp1252 on Windows); escape
+    # them rather than let print() end the session.
+    sys.stdout.reconfigure(errors='backslashreplace')
+    sys.stderr.reconfigure(errors='backslashreplace')
+
     parser = argparse.ArgumentParser(
         description='Control gfxrecon-replay over its remote socket.',
         formatter_class=argparse.RawDescriptionHelpFormatter,

@@ -266,6 +266,17 @@ bool MakeDirectory(const std::string& path)
     return false;
 }
 
+std::filesystem::path PathFromUtf8(const std::string& utf8_path)
+{
+    return std::filesystem::path(std::u8string(utf8_path.begin(), utf8_path.end()));
+}
+
+std::string Utf8FromPath(const std::filesystem::path& path)
+{
+    const std::u8string utf8_path = path.u8string();
+    return std::string(utf8_path.begin(), utf8_path.end());
+}
+
 std::string GenerateTimestampedFilename(const std::string& filename, bool use_gmt)
 {
     std::string timestamp = "_";

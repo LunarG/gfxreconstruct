@@ -27,6 +27,7 @@
 
 #include "util/remote_channel.h"
 
+#include "util/file_path.h"
 #include "util/input_file_store.h"
 #include "util/logging.h"
 #include "util/output_file.h"
@@ -363,6 +364,30 @@ TEST_CASE("RemoteChannel handshake accepts input files pushed before settings", 
     runner.InputFiles().Cleanup();
     CHECK_FALSE(runner.InputFiles().Resolve("dr.json").has_value());
     CHECK_FALSE(std::filesystem::exists(*path));
+}
+
+TEST_CASE("InputFileStore stores files under a non-ASCII root", "[remote_channel]")
+{
+    // Escapes keep the name independent of the source file's encoding.
+    const std::filesystem::path root = std::filesystem::temp_directory_path() / u8"gfxrecon_test_é_Ж";
+    std::filesystem::remove_all(root);
+
+    util::InputFileStore input_files(util::filepath::Utf8FromPath(root));
+
+    const std::string contents = "{\"draw\": 1}";
+    REQUIRE(input_files.Add("dr.json", std::vector<uint8_t>(contents.begin(), contents.end())));
+
+    const std::optional<std::string> path = input_files.Resolve("dr.json");
+    REQUIRE(path.has_value());
+    const std::filesystem::path stored_path = util::filepath::PathFromUtf8(*path);
+    {
+        std::ifstream stored(stored_path, std::ios::binary);
+        CHECK(std::string(std::istreambuf_iterator<char>(stored), {}) == contents);
+    }
+
+    input_files.Cleanup();
+    CHECK_FALSE(std::filesystem::exists(stored_path));
+    std::filesystem::remove_all(root);
 }
 
 TEST_CASE("RemoteChannel handshake rejects a malformed opening turn", "[remote_channel]")

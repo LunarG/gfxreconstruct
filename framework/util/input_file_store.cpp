@@ -98,7 +98,7 @@ bool InputFileStore::EnsureScratchDir()
     }
 
     std::error_code       error;
-    std::filesystem::path root = scratch_root_;
+    std::filesystem::path root = filepath::PathFromUtf8(scratch_root_);
     if (root.empty())
     {
         root = std::filesystem::temp_directory_path(error);
@@ -114,10 +114,10 @@ bool InputFileStore::EnsureScratchDir()
 
     // The pid keeps concurrent replays from colliding and makes an abandoned directory attributable.
     const std::string candidate =
-        filepath::Join(root.string(), kScratchPrefix + std::to_string(platform::GetCurrentProcessId()));
+        filepath::Join(filepath::Utf8FromPath(root), kScratchPrefix + std::to_string(platform::GetCurrentProcessId()));
 
     // Not filepath::MakeDirectory: it fails when the directory exists, as it does when a pid is recycled.
-    std::filesystem::create_directories(candidate, error);
+    std::filesystem::create_directories(filepath::PathFromUtf8(candidate), error);
     if (error)
     {
         GFXRECON_LOG_ERROR(
@@ -190,7 +190,7 @@ void InputFileStore::Cleanup()
     if (!scratch_dir_.empty())
     {
         std::error_code error;
-        std::filesystem::remove_all(scratch_dir_, error);
+        std::filesystem::remove_all(filepath::PathFromUtf8(scratch_dir_), error);
         if (error)
         {
             GFXRECON_LOG_WARNING("Input file store: could not remove directory \"%s\" (%s)",
