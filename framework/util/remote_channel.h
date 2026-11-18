@@ -24,6 +24,7 @@
 #define GFXRECON_UTIL_REMOTE_CHANNEL_H
 
 #include "util/defines.h"
+#include "util/input_file_store.h"
 #include "util/logging_common.h"
 
 #include "nlohmann/json.hpp"
@@ -58,6 +59,10 @@ constexpr SocketHandle kInvalidSocket = static_cast<SocketHandle>(-1); // Also W
 // whichever thread is inside a log call. A payload larger than the whole limit is still sent, once the channel goes
 // idle, so this bounds memory without ever refusing data.
 constexpr size_t kSendQueueLimit = 64 * 1024 * 1024;
+
+// Control messages from the controller are small JSON; a larger length prefix is a protocol error, not an allocation
+// request. Handshake input files are exempt.
+constexpr uint32_t kMaxRecvFrameSize = 1024 * 1024;
 
 // RemoteChannel links gfxrecon-replay to a controller process over a socket for bidirectional I/O. The controller
 // sends replay settings; replay sends back log messages, progress, screenshots, and dump-resources files. Replay can
@@ -96,8 +101,9 @@ class RemoteChannel
 
     // Perform the startup handshake. Sends "hello", waits for a "settings" message, then sends "ready". On success
     // fills settings with the controller-supplied option name/value pairs (keys as described by ArgumentParser's
-    // settings-map constructor, values always strings) and starts the receiver thread for control messages.
-    bool Handshake(std::map<std::string, std::string>& settings);
+    // settings-map constructor, values always strings) and starts the receiver thread for control messages. Files the
+    // controller pushes ahead of "settings" are added to input_files.
+    bool Handshake(std::map<std::string, std::string>& settings, InputFileStore& input_files);
 
     // Pop the next control action, if any. Thread-safe. WaitPopControl also returns early if the controller closes.
     bool TryPopControl(std::string* action);
@@ -153,8 +159,11 @@ class RemoteChannel
     // Receiver thread entry point: queues incoming control actions until the controller disconnects.
     void ReceiverThread(SocketHandle fd);
 
+    // Stores the binary frame that follows a handshake "file" header. Returns false on a malformed transfer.
+    bool ReceiveInputFile(const nlohmann::json& header, InputFileStore& input_files);
+
     // Take the socket as a parameter so the receiver thread never reads fd_ while Disconnect() changes it.
-    static bool RecvFrame(SocketHandle fd, std::vector<uint8_t>& out);
+    static bool RecvFrame(SocketHandle fd, std::vector<uint8_t>& out, uint32_t max_size = kMaxRecvFrameSize);
     static bool RecvExact(SocketHandle fd, void* buf, size_t size);
     bool        SendAll(const void* buf, size_t size);
 

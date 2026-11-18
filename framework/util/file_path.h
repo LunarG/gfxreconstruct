@@ -26,6 +26,7 @@
 
 #include "util/defines.h"
 
+#include <filesystem>
 #include <string>
 
 #ifdef __ANDROID__
@@ -99,6 +100,10 @@ std::string GetFilenameStem(const std::string& path);
 std::string GetFilenameExtension(const std::string& path);
 
 bool MakeDirectory(const std::string& path);
+
+std::filesystem::path PathFromUtf8(const std::string& utf8_path);
+
+std::string Utf8FromPath(const std::filesystem::path& path);
 
 std::string GenerateTimestampedFilename(const std::string& filename, bool use_gmt = false);
 
