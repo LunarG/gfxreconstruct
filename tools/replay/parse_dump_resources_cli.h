@@ -24,8 +24,6 @@
 #ifndef GFXRECON_PARSE_DUMP_RESOURCES_CLI_H
 #define GFXRECON_PARSE_DUMP_RESOURCES_CLI_H
 
-#include "replay_settings.h"
-
 #include "decode/vulkan_replay_options.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)

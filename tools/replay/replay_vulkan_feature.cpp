@@ -27,6 +27,7 @@
 
 #include "decode/vulkan_replay_frame_loop_consumer.h"
 #include "parse_dump_resources_cli.h"
+#include "replay_settings.h"
 #if defined(GFXRECON_ENABLE_VULKAN)
 #include "encode/vulkan_capture_manager.h"
 #include "recapture_vulkan_entry.h"
