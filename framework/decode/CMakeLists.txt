@@ -291,6 +291,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_stage_isolate_render_pass.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_stage_queue_wait.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_stage_queue_wait.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_stage_image_layout.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_stage_image_layout.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_submit_info_helper.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_submit_info_helper.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_submit_job.h

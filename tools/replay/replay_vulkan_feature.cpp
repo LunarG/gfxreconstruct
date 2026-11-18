@@ -45,6 +45,7 @@
 #include "decode/vulkan_rebind_allocator.h"
 #include "decode/vulkan_remap_allocator.h"
 #include "decode/vulkan_resource_tracking_consumer.h"
+#include "decode/vulkan_stage_image_layout.h"
 #include "decode/vulkan_stage_queue_wait.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "util/platform.h"
@@ -778,6 +779,7 @@ void ReplayVulkanFeature::CreateConsumer(decode::FileProcessor*                 
         {
             replay_consumer_ = std::make_unique<gfxrecon::decode::VulkanReplayFrameLoopConsumer>(
                 application_, replay_options_, *frame_loop_info);
+            frame_looping_ = true;
         }
         else
         {
@@ -786,6 +788,19 @@ void ReplayVulkanFeature::CreateConsumer(decode::FileProcessor*                 
 
         FinalizeConsumer();
     }
+}
+
+bool ReplayVulkanFeature::NeedsImageLayoutTracking() const
+{
+    // The readers of the tracked layouts:
+    // - screenshots read images back from the layouts they are in,
+    // - dump resources moves and copies images from the layouts that their command buffers recorded,
+    // - frame looping moves images back to the layouts they were in when the loop started,
+    // - a swapchain override image is presented from the layout it is in,
+    // - the virtual swapchain presents the image of a vkFrameBoundaryANDROID from the layout it is in.
+    return !replay_options_.screenshot_ranges.empty() || replay_options_.enable_dump_resources || frame_looping_ ||
+           !replay_options_.present_override_image_name.empty() ||
+           (replay_options_.swapchain_option == util::SwapchainOption::kVirtual);
 }
 
 std::unique_ptr<gfxrecon::plugin::ReplayEventSink> ReplayVulkanFeature::CreateReplayEventSink()
@@ -814,23 +829,33 @@ void ReplayVulkanFeature::RegisterDecodeComponents(graphics::FpsInfo* fps_info)
         // InitConsumer() must run first. A feature that does not call it has no decoder.
         GFXRECON_ASSERT(decoder_ != nullptr);
 
-        // When an option needs the stage, the decoder talks to the stage, and the stage talks to the replay consumer.
-        // Otherwise the decoder talks to the replay consumer directly. Either way the feature keeps replay_consumer_
-        // for the calls that only a replay consumer accepts, such as SetFpsInfo() and SetupForRecapture().
+        // Each option that needs a stage adds it to stages_. The decoder talks to the first stage, each stage talks to
+        // the next, and the last stage talks to the replay consumer. Without stages the decoder talks to the replay
+        // consumer directly. Either way the feature keeps replay_consumer_ for the calls that only a replay consumer
+        // accepts, such as SetFpsInfo() and SetupForRecapture().
         if (replay_options_.idle_before_submit || replay_options_.wait_before_present)
         {
             decode::QueueWaitStageOptions queue_wait_options;
             queue_wait_options.idle_before_submit  = replay_options_.idle_before_submit;
             queue_wait_options.idle_before_present = replay_options_.wait_before_present;
 
-            stage_ = std::make_unique<decode::VulkanStageQueueWait>(queue_wait_options);
-            stage_->AddNext(replay_consumer_.get());
-            decoder_->AddConsumer(stage_.get());
+            stages_.push_back(std::make_unique<decode::VulkanStageQueueWait>(queue_wait_options));
         }
-        else
+
+        // The image layout stage goes last, so it sees the same calls as the replay consumer, which reads the layouts.
+        if (NeedsImageLayoutTracking())
         {
-            decoder_->AddConsumer(replay_consumer_.get());
+            object_info_table_ = decode::CommonObjectInfoTable::GetSingleton();
+            stages_.push_back(std::make_unique<decode::VulkanStageImageLayout>(*object_info_table_));
         }
+
+        decode::VulkanConsumer* next = replay_consumer_.get();
+        for (auto stage = stages_.rbegin(); stage != stages_.rend(); ++stage)
+        {
+            (*stage)->AddNext(next);
+            next = stage->get();
+        }
+        decoder_->AddConsumer(next);
 
         replay_consumer_->SetFpsInfo(fps_info);
         file_processor_->AddDecoder(decoder_.get());
@@ -887,7 +912,14 @@ void ReplayVulkanFeature::CompletePreProcessingPass()
 
 void ReplayVulkanFeature::Destroy()
 {
-    stage_.reset();
+    // The stages forward to the replay consumer, and the image layout stage writes to its object info table, so they
+    // go first.
+    stages_.clear();
+    if (object_info_table_ != nullptr)
+    {
+        decode::CommonObjectInfoTable::ReleaseSingleton();
+        object_info_table_ = nullptr;
+    }
     replay_consumer_.reset();
 
 #if defined(GFXRECON_ENABLE_VULKAN)

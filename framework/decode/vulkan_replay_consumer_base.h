@@ -1543,29 +1543,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         const VulkanRenderPassInfo*                          render_pass_info,
         StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* render_pass_begin_info_decoder);
 
-    void UpdateTrackedRenderPassFinalLayouts(VulkanCommandBufferInfo* command_buffer_info);
-
-    void UpdateTrackedImageViewLayout(VulkanCommandBufferInfo* command_buffer_info,
-                                      format::HandleId         image_view_id,
-                                      VkImageLayout            layout);
-
-    void UpdateTrackedImageLayoutBarriers(VulkanCommandBufferInfo*            command_buffer_info,
-                                          uint32_t                            imageMemoryBarrierCount,
-                                          const Decoded_VkImageMemoryBarrier* image_memory_barriers_meta,
-                                          const VkImageMemoryBarrier*         image_memory_barriers);
-
-    void UpdateTrackedImageLayoutBarriers(VulkanCommandBufferInfo*             command_buffer_info,
-                                          uint32_t                             imageMemoryBarrierCount,
-                                          const Decoded_VkImageMemoryBarrier2* image_memory_barriers_meta,
-                                          const VkImageMemoryBarrier2*         image_memory_barriers);
-
-    void UpdateTrackedAttachmentLayout(VulkanCommandBufferInfo*                 command_buffer_info,
-                                       const VkRenderingAttachmentInfo*         attachment,
-                                       const Decoded_VkRenderingAttachmentInfo* attachment_meta);
-
-    void UpdateTrackedRenderingLayouts(VulkanCommandBufferInfo*                       command_buffer_info,
-                                       StructPointerDecoder<Decoded_VkRenderingInfo>* rendering_info_decoder);
-
     void OverrideCmdEndRenderPass(PFN_vkCmdEndRenderPass func, VulkanCommandBufferInfo* command_buffer_info);
 
     void OverrideCmdEndRenderPass2(PFN_vkCmdEndRenderPass2                         func,
@@ -2134,16 +2111,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
      * @param replay_result  What the call that ended the frame returned in replay, when it returns a result.
      */
     void EndScreenshotFrame(std::optional<VkResult> replay_result);
-
-    /**
-     * @brief   Applies the layouts tracked while recording a command buffer to the images they refer to.
-     *
-     * Layout tracking is recorded per command buffer at record time. This makes the tracked layouts visible on the
-     * image infos once the command buffer has actually been submitted.
-     *
-     * @param   command_buffer_info The submitted command buffer to propagate layouts from.
-     */
-    void PropagateImageLayouts(const VulkanCommandBufferInfo* command_buffer_info);
 
     bool CheckCommandBufferInfoForFrameBoundary(const VulkanCommandBufferInfo* command_buffer_info,
                                                 const char*                    call_name,

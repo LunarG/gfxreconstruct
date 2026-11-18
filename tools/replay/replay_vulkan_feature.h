@@ -71,11 +71,17 @@ class ReplayVulkanFeature : public ReplayPreProcessFeature<decode::VulkanReplayC
     void Destroy() final;
 
   private:
+    bool NeedsImageLayoutTracking() const;
+
     decode::VulkanTrackedObjectInfoTable tracked_object_info_table_;
 
-    // The stage sits between the decoder and replay_consumer_ when an option needs it. The decoder sends every call
-    // to the stage, and the stage forwards it to the replay consumer.
-    std::unique_ptr<decode::VulkanConsumerStage> stage_;
+    // The stages between the decoder and replay_consumer_, in the order that a call goes through them.
+    std::vector<std::unique_ptr<decode::VulkanConsumerStage>> stages_;
+
+    // The feature's reference to the object info table singleton, held while the image layout stage writes to it.
+    decode::CommonObjectInfoTable* object_info_table_{ nullptr };
+
+    bool frame_looping_{ false };
 };
 
 GFXRECON_END_NAMESPACE(replay)
