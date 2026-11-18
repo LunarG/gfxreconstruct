@@ -38,6 +38,7 @@
 #include <triangle_extra_device_app.h>
 #include <deep_pnext_chain_app.h>
 #include <screenshot_frame_boundaries_app.h>
+#include <dispatch_big_buffers_app.h>
 #ifdef VK_USE_PLATFORM_ANDROID_KHR
 #include <ahb_app.h>
 #endif
@@ -86,6 +87,7 @@ static const char* kAppNames[] = {
     "screenshot-frame-boundary-command-buffer",
     "screenshot-frame-boundary-ext",
     "screenshot-frame-boundary-android",
+    "dispatch-big-buffers",
 #ifdef __linux__
     "external-memory-fd-export",
     "external-memory-fd-import",
@@ -220,6 +222,10 @@ CreateTestApp(std::unique_ptr<gfxrecon::application::Application> application,
     {
         using App = gfxrecon::test_app::screenshot_frame_boundaries::App;
         app       = std::make_unique<App>(App::Boundary::kFrameBoundaryANDROID);
+    }
+    else if (app_name == "dispatch-big-buffers")
+    {
+        app = std::make_unique<gfxrecon::test_app::dispatch_big_buffers::App>();
     }
 #ifdef __linux__
     else if (app_name == "external-memory-fd-export")
