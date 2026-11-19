@@ -952,6 +952,7 @@ struct DumpedResourcesInfo
     uint64_t bcb_index{ 0 };
     uint64_t cmd_index{ 0 };
     uint64_t qs_index{ 0 };
+    uint64_t execute_cmds_index{ UNDEFINED_INDEX };
 
     std::vector<DumpedVertexIndexBuffer>   dumped_vertex_index_buffers;
     std::vector<DumpedRenderTarget>        dumped_render_targets;
