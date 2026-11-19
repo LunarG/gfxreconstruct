@@ -7414,6 +7414,275 @@ struct Decoded_VkGpaSessionCreateInfoAMD
     format::HandleId secondaryCopySource{ format::kNullHandleId };
 };
 
+struct Decoded_VkHostAddressRangeEXT
+{
+    using struct_type = VkHostAddressRangeEXT;
+
+    VkHostAddressRangeEXT* decoded_value{ nullptr };
+
+    PointerDecoder<uint8_t> address;
+};
+
+struct Decoded_VkHostAddressRangeConstEXT
+{
+    using struct_type = VkHostAddressRangeConstEXT;
+
+    VkHostAddressRangeConstEXT* decoded_value{ nullptr };
+
+    PointerDecoder<uint8_t> address;
+};
+
+struct Decoded_VkTexelBufferDescriptorInfoEXT
+{
+    using struct_type = VkTexelBufferDescriptorInfoEXT;
+
+    VkTexelBufferDescriptorInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkDeviceAddressRangeKHR* addressRange{ nullptr };
+};
+
+struct Decoded_VkImageDescriptorInfoEXT
+{
+    using struct_type = VkImageDescriptorInfoEXT;
+
+    VkImageDescriptorInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkImageViewCreateInfo>* pView{ nullptr };
+};
+
+struct Decoded_VkTensorViewCreateInfoARM
+{
+    using struct_type = VkTensorViewCreateInfoARM;
+
+    VkTensorViewCreateInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId tensor{ format::kNullHandleId };
+};
+
+struct Decoded_VkResourceDescriptorDataEXT
+{
+    using struct_type = VkResourceDescriptorDataEXT;
+
+    VkResourceDescriptorDataEXT* decoded_value{ nullptr };
+
+    StructPointerDecoder<Decoded_VkImageDescriptorInfoEXT>* pImage{ nullptr };
+    StructPointerDecoder<Decoded_VkTexelBufferDescriptorInfoEXT>* pTexelBuffer{ nullptr };
+    StructPointerDecoder<Decoded_VkDeviceAddressRangeKHR>* pAddressRange{ nullptr };
+    StructPointerDecoder<Decoded_VkTensorViewCreateInfoARM>* pTensorARM{ nullptr };
+};
+
+struct Decoded_VkResourceDescriptorInfoEXT
+{
+    using struct_type = VkResourceDescriptorInfoEXT;
+
+    VkResourceDescriptorInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkResourceDescriptorDataEXT* data{ nullptr };
+};
+
+struct Decoded_VkBindHeapInfoEXT
+{
+    using struct_type = VkBindHeapInfoEXT;
+
+    VkBindHeapInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkDeviceAddressRangeKHR* heapRange{ nullptr };
+};
+
+struct Decoded_VkPushDataInfoEXT
+{
+    using struct_type = VkPushDataInfoEXT;
+
+    VkPushDataInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkHostAddressRangeConstEXT* data{ nullptr };
+};
+
+struct Decoded_VkDescriptorMappingSourceConstantOffsetEXT
+{
+    using struct_type = VkDescriptorMappingSourceConstantOffsetEXT;
+
+    VkDescriptorMappingSourceConstantOffsetEXT* decoded_value{ nullptr };
+
+    StructPointerDecoder<Decoded_VkSamplerCreateInfo>* pEmbeddedSampler{ nullptr };
+};
+
+struct Decoded_VkDescriptorMappingSourcePushIndexEXT
+{
+    using struct_type = VkDescriptorMappingSourcePushIndexEXT;
+
+    VkDescriptorMappingSourcePushIndexEXT* decoded_value{ nullptr };
+
+    StructPointerDecoder<Decoded_VkSamplerCreateInfo>* pEmbeddedSampler{ nullptr };
+};
+
+struct Decoded_VkDescriptorMappingSourceIndirectIndexEXT
+{
+    using struct_type = VkDescriptorMappingSourceIndirectIndexEXT;
+
+    VkDescriptorMappingSourceIndirectIndexEXT* decoded_value{ nullptr };
+
+    StructPointerDecoder<Decoded_VkSamplerCreateInfo>* pEmbeddedSampler{ nullptr };
+};
+
+struct Decoded_VkDescriptorMappingSourceHeapDataEXT
+{
+    using struct_type = VkDescriptorMappingSourceHeapDataEXT;
+
+    VkDescriptorMappingSourceHeapDataEXT* decoded_value{ nullptr };
+};
+
+struct Decoded_VkDescriptorMappingSourceIndirectAddressEXT
+{
+    using struct_type = VkDescriptorMappingSourceIndirectAddressEXT;
+
+    VkDescriptorMappingSourceIndirectAddressEXT* decoded_value{ nullptr };
+};
+
+struct Decoded_VkDescriptorMappingSourceShaderRecordIndexEXT
+{
+    using struct_type = VkDescriptorMappingSourceShaderRecordIndexEXT;
+
+    VkDescriptorMappingSourceShaderRecordIndexEXT* decoded_value{ nullptr };
+
+    StructPointerDecoder<Decoded_VkSamplerCreateInfo>* pEmbeddedSampler{ nullptr };
+};
+
+struct Decoded_VkDescriptorMappingSourceIndirectIndexArrayEXT
+{
+    using struct_type = VkDescriptorMappingSourceIndirectIndexArrayEXT;
+
+    VkDescriptorMappingSourceIndirectIndexArrayEXT* decoded_value{ nullptr };
+
+    StructPointerDecoder<Decoded_VkSamplerCreateInfo>* pEmbeddedSampler{ nullptr };
+};
+
+struct Decoded_VkDescriptorMappingSourceDataEXT
+{
+    using struct_type = VkDescriptorMappingSourceDataEXT;
+
+    VkDescriptorMappingSourceDataEXT* decoded_value{ nullptr };
+
+    Decoded_VkDescriptorMappingSourceConstantOffsetEXT* constantOffset{ nullptr };
+    Decoded_VkDescriptorMappingSourcePushIndexEXT* pushIndex{ nullptr };
+    Decoded_VkDescriptorMappingSourceIndirectIndexEXT* indirectIndex{ nullptr };
+    Decoded_VkDescriptorMappingSourceIndirectIndexArrayEXT* indirectIndexArray{ nullptr };
+    Decoded_VkDescriptorMappingSourceHeapDataEXT* heapData{ nullptr };
+    Decoded_VkDescriptorMappingSourceIndirectAddressEXT* indirectAddress{ nullptr };
+    Decoded_VkDescriptorMappingSourceShaderRecordIndexEXT* shaderRecordIndex{ nullptr };
+};
+
+struct Decoded_VkDescriptorSetAndBindingMappingEXT
+{
+    using struct_type = VkDescriptorSetAndBindingMappingEXT;
+
+    VkDescriptorSetAndBindingMappingEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkDescriptorMappingSourceDataEXT* sourceData{ nullptr };
+};
+
+struct Decoded_VkShaderDescriptorSetAndBindingMappingInfoEXT
+{
+    using struct_type = VkShaderDescriptorSetAndBindingMappingInfoEXT;
+
+    VkShaderDescriptorSetAndBindingMappingInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkDescriptorSetAndBindingMappingEXT>* pMappings{ nullptr };
+};
+
+struct Decoded_VkOpaqueCaptureDataCreateInfoEXT
+{
+    using struct_type = VkOpaqueCaptureDataCreateInfoEXT;
+
+    VkOpaqueCaptureDataCreateInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkHostAddressRangeConstEXT>* pData{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceDescriptorHeapFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceDescriptorHeapFeaturesEXT;
+
+    VkPhysicalDeviceDescriptorHeapFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceDescriptorHeapPropertiesEXT
+{
+    using struct_type = VkPhysicalDeviceDescriptorHeapPropertiesEXT;
+
+    VkPhysicalDeviceDescriptorHeapPropertiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkCommandBufferInheritanceDescriptorHeapInfoEXT
+{
+    using struct_type = VkCommandBufferInheritanceDescriptorHeapInfoEXT;
+
+    VkCommandBufferInheritanceDescriptorHeapInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkBindHeapInfoEXT>* pSamplerHeapBindInfo{ nullptr };
+    StructPointerDecoder<Decoded_VkBindHeapInfoEXT>* pResourceHeapBindInfo{ nullptr };
+};
+
+struct Decoded_VkSamplerCustomBorderColorIndexCreateInfoEXT
+{
+    using struct_type = VkSamplerCustomBorderColorIndexCreateInfoEXT;
+
+    VkSamplerCustomBorderColorIndexCreateInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkSamplerCustomBorderColorCreateInfoEXT
+{
+    using struct_type = VkSamplerCustomBorderColorCreateInfoEXT;
+
+    VkSamplerCustomBorderColorCreateInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkClearColorValue* customBorderColor{ nullptr };
+};
+
+struct Decoded_VkIndirectCommandsLayoutPushDataTokenNV
+{
+    using struct_type = VkIndirectCommandsLayoutPushDataTokenNV;
+
+    VkIndirectCommandsLayoutPushDataTokenNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkSubsampledImageFormatPropertiesEXT
+{
+    using struct_type = VkSubsampledImageFormatPropertiesEXT;
+
+    VkSubsampledImageFormatPropertiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceDescriptorHeapTensorPropertiesARM
+{
+    using struct_type = VkPhysicalDeviceDescriptorHeapTensorPropertiesARM;
+
+    VkPhysicalDeviceDescriptorHeapTensorPropertiesARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkAttachmentSampleCountInfoAMD
 {
     using struct_type = VkAttachmentSampleCountInfoAMD;
@@ -8860,16 +9129,6 @@ struct Decoded_VkDeviceDeviceMemoryReportCreateInfoEXT
     PNextNode* pNext{ nullptr };
     uint64_t pfnUserCallback{ 0 };
     uint64_t pUserData{ 0 };
-};
-
-struct Decoded_VkSamplerCustomBorderColorCreateInfoEXT
-{
-    using struct_type = VkSamplerCustomBorderColorCreateInfoEXT;
-
-    VkSamplerCustomBorderColorCreateInfoEXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    Decoded_VkClearColorValue* customBorderColor{ nullptr };
 };
 
 struct Decoded_VkPhysicalDeviceCustomBorderColorPropertiesEXT
@@ -10528,16 +10787,6 @@ struct Decoded_VkTensorCreateInfoARM
     PNextNode* pNext{ nullptr };
     StructPointerDecoder<Decoded_VkTensorDescriptionARM>* pDescription{ nullptr };
     PointerDecoder<uint32_t> pQueueFamilyIndices;
-};
-
-struct Decoded_VkTensorViewCreateInfoARM
-{
-    using struct_type = VkTensorViewCreateInfoARM;
-
-    VkTensorViewCreateInfoARM* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    format::HandleId tensor{ format::kNullHandleId };
 };
 
 struct Decoded_VkTensorMemoryRequirementsInfoARM
@@ -13400,6 +13649,8 @@ typedef Decoded_VkPipelineRobustnessCreateInfo Decoded_VkPipelineRobustnessCreat
 typedef Decoded_VkSamplerReductionModeCreateInfo Decoded_VkSamplerReductionModeCreateInfoEXT;
 
 typedef Decoded_VkPhysicalDeviceSamplerFilterMinmaxProperties Decoded_VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT;
+
+typedef Decoded_VkDeviceAddressRangeKHR Decoded_VkDeviceAddressRangeEXT;
 
 typedef Decoded_VkPhysicalDeviceInlineUniformBlockFeatures Decoded_VkPhysicalDeviceInlineUniformBlockFeaturesEXT;
 

@@ -218,6 +218,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_BIND_DESCRIPTOR_SETS_INFO:
             EncodeStructPtr(encoder, reinterpret_cast<const VkBindDescriptorSetsInfo*>(base));
             break;
+        case VK_STRUCTURE_TYPE_BIND_HEAP_INFO_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkBindHeapInfoEXT*>(base));
+            break;
         case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_DEVICE_GROUP_INFO:
             EncodeStructPtr(encoder, reinterpret_cast<const VkBindImageMemoryDeviceGroupInfo*>(base));
             break;
@@ -316,6 +319,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_CONDITIONAL_RENDERING_INFO_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkCommandBufferInheritanceConditionalRenderingInfoEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_DESCRIPTOR_HEAP_INFO_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkCommandBufferInheritanceDescriptorHeapInfoEXT*>(base));
             break;
         case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO:
             EncodeStructPtr(encoder, reinterpret_cast<const VkCommandBufferInheritanceInfo*>(base));
@@ -580,6 +586,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO:
             EncodeStructPtr(encoder, reinterpret_cast<const VkDescriptorSetAllocateInfo*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_AND_BINDING_MAPPING_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkDescriptorSetAndBindingMappingEXT*>(base));
             break;
         case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_BINDING_REFERENCE_VALVE:
             EncodeStructPtr(encoder, reinterpret_cast<const VkDescriptorSetBindingReferenceVALVE*>(base));
@@ -974,6 +983,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO:
             EncodeStructPtr(encoder, reinterpret_cast<const VkImageCreateInfo*>(base));
             break;
+        case VK_STRUCTURE_TYPE_IMAGE_DESCRIPTOR_INFO_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkImageDescriptorInfoEXT*>(base));
+            break;
         case VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_EXPLICIT_CREATE_INFO_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkImageDrmFormatModifierExplicitCreateInfoEXT*>(base));
             break;
@@ -1102,6 +1114,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_CREATE_INFO_NV:
             EncodeStructPtr(encoder, reinterpret_cast<const VkIndirectCommandsLayoutCreateInfoNV*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_PUSH_DATA_TOKEN_NV:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkIndirectCommandsLayoutPushDataTokenNV*>(base));
             break;
         case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_TOKEN_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkIndirectCommandsLayoutTokenEXT*>(base));
@@ -1267,6 +1282,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkMutableDescriptorTypeCreateInfoEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DATA_CREATE_INFO_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkOpaqueCaptureDataCreateInfoEXT*>(base));
             break;
         case VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DESCRIPTOR_DATA_CREATE_INFO_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkOpaqueCaptureDescriptorDataCreateInfoEXT*>(base));
@@ -1540,6 +1558,15 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_TENSOR_PROPERTIES_ARM:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceDescriptorBufferTensorPropertiesARM*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_HEAP_FEATURES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceDescriptorHeapFeaturesEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_HEAP_PROPERTIES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceDescriptorHeapPropertiesEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_HEAP_TENSOR_PROPERTIES_ARM:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceDescriptorHeapTensorPropertiesARM*>(base));
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceDescriptorIndexingFeatures*>(base));
@@ -2798,6 +2825,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_PUSH_CONSTANTS_INFO:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPushConstantsInfo*>(base));
             break;
+        case VK_STRUCTURE_TYPE_PUSH_DATA_INFO_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPushDataInfoEXT*>(base));
+            break;
         case VK_STRUCTURE_TYPE_PUSH_DESCRIPTOR_SET_INFO:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPushDescriptorSetInfo*>(base));
             break;
@@ -2960,6 +2990,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_RESOLVE_IMAGE_MODE_INFO_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkResolveImageModeInfoKHR*>(base));
             break;
+        case VK_STRUCTURE_TYPE_RESOURCE_DESCRIPTOR_INFO_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkResourceDescriptorInfoEXT*>(base));
+            break;
         case VK_STRUCTURE_TYPE_SAMPLE_LOCATIONS_INFO_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkSampleLocationsInfoEXT*>(base));
             break;
@@ -2980,6 +3013,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkSamplerCustomBorderColorCreateInfoEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_INDEX_CREATE_INFO_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkSamplerCustomBorderColorIndexCreateInfoEXT*>(base));
             break;
         case VK_STRUCTURE_TYPE_SAMPLER_REDUCTION_MODE_CREATE_INFO:
             EncodeStructPtr(encoder, reinterpret_cast<const VkSamplerReductionModeCreateInfo*>(base));
@@ -3035,6 +3071,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_SHADER_CREATE_INFO_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkShaderCreateInfoEXT*>(base));
             break;
+        case VK_STRUCTURE_TYPE_SHADER_DESCRIPTOR_SET_AND_BINDING_MAPPING_INFO_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkShaderDescriptorSetAndBindingMappingInfoEXT*>(base));
+            break;
         case VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO:
             EncodeStructPtr(encoder, reinterpret_cast<const VkShaderModuleCreateInfo*>(base));
             break;
@@ -3088,6 +3127,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_SUBRESOURCE_LAYOUT_2:
             EncodeStructPtr(encoder, reinterpret_cast<const VkSubresourceLayout2*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_SUBSAMPLED_IMAGE_FORMAT_PROPERTIES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkSubsampledImageFormatPropertiesEXT*>(base));
             break;
         case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkSurfaceCapabilities2EXT*>(base));
@@ -3205,6 +3247,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_TENSOR_VIEW_CREATE_INFO_ARM:
             EncodeStructPtr(encoder, reinterpret_cast<const VkTensorViewCreateInfoARM*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_TEXEL_BUFFER_DESCRIPTOR_INFO_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkTexelBufferDescriptorInfoEXT*>(base));
             break;
         case VK_STRUCTURE_TYPE_TEXTURE_LOD_GATHER_FORMAT_PROPERTIES_AMD:
             EncodeStructPtr(encoder, reinterpret_cast<const VkTextureLODGatherFormatPropertiesAMD*>(base));

@@ -1264,6 +1264,27 @@ void VulkanReferencedBlockConsumer::Process_vkCmdCopyGpaSessionResultsAMD(
     if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
+void VulkanReferencedBlockConsumer::Process_vkCmdBindSamplerHeapEXT(
+    const ApiCallInfo&                          call_info,
+    args::CmdBindSamplerHeapEXT&                args)
+{
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdBindResourceHeapEXT(
+    const ApiCallInfo&                          call_info,
+    args::CmdBindResourceHeapEXT&               args)
+{
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdPushDataEXT(
+    const ApiCallInfo&                          call_info,
+    args::CmdPushDataEXT&                       args)
+{
+    if (check_handle_id_unused(args.commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
 void VulkanReferencedBlockConsumer::Process_vkCmdSetSampleLocationsEXT(
     const ApiCallInfo&                          call_info,
     args::CmdSetSampleLocationsEXT&             args)
