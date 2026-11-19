@@ -693,12 +693,14 @@ class DrawCallsDumpingContext : public DumpingContextBase
 
     // Gather here all descriptors referenced by draw calls that have been dumped
     // in order to avoid dumping descriptors referenced from multiple shader stages,
-    // multiple times
+    // multiple times.
+    // They are copies, not references into DumpedResourcesInfo::dumped_descriptors: that list is cleared for each
+    // slot of its draw call (see DumpSlot), while these live until the whole submission has been dumped.
     struct RenderPassDumpedDescriptors
     {
-        std::map<DescriptorLocation, const DumpedImage&>                 image_descriptors;
-        std::map<DescriptorLocation, const DumpedBuffer&>                buffer_descriptors;
-        std::map<DescriptorLocation, const DumpedAccelerationStructure&> acceleration_structures;
+        std::map<DescriptorLocation, DumpedImage>                 image_descriptors;
+        std::map<DescriptorLocation, DumpedBuffer>                buffer_descriptors;
+        std::map<DescriptorLocation, DumpedAccelerationStructure> acceleration_structures;
     };
 
     // Keyed by the render pass context a draw call was recorded in (nullptr for uncorrelated draw calls)

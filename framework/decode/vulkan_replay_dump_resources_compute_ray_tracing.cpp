@@ -973,6 +973,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpCommand(Index cmd_index,
     DumpResourcesCommandBufferLevel              command_buffer_level  = DumpResourcesCommandBufferLevel::kPrimary;
     const std::map<Index, SecondaryIdentifiers>* secondary_identifiers = nullptr;
     const void*                                  command_params        = nullptr;
+    DumpedResourcesInfo*                         dumped_resources      = nullptr;
 
     VkResult res = VK_SUCCESS;
     if (is_dispatch)
@@ -989,6 +990,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpCommand(Index cmd_index,
         command_buffer_level        = disp_params.command_buffer_level;
         secondary_identifiers       = &disp_params.secondary_identifiers;
         command_params              = &disp_params;
+        dumped_resources            = &disp_params.dumped_resources;
 
         // The copy of the indirect parameters was recorded into the first window
         if (first_window && IsDispatchIndirect(disp_params.type))
@@ -1010,6 +1012,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpCommand(Index cmd_index,
         command_buffer_level       = tr_params.command_buffer_level;
         secondary_identifiers      = &tr_params.secondary_identifiers;
         command_params             = &tr_params;
+        dumped_resources           = &tr_params.dumped_resources;
 
         if (first_window && IsTraceRaysIndirect(tr_params.type))
         {
@@ -1048,6 +1051,14 @@ VkResult DispatchTraceRaysDumpingContext::DumpCommand(Index cmd_index,
                                                   submit_info_cmd_buf_index,
                                                   secondary_indices.execute_cmds_index,
                                                   secondary_indices.execute_cmds_cmd_buf_index);
+
+    // The parameters of a command recorded in a secondary are shared by every execution of that secondary, so what
+    // was dumped for a previous execution must not leak into this slot. Reset once per slot: with
+    // --dump-resources-before the "after" window finds the entries the "before" window created.
+    if (first_window)
+    {
+        dumped_resources->Reset();
+    }
 
     res = DumpMutableResources(dumped_resource_base, is_dispatch, is_before_window);
     if (res != VK_SUCCESS)
@@ -1641,8 +1652,6 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(const DumpedResourceBa
                 if (dumped_desc_entry == dumped_descriptors.acceleration_structures.end() ||
                     dumped_desc_entry->second.as_info->capture_id != as_info->capture_id)
                 {
-                    dumped_descriptors.acceleration_structures.emplace(desc_tuple, new_dumped_as);
-
                     VulkanDelegateDumpResourceContext res_info = res_info_base;
                     res_info.dumped_resource                   = &new_dumped_desc;
                     res_info.dumped_data                       = VulkanDelegateAccelerationStructureDumpedData();
@@ -1672,6 +1681,9 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(const DumpedResourceBa
                     }
 
                     delegate_.DumpResource(res_info);
+
+                    // Stored once it is complete: this is a copy of what was dumped
+                    dumped_descriptors.acceleration_structures.emplace(desc_tuple, new_dumped_as);
                 }
                 else
                 {

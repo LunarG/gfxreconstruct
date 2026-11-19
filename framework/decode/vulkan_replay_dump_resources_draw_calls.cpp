@@ -1668,8 +1668,6 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(const WindowSlot&         slot
                 if (dumped_descs_entry == dumped_descriptors.acceleration_structures.end() ||
                     dumped_descs_entry->second.as_info->capture_id != as_info->capture_id)
                 {
-                    dumped_descriptors.acceleration_structures.emplace(desc_tuple, new_dumped_as);
-
                     VulkanDelegateDumpResourceContext res_info = res_info_base;
                     res_info.dumped_resource                   = &new_dumped_desc;
                     res_info.dumped_data                       = VulkanDelegateAccelerationStructureDumpedData();
@@ -1699,6 +1697,9 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(const WindowSlot&         slot
                     }
 
                     delegate_.DumpResource(res_info);
+
+                    // Stored once it is complete: this is a copy of what was dumped
+                    dumped_descriptors.acceleration_structures.emplace(desc_tuple, new_dumped_as);
                 }
                 else
                 {
