@@ -993,6 +993,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureMatrixMotionInstanceNV* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSRTDataNV* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureSRTMotionInstanceNV* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureMotionInstanceNV* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRayTracingMotionBlurFeaturesNV* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFragmentDensityMap2FeaturesEXT* data);
@@ -1266,12 +1267,14 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGeneratedCommand
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectExecutionSetPipelineInfoEXT* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectExecutionSetShaderLayoutInfoEXT* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectExecutionSetShaderInfoEXT* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectExecutionSetCreateInfoEXT* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGeneratedCommandsInfoEXT* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWriteIndirectExecutionSetPipelineEXT* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectCommandsPushConstantTokenEXT* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectCommandsVertexBufferTokenEXT* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectCommandsIndexBufferTokenEXT* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectCommandsExecutionSetTokenEXT* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectCommandsLayoutTokenEXT* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectCommandsLayoutCreateInfoEXT* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDrawIndirectCountIndirectCommandEXT* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindVertexBufferIndirectCommandEXT* data);

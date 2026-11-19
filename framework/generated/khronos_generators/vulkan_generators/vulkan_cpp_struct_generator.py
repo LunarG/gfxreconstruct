@@ -166,6 +166,8 @@ class VulkanCppStructGenerator(VulkanBaseGenerator):
 
             # Other extensions
             'VkAccelerationStructureMotionInstanceNV',
+            'VkIndirectCommandsLayoutTokenEXT',
+            'VkIndirectExecutionSetCreateInfoEXT',
             'VkImportAndroidHardwareBufferInfoANDROID',
         ]
 

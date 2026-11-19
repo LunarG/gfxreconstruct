@@ -12485,6 +12485,35 @@ void MapStructHandles(Decoded_VkIndirectExecutionSetShaderInfoEXT* wrapper, cons
     }
 }
 
+void MapStructHandles(Decoded_VkIndirectExecutionSetCreateInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkIndirectExecutionSetCreateInfoEXT* value = wrapper->decoded_value;
+
+        switch (value->type)
+        {
+            case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT:
+            {
+                MapStructArrayHandles<Decoded_VkIndirectExecutionSetPipelineInfoEXT>(wrapper->info->pPipelineInfo->GetMetaStructPointer(), 1, object_info_table);
+                break;
+            }
+            case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT:
+            {
+                MapStructArrayHandles<Decoded_VkIndirectExecutionSetShaderInfoEXT>(wrapper->info->pShaderInfo->GetMetaStructPointer(), 1, object_info_table);
+                break;
+            }
+            default:
+                break;
+        }
+
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
 void MapStructHandles(Decoded_VkGeneratedCommandsInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
@@ -12517,6 +12546,17 @@ void MapStructHandles(Decoded_VkWriteIndirectExecutionSetPipelineEXT* wrapper, c
     }
 }
 
+void MapStructHandles(Decoded_VkIndirectCommandsLayoutTokenEXT* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
 void MapStructHandles(Decoded_VkIndirectCommandsLayoutCreateInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
@@ -12529,6 +12569,8 @@ void MapStructHandles(Decoded_VkIndirectCommandsLayoutCreateInfoEXT* wrapper, co
         }
 
         value->pipelineLayout = handle_mapping::MapHandle<VulkanPipelineLayoutInfo>(wrapper->pipelineLayout, object_info_table, &CommonObjectInfoTable::GetVkPipelineLayoutInfo);
+
+        MapStructArrayHandles<Decoded_VkIndirectCommandsLayoutTokenEXT>(wrapper->pTokens->GetMetaStructPointer(), wrapper->pTokens->GetLength(), object_info_table);
     }
 }
 
@@ -14745,8 +14787,14 @@ void MapPNextStructHandles(PNextNode* pnext, const CommonObjectInfoTable& object
     case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_CREATE_INFO_NV:
         MapStructHandles(reinterpret_cast<Decoded_VkIndirectCommandsLayoutCreateInfoNV*>(wrapper), object_info_table);
         break;
+    case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_TOKEN_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_VkIndirectCommandsLayoutTokenEXT*>(wrapper), object_info_table);
+        break;
     case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_TOKEN_NV:
         MapStructHandles(reinterpret_cast<Decoded_VkIndirectCommandsLayoutTokenNV*>(wrapper), object_info_table);
+        break;
+    case VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_CREATE_INFO_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_VkIndirectExecutionSetCreateInfoEXT*>(wrapper), object_info_table);
         break;
     case VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_PIPELINE_INFO_EXT:
         MapStructHandles(reinterpret_cast<Decoded_VkIndirectExecutionSetPipelineInfoEXT*>(wrapper), object_info_table);

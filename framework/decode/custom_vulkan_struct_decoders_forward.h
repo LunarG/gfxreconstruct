@@ -37,10 +37,7 @@ struct Decoded_VkPipelineExecutableStatisticValueKHR;
 struct Decoded_VkDeviceOrHostAddressKHR;
 struct Decoded_VkDeviceOrHostAddressConstKHR;
 struct Decoded_VkAccelerationStructureGeometryDataKHR;
-struct Decoded_VkAccelerationStructureMotionInstanceNV;
 struct Decoded_VkPerformanceValueDataINTEL;
-struct Decoded_VkIndirectExecutionSetInfoEXT;
-struct Decoded_VkIndirectCommandsTokenDataEXT;
 struct Decoded_VkDescriptorDataEXT;
 struct Decoded_VkDataGraphPipelineConstantARM;
 
@@ -50,8 +47,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipelin
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDeviceOrHostAddressKHR* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDeviceOrHostAddressConstKHR* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAccelerationStructureGeometryDataKHR* wrapper);
-size_t
-DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAccelerationStructureMotionInstanceNV* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDescriptorDataEXT* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDataGraphPipelineConstantARM* wrapper);
 
@@ -61,8 +56,6 @@ struct Decoded_VkWriteDescriptorSet;
 struct Decoded_VkPerformanceValueINTEL;
 struct Decoded_VkAccelerationStructureGeometryKHR;
 struct Decoded_VkPushDescriptorSetWithTemplateInfo;
-struct Decoded_VkIndirectExecutionSetCreateInfoEXT;
-struct Decoded_VkIndirectCommandsLayoutTokenEXT;
 struct Decoded_VkCopyMemoryToImageInfo;
 struct Decoded_VkMemoryToImageCopy;
 struct Decoded_VkCopyImageToMemoryInfo;
@@ -75,8 +68,6 @@ size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPerformanceValueINTEL* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAccelerationStructureGeometryKHR* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPushDescriptorSetWithTemplateInfo* wrapper);
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkIndirectExecutionSetCreateInfoEXT* wrapper);
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkIndirectCommandsLayoutTokenEXT* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkCopyMemoryToImageInfo* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkMemoryToImageCopy* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkCopyImageToMemoryInfo* wrapper);

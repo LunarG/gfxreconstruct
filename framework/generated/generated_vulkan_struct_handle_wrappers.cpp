@@ -11566,6 +11566,32 @@ void UnwrapStructHandles(VkIndirectExecutionSetShaderInfoEXT* value, HandleUnwra
     }
 }
 
+void UnwrapStructHandles(VkIndirectExecutionSetCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        switch (value->type)
+        {
+            case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT:
+            {
+                value->info.pPipelineInfo = UnwrapStructPtrHandles(value->info.pPipelineInfo, unwrap_memory);
+                break;
+            }
+            case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT:
+            {
+                value->info.pShaderInfo = UnwrapStructPtrHandles(value->info.pShaderInfo, unwrap_memory);
+                break;
+            }
+            default:
+                break;
+        }
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
 void UnwrapStructHandles(VkGeneratedCommandsInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -11588,6 +11614,17 @@ void UnwrapStructHandles(VkWriteIndirectExecutionSetPipelineEXT* value, HandleUn
     }
 }
 
+void UnwrapStructHandles(VkIndirectCommandsLayoutTokenEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
+        }
+    }
+}
+
 void UnwrapStructHandles(VkIndirectCommandsLayoutCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -11596,6 +11633,7 @@ void UnwrapStructHandles(VkIndirectCommandsLayoutCreateInfoEXT* value, HandleUnw
         {
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
         }
+        value->pTokens = UnwrapStructArrayHandles(value->pTokens, value->tokenCount, unwrap_memory);
     }
 }
 
@@ -13762,8 +13800,14 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_CREATE_INFO_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkIndirectCommandsLayoutCreateInfoNV*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_TOKEN_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkIndirectCommandsLayoutTokenEXT*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_TOKEN_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkIndirectCommandsLayoutTokenNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_CREATE_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkIndirectExecutionSetCreateInfoEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_PIPELINE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkIndirectExecutionSetPipelineInfoEXT*>(base), 1, unwrap_memory));
@@ -16423,6 +16467,8 @@ const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwr
             return UnwrapStructPtrHandles(reinterpret_cast<const VkIndirectCommandsLayoutCreateInfoNV*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_TOKEN_NV:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkIndirectCommandsLayoutTokenNV*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_CREATE_INFO_EXT:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkIndirectExecutionSetCreateInfoEXT*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_PIPELINE_INFO_EXT:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkIndirectExecutionSetPipelineInfoEXT*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_SHADER_INFO_EXT:

@@ -228,6 +228,9 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
     Base class for Vulkan API parameter encoding and decoding generators.
     """
 
+    # Unions written by hand as one fixed-size value. A generated switch would change the capture format.
+    FIXED_LAYOUT_UNIONS = ['VkPerformanceValueDataINTEL', 'VkPipelineExecutableStatisticValueKHR']
+
     BASE_OUT_STRUCTURE_TYPE_INFO_OVERRIDES = {
         ('vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM', 'pProperties'): (
             'VkQueueFamilyDataGraphOpticalFlowPropertiesARM',

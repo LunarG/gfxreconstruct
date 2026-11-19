@@ -9299,6 +9299,26 @@ struct Decoded_VkAccelerationStructureSRTMotionInstanceNV
     Decoded_VkSRTDataNV* transformT1{ nullptr };
 };
 
+struct Decoded_VkAccelerationStructureMotionInstanceDataNV
+{
+    using struct_type = VkAccelerationStructureMotionInstanceDataNV;
+
+    VkAccelerationStructureMotionInstanceDataNV* decoded_value{ nullptr };
+
+    Decoded_VkAccelerationStructureInstanceKHR* staticInstance{ nullptr };
+    Decoded_VkAccelerationStructureMatrixMotionInstanceNV* matrixMotionInstance{ nullptr };
+    Decoded_VkAccelerationStructureSRTMotionInstanceNV* srtMotionInstance{ nullptr };
+};
+
+struct Decoded_VkAccelerationStructureMotionInstanceNV
+{
+    using struct_type = VkAccelerationStructureMotionInstanceNV;
+
+    VkAccelerationStructureMotionInstanceNV* decoded_value{ nullptr };
+
+    Decoded_VkAccelerationStructureMotionInstanceDataNV* data{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceRayTracingMotionBlurFeaturesNV
 {
     using struct_type = VkPhysicalDeviceRayTracingMotionBlurFeaturesNV;
@@ -11882,6 +11902,26 @@ struct Decoded_VkIndirectExecutionSetShaderInfoEXT
     StructPointerDecoder<Decoded_VkPushConstantRange>* pPushConstantRanges{ nullptr };
 };
 
+struct Decoded_VkIndirectExecutionSetInfoEXT
+{
+    using struct_type = VkIndirectExecutionSetInfoEXT;
+
+    VkIndirectExecutionSetInfoEXT* decoded_value{ nullptr };
+
+    StructPointerDecoder<Decoded_VkIndirectExecutionSetPipelineInfoEXT>* pPipelineInfo{ nullptr };
+    StructPointerDecoder<Decoded_VkIndirectExecutionSetShaderInfoEXT>* pShaderInfo{ nullptr };
+};
+
+struct Decoded_VkIndirectExecutionSetCreateInfoEXT
+{
+    using struct_type = VkIndirectExecutionSetCreateInfoEXT;
+
+    VkIndirectExecutionSetCreateInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkIndirectExecutionSetInfoEXT* info{ nullptr };
+};
+
 struct Decoded_VkGeneratedCommandsInfoEXT
 {
     using struct_type = VkGeneratedCommandsInfoEXT;
@@ -11931,6 +11971,28 @@ struct Decoded_VkIndirectCommandsExecutionSetTokenEXT
     using struct_type = VkIndirectCommandsExecutionSetTokenEXT;
 
     VkIndirectCommandsExecutionSetTokenEXT* decoded_value{ nullptr };
+};
+
+struct Decoded_VkIndirectCommandsTokenDataEXT
+{
+    using struct_type = VkIndirectCommandsTokenDataEXT;
+
+    VkIndirectCommandsTokenDataEXT* decoded_value{ nullptr };
+
+    StructPointerDecoder<Decoded_VkIndirectCommandsPushConstantTokenEXT>* pPushConstant{ nullptr };
+    StructPointerDecoder<Decoded_VkIndirectCommandsVertexBufferTokenEXT>* pVertexBuffer{ nullptr };
+    StructPointerDecoder<Decoded_VkIndirectCommandsIndexBufferTokenEXT>* pIndexBuffer{ nullptr };
+    StructPointerDecoder<Decoded_VkIndirectCommandsExecutionSetTokenEXT>* pExecutionSet{ nullptr };
+};
+
+struct Decoded_VkIndirectCommandsLayoutTokenEXT
+{
+    using struct_type = VkIndirectCommandsLayoutTokenEXT;
+
+    VkIndirectCommandsLayoutTokenEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkIndirectCommandsTokenDataEXT* data{ nullptr };
 };
 
 struct Decoded_VkIndirectCommandsLayoutCreateInfoEXT

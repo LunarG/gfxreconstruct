@@ -78,10 +78,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const DescriptorUpdateTemplateDe
 
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPushDescriptorSetWithTemplateInfo* const pData);
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectExecutionSetCreateInfoEXT* const pData);
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectCommandsLayoutTokenEXT* const pData);
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyMemoryToImageInfo* data);
 
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryToImageCopy* data);
