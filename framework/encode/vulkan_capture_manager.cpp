@@ -1047,6 +1047,11 @@ VkResult VulkanCaptureManager::OverrideCreateImage(VkDevice                     
         modified_create_info.flags |= VK_IMAGE_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT;
     }
 
+    if (device_wrapper->property_feature_info.feature_descriptorHeapCaptureReplay)
+    {
+        modified_create_info.flags |= VK_IMAGE_CREATE_DESCRIPTOR_HEAP_CAPTURE_REPLAY_BIT_EXT;
+    }
+
     VkResult result = device_table->CreateImage(device, &modified_create_info, pAllocator, pImage);
 
     if (result >= 0)
@@ -1075,7 +1080,7 @@ VkResult VulkanCaptureManager::OverrideCreateImage(VkDevice                     
             image_wrapper->queue_family_index = modified_create_info.pQueueFamilyIndices[0];
         }
 
-        // request and store opaque descriptor-data for image
+        // VK_EXT_descriptor_buffer: opaque data for VkOpaqueCaptureDescriptorDataCreateInfoEXT at replay
         if (device_wrapper->property_feature_info.feature_descriptorBufferCaptureReplay)
         {
             std::vector<uint8_t> opaque_data(device_wrapper->property_feature_info.descriptor_buffer_properties
@@ -1087,6 +1092,25 @@ VkResult VulkanCaptureManager::OverrideCreateImage(VkDevice                     
             descriptor_data_info_ext.image = image_wrapper->handle;
             VkResult get_data_result       = device_table->GetImageOpaqueCaptureDescriptorDataEXT(
                 device_wrapper->handle, &descriptor_data_info_ext, opaque_data.data());
+            GFXRECON_ASSERT(get_data_result == VK_SUCCESS);
+
+            WriteSetOpaqueCaptureDescriptorData(
+                device_wrapper->handle_id, image_wrapper->handle_id, opaque_data.size(), opaque_data.data());
+
+            if (IsCaptureModeTrack())
+            {
+                image_wrapper->opaque_descriptor_data = std::move(opaque_data);
+            }
+        }
+        // VK_EXT_descriptor_heap: opaque data for VkOpaqueCaptureDataCreateInfoEXT at replay, same meta command
+        else if (device_wrapper->property_feature_info.feature_descriptorHeapCaptureReplay)
+        {
+            std::vector<uint8_t> opaque_data(
+                device_wrapper->property_feature_info.descriptor_heap_properties.imageCaptureReplayOpaqueDataSize);
+
+            VkHostAddressRangeEXT opaque_range    = { opaque_data.data(), opaque_data.size() };
+            VkResult              get_data_result = device_table->GetImageOpaqueCaptureDataEXT(
+                device_wrapper->handle, 1, &image_wrapper->handle, &opaque_range);
             GFXRECON_ASSERT(get_data_result == VK_SUCCESS);
 
             WriteSetOpaqueCaptureDescriptorData(
@@ -1385,7 +1409,9 @@ VkResult VulkanCaptureManager::OverrideAllocateMemory(VkDevice                  
         }
     }
 
-    if (device_wrapper->property_feature_info.feature_descriptorBufferCaptureReplay)
+    // Memory bound to capture-replay images must have a capture-replay address.
+    if (device_wrapper->property_feature_info.feature_descriptorBufferCaptureReplay ||
+        device_wrapper->property_feature_info.feature_descriptorHeapCaptureReplay)
     {
         uses_address = true;
 

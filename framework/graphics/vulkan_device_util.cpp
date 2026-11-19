@@ -390,6 +390,34 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
             }
             break;
 
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_HEAP_FEATURES_EXT:
+            {
+                // Enable descriptorHeapCaptureReplay
+                auto* desc_heap_features = reinterpret_cast<VkPhysicalDeviceDescriptorHeapFeaturesEXT*>(current_struct);
+
+                descriptorHeapCaptureReplay_ptr      = &desc_heap_features->descriptorHeapCaptureReplay;
+                descriptorHeapCaptureReplay_original = desc_heap_features->descriptorHeapCaptureReplay;
+
+                if (desc_heap_features->descriptorHeap && !desc_heap_features->descriptorHeapCaptureReplay)
+                {
+                    VkPhysicalDeviceDescriptorHeapFeaturesEXT supported_features{
+                        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_HEAP_FEATURES_EXT, nullptr
+                    };
+                    GetPhysicalDeviceFeatures(instance_info, instance_table, physical_device, supported_features);
+
+                    desc_heap_features->descriptorHeapCaptureReplay = supported_features.descriptorHeapCaptureReplay;
+                }
+
+                result.feature_descriptorHeapCaptureReplay = desc_heap_features->descriptorHeapCaptureReplay;
+
+                // retrieve descriptor-heap-properties
+                result.descriptor_heap_properties = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_HEAP_PROPERTIES_EXT,
+                                                      nullptr };
+                GetPhysicalDeviceProperties(
+                    instance_info, instance_table, physical_device, result.descriptor_heap_properties);
+            }
+            break;
+
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_10_FEATURES_KHR:
             {
                 auto* maintenance10_features =
@@ -585,6 +613,11 @@ void VulkanDeviceUtil::RestoreModifiedPhysicalDeviceFeatures()
         (*rayTracingPipelineShaderGroupHandleCaptureReplay_ptr) =
             rayTracingPipelineShaderGroupHandleCaptureReplay_original;
         rayTracingPipelineShaderGroupHandleCaptureReplay_ptr = nullptr;
+    }
+    if (descriptorHeapCaptureReplay_ptr != nullptr)
+    {
+        (*descriptorHeapCaptureReplay_ptr) = descriptorHeapCaptureReplay_original;
+        descriptorHeapCaptureReplay_ptr    = nullptr;
     }
 }
 
