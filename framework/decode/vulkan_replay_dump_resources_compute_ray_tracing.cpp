@@ -118,183 +118,106 @@ void DispatchTraceRaysDumpingContext::Release()
 // (window), so that the referenced resources can be dumped right after that window executed, before the next
 // one runs. With --dump-resources-before the window that ends right before the command is finalized as well.
 //
+// The command itself is recorded by VulkanReplayDumpResourcesBase, between Before*() and After*().
+//
 // The parameters are inserted ahead of the before-window finalization because, for indirect commands, inserting
 // them records the copy of the indirect parameters into the clone taking work: that copy then lands in the "before"
 // window and is read back once that window executed.
-void DispatchTraceRaysDumpingContext::CmdDispatch(const ApiCallInfo& call_info,
-                                                  PFN_vkCmdDispatch  func,
-                                                  VkCommandBuffer    original_command_buffer,
-                                                  uint32_t           groupCountX,
-                                                  uint32_t           groupCountY,
-                                                  uint32_t           groupCountZ)
+void DispatchTraceRaysDumpingContext::FinalizeBeforeWindow()
 {
-    const uint64_t disp_index = call_info.index;
-    const bool     must_dump  = MustDumpDispatch(disp_index);
+    if (options_.dump_resources_before)
+    {
+        windows_->FinalizeWindow();
+    }
+}
 
-    if (must_dump)
+void DispatchTraceRaysDumpingContext::BeforeDispatch(uint64_t disp_index,
+                                                     uint32_t groupCountX,
+                                                     uint32_t groupCountY,
+                                                     uint32_t groupCountZ)
+{
+    if (MustDumpDispatch(disp_index))
     {
         InsertNewDispatchParameters(disp_index, groupCountX, groupCountY, groupCountZ);
-    }
-
-    if (options_.dump_resources_before && must_dump)
-    {
-        windows_->FinalizeWindow();
-    }
-
-    func(RecordingCommandBuffer(), groupCountX, groupCountY, groupCountZ);
-
-    if (must_dump)
-    {
-        windows_->FinalizeWindow();
+        FinalizeBeforeWindow();
     }
 }
 
-void DispatchTraceRaysDumpingContext::CmdDispatchIndirect(const ApiCallInfo&        call_info,
-                                                          PFN_vkCmdDispatchIndirect func,
-                                                          VkCommandBuffer           original_command_buffer,
-                                                          const VulkanBufferInfo*   buffer_info,
-                                                          VkDeviceSize              offset)
+void DispatchTraceRaysDumpingContext::BeforeDispatchIndirect(uint64_t                disp_index,
+                                                             const VulkanBufferInfo* buffer_info,
+                                                             VkDeviceSize            offset)
 {
-    const uint64_t disp_index = call_info.index;
-    const bool     must_dump  = MustDumpDispatch(disp_index);
-
-    if (must_dump)
+    if (MustDumpDispatch(disp_index))
     {
         InsertNewDispatchParameters(disp_index, buffer_info, offset);
+        FinalizeBeforeWindow();
     }
+}
 
-    if (options_.dump_resources_before && must_dump)
-    {
-        windows_->FinalizeWindow();
-    }
-
-    func(RecordingCommandBuffer(), buffer_info->handle, offset);
-
-    if (must_dump)
+void DispatchTraceRaysDumpingContext::AfterDispatch(uint64_t disp_index)
+{
+    if (MustDumpDispatch(disp_index))
     {
         windows_->FinalizeWindow();
     }
 }
 
-void DispatchTraceRaysDumpingContext::CmdTraceRaysKHR(
-    const ApiCallInfo&                                             call_info,
-    PFN_vkCmdTraceRaysKHR                                          func,
-    VkCommandBuffer                                                original_command_buffer,
-    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
-    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
-    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
-    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
-    uint32_t                                                       width,
-    uint32_t                                                       height,
-    uint32_t                                                       depth)
+void DispatchTraceRaysDumpingContext::BeforeTraceRays(
+    uint64_t                               tr_index,
+    const VkStridedDeviceAddressRegionKHR* pRaygenShaderBindingTable,
+    const VkStridedDeviceAddressRegionKHR* pMissShaderBindingTable,
+    const VkStridedDeviceAddressRegionKHR* pHitShaderBindingTable,
+    const VkStridedDeviceAddressRegionKHR* pCallableShaderBindingTable,
+    uint32_t                               width,
+    uint32_t                               height,
+    uint32_t                               depth)
 {
-    const uint64_t tr_index  = call_info.index;
-    const bool     must_dump = MustDumpTraceRays(tr_index);
-
-    const VkStridedDeviceAddressRegionKHR* in_pRaygenShaderBindingTable   = pRaygenShaderBindingTable->GetPointer();
-    const VkStridedDeviceAddressRegionKHR* in_pMissShaderBindingTable     = pMissShaderBindingTable->GetPointer();
-    const VkStridedDeviceAddressRegionKHR* in_pHitShaderBindingTable      = pHitShaderBindingTable->GetPointer();
-    const VkStridedDeviceAddressRegionKHR* in_pCallableShaderBindingTable = pCallableShaderBindingTable->GetPointer();
-
-    if (must_dump)
+    if (MustDumpTraceRays(tr_index))
     {
         InsertNewTraceRaysParameters(tr_index,
-                                     in_pRaygenShaderBindingTable,
-                                     in_pMissShaderBindingTable,
-                                     in_pHitShaderBindingTable,
-                                     in_pCallableShaderBindingTable,
+                                     pRaygenShaderBindingTable,
+                                     pMissShaderBindingTable,
+                                     pHitShaderBindingTable,
+                                     pCallableShaderBindingTable,
                                      width,
                                      height,
                                      depth);
-    }
-
-    if (options_.dump_resources_before && must_dump)
-    {
-        windows_->FinalizeWindow();
-    }
-
-    func(RecordingCommandBuffer(),
-         in_pRaygenShaderBindingTable,
-         in_pMissShaderBindingTable,
-         in_pHitShaderBindingTable,
-         in_pCallableShaderBindingTable,
-         width,
-         height,
-         depth);
-
-    if (must_dump)
-    {
-        windows_->FinalizeWindow();
+        FinalizeBeforeWindow();
     }
 }
 
-void DispatchTraceRaysDumpingContext::CmdTraceRaysIndirectKHR(
-    const ApiCallInfo&                                             call_info,
-    PFN_vkCmdTraceRaysIndirectKHR                                  func,
-    VkCommandBuffer                                                original_command_buffer,
-    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
-    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
-    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
-    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
-    VkDeviceAddress                                                indirectDeviceAddress)
+void DispatchTraceRaysDumpingContext::BeforeTraceRaysIndirect(
+    uint64_t                               tr_index,
+    const VkStridedDeviceAddressRegionKHR* pRaygenShaderBindingTable,
+    const VkStridedDeviceAddressRegionKHR* pMissShaderBindingTable,
+    const VkStridedDeviceAddressRegionKHR* pHitShaderBindingTable,
+    const VkStridedDeviceAddressRegionKHR* pCallableShaderBindingTable,
+    VkDeviceAddress                        indirectDeviceAddress)
 {
-    const VkStridedDeviceAddressRegionKHR* in_pRaygenShaderBindingTable   = pRaygenShaderBindingTable->GetPointer();
-    const VkStridedDeviceAddressRegionKHR* in_pMissShaderBindingTable     = pMissShaderBindingTable->GetPointer();
-    const VkStridedDeviceAddressRegionKHR* in_pHitShaderBindingTable      = pHitShaderBindingTable->GetPointer();
-    const VkStridedDeviceAddressRegionKHR* in_pCallableShaderBindingTable = pCallableShaderBindingTable->GetPointer();
-
-    const uint64_t tr_index  = call_info.index;
-    const bool     must_dump = MustDumpTraceRays(tr_index);
-
-    if (must_dump)
+    if (MustDumpTraceRays(tr_index))
     {
         InsertNewTraceRaysIndirectParameters(tr_index,
-                                             in_pRaygenShaderBindingTable,
-                                             in_pMissShaderBindingTable,
-                                             in_pHitShaderBindingTable,
-                                             in_pCallableShaderBindingTable,
+                                             pRaygenShaderBindingTable,
+                                             pMissShaderBindingTable,
+                                             pHitShaderBindingTable,
+                                             pCallableShaderBindingTable,
                                              indirectDeviceAddress);
-    }
-
-    if (options_.dump_resources_before && must_dump)
-    {
-        windows_->FinalizeWindow();
-    }
-
-    func(RecordingCommandBuffer(),
-         in_pRaygenShaderBindingTable,
-         in_pMissShaderBindingTable,
-         in_pHitShaderBindingTable,
-         in_pCallableShaderBindingTable,
-         indirectDeviceAddress);
-
-    if (must_dump)
-    {
-        windows_->FinalizeWindow();
+        FinalizeBeforeWindow();
     }
 }
 
-void DispatchTraceRaysDumpingContext::CmdTraceRaysIndirect2KHR(const ApiCallInfo&             call_info,
-                                                               PFN_vkCmdTraceRaysIndirect2KHR func,
-                                                               VkCommandBuffer                original_command_buffer,
-                                                               VkDeviceAddress                indirectDeviceAddress)
+void DispatchTraceRaysDumpingContext::BeforeTraceRaysIndirect2(uint64_t tr_index, VkDeviceAddress indirectDeviceAddress)
 {
-    const uint64_t tr_index  = call_info.index;
-    const bool     must_dump = MustDumpTraceRays(tr_index);
-
-    if (must_dump)
+    if (MustDumpTraceRays(tr_index))
     {
         InsertNewTraceRaysIndirect2Parameters(tr_index, indirectDeviceAddress);
+        FinalizeBeforeWindow();
     }
+}
 
-    if (options_.dump_resources_before && must_dump)
-    {
-        windows_->FinalizeWindow();
-    }
-
-    func(RecordingCommandBuffer(), indirectDeviceAddress);
-
-    if (must_dump)
+void DispatchTraceRaysDumpingContext::AfterTraceRays(uint64_t tr_index)
+{
+    if (MustDumpTraceRays(tr_index))
     {
         windows_->FinalizeWindow();
     }

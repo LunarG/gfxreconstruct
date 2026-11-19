@@ -607,16 +607,19 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDraw(const ApiCallInfo& call_info
 
     const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
         FindDrawCallDumpingContexts(original_command_buffer);
-    for (auto dc_context : dc_contexts)
+    for (const auto& dc_context : dc_contexts)
     {
-        dc_context->CmdDraw(
-            call_info, func, original_command_buffer, vertex_count, instance_count, first_vertex, first_instance);
+        dc_context->BeforeDraw(call_info.index, vertex_count, instance_count, first_vertex, first_instance);
     }
 
-    ForEachWorkCommandBufferWithoutOwner(
-        original_command_buffer, WindowSlot::Kind::kDraw, [&](VkCommandBuffer command_buffer) {
-            func(command_buffer, vertex_count, instance_count, first_vertex, first_instance);
-        });
+    ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        func(command_buffer, vertex_count, instance_count, first_vertex, first_instance);
+    });
+
+    for (const auto& dc_context : dc_contexts)
+    {
+        dc_context->AfterDraw(call_info.index);
+    }
 }
 
 void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexed(const ApiCallInfo&   call_info,
@@ -633,22 +636,20 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexed(const ApiCallInfo&   
     const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
         FindDrawCallDumpingContexts(original_command_buffer);
 
-    for (auto dc_context : dc_contexts)
+    for (const auto& dc_context : dc_contexts)
     {
-        dc_context->CmdDrawIndexed(call_info,
-                                   func,
-                                   original_command_buffer,
-                                   index_count,
-                                   instance_count,
-                                   first_index,
-                                   vertex_offset,
-                                   first_instance);
+        dc_context->BeforeDrawIndexed(
+            call_info.index, index_count, instance_count, first_index, vertex_offset, first_instance);
     }
 
-    ForEachWorkCommandBufferWithoutOwner(
-        original_command_buffer, WindowSlot::Kind::kDraw, [&](VkCommandBuffer command_buffer) {
-            func(command_buffer, index_count, instance_count, first_index, vertex_offset, first_instance);
-        });
+    ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        func(command_buffer, index_count, instance_count, first_index, vertex_offset, first_instance);
+    });
+
+    for (const auto& dc_context : dc_contexts)
+    {
+        dc_context->AfterDraw(call_info.index);
+    }
 }
 
 void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndirect(const ApiCallInfo&      call_info,
@@ -664,15 +665,19 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndirect(const ApiCallInfo&  
     const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
         FindDrawCallDumpingContexts(original_command_buffer);
 
-    for (auto dc_context : dc_contexts)
+    for (const auto& dc_context : dc_contexts)
     {
-        dc_context->CmdDrawIndirect(call_info, func, original_command_buffer, buffer_info, offset, draw_count, stride);
+        dc_context->BeforeDrawIndirect(call_info.index, buffer_info, offset, draw_count, stride);
     }
 
-    ForEachWorkCommandBufferWithoutOwner(
-        original_command_buffer, WindowSlot::Kind::kDraw, [&](VkCommandBuffer command_buffer) {
-            func(command_buffer, buffer_info->handle, offset, draw_count, stride);
-        });
+    ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        func(command_buffer, buffer_info->handle, offset, draw_count, stride);
+    });
+
+    for (const auto& dc_context : dc_contexts)
+    {
+        dc_context->AfterDraw(call_info.index);
+    }
 }
 
 void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexedIndirect(const ApiCallInfo&           call_info,
@@ -688,16 +693,19 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexedIndirect(const ApiCall
     const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
         FindDrawCallDumpingContexts(original_command_buffer);
 
-    for (auto dc_context : dc_contexts)
+    for (const auto& dc_context : dc_contexts)
     {
-        dc_context->CmdDrawIndexedIndirect(
-            call_info, func, original_command_buffer, buffer_info, offset, draw_count, stride);
+        dc_context->BeforeDrawIndexedIndirect(call_info.index, buffer_info, offset, draw_count, stride);
     }
 
-    ForEachWorkCommandBufferWithoutOwner(
-        original_command_buffer, WindowSlot::Kind::kDraw, [&](VkCommandBuffer command_buffer) {
-            func(command_buffer, buffer_info->handle, offset, draw_count, stride);
-        });
+    ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        func(command_buffer, buffer_info->handle, offset, draw_count, stride);
+    });
+
+    for (const auto& dc_context : dc_contexts)
+    {
+        dc_context->AfterDraw(call_info.index);
+    }
 }
 
 void VulkanReplayDumpResourcesBase::HandleCmdDrawIndirectCount(const ApiCallInfo&         call_info,
@@ -715,30 +723,32 @@ void VulkanReplayDumpResourcesBase::HandleCmdDrawIndirectCount(const ApiCallInfo
 
     const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
         FindDrawCallDumpingContexts(original_command_buffer);
-    for (auto dc_context : dc_contexts)
+    for (const auto& dc_context : dc_contexts)
     {
-        dc_context->CmdDrawIndirectCount(call_info,
-                                         func,
-                                         original_command_buffer,
-                                         buffer_info,
-                                         offset,
-                                         count_buffer_info,
-                                         count_buffer_offset,
-                                         max_draw_count,
-                                         stride,
-                                         drawcall_type);
+        dc_context->BeforeDrawIndirectCount(call_info.index,
+                                            buffer_info,
+                                            offset,
+                                            count_buffer_info,
+                                            count_buffer_offset,
+                                            max_draw_count,
+                                            stride,
+                                            drawcall_type);
     }
 
-    ForEachWorkCommandBufferWithoutOwner(
-        original_command_buffer, WindowSlot::Kind::kDraw, [&](VkCommandBuffer command_buffer) {
-            func(command_buffer,
-                 buffer_info->handle,
-                 offset,
-                 count_buffer_info->handle,
-                 count_buffer_offset,
-                 max_draw_count,
-                 stride);
-        });
+    ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        func(command_buffer,
+             buffer_info->handle,
+             offset,
+             count_buffer_info->handle,
+             count_buffer_offset,
+             max_draw_count,
+             stride);
+    });
+
+    for (const auto& dc_context : dc_contexts)
+    {
+        dc_context->AfterDraw(call_info.index);
+    }
 }
 
 void VulkanReplayDumpResourcesBase::HandleCmdDrawIndexedIndirectCount(
@@ -757,30 +767,32 @@ void VulkanReplayDumpResourcesBase::HandleCmdDrawIndexedIndirectCount(
 
     const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
         FindDrawCallDumpingContexts(original_command_buffer);
-    for (auto dc_context : dc_contexts)
+    for (const auto& dc_context : dc_contexts)
     {
-        dc_context->CmdDrawIndexedIndirectCount(call_info,
-                                                func,
-                                                original_command_buffer,
-                                                buffer_info,
-                                                offset,
-                                                count_buffer_info,
-                                                count_buffer_offset,
-                                                max_draw_count,
-                                                stride,
-                                                drawcall_type);
+        dc_context->BeforeDrawIndexedIndirectCount(call_info.index,
+                                                   buffer_info,
+                                                   offset,
+                                                   count_buffer_info,
+                                                   count_buffer_offset,
+                                                   max_draw_count,
+                                                   stride,
+                                                   drawcall_type);
     }
 
-    ForEachWorkCommandBufferWithoutOwner(
-        original_command_buffer, WindowSlot::Kind::kDraw, [&](VkCommandBuffer command_buffer) {
-            func(command_buffer,
-                 buffer_info->handle,
-                 offset,
-                 count_buffer_info->handle,
-                 count_buffer_offset,
-                 max_draw_count,
-                 stride);
-        });
+    ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        func(command_buffer,
+             buffer_info->handle,
+             offset,
+             count_buffer_info->handle,
+             count_buffer_offset,
+             max_draw_count,
+             stride);
+    });
+
+    for (const auto& dc_context : dc_contexts)
+    {
+        dc_context->AfterDraw(call_info.index);
+    }
 }
 
 void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass(
@@ -1501,15 +1513,19 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDispatch(const ApiCallInfo& call_
 
     const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
         FindDispatchTraceRaysContexts(original_command_buffer);
-    for (auto dr_context : dr_contexts)
+    for (const auto& dr_context : dr_contexts)
     {
-        dr_context->CmdDispatch(call_info, func, original_command_buffer, groupCountX, groupCountY, groupCountZ);
+        dr_context->BeforeDispatch(call_info.index, groupCountX, groupCountY, groupCountZ);
     }
 
-    ForEachWorkCommandBufferWithoutOwner(
-        original_command_buffer, WindowSlot::Kind::kDispatch, [&](VkCommandBuffer command_buffer) {
-            func(command_buffer, groupCountX, groupCountY, groupCountZ);
-        });
+    ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        func(command_buffer, groupCountX, groupCountY, groupCountZ);
+    });
+
+    for (const auto& dr_context : dr_contexts)
+    {
+        dr_context->AfterDispatch(call_info.index);
+    }
 }
 
 void VulkanReplayDumpResourcesBase::OverrideCmdDispatchIndirect(const ApiCallInfo&        call_info,
@@ -1522,15 +1538,19 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDispatchIndirect(const ApiCallInf
 
     const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
         FindDispatchTraceRaysContexts(original_command_buffer);
-    for (auto dr_context : dr_contexts)
+    for (const auto& dr_context : dr_contexts)
     {
-        dr_context->CmdDispatchIndirect(call_info, func, original_command_buffer, buffer_info, offset);
+        dr_context->BeforeDispatchIndirect(call_info.index, buffer_info, offset);
     }
 
-    ForEachWorkCommandBufferWithoutOwner(
-        original_command_buffer, WindowSlot::Kind::kDispatch, [&](VkCommandBuffer command_buffer) {
-            func(command_buffer, buffer_info->handle, offset);
-        });
+    ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        func(command_buffer, buffer_info->handle, offset);
+    });
+
+    for (const auto& dr_context : dr_contexts)
+    {
+        dr_context->AfterDispatch(call_info.index);
+    }
 }
 
 void VulkanReplayDumpResourcesBase::OverrideCmdTraceRaysKHR(
@@ -1554,31 +1574,33 @@ void VulkanReplayDumpResourcesBase::OverrideCmdTraceRaysKHR(
 
     const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
         FindDispatchTraceRaysContexts(original_command_buffer);
-    for (auto dr_context : dr_contexts)
+    for (const auto& dr_context : dr_contexts)
     {
-        dr_context->CmdTraceRaysKHR(call_info,
-                                    func,
-                                    original_command_buffer,
-                                    pRaygenShaderBindingTable,
-                                    pMissShaderBindingTable,
-                                    pHitShaderBindingTable,
-                                    pCallableShaderBindingTable,
+        dr_context->BeforeTraceRays(call_info.index,
+                                    in_pRaygenShaderBindingTable,
+                                    in_pMissShaderBindingTable,
+                                    in_pHitShaderBindingTable,
+                                    in_pCallableShaderBindingTable,
                                     width,
                                     height,
                                     depth);
     }
 
-    ForEachWorkCommandBufferWithoutOwner(
-        original_command_buffer, WindowSlot::Kind::kDispatch, [&](VkCommandBuffer command_buffer) {
-            func(command_buffer,
-                 in_pRaygenShaderBindingTable,
-                 in_pMissShaderBindingTable,
-                 in_pHitShaderBindingTable,
-                 in_pCallableShaderBindingTable,
-                 width,
-                 height,
-                 depth);
-        });
+    ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        func(command_buffer,
+             in_pRaygenShaderBindingTable,
+             in_pMissShaderBindingTable,
+             in_pHitShaderBindingTable,
+             in_pCallableShaderBindingTable,
+             width,
+             height,
+             depth);
+    });
+
+    for (const auto& dr_context : dr_contexts)
+    {
+        dr_context->AfterTraceRays(call_info.index);
+    }
 }
 
 void VulkanReplayDumpResourcesBase::OverrideCmdTraceRaysIndirectKHR(
@@ -1600,27 +1622,29 @@ void VulkanReplayDumpResourcesBase::OverrideCmdTraceRaysIndirectKHR(
 
     const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
         FindDispatchTraceRaysContexts(original_command_buffer);
-    for (auto dr_context : dr_contexts)
+    for (const auto& dr_context : dr_contexts)
     {
-        dr_context->CmdTraceRaysIndirectKHR(call_info,
-                                            func,
-                                            original_command_buffer,
-                                            pRaygenShaderBindingTable,
-                                            pMissShaderBindingTable,
-                                            pHitShaderBindingTable,
-                                            pCallableShaderBindingTable,
+        dr_context->BeforeTraceRaysIndirect(call_info.index,
+                                            in_pRaygenShaderBindingTable,
+                                            in_pMissShaderBindingTable,
+                                            in_pHitShaderBindingTable,
+                                            in_pCallableShaderBindingTable,
                                             indirectDeviceAddress);
     }
 
-    ForEachWorkCommandBufferWithoutOwner(
-        original_command_buffer, WindowSlot::Kind::kDispatch, [&](VkCommandBuffer command_buffer) {
-            func(command_buffer,
-                 in_pRaygenShaderBindingTable,
-                 in_pMissShaderBindingTable,
-                 in_pHitShaderBindingTable,
-                 in_pCallableShaderBindingTable,
-                 indirectDeviceAddress);
-        });
+    ForEachWorkCommandBuffer(original_command_buffer, [&](VkCommandBuffer command_buffer) {
+        func(command_buffer,
+             in_pRaygenShaderBindingTable,
+             in_pMissShaderBindingTable,
+             in_pHitShaderBindingTable,
+             in_pCallableShaderBindingTable,
+             indirectDeviceAddress);
+    });
+
+    for (const auto& dr_context : dr_contexts)
+    {
+        dr_context->AfterTraceRays(call_info.index);
+    }
 }
 
 void VulkanReplayDumpResourcesBase::OverrideCmdTraceRaysIndirect2KHR(const ApiCallInfo&             call_info,
@@ -1632,15 +1656,18 @@ void VulkanReplayDumpResourcesBase::OverrideCmdTraceRaysIndirect2KHR(const ApiCa
 
     const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
         FindDispatchTraceRaysContexts(original_command_buffer);
-    for (auto dr_context : dr_contexts)
+    for (const auto& dr_context : dr_contexts)
     {
-        dr_context->CmdTraceRaysIndirect2KHR(call_info, func, original_command_buffer, indirectDeviceAddress);
+        dr_context->BeforeTraceRaysIndirect2(call_info.index, indirectDeviceAddress);
     }
 
-    ForEachWorkCommandBufferWithoutOwner(
-        original_command_buffer, WindowSlot::Kind::kDispatch, [&](VkCommandBuffer command_buffer) {
-            func(command_buffer, indirectDeviceAddress);
-        });
+    ForEachWorkCommandBuffer(original_command_buffer,
+                             [&](VkCommandBuffer command_buffer) { func(command_buffer, indirectDeviceAddress); });
+
+    for (const auto& dr_context : dr_contexts)
+    {
+        dr_context->AfterTraceRays(call_info.index);
+    }
 }
 
 void VulkanReplayDumpResourcesBase::OverrideCmdBeginRendering(

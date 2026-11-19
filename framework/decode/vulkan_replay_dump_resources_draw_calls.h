@@ -91,60 +91,48 @@ class DrawCallsDumpingContext : public DumpingContextBase
 
     ~DrawCallsDumpingContext();
 
-    void CmdDraw(const ApiCallInfo& call_info,
-                 PFN_vkCmdDraw      func,
-                 VkCommandBuffer    original_command_buffer,
-                 uint32_t           vertex_count,
-                 uint32_t           instance_count,
-                 uint32_t           first_vertex,
-                 uint32_t           first_instance);
+    // This context does not record draw calls: VulkanReplayDumpResourcesBase records every one of them into the
+    // clone taking work. It only brackets the ones it dumps. Before*() is called right before the draw call is
+    // recorded and AfterDraw() right after; both do nothing for a draw call that is not dumped.
+    //
+    // Before*(): with --dump-resources-before closes the window that ends right before the draw call, then stores
+    //            its parameters and snapshots the bound state.
+    // AfterDraw(): closes the window that ends with the draw call.
+    void BeforeDraw(
+        uint64_t index, uint32_t vertex_count, uint32_t instance_count, uint32_t first_vertex, uint32_t first_instance);
 
-    void CmdDrawIndexed(const ApiCallInfo&   call_info,
-                        PFN_vkCmdDrawIndexed func,
-                        VkCommandBuffer      original_command_buffer,
-                        uint32_t             index_count,
-                        uint32_t             instance_count,
-                        uint32_t             first_index,
-                        int32_t              vertex_offset,
-                        uint32_t             first_instance);
+    void BeforeDrawIndexed(uint64_t index,
+                           uint32_t index_count,
+                           uint32_t instance_count,
+                           uint32_t first_index,
+                           int32_t  vertex_offset,
+                           uint32_t first_instance);
 
-    void CmdDrawIndirect(const ApiCallInfo&      call_info,
-                         PFN_vkCmdDrawIndirect   func,
-                         VkCommandBuffer         original_command_buffer,
-                         const VulkanBufferInfo* buffer_info,
-                         VkDeviceSize            offset,
-                         uint32_t                draw_count,
-                         uint32_t                stride);
+    void BeforeDrawIndirect(
+        uint64_t index, const VulkanBufferInfo* buffer_info, VkDeviceSize offset, uint32_t draw_count, uint32_t stride);
 
-    void CmdDrawIndexedIndirect(const ApiCallInfo&           call_info,
-                                PFN_vkCmdDrawIndexedIndirect func,
-                                VkCommandBuffer              original_command_buffer,
-                                const VulkanBufferInfo*      buffer_info,
-                                VkDeviceSize                 offset,
-                                uint32_t                     draw_count,
-                                uint32_t                     stride);
+    void BeforeDrawIndexedIndirect(
+        uint64_t index, const VulkanBufferInfo* buffer_info, VkDeviceSize offset, uint32_t draw_count, uint32_t stride);
 
-    void CmdDrawIndirectCount(const ApiCallInfo&                    call_info,
-                              PFN_vkCmdDrawIndirectCount            func,
-                              VkCommandBuffer                       original_command_buffer,
-                              const VulkanBufferInfo*               buffer_info,
-                              VkDeviceSize                          offset,
-                              const VulkanBufferInfo*               count_buffer_info,
-                              VkDeviceSize                          count_buffer_offset,
-                              uint32_t                              max_draw_count,
-                              uint32_t                              stride,
-                              DrawCallsDumpingContext::DrawCallType drawcall_type);
+    void BeforeDrawIndirectCount(uint64_t                              index,
+                                 const VulkanBufferInfo*               buffer_info,
+                                 VkDeviceSize                          offset,
+                                 const VulkanBufferInfo*               count_buffer_info,
+                                 VkDeviceSize                          count_buffer_offset,
+                                 uint32_t                              max_draw_count,
+                                 uint32_t                              stride,
+                                 DrawCallsDumpingContext::DrawCallType drawcall_type);
 
-    void CmdDrawIndexedIndirectCount(const ApiCallInfo&                    call_info,
-                                     PFN_vkCmdDrawIndexedIndirectCount     func,
-                                     VkCommandBuffer                       original_command_buffer,
-                                     const VulkanBufferInfo*               buffer_info,
-                                     VkDeviceSize                          offset,
-                                     const VulkanBufferInfo*               count_buffer_info,
-                                     VkDeviceSize                          count_buffer_offset,
-                                     uint32_t                              max_draw_count,
-                                     uint32_t                              stride,
-                                     DrawCallsDumpingContext::DrawCallType drawcall_type);
+    void BeforeDrawIndexedIndirectCount(uint64_t                              index,
+                                        const VulkanBufferInfo*               buffer_info,
+                                        VkDeviceSize                          offset,
+                                        const VulkanBufferInfo*               count_buffer_info,
+                                        VkDeviceSize                          count_buffer_offset,
+                                        uint32_t                              max_draw_count,
+                                        uint32_t                              stride,
+                                        DrawCallsDumpingContext::DrawCallType drawcall_type);
+
+    void AfterDraw(uint64_t index);
 
     bool MustDumpDrawCall(uint64_t index) const;
 
@@ -226,6 +214,10 @@ class DrawCallsDumpingContext : public DumpingContextBase
     // after each dumped draw call and, with --dump-resources-before, before it as well. dc_params is the finalized
     // draw call; it is null for a before command.
     void FinalizeWindow(DrawCallParams* dc_params = nullptr);
+
+    // With --dump-resources-before, closes the window that ends right before a dumped draw call, so that the render
+    // targets can be dumped before the draw call
+    void FinalizeBeforeWindow();
 
     // The draw call contexts of the secondaries this context's command buffer executes
     std::vector<std::shared_ptr<DrawCallsDumpingContext>> GetSecondaryContexts() const;

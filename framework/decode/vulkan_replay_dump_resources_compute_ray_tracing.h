@@ -81,44 +81,39 @@ class DispatchTraceRaysDumpingContext : public DumpingContextBase
                                 const graphics::VulkanInjectedDeviceCalls& dev_table,
                                 const graphics::VulkanInstanceTable*       inst_table) override;
 
-    void CmdDispatch(const ApiCallInfo& call_info,
-                     PFN_vkCmdDispatch  func,
-                     VkCommandBuffer    original_command_buffer,
-                     uint32_t           groupCountX,
-                     uint32_t           groupCountY,
-                     uint32_t           groupCountZ);
+    // This context does not record dispatch/trace rays commands: VulkanReplayDumpResourcesBase records every one of
+    // them into the clone taking work. It only brackets the ones it dumps. Before*() is called right before the
+    // command is recorded and AfterDispatch()/AfterTraceRays() right after; they do nothing for a command that is
+    // not dumped.
+    //
+    // Before*(): stores the command's parameters and snapshots the bound state, then with --dump-resources-before
+    //            closes the window that ends right before the command.
+    // After*(): closes the window that ends with the command.
+    void BeforeDispatch(uint64_t index, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ);
 
-    void CmdDispatchIndirect(const ApiCallInfo&        call_info,
-                             PFN_vkCmdDispatchIndirect func,
-                             VkCommandBuffer           original_command_buffer,
-                             const VulkanBufferInfo*   buffer_info,
-                             VkDeviceSize              offset);
+    void BeforeDispatchIndirect(uint64_t index, const VulkanBufferInfo* buffer_info, VkDeviceSize offset);
 
-    void CmdTraceRaysKHR(const ApiCallInfo&                                             call_info,
-                         PFN_vkCmdTraceRaysKHR                                          func,
-                         VkCommandBuffer                                                original_command_buffer,
-                         StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
-                         StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
-                         StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
-                         StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
-                         uint32_t                                                       width,
-                         uint32_t                                                       height,
-                         uint32_t                                                       depth);
+    void AfterDispatch(uint64_t index);
 
-    void
-    CmdTraceRaysIndirectKHR(const ApiCallInfo&                                             call_info,
-                            PFN_vkCmdTraceRaysIndirectKHR                                  func,
-                            VkCommandBuffer                                                original_command_buffer,
-                            StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
-                            StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
-                            StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
-                            StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
-                            VkDeviceAddress                                                indirectDeviceAddress);
+    void BeforeTraceRays(uint64_t                               index,
+                         const VkStridedDeviceAddressRegionKHR* pRaygenShaderBindingTable,
+                         const VkStridedDeviceAddressRegionKHR* pMissShaderBindingTable,
+                         const VkStridedDeviceAddressRegionKHR* pHitShaderBindingTable,
+                         const VkStridedDeviceAddressRegionKHR* pCallableShaderBindingTable,
+                         uint32_t                               width,
+                         uint32_t                               height,
+                         uint32_t                               depth);
 
-    void CmdTraceRaysIndirect2KHR(const ApiCallInfo&             call_info,
-                                  PFN_vkCmdTraceRaysIndirect2KHR func,
-                                  VkCommandBuffer                original_command_buffer,
-                                  VkDeviceAddress                indirectDeviceAddress);
+    void BeforeTraceRaysIndirect(uint64_t                               index,
+                                 const VkStridedDeviceAddressRegionKHR* pRaygenShaderBindingTable,
+                                 const VkStridedDeviceAddressRegionKHR* pMissShaderBindingTable,
+                                 const VkStridedDeviceAddressRegionKHR* pHitShaderBindingTable,
+                                 const VkStridedDeviceAddressRegionKHR* pCallableShaderBindingTable,
+                                 VkDeviceAddress                        indirectDeviceAddress);
+
+    void BeforeTraceRaysIndirect2(uint64_t index, VkDeviceAddress indirectDeviceAddress);
+
+    void AfterTraceRays(uint64_t index);
 
     bool MustDumpDispatch(uint64_t index) const;
 
@@ -214,8 +209,11 @@ class DispatchTraceRaysDumpingContext : public DumpingContextBase
     VkResult
     DumpMutableResources(const DumpedResourceBase& dumped_resource_base, bool is_dispatch, bool before_command);
 
-    // The clone taking work: where this context records its commands and the copies of indirect parameters
+    // The clone taking work: where this context records the copies of indirect parameters
     VkCommandBuffer RecordingCommandBuffer() const;
+
+    // With --dump-resources-before, closes the window that ends right before a dumped command
+    void FinalizeBeforeWindow();
 
     CommandIndices          dispatch_indices_;
     CommandImageSubresource disp_subresources_;

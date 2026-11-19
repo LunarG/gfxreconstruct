@@ -867,6 +867,10 @@ class VulkanReplayDumpResourcesBase
 
     // the clone currently taking work, for each windows of this command buffer. a command not routed here does not
     // run at all: the windows are the only execution of a dumped command buffer.
+    //
+    // Draw, dispatch and trace rays commands are recorded through here too, whether they are dumped or not. The
+    // dumping contexts do not record them: they are called right before and right after (Before*() / After*()) to
+    // close the windows around the ones they dump, which changes the clone that is taking work.
     template <typename Callback>
     void ForEachWorkCommandBuffer(VkCommandBuffer original_command_buffer, Callback callback)
     {
@@ -875,25 +879,6 @@ class VulkanReplayDumpResourcesBase
         for (const auto& windows : windows_contexts)
         {
             callback(windows->GetWorkCommandBuffer());
-        }
-    }
-
-    // A command buffer that has a dumping context for a kind of command (draw, dispatch, trace rays) has that context
-    // record every command of that kind, dumped or not. This handles the command buffers that have windows but no
-    // context for the given kind.
-    template <typename Callback>
-    void ForEachWorkCommandBufferWithoutOwner(VkCommandBuffer  original_command_buffer,
-                                              WindowSlot::Kind kind,
-                                              Callback         callback)
-    {
-        const std::vector<std::shared_ptr<DumpingContextWindows>> windows_contexts =
-            FindDumpingContextWindows(original_command_buffer);
-        for (const auto& windows : windows_contexts)
-        {
-            if (!windows->HasSlotOwner(kind))
-            {
-                callback(windows->GetWorkCommandBuffer());
-            }
         }
     }
 
