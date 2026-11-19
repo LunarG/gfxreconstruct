@@ -530,9 +530,9 @@ class DispatchTraceRaysDumpingContext : public DumpingContextBase
     // multiple times
     struct DumpedDescriptors
     {
-        std::map<DescriptorLocation, const DumpedImage&>                 image_descriptors;
-        std::map<DescriptorLocation, const DumpedBuffer&>                buffer_descriptors;
-        std::map<DescriptorLocation, const DumpedAccelerationStructure&> acceleration_structures;
+        std::map<DescriptorLocation, DumpedImage>                 image_descriptors;
+        std::map<DescriptorLocation, DumpedBuffer>                buffer_descriptors;
+        std::map<DescriptorLocation, DumpedAccelerationStructure> acceleration_structures;
     };
 
     DumpedDescriptors dispatch_dumped_descriptors_;
