@@ -177,8 +177,14 @@ VkResult DumpingContextWindows::BeginCommandBuffer(VulkanCommandBufferInfo*     
                                                    const graphics::VulkanInjectedDeviceCalls& dev_table,
                                                    const VkCommandBufferBeginInfo*            begin_info)
 {
-    assert(orig_cmd_buf_info);
+    GFXRECON_ASSERT(orig_cmd_buf_info);
     GFXRECON_ASSERT(dev_table.IsValid());
+
+    GFXRECON_ASSERT(original_command_buffer_info_ == nullptr);
+    original_command_buffer_info_ = orig_cmd_buf_info;
+
+    GFXRECON_ASSERT(!device_table_.IsValid());
+    device_table_ = dev_table;
 
     const VulkanCommandPoolInfo* cb_pool_info = object_info_table_.GetVkCommandPoolInfo(orig_cmd_buf_info->pool_id);
 
@@ -213,12 +219,6 @@ VkResult DumpingContextWindows::BeginCommandBuffer(VulkanCommandBufferInfo*     
             return res;
         }
     }
-
-    assert(original_command_buffer_info_ == nullptr);
-    original_command_buffer_info_ = orig_cmd_buf_info;
-
-    assert(!device_table_.IsValid());
-    device_table_ = dev_table;
 
     return VK_SUCCESS;
 }
