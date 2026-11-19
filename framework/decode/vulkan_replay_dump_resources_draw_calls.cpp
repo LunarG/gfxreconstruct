@@ -264,231 +264,113 @@ DrawCallsDumpingContext::InsertNewDrawIndexedIndirectCountParameters(uint64_t   
     return entry_it->second.get();
 }
 
-void DrawCallsDumpingContext::CmdDraw(const ApiCallInfo& call_info,
-                                      PFN_vkCmdDraw      func,
-                                      VkCommandBuffer    original_command_buffer,
-                                      uint32_t           vertex_count,
-                                      uint32_t           instance_count,
-                                      uint32_t           first_vertex,
-                                      uint32_t           first_instance)
+void DrawCallsDumpingContext::FinalizeBeforeWindow()
 {
-    const uint64_t dc_index  = call_info.index;
-    const bool     must_dump = MustDumpDrawCall(dc_index);
-
-    // Finalize draw call command buffer before the actual draw call in order
-    // to handle dumping render targets before the draw call
-    if (options_.dump_resources_before && must_dump)
+    if (options_.dump_resources_before)
     {
         FinalizeWindow();
-    }
-
-    DrawCallsDumpingContext::DrawCallParams* dc_params = nullptr;
-    if (must_dump)
-    {
-        dc_params = InsertNewDrawParameters(dc_index, vertex_count, instance_count, first_vertex, first_instance);
-    }
-
-    func(windows_->GetWorkCommandBuffer(), vertex_count, instance_count, first_vertex, first_instance);
-
-    if (must_dump)
-    {
-        FinalizeWindow(dc_params);
     }
 }
 
-void DrawCallsDumpingContext::CmdDrawIndexed(const ApiCallInfo&   call_info,
-                                             PFN_vkCmdDrawIndexed func,
-                                             VkCommandBuffer      original_command_buffer,
-                                             uint32_t             index_count,
-                                             uint32_t             instance_count,
-                                             uint32_t             first_index,
-                                             int32_t              vertex_offset,
-                                             uint32_t             first_instance)
+void DrawCallsDumpingContext::BeforeDraw(
+    uint64_t dc_index, uint32_t vertex_count, uint32_t instance_count, uint32_t first_vertex, uint32_t first_instance)
 {
-    const uint64_t dc_index  = call_info.index;
-    const bool     must_dump = MustDumpDrawCall(dc_index);
-
-    // Finalize draw call command buffer before the actual draw call in order
-    // to handle dumping render targets before the draw call
-    if (options_.dump_resources_before && must_dump)
+    if (MustDumpDrawCall(dc_index))
     {
-        FinalizeWindow();
+        FinalizeBeforeWindow();
+        InsertNewDrawParameters(dc_index, vertex_count, instance_count, first_vertex, first_instance);
     }
+}
 
-    // Copy vertex attribute info
-    DrawCallsDumpingContext::DrawCallParams* dc_params = nullptr;
-    if (must_dump)
+void DrawCallsDumpingContext::BeforeDrawIndexed(uint64_t dc_index,
+                                                uint32_t index_count,
+                                                uint32_t instance_count,
+                                                uint32_t first_index,
+                                                int32_t  vertex_offset,
+                                                uint32_t first_instance)
+{
+    if (MustDumpDrawCall(dc_index))
     {
-        dc_params = InsertNewDrawIndexedParameters(
+        FinalizeBeforeWindow();
+        InsertNewDrawIndexedParameters(
             dc_index, index_count, instance_count, first_index, vertex_offset, first_instance);
     }
+}
 
-    func(windows_->GetWorkCommandBuffer(), index_count, instance_count, first_index, vertex_offset, first_instance);
-
-    if (must_dump)
+void DrawCallsDumpingContext::BeforeDrawIndirect(
+    uint64_t dc_index, const VulkanBufferInfo* buffer_info, VkDeviceSize offset, uint32_t draw_count, uint32_t stride)
+{
+    if (MustDumpDrawCall(dc_index))
     {
-        FinalizeWindow(dc_params);
+        FinalizeBeforeWindow();
+        InsertNewDrawIndirectParameters(dc_index, buffer_info, offset, draw_count, stride);
     }
 }
 
-void DrawCallsDumpingContext::CmdDrawIndirect(const ApiCallInfo&      call_info,
-                                              PFN_vkCmdDrawIndirect   func,
-                                              VkCommandBuffer         original_command_buffer,
-                                              const VulkanBufferInfo* buffer_info,
-                                              VkDeviceSize            offset,
-                                              uint32_t                draw_count,
-                                              uint32_t                stride)
+void DrawCallsDumpingContext::BeforeDrawIndexedIndirect(
+    uint64_t dc_index, const VulkanBufferInfo* buffer_info, VkDeviceSize offset, uint32_t draw_count, uint32_t stride)
 {
-    const uint64_t dc_index  = call_info.index;
-    const bool     must_dump = MustDumpDrawCall(dc_index);
-
-    // Finalize draw call command buffer before the actual draw call in order
-    // to handle dumping render targets before the draw call
-    if (options_.dump_resources_before && must_dump)
+    if (MustDumpDrawCall(dc_index))
     {
-        FinalizeWindow();
-    }
-
-    // Copy vertex attribute info
-    DrawCallsDumpingContext::DrawCallParams* dc_params = nullptr;
-    if (must_dump)
-    {
-        dc_params = InsertNewDrawIndirectParameters(dc_index, buffer_info, offset, draw_count, stride);
-    }
-
-    func(windows_->GetWorkCommandBuffer(), buffer_info->handle, offset, draw_count, stride);
-
-    if (must_dump)
-    {
-        FinalizeWindow(dc_params);
+        FinalizeBeforeWindow();
+        InsertNewDrawIndexedIndirectParameters(dc_index, buffer_info, offset, draw_count, stride);
     }
 }
 
-void DrawCallsDumpingContext::CmdDrawIndexedIndirect(const ApiCallInfo&           call_info,
-                                                     PFN_vkCmdDrawIndexedIndirect func,
-                                                     VkCommandBuffer              original_command_buffer,
-                                                     const VulkanBufferInfo*      buffer_info,
-                                                     VkDeviceSize                 offset,
-                                                     uint32_t                     draw_count,
-                                                     uint32_t                     stride)
+void DrawCallsDumpingContext::BeforeDrawIndirectCount(uint64_t                              dc_index,
+                                                      const VulkanBufferInfo*               buffer_info,
+                                                      VkDeviceSize                          offset,
+                                                      const VulkanBufferInfo*               count_buffer_info,
+                                                      VkDeviceSize                          count_buffer_offset,
+                                                      uint32_t                              max_draw_count,
+                                                      uint32_t                              stride,
+                                                      DrawCallsDumpingContext::DrawCallType drawcall_type)
 {
-    const uint64_t dc_index  = call_info.index;
-    const bool     must_dump = MustDumpDrawCall(dc_index);
-
-    // Finalize draw call command buffer before the actual draw call in order
-    // to handle dumping render targets before the draw call
-    if (options_.dump_resources_before && must_dump)
+    if (MustDumpDrawCall(dc_index))
     {
-        FinalizeWindow();
-    }
-
-    DrawCallsDumpingContext::DrawCallParams* dc_params = nullptr;
-    if (must_dump)
-    {
-        dc_params = InsertNewDrawIndexedIndirectParameters(dc_index, buffer_info, offset, draw_count, stride);
-    }
-
-    func(windows_->GetWorkCommandBuffer(), buffer_info->handle, offset, draw_count, stride);
-
-    if (must_dump)
-    {
-        FinalizeWindow(dc_params);
+        FinalizeBeforeWindow();
+        InsertNewIndirectCountParameters(dc_index,
+                                         buffer_info,
+                                         offset,
+                                         count_buffer_info,
+                                         count_buffer_offset,
+                                         max_draw_count,
+                                         stride,
+                                         drawcall_type);
     }
 }
 
-void DrawCallsDumpingContext::CmdDrawIndirectCount(const ApiCallInfo&                    call_info,
-                                                   PFN_vkCmdDrawIndirectCount            func,
-                                                   VkCommandBuffer                       original_command_buffer,
-                                                   const VulkanBufferInfo*               buffer_info,
-                                                   VkDeviceSize                          offset,
-                                                   const VulkanBufferInfo*               count_buffer_info,
-                                                   VkDeviceSize                          count_buffer_offset,
-                                                   uint32_t                              max_draw_count,
-                                                   uint32_t                              stride,
-                                                   DrawCallsDumpingContext::DrawCallType drawcall_type)
+void DrawCallsDumpingContext::BeforeDrawIndexedIndirectCount(uint64_t                              dc_index,
+                                                             const VulkanBufferInfo*               buffer_info,
+                                                             VkDeviceSize                          offset,
+                                                             const VulkanBufferInfo*               count_buffer_info,
+                                                             VkDeviceSize                          count_buffer_offset,
+                                                             uint32_t                              max_draw_count,
+                                                             uint32_t                              stride,
+                                                             DrawCallsDumpingContext::DrawCallType drawcall_type)
 {
-    const uint64_t dc_index  = call_info.index;
-    const bool     must_dump = MustDumpDrawCall(dc_index);
-
-    // Finalize draw call command buffer before the actual draw call in order
-    // to handle dumping render targets before the draw call
-    if (options_.dump_resources_before && must_dump)
+    if (MustDumpDrawCall(dc_index))
     {
-        FinalizeWindow();
-    }
-
-    DrawCallsDumpingContext::DrawCallParams* dc_params = nullptr;
-    if (must_dump)
-    {
-        dc_params = InsertNewIndirectCountParameters(dc_index,
-                                                     buffer_info,
-                                                     offset,
-                                                     count_buffer_info,
-                                                     count_buffer_offset,
-                                                     max_draw_count,
-                                                     stride,
-                                                     drawcall_type);
-    }
-
-    func(windows_->GetWorkCommandBuffer(),
-         buffer_info->handle,
-         offset,
-         count_buffer_info->handle,
-         count_buffer_offset,
-         max_draw_count,
-         stride);
-
-    if (must_dump)
-    {
-        FinalizeWindow(dc_params);
+        FinalizeBeforeWindow();
+        InsertNewDrawIndexedIndirectCountParameters(dc_index,
+                                                    buffer_info,
+                                                    offset,
+                                                    count_buffer_info,
+                                                    count_buffer_offset,
+                                                    max_draw_count,
+                                                    stride,
+                                                    drawcall_type);
     }
 }
 
-void DrawCallsDumpingContext::CmdDrawIndexedIndirectCount(const ApiCallInfo&                    call_info,
-                                                          PFN_vkCmdDrawIndexedIndirectCount     func,
-                                                          VkCommandBuffer                       original_command_buffer,
-                                                          const VulkanBufferInfo*               buffer_info,
-                                                          VkDeviceSize                          offset,
-                                                          const VulkanBufferInfo*               count_buffer_info,
-                                                          VkDeviceSize                          count_buffer_offset,
-                                                          uint32_t                              max_draw_count,
-                                                          uint32_t                              stride,
-                                                          DrawCallsDumpingContext::DrawCallType drawcall_type)
+void DrawCallsDumpingContext::AfterDraw(uint64_t dc_index)
 {
-    const uint64_t dc_index  = call_info.index;
-    const bool     must_dump = MustDumpDrawCall(dc_index);
-
-    // Finalize draw call command buffer before the actual draw call in order
-    // to handle dumping render targets before the draw call
-    if (options_.dump_resources_before && must_dump)
+    if (MustDumpDrawCall(dc_index))
     {
-        FinalizeWindow();
-    }
+        const auto dc_params_entry = draw_call_params_.find(dc_index);
+        GFXRECON_ASSERT(dc_params_entry != draw_call_params_.end());
 
-    DrawCallsDumpingContext::DrawCallParams* dc_params = nullptr;
-    if (must_dump)
-    {
-        dc_params = InsertNewDrawIndexedIndirectCountParameters(dc_index,
-                                                                buffer_info,
-                                                                offset,
-                                                                count_buffer_info,
-                                                                count_buffer_offset,
-                                                                max_draw_count,
-                                                                stride,
-                                                                drawcall_type);
-    }
-
-    func(windows_->GetWorkCommandBuffer(),
-         buffer_info->handle,
-         offset,
-         count_buffer_info->handle,
-         count_buffer_offset,
-         max_draw_count,
-         stride);
-
-    if (must_dump)
-    {
-        FinalizeWindow(dc_params);
+        FinalizeWindow(dc_params_entry->second.get());
     }
 }
 
