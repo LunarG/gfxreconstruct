@@ -1273,6 +1273,18 @@ size_t DumpingContextWindows::WindowToSlotIndex(size_t cmd_buf_index) const
     }
 }
 
+bool DumpingContextWindows::IsNextSlot(Index index, WindowSlot::Kind kind) const
+{
+    // Every window is closed: only the tail clone, if there is one, still takes work
+    if (current_cb_index_ >= GetWindowCount())
+    {
+        return false;
+    }
+
+    const WindowSlot& slot = slots_[WindowToSlotIndex(current_cb_index_)];
+    return slot.execute_index == UNDEFINED_INDEX && slot.kind == kind && slot.index == index;
+}
+
 void DumpingContextWindows::GetCloneWindow(size_t cmd_buf_index, uint64_t& lo, uint64_t& hi) const
 {
     // A slot's position in the primary's stream is where the vkCmdExecuteCommands that merged it sits,

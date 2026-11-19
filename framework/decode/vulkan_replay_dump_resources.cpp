@@ -134,47 +134,39 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
         return windows;
     };
 
-    const auto create_draw_call_context = [&](const std::shared_ptr<DumpingContextWindows>& windows,
-                                              const CommandIndices*                         draw_indices,
-                                              decode::Index                                 bcb_index,
-                                              decode::Index                                 qs_index) {
-        auto dc_context = std::make_shared<DrawCallsDumpingContext>(windows,
-                                                                    draw_indices,
-                                                                    bcb_index,
-                                                                    qs_index,
-                                                                    options.DrawSubresources,
-                                                                    *object_info_table,
-                                                                    options,
-                                                                    *active_delegate_,
-                                                                    compressor_.get(),
-                                                                    acceleration_structures_context_,
-                                                                    device_contexts);
-        windows->SetSlotOwner(WindowSlot::Kind::kDraw, dc_context);
-        draw_call_contexts_.emplace(std::make_pair(bcb_index, qs_index), dc_context);
-    };
+    const auto create_draw_call_context =
+        [&](const std::shared_ptr<DumpingContextWindows>& windows, decode::Index bcb_index, decode::Index qs_index) {
+            auto dc_context = std::make_shared<DrawCallsDumpingContext>(windows,
+                                                                        bcb_index,
+                                                                        qs_index,
+                                                                        options.DrawSubresources,
+                                                                        *object_info_table,
+                                                                        options,
+                                                                        *active_delegate_,
+                                                                        compressor_.get(),
+                                                                        acceleration_structures_context_,
+                                                                        device_contexts);
+            windows->SetSlotOwner(WindowSlot::Kind::kDraw, dc_context);
+            draw_call_contexts_.emplace(std::make_pair(bcb_index, qs_index), dc_context);
+        };
 
-    const auto create_dispatch_trace_rays_context = [&](const std::shared_ptr<DumpingContextWindows>& windows,
-                                                        const CommandIndices*                         dispatch_indices,
-                                                        const CommandIndices* trace_rays_indices,
-                                                        decode::Index         bcb_index,
-                                                        decode::Index         qs_index) {
-        auto dr_context = std::make_shared<DispatchTraceRaysDumpingContext>(windows,
-                                                                            dispatch_indices,
-                                                                            options.DispatchSubresources,
-                                                                            trace_rays_indices,
-                                                                            bcb_index,
-                                                                            qs_index,
-                                                                            options.TraceRaysSubresources,
-                                                                            *object_info_table_,
-                                                                            options,
-                                                                            *active_delegate_,
-                                                                            compressor_.get(),
-                                                                            acceleration_structures_context_,
-                                                                            device_contexts);
-        windows->SetSlotOwner(WindowSlot::Kind::kDispatch, dr_context);
-        windows->SetSlotOwner(WindowSlot::Kind::kTraceRays, dr_context);
-        dispatch_ray_contexts_.emplace(std::make_pair(bcb_index, qs_index), dr_context);
-    };
+    const auto create_dispatch_trace_rays_context =
+        [&](const std::shared_ptr<DumpingContextWindows>& windows, decode::Index bcb_index, decode::Index qs_index) {
+            auto dr_context = std::make_shared<DispatchTraceRaysDumpingContext>(windows,
+                                                                                options.DispatchSubresources,
+                                                                                bcb_index,
+                                                                                qs_index,
+                                                                                options.TraceRaysSubresources,
+                                                                                *object_info_table_,
+                                                                                options,
+                                                                                *active_delegate_,
+                                                                                compressor_.get(),
+                                                                                acceleration_structures_context_,
+                                                                                device_contexts);
+            windows->SetSlotOwner(WindowSlot::Kind::kDispatch, dr_context);
+            windows->SetSlotOwner(WindowSlot::Kind::kTraceRays, dr_context);
+            dispatch_ray_contexts_.emplace(std::make_pair(bcb_index, qs_index), dr_context);
+        };
 
     for (size_t i = 0; i < BeginCommandBufferQueueSubmit_Indices_.size(); ++i)
     {
@@ -201,12 +193,12 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
 
             if (has_draw)
             {
-                create_draw_call_context(windows, draw_indices, bcb_index, qs_index);
+                create_draw_call_context(windows, bcb_index, qs_index);
             }
 
             if (has_dispatch)
             {
-                create_dispatch_trace_rays_context(windows, dispatch_indices, trace_rays_indices, bcb_index, qs_index);
+                create_dispatch_trace_rays_context(windows, bcb_index, qs_index);
             }
         }
 
@@ -290,13 +282,13 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                 if (secondary_windows->HasSlotOwner(WindowSlot::Kind::kDraw) &&
                     !primary_windows->HasSlotOwner(WindowSlot::Kind::kDraw))
                 {
-                    create_draw_call_context(primary_windows, nullptr, bcb_index, qs_index);
+                    create_draw_call_context(primary_windows, bcb_index, qs_index);
                 }
 
                 if (secondary_windows->HasSlotOwner(WindowSlot::Kind::kDispatch) &&
                     !primary_windows->HasSlotOwner(WindowSlot::Kind::kDispatch))
                 {
-                    create_dispatch_trace_rays_context(primary_windows, nullptr, nullptr, bcb_index, qs_index);
+                    create_dispatch_trace_rays_context(primary_windows, bcb_index, qs_index);
                 }
 
                 primary_windows->AssignSecondary(execute_commands_index, secondary_windows);

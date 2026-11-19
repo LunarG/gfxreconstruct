@@ -52,7 +52,6 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 DrawCallsDumpingContext::DrawCallsDumpingContext(
     std::shared_ptr<DumpingContextWindows>            windows,
-    const CommandIndices*                             draw_indices,
     decode::Index                                     bcb_index,
     decode::Index                                     qs_index,
     const CommandImageSubresource&                    dc_subresources,
@@ -73,12 +72,7 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(
                        device_contexts),
     dc_subresources_(dc_subresources), bound_gr_pipeline_(nullptr), aux_command_buffer_(VK_NULL_HANDLE),
     aux_fence_(VK_NULL_HANDLE)
-{
-    if (draw_indices != nullptr)
-    {
-        draw_indices_ = *draw_indices;
-    }
-}
+{}
 
 DrawCallsDumpingContext::~DrawCallsDumpingContext()
 {
@@ -782,7 +776,7 @@ void DrawCallsDumpingContext::FinalizeWindow(DrawCallsDumpingContext::DrawCallPa
 
 bool DrawCallsDumpingContext::MustDumpDrawCall(uint64_t index) const
 {
-    return std::find(draw_indices_.begin(), draw_indices_.end(), index) != draw_indices_.end();
+    return windows_->IsNextSlot(index, WindowSlot::Kind::kDraw);
 }
 
 VkResult DrawCallsDumpingContext::DumpSlot(const WindowSlot& slot,

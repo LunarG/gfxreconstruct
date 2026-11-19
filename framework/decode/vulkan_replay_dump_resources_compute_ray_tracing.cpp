@@ -52,9 +52,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(
     std::shared_ptr<DumpingContextWindows>            windows,
-    const CommandIndices*                             dispatch_indices,
     const CommandImageSubresource&                    disp_subresources,
-    const CommandIndices*                             trace_rays_indices,
     decode::Index                                     bcb_index,
     decode::Index                                     qs_index,
     const CommandImageSubresource&                    tr_subresources,
@@ -75,17 +73,7 @@ DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(
                        device_contexts),
     disp_subresources_(disp_subresources), tr_subresources_(tr_subresources), bound_pipeline_compute_(nullptr),
     bound_pipeline_trace_rays_(nullptr), parent_device_(VK_NULL_HANDLE)
-{
-    if (dispatch_indices != nullptr)
-    {
-        dispatch_indices_ = *dispatch_indices;
-    }
-
-    if (trace_rays_indices != nullptr)
-    {
-        trace_rays_indices_ = *trace_rays_indices;
-    }
-}
+{}
 
 DispatchTraceRaysDumpingContext::~DispatchTraceRaysDumpingContext()
 {
@@ -106,8 +94,6 @@ void DispatchTraceRaysDumpingContext::Release()
         original_command_buffer_info_ = nullptr;
     }
 
-    dispatch_indices_.clear();
-    trace_rays_indices_.clear();
     bound_descriptor_sets_compute_.clear();
     bound_descriptor_sets_ray_tracing_.clear();
     dispatch_params_.clear();
@@ -333,12 +319,12 @@ void DispatchTraceRaysDumpingContext::BindDescriptorSets(
 
 bool DispatchTraceRaysDumpingContext::MustDumpDispatch(uint64_t index) const
 {
-    return std::find(dispatch_indices_.begin(), dispatch_indices_.end(), index) != dispatch_indices_.end();
+    return windows_->IsNextSlot(index, WindowSlot::Kind::kDispatch);
 }
 
 bool DispatchTraceRaysDumpingContext::MustDumpTraceRays(uint64_t index) const
 {
-    return std::find(trace_rays_indices_.begin(), trace_rays_indices_.end(), index) != trace_rays_indices_.end();
+    return windows_->IsNextSlot(index, WindowSlot::Kind::kTraceRays);
 }
 
 static void SnapshotBoundDescriptorsDispatch(DispatchTraceRaysDumpingContext::DispatchParams& disp_params,
