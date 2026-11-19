@@ -80,10 +80,9 @@ void VulkanStageImageLayout::ProcessInitImageCommand(format::HandleId           
 {
     VulkanConsumerStage::ProcessInitImageCommand(device_id, image_id, data_size, aspect, layout, level_sizes, data);
 
-    // The replay consumer moved the image to the layout, when it could.
     const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(device_id);
     VulkanImageInfo*        image_info  = object_info_table_.GetVkImageInfo(image_id);
-    if ((device_info == nullptr) || (device_info->resource_initializer == nullptr) || (image_info == nullptr))
+    if ((device_info == nullptr) || (image_info == nullptr))
     {
         return;
     }
