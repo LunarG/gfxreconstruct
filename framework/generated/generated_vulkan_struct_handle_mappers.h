@@ -1974,6 +1974,8 @@ void MapStructHandles(Decoded_VkSRTDataNV* wrapper, const CommonObjectInfoTable&
 
 void MapStructHandles(Decoded_VkAccelerationStructureSRTMotionInstanceNV* wrapper, const CommonObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_VkAccelerationStructureMotionInstanceNV* wrapper, const CommonObjectInfoTable& object_info_table);
+
 void MapStructHandles(Decoded_VkPhysicalDeviceRayTracingMotionBlurFeaturesNV* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT* wrapper, const CommonObjectInfoTable& object_info_table);
@@ -2520,6 +2522,8 @@ void MapStructHandles(Decoded_VkIndirectExecutionSetShaderLayoutInfoEXT* wrapper
 
 void MapStructHandles(Decoded_VkIndirectExecutionSetShaderInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_VkIndirectExecutionSetCreateInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
 void MapStructHandles(Decoded_VkGeneratedCommandsInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkWriteIndirectExecutionSetPipelineEXT* wrapper, const CommonObjectInfoTable& object_info_table);
@@ -2531,6 +2535,8 @@ void MapStructHandles(Decoded_VkIndirectCommandsVertexBufferTokenEXT* wrapper, c
 void MapStructHandles(Decoded_VkIndirectCommandsIndexBufferTokenEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkIndirectCommandsExecutionSetTokenEXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkIndirectCommandsLayoutTokenEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkIndirectCommandsLayoutCreateInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 

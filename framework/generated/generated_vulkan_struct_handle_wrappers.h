@@ -2139,9 +2139,13 @@ void UnwrapStructHandles(VkIndirectExecutionSetShaderLayoutInfoEXT* value, Handl
 
 void UnwrapStructHandles(VkIndirectExecutionSetShaderInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(VkIndirectExecutionSetCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(VkGeneratedCommandsInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkWriteIndirectExecutionSetPipelineEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkIndirectCommandsLayoutTokenEXT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkIndirectCommandsLayoutCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 

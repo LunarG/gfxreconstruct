@@ -10634,6 +10634,8 @@ void VulkanReplayConsumer::Process_vkCreateIndirectExecutionSetEXT(
     args::CreateIndirectExecutionSetEXT&        args)
 {
     auto in_device = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+
+    MapStructHandles(args.pCreateInfo.GetMetaStructPointer(), GetObjectInfoTable());
     if (!args.pIndirectExecutionSet.IsNull()) { args.pIndirectExecutionSet.SetHandleLength(1); }
     VulkanIndirectExecutionSetEXTInfo handle_info;
     args.pIndirectExecutionSet.SetConsumerData(0, &handle_info);

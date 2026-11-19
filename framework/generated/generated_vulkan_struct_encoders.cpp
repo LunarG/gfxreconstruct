@@ -9234,6 +9234,32 @@ void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureSRTMot
     encoder->EncodeUInt64Value(value.accelerationStructureReference);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureMotionInstanceNV& value)
+{
+    encoder->EncodeEnumValue(value.type);
+    encoder->EncodeFlagsValue(value.flags);
+    switch (value.type)
+    {
+        case VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_STATIC_NV:
+        {
+            EncodeStruct(encoder, value.data.staticInstance);
+            break;
+        }
+        case VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_MATRIX_MOTION_NV:
+        {
+            EncodeStruct(encoder, value.data.matrixMotionInstance);
+            break;
+        }
+        case VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_SRT_MOTION_NV:
+        {
+            EncodeStruct(encoder, value.data.srtMotionInstance);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingMotionBlurFeaturesNV& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -11567,6 +11593,28 @@ void EncodeStruct(ParameterEncoder* encoder, const VkIndirectExecutionSetShaderI
     EncodeStructArray(encoder, value.pPushConstantRanges, value.pushConstantRangeCount);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkIndirectExecutionSetCreateInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.type);
+    switch (value.type)
+    {
+        case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT:
+        {
+            EncodeStructPtr(encoder, value.info.pPipelineInfo);
+            break;
+        }
+        case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT:
+        {
+            EncodeStructPtr(encoder, value.info.pShaderInfo);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkGeneratedCommandsInfoEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -11610,6 +11658,42 @@ void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsExecutionSe
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeFlagsValue(value.shaderStages);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsLayoutTokenEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.type);
+    switch (value.type)
+    {
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT:
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_SEQUENCE_INDEX_EXT:
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_DATA_EXT:
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_DATA_SEQUENCE_INDEX_EXT:
+        {
+            EncodeStructPtr(encoder, value.data.pPushConstant);
+            break;
+        }
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_EXT:
+        {
+            EncodeStructPtr(encoder, value.data.pVertexBuffer);
+            break;
+        }
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_EXT:
+        {
+            EncodeStructPtr(encoder, value.data.pIndexBuffer);
+            break;
+        }
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT:
+        {
+            EncodeStructPtr(encoder, value.data.pExecutionSet);
+            break;
+        }
+        default:
+            break;
+    }
+    encoder->EncodeUInt32Value(value.offset);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsLayoutCreateInfoEXT& value)

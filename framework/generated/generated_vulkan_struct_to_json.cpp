@@ -14948,6 +14948,38 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureMotionInstanceNV* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkAccelerationStructureMotionInstanceNV& decoded_value = *data->decoded_value;
+        const Decoded_VkAccelerationStructureMotionInstanceNV& meta_struct = *data;
+
+        jdata["type"] = decoded_value.type;
+        jdata["flags"] = VkAccelerationStructureMotionInstanceFlagsNV_t{decoded_value.flags};
+        switch (decoded_value.type)
+        {
+            case VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_STATIC_NV:
+            {
+                FieldToJson(jdata["data"], meta_struct.data->staticInstance);
+                break;
+            }
+            case VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_MATRIX_MOTION_NV:
+            {
+                FieldToJson(jdata["data"], meta_struct.data->matrixMotionInstance);
+                break;
+            }
+            case VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_SRT_MOTION_NV:
+            {
+                FieldToJson(jdata["data"], meta_struct.data->srtMotionInstance);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRayTracingMotionBlurFeaturesNV* data)
 {
     if (data && data->decoded_value)
@@ -18918,6 +18950,34 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectExecutio
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectExecutionSetCreateInfoEXT* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkIndirectExecutionSetCreateInfoEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkIndirectExecutionSetCreateInfoEXT& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["type"] = decoded_value.type;
+        switch (decoded_value.type)
+        {
+            case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT:
+            {
+                FieldToJson(jdata["info"], meta_struct.info->pPipelineInfo);
+                break;
+            }
+            case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT:
+            {
+                FieldToJson(jdata["info"], meta_struct.info->pShaderInfo);
+                break;
+            }
+            default:
+                break;
+        }
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGeneratedCommandsInfoEXT* data)
 {
     if (data && data->decoded_value)
@@ -18996,6 +19056,48 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectCommands
 
         jdata["type"] = decoded_value.type;
         jdata["shaderStages"] = VkShaderStageFlags_t{decoded_value.shaderStages};
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectCommandsLayoutTokenEXT* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkIndirectCommandsLayoutTokenEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkIndirectCommandsLayoutTokenEXT& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["type"] = decoded_value.type;
+        switch (decoded_value.type)
+        {
+            case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT:
+            case VK_INDIRECT_COMMANDS_TOKEN_TYPE_SEQUENCE_INDEX_EXT:
+            case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_DATA_EXT:
+            case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_DATA_SEQUENCE_INDEX_EXT:
+            {
+                FieldToJson(jdata["data"], meta_struct.data->pPushConstant);
+                break;
+            }
+            case VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_EXT:
+            {
+                FieldToJson(jdata["data"], meta_struct.data->pVertexBuffer);
+                break;
+            }
+            case VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_EXT:
+            {
+                FieldToJson(jdata["data"], meta_struct.data->pIndexBuffer);
+                break;
+            }
+            case VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT:
+            {
+                FieldToJson(jdata["data"], meta_struct.data->pExecutionSet);
+                break;
+            }
+            default:
+                break;
+        }
+        jdata["offset"] = decoded_value.offset;
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
 
@@ -23017,9 +23119,23 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_TOKEN_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkIndirectCommandsLayoutTokenEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_TOKEN_NV:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkIndirectCommandsLayoutTokenNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_CREATE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkIndirectExecutionSetCreateInfoEXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext);
                 break;
             }

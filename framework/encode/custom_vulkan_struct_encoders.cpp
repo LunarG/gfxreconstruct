@@ -31,6 +31,7 @@
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 
 #include <cassert>
+#include <cstring>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -92,27 +93,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDeviceOrHostAddressKHR& val
 void EncodeStruct(ParameterEncoder* encoder, const VkDeviceOrHostAddressConstKHR& value)
 {
     encoder->EncodeUInt64Value(value.deviceAddress);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureMotionInstanceNV& value)
-{
-    encoder->EncodeEnumValue(value.type);
-    encoder->EncodeFlagsValue(value.flags);
-
-    switch (value.type)
-    {
-        case VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_STATIC_NV:
-            EncodeStruct(encoder, value.data.staticInstance);
-            break;
-        case VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_MATRIX_MOTION_NV:
-            EncodeStruct(encoder, value.data.matrixMotionInstance);
-            break;
-        case VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_SRT_MOTION_NV:
-            EncodeStruct(encoder, value.data.srtMotionInstance);
-            break;
-        default:
-            break;
-    }
 }
 
 // Encodes both VkWriteDescriptorSet and VkDescriptorImageInfo based on descriptor type.
@@ -183,14 +163,28 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPerformanceValueINTEL& valu
 {
     encoder->EncodeEnumValue(value.type);
 
-    if (value.type == VK_PERFORMANCE_VALUE_TYPE_STRING_INTEL)
+    // Non-string values keep their 8-byte slot so old captures still decode. Copy only the active member.
+    uint64_t value64 = 0;
+    switch (value.type)
     {
-        encoder->EncodeString(value.data.valueString);
+        case VK_PERFORMANCE_VALUE_TYPE_STRING_INTEL:
+            encoder->EncodeString(value.data.valueString);
+            return;
+        case VK_PERFORMANCE_VALUE_TYPE_UINT32_INTEL:
+            value64 = value.data.value32;
+            break;
+        case VK_PERFORMANCE_VALUE_TYPE_FLOAT_INTEL:
+            static_assert(sizeof(value.data.valueFloat) <= sizeof(value64));
+            std::memcpy(&value64, &value.data.valueFloat, sizeof(value.data.valueFloat));
+            break;
+        case VK_PERFORMANCE_VALUE_TYPE_BOOL_INTEL:
+            value64 = value.data.valueBool;
+            break;
+        default:
+            value64 = value.data.value64;
+            break;
     }
-    else
-    {
-        encoder->EncodeUInt64Value(value.data.value64);
-    }
+    encoder->EncodeUInt64Value(value64);
 }
 
 // Encodes the VkAccelerationStructureGeometryKHR::geometry union based on the value of geometryType
@@ -223,50 +217,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPushDescriptorSetWithTempla
     encoder->EncodeVulkanHandleValue<vulkan_wrappers::DescriptorUpdateTemplateWrapper>(value.descriptorUpdateTemplate);
     encoder->EncodeVulkanHandleValue<vulkan_wrappers::PipelineLayoutWrapper>(value.layout);
     encoder->EncodeUInt32Value(value.set);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkIndirectExecutionSetCreateInfoEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeEnumValue(value.type);
-    switch (value.type)
-    {
-        case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT:
-            EncodeStructPtr(encoder, value.info.pPipelineInfo);
-            break;
-        case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT:
-            EncodeStructPtr(encoder, value.info.pShaderInfo);
-            break;
-        default:
-            break;
-    }
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsLayoutTokenEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeEnumValue(value.type);
-    switch (value.type)
-    {
-        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT:
-        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_SEQUENCE_INDEX_EXT:
-            EncodeStructPtr(encoder, value.data.pPushConstant);
-            break;
-        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_EXT:
-            EncodeStructPtr(encoder, value.data.pVertexBuffer);
-            break;
-        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_EXT:
-            EncodeStructPtr(encoder, value.data.pIndexBuffer);
-            break;
-        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT:
-            EncodeStructPtr(encoder, value.data.pExecutionSet);
-            break;
-        default:
-            break;
-    }
-    encoder->EncodeUInt32Value(value.offset);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkCopyMemoryToImageInfo& value)
