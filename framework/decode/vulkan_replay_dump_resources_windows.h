@@ -238,6 +238,12 @@ class DumpingContextWindows
     // The index of the clone taking work
     size_t GetCurrentWindowIndex() const { return current_cb_index_; }
 
+    // True when the command with the given block index is the target of the window taking work, i.e. the next slot
+    // to close. The slots are in the order their commands are replayed, so this is how the owners tell a command
+    // they must dump from the rest. It is false for the slots merged from a secondary: those are closed when the
+    // vkCmdExecuteCommands is replayed, not by a command of this command buffer.
+    bool IsNextSlot(Index index, WindowSlot::Kind kind) const;
+
     // Every clone from the one taking work to the last. State commands are recorded into all of them.
     uint32_t GetActiveCommandBuffers(CommandBufferIterator& first, CommandBufferIterator& last) const;
 

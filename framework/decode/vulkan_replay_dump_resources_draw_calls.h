@@ -75,10 +75,7 @@ class DrawCallsDumpingContext : public DumpingContextBase
         kDrawIndexedIndirectCountAMD
     };
 
-    // windows is the execution of the command buffer this context dumps draw calls from. dc_indices are the draw
-    // calls to dump; it is null for a primary that only executes secondaries with dumped draw calls.
     DrawCallsDumpingContext(std::shared_ptr<DumpingContextWindows>            windows,
-                            const CommandIndices*                             dc_indices,
                             decode::Index                                     bcb_index,
                             decode::Index                                     qs_index,
                             const CommandImageSubresource&                    dc_subresources,
@@ -269,9 +266,6 @@ class DrawCallsDumpingContext : public DumpingContextBase
     VkResult FetchDrawIndirectParams(DrawCallParams& dc_params);
 
     VkResult RevertRenderTargetImageLayouts(VkQueue queue, const WindowSlot& slot);
-
-    // The draw calls to dump from this command buffer
-    CommandIndices draw_indices_;
 
     CommandImageSubresource      dc_subresources_;
     const VulkanPipelineInfo*    bound_gr_pipeline_;

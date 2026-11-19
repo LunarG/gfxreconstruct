@@ -59,12 +59,8 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class DispatchTraceRaysDumpingContext : public DumpingContextBase
 {
   public:
-    // windows is the execution of the command buffer this context dumps dispatch/trace rays commands from. Both
-    // rows of indices are null for a primary that only executes secondaries with dumped dispatch/trace rays.
     DispatchTraceRaysDumpingContext(std::shared_ptr<DumpingContextWindows>            windows,
-                                    const CommandIndices*                             dispatch_indices,
                                     const CommandImageSubresource&                    disp_subresources,
-                                    const CommandIndices*                             trace_rays_indices,
                                     decode::Index                                     bcb_index,
                                     decode::Index                                     qs_index,
                                     const CommandImageSubresource&                    tr_subresources,
@@ -215,9 +211,7 @@ class DispatchTraceRaysDumpingContext : public DumpingContextBase
     // With --dump-resources-before, closes the window that ends right before a dumped command
     void FinalizeBeforeWindow();
 
-    CommandIndices          dispatch_indices_;
     CommandImageSubresource disp_subresources_;
-    CommandIndices          trace_rays_indices_;
     CommandImageSubresource tr_subresources_;
 
     // One entry per descriptor set for each compute and ray tracing binding points
