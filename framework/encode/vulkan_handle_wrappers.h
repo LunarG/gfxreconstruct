@@ -278,7 +278,7 @@ struct ImageWrapper : public HandleWrapper<VkImage>, AssetWrapperBase
 
     std::set<VkSwapchainKHR> parent_swapchains;
 
-    // optional opaque descriptor-data used by VK_EXT_descriptor_buffer
+    // optional opaque data used by VK_EXT_descriptor_buffer or VK_EXT_descriptor_heap
     std::vector<uint8_t> opaque_descriptor_data;
 };
 

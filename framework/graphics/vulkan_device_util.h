@@ -96,6 +96,7 @@ struct VulkanDevicePropertyFeatureInfo
     VkBool32 feature_accelerationStructureCaptureReplay{ VK_FALSE };
     VkBool32 feature_rayTracingPipelineShaderGroupHandleCaptureReplay{ VK_FALSE };
     VkBool32 feature_descriptorBufferCaptureReplay{ VK_FALSE };
+    VkBool32 feature_descriptorHeapCaptureReplay{ VK_FALSE };
 
     VkBool32 feature_samplerYcbcrConversion{ VK_FALSE };
 
@@ -109,6 +110,7 @@ struct VulkanDevicePropertyFeatureInfo
     bool dynamic_rendering_depth_stencil_resolve{ false };
 
     VkPhysicalDeviceDescriptorBufferPropertiesEXT descriptor_buffer_properties;
+    VkPhysicalDeviceDescriptorHeapPropertiesEXT   descriptor_heap_properties{};
 
     VkBool32 feature_timeline_semaphore{ VK_FALSE };
 };
@@ -174,6 +176,10 @@ class VulkanDeviceUtil
     // VkPhysicalDeviceDescriptorBufferFeaturesEXT::descriptorBufferCaptureReplay
     VkBool32* descriptorBufferCaptureReplay_ptr{ nullptr };
     VkBool32  descriptorBufferCaptureReplay_original{ VK_FALSE };
+
+    // VkPhysicalDeviceDescriptorHeapFeaturesEXT::descriptorHeapCaptureReplay
+    VkBool32* descriptorHeapCaptureReplay_ptr{ nullptr };
+    VkBool32  descriptorHeapCaptureReplay_original{ VK_FALSE };
 
     // VkPhysicalDeviceSamplerYcbcrConversionFeatures
     VkBool32* samplerYcbcrConversion_ptr{ nullptr };
