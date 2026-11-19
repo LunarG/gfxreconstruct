@@ -3733,6 +3733,106 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 
                 break;
             }
+            case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_DESCRIPTOR_HEAP_INFO_EXT: {
+                auto casted_struct = reinterpret_cast<const VkCommandBufferInheritanceDescriptorHeapInfoEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkCommandBufferInheritanceDescriptorHeapInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkCommandBufferInheritanceDescriptorHeapInfoEXT(out,
+                                                                casted_struct,
+                                                                decoded_struct,
+                                                                consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_PUSH_DATA_TOKEN_NV: {
+                auto casted_struct = reinterpret_cast<const VkIndirectCommandsLayoutPushDataTokenNV*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkIndirectCommandsLayoutPushDataTokenNV*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkIndirectCommandsLayoutPushDataTokenNV(out,
+                                                        casted_struct,
+                                                        decoded_struct,
+                                                        consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DATA_CREATE_INFO_EXT: {
+                auto casted_struct = reinterpret_cast<const VkOpaqueCaptureDataCreateInfoEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkOpaqueCaptureDataCreateInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkOpaqueCaptureDataCreateInfoEXT(out,
+                                                 casted_struct,
+                                                 decoded_struct,
+                                                 consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_HEAP_FEATURES_EXT: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceDescriptorHeapFeaturesEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceDescriptorHeapFeaturesEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceDescriptorHeapFeaturesEXT(out,
+                                                          casted_struct,
+                                                          decoded_struct,
+                                                          consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_HEAP_PROPERTIES_EXT: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceDescriptorHeapPropertiesEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceDescriptorHeapPropertiesEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceDescriptorHeapPropertiesEXT(out,
+                                                            casted_struct,
+                                                            decoded_struct,
+                                                            consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_HEAP_TENSOR_PROPERTIES_ARM: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceDescriptorHeapTensorPropertiesARM*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceDescriptorHeapTensorPropertiesARM*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceDescriptorHeapTensorPropertiesARM(out,
+                                                                  casted_struct,
+                                                                  decoded_struct,
+                                                                  consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT: {
+                auto casted_struct = reinterpret_cast<const VkSamplerCustomBorderColorCreateInfoEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkSamplerCustomBorderColorCreateInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkSamplerCustomBorderColorCreateInfoEXT(out,
+                                                        casted_struct,
+                                                        decoded_struct,
+                                                        consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_INDEX_CREATE_INFO_EXT: {
+                auto casted_struct = reinterpret_cast<const VkSamplerCustomBorderColorIndexCreateInfoEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkSamplerCustomBorderColorIndexCreateInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkSamplerCustomBorderColorIndexCreateInfoEXT(out,
+                                                             casted_struct,
+                                                             decoded_struct,
+                                                             consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_SHADER_DESCRIPTOR_SET_AND_BINDING_MAPPING_INFO_EXT: {
+                auto casted_struct = reinterpret_cast<const VkShaderDescriptorSetAndBindingMappingInfoEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkShaderDescriptorSetAndBindingMappingInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkShaderDescriptorSetAndBindingMappingInfoEXT(out,
+                                                              casted_struct,
+                                                              decoded_struct,
+                                                              consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_SUBSAMPLED_IMAGE_FORMAT_PROPERTIES_EXT: {
+                auto casted_struct = reinterpret_cast<const VkSubsampledImageFormatPropertiesEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkSubsampledImageFormatPropertiesEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkSubsampledImageFormatPropertiesEXT(out,
+                                                     casted_struct,
+                                                     decoded_struct,
+                                                     consumer);
+
+                break;
+            }
             case VK_STRUCTURE_TYPE_ATTACHMENT_SAMPLE_COUNT_INFO_AMD: {
                 auto casted_struct = reinterpret_cast<const VkAttachmentSampleCountInfoAMD*>(struct_info);
                 auto decoded_struct = reinterpret_cast<Decoded_VkAttachmentSampleCountInfoAMD*>(pnext_meta_data->GetMetaStructPointer());
@@ -4720,16 +4820,6 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
                                                                casted_struct,
                                                                decoded_struct,
                                                                consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT: {
-                auto casted_struct = reinterpret_cast<const VkSamplerCustomBorderColorCreateInfoEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkSamplerCustomBorderColorCreateInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkSamplerCustomBorderColorCreateInfoEXT(out,
-                                                        casted_struct,
-                                                        decoded_struct,
-                                                        consumer);
 
                 break;
             }

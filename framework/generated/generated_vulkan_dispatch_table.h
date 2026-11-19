@@ -158,6 +158,7 @@ inline VKAPI_ATTR VkResult VKAPI_CALL vkSetDebugUtilsObjectTagEXT(VkDevice, cons
 inline VKAPI_ATTR VkResult VKAPI_CALL vkCreateDebugUtilsMessengerEXT(VkInstance, const VkDebugUtilsMessengerCreateInfoEXT*, const VkAllocationCallbacks*, VkDebugUtilsMessengerEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCreateDebugUtilsMessengerEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL vkDestroyDebugUtilsMessengerEXT(VkInstance, VkDebugUtilsMessengerEXT, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkDestroyDebugUtilsMessengerEXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkSubmitDebugUtilsMessageEXT(VkInstance, VkDebugUtilsMessageSeverityFlagBitsEXT, VkDebugUtilsMessageTypeFlagsEXT, const VkDebugUtilsMessengerCallbackDataEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkSubmitDebugUtilsMessageEXT was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR VkDeviceSize VKAPI_CALL vkGetPhysicalDeviceDescriptorSizeEXT(VkPhysicalDevice, VkDescriptorType) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceDescriptorSizeEXT was called, resulting in no-op behavior."); return 0; }
 inline VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceMultisamplePropertiesEXT(VkPhysicalDevice, VkSampleCountFlagBits, VkMultisamplePropertiesEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceMultisamplePropertiesEXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(VkPhysicalDevice, uint32_t*, VkTimeDomainKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceCalibrateableTimeDomainsEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkCreateImagePipeSurfaceFUCHSIA(VkInstance, const VkImagePipeSurfaceCreateInfoFUCHSIA*, const VkAllocationCallbacks*, VkSurfaceKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCreateImagePipeSurfaceFUCHSIA was called, resulting in no-op behavior."); return VK_SUCCESS; }
@@ -587,6 +588,15 @@ inline VKAPI_ATTR VkResult VKAPI_CALL vkGetGpaSessionStatusAMD(VkDevice, VkGpaSe
 inline VKAPI_ATTR VkResult VKAPI_CALL vkGetGpaSessionResultsAMD(VkDevice, VkGpaSessionAMD, uint32_t, size_t*, void*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetGpaSessionResultsAMD was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkResetGpaSessionAMD(VkDevice, VkGpaSessionAMD) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkResetGpaSessionAMD was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdCopyGpaSessionResultsAMD(VkCommandBuffer, VkGpaSessionAMD) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdCopyGpaSessionResultsAMD was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR VkResult VKAPI_CALL vkWriteSamplerDescriptorsEXT(VkDevice, uint32_t, const VkSamplerCreateInfo*, const VkHostAddressRangeEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkWriteSamplerDescriptorsEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR VkResult VKAPI_CALL vkWriteResourceDescriptorsEXT(VkDevice, uint32_t, const VkResourceDescriptorInfoEXT*, const VkHostAddressRangeEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkWriteResourceDescriptorsEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR void VKAPI_CALL vkCmdBindSamplerHeapEXT(VkCommandBuffer, const VkBindHeapInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdBindSamplerHeapEXT was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL vkCmdBindResourceHeapEXT(VkCommandBuffer, const VkBindHeapInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdBindResourceHeapEXT was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL vkCmdPushDataEXT(VkCommandBuffer, const VkPushDataInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdPushDataEXT was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR VkResult VKAPI_CALL vkGetImageOpaqueCaptureDataEXT(VkDevice, uint32_t, const VkImage*, VkHostAddressRangeEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetImageOpaqueCaptureDataEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR VkResult VKAPI_CALL vkRegisterCustomBorderColorEXT(VkDevice, const VkSamplerCustomBorderColorCreateInfoEXT*, VkBool32, uint32_t*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkRegisterCustomBorderColorEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR void VKAPI_CALL vkUnregisterCustomBorderColorEXT(VkDevice, uint32_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkUnregisterCustomBorderColorEXT was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR VkResult VKAPI_CALL vkGetTensorOpaqueCaptureDataARM(VkDevice, uint32_t, const VkTensorARM*, VkHostAddressRangeEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetTensorOpaqueCaptureDataARM was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdSetSampleLocationsEXT(VkCommandBuffer, const VkSampleLocationsInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetSampleLocationsEXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkGetImageDrmFormatModifierPropertiesEXT(VkDevice, VkImage, VkImageDrmFormatModifierPropertiesEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetImageDrmFormatModifierPropertiesEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkCreateValidationCacheEXT(VkDevice, const VkValidationCacheCreateInfoEXT*, const VkAllocationCallbacks*, VkValidationCacheEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCreateValidationCacheEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
@@ -941,6 +951,7 @@ struct VulkanInstanceTable
     PFN_vkCreateDebugUtilsMessengerEXT CreateDebugUtilsMessengerEXT{ noop::vkCreateDebugUtilsMessengerEXT };
     PFN_vkDestroyDebugUtilsMessengerEXT DestroyDebugUtilsMessengerEXT{ noop::vkDestroyDebugUtilsMessengerEXT };
     PFN_vkSubmitDebugUtilsMessageEXT SubmitDebugUtilsMessageEXT{ noop::vkSubmitDebugUtilsMessageEXT };
+    PFN_vkGetPhysicalDeviceDescriptorSizeEXT GetPhysicalDeviceDescriptorSizeEXT{ noop::vkGetPhysicalDeviceDescriptorSizeEXT };
     PFN_vkGetPhysicalDeviceMultisamplePropertiesEXT GetPhysicalDeviceMultisamplePropertiesEXT{ noop::vkGetPhysicalDeviceMultisamplePropertiesEXT };
     PFN_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT GetPhysicalDeviceCalibrateableTimeDomainsEXT{ noop::vkGetPhysicalDeviceCalibrateableTimeDomainsEXT };
     PFN_vkCreateImagePipeSurfaceFUCHSIA CreateImagePipeSurfaceFUCHSIA{ noop::vkCreateImagePipeSurfaceFUCHSIA };
@@ -1374,6 +1385,15 @@ struct VulkanDeviceTable
     PFN_vkGetGpaSessionResultsAMD GetGpaSessionResultsAMD{ noop::vkGetGpaSessionResultsAMD };
     PFN_vkResetGpaSessionAMD ResetGpaSessionAMD{ noop::vkResetGpaSessionAMD };
     PFN_vkCmdCopyGpaSessionResultsAMD CmdCopyGpaSessionResultsAMD{ noop::vkCmdCopyGpaSessionResultsAMD };
+    PFN_vkWriteSamplerDescriptorsEXT WriteSamplerDescriptorsEXT{ noop::vkWriteSamplerDescriptorsEXT };
+    PFN_vkWriteResourceDescriptorsEXT WriteResourceDescriptorsEXT{ noop::vkWriteResourceDescriptorsEXT };
+    PFN_vkCmdBindSamplerHeapEXT CmdBindSamplerHeapEXT{ noop::vkCmdBindSamplerHeapEXT };
+    PFN_vkCmdBindResourceHeapEXT CmdBindResourceHeapEXT{ noop::vkCmdBindResourceHeapEXT };
+    PFN_vkCmdPushDataEXT CmdPushDataEXT{ noop::vkCmdPushDataEXT };
+    PFN_vkGetImageOpaqueCaptureDataEXT GetImageOpaqueCaptureDataEXT{ noop::vkGetImageOpaqueCaptureDataEXT };
+    PFN_vkRegisterCustomBorderColorEXT RegisterCustomBorderColorEXT{ noop::vkRegisterCustomBorderColorEXT };
+    PFN_vkUnregisterCustomBorderColorEXT UnregisterCustomBorderColorEXT{ noop::vkUnregisterCustomBorderColorEXT };
+    PFN_vkGetTensorOpaqueCaptureDataARM GetTensorOpaqueCaptureDataARM{ noop::vkGetTensorOpaqueCaptureDataARM };
     PFN_vkCmdSetSampleLocationsEXT CmdSetSampleLocationsEXT{ noop::vkCmdSetSampleLocationsEXT };
     PFN_vkGetImageDrmFormatModifierPropertiesEXT GetImageDrmFormatModifierPropertiesEXT{ noop::vkGetImageDrmFormatModifierPropertiesEXT };
     PFN_vkCreateValidationCacheEXT CreateValidationCacheEXT{ noop::vkCreateValidationCacheEXT };
@@ -1733,6 +1753,7 @@ static void LoadVulkanInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance in
     LoadVulkanFunction(gpa, instance, "vkCreateDebugUtilsMessengerEXT", &table->CreateDebugUtilsMessengerEXT);
     LoadVulkanFunction(gpa, instance, "vkDestroyDebugUtilsMessengerEXT", &table->DestroyDebugUtilsMessengerEXT);
     LoadVulkanFunction(gpa, instance, "vkSubmitDebugUtilsMessageEXT", &table->SubmitDebugUtilsMessageEXT);
+    LoadVulkanFunction(gpa, instance, "vkGetPhysicalDeviceDescriptorSizeEXT", &table->GetPhysicalDeviceDescriptorSizeEXT);
     LoadVulkanFunction(gpa, instance, "vkGetPhysicalDeviceMultisamplePropertiesEXT", &table->GetPhysicalDeviceMultisamplePropertiesEXT);
     LoadVulkanFunction(gpa, instance, "vkGetPhysicalDeviceCalibrateableTimeDomainsEXT", &table->GetPhysicalDeviceCalibrateableTimeDomainsEXT);
     LoadVulkanFunction(gpa, instance, "vkCreateImagePipeSurfaceFUCHSIA", &table->CreateImagePipeSurfaceFUCHSIA);
@@ -2168,6 +2189,15 @@ static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, 
     LoadVulkanFunction(gpa, device, "vkGetGpaSessionResultsAMD", &table->GetGpaSessionResultsAMD);
     LoadVulkanFunction(gpa, device, "vkResetGpaSessionAMD", &table->ResetGpaSessionAMD);
     LoadVulkanFunction(gpa, device, "vkCmdCopyGpaSessionResultsAMD", &table->CmdCopyGpaSessionResultsAMD);
+    LoadVulkanFunction(gpa, device, "vkWriteSamplerDescriptorsEXT", &table->WriteSamplerDescriptorsEXT);
+    LoadVulkanFunction(gpa, device, "vkWriteResourceDescriptorsEXT", &table->WriteResourceDescriptorsEXT);
+    LoadVulkanFunction(gpa, device, "vkCmdBindSamplerHeapEXT", &table->CmdBindSamplerHeapEXT);
+    LoadVulkanFunction(gpa, device, "vkCmdBindResourceHeapEXT", &table->CmdBindResourceHeapEXT);
+    LoadVulkanFunction(gpa, device, "vkCmdPushDataEXT", &table->CmdPushDataEXT);
+    LoadVulkanFunction(gpa, device, "vkGetImageOpaqueCaptureDataEXT", &table->GetImageOpaqueCaptureDataEXT);
+    LoadVulkanFunction(gpa, device, "vkRegisterCustomBorderColorEXT", &table->RegisterCustomBorderColorEXT);
+    LoadVulkanFunction(gpa, device, "vkUnregisterCustomBorderColorEXT", &table->UnregisterCustomBorderColorEXT);
+    LoadVulkanFunction(gpa, device, "vkGetTensorOpaqueCaptureDataARM", &table->GetTensorOpaqueCaptureDataARM);
     LoadVulkanFunction(gpa, device, "vkCmdSetSampleLocationsEXT", &table->CmdSetSampleLocationsEXT);
     LoadVulkanFunction(gpa, device, "vkGetImageDrmFormatModifierPropertiesEXT", &table->GetImageDrmFormatModifierPropertiesEXT);
     LoadVulkanFunction(gpa, device, "vkCreateValidationCacheEXT", &table->CreateValidationCacheEXT);

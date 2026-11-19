@@ -2449,6 +2449,74 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkGpaSessionCreateInfoAMD*>(pNext), 1, out_ptr);
             break;
+        case VK_STRUCTURE_TYPE_TEXEL_BUFFER_DESCRIPTOR_INFO_EXT:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkTexelBufferDescriptorInfoEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_IMAGE_DESCRIPTOR_INFO_EXT:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkImageDescriptorInfoEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_TENSOR_VIEW_CREATE_INFO_ARM:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkTensorViewCreateInfoARM*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_RESOURCE_DESCRIPTOR_INFO_EXT:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkResourceDescriptorInfoEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_BIND_HEAP_INFO_EXT:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkBindHeapInfoEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_PUSH_DATA_INFO_EXT:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkPushDataInfoEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_AND_BINDING_MAPPING_EXT:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkDescriptorSetAndBindingMappingEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_SHADER_DESCRIPTOR_SET_AND_BINDING_MAPPING_INFO_EXT:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkShaderDescriptorSetAndBindingMappingInfoEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DATA_CREATE_INFO_EXT:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkOpaqueCaptureDataCreateInfoEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_HEAP_FEATURES_EXT:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkPhysicalDeviceDescriptorHeapFeaturesEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_HEAP_PROPERTIES_EXT:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkPhysicalDeviceDescriptorHeapPropertiesEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_DESCRIPTOR_HEAP_INFO_EXT:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkCommandBufferInheritanceDescriptorHeapInfoEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_INDEX_CREATE_INFO_EXT:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkSamplerCustomBorderColorIndexCreateInfoEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkSamplerCustomBorderColorCreateInfoEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_PUSH_DATA_TOKEN_NV:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkIndirectCommandsLayoutPushDataTokenNV*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_SUBSAMPLED_IMAGE_FORMAT_PROPERTIES_EXT:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkSubsampledImageFormatPropertiesEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_HEAP_TENSOR_PROPERTIES_ARM:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkPhysicalDeviceDescriptorHeapTensorPropertiesARM*>(pNext), 1, out_ptr);
+            break;
         case VK_STRUCTURE_TYPE_ATTACHMENT_SAMPLE_COUNT_INFO_AMD:
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkAttachmentSampleCountInfoAMD*>(pNext), 1, out_ptr);
@@ -2984,10 +3052,6 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
         case VK_STRUCTURE_TYPE_DEVICE_DEVICE_MEMORY_REPORT_CREATE_INFO_EXT:
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkDeviceDeviceMemoryReportCreateInfoEXT*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkSamplerCustomBorderColorCreateInfoEXT*>(pNext), 1, out_ptr);
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_PROPERTIES_EXT:
             offset += vulkan_struct_deep_copy(
@@ -3632,10 +3696,6 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
         case VK_STRUCTURE_TYPE_TENSOR_CREATE_INFO_ARM:
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkTensorCreateInfoARM*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_TENSOR_VIEW_CREATE_INFO_ARM:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkTensorViewCreateInfoARM*>(pNext), 1, out_ptr);
             break;
         case VK_STRUCTURE_TYPE_TENSOR_MEMORY_REQUIREMENTS_INFO_ARM:
             offset += vulkan_struct_deep_copy(

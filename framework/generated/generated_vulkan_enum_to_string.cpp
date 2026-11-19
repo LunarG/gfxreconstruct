@@ -1803,6 +1803,25 @@ template <> std::string ToString<VkDescriptorBindingFlagBits>(VkFlags vkFlags, T
     return BitmaskToString<VkDescriptorBindingFlagBits>(vkFlags);
 }
 
+template <> std::string ToString<VkDescriptorMappingSourceEXT>(const VkDescriptorMappingSourceEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_CONSTANT_OFFSET_EXT: return "VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_CONSTANT_OFFSET_EXT";
+    case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_PUSH_INDEX_EXT: return "VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_PUSH_INDEX_EXT";
+    case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_INDIRECT_INDEX_EXT: return "VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_INDIRECT_INDEX_EXT";
+    case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_INDIRECT_INDEX_ARRAY_EXT: return "VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_INDIRECT_INDEX_ARRAY_EXT";
+    case VK_DESCRIPTOR_MAPPING_SOURCE_RESOURCE_HEAP_DATA_EXT: return "VK_DESCRIPTOR_MAPPING_SOURCE_RESOURCE_HEAP_DATA_EXT";
+    case VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_DATA_EXT: return "VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_DATA_EXT";
+    case VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_ADDRESS_EXT: return "VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_ADDRESS_EXT";
+    case VK_DESCRIPTOR_MAPPING_SOURCE_INDIRECT_ADDRESS_EXT: return "VK_DESCRIPTOR_MAPPING_SOURCE_INDIRECT_ADDRESS_EXT";
+    case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_SHADER_RECORD_INDEX_EXT: return "VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_SHADER_RECORD_INDEX_EXT";
+    case VK_DESCRIPTOR_MAPPING_SOURCE_SHADER_RECORD_DATA_EXT: return "VK_DESCRIPTOR_MAPPING_SOURCE_SHADER_RECORD_DATA_EXT";
+    case VK_DESCRIPTOR_MAPPING_SOURCE_SHADER_RECORD_ADDRESS_EXT: return "VK_DESCRIPTOR_MAPPING_SOURCE_SHADER_RECORD_ADDRESS_EXT";
+    default: break;
+    }
+    return "Unhandled VkDescriptorMappingSourceEXT";
+}
+
 template <> std::string ToString<VkDescriptorPoolCreateFlagBits>(const VkDescriptorPoolCreateFlagBits& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -5452,6 +5471,30 @@ template <> std::string ToString<VkSparseMemoryBindFlagBits>(const VkSparseMemor
 template <> std::string ToString<VkSparseMemoryBindFlagBits>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
 {
     return BitmaskToString<VkSparseMemoryBindFlagBits>(vkFlags);
+}
+
+template <> std::string ToString<VkSpirvResourceTypeFlagBitsEXT>(const VkSpirvResourceTypeFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_SPIRV_RESOURCE_TYPE_ALL_EXT: return "VK_SPIRV_RESOURCE_TYPE_ALL_EXT";
+    case VK_SPIRV_RESOURCE_TYPE_SAMPLER_BIT_EXT: return "VK_SPIRV_RESOURCE_TYPE_SAMPLER_BIT_EXT";
+    case VK_SPIRV_RESOURCE_TYPE_SAMPLED_IMAGE_BIT_EXT: return "VK_SPIRV_RESOURCE_TYPE_SAMPLED_IMAGE_BIT_EXT";
+    case VK_SPIRV_RESOURCE_TYPE_READ_ONLY_IMAGE_BIT_EXT: return "VK_SPIRV_RESOURCE_TYPE_READ_ONLY_IMAGE_BIT_EXT";
+    case VK_SPIRV_RESOURCE_TYPE_READ_WRITE_IMAGE_BIT_EXT: return "VK_SPIRV_RESOURCE_TYPE_READ_WRITE_IMAGE_BIT_EXT";
+    case VK_SPIRV_RESOURCE_TYPE_COMBINED_SAMPLED_IMAGE_BIT_EXT: return "VK_SPIRV_RESOURCE_TYPE_COMBINED_SAMPLED_IMAGE_BIT_EXT";
+    case VK_SPIRV_RESOURCE_TYPE_UNIFORM_BUFFER_BIT_EXT: return "VK_SPIRV_RESOURCE_TYPE_UNIFORM_BUFFER_BIT_EXT";
+    case VK_SPIRV_RESOURCE_TYPE_READ_ONLY_STORAGE_BUFFER_BIT_EXT: return "VK_SPIRV_RESOURCE_TYPE_READ_ONLY_STORAGE_BUFFER_BIT_EXT";
+    case VK_SPIRV_RESOURCE_TYPE_READ_WRITE_STORAGE_BUFFER_BIT_EXT: return "VK_SPIRV_RESOURCE_TYPE_READ_WRITE_STORAGE_BUFFER_BIT_EXT";
+    case VK_SPIRV_RESOURCE_TYPE_ACCELERATION_STRUCTURE_BIT_EXT: return "VK_SPIRV_RESOURCE_TYPE_ACCELERATION_STRUCTURE_BIT_EXT";
+    case VK_SPIRV_RESOURCE_TYPE_TENSOR_BIT_ARM: return "VK_SPIRV_RESOURCE_TYPE_TENSOR_BIT_ARM";
+    default: break;
+    }
+    return "Unhandled VkSpirvResourceTypeFlagBitsEXT";
+}
+
+template <> std::string ToString<VkSpirvResourceTypeFlagBitsEXT>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkSpirvResourceTypeFlagBitsEXT>(vkFlags);
 }
 
 template <> std::string ToString<VkStencilFaceFlagBits>(const VkStencilFaceFlagBits& value, ToStringFlags, uint32_t, uint32_t)

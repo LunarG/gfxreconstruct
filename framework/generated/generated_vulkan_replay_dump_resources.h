@@ -1398,6 +1398,24 @@ void Process_vkCmdCopyGpaSessionResultsAMD(
     VkCommandBuffer                             commandBuffer,
     VkGpaSessionAMD                             gpaSession);
 
+void Process_vkCmdBindSamplerHeapEXT(
+    const ApiCallInfo&                          call_info,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
+    VkCommandBuffer                             commandBuffer,
+    const VkBindHeapInfoEXT*                    pBindInfo);
+
+void Process_vkCmdBindResourceHeapEXT(
+    const ApiCallInfo&                          call_info,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
+    VkCommandBuffer                             commandBuffer,
+    const VkBindHeapInfoEXT*                    pBindInfo);
+
+void Process_vkCmdPushDataEXT(
+    const ApiCallInfo&                          call_info,
+    const graphics::VulkanInjectedDeviceCalls&  device_table,
+    VkCommandBuffer                             commandBuffer,
+    const VkPushDataInfoEXT*                    pPushDataInfo);
+
 void Process_vkCmdSetSampleLocationsEXT(
     const ApiCallInfo&                          call_info,
     const graphics::VulkanInjectedDeviceCalls&  device_table,

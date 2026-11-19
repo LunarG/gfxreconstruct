@@ -7481,6 +7481,346 @@ void EncodeStruct(ParameterEncoder* encoder, const VkGpaSessionCreateInfoAMD& va
     encoder->EncodeVulkanHandleValue<vulkan_wrappers::GpaSessionAMDWrapper>(value.secondaryCopySource);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkHostAddressRangeEXT& value)
+{
+    encoder->EncodeVoidArray(value.address, value.size);
+    encoder->EncodeSizeTValue(value.size);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkHostAddressRangeConstEXT& value)
+{
+    encoder->EncodeVoidArray(value.address, value.size);
+    encoder->EncodeSizeTValue(value.size);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkTexelBufferDescriptorInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.format);
+    EncodeStruct(encoder, value.addressRange);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkImageDescriptorInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    EncodeStructPtr(encoder, value.pView);
+    encoder->EncodeEnumValue(value.layout);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkTensorViewCreateInfoARM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlags64Value(value.flags);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::TensorARMWrapper>(value.tensor);
+    encoder->EncodeEnumValue(value.format);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkResourceDescriptorInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.type);
+    switch (value.type)
+    {
+        case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+        case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+        case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+        case VK_DESCRIPTOR_TYPE_BLOCK_MATCH_IMAGE_QCOM:
+        case VK_DESCRIPTOR_TYPE_SAMPLE_WEIGHT_IMAGE_QCOM:
+        {
+            EncodeStructPtr(encoder, value.data.pImage);
+            break;
+        }
+        case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+        case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+        {
+            EncodeStructPtr(encoder, value.data.pTexelBuffer);
+            break;
+        }
+        case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+        case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
+        case VK_DESCRIPTOR_TYPE_PARTITIONED_ACCELERATION_STRUCTURE_NV:
+        {
+            EncodeStructPtr(encoder, value.data.pAddressRange);
+            break;
+        }
+        case VK_DESCRIPTOR_TYPE_TENSOR_ARM:
+        {
+            EncodeStructPtr(encoder, value.data.pTensorARM);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkBindHeapInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    EncodeStruct(encoder, value.heapRange);
+    encoder->EncodeUInt64Value(value.reservedRangeOffset);
+    encoder->EncodeUInt64Value(value.reservedRangeSize);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPushDataInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.offset);
+    EncodeStruct(encoder, value.data);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorMappingSourceConstantOffsetEXT& value)
+{
+    encoder->EncodeUInt32Value(value.heapOffset);
+    encoder->EncodeUInt32Value(value.heapArrayStride);
+    EncodeStructPtr(encoder, value.pEmbeddedSampler);
+    encoder->EncodeUInt32Value(value.samplerHeapOffset);
+    encoder->EncodeUInt32Value(value.samplerHeapArrayStride);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorMappingSourcePushIndexEXT& value)
+{
+    encoder->EncodeUInt32Value(value.heapOffset);
+    encoder->EncodeUInt32Value(value.pushOffset);
+    encoder->EncodeUInt32Value(value.heapIndexStride);
+    encoder->EncodeUInt32Value(value.heapArrayStride);
+    EncodeStructPtr(encoder, value.pEmbeddedSampler);
+    encoder->EncodeUInt32Value(value.useCombinedImageSamplerIndex);
+    encoder->EncodeUInt32Value(value.samplerHeapOffset);
+    encoder->EncodeUInt32Value(value.samplerPushOffset);
+    encoder->EncodeUInt32Value(value.samplerHeapIndexStride);
+    encoder->EncodeUInt32Value(value.samplerHeapArrayStride);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorMappingSourceIndirectIndexEXT& value)
+{
+    encoder->EncodeUInt32Value(value.heapOffset);
+    encoder->EncodeUInt32Value(value.pushOffset);
+    encoder->EncodeUInt32Value(value.addressOffset);
+    encoder->EncodeUInt32Value(value.heapIndexStride);
+    encoder->EncodeUInt32Value(value.heapArrayStride);
+    EncodeStructPtr(encoder, value.pEmbeddedSampler);
+    encoder->EncodeUInt32Value(value.useCombinedImageSamplerIndex);
+    encoder->EncodeUInt32Value(value.samplerHeapOffset);
+    encoder->EncodeUInt32Value(value.samplerPushOffset);
+    encoder->EncodeUInt32Value(value.samplerAddressOffset);
+    encoder->EncodeUInt32Value(value.samplerHeapIndexStride);
+    encoder->EncodeUInt32Value(value.samplerHeapArrayStride);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorMappingSourceHeapDataEXT& value)
+{
+    encoder->EncodeUInt32Value(value.heapOffset);
+    encoder->EncodeUInt32Value(value.pushOffset);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorMappingSourceIndirectAddressEXT& value)
+{
+    encoder->EncodeUInt32Value(value.pushOffset);
+    encoder->EncodeUInt32Value(value.addressOffset);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorMappingSourceShaderRecordIndexEXT& value)
+{
+    encoder->EncodeUInt32Value(value.heapOffset);
+    encoder->EncodeUInt32Value(value.shaderRecordOffset);
+    encoder->EncodeUInt32Value(value.heapIndexStride);
+    encoder->EncodeUInt32Value(value.heapArrayStride);
+    EncodeStructPtr(encoder, value.pEmbeddedSampler);
+    encoder->EncodeUInt32Value(value.useCombinedImageSamplerIndex);
+    encoder->EncodeUInt32Value(value.samplerHeapOffset);
+    encoder->EncodeUInt32Value(value.samplerShaderRecordOffset);
+    encoder->EncodeUInt32Value(value.samplerHeapIndexStride);
+    encoder->EncodeUInt32Value(value.samplerHeapArrayStride);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorMappingSourceIndirectIndexArrayEXT& value)
+{
+    encoder->EncodeUInt32Value(value.heapOffset);
+    encoder->EncodeUInt32Value(value.pushOffset);
+    encoder->EncodeUInt32Value(value.addressOffset);
+    encoder->EncodeUInt32Value(value.heapIndexStride);
+    EncodeStructPtr(encoder, value.pEmbeddedSampler);
+    encoder->EncodeUInt32Value(value.useCombinedImageSamplerIndex);
+    encoder->EncodeUInt32Value(value.samplerHeapOffset);
+    encoder->EncodeUInt32Value(value.samplerPushOffset);
+    encoder->EncodeUInt32Value(value.samplerAddressOffset);
+    encoder->EncodeUInt32Value(value.samplerHeapIndexStride);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorSetAndBindingMappingEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.descriptorSet);
+    encoder->EncodeUInt32Value(value.firstBinding);
+    encoder->EncodeUInt32Value(value.bindingCount);
+    encoder->EncodeFlagsValue(value.resourceMask);
+    encoder->EncodeEnumValue(value.source);
+    switch (value.source)
+    {
+        case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_CONSTANT_OFFSET_EXT:
+        {
+            EncodeStruct(encoder, value.sourceData.constantOffset);
+            break;
+        }
+        case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_PUSH_INDEX_EXT:
+        {
+            EncodeStruct(encoder, value.sourceData.pushIndex);
+            break;
+        }
+        case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_INDIRECT_INDEX_EXT:
+        {
+            EncodeStruct(encoder, value.sourceData.indirectIndex);
+            break;
+        }
+        case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_INDIRECT_INDEX_ARRAY_EXT:
+        {
+            EncodeStruct(encoder, value.sourceData.indirectIndexArray);
+            break;
+        }
+        case VK_DESCRIPTOR_MAPPING_SOURCE_RESOURCE_HEAP_DATA_EXT:
+        {
+            EncodeStruct(encoder, value.sourceData.heapData);
+            break;
+        }
+        case VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_DATA_EXT:
+        {
+            encoder->EncodeUInt32Value(value.sourceData.pushDataOffset);
+            break;
+        }
+        case VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_ADDRESS_EXT:
+        {
+            encoder->EncodeUInt32Value(value.sourceData.pushAddressOffset);
+            break;
+        }
+        case VK_DESCRIPTOR_MAPPING_SOURCE_INDIRECT_ADDRESS_EXT:
+        {
+            EncodeStruct(encoder, value.sourceData.indirectAddress);
+            break;
+        }
+        case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_SHADER_RECORD_INDEX_EXT:
+        {
+            EncodeStruct(encoder, value.sourceData.shaderRecordIndex);
+            break;
+        }
+        case VK_DESCRIPTOR_MAPPING_SOURCE_SHADER_RECORD_DATA_EXT:
+        {
+            encoder->EncodeUInt32Value(value.sourceData.shaderRecordDataOffset);
+            break;
+        }
+        case VK_DESCRIPTOR_MAPPING_SOURCE_SHADER_RECORD_ADDRESS_EXT:
+        {
+            encoder->EncodeUInt32Value(value.sourceData.shaderRecordAddressOffset);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkShaderDescriptorSetAndBindingMappingInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.mappingCount);
+    EncodeStructArray(encoder, value.pMappings, value.mappingCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkOpaqueCaptureDataCreateInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    EncodeStructPtr(encoder, value.pData);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorHeapFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.descriptorHeap);
+    encoder->EncodeUInt32Value(value.descriptorHeapCaptureReplay);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorHeapPropertiesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt64Value(value.samplerHeapAlignment);
+    encoder->EncodeUInt64Value(value.resourceHeapAlignment);
+    encoder->EncodeUInt64Value(value.maxSamplerHeapSize);
+    encoder->EncodeUInt64Value(value.maxResourceHeapSize);
+    encoder->EncodeUInt64Value(value.minSamplerHeapReservedRange);
+    encoder->EncodeUInt64Value(value.minSamplerHeapReservedRangeWithEmbedded);
+    encoder->EncodeUInt64Value(value.minResourceHeapReservedRange);
+    encoder->EncodeUInt64Value(value.samplerDescriptorSize);
+    encoder->EncodeUInt64Value(value.imageDescriptorSize);
+    encoder->EncodeUInt64Value(value.bufferDescriptorSize);
+    encoder->EncodeUInt64Value(value.samplerDescriptorAlignment);
+    encoder->EncodeUInt64Value(value.imageDescriptorAlignment);
+    encoder->EncodeUInt64Value(value.bufferDescriptorAlignment);
+    encoder->EncodeUInt64Value(value.maxPushDataSize);
+    encoder->EncodeSizeTValue(value.imageCaptureReplayOpaqueDataSize);
+    encoder->EncodeUInt32Value(value.maxDescriptorHeapEmbeddedSamplers);
+    encoder->EncodeUInt32Value(value.samplerYcbcrConversionCount);
+    encoder->EncodeUInt32Value(value.sparseDescriptorHeaps);
+    encoder->EncodeUInt32Value(value.protectedDescriptorHeaps);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkCommandBufferInheritanceDescriptorHeapInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    EncodeStructPtr(encoder, value.pSamplerHeapBindInfo);
+    EncodeStructPtr(encoder, value.pResourceHeapBindInfo);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSamplerCustomBorderColorIndexCreateInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.index);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSamplerCustomBorderColorCreateInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    EncodeStruct(encoder, value.customBorderColor);
+    encoder->EncodeEnumValue(value.format);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsLayoutPushDataTokenNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.pushDataOffset);
+    encoder->EncodeUInt32Value(value.pushDataSize);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSubsampledImageFormatPropertiesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.subsampledImageDescriptorCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorHeapTensorPropertiesARM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt64Value(value.tensorDescriptorSize);
+    encoder->EncodeUInt64Value(value.tensorDescriptorAlignment);
+    encoder->EncodeSizeTValue(value.tensorCaptureReplayOpaqueDataSize);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkAttachmentSampleCountInfoAMD& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -8669,7 +9009,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsStreamNV& v
 void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsLayoutTokenNV& value)
 {
     encoder->EncodeEnumValue(value.sType);
-    EncodePNextStructIfValid(encoder, value.pNext);
+    EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeEnumValue(value.tokenType);
     encoder->EncodeUInt32Value(value.stream);
     encoder->EncodeUInt32Value(value.offset);
@@ -8818,14 +9158,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDeviceDeviceMemoryReportCre
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeFunctionPtr(value.pfnUserCallback);
     encoder->EncodeVoidPtr(value.pUserData);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkSamplerCustomBorderColorCreateInfoEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    EncodeStruct(encoder, value.customBorderColor);
-    encoder->EncodeEnumValue(value.format);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCustomBorderColorPropertiesEXT& value)
@@ -10363,15 +10695,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkTensorCreateInfoARM& value)
     encoder->EncodeEnumValue(value.sharingMode);
     encoder->EncodeUInt32Value(value.queueFamilyIndexCount);
     encoder->EncodeUInt32Array(value.pQueueFamilyIndices, value.queueFamilyIndexCount);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkTensorViewCreateInfoARM& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeFlags64Value(value.flags);
-    encoder->EncodeVulkanHandleValue<vulkan_wrappers::TensorARMWrapper>(value.tensor);
-    encoder->EncodeEnumValue(value.format);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkTensorMemoryRequirementsInfoARM& value)

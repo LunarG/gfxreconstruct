@@ -6326,6 +6326,135 @@ void VulkanExportJsonConsumer::Process_vkCmdCopyGpaSessionResultsAMD(
     WriteBlockEnd();
 }
 
+void VulkanExportJsonConsumer::Process_vkWriteSamplerDescriptorsEXT(
+    const ApiCallInfo&                          call_info,
+    args::WriteSamplerDescriptorsEXT&           args)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkWriteSamplerDescriptorsEXT");
+    jdata[format::kNameReturn] = args.result;
+    auto& jargs = jdata[format::kNameArgs];
+        HandleToJson(jargs["device"], args.device);
+        jargs["samplerCount"] = args.samplerCount;
+        FieldToJson(jargs["pSamplers"], &args.pSamplers);
+        FieldToJson(jargs["pDescriptors"], &args.pDescriptors);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkWriteResourceDescriptorsEXT(
+    const ApiCallInfo&                          call_info,
+    args::WriteResourceDescriptorsEXT&          args)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkWriteResourceDescriptorsEXT");
+    jdata[format::kNameReturn] = args.result;
+    auto& jargs = jdata[format::kNameArgs];
+        HandleToJson(jargs["device"], args.device);
+        jargs["resourceCount"] = args.resourceCount;
+        FieldToJson(jargs["pResources"], &args.pResources);
+        FieldToJson(jargs["pDescriptors"], &args.pDescriptors);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkCmdBindSamplerHeapEXT(
+    const ApiCallInfo&                          call_info,
+    args::CmdBindSamplerHeapEXT&                args)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCmdBindSamplerHeapEXT");
+    jdata[format::kNameCommandIndex] = GetCommandBufferRecordIndex(args.commandBuffer);
+    auto& jargs = jdata[format::kNameArgs];
+        HandleToJson(jargs["commandBuffer"], args.commandBuffer);
+        FieldToJson(jargs["pBindInfo"], &args.pBindInfo);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkCmdBindResourceHeapEXT(
+    const ApiCallInfo&                          call_info,
+    args::CmdBindResourceHeapEXT&               args)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCmdBindResourceHeapEXT");
+    jdata[format::kNameCommandIndex] = GetCommandBufferRecordIndex(args.commandBuffer);
+    auto& jargs = jdata[format::kNameArgs];
+        HandleToJson(jargs["commandBuffer"], args.commandBuffer);
+        FieldToJson(jargs["pBindInfo"], &args.pBindInfo);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkCmdPushDataEXT(
+    const ApiCallInfo&                          call_info,
+    args::CmdPushDataEXT&                       args)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCmdPushDataEXT");
+    jdata[format::kNameCommandIndex] = GetCommandBufferRecordIndex(args.commandBuffer);
+    auto& jargs = jdata[format::kNameArgs];
+        HandleToJson(jargs["commandBuffer"], args.commandBuffer);
+        FieldToJson(jargs["pPushDataInfo"], &args.pPushDataInfo);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkGetImageOpaqueCaptureDataEXT(
+    const ApiCallInfo&                          call_info,
+    args::GetImageOpaqueCaptureDataEXT&         args)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetImageOpaqueCaptureDataEXT");
+    jdata[format::kNameReturn] = args.result;
+    auto& jargs = jdata[format::kNameArgs];
+        HandleToJson(jargs["device"], args.device);
+        jargs["imageCount"] = args.imageCount;
+        HandleToJson(jargs["pImages"], &args.pImages);
+        FieldToJson(jargs["pDatas"], &args.pDatas);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkGetPhysicalDeviceDescriptorSizeEXT(
+    const ApiCallInfo&                          call_info,
+    args::GetPhysicalDeviceDescriptorSizeEXT&   args)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetPhysicalDeviceDescriptorSizeEXT");
+    jdata[format::kNameReturn] = args.result;
+    auto& jargs = jdata[format::kNameArgs];
+        HandleToJson(jargs["physicalDevice"], args.physicalDevice);
+        jargs["descriptorType"] = args.descriptorType;
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkRegisterCustomBorderColorEXT(
+    const ApiCallInfo&                          call_info,
+    args::RegisterCustomBorderColorEXT&         args)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkRegisterCustomBorderColorEXT");
+    jdata[format::kNameReturn] = args.result;
+    auto& jargs = jdata[format::kNameArgs];
+        HandleToJson(jargs["device"], args.device);
+        FieldToJson(jargs["pBorderColor"], &args.pBorderColor);
+        Bool32ToJson(jargs["requestIndex"], args.requestIndex);
+        FieldToJson(jargs["pIndex"], &args.pIndex);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkUnregisterCustomBorderColorEXT(
+    const ApiCallInfo&                          call_info,
+    args::UnregisterCustomBorderColorEXT&       args)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkUnregisterCustomBorderColorEXT");
+    auto& jargs = jdata[format::kNameArgs];
+        HandleToJson(jargs["device"], args.device);
+        jargs["index"] = args.index;
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkGetTensorOpaqueCaptureDataARM(
+    const ApiCallInfo&                          call_info,
+    args::GetTensorOpaqueCaptureDataARM&        args)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetTensorOpaqueCaptureDataARM");
+    jdata[format::kNameReturn] = args.result;
+    auto& jargs = jdata[format::kNameArgs];
+        HandleToJson(jargs["device"], args.device);
+        jargs["tensorCount"] = args.tensorCount;
+        HandleToJson(jargs["pTensors"], &args.pTensors);
+        FieldToJson(jargs["pDatas"], &args.pDatas);
+    WriteBlockEnd();
+}
+
 void VulkanExportJsonConsumer::Process_vkCmdSetSampleLocationsEXT(
     const ApiCallInfo&                          call_info,
     args::CmdSetSampleLocationsEXT&             args)

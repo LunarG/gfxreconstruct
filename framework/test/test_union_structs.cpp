@@ -423,3 +423,299 @@ TEST_CASE("VkPerformanceValueINTEL keeps the 8-byte capture layout", "[enc/dec][
         REQUIRE((written >> 32) == 0);
     }
 }
+
+// Reference encoders for the VK_EXT_descriptor_heap union structs, written by hand from the spec.
+// Generated code must write the same bytes.
+namespace heap_oracle
+{
+using encode::ParameterEncoder;
+
+void EncodeStruct(ParameterEncoder* encoder, const VkResourceDescriptorInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    encode::EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.type);
+
+    switch (value.type)
+    {
+        case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+        case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+            encode::EncodeStructPtr(encoder, value.data.pTexelBuffer);
+            break;
+        case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+        case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
+        case VK_DESCRIPTOR_TYPE_PARTITIONED_ACCELERATION_STRUCTURE_NV:
+        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+            encode::EncodeStructPtr(encoder, value.data.pAddressRange);
+            break;
+        case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+        case VK_DESCRIPTOR_TYPE_BLOCK_MATCH_IMAGE_QCOM:
+        case VK_DESCRIPTOR_TYPE_SAMPLE_WEIGHT_IMAGE_QCOM:
+        case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+        case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+            encode::EncodeStructPtr(encoder, value.data.pImage);
+            break;
+        case VK_DESCRIPTOR_TYPE_TENSOR_ARM:
+            encode::EncodeStructPtr(encoder, value.data.pTensorARM);
+            break;
+        default:
+            break;
+    }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorSetAndBindingMappingEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    encode::EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.descriptorSet);
+    encoder->EncodeUInt32Value(value.firstBinding);
+    encoder->EncodeUInt32Value(value.bindingCount);
+    encoder->EncodeEnumValue(value.resourceMask);
+    encoder->EncodeEnumValue(value.source);
+
+    switch (value.source)
+    {
+        case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_CONSTANT_OFFSET_EXT:
+            encode::EncodeStruct(encoder, value.sourceData.constantOffset);
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_PUSH_INDEX_EXT:
+            encode::EncodeStruct(encoder, value.sourceData.pushIndex);
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_INDIRECT_INDEX_EXT:
+            encode::EncodeStruct(encoder, value.sourceData.indirectIndex);
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_INDIRECT_INDEX_ARRAY_EXT:
+            encode::EncodeStruct(encoder, value.sourceData.indirectIndexArray);
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_RESOURCE_HEAP_DATA_EXT:
+            encode::EncodeStruct(encoder, value.sourceData.heapData);
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_DATA_EXT:
+            encoder->EncodeUInt32Value(value.sourceData.pushDataOffset);
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_ADDRESS_EXT:
+            encoder->EncodeUInt32Value(value.sourceData.pushAddressOffset);
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_INDIRECT_ADDRESS_EXT:
+            encode::EncodeStruct(encoder, value.sourceData.indirectAddress);
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_SHADER_RECORD_INDEX_EXT:
+            encode::EncodeStruct(encoder, value.sourceData.shaderRecordIndex);
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_SHADER_RECORD_DATA_EXT:
+            encoder->EncodeUInt32Value(value.sourceData.shaderRecordDataOffset);
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_SHADER_RECORD_ADDRESS_EXT:
+            encoder->EncodeUInt32Value(value.sourceData.shaderRecordAddressOffset);
+            break;
+        default:
+            break;
+    }
+}
+} // namespace heap_oracle
+
+namespace
+{
+template <typename T>
+Bytes EncodeHeapOracle(const T& value)
+{
+    encode::ParameterBuffer  buffer;
+    encode::ParameterEncoder encoder(&buffer);
+    heap_oracle::EncodeStruct(&encoder, value);
+    return Bytes(buffer.GetData(), buffer.GetData() + buffer.GetDataSize());
+}
+
+// Fills the active member of a mapping source with distinct values and no embedded sampler.
+void SetMappingSource(VkDescriptorSetAndBindingMappingEXT& value)
+{
+    auto fill = [](auto& member) {
+        static_assert(sizeof(member) % sizeof(uint32_t) == 0 || sizeof(member) < sizeof(uint32_t));
+        auto* words = reinterpret_cast<uint32_t*>(&member);
+        for (size_t i = 0; i < sizeof(member) / sizeof(uint32_t); ++i)
+        {
+            words[i] = static_cast<uint32_t>(0x100 + i);
+        }
+    };
+
+    auto& data = value.sourceData;
+    switch (value.source)
+    {
+        case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_CONSTANT_OFFSET_EXT:
+            fill(data.constantOffset);
+            data.constantOffset.pEmbeddedSampler = nullptr;
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_PUSH_INDEX_EXT:
+            fill(data.pushIndex);
+            data.pushIndex.pEmbeddedSampler = nullptr;
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_INDIRECT_INDEX_EXT:
+            fill(data.indirectIndex);
+            data.indirectIndex.pEmbeddedSampler = nullptr;
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_INDIRECT_INDEX_ARRAY_EXT:
+            fill(data.indirectIndexArray);
+            data.indirectIndexArray.pEmbeddedSampler = nullptr;
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_RESOURCE_HEAP_DATA_EXT:
+            fill(data.heapData);
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_DATA_EXT:
+            data.pushDataOffset = 0x101;
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_ADDRESS_EXT:
+            data.pushAddressOffset = 0x102;
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_INDIRECT_ADDRESS_EXT:
+            fill(data.indirectAddress);
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_SHADER_RECORD_INDEX_EXT:
+            fill(data.shaderRecordIndex);
+            data.shaderRecordIndex.pEmbeddedSampler = nullptr;
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_SHADER_RECORD_DATA_EXT:
+            data.shaderRecordDataOffset = 0x103;
+            break;
+        default:
+            data.shaderRecordAddressOffset = 0x104;
+            break;
+    }
+}
+} // namespace
+
+TEST_CASE("VkDescriptorSetAndBindingMappingEXT matches the reference encoder", "[enc/dec][union][heap]")
+{
+    LogScope log;
+
+    VkDescriptorSetAndBindingMappingEXT input;
+    // Garbage in every byte, including padding, that no member of the active source covers.
+    std::memset(&input, 0xab, sizeof(input));
+    input.sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_AND_BINDING_MAPPING_EXT;
+    input.pNext         = nullptr;
+    input.descriptorSet = 1;
+    input.firstBinding  = 2;
+    input.bindingCount  = 3;
+    input.resourceMask  = VK_SPIRV_RESOURCE_TYPE_SAMPLED_IMAGE_BIT_EXT;
+    input.source        = GENERATE(VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_CONSTANT_OFFSET_EXT,
+                            VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_PUSH_INDEX_EXT,
+                            VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_INDIRECT_INDEX_EXT,
+                            VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_INDIRECT_INDEX_ARRAY_EXT,
+                            VK_DESCRIPTOR_MAPPING_SOURCE_RESOURCE_HEAP_DATA_EXT,
+                            VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_DATA_EXT,
+                            VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_ADDRESS_EXT,
+                            VK_DESCRIPTOR_MAPPING_SOURCE_INDIRECT_ADDRESS_EXT,
+                            VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_SHADER_RECORD_INDEX_EXT,
+                            VK_DESCRIPTOR_MAPPING_SOURCE_SHADER_RECORD_DATA_EXT,
+                            VK_DESCRIPTOR_MAPPING_SOURCE_SHADER_RECORD_ADDRESS_EXT);
+    SetMappingSource(input);
+
+    const Bytes bytes = EncodeCurrent(input);
+    REQUIRE(bytes == EncodeHeapOracle(input));
+
+    AllocatorScope                                      allocator;
+    decode::Decoded_VkDescriptorSetAndBindingMappingEXT wrapper{};
+    VkDescriptorSetAndBindingMappingEXT                 output{};
+    Decode(bytes, &wrapper, &output);
+
+    REQUIRE(output.sType == input.sType);
+    REQUIRE(output.pNext == nullptr);
+    REQUIRE(output.descriptorSet == input.descriptorSet);
+    REQUIRE(output.firstBinding == input.firstBinding);
+    REQUIRE(output.bindingCount == input.bindingCount);
+    REQUIRE(output.resourceMask == input.resourceMask);
+    REQUIRE(output.source == input.source);
+    // Padding-independent check of the active member: it re-encodes to the same bytes.
+    REQUIRE(EncodeCurrent(output) == bytes);
+}
+
+TEST_CASE("VkResourceDescriptorInfoEXT matches the reference encoder", "[enc/dec][union][heap]")
+{
+    LogScope log;
+
+    VkImageDescriptorInfoEXT image{
+        VK_STRUCTURE_TYPE_IMAGE_DESCRIPTOR_INFO_EXT, nullptr, nullptr, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+    };
+    VkTexelBufferDescriptorInfoEXT texel_buffer{
+        VK_STRUCTURE_TYPE_TEXEL_BUFFER_DESCRIPTOR_INFO_EXT, nullptr, VK_FORMAT_R32_UINT, { 0x10000, 0x200 }
+    };
+    VkDeviceAddressRangeEXT   address_range{ 0x20000, 0x300 };
+    VkTensorViewCreateInfoARM tensor{
+        VK_STRUCTURE_TYPE_TENSOR_VIEW_CREATE_INFO_ARM, nullptr, 0, VK_NULL_HANDLE, VK_FORMAT_R8_UINT
+    };
+
+    VkResourceDescriptorInfoEXT input{ VK_STRUCTURE_TYPE_RESOURCE_DESCRIPTOR_INFO_EXT };
+    // Every selector value of every member, including the two the registry leaves out.
+    input.type = GENERATE(VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+                          VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+                          VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT,
+                          VK_DESCRIPTOR_TYPE_BLOCK_MATCH_IMAGE_QCOM,
+                          VK_DESCRIPTOR_TYPE_SAMPLE_WEIGHT_IMAGE_QCOM,
+                          VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER,
+                          VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER,
+                          VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR,
+                          VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV,
+                          VK_DESCRIPTOR_TYPE_PARTITIONED_ACCELERATION_STRUCTURE_NV,
+                          VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                          VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+                          VK_DESCRIPTOR_TYPE_TENSOR_ARM);
+    switch (input.type)
+    {
+        case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+        case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+            input.data.pTexelBuffer = &texel_buffer;
+            break;
+        case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+        case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
+        case VK_DESCRIPTOR_TYPE_PARTITIONED_ACCELERATION_STRUCTURE_NV:
+        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+            input.data.pAddressRange = &address_range;
+            break;
+        case VK_DESCRIPTOR_TYPE_TENSOR_ARM:
+            input.data.pTensorARM = &tensor;
+            break;
+        default:
+            input.data.pImage = &image;
+            break;
+    }
+
+    const Bytes bytes = EncodeCurrent(input);
+    REQUIRE(bytes == EncodeHeapOracle(input));
+
+    AllocatorScope                              allocator;
+    decode::Decoded_VkResourceDescriptorInfoEXT wrapper{};
+    VkResourceDescriptorInfoEXT                 output{};
+    Decode(bytes, &wrapper, &output);
+
+    REQUIRE(output.sType == input.sType);
+    REQUIRE(output.pNext == nullptr);
+    REQUIRE(output.type == input.type);
+    switch (input.type)
+    {
+        case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+        case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+            REQUIRE(output.data.pTexelBuffer != nullptr);
+            REQUIRE(output.data.pTexelBuffer->format == texel_buffer.format);
+            REQUIRE(output.data.pTexelBuffer->addressRange.address == texel_buffer.addressRange.address);
+            REQUIRE(output.data.pTexelBuffer->addressRange.size == texel_buffer.addressRange.size);
+            break;
+        case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+        case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
+        case VK_DESCRIPTOR_TYPE_PARTITIONED_ACCELERATION_STRUCTURE_NV:
+        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+            REQUIRE(output.data.pAddressRange != nullptr);
+            REQUIRE(output.data.pAddressRange->address == address_range.address);
+            REQUIRE(output.data.pAddressRange->size == address_range.size);
+            break;
+        case VK_DESCRIPTOR_TYPE_TENSOR_ARM:
+            REQUIRE(output.data.pTensorARM != nullptr);
+            REQUIRE(output.data.pTensorARM->format == tensor.format);
+            break;
+        default:
+            REQUIRE(output.data.pImage != nullptr);
+            REQUIRE(output.data.pImage->pView == nullptr);
+            REQUIRE(output.data.pImage->layout == image.layout);
+            break;
+    }
+}

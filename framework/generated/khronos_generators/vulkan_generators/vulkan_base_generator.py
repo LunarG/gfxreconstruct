@@ -84,7 +84,6 @@ _remove_extensions = [
     "VK_KHR_video_decode_h265",
     "VK_KHR_video_encode_h265",
     "VK_KHR_video_maintenance2",
-    "VK_EXT_descriptor_heap",
     "VK_SEC_ubm_surface",
     "VK_ARM_shader_instrumentation",
     "VK_ARM_data_graph_instruction_set_tosa",
@@ -230,6 +229,15 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
 
     # Unions written by hand as one fixed-size value. A generated switch would change the capture format.
     FIXED_LAYOUT_UNIONS = ['VkPerformanceValueDataINTEL', 'VkPipelineExecutableStatisticValueKHR']
+
+    # Selector values the spec allows but vk.xml leaves out of a union member's selection.
+    UNION_SELECTION_ADDITIONS = {
+        # VkResourceDescriptorInfoEXT description, VUID-VkResourceDescriptorInfoEXT-type-11467
+        ('VkResourceDescriptorDataEXT', 'pAddressRange'): [
+            'VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV',
+            'VK_DESCRIPTOR_TYPE_PARTITIONED_ACCELERATION_STRUCTURE_NV',
+        ],
+    }
 
     BASE_OUT_STRUCTURE_TYPE_INFO_OVERRIDES = {
         ('vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM', 'pProperties'): (

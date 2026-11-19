@@ -1646,6 +1646,7 @@ class KhronosBaseGenerator(OutputGenerator):
         return struct_name in self.get_or_create_structs_with_null_pnexts()
 
     FIXED_LAYOUT_UNIONS = []
+    UNION_SELECTION_ADDITIONS = {}
 
     def is_selected_union(self, value):
         """True if value is a union member whose active member is picked by a selector, and code
@@ -1698,9 +1699,10 @@ class KhronosBaseGenerator(OutputGenerator):
         # would produce multiple definition errors for functions with struct parameters.
         if not alias:
             if typename not in self.feature_union_members:
-                self.add_union_members(typename, self.make_value_info(
-                    typeinfo.elem.findall('.//member')
-                ))
+                members = self.make_value_info(typeinfo.elem.findall('.//member'))
+                for member in members:
+                    member.selection += self.UNION_SELECTION_ADDITIONS.get((typename, member.name), [])
+                self.add_union_members(typename, members)
         else:
             if typename not in self.all_union_aliases:
                 self.add_union_alias(typename, alias)
