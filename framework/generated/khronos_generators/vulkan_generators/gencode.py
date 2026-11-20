@@ -58,6 +58,16 @@ from vulkan_struct_decoders_forward_generator import VulkanStructDecodersForward
 from vulkan_struct_decoders_header_generator import VulkanStructDecodersHeaderGenerator, VulkanStructDecodersHeaderGeneratorOptions
 from vulkan_pnext_struct_decode_generator import DecodePNextStructGenerator, DecodePNextStructGeneratorOptions
 
+# Field Schema
+from vulkan_schema_generator import (
+    VulkanSchemaTypesGenerator, VulkanSchemaTypesGeneratorOptions,
+    VulkanSchemaFieldsGenerator, VulkanSchemaFieldsGeneratorOptions,
+    VulkanSchemaGenerator, VulkanSchemaGeneratorOptions,
+    VulkanListFileGenerator, VulkanListFileGeneratorOptions, LIST_FILES,
+    VulkanSchemaChecksGenerator, VulkanSchemaChecksGeneratorOptions,
+    VulkanWireTypesGenerator, VulkanWireTypesGeneratorOptions,
+)
+
 # Consumers
 from vulkan_consumer_header_generator import VulkanConsumerHeaderGenerator, VulkanConsumerHeaderGeneratorOptions
 from vulkan_replay_frame_loop_consumer_base_header_generator import VulkanFrameLoopConsumerBaseHeaderGenerator, VulkanFrameLoopConsumerBaseHeaderGeneratorOptions
@@ -346,6 +356,38 @@ def make_gen_opts(args):
             extra_headers=extra_headers
         )
     ]
+
+    # Field schema generators: each writes one file from the model vulkan_schema_generator.py builds, so a target
+    # includes only the files it lists.
+    for schema_filename, schema_generator, schema_options, schema_protect in (
+        ('generated_vulkan_schema_types.h',
+         VulkanSchemaTypesGenerator, VulkanSchemaTypesGeneratorOptions, True),
+        ('generated_vulkan_schema_fields.h',
+         VulkanSchemaFieldsGenerator, VulkanSchemaFieldsGeneratorOptions, True),
+        ('generated_vulkan_schema.h',
+         VulkanSchemaGenerator, VulkanSchemaGeneratorOptions, True),
+        ('generated_vulkan_schema_checks.cpp',
+         VulkanSchemaChecksGenerator, VulkanSchemaChecksGeneratorOptions, False),
+        ('generated_vulkan_wire_types.h',
+         VulkanWireTypesGenerator, VulkanWireTypesGeneratorOptions, True),
+    ) + tuple(
+        # One target per LIST_FILES file; a header gets an include guard.
+        (list_filename, VulkanListFileGenerator, VulkanListFileGeneratorOptions, list_filename.endswith('.h'))
+        for list_filename in LIST_FILES
+    ):
+        gen_opts[schema_filename] = [
+            schema_generator,
+            schema_options(
+                filename=schema_filename,
+                directory=directory,
+                blacklists=blacklists,
+                platform_types=platform_types,
+                prefix_text=prefix_strings + vk_prefix_strings,
+                protect_file=schema_protect,
+                protect_feature=False,
+                extra_headers=extra_headers
+            )
+        ]
 
     #
     # Consumer generation

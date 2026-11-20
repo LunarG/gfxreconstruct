@@ -252,6 +252,13 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
 
         return entries
 
+    def is_enumerated(self, enum):
+        """Returns True for an enum group vk.xml declares that is not an alias. Each gets an enumerant table, empty or
+        not. A 64-bit flag-bits type is one too: it gets a table but no binding::ApiElementOf, because in C it is a
+        typedef of VkFlags64.
+        """
+        return enum in self.enumEnumerants and enum not in self.enumAliases
+
     def __init__(
         self,
         err_file=sys.stderr,
