@@ -56,6 +56,7 @@ endmacro()
 
 add_test_app(acquired-image)
 add_test_app(debug-utils)
+add_test_app(draw-dispatch-vdr)
 add_test_app(external-memory-fd-export)
 add_test_app(external-memory-fd-import)
 add_test_app(host-image-copy)
