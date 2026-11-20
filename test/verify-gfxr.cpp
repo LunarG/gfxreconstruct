@@ -614,15 +614,27 @@ void replay_and_record_draw_states(const char*                 test_name,
     ASSERT_NO_FATAL_FAILURE(record_draw_states_in_json(recapture_json_path, draw_states));
 }
 
-// Keeps every block of a screenshot results json but the header: its versions, capture path and options differ
-// between builds and machines, while the frame blocks and the summary are what the test checks.
+// Keeps everything in a screenshot results json but the header: its versions, capture path and options differ
+// between builds and machines, while the frame records and the summary are what the test checks.
 static bool clean_screenshot_json(int depth, nlohmann::json::parse_event_t event, nlohmann::json& parsed)
 {
-    if (event == nlohmann::json::parse_event_t::object_end && depth == 1 && parsed.contains("header"))
+    return !(event == nlohmann::json::parse_event_t::key && depth == 1 && parsed == "header");
+}
+
+// The names of the screenshot results json files in directory: the summary "<prefix>.json" and one
+// "<prefix>_frame_<n>.json" for each frame.
+static std::set<std::string> screenshot_json_names(const std::filesystem::path& directory, const std::string& prefix)
+{
+    std::set<std::string> names;
+    for (const auto& entry : std::filesystem::directory_iterator{ directory })
     {
-        return false;
+        const std::string name = entry.path().filename().string();
+        if (entry.is_regular_file() && (name.rfind(prefix, 0) == 0) && (entry.path().extension() == ".json"))
+        {
+            names.insert(name);
+        }
     }
-    return true;
+    return names;
 }
 
 void capture_and_verify_screenshots(const char* test_name, std::vector<std::string> screenshot_args)
@@ -648,14 +660,28 @@ void capture_and_verify_screenshots(const char* test_name, std::vector<std::stri
     replay_capture_path.append(test_name + std::string("_replay.gfxr"));
     env_vars.SetEnv("GFXRECON_CAPTURE_FILE", replay_capture_path.string().c_str());
 
-    // The screenshots and the results json carry this prefix and land in the test directory, where replay runs. With
-    // no --screenshot-dir the file names in the json hold no path separator, so they match on every platform.
-    const std::string     prefix = test_name + std::string("-screenshots");
-    std::filesystem::path result_json_path{ paths.base_path };
-    result_json_path.append(prefix + ".json");
+    // The screenshots and the results json files carry this prefix and land in the test directory, where replay runs.
+    // With no --screenshot-dir the file names in the json hold no path separator, so they match on every platform.
+    const std::string prefix = test_name + std::string("-screenshots");
 
-    // A replay that fails to write the json must not pass against the file of an earlier run.
-    std::filesystem::remove(result_json_path);
+    // The reference is a directory holding the files replay is expected to write, under the names it gives them.
+    std::filesystem::path reference_dir{ paths.base_path };
+    reference_dir.append("known_good");
+    reference_dir.append("screenshots");
+    reference_dir.append(test_name);
+    ASSERT_TRUE(std::filesystem::is_directory(reference_dir))
+        << "reference screenshot results directory is missing: " << reference_dir;
+
+    const std::set<std::string> reference_names = screenshot_json_names(reference_dir, prefix);
+    ASSERT_FALSE(reference_names.empty()) << "no reference screenshot results json in " << reference_dir;
+
+    // A replay that fails to write a json must not pass against the file of an earlier run.
+    for (const std::string& name : screenshot_json_names(paths.base_path, prefix))
+    {
+        std::filesystem::path stale_path{ paths.base_path };
+        stale_path.append(name);
+        std::filesystem::remove(stale_path);
+    }
 
     std::vector<std::string> replay_args = {
         "--swapchain", "offscreen", "--screenshot-prefix", prefix, "--screenshot-results"
@@ -667,32 +693,43 @@ void capture_and_verify_screenshots(const char* test_name, std::vector<std::stri
     ASSERT_EQ(result, 0) << "replay command failed " << paths.replay_path << " for capture " << paths.capture_path
                          << " in path " << paths.base_path;
 
-    std::ifstream result_file{ result_json_path };
-    ASSERT_TRUE(result_file.is_open()) << "screenshot results json: " << result_json_path << " would not open";
-    auto result_json = nlohmann::json::parse(result_file, clean_screenshot_json);
-
-    std::filesystem::path reference_json_path{ paths.base_path };
-    reference_json_path.append("known_good");
-    reference_json_path.append("screenshots");
-    reference_json_path.append(test_name + std::string(".json"));
-
-    std::ifstream reference_file{ reference_json_path };
-    ASSERT_TRUE(reference_file.is_open())
-        << "reference screenshot results json: " << reference_json_path << " would not open";
-    auto reference_json = nlohmann::json::parse(reference_file, clean_screenshot_json);
-
-    auto diff = nlohmann::json::diff(reference_json, result_json);
-    ASSERT_EQ(diff.size(), 0) << std::setw(4) << diff;
-
-    // Every output the json reports as written must be on disk.
-    for (const auto& block : result_json)
+    // Replay must write a json for each frame the reference has, and no other.
+    const std::set<std::string> result_names = screenshot_json_names(paths.base_path, prefix);
+    for (const std::string& name : reference_names)
     {
-        if (!block.contains("outputs"))
+        EXPECT_TRUE(result_names.count(name) != 0) << "screenshot results json was not written: " << name;
+    }
+    for (const std::string& name : result_names)
+    {
+        EXPECT_TRUE(reference_names.count(name) != 0) << "unexpected screenshot results json: " << name;
+    }
+    ASSERT_EQ(result_names, reference_names);
+
+    for (const std::string& name : reference_names)
+    {
+        std::filesystem::path result_json_path{ paths.base_path };
+        result_json_path.append(name);
+        std::ifstream result_file{ result_json_path };
+        ASSERT_TRUE(result_file.is_open()) << "screenshot results json: " << result_json_path << " would not open";
+        auto result_json = nlohmann::json::parse(result_file, clean_screenshot_json);
+
+        std::filesystem::path reference_json_path{ reference_dir };
+        reference_json_path.append(name);
+        std::ifstream reference_file{ reference_json_path };
+        ASSERT_TRUE(reference_file.is_open())
+            << "reference screenshot results json: " << reference_json_path << " would not open";
+        auto reference_json = nlohmann::json::parse(reference_file, clean_screenshot_json);
+
+        auto diff = nlohmann::json::diff(reference_json, result_json);
+        ASSERT_EQ(diff.size(), 0) << name << ": " << std::setw(4) << diff;
+
+        // Every output a frame record reports as written must be on disk. The summary has no outputs.
+        if (!result_json.contains("outputs"))
         {
             continue;
         }
 
-        for (const auto& output : block["outputs"])
+        for (const auto& output : result_json["outputs"])
         {
             if (output.value("status", "") != "written")
             {
