@@ -29,7 +29,7 @@
 #include "decode/decode_allocator.h"
 #include "decode/value_decoder.h"
 #include "format/format.h"
-#include "generated/generated_vulkan_struct_decoders_forward.h"
+#include "decode/vulkan_decode_struct.h"
 #include "util/defines.h"
 
 #if defined(D3D12_SUPPORT)

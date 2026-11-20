@@ -2226,7 +2226,10 @@ class KhronosBaseGenerator(OutputGenerator):
         if value.is_pointer or value.is_array:
             count = value.pointer_count
 
-            if self.is_struct(type_name):
+            if self.is_base_output_structure_type(type_name):
+                # The structure's type is in its own sType; TypedStructDecoder selects by it.
+                type_name = 'TypedStructDecoder'
+            elif self.is_struct(type_name):
                 if count > 1:
                     type_name = 'StructPointerDecoder<Decoded_{}*>'.format(
                         type_name
