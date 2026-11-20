@@ -54,6 +54,9 @@ set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
     gfxrecon-testapp-triangle-extra-device
     gfxrecon-testapp-deep-pnext-chain
     gfxrecon-testapp-screenshot-frame-boundaries
+    gfxrecon-testapp-dispatch-big-buffers
+    gfxrecon-testapp-secondary-dispatch-twice
+    gfxrecon-testapp-secondary-draw-twice
 )
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|GNU")
