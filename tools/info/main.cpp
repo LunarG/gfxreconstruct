@@ -28,7 +28,6 @@
 #include "decode/info_consumer.h"
 #include "decode/file_processor.h"
 #include "decode/stat_consumer.h"
-#include "decode/stat_consumer_base.h"
 #include "decode/stat_decoder_base.h"
 #include "format/format.h"
 #include "format/format_util.h"
@@ -40,22 +39,22 @@
 #include "util/argument_parser.h"
 #include "util/feature_module_registry.h"
 #include "util/logging.h"
-#include "util/platform.h"
-#include "util/strings.h"
-#include "util/to_string.h"
 
 #include "info_feature.h"
 #include "tool_settings.h"
 #include "tool_feature_version.h"
 
+#include "util/platform.h"
+#include "util/strings.h"
+#include "util/to_string.h"
+
+#include <cctype>
 #include <cassert>
 #include <cstdarg>
 #include <cstdlib>
+#include <cstdint>
 #include <filesystem>
-#include <limits>
-#include <set>
 #include <string>
-#include <unordered_map>
 #include <iostream>
 
 #include <nlohmann/json.hpp>
@@ -154,29 +153,74 @@ struct FileFormatInfo
 class AnnotationRecorder : public gfxrecon::decode::AnnotationHandler
 {
   public:
-    std::vector<std::string> operation_annotations_;
+    std::vector<nlohmann::json> operation_annotations_;
+    std::vector<nlohmann::json> transform_annotations_;
 
     virtual void ProcessAnnotation(uint64_t                         block_index,
                                    gfxrecon::format::AnnotationType type,
                                    const std::string&               label,
                                    const std::string&               data) override
     {
-        if (type == gfxrecon::format::AnnotationType::kJson &&
-            label.compare(gfxrecon::format::kAnnotationLabelOperation) == 0)
+        if (type != gfxrecon::format::AnnotationType::kJson)
         {
-            if (data.size() > 0)
+            return;
+        }
+
+        if (data.empty())
+        {
+            return;
+        }
+
+        // Inspect annotations spotted in the capture file
+        nlohmann::json json_obj = nlohmann::json::parse(data, nullptr, false);
+        if (label.compare(gfxrecon::format::kAnnotationLabelOperation) == 0)
+        {
+            if (json_obj.is_discarded())
             {
-                // Inspect annotations spotted in the capture file
-                nlohmann::json json_obj = nlohmann::json::parse(data);
-                if (json_obj.is_discarded())
-                {
-                    GFXRECON_LOG_WARNING("Invalid JSON in annotation: \"%s\"", data.c_str());
-                }
-                else
-                {
-                    operation_annotations_.push_back(data);
-                }
+                GFXRECON_LOG_WARNING("Invalid JSON in annotation: \"%s\"", data.c_str());
+                return;
             }
+            operation_annotations_.push_back(json_obj);
+        }
+        else if (label.compare(gfxrecon::format::kAnnotationLabelTransformer) == 0)
+        {
+            if (json_obj.is_discarded())
+            {
+                // There are many traces in the wild that have incorrect json - convert
+                std::string                formatted_data   = data;
+                constexpr std::string_view prefix           = "{\n  \"input\": ";
+                constexpr std::string_view output_separator = ",\n  \"output\": ";
+                constexpr std::string_view tool_separator   = ",\n  \"tool\": ";
+                constexpr std::string_view suffix           = "\n}";
+
+                if (!formatted_data.starts_with(prefix) || !formatted_data.ends_with(suffix))
+                {
+                    GFXRECON_LOG_WARNING("Invalid transformer annotation: \"%s\"", formatted_data.c_str());
+                }
+
+                formatted_data.erase(0, prefix.size());
+                formatted_data.erase(formatted_data.size() - 2, suffix.size());
+
+                const auto input_end = formatted_data.find(output_separator);
+                if (input_end == std::string_view::npos)
+                {
+                    GFXRECON_LOG_WARNING("Invalid transformer annotation: \"%s\"", formatted_data.c_str());
+                }
+
+                const auto output_start = input_end + output_separator.size();
+                const auto output_end   = formatted_data.find(tool_separator, output_start);
+                if (output_end == std::string_view::npos)
+                {
+                    GFXRECON_LOG_WARNING("Invalid transformer annotation: \"%s\"", formatted_data.c_str());
+                }
+
+                json_obj = nlohmann::json{
+                    { "input", std::string(formatted_data.substr(0, input_end)) },
+                    { "output", std::string(formatted_data.substr(output_start, output_end - output_start)) },
+                    { "tool", std::string(formatted_data.substr(output_end + tool_separator.size())) },
+                };
+            }
+            transform_annotations_.push_back(json_obj);
         }
     }
 };
@@ -238,16 +282,6 @@ void GatherApiAgnosticStats(ApiAgnosticStats&                api_agnostic_stats,
     api_agnostic_stats.uses_frame_markers = file_processor.UsesFrameMarkers();
 }
 
-nlohmann::json GetGfxrOperationsJson(const AnnotationRecorder& annotation_recorder)
-{
-    nlohmann::json annotations_json = nlohmann::json::array();
-    for (const auto& annotation_info : annotation_recorder.operation_annotations_)
-    {
-        annotations_json.push_back(nlohmann::json::parse(annotation_info));
-    }
-    return annotations_json;
-}
-
 void PrintAnnotationsText(const AnnotationRecorder& annotation_recorder)
 {
     // If the capture file had target annotations, display them in an info block
@@ -264,8 +298,7 @@ void PrintAnnotationsText(const AnnotationRecorder& annotation_recorder)
         WriteOutput("Annotations:");
         for (const auto& annotation_info : annotation_recorder.operation_annotations_)
         {
-            nlohmann::json json_obj = nlohmann::json::parse(annotation_info);
-            for (const auto& item : json_obj.items())
+            for (const auto& item : annotation_info.items())
             {
                 const auto target = kTargetAnnotations.find(item.key());
                 if (target != kTargetAnnotations.end())
@@ -285,6 +318,15 @@ void PrintAnnotationsText(const AnnotationRecorder& annotation_recorder)
                     }
                 }
             }
+        }
+    }
+
+    if (!annotation_recorder.transform_annotations_.empty())
+    {
+        WriteOutput("\t%s", "File transformation history:");
+        for (const auto& transform : annotation_recorder.transform_annotations_)
+        {
+            WriteOutput("\t\t%s", transform.dump().c_str());
         }
     }
 }
@@ -643,7 +685,11 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
 
                     if (!annotation_recorder.operation_annotations_.empty())
                     {
-                        json_content["gfxr-operations"] = GetGfxrOperationsJson(annotation_recorder);
+                        json_content["gfxr-operations"] = annotation_recorder.operation_annotations_;
+                    }
+                    if (!annotation_recorder.transform_annotations_.empty())
+                    {
+                        json_content["gfxr-transforms"] = annotation_recorder.transform_annotations_;
                     }
                 }
 
