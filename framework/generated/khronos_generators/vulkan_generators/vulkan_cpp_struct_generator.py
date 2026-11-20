@@ -166,6 +166,8 @@ class VulkanCppStructGenerator(VulkanBaseGenerator):
 
             # Other extensions
             'VkAccelerationStructureMotionInstanceNV',
+            'VkIndirectCommandsLayoutTokenEXT',
+            'VkIndirectExecutionSetCreateInfoEXT',
             'VkImportAndroidHardwareBufferInfoANDROID',
         ]
 
@@ -672,6 +674,10 @@ class VulkanCppStructGenerator(VulkanBaseGenerator):
 
             elif self.is_output_parameter(arg):
                 header, body = self.handleOutputParam(struct_prefix, arg, num_lengths, lengths, indent, header, body, isFirstArg, isLastArg)
+
+            elif self.is_selected_union(arg):
+                # Aggregate init can only set a union's first member.
+                body.append(self.generateTodoFor(arg.name + ' (union picked by ' + arg.selector + ')', indent))
 
             elif self.is_union(arg.base_type):
                 if not arg.is_pointer:

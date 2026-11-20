@@ -1267,6 +1267,50 @@ void UnwrapStructHandles(VkGpaDeviceGetClockInfoAMD* value, HandleUnwrapMemory* 
 
 void UnwrapStructHandles(VkGpaSessionCreateInfoAMD* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(VkTexelBufferDescriptorInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkImageDescriptorInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkTensorViewCreateInfoARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkResourceDescriptorInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkBindHeapInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPushDataInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkDescriptorMappingSourceConstantOffsetEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkDescriptorMappingSourcePushIndexEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkDescriptorMappingSourceIndirectIndexEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkDescriptorMappingSourceShaderRecordIndexEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkDescriptorMappingSourceIndirectIndexArrayEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkDescriptorSetAndBindingMappingEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkShaderDescriptorSetAndBindingMappingInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkOpaqueCaptureDataCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceDescriptorHeapFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceDescriptorHeapPropertiesEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkCommandBufferInheritanceDescriptorHeapInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkSamplerCustomBorderColorIndexCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkSamplerCustomBorderColorCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkIndirectCommandsLayoutPushDataTokenNV* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkSubsampledImageFormatPropertiesEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceDescriptorHeapTensorPropertiesARM* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(VkAttachmentSampleCountInfoAMD* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkSampleLocationsInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
@@ -1540,8 +1584,6 @@ void UnwrapStructHandles(VkPhysicalDeviceDeviceMemoryReportFeaturesEXT* value, H
 void UnwrapStructHandles(VkDeviceMemoryReportCallbackDataEXT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkDeviceDeviceMemoryReportCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkSamplerCustomBorderColorCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPhysicalDeviceCustomBorderColorPropertiesEXT* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -1867,8 +1909,6 @@ void UnwrapStructHandles(VkTensorDescriptionARM* value, HandleUnwrapMemory* unwr
 
 void UnwrapStructHandles(VkTensorCreateInfoARM* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(VkTensorViewCreateInfoARM* value, HandleUnwrapMemory* unwrap_memory);
-
 void UnwrapStructHandles(VkTensorMemoryRequirementsInfoARM* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkBindTensorMemoryInfoARM* value, HandleUnwrapMemory* unwrap_memory);
@@ -2139,9 +2179,13 @@ void UnwrapStructHandles(VkIndirectExecutionSetShaderLayoutInfoEXT* value, Handl
 
 void UnwrapStructHandles(VkIndirectExecutionSetShaderInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(VkIndirectExecutionSetCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(VkGeneratedCommandsInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkWriteIndirectExecutionSetPipelineEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkIndirectCommandsLayoutTokenEXT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkIndirectCommandsLayoutCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 

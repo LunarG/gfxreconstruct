@@ -1003,7 +1003,7 @@ void VulkanReplayConsumerBase::ProcessSetOpaqueDescriptorDataCommand(format::Han
 
     if (device_info != nullptr && data != nullptr && data_size > 0)
     {
-        // Store the opaque descriptor-data to use at object creation.
+        // Store the opaque data (VK_EXT_descriptor_buffer or VK_EXT_descriptor_heap) to use at object creation.
         device_info->opaque_descriptor_data[object_id] = { data, data + data_size };
     }
 }
@@ -6825,7 +6825,8 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
             current_struct = current_struct->pNext;
         }
 
-        if (device_info->property_feature_info.feature_descriptorBufferCaptureReplay &&
+        if ((device_info->property_feature_info.feature_descriptorBufferCaptureReplay ||
+             device_info->property_feature_info.feature_descriptorHeapCaptureReplay) &&
             !UseAddressReplacement(device_info))
         {
             uses_address     = true;
@@ -7533,6 +7534,7 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
     auto* external_format = graphics::vulkan_struct_get_pnext<VkExternalFormatANDROID>(&modified_create_info);
     bool  has_external_format = external_format != nullptr && external_format->externalFormat != 0;
 
+    // VK_EXT_descriptor_buffer: opaque data goes into VkOpaqueCaptureDescriptorDataCreateInfoEXT
     VkOpaqueCaptureDescriptorDataCreateInfoEXT opaque_descriptor_info = {
         VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DESCRIPTOR_DATA_CREATE_INFO_EXT
     };
@@ -7551,6 +7553,30 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
         else
         {
             GFXRECON_LOG_DEBUG("Opaque descriptor-data is not available for VkImage object (ID = %" PRIu64 ")",
+                               capture_id);
+        }
+    }
+
+    // VK_EXT_descriptor_heap: opaque data goes into VkOpaqueCaptureDataCreateInfoEXT, same blob map as above
+    VkHostAddressRangeConstEXT       opaque_heap_range = {};
+    VkOpaqueCaptureDataCreateInfoEXT opaque_heap_info  = { VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DATA_CREATE_INFO_EXT };
+
+    if (device_info->property_feature_info.feature_descriptorHeapCaptureReplay &&
+        !device_info->property_feature_info.feature_descriptorBufferCaptureReplay &&
+        !UseAddressReplacement(device_info))
+    {
+        if (auto it = device_info->opaque_descriptor_data.find(capture_id);
+            it != device_info->opaque_descriptor_data.end())
+        {
+            modified_create_info.flags |= VK_IMAGE_CREATE_DESCRIPTOR_HEAP_CAPTURE_REPLAY_BIT_EXT;
+
+            opaque_heap_range      = { it->second.data(), it->second.size() };
+            opaque_heap_info.pData = &opaque_heap_range;
+            graphics::vulkan_struct_add_pnext(&modified_create_info, &opaque_heap_info);
+        }
+        else
+        {
+            GFXRECON_LOG_DEBUG("Descriptor-heap opaque data is not available for VkImage object (ID = %" PRIu64 ")",
                                capture_id);
         }
     }

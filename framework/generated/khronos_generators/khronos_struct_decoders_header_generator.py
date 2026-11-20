@@ -32,6 +32,7 @@ class KhronosStructDecodersHeaderGenerator():
     # struct despite the type erasure.
     def endFile(self):
         """Performs C++ code generation."""
+        self.written_union_wrappers = set()
         for struct in self.get_all_filtered_struct_names():
             if (
                 struct in self.all_struct_aliases
@@ -61,6 +62,12 @@ class KhronosStructDecodersHeaderGenerator():
             self.write_decoded_parent_child_struct_definitions(api_data, struct)
 
     def write_decoded_struct_definition(self, struct):
+        # A union picked by a selector gets its wrapper right before the first struct that holds it.
+        for value in self.all_struct_members[struct]:
+            if self.is_selected_union(value) and value.base_type not in self.written_union_wrappers:
+                self.written_union_wrappers.add(value.base_type)
+                self.write_decoded_union_definition(value.base_type)
+
         body = '\n'
         body += 'struct Decoded_{}\n'.format(struct)
         body += '{\n'
@@ -75,6 +82,20 @@ class KhronosStructDecodersHeaderGenerator():
             body += '\n'
             body += decls
 
+        body += '};'
+        write(body, file=self.outFile)
+
+    def write_decoded_union_definition(self, union):
+        body = '\n'
+        body += f'struct Decoded_{union}\n'
+        body += '{\n'
+        body += f'    using struct_type = {union};\n'
+        body += '\n'
+        body += f'    {union}* decoded_value{{ nullptr }};\n'
+        decls = self.make_member_declarations(union, self.all_union_members[union])
+        if decls:
+            body += '\n'
+            body += decls
         body += '};'
         write(body, file=self.outFile)
 

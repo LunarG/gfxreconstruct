@@ -2607,6 +2607,56 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyGpaSessionResultsAMD(
     VkCommandBuffer                             commandBuffer,
     VkGpaSessionAMD                             gpaSession);
 
+VKAPI_ATTR VkResult VKAPI_CALL vkWriteSamplerDescriptorsEXT(
+    VkDevice                                    device,
+    uint32_t                                    samplerCount,
+    const VkSamplerCreateInfo*                  pSamplers,
+    const VkHostAddressRangeEXT*                pDescriptors);
+
+VKAPI_ATTR VkResult VKAPI_CALL vkWriteResourceDescriptorsEXT(
+    VkDevice                                    device,
+    uint32_t                                    resourceCount,
+    const VkResourceDescriptorInfoEXT*          pResources,
+    const VkHostAddressRangeEXT*                pDescriptors);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdBindSamplerHeapEXT(
+    VkCommandBuffer                             commandBuffer,
+    const VkBindHeapInfoEXT*                    pBindInfo);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdBindResourceHeapEXT(
+    VkCommandBuffer                             commandBuffer,
+    const VkBindHeapInfoEXT*                    pBindInfo);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdPushDataEXT(
+    VkCommandBuffer                             commandBuffer,
+    const VkPushDataInfoEXT*                    pPushDataInfo);
+
+VKAPI_ATTR VkResult VKAPI_CALL vkGetImageOpaqueCaptureDataEXT(
+    VkDevice                                    device,
+    uint32_t                                    imageCount,
+    const VkImage*                              pImages,
+    VkHostAddressRangeEXT*                      pDatas);
+
+VKAPI_ATTR VkDeviceSize VKAPI_CALL vkGetPhysicalDeviceDescriptorSizeEXT(
+    VkPhysicalDevice                            physicalDevice,
+    VkDescriptorType                            descriptorType);
+
+VKAPI_ATTR VkResult VKAPI_CALL vkRegisterCustomBorderColorEXT(
+    VkDevice                                    device,
+    const VkSamplerCustomBorderColorCreateInfoEXT* pBorderColor,
+    VkBool32                                    requestIndex,
+    uint32_t*                                   pIndex);
+
+VKAPI_ATTR void VKAPI_CALL vkUnregisterCustomBorderColorEXT(
+    VkDevice                                    device,
+    uint32_t                                    index);
+
+VKAPI_ATTR VkResult VKAPI_CALL vkGetTensorOpaqueCaptureDataARM(
+    VkDevice                                    device,
+    uint32_t                                    tensorCount,
+    const VkTensorARM*                          pTensors,
+    VkHostAddressRangeEXT*                      pDatas);
+
 VKAPI_ATTR void VKAPI_CALL vkCmdSetSampleLocationsEXT(
     VkCommandBuffer                             commandBuffer,
     const VkSampleLocationsInfoEXT*             pSampleLocationsInfo);

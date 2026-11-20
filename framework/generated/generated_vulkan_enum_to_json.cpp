@@ -5046,6 +5046,44 @@ void to_json(nlohmann::ordered_json& jdata, const VkSparseMemoryBindFlags_t& fla
     });
 }
 
+void to_json(nlohmann::ordered_json& jdata, const VkSpirvResourceTypeFlagsEXT_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<VkSpirvResourceTypeFlagsEXT>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<VkSpirvResourceTypeFlagsEXT>(flags), [](VkFlags flags)
+    {
+        switch (flags)
+        {
+            case VK_SPIRV_RESOURCE_TYPE_ALL_EXT:
+                return std::string("VK_SPIRV_RESOURCE_TYPE_ALL_EXT");
+            case VK_SPIRV_RESOURCE_TYPE_SAMPLER_BIT_EXT:
+                return std::string("VK_SPIRV_RESOURCE_TYPE_SAMPLER_BIT_EXT");
+            case VK_SPIRV_RESOURCE_TYPE_SAMPLED_IMAGE_BIT_EXT:
+                return std::string("VK_SPIRV_RESOURCE_TYPE_SAMPLED_IMAGE_BIT_EXT");
+            case VK_SPIRV_RESOURCE_TYPE_READ_ONLY_IMAGE_BIT_EXT:
+                return std::string("VK_SPIRV_RESOURCE_TYPE_READ_ONLY_IMAGE_BIT_EXT");
+            case VK_SPIRV_RESOURCE_TYPE_READ_WRITE_IMAGE_BIT_EXT:
+                return std::string("VK_SPIRV_RESOURCE_TYPE_READ_WRITE_IMAGE_BIT_EXT");
+            case VK_SPIRV_RESOURCE_TYPE_COMBINED_SAMPLED_IMAGE_BIT_EXT:
+                return std::string("VK_SPIRV_RESOURCE_TYPE_COMBINED_SAMPLED_IMAGE_BIT_EXT");
+            case VK_SPIRV_RESOURCE_TYPE_UNIFORM_BUFFER_BIT_EXT:
+                return std::string("VK_SPIRV_RESOURCE_TYPE_UNIFORM_BUFFER_BIT_EXT");
+            case VK_SPIRV_RESOURCE_TYPE_READ_ONLY_STORAGE_BUFFER_BIT_EXT:
+                return std::string("VK_SPIRV_RESOURCE_TYPE_READ_ONLY_STORAGE_BUFFER_BIT_EXT");
+            case VK_SPIRV_RESOURCE_TYPE_READ_WRITE_STORAGE_BUFFER_BIT_EXT:
+                return std::string("VK_SPIRV_RESOURCE_TYPE_READ_WRITE_STORAGE_BUFFER_BIT_EXT");
+            case VK_SPIRV_RESOURCE_TYPE_ACCELERATION_STRUCTURE_BIT_EXT:
+                return std::string("VK_SPIRV_RESOURCE_TYPE_ACCELERATION_STRUCTURE_BIT_EXT");
+            case VK_SPIRV_RESOURCE_TYPE_TENSOR_BIT_ARM:
+                return std::string("VK_SPIRV_RESOURCE_TYPE_TENSOR_BIT_ARM");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
 void to_json(nlohmann::ordered_json& jdata, const VkStencilFaceFlags_t& flags)
 {
     if (!JsonOptions::expand_flags)
@@ -9096,6 +9134,48 @@ void to_json(nlohmann::ordered_json& jdata, const VkDescriptorBindingFlagBits& v
             break;
         case VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT:
             jdata = "VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT";
+            break;
+        default:
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void to_json(nlohmann::ordered_json& jdata, const VkDescriptorMappingSourceEXT& value)
+{
+    switch (value) {
+        case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_CONSTANT_OFFSET_EXT:
+            jdata = "VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_CONSTANT_OFFSET_EXT";
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_PUSH_INDEX_EXT:
+            jdata = "VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_PUSH_INDEX_EXT";
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_INDIRECT_INDEX_EXT:
+            jdata = "VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_INDIRECT_INDEX_EXT";
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_INDIRECT_INDEX_ARRAY_EXT:
+            jdata = "VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_INDIRECT_INDEX_ARRAY_EXT";
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_RESOURCE_HEAP_DATA_EXT:
+            jdata = "VK_DESCRIPTOR_MAPPING_SOURCE_RESOURCE_HEAP_DATA_EXT";
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_DATA_EXT:
+            jdata = "VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_DATA_EXT";
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_ADDRESS_EXT:
+            jdata = "VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_ADDRESS_EXT";
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_INDIRECT_ADDRESS_EXT:
+            jdata = "VK_DESCRIPTOR_MAPPING_SOURCE_INDIRECT_ADDRESS_EXT";
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_SHADER_RECORD_INDEX_EXT:
+            jdata = "VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_SHADER_RECORD_INDEX_EXT";
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_SHADER_RECORD_DATA_EXT:
+            jdata = "VK_DESCRIPTOR_MAPPING_SOURCE_SHADER_RECORD_DATA_EXT";
+            break;
+        case VK_DESCRIPTOR_MAPPING_SOURCE_SHADER_RECORD_ADDRESS_EXT:
+            jdata = "VK_DESCRIPTOR_MAPPING_SOURCE_SHADER_RECORD_ADDRESS_EXT";
             break;
         default:
             jdata = gfxrecon::decode::to_hex_fixed_width(value);
@@ -15163,6 +15243,48 @@ void to_json(nlohmann::ordered_json& jdata, const VkSparseMemoryBindFlagBits& va
     switch (value) {
         case VK_SPARSE_MEMORY_BIND_METADATA_BIT:
             jdata = "VK_SPARSE_MEMORY_BIND_METADATA_BIT";
+            break;
+        default:
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void to_json(nlohmann::ordered_json& jdata, const VkSpirvResourceTypeFlagBitsEXT& value)
+{
+    switch (value) {
+        case VK_SPIRV_RESOURCE_TYPE_ALL_EXT:
+            jdata = "VK_SPIRV_RESOURCE_TYPE_ALL_EXT";
+            break;
+        case VK_SPIRV_RESOURCE_TYPE_SAMPLER_BIT_EXT:
+            jdata = "VK_SPIRV_RESOURCE_TYPE_SAMPLER_BIT_EXT";
+            break;
+        case VK_SPIRV_RESOURCE_TYPE_SAMPLED_IMAGE_BIT_EXT:
+            jdata = "VK_SPIRV_RESOURCE_TYPE_SAMPLED_IMAGE_BIT_EXT";
+            break;
+        case VK_SPIRV_RESOURCE_TYPE_READ_ONLY_IMAGE_BIT_EXT:
+            jdata = "VK_SPIRV_RESOURCE_TYPE_READ_ONLY_IMAGE_BIT_EXT";
+            break;
+        case VK_SPIRV_RESOURCE_TYPE_READ_WRITE_IMAGE_BIT_EXT:
+            jdata = "VK_SPIRV_RESOURCE_TYPE_READ_WRITE_IMAGE_BIT_EXT";
+            break;
+        case VK_SPIRV_RESOURCE_TYPE_COMBINED_SAMPLED_IMAGE_BIT_EXT:
+            jdata = "VK_SPIRV_RESOURCE_TYPE_COMBINED_SAMPLED_IMAGE_BIT_EXT";
+            break;
+        case VK_SPIRV_RESOURCE_TYPE_UNIFORM_BUFFER_BIT_EXT:
+            jdata = "VK_SPIRV_RESOURCE_TYPE_UNIFORM_BUFFER_BIT_EXT";
+            break;
+        case VK_SPIRV_RESOURCE_TYPE_READ_ONLY_STORAGE_BUFFER_BIT_EXT:
+            jdata = "VK_SPIRV_RESOURCE_TYPE_READ_ONLY_STORAGE_BUFFER_BIT_EXT";
+            break;
+        case VK_SPIRV_RESOURCE_TYPE_READ_WRITE_STORAGE_BUFFER_BIT_EXT:
+            jdata = "VK_SPIRV_RESOURCE_TYPE_READ_WRITE_STORAGE_BUFFER_BIT_EXT";
+            break;
+        case VK_SPIRV_RESOURCE_TYPE_ACCELERATION_STRUCTURE_BIT_EXT:
+            jdata = "VK_SPIRV_RESOURCE_TYPE_ACCELERATION_STRUCTURE_BIT_EXT";
+            break;
+        case VK_SPIRV_RESOURCE_TYPE_TENSOR_BIT_ARM:
+            jdata = "VK_SPIRV_RESOURCE_TYPE_TENSOR_BIT_ARM";
             break;
         default:
             jdata = gfxrecon::decode::to_hex_fixed_width(value);

@@ -21,6 +21,7 @@
 # IN THE SOFTWARE.
 #
 
+import re
 from khronos_base_generator import write
 from reformat_code import indent_cpp_code, remove_leading_empty_lines, remove_trailing_newlines
 
@@ -132,6 +133,14 @@ class KhronosStructToJsonBodyGenerator():
 
     #
     # Command definition
+    def make_union_member_to_json(self, value, member):
+        """JSON for the active union member, written under the union's name."""
+        code = self.makeStructBody(value.base_type, [member])
+        code = code.replace(f'jdata["{member.name}"]', f'jdata["{value.name}"]')
+        code = re.sub(rf'\bmeta_struct\.{member.name}\b', f'meta_struct.{value.name}->{member.name}', code)
+        code = re.sub(rf'\bdecoded_value\.{member.name}\b', f'decoded_value.{value.name}.{member.name}', code)
+        return [line.strip() for line in code.strip('\n').splitlines()]
+
     def makeStructBody(self, name, values):
         body = ''
         has_extended_struct = False
@@ -148,6 +157,14 @@ class KhronosStructToJsonBodyGenerator():
 
             if value.name == extended_struct_var_name:
                 has_extended_struct = True
+                continue
+
+            if self.is_selected_union(value):
+                body += self.make_union_switch(
+                    f'decoded_value.{value.selector}', value,
+                    lambda member: self.make_union_member_to_json(value, member),
+                    '        '
+                )
                 continue
 
             # Default to getting the data from the native Vulkan struct:

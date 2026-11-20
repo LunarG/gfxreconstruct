@@ -130,6 +130,15 @@ class KhronosStructEncodersBodyGenerator():
                     body += '    Encode{}Struct(encoder, {});\n'.format(
                         api_data.extended_struct_func_prefix, prefix + value.name
                     )
+            elif self.is_selected_union(value):
+                members = self.all_union_members[value.base_type]
+                body += self.make_union_switch(
+                    prefix + value.selector, value, lambda member: [
+                        self.make_encoder_method_call(
+                            name, member, members, f'{prefix}{value.name}.'
+                        ) + ';'
+                    ]
+                )
             else:
                 preamble = self.make_counted_static_array_preamble(name, value, prefix)
                 if preamble:

@@ -85,6 +85,8 @@ class KhronosStructDecodersBodyGenerator():
                 main_body += '    value->{var} = wrapper->{var} ? wrapper->{var}->GetPointer() : nullptr;\n'.format(
                     var=extended_struct_name
                 )
+            elif self.is_selected_union(value):
+                main_body += self.make_decode_union_switch(value)
             else:
                 preamble, main_body, epilogue = self.make_decode_invocation(
                     name, value, preamble, main_body, epilogue
@@ -94,6 +96,23 @@ class KhronosStructDecodersBodyGenerator():
             preamble += '\n'
         body = preamble + main_body + epilogue
         return body
+
+    def make_decode_union_switch(self, value):
+        """Decode only the union member that the selector picks."""
+        union = value.base_type
+        body = f'    wrapper->{value.name} = DecodeAllocator::Allocate<Decoded_{union}>();\n'
+        body += f'    wrapper->{value.name}->decoded_value = &(value->{value.name});\n'
+
+        def make_case(member):
+            preamble, member_body, epilogue = self.make_decode_invocation(
+                union, member, '', '', ''
+            )
+            assert not preamble and not epilogue
+            return self.retarget_union_member_code(member_body, value, member)
+
+        return body + self.make_union_switch(
+            f'value->{value.selector}', value, make_case
+        )
 
     def make_decode_invocation(
         self, name, value, preamble, main_body, epilogue

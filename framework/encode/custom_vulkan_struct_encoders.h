@@ -36,7 +36,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkClearValue& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineExecutableStatisticValueKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDeviceOrHostAddressKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDeviceOrHostAddressConstKHR& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureMotionInstanceNV& value);
 
 // Vulkan structures that require special processing that the code generator cannot infer from the XML registry.
 void EncodeStruct(ParameterEncoder* encoder, VkDescriptorType type, const VkDescriptorImageInfo& value);
@@ -44,8 +43,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkWriteDescriptorSet& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPerformanceValueINTEL& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPushDescriptorSetWithTemplateInfoKHR& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkIndirectExecutionSetCreateInfoEXT& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsLayoutTokenEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkCopyMemoryToImageInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToMemoryInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkLayerSettingEXT& value);

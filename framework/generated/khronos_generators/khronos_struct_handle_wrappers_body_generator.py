@@ -216,6 +216,13 @@ class KhronosStructHandleWrappersBodyGenerator():
         write('    return nullptr;', file=self.outFile)
         write('}', file=self.outFile)
 
+    def make_union_member_unwrapping(self, api_data, value, member):
+        """Unwrap code for one union member, or None if it holds no struct with handles."""
+        if member.base_type not in self.structs_with_handles:
+            return None
+        code = self.make_struct_handle_unwrappings(api_data, value.base_type, [member], {})
+        return self.retarget_union_member_code(code, value, member)
+
     def make_struct_handle_unwrappings(
         self, api_data, name, handle_members, generic_handle_members
     ):
@@ -223,7 +230,13 @@ class KhronosStructHandleWrappersBodyGenerator():
         body = ''
 
         for member in handle_members:
-            if member.name == api_data.extended_struct_variable:
+            if self.is_selected_union(member):
+                body += self.make_union_switch(
+                    f'value->{member.selector}', member,
+                    lambda union_member: self.make_union_member_unwrapping(api_data, member, union_member),
+                    '        '
+                )
+            elif member.name == api_data.extended_struct_variable:
                 body += '        if (value->{} != nullptr)\n'.format(
                     member.name
                 )
