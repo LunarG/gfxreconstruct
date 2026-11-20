@@ -194,6 +194,37 @@ LIST_FILES = {
              'template <> struct CallId<schema::vulkan::api_elements::{name}> {{ static constexpr format::ApiCallId value = format::ApiCallId::ApiCall_vk{name}; }};'),
         )
     ),
+    'generated_vulkan_capture_wrapper_of.h': ListFile(
+        headers=(
+            'encode/vulkan_encode_capture_wrappers.h', 'encode/vulkan_handle_wrappers.h',
+            'generated/generated_vulkan_schema_types.h', 'util/defines.h'
+        ),
+        system_headers=(),
+        namespace='encode',
+        preamble=(),
+        lists=(
+            ('// encode::CaptureWrapperOf for every handle: vulkan_wrappers::<Stem>Wrapper, where Stem is the handle name\n'
+             '// without its Vk prefix.',
+             'get_handle_api_elements',
+             'template <> struct CaptureWrapperOf<schema::vulkan::api_elements::{name}> {{ using type = vulkan_wrappers::{stem}Wrapper; }};'),
+        )
+    ),
+    'generated_vulkan_struct_encoders.cpp': ListFile(
+        headers=(
+            'encode/vulkan_encode_struct.h', 'encode/custom_vulkan_struct_encoders.h', 'encode/parameter_encoder.h',
+            'encode/struct_pointer_encoder.h', 'encode/vulkan_encode_struct_impl.h', 'util/defines.h'
+        ),
+        system_headers=(),
+        namespace='encode',
+        preamble=(),
+        lists=(
+            ('// Instantiates EncodeStruct once per structure, except those with a hand-written encoder, whose overloads are\n'
+             '// declared in encode/custom_vulkan_struct_encoders.h. Every other translation unit sees only the declaration and\n'
+             '// links to these instantiations.',
+             'get_generated_encode_structure_api_elements',
+             'template void EncodeStruct<{name}>(ParameterEncoder*, const {name}&);'),
+        )
+    ),
     'generated_vulkan_struct_decoders.cpp': ListFile(
         headers=(
             'decode/vulkan_decode_struct_impl.h', 'generated/generated_vulkan_struct_decoders.h',
@@ -272,6 +303,7 @@ class VulkanSchemaChecksGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
             'decode/vulkan_decoder_args.h',
             'generated/generated_vulkan_api_element_of.h',
             'generated/generated_vulkan_call_id.h',
+            'generated/generated_vulkan_capture_wrapper_of.h',
             'generated/generated_vulkan_decoder_args.h',
             'generated/generated_vulkan_schema.h',
             'generated/generated_vulkan_struct_decoders.h',
@@ -475,6 +507,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         # only. Platform structures count as hand-written for encode and decode.
         with open(self.genOpts.blacklists, 'r') as blacklists:
             lists = json.load(blacklists)
+        self.custom_encode_structs = set(lists['structures']) | set(lists.get('structures-encoder', ())) | set(self.PLATFORM_STRUCTS)
         self.custom_decode_structs = set(lists['structures']) | set(lists.get('structures-decoder', ())) | set(self.PLATFORM_STRUCTS)
         self.external_structs = set(self.PLATFORM_STRUCTS)
 
@@ -1463,9 +1496,17 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             )
             self.newline()
 
+    def get_handle_api_elements(self):
+        """Returns every handle API element, by name."""
+        return [name for name in sorted(self.api_type_categories) if self.api_type_categories[name] == 'Handle']
+
     def get_command_api_elements(self):
         """Returns every command API element, in command order: the command name without its vk prefix."""
         return [self.get_command_api_element_name(command) for command in self.schema_commands]
+
+    def get_generated_encode_structure_api_elements(self):
+        """Returns the structure API elements without a hand-written encoder, by name."""
+        return [name for name in self.get_structure_api_elements() if name not in self.custom_encode_structs]
 
     def get_generated_decode_structure_api_elements(self):
         """Returns the structure API elements without a hand-written decoder, by name."""
@@ -1549,6 +1590,20 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             write(
                 'static_assert(std::is_same_v<schema::ApiTypeOf_t<binding::ApiElementOf<::{name}>::type>, '
                 '::{name}>);'.format(name=name),
+                file=self.outFile
+            )
+
+        self.newline()
+        write(
+            '// Each capture wrapper\'s HandleType against the element_type of the handle API element that\n'
+            '// generated/generated_vulkan_capture_wrapper_of.h maps to it.',
+            file=self.outFile
+        )
+
+        for name in self.get_handle_api_elements():
+            write(
+                'static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::{name}>::type::HandleType, '
+                'schema::ApiTypeOf_t<schema::vulkan::api_elements::{name}>>);'.format(name=name),
                 file=self.outFile
             )
 

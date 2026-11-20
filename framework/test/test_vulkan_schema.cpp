@@ -36,6 +36,10 @@
 #include "encode/parameter_buffer.h"
 #include "encode/parameter_encoder.h"
 #include "encode/struct_pointer_encoder.h"
+#include "encode/vulkan_encode_action.h"
+#include "encode/vulkan_encode_struct.h"
+#include "encode/vulkan_handle_wrapper_util.h"
+#include "generated/generated_vulkan_capture_wrapper_of.h"
 #include "util/logging.h"
 
 #include "binding/vulkan_wire_type.h"
@@ -261,6 +265,1668 @@ TEST_CASE("One field walk covers a generated structure schema", "[schema]")
     CHECK(action.others == 1);
 }
 
+// Checks EncodeStruct on VkExtent3D against EncodeUInt32Value per member; a dropped, reordered or mis-sized member
+// fails the compare.
+TEST_CASE("Schema EncodeStruct matches scalar-value wire bytes", "[schema][encode]")
+{
+    VkExtent3D extent{ 0x10203040u, 0x50607080u, 0x90a0b0c0u };
+
+    encode::ParameterBuffer  buffer;
+    encode::ParameterEncoder encoder(&buffer);
+    encode::EncodeStruct(&encoder, extent);
+
+    encode::ParameterBuffer  oracle_buffer;
+    encode::ParameterEncoder oracle(&oracle_buffer);
+    oracle.EncodeUInt32Value(extent.width);
+    oracle.EncodeUInt32Value(extent.height);
+    oracle.EncodeUInt32Value(extent.depth);
+
+    REQUIRE(buffer.GetDataSize() == oracle_buffer.GetDataSize());
+    CHECK(std::memcmp(buffer.GetData(), oracle_buffer.GetData(), buffer.GetDataSize()) == 0);
+}
+
+TEST_CASE("Schema EncodeStruct matches fixed-extent array wire bytes", "[schema][encode]")
+{
+    // Checks fixed-extent arrays of rank one and rank two against oracles built from ParameterEncoder calls. Values
+    // are asymmetric, so a transposed, truncated or reordered run lands on different bytes.
+    auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
+        return actual.GetDataSize() == oracle.GetDataSize() &&
+               std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
+    };
+
+    // Rank one: four scalars, one of them an enum, then a byte array of VK_UUID_SIZE.
+    VkPipelineCacheHeaderVersionOne header{};
+    header.headerSize    = 0x00000020u;
+    header.headerVersion = VK_PIPELINE_CACHE_HEADER_VERSION_ONE;
+    header.vendorID      = 0x000010deu;
+    header.deviceID      = 0x00002684u;
+    for (size_t i = 0; i < VK_UUID_SIZE; ++i)
+    {
+        header.pipelineCacheUUID[i] = static_cast<uint8_t>(0xa0 + i);
+    }
+
+    encode::ParameterBuffer  header_buffer;
+    encode::ParameterEncoder header_encoder(&header_buffer);
+    encode::EncodeStruct(&header_encoder, header);
+
+    encode::ParameterBuffer  header_oracle_buffer;
+    encode::ParameterEncoder header_oracle(&header_oracle_buffer);
+    header_oracle.EncodeUInt32Value(header.headerSize);
+    header_oracle.EncodeEnumValue(header.headerVersion);
+    header_oracle.EncodeUInt32Value(header.vendorID);
+    header_oracle.EncodeUInt32Value(header.deviceID);
+    header_oracle.EncodeUInt8Array(header.pipelineCacheUUID, VK_UUID_SIZE);
+
+    CHECK(same_bytes(header_buffer, header_oracle_buffer));
+
+    // Rank two: a 3x4 float matrix and nothing else. The oracle is EncodeFloat2DMatrix, so this also checks that a
+    // matrix is written as one flat run of the extent product, 12.
+    VkTransformMatrixKHR matrix{};
+    for (size_t row = 0; row < 3; ++row)
+    {
+        for (size_t column = 0; column < 4; ++column)
+        {
+            matrix.matrix[row][column] = static_cast<float>(row * 10 + column) + 0.5f;
+        }
+    }
+
+    encode::ParameterBuffer  matrix_buffer;
+    encode::ParameterEncoder matrix_encoder(&matrix_buffer);
+    encode::EncodeStruct(&matrix_encoder, matrix);
+
+    encode::ParameterBuffer  matrix_oracle_buffer;
+    encode::ParameterEncoder matrix_oracle(&matrix_oracle_buffer);
+    matrix_oracle.EncodeFloat2DMatrix(matrix.matrix, 3, 4);
+
+    CHECK(same_bytes(matrix_buffer, matrix_oracle_buffer));
+
+    // Rank one: four scalars, two of them enums, then a uint32_t array.
+    VkPipelineCacheHeaderVersionDataGraphQCOM graph_header{};
+    graph_header.headerSize    = 0x00000030u;
+    graph_header.headerVersion = VK_PIPELINE_CACHE_HEADER_VERSION_ONE;
+    graph_header.cacheVersion  = 0x00000007u;
+    for (size_t i = 0; i < VK_DATA_GRAPH_MODEL_TOOLCHAIN_VERSION_LENGTH_QCOM; ++i)
+    {
+        graph_header.toolchainVersion[i] = static_cast<uint32_t>(0x01000000u * (i + 1) + i);
+    }
+
+    encode::ParameterBuffer  graph_buffer;
+    encode::ParameterEncoder graph_encoder(&graph_buffer);
+    encode::EncodeStruct(&graph_encoder, graph_header);
+
+    encode::ParameterBuffer  graph_oracle_buffer;
+    encode::ParameterEncoder graph_oracle(&graph_oracle_buffer);
+    graph_oracle.EncodeUInt32Value(graph_header.headerSize);
+    graph_oracle.EncodeEnumValue(graph_header.headerVersion);
+    graph_oracle.EncodeEnumValue(graph_header.cacheType);
+    graph_oracle.EncodeUInt32Value(graph_header.cacheVersion);
+    graph_oracle.EncodeUInt32Array(graph_header.toolchainVersion, VK_DATA_GRAPH_MODEL_TOOLCHAIN_VERSION_LENGTH_QCOM);
+
+    CHECK(same_bytes(graph_buffer, graph_oracle_buffer));
+
+    // Rank two: two scalars and two byte matrices.
+    StdVideoH264ScalingLists lists{};
+    lists.scaling_list_present_mask       = 0x0123u;
+    lists.use_default_scaling_matrix_mask = 0x4567u;
+    for (size_t list = 0; list < STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS; ++list)
+    {
+        for (size_t element = 0; element < STD_VIDEO_H264_SCALING_LIST_4X4_NUM_ELEMENTS; ++element)
+        {
+            lists.ScalingList4x4[list][element] = static_cast<uint8_t>(list * 16 + element);
+        }
+        for (size_t element = 0; element < STD_VIDEO_H264_SCALING_LIST_8X8_NUM_ELEMENTS; ++element)
+        {
+            lists.ScalingList8x8[list][element] = static_cast<uint8_t>(0x80 + list * 64 + element);
+        }
+    }
+
+    encode::ParameterBuffer  lists_buffer;
+    encode::ParameterEncoder lists_encoder(&lists_buffer);
+    encode::EncodeStruct(&lists_encoder, lists);
+
+    encode::ParameterBuffer  lists_oracle_buffer;
+    encode::ParameterEncoder lists_oracle(&lists_oracle_buffer);
+    lists_oracle.EncodeUInt16Value(lists.scaling_list_present_mask);
+    lists_oracle.EncodeUInt16Value(lists.use_default_scaling_matrix_mask);
+    lists_oracle.EncodeUInt82DMatrix(
+        lists.ScalingList4x4, STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS, STD_VIDEO_H264_SCALING_LIST_4X4_NUM_ELEMENTS);
+    lists_oracle.EncodeUInt82DMatrix(
+        lists.ScalingList8x8, STD_VIDEO_H264_SCALING_LIST_8X8_NUM_LISTS, STD_VIDEO_H264_SCALING_LIST_8X8_NUM_ELEMENTS);
+
+    CHECK(same_bytes(lists_buffer, lists_oracle_buffer));
+}
+
+TEST_CASE("Schema EncodeStruct matches extension-chain wire bytes", "[schema][encode]")
+{
+    // Checks the extension chain against an oracle that calls the entry point the Field's ValidExtensions token
+    // selects: with it, EncodePNextStruct; without it, EncodePNextStructIfValid. VkSubpassEndInfo and
+    // VkPipelineCreateInfoKHR are sType and pNext only, so nothing else differs. Each structure is encoded with a null
+    // chain and with a one-node chain.
+    auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
+        return actual.GetDataSize() == oracle.GetDataSize() &&
+               std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
+    };
+
+    auto encode_via_schema = [](const auto& value, encode::ParameterBuffer& buffer) {
+        encode::ParameterEncoder encoder(&buffer);
+        encode::EncodeStruct(&encoder, value);
+    };
+
+    // Chain nodes: a structure vk.xml lets extend VkSubpassEndInfo, and the one it lets extend VkAttachmentReference2.
+    // The structures without ValidExtensions take the stencil node too: EncodePNextStruct finds a node by sType alone,
+    // not by what vk.xml allows on the owner, so a node on the wire shows that the probe followed the pointer.
+    VkRenderPassFragmentDensityMapOffsetEndInfoEXT offsets{};
+    offsets.sType = VK_STRUCTURE_TYPE_RENDER_PASS_FRAGMENT_DENSITY_MAP_OFFSET_END_INFO_EXT;
+
+    VkAttachmentReferenceStencilLayout stencil{};
+    stencil.sType         = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_STENCIL_LAYOUT;
+    stencil.stencilLayout = VK_IMAGE_LAYOUT_STENCIL_ATTACHMENT_OPTIMAL;
+
+    // ValidExtensions: EncodePNextStruct, which trusts the pointer.
+    for (const void* chain : { static_cast<const void*>(nullptr), static_cast<const void*>(&offsets) })
+    {
+        VkSubpassEndInfo end{ VK_STRUCTURE_TYPE_SUBPASS_END_INFO, chain };
+
+        encode::ParameterBuffer end_buffer;
+        encode_via_schema(end, end_buffer);
+
+        encode::ParameterBuffer  end_oracle_buffer;
+        encode::ParameterEncoder end_oracle(&end_oracle_buffer);
+        end_oracle.EncodeEnumValue(end.sType);
+        encode::EncodePNextStruct(&end_oracle, end.pNext);
+
+        CHECK(same_bytes(end_buffer, end_oracle_buffer));
+    }
+
+    // No ValidExtensions: EncodePNextStructIfValid, which probes the pointer before it walks the chain. vk.xml declares
+    // no structure that extends VkPipelineCreateInfoKHR, though VK_KHR_pipeline_binary requires a pipeline create-info
+    // structure in its pNext chain.
+    for (void* chain : { static_cast<void*>(nullptr), static_cast<void*>(&stencil) })
+    {
+        VkPipelineCreateInfoKHR create{ VK_STRUCTURE_TYPE_PIPELINE_CREATE_INFO_KHR, chain };
+
+        encode::ParameterBuffer create_buffer;
+        encode_via_schema(create, create_buffer);
+
+        encode::ParameterBuffer  create_oracle_buffer;
+        encode::ParameterEncoder create_oracle(&create_oracle_buffer);
+        create_oracle.EncodeEnumValue(create.sType);
+        encode::EncodePNextStructIfValid(&create_oracle, create.pNext);
+
+        CHECK(same_bytes(create_buffer, create_oracle_buffer));
+    }
+
+    // ValidExtensions, with three scalars after pNext, so a chain written at the wrong length shifts them.
+    for (const void* chain : { static_cast<const void*>(nullptr), static_cast<const void*>(&stencil) })
+    {
+        VkAttachmentReference2 reference{ VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2,
+                                          chain,
+                                          7u,
+                                          VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                          VK_IMAGE_ASPECT_COLOR_BIT };
+
+        encode::ParameterBuffer reference_buffer;
+        encode_via_schema(reference, reference_buffer);
+
+        encode::ParameterBuffer  reference_oracle_buffer;
+        encode::ParameterEncoder reference_oracle(&reference_oracle_buffer);
+        reference_oracle.EncodeEnumValue(reference.sType);
+        encode::EncodePNextStruct(&reference_oracle, reference.pNext);
+        reference_oracle.EncodeUInt32Value(reference.attachment);
+        reference_oracle.EncodeEnumValue(reference.layout);
+        reference_oracle.EncodeFlagsValue(reference.aspectMask);
+
+        CHECK(same_bytes(reference_buffer, reference_oracle_buffer));
+    }
+
+    // No ValidExtensions.
+    for (const void* chain : { static_cast<const void*>(nullptr), static_cast<const void*>(&stencil) })
+    {
+        VkPerTileBeginInfoQCOM begin{ VK_STRUCTURE_TYPE_PER_TILE_BEGIN_INFO_QCOM, chain };
+
+        encode::ParameterBuffer begin_buffer;
+        encode_via_schema(begin, begin_buffer);
+
+        encode::ParameterBuffer  begin_oracle_buffer;
+        encode::ParameterEncoder begin_oracle(&begin_oracle_buffer);
+        begin_oracle.EncodeEnumValue(begin.sType);
+        encode::EncodePNextStructIfValid(&begin_oracle, begin.pNext);
+
+        CHECK(same_bytes(begin_buffer, begin_oracle_buffer));
+    }
+}
+
+TEST_CASE("Schema EncodeStruct matches scalar-pointer wire bytes", "[schema][encode]")
+{
+    // Checks VkBindMemoryStatus, whose only field beyond sType and pNext is a pointer to one scalar, null and set.
+    // The value is VK_ERROR_OUT_OF_HOST_MEMORY, a negative enum, so a sign or width slip lands on different bytes.
+    auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
+        return actual.GetDataSize() == oracle.GetDataSize() &&
+               std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
+    };
+
+    VkResult result = VK_ERROR_OUT_OF_HOST_MEMORY;
+
+    for (VkResult* pointer : { static_cast<VkResult*>(nullptr), &result })
+    {
+        VkBindMemoryStatus status{ VK_STRUCTURE_TYPE_BIND_MEMORY_STATUS, nullptr, pointer };
+
+        encode::ParameterBuffer  status_buffer;
+        encode::ParameterEncoder status_encoder(&status_buffer);
+        encode::EncodeStruct(&status_encoder, status);
+
+        encode::ParameterBuffer  status_oracle_buffer;
+        encode::ParameterEncoder status_oracle(&status_oracle_buffer);
+        status_oracle.EncodeEnumValue(status.sType);
+        encode::EncodePNextStruct(&status_oracle, status.pNext);
+        status_oracle.EncodeEnumPtr(status.pResult);
+
+        CHECK(same_bytes(status_buffer, status_oracle_buffer));
+    }
+
+    // A counted run beside two scalar pointers, one set and one null.
+    uint32_t depth_index = 0x0badf00du;
+
+    VkRenderingInputAttachmentIndexInfo indices{
+        VK_STRUCTURE_TYPE_RENDERING_INPUT_ATTACHMENT_INDEX_INFO, nullptr, 0u, nullptr, &depth_index, nullptr
+    };
+
+    encode::ParameterBuffer  indices_buffer;
+    encode::ParameterEncoder indices_encoder(&indices_buffer);
+    encode::EncodeStruct(&indices_encoder, indices);
+
+    encode::ParameterBuffer  indices_oracle_buffer;
+    encode::ParameterEncoder indices_oracle(&indices_oracle_buffer);
+    indices_oracle.EncodeEnumValue(indices.sType);
+    encode::EncodePNextStruct(&indices_oracle, indices.pNext);
+    indices_oracle.EncodeUInt32Value(indices.colorAttachmentCount);
+    indices_oracle.EncodeUInt32Array(indices.pColorAttachmentInputIndices, indices.colorAttachmentCount);
+    indices_oracle.EncodeUInt32Ptr(indices.pDepthInputAttachmentIndex);
+    indices_oracle.EncodeUInt32Ptr(indices.pStencilInputAttachmentIndex);
+
+    CHECK(same_bytes(indices_buffer, indices_oracle_buffer));
+}
+
+TEST_CASE("Schema EncodeStruct matches counted scalar run wire bytes", "[schema][encode]")
+{
+    // Checks pInitialData, an Array<Const<Void>> counted by the size_t initialDataSize: null and empty, then
+    // populated. The count is read from the sibling Field, so the populated case has an odd length, 7, that no default
+    // or extent could supply.
+    auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
+        return actual.GetDataSize() == oracle.GetDataSize() &&
+               std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
+    };
+
+    const uint8_t bytes[] = { 0xde, 0xad, 0xbe, 0xef, 0x01, 0x02, 0x03 };
+
+    struct Run
+    {
+        const void* data;
+        size_t      size;
+    };
+
+    for (const Run& run : { Run{ nullptr, 0 }, Run{ bytes, sizeof(bytes) } })
+    {
+        VkPipelineCacheCreateInfo cache{ VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO,
+                                         nullptr,
+                                         VK_PIPELINE_CACHE_CREATE_EXTERNALLY_SYNCHRONIZED_BIT,
+                                         run.size,
+                                         run.data };
+
+        encode::ParameterBuffer  cache_buffer;
+        encode::ParameterEncoder cache_encoder(&cache_buffer);
+        encode::EncodeStruct(&cache_encoder, cache);
+
+        encode::ParameterBuffer  cache_oracle_buffer;
+        encode::ParameterEncoder cache_oracle(&cache_oracle_buffer);
+        cache_oracle.EncodeEnumValue(cache.sType);
+        encode::EncodePNextStructIfValid(&cache_oracle, cache.pNext);
+        cache_oracle.EncodeFlagsValue(cache.flags);
+        cache_oracle.EncodeSizeTValue(cache.initialDataSize);
+        cache_oracle.EncodeVoidArray(cache.pInitialData, cache.initialDataSize);
+
+        CHECK(same_bytes(cache_buffer, cache_oracle_buffer));
+
+        // The same five fields under another sType.
+        VkValidationCacheCreateInfoEXT validation{
+            VK_STRUCTURE_TYPE_VALIDATION_CACHE_CREATE_INFO_EXT, nullptr, 0u, run.size, run.data
+        };
+
+        encode::ParameterBuffer  validation_buffer;
+        encode::ParameterEncoder validation_encoder(&validation_buffer);
+        encode::EncodeStruct(&validation_encoder, validation);
+
+        encode::ParameterBuffer  validation_oracle_buffer;
+        encode::ParameterEncoder validation_oracle(&validation_oracle_buffer);
+        validation_oracle.EncodeEnumValue(validation.sType);
+        encode::EncodePNextStructIfValid(&validation_oracle, validation.pNext);
+        validation_oracle.EncodeFlagsValue(validation.flags);
+        validation_oracle.EncodeSizeTValue(validation.initialDataSize);
+        validation_oracle.EncodeVoidArray(validation.pInitialData, validation.initialDataSize);
+
+        CHECK(same_bytes(validation_buffer, validation_oracle_buffer));
+    }
+
+    // A uint32_t run under a uint32_t count: EncodeArrayAs reaches the same EncodeArray that EncodeUInt32Array calls.
+    // Exclusive sharing with no indices, then concurrent sharing with three.
+    const uint32_t families[] = { 0u, 2u, 5u };
+
+    struct Sharing
+    {
+        VkSharingMode   mode;
+        uint32_t        count;
+        const uint32_t* indices;
+    };
+
+    for (const Sharing& sharing :
+         { Sharing{ VK_SHARING_MODE_EXCLUSIVE, 0u, nullptr }, Sharing{ VK_SHARING_MODE_CONCURRENT, 3u, families } })
+    {
+        VkBufferCreateInfo buffer{ VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+                                   nullptr,
+                                   VK_BUFFER_CREATE_SPARSE_BINDING_BIT,
+                                   0x0000000123456789ull,
+                                   VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+                                   sharing.mode,
+                                   sharing.count,
+                                   sharing.indices };
+
+        encode::ParameterBuffer  buffer_buffer;
+        encode::ParameterEncoder buffer_encoder(&buffer_buffer);
+        encode::EncodeStruct(&buffer_encoder, buffer);
+
+        encode::ParameterBuffer  buffer_oracle_buffer;
+        encode::ParameterEncoder buffer_oracle(&buffer_oracle_buffer);
+        buffer_oracle.EncodeEnumValue(buffer.sType);
+        encode::EncodePNextStruct(&buffer_oracle, buffer.pNext);
+        buffer_oracle.EncodeFlagsValue(buffer.flags);
+        buffer_oracle.EncodeUInt64Value(buffer.size);
+        buffer_oracle.EncodeFlagsValue(buffer.usage);
+        buffer_oracle.EncodeEnumValue(buffer.sharingMode);
+        buffer_oracle.EncodeUInt32Value(buffer.queueFamilyIndexCount);
+        buffer_oracle.EncodeUInt32Array(buffer.pQueueFamilyIndices, buffer.queueFamilyIndexCount);
+
+        CHECK(same_bytes(buffer_buffer, buffer_oracle_buffer));
+    }
+
+    // Three counted runs in one structure, one of them int32_t.
+    const uint32_t view_masks[]        = { 0x3u, 0x5u };
+    const int32_t  view_offsets[]      = { -1 };
+    const uint32_t correlation_masks[] = { 0x6u, 0x1u };
+
+    VkRenderPassMultiviewCreateInfo multiview{ VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO,
+                                               nullptr,
+                                               2u,
+                                               view_masks,
+                                               1u,
+                                               view_offsets,
+                                               2u,
+                                               correlation_masks };
+
+    encode::ParameterBuffer  multiview_buffer;
+    encode::ParameterEncoder multiview_encoder(&multiview_buffer);
+    encode::EncodeStruct(&multiview_encoder, multiview);
+
+    encode::ParameterBuffer  multiview_oracle_buffer;
+    encode::ParameterEncoder multiview_oracle(&multiview_oracle_buffer);
+    multiview_oracle.EncodeEnumValue(multiview.sType);
+    encode::EncodePNextStruct(&multiview_oracle, multiview.pNext);
+    multiview_oracle.EncodeUInt32Value(multiview.subpassCount);
+    multiview_oracle.EncodeUInt32Array(multiview.pViewMasks, multiview.subpassCount);
+    multiview_oracle.EncodeUInt32Value(multiview.dependencyCount);
+    multiview_oracle.EncodeInt32Array(multiview.pViewOffsets, multiview.dependencyCount);
+    multiview_oracle.EncodeUInt32Value(multiview.correlationMaskCount);
+    multiview_oracle.EncodeUInt32Array(multiview.pCorrelationMasks, multiview.correlationMaskCount);
+
+    CHECK(same_bytes(multiview_buffer, multiview_oracle_buffer));
+}
+
+namespace
+{
+
+// A handle id source for the capture wrappers the tests register themselves.
+gfxrecon::format::HandleId TestHandleId()
+{
+    static gfxrecon::format::HandleId next = 0x1000;
+    return next++;
+}
+
+// A non-dispatchable handle from a chosen value. A pointer on a 64-bit target and a 64-bit integer elsewhere.
+template <typename Handle>
+Handle FakeHandle(uint64_t value)
+{
+    if constexpr (std::is_pointer_v<Handle>)
+    {
+        return reinterpret_cast<Handle>(static_cast<uintptr_t>(value));
+    }
+    else
+    {
+        return static_cast<Handle>(value);
+    }
+}
+
+// A non-dispatchable handle's bits as uint64_t, the type of a generic handle member.
+template <typename Handle>
+uint64_t HandleBits(Handle handle)
+{
+    if constexpr (std::is_pointer_v<Handle>)
+    {
+        return static_cast<uint64_t>(reinterpret_cast<uintptr_t>(handle));
+    }
+    else
+    {
+        return static_cast<uint64_t>(handle);
+    }
+}
+
+// A callback with the API's calling convention, so its address converts to the PFN type on every platform.
+VKAPI_ATTR VkBool32 VKAPI_CALL TestDebugUtilsCallback(VkDebugUtilsMessageSeverityFlagBitsEXT,
+                                                      VkDebugUtilsMessageTypeFlagsEXT,
+                                                      const VkDebugUtilsMessengerCallbackDataEXT*,
+                                                      void*)
+{
+    return VK_FALSE;
+}
+
+} // namespace
+
+TEST_CASE("Schema EncodeStruct matches address-value wire bytes", "[schema][encode]")
+{
+    // Checks platform handles, a function pointer and void pointers against EncodeVoidPtr and EncodeFunctionPtr. Each
+    // is written as an address and nothing behind it, so a chosen integer reinterpreted as each handle type stands in
+    // for a real window, monitor or allocation. Off Windows, the platform handle types are void*.
+    auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
+        return actual.GetDataSize() == oracle.GetDataSize() &&
+               std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
+    };
+
+    auto matches = [&](const auto& value, auto&& write_oracle) {
+        encode::ParameterBuffer  buffer;
+        encode::ParameterEncoder encoder(&buffer);
+        encode::EncodeStruct(&encoder, value);
+
+        encode::ParameterBuffer  oracle_buffer;
+        encode::ParameterEncoder oracle(&oracle_buffer);
+        write_oracle(oracle);
+
+        return same_bytes(buffer, oracle_buffer);
+    };
+
+    // The non-null value fits a 32-bit pointer, so the list-initialization narrows on no target.
+    for (uintptr_t address : { uintptr_t{ 0 }, uintptr_t{ 0x7ff6a1b0u } })
+    {
+        // Two typed platform handles; no ValidExtensions, so the chain is probed.
+        VkWin32SurfaceCreateInfoKHR surface{ VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
+                                             nullptr,
+                                             0u,
+                                             reinterpret_cast<HINSTANCE>(address),
+                                             reinterpret_cast<HWND>(address + 0x10) };
+
+        CHECK(matches(surface, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(surface.sType);
+            encode::EncodePNextStructIfValid(&oracle, surface.pNext);
+            oracle.EncodeFlagsValue(surface.flags);
+            oracle.EncodeVoidPtr(surface.hinstance);
+            oracle.EncodeVoidPtr(surface.hwnd);
+        }));
+
+        // One platform handle and nothing else.
+        VkSurfaceFullScreenExclusiveWin32InfoEXT exclusive{
+            VK_STRUCTURE_TYPE_SURFACE_FULL_SCREEN_EXCLUSIVE_WIN32_INFO_EXT, nullptr, reinterpret_cast<HMONITOR>(address)
+        };
+
+        CHECK(matches(exclusive, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(exclusive.sType);
+            encode::EncodePNextStruct(&oracle, exclusive.pNext);
+            oracle.EncodeVoidPtr(exclusive.hmonitor);
+        }));
+
+        // A HANDLE beside a flags value.
+        VkImportMemoryWin32HandleInfoNV import_handle{ VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_NV,
+                                                       nullptr,
+                                                       VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT_NV,
+                                                       reinterpret_cast<HANDLE>(address) };
+
+        CHECK(matches(import_handle, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(import_handle.sType);
+            encode::EncodePNextStruct(&oracle, import_handle.pNext);
+            oracle.EncodeFlagsValue(import_handle.handleType);
+            oracle.EncodeVoidPtr(import_handle.handle);
+        }));
+
+        // A function pointer and a void pointer.
+        VkDebugUtilsMessengerCreateInfoEXT messenger{ VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+                                                      nullptr,
+                                                      0u,
+                                                      VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
+                                                      VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT,
+                                                      address != 0 ? &TestDebugUtilsCallback : nullptr,
+                                                      reinterpret_cast<void*>(address) };
+
+        CHECK(matches(messenger, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(messenger.sType);
+            encode::EncodePNextStruct(&oracle, messenger.pNext);
+            oracle.EncodeFlagsValue(messenger.flags);
+            oracle.EncodeFlagsValue(messenger.messageSeverity);
+            oracle.EncodeFlagsValue(messenger.messageType);
+            oracle.EncodeFunctionPtr(messenger.pfnUserCallback);
+            oracle.EncodeVoidPtr(messenger.pUserData);
+        }));
+
+        // A void pointer, once per pNext policy.
+        VkImportMemoryHostPointerInfoEXT host_pointer{ VK_STRUCTURE_TYPE_IMPORT_MEMORY_HOST_POINTER_INFO_EXT,
+                                                       nullptr,
+                                                       VK_EXTERNAL_MEMORY_HANDLE_TYPE_HOST_ALLOCATION_BIT_EXT,
+                                                       reinterpret_cast<void*>(address) };
+
+        CHECK(matches(host_pointer, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(host_pointer.sType);
+            encode::EncodePNextStruct(&oracle, host_pointer.pNext);
+            oracle.EncodeEnumValue(host_pointer.handleType);
+            oracle.EncodeVoidPtr(host_pointer.pHostPointer);
+        }));
+
+        VkCheckpointDataNV checkpoint{ VK_STRUCTURE_TYPE_CHECKPOINT_DATA_NV,
+                                       nullptr,
+                                       VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                       reinterpret_cast<void*>(address) };
+
+        CHECK(matches(checkpoint, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(checkpoint.sType);
+            encode::EncodePNextStructIfValid(&oracle, checkpoint.pNext);
+            oracle.EncodeEnumValue(checkpoint.stage);
+            oracle.EncodeVoidPtr(checkpoint.pCheckpointMarker);
+        }));
+    }
+}
+
+TEST_CASE("Schema EncodeStruct matches wrapped-handle wire bytes", "[schema][encode]")
+{
+    // Checks VkBuffer and VkDeviceMemory handles against EncodeVulkanHandleValue. A handle encodes as the id of the
+    // capture wrapper the state handle table holds for it, so the test registers capture wrappers for chosen handle
+    // values and destroys them after; VK_NULL_HANDLE encodes as the null id with no lookup. An unregistered handle
+    // would encode as the null id with a warning; that case is not taken, since both sides would make the same lookup.
+    using namespace gfxrecon::encode::vulkan_wrappers;
+
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
+        return actual.GetDataSize() == oracle.GetDataSize() &&
+               std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
+    };
+
+    auto matches = [&](const auto& value, auto&& write_oracle) {
+        encode::ParameterBuffer  buffer;
+        encode::ParameterEncoder encoder(&buffer);
+        encode::EncodeStruct(&encoder, value);
+
+        encode::ParameterBuffer  oracle_buffer;
+        encode::ParameterEncoder oracle(&oracle_buffer);
+        write_oracle(oracle);
+
+        return same_bytes(buffer, oracle_buffer);
+    };
+
+    VkBuffer       buffer = FakeHandle<VkBuffer>(0x0b0fu);
+    VkDeviceMemory memory = FakeHandle<VkDeviceMemory>(0x0d0eu);
+    CreateWrappedNonDispatchHandle<BufferWrapper>(&buffer, TestHandleId);
+    CreateWrappedNonDispatchHandle<DeviceMemoryWrapper>(&memory, TestHandleId);
+    REQUIRE(GetWrappedId<BufferWrapper>(buffer) != format::kNullHandleId);
+    REQUIRE(GetWrappedId<DeviceMemoryWrapper>(memory) != format::kNullHandleId);
+
+    struct Handles
+    {
+        VkBuffer       buffer;
+        VkDeviceMemory memory;
+    };
+
+    for (const Handles& handles : { Handles{ VK_NULL_HANDLE, VK_NULL_HANDLE }, Handles{ buffer, memory } })
+    {
+        // A VkDeviceMemory handle; no ValidExtensions.
+        VkMappedMemoryRange range{ VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE, nullptr, handles.memory, 0x100u, 0x200u };
+
+        CHECK(matches(range, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(range.sType);
+            encode::EncodePNextStructIfValid(&oracle, range.pNext);
+            oracle.EncodeVulkanHandleValue<DeviceMemoryWrapper>(range.memory);
+            oracle.EncodeUInt64Value(range.offset);
+            oracle.EncodeUInt64Value(range.size);
+        }));
+
+        // A VkBuffer handle among six scalars; ValidExtensions.
+        VkBufferMemoryBarrier barrier{ VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+                                       nullptr,
+                                       VK_ACCESS_TRANSFER_WRITE_BIT,
+                                       VK_ACCESS_SHADER_READ_BIT,
+                                       1u,
+                                       2u,
+                                       handles.buffer,
+                                       0x10u,
+                                       VK_WHOLE_SIZE };
+
+        CHECK(matches(barrier, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(barrier.sType);
+            encode::EncodePNextStruct(&oracle, barrier.pNext);
+            oracle.EncodeFlagsValue(barrier.srcAccessMask);
+            oracle.EncodeFlagsValue(barrier.dstAccessMask);
+            oracle.EncodeUInt32Value(barrier.srcQueueFamilyIndex);
+            oracle.EncodeUInt32Value(barrier.dstQueueFamilyIndex);
+            oracle.EncodeVulkanHandleValue<BufferWrapper>(barrier.buffer);
+            oracle.EncodeUInt64Value(barrier.offset);
+            oracle.EncodeUInt64Value(barrier.size);
+        }));
+
+        // Both handle types in one structure, then a buffer handle among scalars and an enum.
+        VkBindBufferMemoryInfo bind{
+            VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO, nullptr, handles.buffer, handles.memory, 0x40u
+        };
+
+        CHECK(matches(bind, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(bind.sType);
+            encode::EncodePNextStruct(&oracle, bind.pNext);
+            oracle.EncodeVulkanHandleValue<BufferWrapper>(bind.buffer);
+            oracle.EncodeVulkanHandleValue<DeviceMemoryWrapper>(bind.memory);
+            oracle.EncodeUInt64Value(bind.memoryOffset);
+        }));
+
+        VkBufferViewCreateInfo view{
+            VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO, nullptr, 0u, handles.buffer, VK_FORMAT_R32_UINT, 0x20u, 0x80u
+        };
+
+        CHECK(matches(view, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(view.sType);
+            encode::EncodePNextStruct(&oracle, view.pNext);
+            oracle.EncodeFlagsValue(view.flags);
+            oracle.EncodeVulkanHandleValue<BufferWrapper>(view.buffer);
+            oracle.EncodeEnumValue(view.format);
+            oracle.EncodeUInt64Value(view.offset);
+            oracle.EncodeUInt64Value(view.range);
+        }));
+    }
+
+    DestroyWrappedHandle<BufferWrapper>(buffer);
+    DestroyWrappedHandle<DeviceMemoryWrapper>(memory);
+}
+
+TEST_CASE("Schema EncodeStruct matches wrapped-handle run wire bytes", "[schema][encode]")
+{
+    // Checks handle runs against EncodeVulkanHandleArray. Semaphores register as non-dispatchable capture wrappers
+    // with no parent. A command buffer is dispatchable: registration reads the dispatch key from the first word of the
+    // object the handle points at, so a local pointer slot stands in for the driver's object. It is removed with
+    // RemoveWrapper: DestroyWrappedHandle<CommandBufferWrapper> dereferences parent_pool, which is null here.
+    using namespace gfxrecon::encode::vulkan_wrappers;
+
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
+        return actual.GetDataSize() == oracle.GetDataSize() &&
+               std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
+    };
+
+    auto matches = [&](const auto& value, auto&& write_oracle) {
+        encode::ParameterBuffer  buffer;
+        encode::ParameterEncoder encoder(&buffer);
+        encode::EncodeStruct(&encoder, value);
+
+        encode::ParameterBuffer  oracle_buffer;
+        encode::ParameterEncoder oracle(&oracle_buffer);
+        write_oracle(oracle);
+
+        return same_bytes(buffer, oracle_buffer);
+    };
+
+    VkSemaphore semaphores[] = { FakeHandle<VkSemaphore>(0x5e01u), FakeHandle<VkSemaphore>(0x5e02u) };
+    for (VkSemaphore& semaphore : semaphores)
+    {
+        CreateWrappedNonDispatchHandle<SemaphoreWrapper>(&semaphore, TestHandleId);
+    }
+
+    void*           command_buffer_object = nullptr;
+    VkCommandBuffer command_buffer        = reinterpret_cast<VkCommandBuffer>(&command_buffer_object);
+    CreateWrappedDispatchHandle<DeviceWrapper, CommandBufferWrapper>(VK_NULL_HANDLE, &command_buffer, TestHandleId);
+    REQUIRE(GetWrappedId<CommandBufferWrapper>(command_buffer) != format::kNullHandleId);
+
+    const VkSemaphore          null_semaphores[] = { VK_NULL_HANDLE, VK_NULL_HANDLE };
+    const VkCommandBuffer      null_command[]    = { VK_NULL_HANDLE };
+    const VkCommandBuffer      one_command[]     = { command_buffer };
+    const VkPipelineStageFlags stage_masks[]     = { VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                     VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+    const uint64_t             values[]          = { 7u, 9u };
+    const VkSwapchainKHR       null_swapchain[]  = { VK_NULL_HANDLE };
+    const uint32_t             image_index[]     = { 3u };
+    VkResult                   present_results[] = { VK_SUBOPTIMAL_KHR };
+
+    struct Handles
+    {
+        const VkSemaphore*     semaphores;
+        const VkCommandBuffer* command_buffers;
+    };
+
+    for (const Handles& handles : { Handles{ null_semaphores, null_command }, Handles{ semaphores, one_command } })
+    {
+        // Three handle runs, the first sharing waitSemaphoreCount with the flags run beside it.
+        VkSubmitInfo submit{ VK_STRUCTURE_TYPE_SUBMIT_INFO,
+                             nullptr,
+                             2u,
+                             handles.semaphores,
+                             stage_masks,
+                             1u,
+                             handles.command_buffers,
+                             1u,
+                             handles.semaphores + 1 };
+
+        CHECK(matches(submit, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(submit.sType);
+            encode::EncodePNextStruct(&oracle, submit.pNext);
+            oracle.EncodeUInt32Value(submit.waitSemaphoreCount);
+            oracle.EncodeVulkanHandleArray<SemaphoreWrapper>(submit.pWaitSemaphores, submit.waitSemaphoreCount);
+            oracle.EncodeFlagsArray(submit.pWaitDstStageMask, submit.waitSemaphoreCount);
+            oracle.EncodeUInt32Value(submit.commandBufferCount);
+            oracle.EncodeVulkanHandleArray<CommandBufferWrapper>(submit.pCommandBuffers, submit.commandBufferCount);
+            oracle.EncodeUInt32Value(submit.signalSemaphoreCount);
+            oracle.EncodeVulkanHandleArray<SemaphoreWrapper>(submit.pSignalSemaphores, submit.signalSemaphoreCount);
+        }));
+
+        // A handle run and a uint64_t run under one count; no ValidExtensions.
+        VkSemaphoreWaitInfo wait{
+            VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO, nullptr, VK_SEMAPHORE_WAIT_ANY_BIT, 2u, handles.semaphores, values
+        };
+
+        CHECK(matches(wait, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(wait.sType);
+            encode::EncodePNextStructIfValid(&oracle, wait.pNext);
+            oracle.EncodeFlagsValue(wait.flags);
+            oracle.EncodeUInt32Value(wait.semaphoreCount);
+            oracle.EncodeVulkanHandleArray<SemaphoreWrapper>(wait.pSemaphores, wait.semaphoreCount);
+            oracle.EncodeUInt64Array(wait.pValues, wait.semaphoreCount);
+        }));
+
+        // Two handle runs of different types, a uint32_t run and a VkResult run.
+        VkPresentInfoKHR present{ VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+                                  nullptr,
+                                  1u,
+                                  handles.semaphores,
+                                  1u,
+                                  null_swapchain,
+                                  image_index,
+                                  present_results };
+
+        CHECK(matches(present, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(present.sType);
+            encode::EncodePNextStruct(&oracle, present.pNext);
+            oracle.EncodeUInt32Value(present.waitSemaphoreCount);
+            oracle.EncodeVulkanHandleArray<SemaphoreWrapper>(present.pWaitSemaphores, present.waitSemaphoreCount);
+            oracle.EncodeUInt32Value(present.swapchainCount);
+            oracle.EncodeVulkanHandleArray<SwapchainKHRWrapper>(present.pSwapchains, present.swapchainCount);
+            oracle.EncodeUInt32Array(present.pImageIndices, present.swapchainCount);
+            oracle.EncodeEnumArray(present.pResults, present.swapchainCount);
+        }));
+    }
+
+    for (VkSemaphore semaphore : semaphores)
+    {
+        DestroyWrappedHandle<SemaphoreWrapper>(semaphore);
+    }
+
+    auto* command_buffer_wrapper = GetWrapper<CommandBufferWrapper>(command_buffer);
+    RemoveWrapper<CommandBufferWrapper>(command_buffer_wrapper);
+    delete command_buffer_wrapper;
+}
+
+TEST_CASE("Schema EncodeStruct matches generic-handle and text-pointer wire bytes", "[schema][encode]")
+{
+    // Checks a generic handle and a text pointer. The handle is a uint64_t whose object type a sibling enum gives, and
+    // the encoder resolves it to a capture id through GetWrappedId with that enum: VkObjectType, then the older
+    // VkDebugReportObjectTypeEXT. A registered buffer resolves to its id and the null object to the null id; the text
+    // is null, empty, and a short name.
+    using namespace gfxrecon::encode::vulkan_wrappers;
+
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
+        return actual.GetDataSize() == oracle.GetDataSize() &&
+               std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
+    };
+
+    auto matches = [&](const auto& value, auto&& write_oracle) {
+        encode::ParameterBuffer  buffer;
+        encode::ParameterEncoder encoder(&buffer);
+        encode::EncodeStruct(&encoder, value);
+
+        encode::ParameterBuffer  oracle_buffer;
+        encode::ParameterEncoder oracle(&oracle_buffer);
+        write_oracle(oracle);
+
+        return same_bytes(buffer, oracle_buffer);
+    };
+
+    VkBuffer buffer = FakeHandle<VkBuffer>(0x0b0fu);
+    CreateWrappedNonDispatchHandle<BufferWrapper>(&buffer, TestHandleId);
+
+    const uint64_t buffer_bits = HandleBits(buffer);
+    REQUIRE(GetWrappedId(buffer_bits, VK_OBJECT_TYPE_BUFFER) != format::kNullHandleId);
+
+    struct Case
+    {
+        uint64_t    object;
+        const char* name;
+    };
+
+    for (const Case& c : { Case{ 0u, nullptr }, Case{ buffer_bits, "" }, Case{ buffer_bits, "schema" } })
+    {
+        // VkObjectType selector; ValidExtensions.
+        VkDebugUtilsObjectNameInfoEXT utils{
+            VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT, nullptr, VK_OBJECT_TYPE_BUFFER, c.object, c.name
+        };
+
+        CHECK(matches(utils, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(utils.sType);
+            encode::EncodePNextStruct(&oracle, utils.pNext);
+            oracle.EncodeEnumValue(utils.objectType);
+            oracle.EncodeUInt64Value(GetWrappedId(utils.objectHandle, utils.objectType));
+            oracle.EncodeString(utils.pObjectName);
+        }));
+
+        // VkDebugReportObjectTypeEXT selector; no ValidExtensions.
+        VkDebugMarkerObjectNameInfoEXT marker{ VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_NAME_INFO_EXT,
+                                               nullptr,
+                                               VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_EXT,
+                                               c.object,
+                                               c.name };
+
+        CHECK(matches(marker, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(marker.sType);
+            encode::EncodePNextStructIfValid(&oracle, marker.pNext);
+            oracle.EncodeEnumValue(marker.objectType);
+            oracle.EncodeUInt64Value(GetWrappedId(marker.object, marker.objectType));
+            oracle.EncodeString(marker.pObjectName);
+        }));
+    }
+
+    DestroyWrappedHandle<BufferWrapper>(buffer);
+}
+
+TEST_CASE("Schema EncodeStruct matches fixed-extent text wire bytes", "[schema][encode]")
+{
+    // Checks fixed-extent text against EncodeString: one string beside one scalar, so a mismatch can only be the
+    // string, then two strings around two scalars. The strings are empty, short, and the extent minus one. A fourth
+    // case fills the whole extent with no terminator: EncodeString would read past the array there, so it is compared
+    // against EncodeStringAs bounded by the extent, the call the encode Action makes; that case checks the bound holds.
+    auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
+        return actual.GetDataSize() == oracle.GetDataSize() &&
+               std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
+    };
+
+    auto matches = [&](const auto& value, auto&& write_oracle) {
+        encode::ParameterBuffer  buffer;
+        encode::ParameterEncoder encoder(&buffer);
+        encode::EncodeStruct(&encoder, value);
+
+        encode::ParameterBuffer  oracle_buffer;
+        encode::ParameterEncoder oracle(&oracle_buffer);
+        write_oracle(oracle);
+
+        return same_bytes(buffer, oracle_buffer);
+    };
+
+    auto fill = [](char* text, size_t extent, size_t length) {
+        for (size_t i = 0; i < extent; ++i)
+        {
+            text[i] = (i < length) ? static_cast<char>('a' + (i % 26)) : '\0';
+        }
+    };
+
+    for (size_t length : { size_t{ 0 }, size_t{ 11 }, size_t{ VK_MAX_EXTENSION_NAME_SIZE - 1 } })
+    {
+        VkExtensionProperties extension{};
+        fill(extension.extensionName, VK_MAX_EXTENSION_NAME_SIZE, length);
+        extension.specVersion = 0x00010203u;
+
+        CHECK(matches(extension, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeString(extension.extensionName);
+            oracle.EncodeUInt32Value(extension.specVersion);
+        }));
+
+        VkLayerProperties layer{};
+        fill(layer.layerName, VK_MAX_EXTENSION_NAME_SIZE, length);
+        layer.specVersion           = 0x00010203u;
+        layer.implementationVersion = 0x00000007u;
+        fill(layer.description, VK_MAX_DESCRIPTION_SIZE, length);
+
+        CHECK(matches(layer, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeString(layer.layerName);
+            oracle.EncodeUInt32Value(layer.specVersion);
+            oracle.EncodeUInt32Value(layer.implementationVersion);
+            oracle.EncodeString(layer.description);
+        }));
+    }
+
+    // No terminator anywhere in the array. The bounded form reports the extent as the length and reads no further.
+    VkExtensionProperties unterminated{};
+    fill(unterminated.extensionName, VK_MAX_EXTENSION_NAME_SIZE, VK_MAX_EXTENSION_NAME_SIZE);
+    unterminated.specVersion = 0x00010203u;
+
+    CHECK(matches(unterminated, [&](encode::ParameterEncoder& oracle) {
+        oracle.EncodeStringAs<format::CharEncodeType, format::PointerAttributes::kIsString>(unterminated.extensionName,
+                                                                                            VK_MAX_EXTENSION_NAME_SIZE);
+        oracle.EncodeUInt32Value(unterminated.specVersion);
+    }));
+}
+
+TEST_CASE("Schema EncodeStruct matches wide-text pointer wire bytes", "[schema][encode]")
+{
+    // Checks LPCWSTR text against EncodeWString. Its wire type, WCharEncodeType, is 16-bit units on every platform,
+    // converted element by element where wchar_t is wider, so Windows and Linux expect the same bytes. The name is
+    // null and set; the HANDLE is a chosen value, void* off Windows.
+    using namespace gfxrecon::encode::vulkan_wrappers;
+
+    auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
+        return actual.GetDataSize() == oracle.GetDataSize() &&
+               std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
+    };
+
+    auto matches = [&](const auto& value, auto&& write_oracle) {
+        encode::ParameterBuffer  buffer;
+        encode::ParameterEncoder encoder(&buffer);
+        encode::EncodeStruct(&encoder, value);
+
+        encode::ParameterBuffer  oracle_buffer;
+        encode::ParameterEncoder oracle(&oracle_buffer);
+        write_oracle(oracle);
+
+        return same_bytes(buffer, oracle_buffer);
+    };
+
+    const wchar_t wide_name[] = L"schemaé";
+
+    for (LPCWSTR name : { static_cast<LPCWSTR>(nullptr), static_cast<LPCWSTR>(wide_name) })
+    {
+        // Enum, HANDLE, LPCWSTR; ValidExtensions.
+        VkImportMemoryWin32HandleInfoKHR import_memory{ VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_KHR,
+                                                        nullptr,
+                                                        VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT,
+                                                        reinterpret_cast<HANDLE>(uintptr_t{ 0x4a00u }),
+                                                        name };
+
+        CHECK(matches(import_memory, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(import_memory.sType);
+            encode::EncodePNextStruct(&oracle, import_memory.pNext);
+            oracle.EncodeEnumValue(import_memory.handleType);
+            oracle.EncodeVoidPtr(import_memory.handle);
+            oracle.EncodeWString(import_memory.name);
+        }));
+
+        // A null semaphore handle ahead of the same three; no ValidExtensions.
+        VkImportSemaphoreWin32HandleInfoKHR import_semaphore{ VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHR,
+                                                              nullptr,
+                                                              VK_NULL_HANDLE,
+                                                              VK_SEMAPHORE_IMPORT_TEMPORARY_BIT,
+                                                              VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT,
+                                                              reinterpret_cast<HANDLE>(uintptr_t{ 0x4a10u }),
+                                                              name };
+
+        CHECK(matches(import_semaphore, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(import_semaphore.sType);
+            encode::EncodePNextStructIfValid(&oracle, import_semaphore.pNext);
+            oracle.EncodeVulkanHandleValue<SemaphoreWrapper>(import_semaphore.semaphore);
+            oracle.EncodeFlagsValue(import_semaphore.flags);
+            oracle.EncodeEnumValue(import_semaphore.handleType);
+            oracle.EncodeVoidPtr(import_semaphore.handle);
+            oracle.EncodeWString(import_semaphore.name);
+        }));
+    }
+}
+
+TEST_CASE("Schema EncodeStruct matches embedded-structure wire bytes", "[schema][encode]")
+{
+    // Checks embedded structures: VkRenderingInfo carries a structure value, a counted run of structures and two
+    // structure pointers; VkImageBlit carries two structure values and two fixed-extent structure arrays;
+    // VkSpecializationInfo puts a structure run beside a void run. Inner handles are null, so nothing depends on the
+    // state handle table. VkClearValue, a union, goes through its hand-written EncodeStruct.
+    auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
+        return actual.GetDataSize() == oracle.GetDataSize() &&
+               std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
+    };
+
+    auto matches = [&](const auto& value, auto&& write_oracle) {
+        encode::ParameterBuffer  buffer;
+        encode::ParameterEncoder encoder(&buffer);
+        encode::EncodeStruct(&encoder, value);
+
+        encode::ParameterBuffer  oracle_buffer;
+        encode::ParameterEncoder oracle(&oracle_buffer);
+        write_oracle(oracle);
+
+        return same_bytes(buffer, oracle_buffer);
+    };
+
+    VkRenderingAttachmentInfo color[2]{};
+    for (uint32_t i = 0; i < 2; ++i)
+    {
+        color[i].sType                       = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+        color[i].imageLayout                 = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        color[i].resolveMode                 = VK_RESOLVE_MODE_NONE;
+        color[i].resolveImageLayout          = VK_IMAGE_LAYOUT_UNDEFINED;
+        color[i].loadOp                      = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        color[i].storeOp                     = VK_ATTACHMENT_STORE_OP_STORE;
+        color[i].clearValue.color.float32[0] = 0.25f * static_cast<float>(i + 1);
+        color[i].clearValue.color.float32[3] = 1.0f;
+    }
+
+    VkRenderingAttachmentInfo depth{};
+    depth.sType                           = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+    depth.imageLayout                     = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+    depth.loadOp                          = VK_ATTACHMENT_LOAD_OP_LOAD;
+    depth.storeOp                         = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    depth.clearValue.depthStencil.depth   = 0.5f;
+    depth.clearValue.depthStencil.stencil = 7u;
+
+    struct Attachments
+    {
+        uint32_t                         count;
+        const VkRenderingAttachmentInfo* colors;
+        const VkRenderingAttachmentInfo* depth;
+    };
+
+    // A value (renderArea), a counted run (color attachments), two pointers, one null in each case.
+    for (const Attachments& a : { Attachments{ 0u, nullptr, nullptr }, Attachments{ 2u, color, &depth } })
+    {
+        VkRenderingInfo rendering{ VK_STRUCTURE_TYPE_RENDERING_INFO,
+                                   nullptr,
+                                   VK_RENDERING_SUSPENDING_BIT,
+                                   VkRect2D{ VkOffset2D{ 3, -4 }, VkExtent2D{ 640u, 480u } },
+                                   1u,
+                                   0x5u,
+                                   a.count,
+                                   a.colors,
+                                   a.depth,
+                                   nullptr };
+
+        CHECK(matches(rendering, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(rendering.sType);
+            encode::EncodePNextStruct(&oracle, rendering.pNext);
+            oracle.EncodeFlagsValue(rendering.flags);
+            encode::EncodeStruct(&oracle, rendering.renderArea);
+            oracle.EncodeUInt32Value(rendering.layerCount);
+            oracle.EncodeUInt32Value(rendering.viewMask);
+            oracle.EncodeUInt32Value(rendering.colorAttachmentCount);
+            encode::EncodeStructArray(&oracle, rendering.pColorAttachments, rendering.colorAttachmentCount);
+            encode::EncodeStructPtr(&oracle, rendering.pDepthAttachment);
+            encode::EncodeStructPtr(&oracle, rendering.pStencilAttachment);
+        }));
+    }
+
+    // Two structure values and two fixed-extent structure arrays, offsets asymmetric so a swapped or truncated array
+    // lands on different bytes.
+    VkImageBlit blit{ VkImageSubresourceLayers{ VK_IMAGE_ASPECT_COLOR_BIT, 1u, 2u, 3u },
+                      { VkOffset3D{ 0, 1, 2 }, VkOffset3D{ 16, 32, 1 } },
+                      VkImageSubresourceLayers{ VK_IMAGE_ASPECT_COLOR_BIT, 0u, 5u, 1u },
+                      { VkOffset3D{ 4, 8, 0 }, VkOffset3D{ 64, 128, 1 } } };
+
+    CHECK(matches(blit, [&](encode::ParameterEncoder& oracle) {
+        encode::EncodeStruct(&oracle, blit.srcSubresource);
+        encode::EncodeStructArray(&oracle, blit.srcOffsets, 2);
+        encode::EncodeStruct(&oracle, blit.dstSubresource);
+        encode::EncodeStructArray(&oracle, blit.dstOffsets, 2);
+    }));
+
+    // A structure run beside a void run.
+    const VkSpecializationMapEntry entries[] = { VkSpecializationMapEntry{ 0u, 0u, 4u },
+                                                 VkSpecializationMapEntry{ 1u, 4u, 1u } };
+    const uint8_t                  data[]    = { 0x01, 0x02, 0x03, 0x04, 0x05 };
+
+    for (const VkSpecializationInfo& specialization :
+         { VkSpecializationInfo{ 0u, nullptr, 0u, nullptr }, VkSpecializationInfo{ 2u, entries, sizeof(data), data } })
+    {
+        CHECK(matches(specialization, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeUInt32Value(specialization.mapEntryCount);
+            encode::EncodeStructArray(&oracle, specialization.pMapEntries, specialization.mapEntryCount);
+            oracle.EncodeSizeTValue(specialization.dataSize);
+            oracle.EncodeVoidArray(specialization.pData, specialization.dataSize);
+        }));
+    }
+}
+
+TEST_CASE("Schema EncodeStruct matches counted fixed-extent array wire bytes", "[schema][encode]")
+{
+    // Checks fixed-extent arrays whose length is a count Field: the run is written to the count, clamped to the
+    // extent by ParameterEncoder::ClampStaticArrayLength. VkPhysicalDeviceMemoryProperties holds two structure arrays.
+    // VkPhysicalDeviceGroupProperties::physicalDevices is the only fixed array of handles in vk.xml, so it is the only
+    // case for the fixed-array half of the encode Action's handle run. Counts sit below the extents, so a
+    // full-extent run lands on different bytes. For counts over the extents, the oracle writes the count as set and
+    // the run clamped to the extent.
+    using namespace gfxrecon::encode::vulkan_wrappers;
+
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    namespace memory_field = schema::vulkan::fields::VkPhysicalDeviceMemoryProperties;
+    namespace group_field  = schema::vulkan::fields::VkPhysicalDeviceGroupProperties;
+    static_assert(schema::FixedArrayField<group_field::physicalDevices>);
+    static_assert(schema::HandleApiElement<group_field::physicalDevices::api_element>);
+    static_assert(schema::FieldWithLength<group_field::physicalDevices>);
+    static_assert(schema::StorageWithLength<VkPhysicalDeviceGroupProperties, group_field::physicalDevices>);
+    static_assert(std::is_same_v<schema::LengthOf_t<group_field::physicalDevices>,
+                                 schema::FieldValue<group_field::physicalDeviceCount>>);
+    static_assert(encode::ApiElementWithCaptureWrapper<schema::vulkan::api_elements::VkPhysicalDevice>);
+    static_assert(schema::FixedArrayField<memory_field::memoryTypes>);
+    static_assert(schema::FixedArrayField<memory_field::memoryHeaps>);
+    static_assert(schema::StorageWithLength<VkPhysicalDeviceMemoryProperties, memory_field::memoryTypes>);
+    static_assert(schema::StorageWithLength<VkPhysicalDeviceMemoryProperties, memory_field::memoryHeaps>);
+    static_assert(std::is_same_v<schema::LengthOf_t<memory_field::memoryTypes>,
+                                 schema::FieldValue<memory_field::memoryTypeCount>>);
+    static_assert(std::is_same_v<schema::LengthOf_t<memory_field::memoryHeaps>,
+                                 schema::FieldValue<memory_field::memoryHeapCount>>);
+
+    auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
+        return actual.GetDataSize() == oracle.GetDataSize() &&
+               std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
+    };
+
+    auto matches = [&](const auto& value, auto&& write_oracle) {
+        encode::ParameterBuffer  buffer;
+        encode::ParameterEncoder encoder(&buffer);
+        encode::EncodeStruct(&encoder, value);
+
+        encode::ParameterBuffer  oracle_buffer;
+        encode::ParameterEncoder oracle(&oracle_buffer);
+        write_oracle(oracle);
+
+        return same_bytes(buffer, oracle_buffer);
+    };
+
+    // Every element of both arrays is distinct, so a run of the wrong length or from the wrong array differs.
+    auto fill = [](VkPhysicalDeviceMemoryProperties& properties) {
+        for (uint32_t i = 0; i < VK_MAX_MEMORY_TYPES; ++i)
+        {
+            properties.memoryTypes[i].propertyFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT << (i % 5u);
+            properties.memoryTypes[i].heapIndex     = i % VK_MAX_MEMORY_HEAPS;
+        }
+        for (uint32_t i = 0; i < VK_MAX_MEMORY_HEAPS; ++i)
+        {
+            properties.memoryHeaps[i].size  = 0x10000000ull * (i + 1) + i;
+            properties.memoryHeaps[i].flags = (i % 2u) ? VK_MEMORY_HEAP_DEVICE_LOCAL_BIT : 0u;
+        }
+    };
+
+    struct Counts
+    {
+        uint32_t types;
+        uint32_t heaps;
+    };
+
+    // Counts below the extents, zero counts, and counts equal to the extents.
+    for (const Counts& counts :
+         { Counts{ 3u, 2u }, Counts{ 0u, 0u }, Counts{ VK_MAX_MEMORY_TYPES, VK_MAX_MEMORY_HEAPS } })
+    {
+        VkPhysicalDeviceMemoryProperties properties{};
+        fill(properties);
+        properties.memoryTypeCount = counts.types;
+        properties.memoryHeapCount = counts.heaps;
+
+        CHECK(matches(properties, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeUInt32Value(properties.memoryTypeCount);
+            encode::EncodeStructArray(&oracle, properties.memoryTypes, properties.memoryTypeCount);
+            oracle.EncodeUInt32Value(properties.memoryHeapCount);
+            encode::EncodeStructArray(&oracle, properties.memoryHeaps, properties.memoryHeapCount);
+        }));
+    }
+
+    // Counts over the extents: the count is recorded as set, the run stops at the extent.
+    {
+        VkPhysicalDeviceMemoryProperties properties{};
+        fill(properties);
+        properties.memoryTypeCount = VK_MAX_MEMORY_TYPES + 5u;
+        properties.memoryHeapCount = VK_MAX_MEMORY_HEAPS + 1u;
+
+        CHECK(matches(properties, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeUInt32Value(properties.memoryTypeCount);
+            encode::EncodeStructArray(&oracle, properties.memoryTypes, VK_MAX_MEMORY_TYPES);
+            oracle.EncodeUInt32Value(properties.memoryHeapCount);
+            encode::EncodeStructArray(&oracle, properties.memoryHeaps, VK_MAX_MEMORY_HEAPS);
+        }));
+    }
+
+    // The same structure embedded by value in VkPhysicalDeviceMemoryProperties2.
+    {
+        VkPhysicalDeviceMemoryProperties2 properties2{};
+        properties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
+        fill(properties2.memoryProperties);
+        properties2.memoryProperties.memoryTypeCount = 4u;
+        properties2.memoryProperties.memoryHeapCount = 1u;
+
+        CHECK(matches(properties2, [&](encode::ParameterEncoder& oracle) {
+            const VkPhysicalDeviceMemoryProperties& inner = properties2.memoryProperties;
+            oracle.EncodeEnumValue(properties2.sType);
+            encode::EncodePNextStruct(&oracle, properties2.pNext);
+            oracle.EncodeUInt32Value(inner.memoryTypeCount);
+            encode::EncodeStructArray(&oracle, inner.memoryTypes, inner.memoryTypeCount);
+            oracle.EncodeUInt32Value(inner.memoryHeapCount);
+            encode::EncodeStructArray(&oracle, inner.memoryHeaps, inner.memoryHeapCount);
+        }));
+    }
+
+    // The fixed array of handles. Physical devices are dispatchable, so each registers from a local pointer slot with a
+    // null parent, as the command buffer does in the handle-run test, and is removed with RemoveWrapper. Elements past
+    // the count stay VK_NULL_HANDLE, so the over-extent run is two ids and thirty nulls.
+    void*            device_objects[2] = { nullptr, nullptr };
+    VkPhysicalDevice devices[2]        = { reinterpret_cast<VkPhysicalDevice>(&device_objects[0]),
+                                           reinterpret_cast<VkPhysicalDevice>(&device_objects[1]) };
+    for (VkPhysicalDevice& device : devices)
+    {
+        CreateWrappedDispatchHandle<InstanceWrapper, PhysicalDeviceWrapper>(VK_NULL_HANDLE, &device, TestHandleId);
+        REQUIRE(GetWrappedId<PhysicalDeviceWrapper>(device) != format::kNullHandleId);
+    }
+
+    struct GroupCase
+    {
+        uint32_t count;
+        uint32_t encoded;
+    };
+
+    for (const GroupCase& group_case : { GroupCase{ 2u, 2u },
+                                         GroupCase{ 0u, 0u },
+                                         GroupCase{ VK_MAX_DEVICE_GROUP_SIZE + 3u, VK_MAX_DEVICE_GROUP_SIZE } })
+    {
+        VkPhysicalDeviceGroupProperties group{};
+        group.sType               = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GROUP_PROPERTIES;
+        group.physicalDeviceCount = group_case.count;
+        group.physicalDevices[0]  = devices[0];
+        group.physicalDevices[1]  = devices[1];
+        group.subsetAllocation    = VK_TRUE;
+
+        CHECK(matches(group, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(group.sType);
+            encode::EncodePNextStructIfValid(&oracle, group.pNext);
+            oracle.EncodeUInt32Value(group.physicalDeviceCount);
+            oracle.EncodeVulkanHandleArray<PhysicalDeviceWrapper>(group.physicalDevices, group_case.encoded);
+            oracle.EncodeUInt32Value(group.subsetAllocation);
+        }));
+    }
+
+    for (VkPhysicalDevice device : devices)
+    {
+        auto* wrapper = GetWrapper<PhysicalDeviceWrapper>(device);
+        RemoveWrapper<PhysicalDeviceWrapper>(wrapper);
+        delete wrapper;
+    }
+
+    // vk.xml gives priorities len="priorityCount", so the Field's length is priorityCount and the run is written to
+    // the count, not the extent.
+    {
+        VkQueueFamilyGlobalPriorityProperties priorities{};
+        priorities.sType         = VK_STRUCTURE_TYPE_QUEUE_FAMILY_GLOBAL_PRIORITY_PROPERTIES;
+        priorities.priorityCount = 2u;
+        for (uint32_t i = 0; i < VK_MAX_GLOBAL_PRIORITY_SIZE; ++i)
+        {
+            priorities.priorities[i] = VK_QUEUE_GLOBAL_PRIORITY_MEDIUM;
+        }
+        priorities.priorities[0] = VK_QUEUE_GLOBAL_PRIORITY_LOW;
+        priorities.priorities[1] = VK_QUEUE_GLOBAL_PRIORITY_HIGH;
+
+        CHECK(matches(priorities, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(priorities.sType);
+            encode::EncodePNextStruct(&oracle, priorities.pNext);
+            oracle.EncodeUInt32Value(priorities.priorityCount);
+            oracle.EncodeEnumArray(priorities.priorities, priorities.priorityCount);
+        }));
+    }
+}
+
+TEST_CASE("Schema EncodeStruct matches pointer-array wire bytes", "[schema][encode]")
+{
+    // Checks a counted run of pointers, each to one item: StringArrayField for strings, PointerArrayField for
+    // structures. The storage is the same for both, and the wire is not: text is written as a one-dimensional string
+    // array, structures as EncodeStructArray2D with every inner length 1, the encoder's form of a pointer to one
+    // structure.
+    // VkInstanceCreateInfo and VkDeviceCreateInfo carry string runs; VkAccelerationStructureGeometryMicromapDataKHR and
+    // VkMicromapBuildInfoEXT carry a structure run and a pointer run over the same count.
+    namespace instance_field = schema::vulkan::fields::VkInstanceCreateInfo;
+    namespace micromap_field = schema::vulkan::fields::VkAccelerationStructureGeometryMicromapDataKHR;
+
+    static_assert(schema::StringArrayField<instance_field::ppEnabledLayerNames>);
+    static_assert(!schema::PointerArrayField<instance_field::ppEnabledLayerNames>);
+    static_assert(std::is_pointer_v<
+                  std::remove_pointer_t<schema::ApiTypeOf_t<instance_field::ppEnabledLayerNames::declaration>>>);
+    static_assert(std::is_same_v<schema::LengthOf_t<instance_field::ppEnabledExtensionNames>,
+                                 schema::FieldValue<instance_field::enabledExtensionCount>>);
+
+    static_assert(schema::PointerArrayField<micromap_field::ppUsageCounts>);
+    static_assert(schema::StructOrUnionApiElement<micromap_field::ppUsageCounts::api_element>);
+    static_assert(
+        std::is_pointer_v<std::remove_pointer_t<schema::ApiTypeOf_t<micromap_field::ppUsageCounts::declaration>>>);
+    static_assert(std::is_same_v<schema::LengthOf_t<micromap_field::ppUsageCounts>,
+                                 schema::FieldValue<micromap_field::usageCountsCount>>);
+    static_assert(schema::ArrayField<micromap_field::pUsageCounts>);
+
+    // ppUsageCounts is an ArrayField too: PointerArrayField is an ArrayField whose item is a Pointer.
+    static_assert(schema::ArrayField<micromap_field::ppUsageCounts>);
+
+    auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
+        return actual.GetDataSize() == oracle.GetDataSize() &&
+               std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
+    };
+
+    auto matches = [&](const auto& value, auto&& write_oracle) {
+        encode::ParameterBuffer  buffer;
+        encode::ParameterEncoder encoder(&buffer);
+        encode::EncodeStruct(&encoder, value);
+
+        encode::ParameterBuffer  oracle_buffer;
+        encode::ParameterEncoder oracle(&oracle_buffer);
+        write_oracle(oracle);
+
+        return same_bytes(buffer, oracle_buffer);
+    };
+
+    const char* const layers[]     = { "VK_LAYER_KHRONOS_validation", "VK_LAYER_LUNARG_gfxreconstruct" };
+    const char* const extensions[] = { "VK_KHR_surface", "VK_KHR_win32_surface", "VK_EXT_debug_utils" };
+
+    VkApplicationInfo application{};
+    application.sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    application.pApplicationName   = "schema";
+    application.applicationVersion = 0x00010002u;
+    application.pEngineName        = nullptr;
+    application.engineVersion      = 7u;
+    application.apiVersion         = VK_API_VERSION_1_3;
+
+    struct Names
+    {
+        uint32_t                 layer_count;
+        const char* const*       layers;
+        uint32_t                 extension_count;
+        const char* const*       extensions;
+        const VkApplicationInfo* application;
+    };
+
+    for (const Names& names :
+         { Names{ 0u, nullptr, 0u, nullptr, nullptr }, Names{ 2u, layers, 3u, extensions, &application } })
+    {
+        // Two string runs beside a structure pointer.
+        VkInstanceCreateInfo instance{};
+        instance.sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+        instance.flags                   = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+        instance.pApplicationInfo        = names.application;
+        instance.enabledLayerCount       = names.layer_count;
+        instance.ppEnabledLayerNames     = names.layers;
+        instance.enabledExtensionCount   = names.extension_count;
+        instance.ppEnabledExtensionNames = names.extensions;
+
+        CHECK(matches(instance, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(instance.sType);
+            encode::EncodePNextStruct(&oracle, instance.pNext);
+            oracle.EncodeFlagsValue(instance.flags);
+            encode::EncodeStructPtr(&oracle, instance.pApplicationInfo);
+            oracle.EncodeUInt32Value(instance.enabledLayerCount);
+            oracle.EncodeStringArray(instance.ppEnabledLayerNames, instance.enabledLayerCount);
+            oracle.EncodeUInt32Value(instance.enabledExtensionCount);
+            oracle.EncodeStringArray(instance.ppEnabledExtensionNames, instance.enabledExtensionCount);
+        }));
+
+        // The same two runs beside a structure run and a structure pointer.
+        VkDeviceCreateInfo device{};
+        device.sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+        device.enabledLayerCount       = names.layer_count;
+        device.ppEnabledLayerNames     = names.layers;
+        device.enabledExtensionCount   = names.extension_count;
+        device.ppEnabledExtensionNames = names.extensions;
+
+        CHECK(matches(device, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(device.sType);
+            encode::EncodePNextStruct(&oracle, device.pNext);
+            oracle.EncodeFlagsValue(device.flags);
+            oracle.EncodeUInt32Value(device.queueCreateInfoCount);
+            encode::EncodeStructArray(&oracle, device.pQueueCreateInfos, device.queueCreateInfoCount);
+            oracle.EncodeUInt32Value(device.enabledLayerCount);
+            oracle.EncodeStringArray(device.ppEnabledLayerNames, device.enabledLayerCount);
+            oracle.EncodeUInt32Value(device.enabledExtensionCount);
+            oracle.EncodeStringArray(device.ppEnabledExtensionNames, device.enabledExtensionCount);
+            encode::EncodeStructPtr(&oracle, device.pEnabledFeatures);
+        }));
+    }
+
+    // Two usage structures, addressed both as a run and as two pointers, so the run and the pointer run over one
+    // count encode the same elements through two wire shapes.
+    const VkMicromapUsageKHR        usages[] = { VkMicromapUsageKHR{ 4u, 1u, VK_OPACITY_MICROMAP_FORMAT_2_STATE_KHR },
+                                                 VkMicromapUsageKHR{ 9u, 3u, VK_OPACITY_MICROMAP_FORMAT_4_STATE_KHR } };
+    const VkMicromapUsageKHR* const usage_pointers[] = { &usages[1], &usages[0] };
+
+    struct Usages
+    {
+        uint32_t                         count;
+        const VkMicromapUsageKHR*        run;
+        const VkMicromapUsageKHR* const* pointers;
+    };
+
+    for (const Usages& u : { Usages{ 0u, nullptr, nullptr }, Usages{ 2u, usages, usage_pointers } })
+    {
+        // A structure run, and a run of pointers to structures written as a 2D array with inner length 1.
+        VkAccelerationStructureGeometryMicromapDataKHR micromap{};
+        micromap.sType               = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_MICROMAP_DATA_KHR;
+        micromap.usageCountsCount    = u.count;
+        micromap.pUsageCounts        = u.run;
+        micromap.ppUsageCounts       = u.pointers;
+        micromap.data                = 0x1000u;
+        micromap.triangleArray       = 0x2000u;
+        micromap.triangleArrayStride = 48u;
+
+        CHECK(matches(micromap, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(micromap.sType);
+            encode::EncodePNextStruct(&oracle, micromap.pNext);
+            oracle.EncodeUInt32Value(micromap.usageCountsCount);
+            encode::EncodeStructArray(&oracle, micromap.pUsageCounts, micromap.usageCountsCount);
+            encode::EncodeStructArray2D(&oracle, micromap.ppUsageCounts, micromap.usageCountsCount, 1);
+            oracle.EncodeUInt64Value(micromap.data);
+            oracle.EncodeUInt64Value(micromap.triangleArray);
+            oracle.EncodeUInt64Value(micromap.triangleArrayStride);
+        }));
+    }
+
+    // VkMicromapUsageEXT through the same two runs, beside a null handle and three unions.
+    const VkMicromapUsageEXT ext_usages[] = { VkMicromapUsageEXT{ 4u, 1u, 0u }, VkMicromapUsageEXT{ 9u, 3u, 1u } };
+    const VkMicromapUsageEXT* const ext_usage_pointers[] = { &ext_usages[0], &ext_usages[1] };
+
+    VkMicromapBuildInfoEXT build{};
+    build.sType               = VK_STRUCTURE_TYPE_MICROMAP_BUILD_INFO_EXT;
+    build.type                = VK_MICROMAP_TYPE_OPACITY_MICROMAP_EXT;
+    build.mode                = VK_BUILD_MICROMAP_MODE_BUILD_EXT;
+    build.dstMicromap         = VK_NULL_HANDLE;
+    build.usageCountsCount    = 2u;
+    build.pUsageCounts        = ext_usages;
+    build.ppUsageCounts       = ext_usage_pointers;
+    build.data.deviceAddress  = 0x3000u;
+    build.triangleArrayStride = 16u;
+
+    CHECK(matches(build, [&](encode::ParameterEncoder& oracle) {
+        oracle.EncodeEnumValue(build.sType);
+        encode::EncodePNextStructIfValid(&oracle, build.pNext);
+        oracle.EncodeEnumValue(build.type);
+        oracle.EncodeFlagsValue(build.flags);
+        oracle.EncodeEnumValue(build.mode);
+        oracle.EncodeVulkanHandleValue<encode::vulkan_wrappers::MicromapEXTWrapper>(build.dstMicromap);
+        oracle.EncodeUInt32Value(build.usageCountsCount);
+        encode::EncodeStructArray(&oracle, build.pUsageCounts, build.usageCountsCount);
+        encode::EncodeStructArray2D(&oracle, build.ppUsageCounts, build.usageCountsCount, 1);
+        encode::EncodeStruct(&oracle, build.data);
+        encode::EncodeStruct(&oracle, build.scratchData);
+        encode::EncodeStruct(&oracle, build.triangleArray);
+        oracle.EncodeUInt64Value(build.triangleArrayStride);
+    }));
+}
+
+TEST_CASE("Schema EncodeStruct matches computed-count wire bytes", "[schema][encode]")
+{
+    // Checks run lengths that are vk.xml altlen arithmetic rather than one count Field, one per operator: a size_t
+    // Field over a constant (VkShaderModuleCreateInfo, codeSize / 4), an enum Field plus a constant over a constant
+    // (VkPipelineMultisampleStateCreateInfo, (rasterizationSamples + 31) / 32), and two constants with no Field at all
+    // (VkMicromapVersionInfoEXT, 2*VK_UUID_SIZE). The Field's Array declaration holds the expression as ExpressionValue
+    // types, and EncodeStructAction's counted-run Apply evaluates it through LengthOf_t::Get.
+    namespace shader_field      = schema::vulkan::fields::VkShaderModuleCreateInfo;
+    namespace multisample_field = schema::vulkan::fields::VkPipelineMultisampleStateCreateInfo;
+    namespace micromap_field    = schema::vulkan::fields::VkMicromapVersionInfoEXT;
+
+    // LengthOf_t states vk.xml's arithmetic in prefix form; a literal is unsigned beside an unsigned Field or constant,
+    // and int beside an enum.
+    static_assert(std::is_same_v<schema::LengthOf_t<shader_field::pCode>,
+                                 schema::Quotient<schema::FieldValue<shader_field::codeSize>, schema::Literal<4u>>>);
+    static_assert(
+        std::is_same_v<
+            schema::LengthOf_t<multisample_field::pSampleMask>,
+            schema::Quotient<schema::Sum<schema::AsInteger<schema::FieldValue<multisample_field::rasterizationSamples>>,
+                                         schema::Literal<31>>,
+                             schema::Literal<32>>>);
+    static_assert(std::is_same_v<schema::LengthOf_t<micromap_field::pVersionData>,
+                                 schema::Product<schema::Literal<2u>, schema::Literal<VK_UUID_SIZE>>>);
+
+    // FieldValue, Literal and Sum are ExpressionValues, and int and a Field are not. detail::Integer admits integers
+    // and not bool, float or an enum; detail::IntegerOrEnum admits an enum too, for a Literal.
+    static_assert(schema::ExpressionValue<schema::FieldValue<shader_field::codeSize>>);
+    static_assert(schema::ExpressionValue<schema::Literal<4u>>);
+    static_assert(schema::ExpressionValue<schema::Sum<schema::Literal<1u>, schema::Literal<2u>>>);
+    static_assert(!schema::ExpressionValue<int>);
+    static_assert(!schema::ExpressionValue<shader_field::codeSize>);
+    static_assert(schema::detail::Integer<size_t>);
+    static_assert(!schema::detail::Integer<VkSampleCountFlagBits>);
+    static_assert(schema::detail::IntegerOrEnum<VkSampleCountFlagBits>);
+    static_assert(!schema::detail::Integer<bool>);
+    static_assert(!schema::detail::Integer<float>);
+    static_assert(std::is_same_v<schema::Literal<31>::value_type, int>);
+    static_assert(std::is_same_v<schema::Literal<4u>::value_type, unsigned>);
+
+    // A constant-only count evaluates on any store, and the arithmetic runs in the operands' own types.
+    static_assert(schema::StorageWithLength<VkMicromapVersionInfoEXT, micromap_field::pVersionData>);
+    static_assert(schema::StorageWithLength<VkShaderModuleCreateInfo, shader_field::pCode>);
+    static_assert(schema::StorageWithLength<VkPipelineMultisampleStateCreateInfo, multisample_field::pSampleMask>);
+    static_assert(std::is_same_v<decltype(schema::LengthOf_t<shader_field::pCode>::Get(
+                                     std::declval<const VkShaderModuleCreateInfo&>())),
+                                 size_t>);
+    // An enum operand's underlying type is the compiler's choice, so the length's type is asserted an integer, not int.
+    static_assert(schema::detail::Integer<decltype(schema::LengthOf_t<multisample_field::pSampleMask>::Get(
+                      std::declval<const VkPipelineMultisampleStateCreateInfo&>()))>);
+    static_assert(schema::LengthOf_t<micromap_field::pVersionData>::Get(VkMicromapVersionInfoEXT{}) == 32u);
+
+    auto same_bytes = [](const encode::ParameterBuffer& actual, const encode::ParameterBuffer& oracle) {
+        return actual.GetDataSize() == oracle.GetDataSize() &&
+               std::memcmp(actual.GetData(), oracle.GetData(), actual.GetDataSize()) == 0;
+    };
+
+    auto matches = [&](const auto& value, auto&& write_oracle) {
+        encode::ParameterBuffer  buffer;
+        encode::ParameterEncoder encoder(&buffer);
+        encode::EncodeStruct(&encoder, value);
+
+        encode::ParameterBuffer  oracle_buffer;
+        encode::ParameterEncoder oracle(&oracle_buffer);
+        write_oracle(oracle);
+
+        return same_bytes(buffer, oracle_buffer);
+    };
+
+    // codeSize / 4: an odd word count, then no code at all.
+    const uint32_t words[] = { 0x07230203u, 0x00010000u, 0x0008000au, 0x0000000du, 0x00000000u };
+
+    for (const size_t code_size : { sizeof(words), size_t{ 0 } })
+    {
+        VkShaderModuleCreateInfo shader{
+            VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO, nullptr, 0u, code_size, code_size ? words : nullptr
+        };
+
+        CHECK(schema::LengthOf_t<shader_field::pCode>::Get(shader) == code_size / 4);
+        CHECK(matches(shader, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(shader.sType);
+            encode::EncodePNextStruct(&oracle, shader.pNext);
+            oracle.EncodeFlagsValue(shader.flags);
+            oracle.EncodeSizeTValue(shader.codeSize);
+            oracle.EncodeUInt32Array(shader.pCode, shader.codeSize / 4);
+        }));
+    }
+
+    // (rasterizationSamples + 31) / 32: one mask word at 4 samples, two at 64.
+    const VkSampleMask masks[] = { 0xffff0000u, 0x0000ffffu };
+
+    for (const VkSampleCountFlagBits samples : { VK_SAMPLE_COUNT_4_BIT, VK_SAMPLE_COUNT_64_BIT })
+    {
+        VkPipelineMultisampleStateCreateInfo multisample{ VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
+                                                          nullptr,
+                                                          0u,
+                                                          samples,
+                                                          VK_TRUE,
+                                                          0.75f,
+                                                          masks,
+                                                          VK_FALSE,
+                                                          VK_TRUE };
+
+        CHECK(schema::LengthOf_t<multisample_field::pSampleMask>::Get(multisample) == (samples + 31) / 32);
+        CHECK(matches(multisample, [&](encode::ParameterEncoder& oracle) {
+            oracle.EncodeEnumValue(multisample.sType);
+            encode::EncodePNextStruct(&oracle, multisample.pNext);
+            oracle.EncodeFlagsValue(multisample.flags);
+            oracle.EncodeEnumValue(multisample.rasterizationSamples);
+            oracle.EncodeUInt32Value(multisample.sampleShadingEnable);
+            oracle.EncodeFloatValue(multisample.minSampleShading);
+            oracle.EncodeUInt32Array(multisample.pSampleMask, (multisample.rasterizationSamples + 31) / 32);
+            oracle.EncodeUInt32Value(multisample.alphaToCoverageEnable);
+            oracle.EncodeUInt32Value(multisample.alphaToOneEnable);
+        }));
+    }
+
+    // 2*VK_UUID_SIZE: thirty-two bytes with no sibling to say so.
+    uint8_t version[2 * VK_UUID_SIZE];
+    for (size_t i = 0; i < sizeof(version); ++i)
+    {
+        version[i] = static_cast<uint8_t>(0xa0u + i);
+    }
+
+    VkMicromapVersionInfoEXT micromap{ VK_STRUCTURE_TYPE_MICROMAP_VERSION_INFO_EXT, nullptr, version };
+
+    CHECK(matches(micromap, [&](encode::ParameterEncoder& oracle) {
+        oracle.EncodeEnumValue(micromap.sType);
+        encode::EncodePNextStructIfValid(&oracle, micromap.pNext);
+        oracle.EncodeUInt8Array(micromap.pVersionData, 2 * VK_UUID_SIZE);
+    }));
+
+    // VkPipelineRasterizationStateCreateInfo, the multisample state's neighbour in the pipeline: scalars, enums and
+    // floats, and no run.
+    VkPipelineRasterizationStateCreateInfo rasterization{ VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
+                                                          nullptr,
+                                                          0u,
+                                                          VK_TRUE,
+                                                          VK_FALSE,
+                                                          VK_POLYGON_MODE_LINE,
+                                                          VK_CULL_MODE_BACK_BIT,
+                                                          VK_FRONT_FACE_CLOCKWISE,
+                                                          VK_TRUE,
+                                                          1.5f,
+                                                          2.5f,
+                                                          0.5f,
+                                                          3.0f };
+
+    CHECK(matches(rasterization, [&](encode::ParameterEncoder& oracle) {
+        oracle.EncodeEnumValue(rasterization.sType);
+        encode::EncodePNextStruct(&oracle, rasterization.pNext);
+        oracle.EncodeFlagsValue(rasterization.flags);
+        oracle.EncodeUInt32Value(rasterization.depthClampEnable);
+        oracle.EncodeUInt32Value(rasterization.rasterizerDiscardEnable);
+        oracle.EncodeEnumValue(rasterization.polygonMode);
+        oracle.EncodeFlagsValue(rasterization.cullMode);
+        oracle.EncodeEnumValue(rasterization.frontFace);
+        oracle.EncodeUInt32Value(rasterization.depthBiasEnable);
+        oracle.EncodeFloatValue(rasterization.depthBiasConstantFactor);
+        oracle.EncodeFloatValue(rasterization.depthBiasClamp);
+        oracle.EncodeFloatValue(rasterization.depthBiasSlopeFactor);
+        oracle.EncodeFloatValue(rasterization.lineWidth);
+    }));
+
+    // VkAccelerationStructureVersionInfoKHR: VkMicromapVersionInfoEXT's three fields and constant length.
+    VkAccelerationStructureVersionInfoKHR acceleration{ VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_VERSION_INFO_KHR,
+                                                        nullptr,
+                                                        version };
+
+    CHECK(matches(acceleration, [&](encode::ParameterEncoder& oracle) {
+        oracle.EncodeEnumValue(acceleration.sType);
+        encode::EncodePNextStructIfValid(&oracle, acceleration.pNext);
+        oracle.EncodeUInt8Array(acceleration.pVersionData, 2 * VK_UUID_SIZE);
+    }));
+}
+
 TEST_CASE("Get yields a Field's value in place or by copy", "[schema]")
 {
     // An ordinary member is referenced where it lives: Get returns the member itself. A bitfield has no address, so
@@ -318,6 +1984,43 @@ TEST_CASE("A length reads a length through a pointer sibling", "[schema]")
 
     CHECK(schema::LengthOf_t<alloc_field::pCommandBuffers>::Get(store) == 3u);
     CHECK(schema::FieldValue<alloc_field::pAllocateInfo>::Get(store) == &info);
+
+    // EncodeStructAction's counted-run Apply evaluates the same length. No command encoder uses EncodeStructAction,
+    // but the Apply is per Field and takes any store that holds the members, so it runs on the hand-written store: two
+    // registered command buffers behind a count of two, against EncodeVulkanHandleArray.
+    using namespace gfxrecon::encode::vulkan_wrappers;
+
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    void*           command_buffer_objects[2] = {};
+    VkCommandBuffer command_buffers[2]        = { reinterpret_cast<VkCommandBuffer>(&command_buffer_objects[0]),
+                                                  reinterpret_cast<VkCommandBuffer>(&command_buffer_objects[1]) };
+    for (VkCommandBuffer& command_buffer : command_buffers)
+    {
+        CreateWrappedDispatchHandle<DeviceWrapper, CommandBufferWrapper>(VK_NULL_HANDLE, &command_buffer, TestHandleId);
+        REQUIRE(GetWrappedId<CommandBufferWrapper>(command_buffer) != format::kNullHandleId);
+    }
+
+    info.commandBufferCount = 2u;
+    store.pCommandBuffers   = command_buffers;
+
+    encode::ParameterBuffer  buffer;
+    encode::ParameterEncoder encoder(&buffer);
+    encode::EncodeStructAction(&encoder).Apply(store, alloc_field::pCommandBuffers{});
+
+    encode::ParameterBuffer  oracle_buffer;
+    encode::ParameterEncoder oracle(&oracle_buffer);
+    oracle.EncodeVulkanHandleArray<CommandBufferWrapper>(command_buffers, 2u);
+
+    CHECK(buffer.GetDataSize() == oracle_buffer.GetDataSize());
+    CHECK(std::memcmp(buffer.GetData(), oracle_buffer.GetData(), buffer.GetDataSize()) == 0);
+
+    for (VkCommandBuffer command_buffer : command_buffers)
+    {
+        auto* wrapper = GetWrapper<CommandBufferWrapper>(command_buffer);
+        RemoveWrapper<CommandBufferWrapper>(wrapper);
+        delete wrapper;
+    }
 }
 
 TEST_CASE("A generated command schema invokes a positional call in parameter order", "[schema]")

@@ -35,7 +35,7 @@
 #include "encode/parameter_encoder.h"
 #include "format/platform_types.h"
 #if defined(GFXRECON_ENABLE_VULKAN)
-#include "generated/generated_vulkan_struct_encoders.h"
+#include "encode/vulkan_encode_struct.h"
 #endif
 #if ENABLE_OPENXR_SUPPORT
 #include "generated/generated_openxr_struct_encoders.h"
@@ -46,6 +46,8 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
 #if defined(GFXRECON_ENABLE_VULKAN)
+void EncodePNextStruct(ParameterEncoder* encoder, const void* value);
+
 inline void EncodeStructPtr(ParameterEncoder*         encoder,
                             const VkBaseOutStructure* value,
                             bool                      omit_data = false,

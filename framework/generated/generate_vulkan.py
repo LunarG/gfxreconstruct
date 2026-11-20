@@ -41,7 +41,6 @@ VK_HEADERS_DIR = os.path.join(SCRIPT_DIR, '..', '..', 'external', 'Vulkan-Header
 # File names to provide to the Vulkan XML Registry generator script.
 generate_targets = [
     'generated_vulkan_struct_encoders.h',
-    'generated_vulkan_struct_encoders.cpp',
     'generated_vulkan_struct_handle_wrappers.h',
     'generated_vulkan_struct_handle_wrappers.cpp',
     'generated_vulkan_struct_deep_copy.cpp',
@@ -101,6 +100,8 @@ generate_targets = [
     'generated_vulkan_schema.h',
     'generated_vulkan_api_element_of.h',
     'generated_vulkan_call_id.h',
+    'generated_vulkan_capture_wrapper_of.h',
+    'generated_vulkan_struct_encoders.cpp',
     'generated_vulkan_struct_decoders.cpp',
     'generated_vulkan_schema_checks.cpp',
     'generated_vulkan_wire_types.h',

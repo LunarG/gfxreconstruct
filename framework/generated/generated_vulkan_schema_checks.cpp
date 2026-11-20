@@ -31,6 +31,7 @@
 #include "decode/vulkan_decoder_args.h"
 #include "generated/generated_vulkan_api_element_of.h"
 #include "generated/generated_vulkan_call_id.h"
+#include "generated/generated_vulkan_capture_wrapper_of.h"
 #include "generated/generated_vulkan_decoder_args.h"
 #include "generated/generated_vulkan_schema.h"
 #include "generated/generated_vulkan_struct_decoders.h"
@@ -6342,6 +6343,61 @@ static_assert(std::is_same_v<schema::ApiTypeOf_t<binding::ApiElementOf<::VkIndir
 static_assert(std::is_same_v<schema::ApiTypeOf_t<binding::ApiElementOf<::VkPerformanceCounterResultKHR>::type>, ::VkPerformanceCounterResultKHR>);
 static_assert(std::is_same_v<schema::ApiTypeOf_t<binding::ApiElementOf<::VkPerformanceValueDataINTEL>::type>, ::VkPerformanceValueDataINTEL>);
 static_assert(std::is_same_v<schema::ApiTypeOf_t<binding::ApiElementOf<::VkPipelineExecutableStatisticValueKHR>::type>, ::VkPipelineExecutableStatisticValueKHR>);
+
+// Each capture wrapper's HandleType against the element_type of the handle API element that
+// generated/generated_vulkan_capture_wrapper_of.h maps to it.
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkAccelerationStructureKHR>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkAccelerationStructureKHR>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkAccelerationStructureNV>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkAccelerationStructureNV>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkBuffer>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkBuffer>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkBufferView>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkBufferView>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkCommandBuffer>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkCommandBuffer>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkCommandPool>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkCommandPool>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkDataGraphPipelineSessionARM>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkDataGraphPipelineSessionARM>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkDebugReportCallbackEXT>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkDebugReportCallbackEXT>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkDebugUtilsMessengerEXT>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkDebugUtilsMessengerEXT>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkDeferredOperationKHR>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkDeferredOperationKHR>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkDescriptorPool>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkDescriptorPool>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkDescriptorSet>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkDescriptorSet>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkDescriptorSetLayout>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkDescriptorSetLayout>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkDescriptorUpdateTemplate>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkDescriptorUpdateTemplate>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkDevice>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkDevice>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkDeviceMemory>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkDeviceMemory>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkDisplayKHR>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkDisplayKHR>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkDisplayModeKHR>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkDisplayModeKHR>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkEvent>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkEvent>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkFence>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkFence>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkFramebuffer>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkFramebuffer>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkGpaSessionAMD>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkGpaSessionAMD>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkImage>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkImage>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkImageView>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkImageView>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkIndirectCommandsLayoutEXT>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkIndirectCommandsLayoutEXT>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkIndirectCommandsLayoutNV>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkIndirectCommandsLayoutNV>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkIndirectExecutionSetEXT>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkIndirectExecutionSetEXT>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkInstance>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkInstance>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkMicromapEXT>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkMicromapEXT>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkOpticalFlowSessionNV>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkOpticalFlowSessionNV>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkPerformanceConfigurationINTEL>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkPerformanceConfigurationINTEL>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkPhysicalDevice>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkPhysicalDevice>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkPipeline>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkPipeline>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkPipelineBinaryKHR>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkPipelineBinaryKHR>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkPipelineCache>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkPipelineCache>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkPipelineLayout>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkPipelineLayout>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkPrivateDataSlot>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkPrivateDataSlot>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkQueryPool>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkQueryPool>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkQueue>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkQueue>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkRenderPass>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkRenderPass>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkSampler>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkSampler>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkSamplerYcbcrConversion>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkSamplerYcbcrConversion>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkSemaphore>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkSemaphore>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkShaderEXT>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkShaderEXT>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkShaderModule>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkShaderModule>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkSurfaceKHR>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkSurfaceKHR>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkSwapchainKHR>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkSwapchainKHR>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkTensorARM>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkTensorARM>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkTensorViewARM>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkTensorViewARM>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkValidationCacheEXT>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkValidationCacheEXT>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkVideoSessionKHR>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkVideoSessionKHR>>);
+static_assert(std::is_same_v<encode::CaptureWrapperOf<schema::vulkan::api_elements::VkVideoSessionParametersKHR>::type::HandleType, schema::ApiTypeOf_t<schema::vulkan::api_elements::VkVideoSessionParametersKHR>>);
 
 // Each structure and union member's C++ type against ApiTypeOf_t of its Field's declaration. ApiTypeOf_t
 // rebuilds the C type from the API element and the declarators -- const at each level, a star per Pointer
