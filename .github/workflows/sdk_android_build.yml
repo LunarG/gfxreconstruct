@@ -88,7 +88,7 @@ jobs:
 
           Build Info:
           - Android SDK Version: 34 (Android 14)
-          - Android NDK Version: 26.3.11579264 (r26d)
+          - Android NDK Version: 30.0.16248370 (r30)
         draft: false
         prerelease: false
     - name: Get release URL
