@@ -1762,6 +1762,54 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBuildAccelerationStructuresK
         {
             GetTable().AddResourceToUser(args.commandBuffer, pInfos_ptr[pInfos_index].srcAccelerationStructure);
             GetTable().AddResourceToUser(args.commandBuffer, pInfos_ptr[pInfos_index].dstAccelerationStructure);
+
+            if (!pInfos_ptr[pInfos_index].pGeometries->IsNull() && (pInfos_ptr[pInfos_index].pGeometries->HasData()))
+            {
+                auto pGeometries_ptr = pInfos_ptr[pInfos_index].pGeometries->GetMetaStructPointer();
+                size_t pGeometries_count = pInfos_ptr[pInfos_index].pGeometries->GetLength();
+                for (size_t pGeometries_index = 0; pGeometries_index < pGeometries_count; ++pGeometries_index)
+                {
+                    // Resolve all the union members with handles
+                    switch (pGeometries_ptr[pGeometries_index].decoded_value->geometryType)
+                    {
+                        case VK_GEOMETRY_TYPE_TRIANGLES_KHR:
+                        {
+                            const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkAccelerationStructureTrianglesOpacityMicromapKHR>(pGeometries_ptr[pGeometries_index].geometry->triangles->pNext);
+                            if (ext_struct_info != nullptr)
+                            {
+                                GetTable().AddResourceToUser(args.commandBuffer, ext_struct_info->micromap);
+                            }
+                        }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            if (!pInfos_ptr[pInfos_index].ppGeometries->IsNull() && (pInfos_ptr[pInfos_index].ppGeometries->HasData()))
+            {
+                auto ppGeometries_ptr = pInfos_ptr[pInfos_index].ppGeometries->GetMetaStructPointer();
+                size_t ppGeometries_count = pInfos_ptr[pInfos_index].ppGeometries->GetLength();
+                for (size_t ppGeometries_index = 0; ppGeometries_index < ppGeometries_count; ++ppGeometries_index)
+                {
+                    // Resolve all the union members with handles
+                    switch (ppGeometries_ptr[ppGeometries_index]->decoded_value->geometryType)
+                    {
+                        case VK_GEOMETRY_TYPE_TRIANGLES_KHR:
+                        {
+                            const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkAccelerationStructureTrianglesOpacityMicromapKHR>(ppGeometries_ptr[ppGeometries_index]->geometry->triangles->pNext);
+                            if (ext_struct_info != nullptr)
+                            {
+                                GetTable().AddResourceToUser(args.commandBuffer, ext_struct_info->micromap);
+                            }
+                        }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
         }
     }
 }
@@ -1778,6 +1826,54 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBuildAccelerationStructuresI
         {
             GetTable().AddResourceToUser(args.commandBuffer, pInfos_ptr[pInfos_index].srcAccelerationStructure);
             GetTable().AddResourceToUser(args.commandBuffer, pInfos_ptr[pInfos_index].dstAccelerationStructure);
+
+            if (!pInfos_ptr[pInfos_index].pGeometries->IsNull() && (pInfos_ptr[pInfos_index].pGeometries->HasData()))
+            {
+                auto pGeometries_ptr = pInfos_ptr[pInfos_index].pGeometries->GetMetaStructPointer();
+                size_t pGeometries_count = pInfos_ptr[pInfos_index].pGeometries->GetLength();
+                for (size_t pGeometries_index = 0; pGeometries_index < pGeometries_count; ++pGeometries_index)
+                {
+                    // Resolve all the union members with handles
+                    switch (pGeometries_ptr[pGeometries_index].decoded_value->geometryType)
+                    {
+                        case VK_GEOMETRY_TYPE_TRIANGLES_KHR:
+                        {
+                            const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkAccelerationStructureTrianglesOpacityMicromapKHR>(pGeometries_ptr[pGeometries_index].geometry->triangles->pNext);
+                            if (ext_struct_info != nullptr)
+                            {
+                                GetTable().AddResourceToUser(args.commandBuffer, ext_struct_info->micromap);
+                            }
+                        }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            if (!pInfos_ptr[pInfos_index].ppGeometries->IsNull() && (pInfos_ptr[pInfos_index].ppGeometries->HasData()))
+            {
+                auto ppGeometries_ptr = pInfos_ptr[pInfos_index].ppGeometries->GetMetaStructPointer();
+                size_t ppGeometries_count = pInfos_ptr[pInfos_index].ppGeometries->GetLength();
+                for (size_t ppGeometries_index = 0; ppGeometries_index < ppGeometries_count; ++ppGeometries_index)
+                {
+                    // Resolve all the union members with handles
+                    switch (ppGeometries_ptr[ppGeometries_index]->decoded_value->geometryType)
+                    {
+                        case VK_GEOMETRY_TYPE_TRIANGLES_KHR:
+                        {
+                            const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkAccelerationStructureTrianglesOpacityMicromapKHR>(ppGeometries_ptr[ppGeometries_index]->geometry->triangles->pNext);
+                            if (ext_struct_info != nullptr)
+                            {
+                                GetTable().AddResourceToUser(args.commandBuffer, ext_struct_info->micromap);
+                            }
+                        }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
         }
     }
 }

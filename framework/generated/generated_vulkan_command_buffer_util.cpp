@@ -588,7 +588,7 @@ void TrackCmdWaitEvents2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, 
     {
         for (uint32_t pDependencyInfos_index = 0; pDependencyInfos_index < eventCount; ++pDependencyInfos_index)
         {
-            auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pDependencyInfos->pNext);
+            auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pDependencyInfos[pDependencyInfos_index].pNext);
             while (pnext_header)
             {
                 switch (pnext_header->sType)
@@ -733,7 +733,7 @@ void TrackCmdPushDescriptorSetHandles(vulkan_wrappers::CommandBufferWrapper* wra
     {
         for (uint32_t pDescriptorWrites_index = 0; pDescriptorWrites_index < descriptorWriteCount; ++pDescriptorWrites_index)
         {
-            auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pDescriptorWrites->pNext);
+            auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pDescriptorWrites[pDescriptorWrites_index].pNext);
             while (pnext_header)
             {
                 switch (pnext_header->sType)
@@ -915,7 +915,7 @@ void TrackCmdPushDescriptorSet2Handles(vulkan_wrappers::CommandBufferWrapper* wr
         {
             for (uint32_t pDescriptorWrites_index = 0; pDescriptorWrites_index < pPushDescriptorSetInfo->descriptorWriteCount; ++pDescriptorWrites_index)
             {
-                auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pPushDescriptorSetInfo->pDescriptorWrites->pNext);
+                auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].pNext);
                 while (pnext_header)
                 {
                     switch (pnext_header->sType)
@@ -1298,7 +1298,7 @@ void TrackCmdWaitEvents2KHRHandles(vulkan_wrappers::CommandBufferWrapper* wrappe
     {
         for (uint32_t pDependencyInfos_index = 0; pDependencyInfos_index < eventCount; ++pDependencyInfos_index)
         {
-            auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pDependencyInfos->pNext);
+            auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pDependencyInfos[pDependencyInfos_index].pNext);
             while (pnext_header)
             {
                 switch (pnext_header->sType)
@@ -1612,7 +1612,7 @@ void TrackCmdPushDescriptorSet2KHRHandles(vulkan_wrappers::CommandBufferWrapper*
         {
             for (uint32_t pDescriptorWrites_index = 0; pDescriptorWrites_index < pPushDescriptorSetInfo->descriptorWriteCount; ++pDescriptorWrites_index)
             {
-                auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pPushDescriptorSetInfo->pDescriptorWrites->pNext);
+                auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].pNext);
                 while (pnext_header)
                 {
                     switch (pnext_header->sType)
@@ -2047,7 +2047,7 @@ void TrackCmdBindDescriptorBuffersEXTHandles(vulkan_wrappers::CommandBufferWrapp
     {
         for (uint32_t pBindingInfos_index = 0; pBindingInfos_index < bufferCount; ++pBindingInfos_index)
         {
-            auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pBindingInfos->pNext);
+            auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pBindingInfos[pBindingInfos_index].pNext);
             while (pnext_header)
             {
                 switch (pnext_header->sType)
@@ -2297,6 +2297,96 @@ void TrackCmdBuildAccelerationStructuresKHRHandles(vulkan_wrappers::CommandBuffe
         {
             if(pInfos[pInfos_index].srcAccelerationStructure != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::AccelerationStructureKHRHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureKHRWrapper>(pInfos[pInfos_index].srcAccelerationStructure));
             if(pInfos[pInfos_index].dstAccelerationStructure != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::AccelerationStructureKHRHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureKHRWrapper>(pInfos[pInfos_index].dstAccelerationStructure));
+
+            if (pInfos[pInfos_index].pGeometries != nullptr)
+            {
+                for (uint32_t pGeometries_index = 0; pGeometries_index < pInfos[pInfos_index].geometryCount; ++pGeometries_index)
+                {
+                    // Resolve all the union members with handles
+                    switch (pInfos[pInfos_index].pGeometries[pGeometries_index].geometryType)
+                    {
+                        case VK_GEOMETRY_TYPE_TRIANGLES_KHR:
+                        {
+                            auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pInfos[pInfos_index].pGeometries[pGeometries_index].geometry.triangles.pNext);
+                            while (pnext_header)
+                            {
+                                switch (pnext_header->sType)
+                                {
+                                    default:
+                                        break;
+                                    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_DISPLACEMENT_MICROMAP_NV:
+                                    {
+                                        auto pnext_value = reinterpret_cast<const VkAccelerationStructureTrianglesDisplacementMicromapNV*>(pnext_header);
+                                        if(pnext_value->micromap != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::MicromapEXTHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::MicromapEXTWrapper>(pnext_value->micromap));
+                                        break;
+                                    }
+                                    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_EXT:
+                                    {
+                                        auto pnext_value = reinterpret_cast<const VkAccelerationStructureTrianglesOpacityMicromapEXT*>(pnext_header);
+                                        if(pnext_value->micromap != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::MicromapEXTHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::MicromapEXTWrapper>(pnext_value->micromap));
+                                        break;
+                                    }
+                                    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_KHR:
+                                    {
+                                        auto pnext_value = reinterpret_cast<const VkAccelerationStructureTrianglesOpacityMicromapKHR*>(pnext_header);
+                                        if(pnext_value->micromap != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::AccelerationStructureKHRHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureKHRWrapper>(pnext_value->micromap));
+                                        break;
+                                    }
+                                }
+                                pnext_header = pnext_header->pNext;
+                            }
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            if (pInfos[pInfos_index].ppGeometries != nullptr)
+            {
+                for (uint32_t ppGeometries_index = 0; ppGeometries_index < pInfos[pInfos_index].geometryCount; ++ppGeometries_index)
+                {
+                    // Resolve all the union members with handles
+                    switch (pInfos[pInfos_index].ppGeometries[ppGeometries_index]->geometryType)
+                    {
+                        case VK_GEOMETRY_TYPE_TRIANGLES_KHR:
+                        {
+                            auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pInfos[pInfos_index].ppGeometries[ppGeometries_index]->geometry.triangles.pNext);
+                            while (pnext_header)
+                            {
+                                switch (pnext_header->sType)
+                                {
+                                    default:
+                                        break;
+                                    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_DISPLACEMENT_MICROMAP_NV:
+                                    {
+                                        auto pnext_value = reinterpret_cast<const VkAccelerationStructureTrianglesDisplacementMicromapNV*>(pnext_header);
+                                        if(pnext_value->micromap != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::MicromapEXTHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::MicromapEXTWrapper>(pnext_value->micromap));
+                                        break;
+                                    }
+                                    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_EXT:
+                                    {
+                                        auto pnext_value = reinterpret_cast<const VkAccelerationStructureTrianglesOpacityMicromapEXT*>(pnext_header);
+                                        if(pnext_value->micromap != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::MicromapEXTHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::MicromapEXTWrapper>(pnext_value->micromap));
+                                        break;
+                                    }
+                                    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_KHR:
+                                    {
+                                        auto pnext_value = reinterpret_cast<const VkAccelerationStructureTrianglesOpacityMicromapKHR*>(pnext_header);
+                                        if(pnext_value->micromap != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::AccelerationStructureKHRHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureKHRWrapper>(pnext_value->micromap));
+                                        break;
+                                    }
+                                }
+                                pnext_header = pnext_header->pNext;
+                            }
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
+            }
         }
     }
 }
@@ -2311,6 +2401,96 @@ void TrackCmdBuildAccelerationStructuresIndirectKHRHandles(vulkan_wrappers::Comm
         {
             if(pInfos[pInfos_index].srcAccelerationStructure != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::AccelerationStructureKHRHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureKHRWrapper>(pInfos[pInfos_index].srcAccelerationStructure));
             if(pInfos[pInfos_index].dstAccelerationStructure != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::AccelerationStructureKHRHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureKHRWrapper>(pInfos[pInfos_index].dstAccelerationStructure));
+
+            if (pInfos[pInfos_index].pGeometries != nullptr)
+            {
+                for (uint32_t pGeometries_index = 0; pGeometries_index < pInfos[pInfos_index].geometryCount; ++pGeometries_index)
+                {
+                    // Resolve all the union members with handles
+                    switch (pInfos[pInfos_index].pGeometries[pGeometries_index].geometryType)
+                    {
+                        case VK_GEOMETRY_TYPE_TRIANGLES_KHR:
+                        {
+                            auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pInfos[pInfos_index].pGeometries[pGeometries_index].geometry.triangles.pNext);
+                            while (pnext_header)
+                            {
+                                switch (pnext_header->sType)
+                                {
+                                    default:
+                                        break;
+                                    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_DISPLACEMENT_MICROMAP_NV:
+                                    {
+                                        auto pnext_value = reinterpret_cast<const VkAccelerationStructureTrianglesDisplacementMicromapNV*>(pnext_header);
+                                        if(pnext_value->micromap != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::MicromapEXTHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::MicromapEXTWrapper>(pnext_value->micromap));
+                                        break;
+                                    }
+                                    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_EXT:
+                                    {
+                                        auto pnext_value = reinterpret_cast<const VkAccelerationStructureTrianglesOpacityMicromapEXT*>(pnext_header);
+                                        if(pnext_value->micromap != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::MicromapEXTHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::MicromapEXTWrapper>(pnext_value->micromap));
+                                        break;
+                                    }
+                                    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_KHR:
+                                    {
+                                        auto pnext_value = reinterpret_cast<const VkAccelerationStructureTrianglesOpacityMicromapKHR*>(pnext_header);
+                                        if(pnext_value->micromap != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::AccelerationStructureKHRHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureKHRWrapper>(pnext_value->micromap));
+                                        break;
+                                    }
+                                }
+                                pnext_header = pnext_header->pNext;
+                            }
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            if (pInfos[pInfos_index].ppGeometries != nullptr)
+            {
+                for (uint32_t ppGeometries_index = 0; ppGeometries_index < pInfos[pInfos_index].geometryCount; ++ppGeometries_index)
+                {
+                    // Resolve all the union members with handles
+                    switch (pInfos[pInfos_index].ppGeometries[ppGeometries_index]->geometryType)
+                    {
+                        case VK_GEOMETRY_TYPE_TRIANGLES_KHR:
+                        {
+                            auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pInfos[pInfos_index].ppGeometries[ppGeometries_index]->geometry.triangles.pNext);
+                            while (pnext_header)
+                            {
+                                switch (pnext_header->sType)
+                                {
+                                    default:
+                                        break;
+                                    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_DISPLACEMENT_MICROMAP_NV:
+                                    {
+                                        auto pnext_value = reinterpret_cast<const VkAccelerationStructureTrianglesDisplacementMicromapNV*>(pnext_header);
+                                        if(pnext_value->micromap != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::MicromapEXTHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::MicromapEXTWrapper>(pnext_value->micromap));
+                                        break;
+                                    }
+                                    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_EXT:
+                                    {
+                                        auto pnext_value = reinterpret_cast<const VkAccelerationStructureTrianglesOpacityMicromapEXT*>(pnext_header);
+                                        if(pnext_value->micromap != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::MicromapEXTHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::MicromapEXTWrapper>(pnext_value->micromap));
+                                        break;
+                                    }
+                                    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_KHR:
+                                    {
+                                        auto pnext_value = reinterpret_cast<const VkAccelerationStructureTrianglesOpacityMicromapKHR*>(pnext_header);
+                                        if(pnext_value->micromap != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::AccelerationStructureKHRHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureKHRWrapper>(pnext_value->micromap));
+                                        break;
+                                    }
+                                }
+                                pnext_header = pnext_header->pNext;
+                            }
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
+            }
         }
     }
 }

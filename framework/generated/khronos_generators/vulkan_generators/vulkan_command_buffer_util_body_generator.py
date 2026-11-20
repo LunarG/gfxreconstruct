@@ -125,7 +125,7 @@ class VulkanCommandBufferUtilBodyGenerator(VulkanBaseGenerator):
         args = []
         for value in values:
             if value.array_length:
-                args.append('uint32_t {}'.format(value.array_length))
+                args.append('uint32_t {}'.format(value.array_length.split(',')[0]))
             args.append('{} {}'.format(value.full_type, value.name))
         return ', '.join(self.make_unique_list(args))
 
@@ -133,6 +133,7 @@ class VulkanCommandBufferUtilBodyGenerator(VulkanBaseGenerator):
         body = ''
         tail = ''
         index_name = None
+        value_name = value_prefix + value.name
         if (
             value.is_pointer or value.is_array
         ) and value.name != 'pnext_value':
@@ -148,19 +149,22 @@ class VulkanCommandBufferUtilBodyGenerator(VulkanBaseGenerator):
             if value.is_array:
                 index_name = '{}_index'.format(value.name)
                 body += indent + 'for (uint32_t {i} = 0; {i} < {}{}; ++{i})\n'.format(
-                    value_prefix, value.array_length, i=index_name
+                    value_prefix, value.array_length.split(',')[0], i=index_name
                 )
                 body += indent + '{\n'
                 tail = indent + '}\n' + tail
                 indent += ' ' * self.INDENT_SIZE
+                value_name += '[{}]'.format(index_name)
+
+        # Indexing an array removes one pointer level.  An array of pointers
+        # still needs -> to access members of each element.
+        pointer_count = value.pointer_count - int(value.is_array)
+        access_operator = '->' if pointer_count > 0 else '.'
 
         if self.is_handle(value.base_type):
             type_enum_value = '{}Handle'.format(value.base_type[2:])
             wrapper_prefix = self.get_wrapper_prefix_from_type(value.base_type)
-            value_name = value_prefix + value.name
-            if value.is_array:
-                value_name = '{}[{}]'.format(value_name, index_name)
-            elif value.is_pointer:
+            if value.is_pointer and not value.is_array:
                 value_name = '(*{})'.format(value_name)
             body += indent + 'if({} != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::{}].insert(vulkan_wrappers::GetWrappedId<{}>({}));\n'.format(
                 value_name, type_enum_value, wrapper_prefix + '::' + value.base_type[2:] + 'Wrapper' ,value_name
@@ -169,13 +173,6 @@ class VulkanCommandBufferUtilBodyGenerator(VulkanBaseGenerator):
         elif self.is_struct(
             value.base_type
         ) and (value.base_type in self.structs_with_handles):
-            if value.is_array:
-                access_operator = '[{}].'.format(index_name)
-            elif value.is_pointer:
-                access_operator = '->'
-            else:
-                access_operator = '.'
-
             for index, entry in enumerate(
                 self.structs_with_handles[value.base_type]
             ):
@@ -186,8 +183,8 @@ class VulkanCommandBufferUtilBodyGenerator(VulkanBaseGenerator):
                         if ext_struct in self.structs_with_handles
                     ]
                     if ext_structs_with_handles:
-                        body += indent + 'auto pnext_header = reinterpret_cast<const VkBaseInStructure*>({}{}->pNext);\n'.format(
-                            value_prefix, value.name
+                        body += indent + 'auto pnext_header = reinterpret_cast<const VkBaseInStructure*>({}{}pNext);\n'.format(
+                            value_name, access_operator
                         )
                         body += indent + 'while (pnext_header)\n'
                         body += indent + '{\n'
@@ -228,7 +225,28 @@ class VulkanCommandBufferUtilBodyGenerator(VulkanBaseGenerator):
                 else:
                     body += self.insert_command_handle(
                         index, entry,
-                        value_prefix + value.name + access_operator, indent
+                        value_name + access_operator, indent
                     )
+
+        elif self.is_union(
+            value.base_type
+        ) and (value.base_type in self.unions_with_handles):
+            body += indent + '// Resolve all the union members with handles\n'
+            body += indent + 'switch ({}{})\n'.format(value_prefix, value.selector)
+            body += indent + '{\n'
+            tail = indent + '}\n' + tail
+            indent += ' ' * self.INDENT_SIZE
+            for union_member in self.unions_with_handles[value.base_type]:
+                body += indent + 'case {}:\n'.format(union_member.selection)
+                body += indent + '{\n'
+                body += self.insert_command_handle(
+                    index, union_member,
+                    value_prefix=value_name + access_operator,
+                    indent=indent + ' ' * self.INDENT_SIZE
+                )
+                body += indent + ' ' * self.INDENT_SIZE + 'break;\n'
+                body += indent + '}\n'
+            body += indent + 'default:\n'
+            body += indent + ' ' * self.INDENT_SIZE + 'break;\n'
 
         return body + tail
