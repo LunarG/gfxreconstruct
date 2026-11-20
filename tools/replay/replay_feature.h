@@ -142,16 +142,8 @@ class ReplayFeature : public ReplayFeatureBase
     void FinalizeConsumer() {}
 
     // Adds the consumer to the decoder, then adds the decoder to the file processor.
-    // InitConsumer() already made a decoder of the default type. Supply decoder only to
-    // replace that decoder with a different type, as the Vulkan feature does for the
-    // isolate_render_passes option.
-    void RegisterConsumerAndDecoder(graphics::FpsInfo* fps_info, std::unique_ptr<DecoderT> decoder = nullptr)
+    void RegisterConsumerAndDecoder(graphics::FpsInfo* fps_info)
     {
-        if (decoder != nullptr)
-        {
-            decoder_ = std::move(decoder);
-        }
-
         // InitConsumer() must run first. A feature that does not call it has no decoder.
         GFXRECON_ASSERT(decoder_ != nullptr);
 

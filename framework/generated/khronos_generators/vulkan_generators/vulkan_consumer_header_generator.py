@@ -46,6 +46,7 @@ class VulkanConsumerHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
         prefix_text='',
         protect_file=False,
         protect_feature=True,
+        generate_process_overloads=False,
         extra_headers=[]
     ):
         VulkanBaseGeneratorOptions.__init__(
@@ -63,6 +64,7 @@ class VulkanConsumerHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
         self.base_class_header = base_class_header
         self.is_override = is_override
         self.constructor_args = constructor_args
+        self.generate_process_overloads = generate_process_overloads
 
         self.begin_end_file_data.specific_headers.extend((
             'decode/{}'.format(self.base_class_header),
@@ -91,6 +93,45 @@ class VulkanConsumerHeaderGenerator(VulkanBaseGenerator, KhronosConsumerHeaderGe
             diag_file=diag_file
         )
 
+    def write_class_contents(self):
+        """Method may be overridden."""
+        KhronosConsumerHeaderGenerator.write_class_contents(self)
+
+        if self.genOpts.generate_process_overloads:
+            self.write_process_overloads()
+
+    def write_process_overloads(self):
+        """Write process overloads for all Vulkan commands. E.g.:
+        void Process(const ApiCallInfo& call_info, args::CmdDraw& args) { Process_vkCmdDraw(call_info, args); }
+        """
+        write(self.indent('\nusing VulkanConsumerBase::Process;', self.INDENT_SIZE), file=self.outFile)
+
+        for cmd in self.get_all_filtered_cmd_names():
+            if self.skip_generating_command(cmd):
+                continue
+
+            decl = self.make_process_overload_func_decl(cmd)
+            cmddef = self.indent(f'\n{decl} {{\n', self.INDENT_SIZE)
+            cmddef += self.indent(f'Process_{cmd}(call_info, args);', self.INDENT_SIZE * 2)
+            cmddef += self.indent('\n}', self.INDENT_SIZE)
+
+            write(cmddef, file=self.outFile)
+
+    def make_process_overload_func_decl(self, cmd_name):
+        """return the process overload function declaration for the given command name."""
+        param_decls = []
+        param_decls.append(self.make_call_info_param_decl())
+        param_decls.append(self.make_process_overload_param_decl(cmd_name))
+        return 'void Process(\n{})'.format(',\n'.join(param_decls))
+
+    def make_process_overload_param_decl(self, name):
+        """return the parameter declaration for the process overload function."""
+        args_struct_name = self.make_args_struct_name(name, namespace='args::')
+        param_decl = self.make_aligned_param_decl(
+            f'{args_struct_name}&', 'args', self.INDENT_SIZE,
+            self.genOpts.align_func_param
+        )
+        return param_decl
 
     def endFile(self):
         """Method override."""

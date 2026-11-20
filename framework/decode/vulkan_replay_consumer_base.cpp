@@ -1657,6 +1657,12 @@ void VulkanReplayConsumerBase::CheckResult(const char*                func_name,
                                            VkResult                   replay,
                                            const decode::ApiCallInfo& call_info)
 {
+    // A call that a stage injects has no result in the capture file to compare with.
+    if (util::InjectedCommandsActive())
+    {
+        return;
+    }
+
     if (original != replay)
     {
         // a poll or wait landing on the other side is caused by replay-timing alone, nothing to report
@@ -5344,13 +5350,6 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
     GFXRECON_ASSERT(allocator != nullptr);
     allocator->ClearStagingResources();
 
-    if (options_.idle_before_submit)
-    {
-        auto device_table = GetInjectedDeviceCalls(device_info->handle);
-        auto injected     = device_table.Open();
-        injected->DeviceWaitIdle(device_info->handle);
-    }
-
     VulkanSubmitJobPlan plan;
 
     if (options_.isolate_render_passes)
@@ -5620,13 +5619,6 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
     auto allocator = device_info->allocator.get();
     GFXRECON_ASSERT(allocator != nullptr);
     allocator->ClearStagingResources();
-
-    if (options_.idle_before_submit)
-    {
-        auto device_table = GetInjectedDeviceCalls(device_info->handle);
-        auto injected     = device_table.Open();
-        injected->DeviceWaitIdle(device_info->handle);
-    }
 
     VulkanSubmitJobPlan plan;
 
@@ -10165,14 +10157,6 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
         }
     }
 
-    if (options_.wait_before_present)
-    {
-        VkDevice device = MapHandle<VulkanDeviceInfo>(queue_info->parent_id, &CommonObjectInfoTable::GetVkDeviceInfo);
-        auto     device_table = GetInjectedDeviceCalls(device);
-        auto     injected     = device_table.Open();
-        injected->DeviceWaitIdle(device);
-    }
-
     if ((options_.swapchain_option != util::SwapchainOption::kOffscreen) && (modified_present_info.swapchainCount > 0))
     {
         if (graphics::vulkan_struct_get_pnext<VkPresentTimingsInfoEXT>(&modified_present_info) != nullptr)
@@ -13765,7 +13749,7 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate(const 
 }
 
 void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
-    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplate& args)
+    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplateKHR& args)
 {
     ReplayCmdPushDescriptorSetWithTemplate(
         call_info, args.commandBuffer, args.descriptorUpdateTemplate, args.layout, args.set, &args.pData, true);
@@ -13826,7 +13810,7 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2(
 }
 
 void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
-    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplate2& args)
+    const ApiCallInfo& call_info, args::CmdPushDescriptorSetWithTemplate2KHR& args)
 {
     ReplayCmdPushDescriptorSetWithTemplate2(
         call_info, args.commandBuffer, args.pPushDescriptorSetWithTemplateInfo.GetMetaStructPointer(), true);

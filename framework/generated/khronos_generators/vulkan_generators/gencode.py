@@ -53,6 +53,7 @@ from vulkan_decoder_header_generator import VulkanDecoderHeaderGenerator, Vulkan
 from vulkan_decoder_args_header_generator import VulkanDecoderArgsHeaderGenerator, VulkanDecoderArgsHeaderGeneratorOptions
 
 # Struct Decoders
+from vulkan_stage_command_buffer_header_generator import VulkanStageCommandBufferHeaderGenerator
 from vulkan_struct_decoders_body_generator import VulkanStructDecodersBodyGenerator, VulkanStructDecodersBodyGeneratorOptions
 from vulkan_struct_decoders_forward_generator import VulkanStructDecodersForwardGenerator, VulkanStructDecodersForwardGeneratorOptions
 from vulkan_struct_decoders_header_generator import VulkanStructDecodersHeaderGenerator, VulkanStructDecodersHeaderGeneratorOptions
@@ -60,6 +61,7 @@ from vulkan_pnext_struct_decode_generator import DecodePNextStructGenerator, Dec
 
 # Consumers
 from vulkan_consumer_header_generator import VulkanConsumerHeaderGenerator, VulkanConsumerHeaderGeneratorOptions
+from vulkan_consumer_stage_header_generator import VulkanConsumerStageHeaderGenerator
 from vulkan_replay_frame_loop_consumer_base_header_generator import VulkanFrameLoopConsumerBaseHeaderGenerator, VulkanFrameLoopConsumerBaseHeaderGeneratorOptions
 from vulkan_cpp_consumer_body_generator import VulkanCppConsumerBodyGenerator,VulkanCppConsumerBodyGeneratorOptions
 from vulkan_cpp_consumer_header_generator import VulkanCppConsumerHeaderGenerator, VulkanCppConsumerHeaderGeneratorOptions
@@ -356,6 +358,41 @@ def make_gen_opts(args):
             base_class_header='vulkan_consumer_base.h',
             is_override=False,
             filename='generated_vulkan_consumer.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            generate_process_overloads=True,
+            extra_headers=extra_headers
+        )
+    ]
+
+    gen_opts['generated_vulkan_consumer_stage.h'] = [
+        VulkanConsumerStageHeaderGenerator,
+        VulkanConsumerHeaderGeneratorOptions(
+            class_name='VulkanConsumerStage',
+            base_class_header='vulkan_consumer_stage_base.h',
+            is_override=True,
+            filename='generated_vulkan_consumer_stage.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            extra_headers=extra_headers
+        )
+    ]
+
+    gen_opts['generated_vulkan_stage_command_buffer.h'] = [
+        VulkanStageCommandBufferHeaderGenerator,
+        VulkanConsumerHeaderGeneratorOptions(
+            class_name='VulkanStageCommandBuffer',
+            base_class_header='vulkan_stage_command_buffer_base.h',
+            is_override=True,
+            filename='generated_vulkan_stage_command_buffer.h',
             directory=directory,
             blacklists=blacklists,
             platform_types=platform_types,
