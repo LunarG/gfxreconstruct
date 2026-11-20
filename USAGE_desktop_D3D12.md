@@ -215,7 +215,7 @@ Usage:
                         [-m <mode> | --memory-translation <mode>]
                         [--fw <width,height> | --force-windowed <width,height>]
                         [--fwo <x,y> | --force-windowed-origin <x,y>]
-                        [--log-level <level>] [--log-file <file>] [--log-debugview]
+                        [--log-level <level>] [--log-file <file>] [--log-debugview] [--log-flush]
                         [--batching-memory-usage <pct>]
                         [--batching-heap-size <MB>]
                         [--dump-resources <submit-index,command-index,draw-call-index>]
@@ -234,6 +234,7 @@ Optional arguments:
   --log-level <level>   Specify highest level message to log. Options are:
                         debug, info, warning, error, and fatal. Default is info.
   --log-timestamps      Output a timestamp in front of each log message.
+  --log-flush           Flush each log message to console/file output. Default is disabled.
   --log-file <file>     Write log messages to a file at the specified path.
                         Default is: Empty string (file logging disabled).
   --log-debugview       Log messages with OutputDebugStringA.
