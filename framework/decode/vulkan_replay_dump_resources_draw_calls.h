@@ -444,8 +444,10 @@ class DrawCallsDumpingContext
         const VulkanRenderPassInfo*     renderpass_info;
         const VulkanFramebufferInfo*    framebuffer_info;
 
-        // Position of this render pass within the owning context, used to label dumped resources
-        uint64_t ordinal{ 0 };
+        // Block index of the vkCmdBeginRenderPass/vkCmdBeginRendering that began this instance. Dumped
+        // resources are labeled with it so their filenames do not depend on which other render passes
+        // were requested for dumping.
+        Index begin_block_index{ UNDEFINED_INDEX };
 
         // One entry per subpass
         std::vector<RenderTargets> render_targets;
