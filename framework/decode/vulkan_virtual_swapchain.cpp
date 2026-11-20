@@ -117,6 +117,8 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(VkResult                    
         modified_create_info.minImageCount = surfCapabilities.maxImageCount;
     }
 
+    modified_create_info.preTransform = surfCapabilities.currentTransform;
+
     auto replay_swapchain = swapchain->GetHandlePointer();
 
     result = func(device, &modified_create_info, allocator, replay_swapchain);
@@ -1580,7 +1582,7 @@ bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         swapchain_create_info.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE;
         swapchain_create_info.queueFamilyIndexCount = 0;
         swapchain_create_info.pQueueFamilyIndices   = nullptr;
-        swapchain_create_info.preTransform          = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+        swapchain_create_info.preTransform          = surface_capabilities.currentTransform;
         swapchain_create_info.compositeAlpha        = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
         swapchain_create_info.clipped               = VK_TRUE;
         swapchain_create_info.oldSwapchain          = swapchain.handle;
