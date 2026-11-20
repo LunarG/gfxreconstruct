@@ -876,26 +876,18 @@ bool CommonCaptureManager::ExternalTriggerEnabled()
 {
     std::lock_guard<std::mutex> set_trim_state_lock(external_trim_trigger_mutex_g);
 
-    if (!previous_externally_set_trimming_state_g && externally_set_trimming_state_g)
-    {
-        previous_externally_set_trimming_state_g = externally_set_trimming_state_g;
-        return true;
-    }
-
-    return false;
+    bool result = !previous_externally_set_trimming_state_g && externally_set_trimming_state_g;
+    previous_externally_set_trimming_state_g = externally_set_trimming_state_g;
+    return result;
 }
 
 bool CommonCaptureManager::ExternalTriggerDisabled()
 {
     std::lock_guard<std::mutex> set_trim_state_lock(external_trim_trigger_mutex_g);
 
-    if (previous_externally_set_trimming_state_g && !externally_set_trimming_state_g)
-    {
-        previous_externally_set_trimming_state_g = externally_set_trimming_state_g;
-        return true;
-    }
-
-    return false;
+    bool result = previous_externally_set_trimming_state_g && !externally_set_trimming_state_g;
+    previous_externally_set_trimming_state_g = externally_set_trimming_state_g;
+    return result;
 }
 
 bool CommonCaptureManager::RuntimeWriteAssetsEnabled()
