@@ -167,6 +167,13 @@ class ValueDecoder
         return DecodeArray(buffer, buffer_size, arr, len);
     }
 
+    template <typename WireType, typename DstT>
+    requires std::is_arithmetic_v<WireType>
+    static size_t DecodeAs(const uint8_t* buffer, size_t buffer_size, DstT* value)
+    {
+        return DecodeValueFrom<WireType>(buffer, buffer_size, value);
+    }
+
   private:
     template <typename DstT, typename SrcT>
     static typename std::enable_if<!std::is_pointer<SrcT>::value && !std::is_pointer<DstT>::value, DstT>::type

@@ -37,6 +37,7 @@ target_link_libraries(gfxrecon_binding
 add_custom_target(gfxrecon_binding_headers
                   SOURCES
                       ${CMAKE_CURRENT_LIST_DIR}/call_id_of.h
+                      ${CMAKE_CURRENT_LIST_DIR}/decoded_type_of.h
                       ${CMAKE_CURRENT_LIST_DIR}/api_element_of.h
                       ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_api_element_of.h
                       ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_call_id.h

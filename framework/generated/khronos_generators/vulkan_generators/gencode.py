@@ -53,7 +53,6 @@ from vulkan_decoder_header_generator import VulkanDecoderHeaderGenerator, Vulkan
 from vulkan_decoder_args_header_generator import VulkanDecoderArgsHeaderGenerator, VulkanDecoderArgsHeaderGeneratorOptions
 
 # Struct Decoders
-from vulkan_struct_decoders_body_generator import VulkanStructDecodersBodyGenerator, VulkanStructDecodersBodyGeneratorOptions
 from vulkan_struct_decoders_forward_generator import VulkanStructDecodersForwardGenerator, VulkanStructDecodersForwardGeneratorOptions
 from vulkan_struct_decoders_header_generator import VulkanStructDecodersHeaderGenerator, VulkanStructDecodersHeaderGeneratorOptions
 from vulkan_pnext_struct_decode_generator import DecodePNextStructGenerator, DecodePNextStructGeneratorOptions
@@ -296,22 +295,6 @@ def make_gen_opts(args):
             platform_types=platform_types,
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
-            protect_feature=False,
-            extra_headers=extra_headers
-        )
-    ]
-
-    #
-    # Struct decoder generators
-    gen_opts['generated_vulkan_struct_decoders.cpp'] = [
-        VulkanStructDecodersBodyGenerator,
-        VulkanStructDecodersBodyGeneratorOptions(
-            filename='generated_vulkan_struct_decoders.cpp',
-            directory=directory,
-            blacklists=blacklists,
-            platform_types=platform_types,
-            prefix_text=prefix_strings + vk_prefix_strings,
-            protect_file=False,
             protect_feature=False,
             extra_headers=extra_headers
         )

@@ -61,6 +61,7 @@ class VulkanDecoderArgsHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
             'decode/string_array_decoder.h',
             'decode/string_decoder.h',
             'decode/struct_pointer_decoder.h',
+            'decode/vulkan_decode_typed_struct.h',
             'decode/vulkan_pnext_node.h',
             'format/format.h',
             'generated/generated_vulkan_schema_types.h',

@@ -57,7 +57,6 @@ generate_targets = [
     'generated_vulkan_pnext_struct_encoder.cpp',
     'generated_vulkan_pnext_struct_decoder.cpp',
     'generated_vulkan_struct_decoders.h',
-    'generated_vulkan_struct_decoders.cpp',
     'generated_vulkan_struct_decoders_forward.h',
     'generated_vulkan_decoder.h',
     'generated_vulkan_decoder.cpp',
@@ -102,6 +101,7 @@ generate_targets = [
     'generated_vulkan_schema.h',
     'generated_vulkan_api_element_of.h',
     'generated_vulkan_call_id.h',
+    'generated_vulkan_struct_decoders.cpp',
     'generated_vulkan_schema_checks.cpp',
     'generated_vulkan_wire_types.h',
 ]

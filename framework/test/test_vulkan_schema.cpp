@@ -31,6 +31,13 @@
 #include "generated/generated_vulkan_call_id.h"
 #include "generated/generated_vulkan_schema.h"
 
+#include "decode/decode_allocator.h"
+#include "decode/vulkan_decode_struct_impl.h"
+#include "encode/parameter_buffer.h"
+#include "encode/parameter_encoder.h"
+#include "encode/struct_pointer_encoder.h"
+#include "util/logging.h"
+
 #include "binding/vulkan_wire_type.h"
 #include "decode/vulkan_decoder_args.h"
 #include "generated/generated_vulkan_api_element_of.h"
@@ -322,6 +329,870 @@ TEST_CASE("A generated command schema invokes a positional call in parameter ord
     schema::InvokeFromFields<Command>(RecordPipelineBarrier, store);
 
     CHECK(store.memoryBarrierCount == 0);
+}
+
+TEST_CASE("DecodeStruct for VkBufferMemoryBarrier is a schema field walk", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // Checks DecodeStruct on bytes written from ParameterEncoder calls: every field round-trips, and the bytes read
+    // equal the bytes written.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    // Written from ParameterEncoder calls, not EncodeStruct: EncodeStruct encodes a handle through GetWrappedId, so a
+    // handle the capture layer never wrapped would encode as the null id and the handle path would not see a real
+    // value. The calls follow the schema's field order.
+    constexpr format::HandleId kBufferId       = 0x0000BEEFCAFE0001ull;
+    constexpr VkAccessFlags    kSrcAccess      = VK_ACCESS_TRANSFER_WRITE_BIT;
+    constexpr VkAccessFlags    kDstAccess      = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_UNIFORM_READ_BIT;
+    constexpr uint32_t         kSrcQueueFamily = 3;
+    constexpr uint32_t         kDstQueueFamily = 7;
+    constexpr VkDeviceSize     kOffset         = 0x1122334455667788ull;
+    constexpr VkDeviceSize     kSize           = 4096;
+
+    auto* encoder = parameter_encoder.get();
+    encoder->EncodeEnumValue(VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER);
+    encode::EncodePNextStruct(encoder, nullptr);
+    encoder->EncodeFlagsValue(kSrcAccess);
+    encoder->EncodeFlagsValue(kDstAccess);
+    encoder->EncodeUInt32Value(kSrcQueueFamily);
+    encoder->EncodeUInt32Value(kDstQueueFamily);
+    encoder->EncodeHandleIdValue(kBufferId);
+    encoder->EncodeUInt64Value(kOffset);
+    encoder->EncodeUInt64Value(kSize);
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    DecodeAllocator::Begin();
+
+    VkBufferMemoryBarrier         walked_value{};
+    Decoded_VkBufferMemoryBarrier walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+
+    // Round-trips the value that was written, in the right order and at the right width. A field read out of order
+    // or at the wrong width would land in a neighbour, so these also pin the canonical field order.
+    CHECK(walked_value.sType == VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER);
+    CHECK(walked_value.srcAccessMask == kSrcAccess);
+    CHECK(walked_value.dstAccessMask == kDstAccess);
+    CHECK(walked_value.srcQueueFamilyIndex == kSrcQueueFamily);
+    CHECK(walked_value.dstQueueFamilyIndex == kDstQueueFamily);
+    CHECK(walked_value.offset == kOffset);
+    CHECK(walked_value.size == kSize);
+
+    // The handle lands in the wrapper as a capture-file identity, and the API handle is left for replay to map.
+    CHECK(walked.buffer == kBufferId);
+    CHECK(walked_value.buffer == VK_NULL_HANDLE);
+
+    // A null pNext decodes as null.
+    CHECK(walked.pNext == nullptr);
+    CHECK(walked_value.pNext == nullptr);
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
+TEST_CASE("A field walk decodes a scalar array into the wrapper and points the API structure's member at it",
+          "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // Checks an Array of scalars: VkShaderModuleCreateInfo::pCode decodes into the wrapper's PointerDecoder, and the
+    // API structure's pCode points at it. codeSize is decoded as its own scalar in its own position, and the walk
+    // never reads it: the run's length travels with the run on the wire.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    // A recognizable SPIR-V-shaped run: the magic number first, so a misread offset is obvious rather than subtle.
+    constexpr uint32_t          kFlags    = 0;
+    const std::vector<uint32_t> kCode     = { 0x07230203u, 0x00010000u, 0x0008000au, 0x0000002bu, 0x00000000u };
+    const size_t                kCodeSize = kCode.size() * sizeof(uint32_t);
+
+    auto* encoder = parameter_encoder.get();
+    encoder->EncodeEnumValue(VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO);
+    encode::EncodePNextStruct(encoder, nullptr);
+    encoder->EncodeFlagsValue(kFlags);
+    encoder->EncodeSizeTValue(kCodeSize);
+    encoder->EncodeUInt32Array(kCode.data(), kCode.size());
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    DecodeAllocator::Begin();
+
+    VkShaderModuleCreateInfo         walked_value{};
+    Decoded_VkShaderModuleCreateInfo walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+
+    CHECK(walked_value.sType == VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO);
+    CHECK(walked_value.flags == kFlags);
+    CHECK(walked_value.codeSize == kCodeSize);
+    CHECK(walked_value.pNext == nullptr);
+
+    // The run landed in the wrapper's PointerDecoder at the length the wire carried...
+    REQUIRE(walked.pCode.GetPointer() != nullptr);
+    CHECK(walked.pCode.GetLength() == kCode.size());
+
+    // ...the API structure's member points at that same storage rather than a copy...
+    CHECK(walked_value.pCode == walked.pCode.GetPointer());
+
+    // ...and every element round-tripped in order.
+    for (size_t i = 0; i < kCode.size(); ++i)
+    {
+        CHECK(walked_value.pCode[i] == kCode[i]);
+    }
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
+TEST_CASE("A field walk decodes an array of structures and descends into each element", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // Checks an Array of structures in VkSparseBufferMemoryBindInfo, which has no sType and no pNext: the walk does
+    // not assume a structure is extensible. Each VkSparseMemoryBind decodes through DecodeStruct, a second field walk.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    constexpr format::HandleId kBufferId = 0x0000BEEFCAFE0002ull;
+
+    VkSparseMemoryBind binds[2]{};
+    binds[0].resourceOffset = 0x1000;
+    binds[0].size           = 0x2000;
+    binds[0].memory         = VK_NULL_HANDLE;
+    binds[0].memoryOffset   = 0x3000;
+    binds[0].flags          = VK_SPARSE_MEMORY_BIND_METADATA_BIT;
+    binds[1].resourceOffset = 0x4000;
+    binds[1].size           = 0x5000;
+    binds[1].memory         = VK_NULL_HANDLE;
+    binds[1].memoryOffset   = 0x6000;
+    binds[1].flags          = 0;
+
+    const uint32_t kBindCount = 2;
+
+    auto* encoder = parameter_encoder.get();
+    encoder->EncodeHandleIdValue(kBufferId);
+    encoder->EncodeUInt32Value(kBindCount);
+    encode::EncodeStructArray(encoder, binds, kBindCount);
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    DecodeAllocator::Begin();
+
+    VkSparseBufferMemoryBindInfo         walked_value{};
+    Decoded_VkSparseBufferMemoryBindInfo walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+
+    CHECK(walked.buffer == kBufferId);
+    CHECK(walked_value.buffer == VK_NULL_HANDLE);
+    CHECK(walked_value.bindCount == kBindCount);
+
+    // The decoder was allocated, holds the run at the length the wire carried, and the decoded value's pointer
+    // aliases its storage rather than a copy.
+    REQUIRE(walked.pBinds != nullptr);
+    REQUIRE(walked.pBinds->GetPointer() != nullptr);
+    CHECK(walked.pBinds->GetLength() == kBindCount);
+    CHECK(walked_value.pBinds == walked.pBinds->GetPointer());
+
+    // Each element decoded through its own walk, in order.
+    for (uint32_t i = 0; i < kBindCount; ++i)
+    {
+        CHECK(walked_value.pBinds[i].resourceOffset == binds[i].resourceOffset);
+        CHECK(walked_value.pBinds[i].size == binds[i].size);
+        CHECK(walked_value.pBinds[i].memoryOffset == binds[i].memoryOffset);
+        CHECK(walked_value.pBinds[i].flags == binds[i].flags);
+    }
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
+TEST_CASE("A field walk decodes a fixed-extent array in place, extents from the API declaration", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // Checks VkTransformMatrixKHR::matrix, float[3][4], declared FixedArray<FixedArray<Float, UseCapacity, 4>,
+    // UseCapacity, 3>. The Action takes both extents from std::extent_v on the API member's type, so one and two
+    // dimensions need no separate case. The decoder is pointed at the API structure's own array, so decoding fills it
+    // directly and nothing is assigned afterwards.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    // Row-major and asymmetric, so a transposed or flattened read lands on a different value.
+    VkTransformMatrixKHR source{};
+    float                next = 1.0f;
+    for (uint32_t row = 0; row < 3; ++row)
+    {
+        for (uint32_t col = 0; col < 4; ++col)
+        {
+            source.matrix[row][col] = next;
+            next += 1.0f;
+        }
+    }
+
+    parameter_encoder->EncodeFloat2DMatrix(source.matrix, 3, 4);
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    DecodeAllocator::Begin();
+
+    VkTransformMatrixKHR         walked_value{};
+    Decoded_VkTransformMatrixKHR walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+
+    // The decoder wrote into the decoded value's own storage rather than storage of its own.
+    CHECK(walked.matrix.GetPointer() == &walked_value.matrix[0][0]);
+    CHECK(walked.matrix.GetLength() == 12);
+
+    for (uint32_t row = 0; row < 3; ++row)
+    {
+        for (uint32_t col = 0; col < 4; ++col)
+        {
+            CHECK(walked_value.matrix[row][col] == source.matrix[row][col]);
+        }
+    }
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
+TEST_CASE("A field walk decodes a pointer to a structure through the same overload as a run", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // Checks VkDeviceBufferMemoryRequirements::pCreateInfo, a pointer to one VkBufferCreateInfo. It takes the
+    // structure branch of the pointer Apply: StructPointerDecoder reads its own length from the wire, so one
+    // structure is a run of one. The element is a large extensible structure, so this descends into a second walk,
+    // including that element's own pNext.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    VkBufferCreateInfo create_info{};
+    create_info.sType                 = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    create_info.pNext                 = nullptr;
+    create_info.flags                 = VK_BUFFER_CREATE_SPARSE_BINDING_BIT;
+    create_info.size                  = 0x4000;
+    create_info.usage                 = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
+    create_info.queueFamilyIndexCount = 0;
+    create_info.pQueueFamilyIndices   = nullptr;
+
+    auto* encoder = parameter_encoder.get();
+    encoder->EncodeEnumValue(VK_STRUCTURE_TYPE_DEVICE_BUFFER_MEMORY_REQUIREMENTS);
+    encode::EncodePNextStruct(encoder, nullptr);
+    encode::EncodeStructPtr(encoder, &create_info);
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    DecodeAllocator::Begin();
+
+    VkDeviceBufferMemoryRequirements         walked_value{};
+    Decoded_VkDeviceBufferMemoryRequirements walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+    CHECK(walked_value.sType == VK_STRUCTURE_TYPE_DEVICE_BUFFER_MEMORY_REQUIREMENTS);
+    CHECK(walked_value.pNext == nullptr);
+
+    // One element, and the decoded value's pointer aliases the decoder's storage.
+    REQUIRE(walked.pCreateInfo != nullptr);
+    REQUIRE(walked.pCreateInfo->GetPointer() != nullptr);
+    CHECK(walked.pCreateInfo->GetLength() == 1);
+    CHECK(walked_value.pCreateInfo == walked.pCreateInfo->GetPointer());
+
+    // The element's walk ran all the way through its own trailing fields.
+    const VkBufferCreateInfo& decoded_info = *walked_value.pCreateInfo;
+    CHECK(decoded_info.sType == VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO);
+    CHECK(decoded_info.flags == create_info.flags);
+    CHECK(decoded_info.size == create_info.size);
+    CHECK(decoded_info.usage == create_info.usage);
+    CHECK(decoded_info.sharingMode == create_info.sharingMode);
+    CHECK(decoded_info.queueFamilyIndexCount == 0u);
+    CHECK(decoded_info.pNext == nullptr);
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
+TEST_CASE("A field walk writes a bitfield through Set, since it has no address", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // Checks StdVideoAV1TileInfoFlags: uniform_tile_spacing_flag : 1 and reserved : 31. Neither member has an
+    // address, so its Field holds Get and Set accessors in place of GetRef, and the walk writes through Set. Each
+    // bitfield is a whole uint32_t on the wire, so a one-bit flag costs four bytes: 8 bytes for two fields, and
+    // reserved carries a value wider than one bit.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    constexpr uint32_t kUniformTileSpacing = 1;
+    constexpr uint32_t kReserved           = 0x2A;
+
+    parameter_encoder->EncodeUInt32Value(kUniformTileSpacing);
+    parameter_encoder->EncodeUInt32Value(kReserved);
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    CHECK(encoded_size == 2 * sizeof(uint32_t));
+
+    DecodeAllocator::Begin();
+
+    StdVideoAV1TileInfoFlags         walked_value{};
+    Decoded_StdVideoAV1TileInfoFlags walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+    CHECK(walked_value.uniform_tile_spacing_flag == kUniformTileSpacing);
+    CHECK(walked_value.reserved == kReserved);
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
+TEST_CASE("A field walk keeps an opaque pointer in the wrapper and leaves the decoded value null", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // Checks VkCheckpointData2NV::pCheckpointMarker, a Pointer<Void> to something outside the API. The captured
+    // address means nothing in this process, so ValueDecoder::DecodeAddress reads it into the wrapper's uint64_t, and
+    // the API structure's pointer is left null -- the same division a handle gets.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    // A value with bits above 32, so a narrowed read would land somewhere visibly wrong.
+    constexpr uint64_t              kMarker = 0x00007FFCDEADBEEFull;
+    constexpr VkPipelineStageFlags2 kStage  = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
+
+    auto* encoder = parameter_encoder.get();
+    encoder->EncodeEnumValue(VK_STRUCTURE_TYPE_CHECKPOINT_DATA_2_NV);
+    encode::EncodePNextStruct(encoder, nullptr);
+    encoder->EncodeFlags64Value(kStage);
+    encoder->EncodeVoidPtr(reinterpret_cast<const void*>(static_cast<uintptr_t>(kMarker)));
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    DecodeAllocator::Begin();
+
+    VkCheckpointData2NV         walked_value{};
+    Decoded_VkCheckpointData2NV walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+    CHECK(walked_value.sType == VK_STRUCTURE_TYPE_CHECKPOINT_DATA_2_NV);
+    CHECK(walked_value.pNext == nullptr);
+    CHECK(walked_value.stage == kStage);
+
+    // The captured address is in the wrapper, at full width...
+    CHECK(walked.pCheckpointMarker == kMarker);
+
+    // ...and the decoded value's pointer is null, not the captured address reinterpreted.
+    CHECK(walked_value.pCheckpointMarker == nullptr);
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
+TEST_CASE("A field walk decodes both address populations in one structure", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // Checks VkAllocationCallbacks: pUserData is a Pointer<Void>, and the five PFN_* members are Funcpointer values.
+    // pUserData takes the pointer-to-opaque-or-void overload and the function pointers take the identifier overload;
+    // both read an address into the wrapper and null the API structure's member. No sType or pNext.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    constexpr uint64_t kUserData = 0x00007FFCAAAA0001ull;
+    constexpr uint64_t kAlloc    = 0x00007FFCAAAA0002ull;
+    constexpr uint64_t kRealloc  = 0x00007FFCAAAA0003ull;
+    constexpr uint64_t kFree     = 0x00007FFCAAAA0004ull;
+    constexpr uint64_t kInternal = 0x00007FFCAAAA0005ull;
+    constexpr uint64_t kIntFree  = 0x00007FFCAAAA0006ull;
+
+    auto* encoder = parameter_encoder.get();
+    encoder->EncodeVoidPtr(reinterpret_cast<const void*>(static_cast<uintptr_t>(kUserData)));
+    for (uint64_t fn : { kAlloc, kRealloc, kFree, kInternal, kIntFree })
+    {
+        // EncodeFunctionPtr reinterprets its argument, so it takes a function pointer rather than the value.
+        encoder->EncodeFunctionPtr(reinterpret_cast<PFN_vkVoidFunction>(static_cast<uintptr_t>(fn)));
+    }
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    CHECK(encoded_size == 6 * sizeof(uint64_t));
+
+    DecodeAllocator::Begin();
+
+    VkAllocationCallbacks         walked_value{};
+    Decoded_VkAllocationCallbacks walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+
+    // Every captured value is in the wrapper, at full width and in order.
+    CHECK(walked.pUserData == kUserData);
+    CHECK(walked.pfnAllocation == kAlloc);
+    CHECK(walked.pfnReallocation == kRealloc);
+    CHECK(walked.pfnFree == kFree);
+    CHECK(walked.pfnInternalAllocation == kInternal);
+    CHECK(walked.pfnInternalFree == kIntFree);
+
+    // ...and every pointer in the decoded value is null, function pointers included.
+    CHECK(walked_value.pUserData == nullptr);
+    CHECK(walked_value.pfnAllocation == nullptr);
+    CHECK(walked_value.pfnReallocation == nullptr);
+    CHECK(walked_value.pfnFree == nullptr);
+    CHECK(walked_value.pfnInternalAllocation == nullptr);
+    CHECK(walked_value.pfnInternalFree == nullptr);
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
+TEST_CASE("A field walk decodes a run of handles into the wrapper and nulls the decoded value", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // Checks VkRenderPassAttachmentBeginInfo::pAttachments, a run of VkImageView, divided as a single handle is: the
+    // capture ids go to the wrapper's HandlePointerDecoder, and the API structure's pointer stays null because replay
+    // maps the ids into the decoder's own handle storage. The ids are written with EncodeHandleIdArray, since
+    // EncodeVulkanHandleArray goes through GetWrappedId and would encode handles this process never wrapped as null.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    const std::vector<format::HandleId> kViews = { 0x0000BEEFCAFE0011ull,
+                                                   0x0000BEEFCAFE0012ull,
+                                                   0x0000BEEFCAFE0013ull };
+
+    auto* encoder = parameter_encoder.get();
+    encoder->EncodeEnumValue(VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO);
+    encode::EncodePNextStruct(encoder, nullptr);
+    encoder->EncodeUInt32Value(static_cast<uint32_t>(kViews.size()));
+    encoder->EncodeHandleIdArray(kViews.data(), kViews.size());
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    DecodeAllocator::Begin();
+
+    VkRenderPassAttachmentBeginInfo         walked_value{};
+    Decoded_VkRenderPassAttachmentBeginInfo walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+    CHECK(walked_value.sType == VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO);
+    CHECK(walked_value.pNext == nullptr);
+    CHECK(walked_value.attachmentCount == kViews.size());
+
+    // The identities are in the wrapper, in order and at full length...
+    REQUIRE(walked.pAttachments.GetPointer() != nullptr);
+    CHECK(walked.pAttachments.GetLength() == kViews.size());
+    for (size_t i = 0; i < kViews.size(); ++i)
+    {
+        CHECK(walked.pAttachments.GetPointer()[i] == kViews[i]);
+    }
+
+    // ...and the decoded value's pointer is null, not pointed at them.
+    CHECK(walked_value.pAttachments == nullptr);
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
+TEST_CASE("A field walk decodes a string and points the decoded value at it", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // Checks VkDebugUtilsLabelEXT, a string beside a fixed-extent array. The string decodes into storage the
+    // StringDecoder allocates, and the API structure points at it; color decodes straight into the API structure's own
+    // array. One overload serves a single string and a run of them: StringDecoder, WStringDecoder and
+    // StringArrayDecoder each read their own length and hand back storage, so only the wrapper's member type differs.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    const char* const kLabel   = "gfxrecon-schema-walk";
+    const float       kColor[] = { 0.25f, 0.5f, 0.75f, 1.0f };
+
+    auto* encoder = parameter_encoder.get();
+    encoder->EncodeEnumValue(VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT);
+    encode::EncodePNextStruct(encoder, nullptr);
+    encoder->EncodeString(kLabel);
+    encoder->EncodeFloatArray(kColor, 4);
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    DecodeAllocator::Begin();
+
+    VkDebugUtilsLabelEXT         walked_value{};
+    Decoded_VkDebugUtilsLabelEXT walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+    CHECK(walked_value.sType == VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT);
+    CHECK(walked_value.pNext == nullptr);
+
+    // The string round-tripped, and the decoded value points at the decoder's storage rather than a copy.
+    REQUIRE(walked_value.pLabelName != nullptr);
+    CHECK(std::string(walked_value.pLabelName) == kLabel);
+    CHECK(walked_value.pLabelName == walked.pLabelName.GetPointer());
+
+    // The fixed-extent array beside it decoded into the decoded value directly, as it has no storage of its own.
+    CHECK(walked.color.GetPointer() == &walked_value.color[0]);
+    for (size_t i = 0; i < 4; ++i)
+    {
+        CHECK(walked_value.color[i] == kColor[i]);
+    }
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
+TEST_CASE("A field walk decodes fixed-extent strings in place", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // Checks VkLayerProperties: two fixed-extent strings of different extents, with scalars between them. They decode
+    // into the API structure's own arrays, so nothing is assigned afterwards and the extents come from the API
+    // declaration. The names are shorter than their arrays: the wire carries the string, not the array.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    const char* const  kLayer       = "VK_LAYER_LUNARG_gfxreconstruct";
+    const char* const  kDescription = "GFXReconstruct capture layer";
+    constexpr uint32_t kSpec        = VK_API_VERSION_1_3;
+    constexpr uint32_t kImpl        = 42;
+
+    auto* encoder = parameter_encoder.get();
+    encoder->EncodeString(kLayer);
+    encoder->EncodeUInt32Value(kSpec);
+    encoder->EncodeUInt32Value(kImpl);
+    encoder->EncodeString(kDescription);
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    DecodeAllocator::Begin();
+
+    VkLayerProperties         walked_value{};
+    Decoded_VkLayerProperties walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+    CHECK(walked_value.specVersion == kSpec);
+    CHECK(walked_value.implementationVersion == kImpl);
+
+    // Both strings landed in the decoded value's own arrays, not in storage the decoder allocated.
+    CHECK(walked.layerName.GetPointer() == &walked_value.layerName[0]);
+    CHECK(walked.description.GetPointer() == &walked_value.description[0]);
+
+    CHECK(std::string(walked_value.layerName) == kLayer);
+    CHECK(std::string(walked_value.description) == kDescription);
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
+TEST_CASE("A counted void pointer decodes as the bytes the capture kept", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // Checks VkPipelineCacheCreateInfo::pInitialData, an Array<Const<Void>> with a byte count. It takes the void-run
+    // overload: the bytes decode into the wrapper's PointerDecoder<uint8_t> through DecodeUInt8, and the API
+    // structure's pointer points at them.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    // Not a printable string, and with a zero in the middle, so a read that stopped early would be visible.
+    const std::vector<uint8_t> kBlob = { 0xDE, 0xAD, 0x00, 0xBE, 0xEF, 0x7F, 0x80, 0x01 };
+
+    auto* encoder = parameter_encoder.get();
+    encoder->EncodeEnumValue(VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO);
+    encode::EncodePNextStruct(encoder, nullptr);
+    encoder->EncodeFlagsValue(VkPipelineCacheCreateFlags{ 0 });
+    encoder->EncodeSizeTValue(kBlob.size());
+    encoder->EncodeVoidArray(kBlob.data(), kBlob.size());
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    DecodeAllocator::Begin();
+
+    VkPipelineCacheCreateInfo         walked_value{};
+    Decoded_VkPipelineCacheCreateInfo walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+    CHECK(walked_value.sType == VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO);
+    CHECK(walked_value.pNext == nullptr);
+    CHECK(walked_value.initialDataSize == kBlob.size());
+
+    // The run landed in the wrapper at full length, and the decoded value points at it rather than a copy.
+    REQUIRE(walked.pInitialData.GetPointer() != nullptr);
+    CHECK(walked.pInitialData.GetLength() == kBlob.size());
+    CHECK(walked_value.pInitialData == walked.pInitialData.GetPointer());
+
+    const uint8_t* decoded_bytes = static_cast<const uint8_t*>(walked_value.pInitialData);
+    for (size_t i = 0; i < kBlob.size(); ++i)
+    {
+        CHECK(decoded_bytes[i] == kBlob[i]);
+    }
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
+TEST_CASE("One overload takes a scalar pointer and a scalar run in the same structure", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // Checks VkRenderingInputAttachmentIndexInfo: a uint32_t run takes the array Apply and two pointers to one
+    // uint32_t take the pointer Apply, each in its last branch (SimpleApiElement): PointerDecoder reads its own
+    // length from the wire, so one element is a run of one. VkBindMemoryStatus::pResult reaches the pointer Apply's
+    // last branch with an enum.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    const std::vector<uint32_t> kIndices = { 3, 1, 4, 1, 5 };
+    constexpr uint32_t          kDepth   = 7;
+    constexpr uint32_t          kStencil = 9;
+
+    auto* encoder = parameter_encoder.get();
+    encoder->EncodeEnumValue(VK_STRUCTURE_TYPE_RENDERING_INPUT_ATTACHMENT_INDEX_INFO);
+    encode::EncodePNextStruct(encoder, nullptr);
+    encoder->EncodeUInt32Value(static_cast<uint32_t>(kIndices.size()));
+    encoder->EncodeUInt32Array(kIndices.data(), kIndices.size());
+    encoder->EncodeUInt32Ptr(&kDepth);
+    encoder->EncodeUInt32Ptr(&kStencil);
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    DecodeAllocator::Begin();
+
+    VkRenderingInputAttachmentIndexInfo         walked_value{};
+    Decoded_VkRenderingInputAttachmentIndexInfo walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+    CHECK(walked_value.sType == VK_STRUCTURE_TYPE_RENDERING_INPUT_ATTACHMENT_INDEX_INFO);
+    CHECK(walked_value.colorAttachmentCount == kIndices.size());
+
+    // The run, at its own length.
+    REQUIRE(walked_value.pColorAttachmentInputIndices != nullptr);
+    CHECK(walked.pColorAttachmentInputIndices.GetLength() == kIndices.size());
+    for (size_t i = 0; i < kIndices.size(); ++i)
+    {
+        CHECK(walked_value.pColorAttachmentInputIndices[i] == kIndices[i]);
+    }
+
+    // The single pointers, each a run of one through the same overload.
+    REQUIRE(walked_value.pDepthInputAttachmentIndex != nullptr);
+    REQUIRE(walked_value.pStencilInputAttachmentIndex != nullptr);
+    CHECK(walked.pDepthInputAttachmentIndex.GetLength() == 1);
+    CHECK(walked.pStencilInputAttachmentIndex.GetLength() == 1);
+    CHECK(*walked_value.pDepthInputAttachmentIndex == kDepth);
+    CHECK(*walked_value.pStencilInputAttachmentIndex == kStencil);
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
+TEST_CASE("A field walk decodes a fixed-extent array of structures in place", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // Checks VkImageBlit2's two VkOffset3D[2]. Each StructPointerDecoder is allocated as for any run of structures,
+    // then pointed at the API structure's own array with SetExternalMemory, so nothing is assigned afterwards.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    VkImageSubresourceLayers src_layers{ VK_IMAGE_ASPECT_COLOR_BIT, 1, 2, 3 };
+    VkImageSubresourceLayers dst_layers{ VK_IMAGE_ASPECT_DEPTH_BIT, 4, 5, 6 };
+    const VkOffset3D         src_offsets[2] = { { 10, 11, 12 }, { 13, 14, 15 } };
+    const VkOffset3D         dst_offsets[2] = { { 20, 21, 22 }, { 23, 24, 25 } };
+
+    auto* encoder = parameter_encoder.get();
+    encoder->EncodeEnumValue(VK_STRUCTURE_TYPE_IMAGE_BLIT_2);
+    encode::EncodePNextStruct(encoder, nullptr);
+    encode::EncodeStruct(encoder, src_layers);
+    encode::EncodeStructArray(encoder, src_offsets, 2);
+    encode::EncodeStruct(encoder, dst_layers);
+    encode::EncodeStructArray(encoder, dst_offsets, 2);
+
+    const uint8_t* encoded      = parameter_buffer->GetData();
+    const size_t   encoded_size = parameter_buffer->GetDataSize();
+
+    DecodeAllocator::Begin();
+
+    VkImageBlit2         walked_value{};
+    Decoded_VkImageBlit2 walked{};
+    walked.decoded_value     = &walked_value;
+    const size_t walked_read = DecodeStruct(encoded, encoded_size, &walked);
+
+    CHECK(walked_read == encoded_size);
+    CHECK(walked_value.sType == VK_STRUCTURE_TYPE_IMAGE_BLIT_2);
+    CHECK(walked_value.pNext == nullptr);
+
+    // Both runs decoded into the decoded value's own arrays rather than storage of the decoder's.
+    REQUIRE(walked.srcOffsets != nullptr);
+    REQUIRE(walked.dstOffsets != nullptr);
+    CHECK(walked.srcOffsets->GetPointer() == &walked_value.srcOffsets[0]);
+    CHECK(walked.dstOffsets->GetPointer() == &walked_value.dstOffsets[0]);
+
+    // Each element descended through DecodeStruct, in order and to the right array.
+    for (uint32_t i = 0; i < 2; ++i)
+    {
+        CHECK(walked_value.srcOffsets[i].x == src_offsets[i].x);
+        CHECK(walked_value.srcOffsets[i].y == src_offsets[i].y);
+        CHECK(walked_value.srcOffsets[i].z == src_offsets[i].z);
+        CHECK(walked_value.dstOffsets[i].x == dst_offsets[i].x);
+        CHECK(walked_value.dstOffsets[i].y == dst_offsets[i].y);
+        CHECK(walked_value.dstOffsets[i].z == dst_offsets[i].z);
+    }
+
+    // The embedded structures between them decoded too.
+    CHECK(walked_value.srcSubresource.mipLevel == src_layers.mipLevel);
+    CHECK(walked_value.dstSubresource.layerCount == dst_layers.layerCount);
+
+    DecodeAllocator::End();
+    util::Log::Release();
+}
+
+TEST_CASE("A field walk descends into an embedded structure", "[schema]")
+{
+    using namespace gfxrecon::decode;
+
+    // Checks VkImageMemoryBarrier's embedded VkImageSubresourceRange. The embedded-structure overload allocates the
+    // nested wrapper, links its decoded_value to the API structure's member, and descends through DecodeStruct, which
+    // for VkImageSubresourceRange is a second field walk.
+    util::Log::Init(util::LoggingSeverity::kError);
+
+    auto parameter_buffer  = std::make_unique<encode::ParameterBuffer>();
+    auto parameter_encoder = std::make_unique<encode::ParameterEncoder>(parameter_buffer.get());
+
+    constexpr format::HandleId   kImageId        = 0x0000FEEDFACE0002ull;
+    constexpr VkAccessFlags      kSrcAccess      = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    constexpr VkAccessFlags      kDstAccess      = VK_ACCESS_SHADER_READ_BIT;
+    constexpr VkImageLayout      kOldLayout      = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    constexpr VkImageLayout      kNewLayout      = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    constexpr uint32_t           kSrcQueueFamily = 11;
+    constexpr uint32_t           kDstQueueFamily = 13;
+    constexpr VkImageAspectFlags kAspect         = VK_IMAGE_ASPECT_COLOR_BIT;
+    constexpr uint32_t           kBaseMip        = 2;
+    constexpr uint32_t           kLevels         = 3;
+    constexpr uint32_t           kBaseLayer      = 4;
+    constexpr uint32_t           kLayers         = 5;
+
+    auto* encoder = parameter_encoder.get();
+    encoder->EncodeEnumValue(VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER);
+    encode::EncodePNextStruct(encoder, nullptr);
+    encoder->EncodeFlagsValue(kSrcAccess);
+    encoder->EncodeFlagsValue(kDstAccess);
+    encoder->EncodeEnumValue(kOldLayout);
+    encoder->EncodeEnumValue(kNewLayout);
+    encoder->EncodeUInt32Value(kSrcQueueFamily);
+    encoder->EncodeUInt32Value(kDstQueueFamily);
+    encoder->EncodeHandleIdValue(kImageId);
+    // The embedded structure is written inline, in its own schema order.
+    encoder->EncodeFlagsValue(kAspect);
+    encoder->EncodeUInt32Value(kBaseMip);
+    encoder->EncodeUInt32Value(kLevels);
+    encoder->EncodeUInt32Value(kBaseLayer);
+    encoder->EncodeUInt32Value(kLayers);
+
+    DecodeAllocator::Begin();
+
+    VkImageMemoryBarrier         value{};
+    Decoded_VkImageMemoryBarrier wrapper{};
+    wrapper.decoded_value = &value;
+
+    const size_t bytes_read = DecodeStruct(parameter_buffer->GetData(), parameter_buffer->GetDataSize(), &wrapper);
+
+    CHECK(bytes_read == parameter_buffer->GetDataSize());
+
+    CHECK(value.sType == VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER);
+    CHECK(value.srcAccessMask == kSrcAccess);
+    CHECK(value.dstAccessMask == kDstAccess);
+    CHECK(value.oldLayout == kOldLayout);
+    CHECK(value.newLayout == kNewLayout);
+    CHECK(value.srcQueueFamilyIndex == kSrcQueueFamily);
+    CHECK(value.dstQueueFamilyIndex == kDstQueueFamily);
+
+    CHECK(wrapper.image == kImageId);
+    CHECK(value.image == VK_NULL_HANDLE);
+
+    // The embedded overload allocated a nested wrapper and pointed it at the inline API structure's member. That link
+    // is what lets handle mapping and any later pass reach the nested decoded state.
+    REQUIRE(wrapper.subresourceRange != nullptr);
+    CHECK(wrapper.subresourceRange->decoded_value == &value.subresourceRange);
+
+    // ...and the descent decoded it.
+    CHECK(value.subresourceRange.aspectMask == kAspect);
+    CHECK(value.subresourceRange.baseMipLevel == kBaseMip);
+    CHECK(value.subresourceRange.levelCount == kLevels);
+    CHECK(value.subresourceRange.baseArrayLayer == kBaseLayer);
+    CHECK(value.subresourceRange.layerCount == kLayers);
+
+    DecodeAllocator::End();
+    util::Log::Release();
 }
 
 TEST_CASE("The schema filler populates every described field", "[schema][fill]")

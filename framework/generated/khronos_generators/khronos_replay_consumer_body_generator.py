@@ -1043,6 +1043,13 @@ class KhronosReplayConsumerBodyGenerator():
                                     array_lengths[
                                         value.name
                                     ] = f'*{value.prefixed_name}.GetOutputPointer()'
+                            elif value.base_type == self.get_base_output_structure_name():
+                                # A VkBaseOutStructure* parameter: a TypedStructDecoder holds the one structure its
+                                # sType identifies. The generated AllocateOutputTypedStruct allocates the output
+                                # structure with the captured type and initializes its pNext chain from the capture.
+                                expr += '{paramname}{op}IsNull() ? nullptr : AllocateOutputTypedStruct({paramname});'.format(
+                                    paramname=value.prefixed_name, op=value.op
+                                )
                             elif self.is_struct(value.base_type) or self.treat_as_struct(value):
                                 # If this is a struct with sType and pNext fields, we need to initialize them.
                                 if value.base_type in self.struct_type_names:
@@ -1057,8 +1064,6 @@ class KhronosReplayConsumerBodyGenerator():
                                         paramname=value.prefixed_name,
                                         op=value.op
                                     )
-                                    if value.base_type == self.get_base_output_structure_name():
-                                        need_initialize_output_pnext_struct = value.prefixed_name
 
                                 # If this is a struct with handles, we need to add replay mappings for the embedded handles.
                                 if value.base_type in self.structs_with_handles:

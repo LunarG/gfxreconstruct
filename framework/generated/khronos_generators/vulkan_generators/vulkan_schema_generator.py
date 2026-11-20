@@ -47,6 +47,7 @@ A Field's declaration is its API element, or Const, Pointer, Array or FixedArray
 declarator nests. It is read from the registry's full type, so each level's const lands where the header wrote it.
 """
 
+import json
 import sys
 from collections import namedtuple
 from generator import noneStr
@@ -191,6 +192,22 @@ LIST_FILES = {
             ('// binding::CallId for every command: its format::ApiCallId enumerator.',
              'get_command_api_elements',
              'template <> struct CallId<schema::vulkan::api_elements::{name}> {{ static constexpr format::ApiCallId value = format::ApiCallId::ApiCall_vk{name}; }};'),
+        )
+    ),
+    'generated_vulkan_struct_decoders.cpp': ListFile(
+        headers=(
+            'decode/vulkan_decode_struct_impl.h', 'generated/generated_vulkan_struct_decoders.h',
+            'decode/custom_vulkan_struct_decoders.h', 'decode/decode_allocator.h', 'decode/vulkan_pnext_node.h'
+        ),
+        system_headers=(),
+        namespace='decode',
+        preamble=(),
+        lists=(
+            ('// Instantiates DecodeStruct once per structure, except those with a hand-written decoder, whose overloads are\n'
+             '// declared in decode/custom_vulkan_struct_decoders_forward.h. A translation unit that includes only\n'
+             '// decode/vulkan_decode_struct.h links to these instantiations.',
+             'get_generated_decode_structure_api_elements',
+             'template size_t DecodeStruct<Decoded_{name}>(const uint8_t*, size_t, Decoded_{name}*);'),
         )
     ),
 }
@@ -453,6 +470,12 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
 
         self.schema_commands = list(self.get_all_filtered_cmd_names())
 
+        # The binding facts the list files and the catalog select by. A blacklists.json structures entry has a
+        # hand-written encoder and decoder; structures-encoder and structures-decoder, when present, list one side
+        # only. Platform structures count as hand-written for encode and decode.
+        with open(self.genOpts.blacklists, 'r') as blacklists:
+            lists = json.load(blacklists)
+        self.custom_decode_structs = set(lists['structures']) | set(lists.get('structures-decoder', ())) | set(self.PLATFORM_STRUCTS)
         self.external_structs = set(self.PLATFORM_STRUCTS)
 
                 # 'void' always has an API element, because a void command still has one Return Field.
@@ -1443,6 +1466,10 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
     def get_command_api_elements(self):
         """Returns every command API element, in command order: the command name without its vk prefix."""
         return [self.get_command_api_element_name(command) for command in self.schema_commands]
+
+    def get_generated_decode_structure_api_elements(self):
+        """Returns the structure API elements without a hand-written decoder, by name."""
+        return [name for name in self.get_structure_api_elements() if name not in self.custom_decode_structs]
 
     def get_external_structure_api_elements(self):
         """Returns the structure API elements a platform header defines, by name."""
