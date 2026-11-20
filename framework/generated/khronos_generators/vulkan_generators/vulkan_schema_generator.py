@@ -27,8 +27,11 @@ owns a separate field order. One generator class writes each file:
     generated_vulkan_schema_types.h: the API elements and command API elements
     generated_vulkan_schema_fields.h: the Fields
     generated_vulkan_schema.h: the Schema specializations
+    generated_vulkan_catalog.h: the catalog lists
     the LIST_FILES files: one line per API element, each file described by its LIST_FILES entry
+    generated_vulkan_schema_enumerants.h: the enumerant tables
     generated_vulkan_wire_types.h: the WireTypeOf specializations
+    generated_vulkan_enum_to_string.cpp: the enum ToString definitions
     generated_vulkan_schema_checks.cpp: the static checks
 
 Separate files, not one: each includer compiles only the part it needs. The schema proper is three files, each
@@ -152,6 +155,20 @@ class VulkanSchemaGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
         ))
 
 
+class VulkanCatalogGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
+    """Holds the options for generated_vulkan_catalog.h: the catalog lists, TypeLists of API elements in
+    binding::vulkan::catalog.
+    """
+
+    def add_part_headers(self, begin_end):
+        begin_end.specific_headers.extend((
+            'generated/generated_vulkan_schema_types.h',
+            'schema/schema.h',
+            'util/defines.h',
+            'util/type_list.h',
+        ))
+
+
 # ListFile describes one generated file that holds one line per API element:
 #   headers, system_headers  The files it includes.
 #   namespace                The namespace it opens inside gfxrecon.
@@ -194,6 +211,24 @@ LIST_FILES = {
              'template <> struct CallId<schema::vulkan::api_elements::{name}> {{ static constexpr format::ApiCallId value = format::ApiCallId::ApiCall_vk{name}; }};'),
         )
     ),
+    'generated_vulkan_decoded_type.h': ListFile(
+        headers=(
+            'binding/decoded_type_of.h', 'decode/vulkan_decoder_args.h', 'generated/generated_vulkan_decoder_args.h',
+            'generated/generated_vulkan_schema_types.h', 'generated/generated_vulkan_struct_decoders.h',
+            'util/defines.h'
+        ),
+        system_headers=(),
+        namespace='binding',
+        preamble=(),
+        lists=(
+            ('// binding::DecodedTypeOf for every structure with a Decoded_ wrapper: that wrapper.',
+             'get_decodable_structure_api_elements',
+             'template <> struct DecodedTypeOf<schema::vulkan::api_elements::{name}> {{ using type = decode::Decoded_{name}; }};'),
+            ('// binding::DecodedTypeOf for every command: its args structure.',
+             'get_command_api_elements',
+             'template <> struct DecodedTypeOf<schema::vulkan::api_elements::{name}> {{ using type = decode::args::{name}; }};'),
+        )
+    ),
     'generated_vulkan_capture_wrapper_of.h': ListFile(
         headers=(
             'encode/vulkan_encode_capture_wrappers.h', 'encode/vulkan_handle_wrappers.h',
@@ -207,6 +242,45 @@ LIST_FILES = {
              '// without its Vk prefix.',
              'get_handle_api_elements',
              'template <> struct CaptureWrapperOf<schema::vulkan::api_elements::{name}> {{ using type = vulkan_wrappers::{stem}Wrapper; }};'),
+        )
+    ),
+    'generated_vulkan_enum_to_string.h': ListFile(
+        headers=('format/platform_types.h', 'schema/schema.h', 'util/defines.h', 'util/to_string.h'),
+        system_headers=(),
+        namespace='util',
+        preamble=(
+            '// The explicit specializations of util/to_string.h\'s ToString primaries for every Vulkan C enum, plus a VkFlags',
+            '// form per flag-bits enum. They are defined over the enumerant tables in',
+            '// generated/generated_vulkan_enum_to_string.cpp. Specializations, not overloads: a specialization is found wherever',
+            '// the primary is, by the generic formatters in util/to_string.h too, and an overload would not be.',
+            '',
+            '// The two templates below are keyed on the API element, for the 64-bit flag-bits and mask types: C spells them',
+            '// VkFlags64, which cannot key an explicit specialization. They are explicitly instantiated in',
+            '// generated/generated_vulkan_enum_to_string.cpp. A call for an API element missing from that instantiation list is a',
+            '// link error (unresolved external), not a compile error.',
+            '',
+            '// Returns the name of one enumerant of Element.',
+            'template <schema::EnumApiElement Element>',
+            'std::string ToString(typename Element::element_type value,',
+            '                     ToStringFlags                  toStringFlags = kToString_Default,',
+            '                     uint32_t                       tabCount      = kToStringDefaultTabCount,',
+            '                     uint32_t                       tabSize       = kToStringDefaultTabSize);',
+            '',
+            '// Returns the set bits of a mask of Element, by name.',
+            'template <schema::BitmaskApiElement Element>',
+            'std::string ToString(VkFlags64     flags,',
+            '                     ToStringFlags toStringFlags = kToString_Default,',
+            '                     uint32_t      tabCount      = kToStringDefaultTabCount,',
+            '                     uint32_t      tabSize       = kToStringDefaultTabSize);',
+            '',
+        ),
+        lists=(
+            ('// ToString for every C enum.',
+             'get_native_enumerated_types',
+             'template <> std::string ToString<{name}>(const {name}& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'),
+            ('// ToString of a VkFlags mask for every flag-bits enum.',
+             'get_flag_bits_enums',
+             'template <> std::string ToString<{name}>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'),
         )
     ),
     'generated_vulkan_struct_encoders.cpp': ListFile(
@@ -276,6 +350,20 @@ class VulkanListFileGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
         begin_end.system_headers.extend(self.list_file.system_headers)
 
 
+class VulkanSchemaEnumerantsGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
+    """Holds the options for generated_vulkan_schema_enumerants.h: one enumerant table per enumerated type, value and
+    name in registry order. The index and the name lookup over the tables are hand-written in binding/enumerants.h.
+    """
+
+    def add_part_headers(self, begin_end):
+        begin_end.specific_headers.extend((
+            'binding/enumerants.h',
+            'format/platform_types.h',
+            'generated/generated_vulkan_schema_types.h',
+            'util/defines.h',
+        ))
+
+
 class VulkanWireTypesGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
     """Holds the options for generated_vulkan_wire_types.h: one binding::WireTypeOf specialization per scalar, enum
     and text API element, each holding the format typedef the encoder records it as. binding/vulkan_wire_type.h and
@@ -291,6 +379,21 @@ class VulkanWireTypesGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
         ))
 
 
+class VulkanEnumToStringBodyGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
+    """Holds the options for generated_vulkan_enum_to_string.cpp: one ToString definition per C enum over its enumerant
+    table, and the explicit instantiations of the API element-keyed ToString for the 64-bit flag-bits types. The bodies
+    they forward to are in util/vulkan_enum_to_string_impl.h, which only this file includes.
+    """
+
+    def add_part_headers(self, begin_end):
+        begin_end.specific_headers.extend((
+            'generated/generated_vulkan_schema_enumerants.h',
+            'generated/generated_vulkan_schema_types.h',
+            'util/defines.h',
+            'util/vulkan_enum_to_string_impl.h',
+        ))
+
+
 class VulkanSchemaChecksGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
     """Holds the options for generated_vulkan_schema_checks.cpp. Compiling it is the test: it holds static_asserts
     and the constexpr counts they compare, and only gfxrecon_framework_test compiles it (framework/CMakeLists.txt), so
@@ -299,13 +402,17 @@ class VulkanSchemaChecksGeneratorOptions(VulkanSchemaBaseGeneratorOptions):
 
     def add_part_headers(self, begin_end):
         begin_end.specific_headers.extend((
+            'binding/enumerants.h',
             'binding/vulkan_wire_type.h',
             'decode/vulkan_decoder_args.h',
             'generated/generated_vulkan_api_element_of.h',
             'generated/generated_vulkan_call_id.h',
             'generated/generated_vulkan_capture_wrapper_of.h',
+            'generated/generated_vulkan_catalog.h',
+            'generated/generated_vulkan_decoded_type.h',
             'generated/generated_vulkan_decoder_args.h',
             'generated/generated_vulkan_schema.h',
+            'generated/generated_vulkan_schema_enumerants.h',
             'generated/generated_vulkan_struct_decoders.h',
             'schema/schema.h',
             'util/defines.h',
@@ -482,6 +589,13 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             return (api_data.base_in_struct, api_data.base_out_struct)
         return ()
 
+    def get_decodable_struct_names(self):
+        """Returns every structure vk.xml gives members except the two base structures, which have no Decoded_
+        wrapper.
+        """
+        base_structs = self.get_base_structs()
+        return [key for key in self.all_struct_members if key not in base_structs]
+
     #
     # Model
     #
@@ -500,6 +614,10 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         # name; a hand-written one is not.
         self.wrapper_structs = list(self.get_all_filtered_struct_names())
 
+        # Every decodable structure gets a binding::DecodedTypeOf specialization, hand-written decoder or not, so
+        # schema-driven code can reach its Decoded_ wrapper.
+        self.schema_decodable_structs = list(self.get_decodable_struct_names())
+
         self.schema_commands = list(self.get_all_filtered_cmd_names())
 
         # The binding facts the list files and the catalog select by. A blacklists.json structures entry has a
@@ -510,6 +628,7 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         self.custom_encode_structs = set(lists['structures']) | set(lists.get('structures-encoder', ())) | set(self.PLATFORM_STRUCTS)
         self.custom_decode_structs = set(lists['structures']) | set(lists.get('structures-decoder', ())) | set(self.PLATFORM_STRUCTS)
         self.external_structs = set(self.PLATFORM_STRUCTS)
+        self.deep_copy_exclusions = lists['structures-deep-copy']
 
                 # 'void' always has an API element, because a void command still has one Return Field.
         self.add_api_type('void')
@@ -1357,6 +1476,11 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             return None
         return info.elem.get('category')
 
+    def get_deep_copy_excluded_api_elements(self):
+        """Returns the deep-copy exclusions that are structure API elements, by name. An alias in the list has no
+        API element and is dropped."""
+        return [name for name in self.get_structure_api_elements() if name in self.deep_copy_exclusions]
+
     def get_enumerated_types(self):
         """Returns every enumerated type, by name. Its API element and its table have the same name."""
         return sorted(enum for enum in self.enum_names if self.is_enumerated(enum))
@@ -1365,6 +1489,14 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         """Returns the enumerated types that are C enums, by name: every enumerated type but the 64-bit flag-bits
         types, which C declares as typedefs of VkFlags64."""
         return [enum for enum in self.get_enumerated_types() if self.api_type_wire_kinds[self.get_api_element_name(enum)] == 'Enum']
+
+    def get_wide_bitmask_pairs(self):
+        """Returns (bits API element, typedef API element) for each 64-bit flag-bits type
+        whose typedef has an API element."""
+        return sorted(
+            (enum, flags) for flags, enum in self.get_bitvalues_of_bitmasks().items()
+            if flags in self.api_type_categories and self.api_type_wire_kinds[self.get_api_element_name(enum)] == 'Flags64'
+        )
 
     def get_bitvalues_of_bitmasks(self):
         """Returns mask typedef API element name to the API element name of the bits enum whose values compose it.
@@ -1500,9 +1632,18 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         """Returns every handle API element, by name."""
         return [name for name in sorted(self.api_type_categories) if self.api_type_categories[name] == 'Handle']
 
+    def get_flag_bits_enums(self):
+        """Returns every C enum that is a flag-bits enum, by name."""
+        return [enum for enum in self.get_native_enumerated_types() if enum in self.bitmask_types]
+
     def get_command_api_elements(self):
         """Returns every command API element, in command order: the command name without its vk prefix."""
         return [self.get_command_api_element_name(command) for command in self.schema_commands]
+
+    def get_decodable_structure_api_elements(self):
+        """Returns the structure API elements with a Decoded_ wrapper, by name."""
+        decodable = set(self.schema_decodable_structs)
+        return [name for name in self.get_structure_api_elements() if name in decodable]
 
     def get_generated_encode_structure_api_elements(self):
         """Returns the structure API elements without a hand-written encoder, by name."""
@@ -1529,6 +1670,50 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
             body.append('')
 
         body.append('GFXRECON_END_NAMESPACE({})'.format(list_file.namespace))
+        write('\n'.join(body), file=self.outFile)
+
+    def catalog_type_list(self, name, comment, elements):
+        """Returns the lines of one catalog list that is written out: a TypeList alias of the given API elements."""
+        lines = [comment, 'using {} = util::TypeList<'.format(name)]
+        lines.append(',\n'.join('    schema::vulkan::api_elements::{}'.format(element) for element in elements) + '>;')
+        lines.append('')
+        return lines
+
+    def write_catalog(self):
+        """Writes the catalog: the two lists no rule over the schema states, written out, and the lists derived from
+        them, each one type-list operation."""
+        body = [
+            'GFXRECON_BEGIN_NAMESPACE(binding)',
+            'GFXRECON_BEGIN_NAMESPACE(vulkan)',
+            '',
+            '// A catalog list is a TypeList of the API elements that meet one rule. structures and deep_copy_exclusions are',
+            '// written out: C++ cannot list the API elements, and the exclusions are a binding fact. Every other list is one',
+            '// type-list operation over those two and the schema. generated_vulkan_schema_checks.cpp asserts the size of each.',
+            'GFXRECON_BEGIN_NAMESPACE(catalog)',
+            '',
+        ]
+        body.extend(self.catalog_type_list(
+            'structures', '// structures lists every structure API element.', self.get_structure_api_elements()
+        ))
+        body.extend(self.catalog_type_list(
+            'deep_copy_exclusions',
+            '// deep_copy_exclusions lists the structures vulkan_struct_deep_copy does not handle: blacklists.json\n'
+            '// "structures-deep-copy".',
+            self.get_deep_copy_excluded_api_elements()
+        ))
+        body.extend((
+            '// extensible_structures lists every structure with a structure_type.',
+            'using extensible_structures =',
+            '    decltype(util::TypeListKeep(structures{}, []<typename T>() { return schema::TypedStructApiElement<T>; }));',
+            '',
+            '// deep_copyable_structures lists the extensible structures that are not deep-copy exclusions.',
+            'using deep_copyable_structures = decltype(util::TypeListExclude(extensible_structures{}, deep_copy_exclusions{}));',
+            '',
+            'GFXRECON_END_NAMESPACE(catalog)',
+            '',
+            'GFXRECON_END_NAMESPACE(vulkan)',
+            'GFXRECON_END_NAMESPACE(binding)',
+        ))
         write('\n'.join(body), file=self.outFile)
 
     def write_checks(self):
@@ -1562,6 +1747,31 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
         for command in self.schema_commands:
             api_element = 'schema::vulkan::api_elements::{}'.format(self.get_command_api_element_name(command))
             write('static_assert(schema::HasCommandSchema<{}>);'.format(api_element), file=self.outFile)
+
+        self.newline()
+        write(
+            '// Decoded_X::api_element and args::X::api_element, from the struct-decoders and args generators,\n'
+            '// against binding::DecodedTypeOf, which generated/generated_vulkan_decoded_type.h specializes. A\n'
+            '// mis-paired line in either fails here.',
+            file=self.outFile
+        )
+
+        for struct in self.wrapper_structs:
+            write(
+                'static_assert(std::is_same_v<binding::DecodedTypeOf_t<typename Decoded_{name}::api_element>, '
+                'Decoded_{name}>);'.format(name=struct),
+                file=self.outFile
+            )
+
+        self.newline()
+
+        for command in self.schema_commands:
+            api_element = self.get_command_api_element_name(command)
+            write(
+                'static_assert(std::is_same_v<binding::DecodedTypeOf_t<typename args::{api_element}::api_element>, '
+                'args::{api_element}>);'.format(api_element=api_element),
+                file=self.outFile
+            )
 
         self.newline()
         write(
@@ -1694,6 +1904,25 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
                 )
 
         self.newline()
+        self.newline()
+        typed = sum(1 for struct in self.get_structure_api_elements() if self.get_structure_type(struct) is not None)
+
+        self.newline()
+        write('// Catalog list sizes against the counts this generator computed.', file=self.outFile)
+        excluded = self.get_deep_copy_excluded_api_elements()
+        excluded_typed = [name for name in excluded if self.get_structure_type(name) is not None]
+        for name, size in (
+            ('structures', len(self.get_structure_api_elements())),
+            ('deep_copy_exclusions', len(excluded)),
+            ('extensible_structures', typed),
+            ('deep_copyable_structures', typed - len(excluded_typed)),
+        ):
+            write(
+                'static_assert(util::TypeListSize_v<binding::vulkan::catalog::{}> == {});'.format(name, size),
+                file=self.outFile
+            )
+
+        self.newline()
         write('// Each enumerated type\'s API element refers to its table, and each but a 64-bit flag-bits type is the', file=self.outFile)
         write('// binding::ApiElementOf of its C enum.', file=self.outFile)
 
@@ -1744,6 +1973,13 @@ class VulkanSchemaBaseGenerator(VulkanBaseGenerator):
                 'static_assert(!schema::HasSchemaFields<schema::vulkan::api_elements::{}>);'.format(name),
                 file=self.outFile
             )
+        write(
+            'static_assert(util::TypeListCountIf(binding::vulkan::catalog::structures{{}}, '
+            '[]<typename T>() {{ return schema::HasSchemaFields<T>; }}) == {});'.format(
+                len(self.get_structure_api_elements()) - len(external)
+            ),
+            file=self.outFile
+        )
 
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
@@ -1754,6 +1990,51 @@ class VulkanSchemaTypesGenerator(VulkanSchemaBaseGenerator):
 
     def write_part(self):
         self.write_schema_part(self.write_api_elements, self.write_command_api_elements)
+
+
+class VulkanSchemaEnumerantsGenerator(VulkanSchemaBaseGenerator):
+    """Generates generated_vulkan_schema_enumerants.h: the enumerant table of every enumerated type."""
+
+    def write_part(self):
+        write('// Enumerant tables: one per enumerated type, in vk.xml order, with the name the API spells. A flag-bits', file=self.outFile)
+        write('// table holds single bits, combined masks and zero alike: lookups go from value to name, so they are not', file=self.outFile)
+        write('// told apart. An alias adds no entry. Each table is a struct named for its type, holding Enumerant<API element>', file=self.outFile)
+        write('// entries.', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(schema)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(vulkan)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(enumerants)', file=self.outFile)
+        self.newline()
+
+        for enum in self.get_enumerated_types():
+            enumerants = self.enumEnumerants[enum]
+            entry = 'binding::Enumerant<{}>'.format(self.get_api_element_reference(self.get_api_element_name(enum)))
+            write('struct {}'.format(enum), file=self.outFile)
+            write('{', file=self.outFile)
+            if enumerants:
+                write(
+                    '    static constexpr std::array<{}, {}> entries = {{ {{'.format(entry, len(enumerants)),
+                    file=self.outFile
+                )
+                for enumerant in enumerants:
+                    write('        {{ {0}, "{0}" }},'.format(enumerant), file=self.outFile)
+                write('    } };', file=self.outFile)
+            else:
+                write('    static constexpr std::array<{}, 0> entries{{}};'.format(entry), file=self.outFile)
+            write('};', file=self.outFile)
+            self.newline()
+
+        write('// EmptyBitvalues and EmptyBitvalues64 are the empty tables for a mask the registry gives no bits enum.', file=self.outFile)
+        for name in sorted(self.empty_bitvalues.values()):
+            entry = 'binding::Enumerant<{}>'.format(self.get_api_element_reference(name))
+            write('struct {}'.format(name), file=self.outFile)
+            write('{', file=self.outFile)
+            write('    static constexpr std::array<{}, 0> entries{{}};'.format(entry), file=self.outFile)
+            write('};', file=self.outFile)
+            self.newline()
+
+        write('GFXRECON_END_NAMESPACE(enumerants)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(vulkan)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(schema)', file=self.outFile)
 
 
 class VulkanWireTypesGenerator(VulkanSchemaBaseGenerator):
@@ -1784,6 +2065,40 @@ class VulkanWireTypesGenerator(VulkanSchemaBaseGenerator):
         write('GFXRECON_END_NAMESPACE(binding)', file=self.outFile)
 
 
+class VulkanEnumToStringBodyGenerator(VulkanSchemaBaseGenerator):
+    """Generates generated_vulkan_enum_to_string.cpp: the ToString specializations
+    and the 64-bit explicit instantiations."""
+
+    def write_part(self):
+        api_data = self.get_api_data()
+        write('GFXRECON_BEGIN_NAMESPACE(util)', file=self.outFile)
+        self.newline()
+        write('// One line per enum: the lookup over its table. A mask enum also expands a {}.'.format(api_data.flags_type), file=self.outFile)
+        for enum in self.get_native_enumerated_types():
+            table = 'schema::vulkan::enumerants::{}'.format(enum)
+            write(
+                'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags, uint32_t, uint32_t) {{ return detail::EnumerantToString<{1}>(value); }}'.format(enum, table),
+                file=self.outFile
+            )
+            if enum in self.bitmask_types:
+                write(
+                    'template <> std::string ToString<{0}>({1} vkFlags, ToStringFlags, uint32_t, uint32_t) {{ return detail::EnumerantMaskToString<{2}>(vkFlags); }}'.format(enum, api_data.flags_type, table),
+                    file=self.outFile
+                )
+        self.newline()
+        write('// ToString<bits API element>(VkFlags64) returns the name of one bit. ToString<mask API element>(VkFlags64) returns the',
+              file=self.outFile)
+        write("// names of all set bits joined with '|', or the zero value's name when none is set.", file=self.outFile)
+        for bits, flags in self.get_wide_bitmask_pairs():
+            for api_element in (bits, flags):
+                write(
+                    'template std::string ToString<schema::vulkan::api_elements::{0}>({1}, ToStringFlags, uint32_t, uint32_t);'.format(api_element, api_data.flags_64_type),
+                    file=self.outFile
+                )
+        self.newline()
+        write('GFXRECON_END_NAMESPACE(util)', file=self.outFile)
+
+
 class VulkanSchemaFieldsGenerator(VulkanSchemaBaseGenerator):
     """Generates generated_vulkan_schema_fields.h: the Fields."""
 
@@ -1796,6 +2111,13 @@ class VulkanSchemaGenerator(VulkanSchemaBaseGenerator):
 
     def write_part(self):
         self.write_schema_part(self.write_schemas)
+
+
+class VulkanCatalogGenerator(VulkanSchemaBaseGenerator):
+    """Generates generated_vulkan_catalog.h: the catalog lists."""
+
+    def write_part(self):
+        self.write_catalog()
 
 
 class VulkanListFileGenerator(VulkanSchemaBaseGenerator):

@@ -29,6 +29,7 @@
 #include <catch2/catch.hpp>
 
 #include "generated/generated_vulkan_call_id.h"
+#include "generated/generated_vulkan_decoded_type.h"
 #include "generated/generated_vulkan_schema.h"
 
 #include "decode/decode_allocator.h"
@@ -46,6 +47,9 @@
 #include "decode/vulkan_decoder_args.h"
 #include "generated/generated_vulkan_api_element_of.h"
 #include "generated/generated_vulkan_decoder_args.h"
+#include "generated/generated_vulkan_enum_to_json.h"
+#include "generated/generated_vulkan_enum_to_string.h"
+#include "generated/generated_vulkan_schema_enumerants.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "test/schema_fill.h"
 
@@ -118,6 +122,7 @@ static_assert(std::is_same_v<schema::vulkan::api_elements::VkAccessFlags2::bitva
                              schema::vulkan::api_elements::VkAccessFlagBits2>);
 static_assert(std::is_same_v<schema::vulkan::api_elements::VkDeviceCreateFlags::bitvalues,
                              schema::vulkan::api_elements::EmptyBitvalues>);
+static_assert(schema::vulkan::enumerants::EmptyBitvalues::entries.empty());
 
 // VkAccessFlags2 and VkPipelineStageFlags2 are one C++ type and two distinct API elements.
 static_assert(std::is_same_v<VkAccessFlags2, VkPipelineStageFlags2>);
@@ -190,6 +195,9 @@ static_assert(schema::FieldWithBitWidth<schema::vulkan::fields::VkAccelerationSt
 static_assert(schema::vulkan::fields::VkAccelerationStructureInstanceKHR::mask::bit_width::value == 8);
 static_assert(!schema::FieldWithBitWidth<barrier_field::buffer>);
 
+// DecodedTypeOf and CallId_v resolve through the bindings, keyed on the API element as the schema is.
+static_assert(std::is_same_v<binding::DecodedTypeOf_t<Barrier>, decode::Decoded_VkBufferMemoryBarrier>);
+static_assert(std::is_same_v<binding::DecodedTypeOf_t<Command>, decode::args::CmdPipelineBarrier>);
 static_assert(binding::CallId_v<Command> == format::ApiCallId::ApiCall_vkCmdPipelineBarrier);
 
 // Counts the Fields WalkFields visits, as HandleValueField, SimpleValueField, or neither.
@@ -2915,4 +2923,34 @@ TEST_CASE("The schema filler populates every described field", "[schema][fill]")
     CHECK(info.pApplicationInfo->apiVersion == 2);
     CHECK(std::string(info.pApplicationInfo->pApplicationName) == "ab");
     CHECK(info.pNext == nullptr);
+}
+
+// Checks that the enumerant table holds every enumerant and that both name functions agree with it: ToString returns
+// its unhandled string on a miss, to_json the hex form. VkStructureType is the largest enum and the key
+// StructureTypeIndex indexes by; VkImageUsageFlagBits stands for the flag-bits enums, whose per-bit expansion reads
+// the same entries.
+TEST_CASE("Enumerants holds every enumerant and both name functions read it", "[schema][enumerants]")
+{
+    auto check_every_entry = []<typename Enum>() {
+        for (const auto& entry : binding::EnumerantTableOf_t<Enum>::entries)
+        {
+            CHECK(binding::NameOf(entry.value) == entry.name);
+            CHECK(util::ToString(entry.value) == std::string(entry.name));
+
+            nlohmann::ordered_json json;
+            to_json(json, entry.value);
+            CHECK(json.get<std::string>() == std::string(entry.name));
+        }
+    };
+    check_every_entry.template operator()<VkStructureType>();
+    check_every_entry.template operator()<VkImageUsageFlagBits>();
+
+    // VK_STRUCTURE_TYPE_MAX_ENUM is the header's sentinel, not a registry enumerant.
+    const auto not_an_enumerant = static_cast<VkStructureType>(0x7FFFFFFF);
+    CHECK(binding::NameOf(not_an_enumerant).empty());
+    CHECK(util::ToString(not_an_enumerant) == "Unhandled VkStructureType");
+
+    nlohmann::ordered_json json;
+    to_json(json, not_an_enumerant);
+    CHECK(json.get<std::string>() == util::to_hex_fixed_width(not_an_enumerant));
 }

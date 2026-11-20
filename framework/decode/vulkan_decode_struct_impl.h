@@ -33,6 +33,7 @@
 
 #include "decode/vulkan_decode_action.h"
 #include "decode/vulkan_decode_struct.h"
+#include "generated/generated_vulkan_decoded_type.h"
 #include "generated/generated_vulkan_schema.h"
 #include "schema/schema.h"
 #include "util/defines.h"

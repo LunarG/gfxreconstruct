@@ -20,6 +20,16 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+// DecodedTypeOf maps an API element, or a command API element, to the type decode stores it in: a Decoded_ wrapper or
+// an args structure. That type is decode's choice, not the registry's, so it is a binding, not an API element member.
+// The other direction needs no binding: a wrapper holds its API element as api_element.
+//
+// This header declares the template and nothing more. An API's specializations are in
+// generated/generated_<api>_decoded_type.h, which is the header API code includes; with this header alone,
+// ApiElementWithDecodedType is false for every API element.
+// NOTE: a translation unit that evaluates ApiElementWithDecodedType before including that header gets false,
+// silently, and the compiler is not required to diagnose the late specialization.
+
 #ifndef GFXRECON_BINDING_DECODED_TYPE_OF_H
 #define GFXRECON_BINDING_DECODED_TYPE_OF_H
 
@@ -30,6 +40,20 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(binding)
+
+// Keyed on an API element or a command API element. Undefined: an API element without a specialization is an
+// incomplete type, and ApiElementWithDecodedType is false for it.
+template <typename ApiElement>
+struct DecodedTypeOf;
+
+template <typename ApiElement>
+concept ApiElementWithDecodedType = requires
+{
+    typename DecodedTypeOf<ApiElement>::type;
+};
+
+template <ApiElementWithDecodedType ApiElement>
+using DecodedTypeOf_t = typename DecodedTypeOf<ApiElement>::type;
 
 // DecodedWrapper is the concept a Decoded_ wrapper satisfies.
 template <typename Wrapper>

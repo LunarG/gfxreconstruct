@@ -24,11 +24,13 @@
 //   - TypeListCountIf, TypeListKeep, TypeListDrop and TypeListExclude count or filter by a predicate over types;
 //   - TypeListFront_t, TypeListSole_t, TypeListSize_v and TypeListContains_v query the list;
 //   - TypeListForEach and ApplyFields call a function once per element, or once with every element;
+//   - IndexPosition and Visit go from a position an index found at run time to the element at that position.
 // A Schema's Field list and an API's generated catalog lists are TypeLists. Only the filters recurse on the list, 32
 // elements per step (see TypeListConcat); every other algorithm is flat.
 //
 // Limitations:
 //   - A predicate must be a captureless lambda or an empty struct; see below.
+//   - Visit instantiates the visitor for every element of the list, whether or not a call reaches it.
 //
 // Typical pattern:
 //   using Kept = decltype(util::TypeListKeep(List{}, []<typename T>() { return std::is_enum_v<T>; }));
@@ -36,6 +38,8 @@
 #define GFXRECON_UTIL_TYPE_LIST_H
 
 #include "util/defines.h"
+
+#include "util/logging.h"
 
 #include <array>
 #include <concepts>
@@ -292,6 +296,41 @@ using TypeListSole_t = typename detail::TypeListSole<List>::type;
 
 GFXRECON_BEGIN_NAMESPACE(detail)
 
+// InvokerTable holds one invoker per element, in list order; each calls visitor.operator()<Element>(args...). Visit
+// indexes it at run time.
+template <typename Visitor, typename ArgsList, typename Elements>
+struct InvokerTable;
+
+template <typename Visitor, typename... Args, typename... Elements>
+struct InvokerTable<Visitor, TypeList<Args...>, TypeList<Elements...>>
+{
+    static_assert(sizeof...(Elements) > 0, "Visit: the list is empty");
+
+    using Result = decltype(std::declval<Visitor&>().template operator()<TypeListFront_t<TypeList<Elements...>>>(
+        std::declval<Args>()...));
+
+    static_assert(
+        TypeListCountIf(TypeList<Elements...>{},
+                        []<typename Element>() {
+                            return std::is_same_v<Result,
+                                                  decltype(std::declval<Visitor&>().template operator()<Element>(
+                                                      std::declval<Args>()...))>;
+                        }) == sizeof...(Elements),
+        "Visit: every operator()<Element> must return one type");
+
+    using Invoker = Result (*)(Visitor&, Args&&...);
+
+    template <typename Element>
+    static Result Invoke(Visitor& visitor, Args&&... args)
+    {
+        return visitor.template operator()<Element>(std::forward<Args>(args)...);
+    }
+
+    // Taking each address instantiates Invoke<Element>, and with it the visitor's operator()<Element>, for every
+    // element of the list, whether or not a call ever reaches it.
+    static constexpr std::array<Invoker, sizeof...(Elements)> invokers{ &Invoke<Elements>... };
+};
+
 template <typename List>
 struct TypeListSize;
 
@@ -304,6 +343,39 @@ GFXRECON_END_NAMESPACE(detail)
 // TypeListSize_v is the element count.
 template <typename List>
 inline constexpr size_t TypeListSize_v = detail::TypeListSize<List>::value;
+
+// IndexPosition is where an index's Find landed in its list, or its End. Only the index constructs one and only Visit
+// reads it. It is a class template, not a type nested in the index: Visit deduces Index from this parameter, and a
+// type reached through Index::, aliased or not, is non-deduced ([temp.deduct.type]/5).
+template <typename Index>
+class IndexPosition
+{
+  public:
+    using index_type = Index;
+
+    constexpr bool operator==(const IndexPosition&) const = default;
+
+  private:
+    friend Index;
+
+    template <typename I, typename Visitor, typename... Args>
+    friend decltype(auto) Visit(IndexPosition<I> position, Visitor&& visitor, Args&&... args);
+
+    constexpr explicit IndexPosition(size_t position) : position_(position) {}
+
+    size_t position_;
+};
+
+// Calls visitor.operator()<Element>(args...) for the element of the index's list at `position`. Asserts in DEBUG that
+// `position` is not Index::End(); compare it against End() before the call.
+template <typename Index, typename Visitor, typename... Args>
+decltype(auto) Visit(IndexPosition<Index> position, Visitor&& visitor, Args&&... args)
+{
+    using Table = detail::InvokerTable<std::remove_reference_t<Visitor>, TypeList<Args...>, typename Index::list>;
+    static_assert(Table::invokers.size() == Index::kSize, "Visit: the index and the invoker table are over one list");
+    GFXRECON_ASSERT(position != Index::End());
+    return Table::invokers[position.position_](visitor, std::forward<Args>(args)...);
+}
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

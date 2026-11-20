@@ -55,16 +55,18 @@ from vulkan_decoder_args_header_generator import VulkanDecoderArgsHeaderGenerato
 # Struct Decoders
 from vulkan_struct_decoders_forward_generator import VulkanStructDecodersForwardGenerator, VulkanStructDecodersForwardGeneratorOptions
 from vulkan_struct_decoders_header_generator import VulkanStructDecodersHeaderGenerator, VulkanStructDecodersHeaderGeneratorOptions
-from vulkan_pnext_struct_decode_generator import DecodePNextStructGenerator, DecodePNextStructGeneratorOptions
 
 # Field Schema
 from vulkan_schema_generator import (
     VulkanSchemaTypesGenerator, VulkanSchemaTypesGeneratorOptions,
     VulkanSchemaFieldsGenerator, VulkanSchemaFieldsGeneratorOptions,
     VulkanSchemaGenerator, VulkanSchemaGeneratorOptions,
+    VulkanCatalogGenerator, VulkanCatalogGeneratorOptions,
     VulkanListFileGenerator, VulkanListFileGeneratorOptions, LIST_FILES,
     VulkanSchemaChecksGenerator, VulkanSchemaChecksGeneratorOptions,
+    VulkanSchemaEnumerantsGenerator, VulkanSchemaEnumerantsGeneratorOptions,
     VulkanWireTypesGenerator, VulkanWireTypesGeneratorOptions,
+    VulkanEnumToStringBodyGenerator, VulkanEnumToStringBodyGeneratorOptions
 )
 
 # Consumers
@@ -97,15 +99,9 @@ from vulkan_recapture_func_table_generator import VulkanRecaptureFuncTableGenera
 
 # Struct Encoders
 from vulkan_struct_encoders_header_generator import VulkanStructEncodersHeaderGenerator, VulkanStructEncodersHeaderGeneratorOptions
-from vulkan_pnext_struct_encode_generator import EncodePNextStructGenerator, EncodePNextStructGeneratorOptions
 from vulkan_struct_handle_wrappers_header_generator import VulkanStructHandleWrappersHeaderGenerator, VulkanStructHandleWrappersHeaderGeneratorOptions
 from vulkan_struct_handle_wrappers_body_generator import VulkanStructHandleWrappersBodyGenerator, VulkanStructHandleWrappersBodyGeneratorOptions
 from vulkan_struct_deep_copy_body_generator import VulkanStructDeepCopyBodyGenerator, VulkanStructDeepCopyBodyGeneratorOptions
-from vulkan_struct_deep_copy_stype_body_generator import VulkanStructDeepCopySTypeBodyGenerator, VulkanStructDeepCopySTypeBodyGeneratorOptions
-
-# To String
-from vulkan_enum_to_string_body_generator import VulkanEnumToStringBodyGenerator, VulkanEnumToStringBodyGeneratorOptions
-from vulkan_enum_to_string_header_generator import VulkanEnumToStringHeaderGenerator, VulkanEnumToStringHeaderGeneratorOptions
 
 from vulkan_handle_wrapper_util_body_generator import VulkanHandleWrapperUtilBodyGenerator, VulkanHandleWrapperUtilBodyGeneratorOptions
 from vulkan_handle_mapping_util_body_generator import VulkanHandleMappingUtilBodyGenerator, VulkanHandleMappingUtilBodyGeneratorOptions
@@ -121,7 +117,6 @@ from vulkan_struct_to_json_body_generator import VulkanStructToJsonBodyGenerator
 
 # Constants
 from vulkan_constant_maps_generator import VulkanConstantMapsGenerator, VulkanConstantMapsGeneratorOptions
-from vulkan_stype_util_generator import VulkanSTypeUtilGenerator, VulkanSTypeUtilGeneratorOptions
 
 # ToCpp
 from vulkan_cpp_struct_generator import VulkanCppStructGenerator, VulkanCppStructGeneratorOptions
@@ -327,18 +322,6 @@ def make_gen_opts(args):
         )
     ]
 
-    gen_opts['generated_vulkan_pnext_struct_decoder.cpp'] = [
-        DecodePNextStructGenerator,
-        DecodePNextStructGeneratorOptions(
-            filename='generated_vulkan_pnext_struct_decoder.cpp',
-            directory=directory,
-            prefix_text=prefix_strings + vk_prefix_strings,
-            protect_file=False,
-            protect_feature=False,
-            extra_headers=extra_headers
-        )
-    ]
-
     # Field schema generators: each writes one file from the model vulkan_schema_generator.py builds, so a target
     # includes only the files it lists.
     for schema_filename, schema_generator, schema_options, schema_protect in (
@@ -348,10 +331,16 @@ def make_gen_opts(args):
          VulkanSchemaFieldsGenerator, VulkanSchemaFieldsGeneratorOptions, True),
         ('generated_vulkan_schema.h',
          VulkanSchemaGenerator, VulkanSchemaGeneratorOptions, True),
+        ('generated_vulkan_catalog.h',
+         VulkanCatalogGenerator, VulkanCatalogGeneratorOptions, True),
         ('generated_vulkan_schema_checks.cpp',
          VulkanSchemaChecksGenerator, VulkanSchemaChecksGeneratorOptions, False),
+        ('generated_vulkan_schema_enumerants.h',
+         VulkanSchemaEnumerantsGenerator, VulkanSchemaEnumerantsGeneratorOptions, True),
         ('generated_vulkan_wire_types.h',
          VulkanWireTypesGenerator, VulkanWireTypesGeneratorOptions, True),
+        ('generated_vulkan_enum_to_string.cpp',
+         VulkanEnumToStringBodyGenerator, VulkanEnumToStringBodyGeneratorOptions, False),
     ) + tuple(
         # One target per LIST_FILES file; a header gets an include guard.
         (list_filename, VulkanListFileGenerator, VulkanListFileGeneratorOptions, list_filename.endswith('.h'))
@@ -795,18 +784,6 @@ def make_gen_opts(args):
         )
     ]
 
-    gen_opts['generated_vulkan_pnext_struct_encoder.cpp'] = [
-        EncodePNextStructGenerator,
-        EncodePNextStructGeneratorOptions(
-            filename='generated_vulkan_pnext_struct_encoder.cpp',
-            directory=directory,
-            prefix_text=prefix_strings + vk_prefix_strings,
-            protect_file=False,
-            protect_feature=False,
-            extra_headers=extra_headers
-        )
-    ]
-
     gen_opts['generated_vulkan_struct_handle_wrappers.h'] = [
         VulkanStructHandleWrappersHeaderGenerator,
         VulkanStructHandleWrappersHeaderGeneratorOptions(
@@ -826,36 +803,6 @@ def make_gen_opts(args):
             filename='generated_vulkan_struct_handle_wrappers.cpp',
             directory=directory,
             blacklists=blacklists,
-            prefix_text=prefix_strings + vk_prefix_strings,
-            protect_file=False,
-            protect_feature=False,
-            extra_headers=extra_headers
-        )
-    ]
-
-    #
-    # To string generators
-    gen_opts['generated_vulkan_enum_to_string.h'] = [
-        VulkanEnumToStringHeaderGenerator,
-        VulkanEnumToStringHeaderGeneratorOptions(
-            filename='generated_vulkan_enum_to_string.h',
-            directory=directory,
-            blacklists=blacklists,
-            platform_types=platform_types,
-            prefix_text=prefix_strings + vk_prefix_strings,
-            protect_file=True,
-            protect_feature=False,
-            extra_headers=extra_headers
-        )
-    ]
-
-    gen_opts['generated_vulkan_enum_to_string.cpp'] = [
-        VulkanEnumToStringBodyGenerator,
-        VulkanEnumToStringBodyGeneratorOptions(
-            filename='generated_vulkan_enum_to_string.cpp',
-            directory=directory,
-            blacklists=blacklists,
-            platform_types=platform_types,
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,
             protect_feature=False,
@@ -1034,38 +981,10 @@ def make_gen_opts(args):
         )
     ]
 
-    gen_opts['generated_vulkan_stype_util.h'] = [
-        VulkanSTypeUtilGenerator,
-        VulkanSTypeUtilGeneratorOptions(
-            filename='generated_vulkan_stype_util.h',
-            directory=directory,
-            blacklists=blacklists,
-            platform_types=platform_types,
-            prefix_text=prefix_strings + vk_prefix_strings,
-            protect_file=True,
-            protect_feature=False,
-            extra_headers=extra_headers
-        )
-    ]
-
     gen_opts['generated_vulkan_struct_deep_copy.cpp'] = [
         VulkanStructDeepCopyBodyGenerator,
         VulkanStructDeepCopyBodyGeneratorOptions(
             filename='generated_vulkan_struct_deep_copy.cpp',
-            directory=directory,
-            blacklists=blacklists,
-            platform_types=platform_types,
-            prefix_text=prefix_strings + vk_prefix_strings,
-            protect_file=False,
-            protect_feature=False,
-            extra_headers=extra_headers
-        )
-    ]
-
-    gen_opts['generated_vulkan_struct_deep_copy_stype.cpp'] = [
-        VulkanStructDeepCopySTypeBodyGenerator,
-        VulkanStructDeepCopySTypeBodyGeneratorOptions(
-            filename='generated_vulkan_struct_deep_copy_stype.cpp',
             directory=directory,
             blacklists=blacklists,
             platform_types=platform_types,

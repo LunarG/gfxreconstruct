@@ -40,4 +40,5 @@ add_custom_target(gfxrecon_schema_headers
                   SOURCES
                       ${CMAKE_CURRENT_LIST_DIR}/api_element.h
                       ${CMAKE_CURRENT_LIST_DIR}/field.h
-                      ${CMAKE_CURRENT_LIST_DIR}/schema.h)
+                      ${CMAKE_CURRENT_LIST_DIR}/schema.h
+                      ${CMAKE_CURRENT_LIST_DIR}/structure_type_index.h)
