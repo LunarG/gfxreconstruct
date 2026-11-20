@@ -193,6 +193,48 @@ void VulkanSubmitInfoHelper::InjectSemaphore(VulkanInjectedSemaphore& semaphore)
     AddSignalSemaphore(semaphore);
 }
 
+void VulkanSubmitInfoHelper::RemoveSemaphores(const SemaphoreFilter& filter)
+{
+    size_t kept_waits = 0;
+    for (size_t i = 0; i < wait_semaphores_.size(); ++i)
+    {
+        if (!filter.waits.contains(wait_semaphores_[i]))
+        {
+            wait_semaphores_[kept_waits]       = wait_semaphores_[i];
+            wait_dst_stage_masks_[kept_waits]  = wait_dst_stage_masks_[i];
+            wait_semaphore_values_[kept_waits] = wait_semaphore_values_[i];
+            ++kept_waits;
+        }
+    }
+    wait_semaphores_.resize(kept_waits);
+    wait_dst_stage_masks_.resize(kept_waits);
+    wait_semaphore_values_.resize(kept_waits);
+
+    size_t kept_signals = 0;
+    for (size_t i = 0; i < signal_semaphores_.size(); ++i)
+    {
+        if (!filter.signals.contains(signal_semaphores_[i]))
+        {
+            signal_semaphores_[kept_signals]       = signal_semaphores_[i];
+            signal_semaphore_values_[kept_signals] = signal_semaphore_values_[i];
+            ++kept_signals;
+        }
+    }
+    signal_semaphores_.resize(kept_signals);
+    signal_semaphore_values_.resize(kept_signals);
+
+    submit_info_.waitSemaphoreCount   = static_cast<uint32_t>(wait_semaphores_.size());
+    submit_info_.pWaitSemaphores      = wait_semaphores_.data();
+    submit_info_.pWaitDstStageMask    = wait_dst_stage_masks_.data();
+    submit_info_.signalSemaphoreCount = static_cast<uint32_t>(signal_semaphores_.size());
+    submit_info_.pSignalSemaphores    = signal_semaphores_.data();
+
+    timeline_semaphore_info_.waitSemaphoreValueCount   = static_cast<uint32_t>(wait_semaphore_values_.size());
+    timeline_semaphore_info_.pWaitSemaphoreValues      = wait_semaphore_values_.data();
+    timeline_semaphore_info_.signalSemaphoreValueCount = static_cast<uint32_t>(signal_semaphore_values_.size());
+    timeline_semaphore_info_.pSignalSemaphoreValues    = signal_semaphore_values_.data();
+}
+
 VulkanSubmitInfo2Helper::VulkanSubmitInfo2Helper(VkSubmitInfo2& submit_info2) : submit_info2_(submit_info2)
 {
     CopyWaitSemaphoreInfos();
@@ -256,6 +298,142 @@ void VulkanSubmitInfo2Helper::InjectSemaphore(VulkanInjectedSemaphoreInfo& semap
     semaphore_info.info.stageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
     semaphore_info.semaphore.IncreaseTargetValue();
     AddSignalSemaphore(semaphore_info);
+}
+
+void VulkanSubmitInfo2Helper::RemoveSemaphores(const SemaphoreFilter& filter)
+{
+    std::erase_if(wait_semaphore_infos_,
+                  [&filter](const VkSemaphoreSubmitInfo& info) { return filter.waits.contains(info.semaphore); });
+    std::erase_if(signal_semaphore_infos_,
+                  [&filter](const VkSemaphoreSubmitInfo& info) { return filter.signals.contains(info.semaphore); });
+
+    submit_info2_.waitSemaphoreInfoCount   = static_cast<uint32_t>(wait_semaphore_infos_.size());
+    submit_info2_.pWaitSemaphoreInfos      = wait_semaphore_infos_.data();
+    submit_info2_.signalSemaphoreInfoCount = static_cast<uint32_t>(signal_semaphore_infos_.size());
+    submit_info2_.pSignalSemaphoreInfos    = signal_semaphore_infos_.data();
+}
+
+VulkanBindSparseInfoHelper::VulkanBindSparseInfoHelper(VkBindSparseInfo& bind_info) : bind_info_(bind_info)
+{
+    CopyTimelineSemaphoreSubmitInfo();
+    CopyWaitSemaphores();
+    CopyWaitValues();
+    CopySignalSemaphores();
+    CopySignalValues();
+}
+
+void VulkanBindSparseInfoHelper::CopyWaitSemaphores()
+{
+    if (bind_info_.pWaitSemaphores != nullptr && bind_info_.waitSemaphoreCount > 0)
+    {
+        wait_semaphores_ =
+            std::vector(bind_info_.pWaitSemaphores, bind_info_.pWaitSemaphores + bind_info_.waitSemaphoreCount);
+    }
+
+    // Override wait semaphores pointer.
+    bind_info_.pWaitSemaphores = wait_semaphores_.data();
+}
+
+void VulkanBindSparseInfoHelper::CopySignalSemaphores()
+{
+    if (bind_info_.pSignalSemaphores != nullptr && bind_info_.signalSemaphoreCount > 0)
+    {
+        signal_semaphores_ =
+            std::vector(bind_info_.pSignalSemaphores, bind_info_.pSignalSemaphores + bind_info_.signalSemaphoreCount);
+    }
+
+    // Override signal semaphore pointer.
+    bind_info_.pSignalSemaphores = signal_semaphores_.data();
+}
+
+void VulkanBindSparseInfoHelper::CopyWaitValues()
+{
+    VkTimelineSemaphoreSubmitInfo& timeline_info = timeline_semaphore_info_;
+    if (timeline_info.waitSemaphoreValueCount > 0 && timeline_info.pWaitSemaphoreValues != nullptr)
+    {
+        wait_semaphore_values_ =
+            std::vector<uint64_t>(timeline_info.pWaitSemaphoreValues,
+                                  timeline_info.pWaitSemaphoreValues + timeline_info.waitSemaphoreValueCount);
+    }
+    else
+    {
+        wait_semaphore_values_ = std::vector<uint64_t>(bind_info_.waitSemaphoreCount, 0);
+    }
+
+    // Override any existing values pointer.
+    timeline_info.pWaitSemaphoreValues = wait_semaphore_values_.data();
+}
+
+void VulkanBindSparseInfoHelper::CopySignalValues()
+{
+    VkTimelineSemaphoreSubmitInfo& timeline_info = timeline_semaphore_info_;
+    if (timeline_info.signalSemaphoreValueCount > 0 && timeline_info.pSignalSemaphoreValues != nullptr)
+    {
+        signal_semaphore_values_ =
+            std::vector<uint64_t>(timeline_info.pSignalSemaphoreValues,
+                                  timeline_info.pSignalSemaphoreValues + timeline_info.signalSemaphoreValueCount);
+    }
+    else
+    {
+        signal_semaphore_values_ = std::vector<uint64_t>(bind_info_.signalSemaphoreCount, 0);
+    }
+
+    // Override signal semaphore values.
+    timeline_info.pSignalSemaphoreValues = signal_semaphore_values_.data();
+}
+
+void VulkanBindSparseInfoHelper::CopyTimelineSemaphoreSubmitInfo()
+{
+    // Unlike VulkanSubmitInfoHelper, nothing adds timeline semaphores to a bind, so the owned timeline submit info is
+    // only inserted in place of an existing one.
+    if (auto* existing_info = graphics::vulkan_struct_get_pnext<VkTimelineSemaphoreSubmitInfo>(&bind_info_))
+    {
+        timeline_semaphore_info_ = *existing_info;
+        graphics::vulkan_struct_add_pnext(&bind_info_, &timeline_semaphore_info_);
+    }
+}
+
+void VulkanBindSparseInfoHelper::RemoveSemaphores(const SemaphoreFilter& filter)
+{
+    GFXRECON_ASSERT(wait_semaphore_values_.size() == wait_semaphores_.size());
+    GFXRECON_ASSERT(signal_semaphore_values_.size() == signal_semaphores_.size());
+
+    // Compact the arrays in place, moving each kept semaphore's timeline value along with it.
+    size_t kept_waits = 0;
+    for (size_t i = 0; i < wait_semaphores_.size(); ++i)
+    {
+        if (!filter.waits.contains(wait_semaphores_[i]))
+        {
+            wait_semaphores_[kept_waits]       = wait_semaphores_[i];
+            wait_semaphore_values_[kept_waits] = wait_semaphore_values_[i];
+            ++kept_waits;
+        }
+    }
+    wait_semaphores_.resize(kept_waits);
+    wait_semaphore_values_.resize(kept_waits);
+
+    size_t kept_signals = 0;
+    for (size_t i = 0; i < signal_semaphores_.size(); ++i)
+    {
+        if (!filter.signals.contains(signal_semaphores_[i]))
+        {
+            signal_semaphores_[kept_signals]       = signal_semaphores_[i];
+            signal_semaphore_values_[kept_signals] = signal_semaphore_values_[i];
+            ++kept_signals;
+        }
+    }
+    signal_semaphores_.resize(kept_signals);
+    signal_semaphore_values_.resize(kept_signals);
+
+    bind_info_.waitSemaphoreCount   = static_cast<uint32_t>(wait_semaphores_.size());
+    bind_info_.pWaitSemaphores      = wait_semaphores_.data();
+    bind_info_.signalSemaphoreCount = static_cast<uint32_t>(signal_semaphores_.size());
+    bind_info_.pSignalSemaphores    = signal_semaphores_.data();
+
+    timeline_semaphore_info_.waitSemaphoreValueCount   = static_cast<uint32_t>(wait_semaphore_values_.size());
+    timeline_semaphore_info_.pWaitSemaphoreValues      = wait_semaphore_values_.data();
+    timeline_semaphore_info_.signalSemaphoreValueCount = static_cast<uint32_t>(signal_semaphore_values_.size());
+    timeline_semaphore_info_.pSignalSemaphoreValues    = signal_semaphore_values_.data();
 }
 
 GFXRECON_END_NAMESPACE(decode)
