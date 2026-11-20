@@ -61,11 +61,11 @@ void check_wait_duration(const std::vector<RecordedEvent>& events)
         ASSERT_EQ(wait_end.type, GFXR_REPLAY_EVENT_WAIT_END)
             << "event " << i << " is a WAIT_BEGIN, but the event after it is not its WAIT_END";
 
-        uint64_t begin_ns = unsigned_field(wait_begin, "timestamp_ns");
-        uint64_t end_ns   = unsigned_field(wait_end, "timestamp_ns");
+        uint64_t begin_ns = wait_begin.unsigned_field("timestamp_ns");
+        uint64_t end_ns   = wait_end.unsigned_field("timestamp_ns");
         ASSERT_GE(end_ns, begin_ns) << "the WAIT_END at event " << (i + 1) << " is timestamped before its WAIT_BEGIN";
 
-        uint64_t requested_ns = unsigned_field(wait_begin, "requested_duration_ms") * 1000000;
+        uint64_t requested_ns = wait_begin.unsigned_field("requested_duration_ms") * 1000000;
         EXPECT_GE(end_ns - begin_ns + kTimestampResolutionNs, requested_ns)
             << "the wait at event " << i << " requested " << requested_ns << " ns but lasted only "
             << (end_ns - begin_ns) << " ns";
@@ -88,7 +88,7 @@ TEST(ReplayWaitOptions, WaitBeforeFrameEmitsAWaitPerFrame)
 
     for (const RecordedEvent& wait_begin : wait_begins)
     {
-        EXPECT_EQ(unsigned_field(wait_begin, "requested_duration_ms"), kWaitBeforeFrameMs);
+        EXPECT_EQ(wait_begin.unsigned_field("requested_duration_ms"), kWaitBeforeFrameMs);
     }
 
     check_wait_duration(events);
@@ -106,7 +106,7 @@ TEST(ReplayWaitOptions, WaitBeforeFirstSubmitEmitsOneWait)
     EXPECT_EQ(events_of_type(events, GFXR_REPLAY_EVENT_WAIT_END).size(), 1);
 
     // Check the wait was for a valid time.
-    EXPECT_GT(unsigned_field(wait_begins.front(), "requested_duration_ms"), 0);
+    EXPECT_GT(wait_begins.front().unsigned_field("requested_duration_ms"), 0);
 
     check_wait_duration(events);
 }

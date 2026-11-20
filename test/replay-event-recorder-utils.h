@@ -28,6 +28,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <map>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -39,6 +40,20 @@ struct RecordedEvent
     uint32_t type = 0;
     /// Every key=value pair the recorder wrote for the event, as text. Read them with unsigned_field().
     std::map<std::string, std::string> fields;
+
+    /**
+     * Look up a field by key.
+     *
+     * @return the field's text, or nullptr and a test failure naming the field if the recorder did not write it
+     */
+    const std::string* find_field(const std::string& key) const;
+
+    /**
+     * Read a field as an unsigned value, e.g. "timestamp_ns" or "submit_index".
+     *
+     * @return the value of the field, or 0 and a test failure naming the field if the recorder did not write it
+     */
+    uint64_t unsigned_field(const std::string& key) const;
 };
 
 /**
@@ -48,19 +63,24 @@ struct RecordedEvent
  * @param test_name         - the name of the test app to launch, capture and replay
  * @param extra_replay_args - additional arguments forwarded verbatim to gfxrecon-replay
  * @param[out] events       - every recorded event, in the order replay emitted them
+ * @param trimming_frames   - the frames to capture or nullptr to capture every frame
  *
  * @note expects the same environment variables as verify_gfxr().
  */
 void replay_and_record_events(const char*                 test_name,
                               std::vector<std::string>    extra_replay_args,
-                              std::vector<RecordedEvent>& events);
+                              std::vector<RecordedEvent>& events,
+                              const char*                 trimming_frames = nullptr);
 
 /**
- * Read a field of a recorded event as an unsigned value, e.g. "timestamp_ns" or "submit_index".
+ * Find the first recorded event of a type.
  *
- * @return the value of the field, or 0 and a test failure naming the field if the recorder did not write it
+ * @param events - the events replay_and_record_events() read back
+ * @param type   - the event type to look for
+ *
+ * @return the index of the first event of that type in events, or std::nullopt if there is none
  */
-uint64_t unsigned_field(const RecordedEvent& event, const std::string& key);
+std::optional<size_t> index_of_first_event(const std::vector<RecordedEvent>& events, GfxrReplayEventType type);
 
 /**
  * Collect every recorded event of a type.
