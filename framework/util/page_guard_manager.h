@@ -137,6 +137,12 @@ class PageGuardManager
 
     bool HandleGuardPageViolation(void* address, bool is_write, bool clear_guard);
 
+    // Copies [offset, offset + size) of the mapped memory to the shadow memory, for vkInvalidateMappedMemoryRanges.
+    // The offset is relative to the start of the mapped pointer, and the range is clamped to the mapped range.  Only
+    // pages not accessed since they were last processed are copied, and only when a read does not copy them itself.
+    // Does nothing for memory without shadow memory.
+    void RefreshShadowMemory(uint64_t memory_id, size_t offset, size_t size);
+
     size_t GetAlignedSize(size_t size) const;
 
     // The use_write_watch parameter is ignored on all platforms except Windows.
