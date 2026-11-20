@@ -39,6 +39,15 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+// Encoded parameters of the API call that the decoder is dispatching. The buffer is valid only
+// until the decoder moves to the next block, so a consumer that keeps a call copies the bytes.
+struct CallBytes
+{
+    format::ApiCallId call_id{ format::ApiCallId::ApiCall_Unknown };
+    const uint8_t*    parameter_buffer{ nullptr };
+    size_t            buffer_size{ 0 };
+};
+
 class CommonConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
 {
   public:
@@ -49,6 +58,9 @@ class CommonConsumerBase : public MetadataConsumerBase, public MarkerConsumerBas
     virtual void WaitDevicesIdle() {}
 
     virtual bool IsComplete(uint64_t block_index) { return false; }
+
+    // Receives the encoded parameters of each API call before the decoder calls its Process function.
+    virtual void SetCurrentCallBytes(const CallBytes& call_bytes) {}
 
     virtual void SetCurrentBlockIndex(uint64_t block_index) override { block_index_ = block_index; }
 
