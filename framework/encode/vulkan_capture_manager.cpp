@@ -98,6 +98,20 @@ void VulkanCaptureManager::DestroySingleton()
 {
     if (singleton_)
     {
+#ifdef GFXRECON_DEBUG_BUILD
+        // A wrapper still in the table is an object that the application did not destroy, or a leak of the layer.
+        // The last instance, its physical devices, and their displays and display modes are still there: the
+        // wrappers of vkDestroyInstance go after this.
+        vulkan_wrappers::state_handle_table_.VisitWrapperCounts([](const char* type, size_t count) {
+            const std::string name(type);
+            if ((count != 0) && (name != "VkInstance") && (name != "VkPhysicalDevice") && (name != "VkDisplayKHR") &&
+                (name != "VkDisplayModeKHR"))
+            {
+                GFXRECON_LOG_DEBUG("Live wrappers at layer unload: %zu %s", count, type);
+            }
+        });
+#endif
+
         delete singleton_;
         singleton_ = nullptr;
     }
