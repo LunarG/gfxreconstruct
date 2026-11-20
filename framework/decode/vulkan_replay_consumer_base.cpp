@@ -6607,7 +6607,16 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateCommandBuffers(
 
     if ((original_result >= 0) || !options_.skip_failed_allocations)
     {
-        result = func(device_info->handle, pAllocateInfo->GetPointer(), pCommandBuffers->GetHandlePointer());
+        const VkCommandBufferAllocateInfo* allocate_info = pAllocateInfo->GetPointer();
+        result = func(device_info->handle, allocate_info, pCommandBuffers->GetHandlePointer());
+        if (result == VK_SUCCESS)
+        {
+            for (uint32_t i = 0; i < allocate_info->commandBufferCount; ++i)
+            {
+                auto* command_buffer_info  = static_cast<VulkanCommandBufferInfo*>(pCommandBuffers->GetConsumerData(i));
+                command_buffer_info->level = allocate_info->level;
+            }
+        }
     }
     else
     {

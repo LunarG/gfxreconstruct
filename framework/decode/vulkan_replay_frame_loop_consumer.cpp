@@ -1035,13 +1035,20 @@ void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(const ApiCallIn
 
     if (frame_loop_info_.IsLooping())
     {
+        VulkanCommandBufferInfo* cb_info = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer);
+        if (cb_info->level == VK_COMMAND_BUFFER_LEVEL_SECONDARY &&
+            (args.pBeginInfo.GetPointer()->flags & VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT) != 0)
+        {
+            // Query pool resets must be recorded outside a render pass.
+            return;
+        }
+
         // The query pool resets are not commands of the application.
         util::MarkInjectedCommandsHelper injected_commands_scope;
 
         // Record query pool reset commands
-        VulkanCommandBufferInfo* cb_info       = GetObjectInfoTable().GetVkCommandBufferInfo(args.commandBuffer);
-        format::HandleId         device        = cb_info->parent_id;
-        VkDevice                 replay_device = GetObjectInfoTable().GetVkDeviceInfo(device)->handle;
+        format::HandleId device        = cb_info->parent_id;
+        VkDevice         replay_device = GetObjectInfoTable().GetVkDeviceInfo(device)->handle;
         GFXRECON_ASSERT(replay_device != 0);
         GetObjectInfoTable().VisitVkQueryPoolInfo([this, replay_device, cb_info](const VulkanQueryPoolInfo* info) {
             // A command buffer can only reference query pools created from its own device.

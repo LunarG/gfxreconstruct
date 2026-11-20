@@ -755,6 +755,7 @@ struct VulkanCommandPoolInfo : public VulkanPoolInfo<VkCommandPool>
 
 struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
 {
+    VkCommandBufferLevel level{ VK_COMMAND_BUFFER_LEVEL_PRIMARY };
     bool is_frame_boundary{ false };
 
     struct
