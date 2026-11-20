@@ -32,6 +32,11 @@ android {
                     logger.info('GFXReconstruct layer built with OpenXr Support.')
                     arguments.add("-DGFXRECON_ENABLE_OPENXR=ON")
                 }
+
+                if (providers.gradleProperty("HeapAccounting").present) {
+                    logger.info('GFXReconstruct layer built with heap accounting. [HeapAccounting found]')
+                    arguments.add("-DGFXRECON_ENABLE_HEAP_ACCOUNTING=ON")
+                }
             }
         }
     }
