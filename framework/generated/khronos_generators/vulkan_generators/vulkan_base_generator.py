@@ -300,7 +300,7 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
             'VkDebugUtilsObjectTagInfoEXT': {
                 'objectHandle': 'objectType'
             },
-            'VkDescriptorGetInfoEXT': {
+            'VkDeviceMemoryReportCallbackDataEXT': {
                 'objectHandle': 'objectType'
             }
         }
