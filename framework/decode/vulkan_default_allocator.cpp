@@ -485,6 +485,7 @@ VkResult VulkanDefaultAllocator::MapMemory(VkDeviceMemory   memory,
                 auto memory_alloc_info            = reinterpret_cast<MemoryAllocInfo*>(allocator_data);
                 memory_alloc_info->mapped_pointer = static_cast<uint8_t*>(*data);
                 memory_alloc_info->mapped_offset  = offset;
+                memory_alloc_info->mapped_end     = GetMappedEnd(memory_alloc_info, offset, size);
             }
             else
             {
@@ -514,6 +515,8 @@ VulkanDefaultAllocator::MapMemory2(const VkMemoryMapInfo* memory_map_info, void*
                 auto memory_alloc_info            = reinterpret_cast<MemoryAllocInfo*>(allocator_data);
                 memory_alloc_info->mapped_pointer = static_cast<uint8_t*>(*data);
                 memory_alloc_info->mapped_offset  = memory_map_info->offset;
+                memory_alloc_info->mapped_end =
+                    GetMappedEnd(memory_alloc_info, memory_map_info->offset, memory_map_info->size);
             }
             else
             {
@@ -532,6 +535,7 @@ void VulkanDefaultAllocator::UnmapMemory(VkDeviceMemory memory, MemoryData alloc
         auto memory_alloc_info            = reinterpret_cast<MemoryAllocInfo*>(allocator_data);
         memory_alloc_info->mapped_pointer = nullptr;
         memory_alloc_info->mapped_offset  = 0;
+        memory_alloc_info->mapped_end     = 0;
     }
 
     functions_.unmap_memory(device_, memory);
@@ -546,6 +550,7 @@ VkResult VulkanDefaultAllocator::UnmapMemory2(const VkMemoryUnmapInfo* memory_un
         auto memory_alloc_info            = reinterpret_cast<MemoryAllocInfo*>(allocator_data);
         memory_alloc_info->mapped_pointer = nullptr;
         memory_alloc_info->mapped_offset  = 0;
+        memory_alloc_info->mapped_end     = 0;
     }
 
     return functions_.unmap_memory2(device_, memory_unmap_info);
@@ -621,33 +626,69 @@ VkResult VulkanDefaultAllocator::WriteMappedMemoryRange(MemoryData     allocator
     return result;
 }
 
+VkDeviceSize
+VulkanDefaultAllocator::GetMappedEnd(const MemoryAllocInfo* memory_alloc_info, VkDeviceSize offset, VkDeviceSize size)
+{
+    GFXRECON_ASSERT(memory_alloc_info != nullptr);
+
+    // An allocation size of 0 is not known, thus the mapped range has no known end.
+    const VkDeviceSize allocation_end = (memory_alloc_info->allocation_size != 0)
+                                            ? memory_alloc_info->allocation_size
+                                            : std::numeric_limits<VkDeviceSize>::max();
+
+    if ((size == VK_WHOLE_SIZE) || (size > (allocation_end - std::min(offset, allocation_end))))
+    {
+        return allocation_end;
+    }
+
+    return offset + size;
+}
+
 VkResult
 VulkanDefaultAllocator::FlushWrittenRange(const MemoryAllocInfo* memory_alloc_info, uint64_t offset, uint64_t size)
 {
-    assert(memory_alloc_info != nullptr);
+    GFXRECON_ASSERT(memory_alloc_info != nullptr);
 
     if (memory_alloc_info->memory == VK_NULL_HANDLE)
     {
         return VK_ERROR_INITIALIZATION_FAILED;
     }
 
-    // Offset must be a multiple of nonCoherentAtomSize, and size must be a multiple of it or reach the end of the
-    // allocation. nonCoherentAtomSize is not guaranteed to be a power of two.
-    const VkDeviceSize atom_size = std::max<VkDeviceSize>(replay_non_coherent_atom_size_, 1);
+    if (size == 0)
+    {
+        return VK_SUCCESS;
+    }
 
-    VkDeviceSize start = memory_alloc_info->mapped_offset + offset;
+    // Offset must be a multiple of nonCoherentAtomSize. The range must be in the mapped range, and its size must be a
+    // multiple of nonCoherentAtomSize or reach the end of the allocation. nonCoherentAtomSize is not guaranteed to be
+    // a power of two.
+    const VkDeviceSize atom_size    = std::max<VkDeviceSize>(replay_non_coherent_atom_size_, 1);
+    const VkDeviceSize mapped_begin = memory_alloc_info->mapped_offset;
+    const VkDeviceSize mapped_end   = memory_alloc_info->mapped_end;
+
+    VkDeviceSize start = mapped_begin + offset;
     VkDeviceSize end   = start + size;
 
     start -= start % atom_size;
     end = ((end + atom_size - 1) / atom_size) * atom_size;
 
-    if (memory_alloc_info->allocation_size != 0)
+    if (start < mapped_begin)
     {
-        end = std::min(end, memory_alloc_info->allocation_size);
+        // The map offset is not a multiple of nonCoherentAtomSize, thus no valid range covers the first bytes of the
+        // mapped range. Flush from the map offset, which is the nearest range.
+        GFXRECON_LOG_WARNING_ONCE("Flushing a write to memory mapped at offset %" PRIu64
+                                  ", which is not a multiple of nonCoherentAtomSize %" PRIu64,
+                                  mapped_begin,
+                                  atom_size);
+        start = mapped_begin;
     }
 
+    // VK_WHOLE_SIZE flushes to the end of the mapped range, which can be an end that is not a multiple of
+    // nonCoherentAtomSize.
+    const VkDeviceSize range_size = (end < mapped_end) ? (end - start) : VK_WHOLE_SIZE;
+
     const VkMappedMemoryRange range = {
-        VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE, nullptr, memory_alloc_info->memory, start, end - start
+        VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE, nullptr, memory_alloc_info->memory, start, range_size
     };
 
     // The flush has no block in the capture file.
