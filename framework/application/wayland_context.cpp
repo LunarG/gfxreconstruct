@@ -302,7 +302,7 @@ void WaylandContext::HandleKeyboardKey(
                     break;
                 case KEY_SPACE:
                 case KEY_P:
-                    application->SetPaused(!application->GetPaused());
+                    application->SetPaused(!application->GetPaused(), "a key press");
                     break;
                 default:
                     break;
