@@ -85,6 +85,7 @@ struct CopyResourceData
 
     std::vector<std::vector<uint8_t>> datas; // copy resource draw call
 
+    graphics::dx12::ID3D12CommandAllocatorComPtr    copy_cmd_allocator{ nullptr };
     graphics::dx12::ID3D12GraphicsCommandListComPtr cmd_list{ nullptr };
     graphics::dx12::ID3D12ResourceComPtr            read_resource{ nullptr };
     bool                                            read_resource_is_staging_buffer{ false };
@@ -110,6 +111,7 @@ struct CopyResourceData
         is_cpu_accessible               = false;
         datas                           = std::vector<std::vector<uint8_t>>();
         cmd_list                        = nullptr;
+        copy_cmd_allocator              = nullptr;
         read_resource                   = nullptr;
         read_resource_is_staging_buffer = false;
         resource_type                   = Dx12DumpResourceType::kUnknown;
@@ -131,24 +133,29 @@ struct TrackDumpResources
     format::HandleId                         depth_stencil_heap_id{ format::kNullHandleId };
     D3D12_CPU_DESCRIPTOR_HANDLE              replay_depth_stencil_handle{ kNullCpuAddress };
 
-    graphics::dx12::ID3D12CommandAllocatorComPtr copy_cmd_allocator{ nullptr };
-    graphics::dx12::ID3D12ResourceComPtr         copy_staging_buffer{ nullptr };
-    uint64_t                                     copy_staging_buffer_size{ 0 };
-
     std::array<graphics::dx12::CommandSet, 3> split_command_sets;
     std::array<graphics::dx12::CommandSet, 3> split_bundle_command_sets;
 
     graphics::dx12::ID3D12FenceComPtr fence;
     HANDLE                            fence_event;
     uint64_t                          fence_signal_value{ 1 };
+    graphics::dx12::ID3D12CommandQueueComPtr copy_queue;
+    graphics::dx12::ID3D12FenceComPtr        copy_ready_fence;
+    graphics::dx12::ID3D12FenceComPtr        copy_complete_fence;
+    uint64_t                                 copy_queue_fence_value{ 0 };
 
     void Clear()
     {
         target.Clear();
         render_target_heap_ids.clear();
         replay_render_target_handles.clear();
-        copy_cmd_allocator  = nullptr;
-        copy_staging_buffer = nullptr;
+        fence                  = nullptr;
+        fence_event            = nullptr;
+        fence_signal_value     = 1;
+        copy_queue             = nullptr;
+        copy_ready_fence       = nullptr;
+        copy_complete_fence    = nullptr;
+        copy_queue_fence_value = 0;
     }
 };
 
