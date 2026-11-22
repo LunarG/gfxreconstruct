@@ -60,7 +60,8 @@ struct WindowRenderPassContext
     WindowRenderPassContext(const VulkanRenderPassInfo*     rp,
                             const VulkanFramebufferInfo*    fb,
                             DumpResourcesCommandBufferLevel level) :
-        type(RenderPassType::kRenderPass), renderpass_info(rp), framebuffer_info(fb), cmd_buf_level(level)
+        type(RenderPassType::kRenderPass),
+        renderpass_info(rp), framebuffer_info(fb), cmd_buf_level(level)
     {
         GFXRECON_ASSERT(cmd_buf_level != DumpResourcesCommandBufferLevel::kUnknown);
     }
@@ -71,8 +72,8 @@ struct WindowRenderPassContext
                             VulkanImageInfo*                     depth_attachment,
                             VkImageLayout                        depth_attachment_layout,
                             DumpResourcesCommandBufferLevel      level) :
-        type(RenderPassType::kDynamicRendering), renderpass_info(nullptr), framebuffer_info(nullptr),
-        cmd_buf_level(level)
+        type(RenderPassType::kDynamicRendering),
+        renderpass_info(nullptr), framebuffer_info(nullptr), cmd_buf_level(level)
     {
         GFXRECON_ASSERT(cmd_buf_level != DumpResourcesCommandBufferLevel::kUnknown);
 

@@ -50,9 +50,9 @@ DumpingContextWindows::DumpingContextWindows(const CommandIndices*      draw_ind
                                              const RenderPassIndices*   renderpass_indices,
                                              CommonObjectInfoTable&     object_info_table,
                                              const VulkanReplayOptions& options) :
-    original_command_buffer_info_(nullptr), current_cb_index_(0), options_(options), inside_renderpass_(false),
-    has_tail_clone_(false), command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary),
-    object_info_table_(object_info_table)
+    original_command_buffer_info_(nullptr),
+    current_cb_index_(0), options_(options), inside_renderpass_(false), has_tail_clone_(false),
+    command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary), object_info_table_(object_info_table)
 {
     // Every dumped command of the command buffer is a slot, in block index order. Each kind's indices are sorted
     // (the dump args parser checks that), so the three rows are merged.
@@ -1434,7 +1434,7 @@ void DumpingContextWindows::BeginRendering(uint64_t                             
     assert(color_attachments.size() == color_attachment_layouts.size());
     GFXRECON_ASSERT(rendering_info != nullptr);
 
-    auto& new_render_pass_context    = render_pass_contexts_.emplace_back(std::make_shared<RenderPassContext>(
+    auto& new_render_pass_context              = render_pass_contexts_.emplace_back(std::make_shared<RenderPassContext>(
         color_attachments, color_attachment_layouts, depth_attachment, depth_attachment_layout, command_buffer_level_));
     new_render_pass_context->begin_block_index = block_index;
 

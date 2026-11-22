@@ -62,8 +62,8 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                                                              const VulkanPerDeviceContexts& device_contexts,
                                                              const graphics::InstanceDispatchTablesMap& instance_tables,
                                                              const graphics::DeviceDispatchTablesMap&   device_tables) :
-    BeginCommandBufferQueueSubmit_Indices_(options.BeginCommandBufferQueueSubmit_Indices), active_contexts_(0),
-    dump_resources_before_(options.dump_resources_before), object_info_table_(object_info_table),
+    BeginCommandBufferQueueSubmit_Indices_(options.BeginCommandBufferQueueSubmit_Indices),
+    active_contexts_(0), dump_resources_before_(options.dump_resources_before), object_info_table_(object_info_table),
     output_json_per_command(options.dump_resources_json_per_command), default_delegate_(nullptr),
     user_delegate_(nullptr), active_delegate_(nullptr), device_contexts_(device_contexts),
     dump_as_build_input_buffers_(options.dump_resources_dump_build_AS_input_buffers)
