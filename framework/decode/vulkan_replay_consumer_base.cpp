@@ -7133,6 +7133,8 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory(PFN_vkBindImageMemory
 
     assert((device_info != nullptr) && (image_info != nullptr) && (memory_info != nullptr));
 
+    RecreateImageWithLateOpaqueData(device_info, image_info);
+
     auto allocator = device_info->allocator.get();
     assert(allocator != nullptr);
 
@@ -7196,7 +7198,9 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory2(
 
         if (image_info != nullptr)
         {
-            allocator_image_datas[i] = image_info->allocator_data;
+            RecreateImageWithLateOpaqueData(device_info, image_info);
+            const_cast<VkBindImageMemoryInfo*>(replay_bind_infos)[i].image = image_info->handle;
+            allocator_image_datas[i]                                       = image_info->allocator_data;
         }
 
         if (memory_info != nullptr)
@@ -7236,6 +7240,52 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory2(
     }
 
     return result;
+}
+
+void VulkanReplayConsumerBase::RecreateImageWithLateOpaqueData(const VulkanDeviceInfo* device_info,
+                                                               VulkanImageInfo*        image_info)
+{
+    if (image_info->heap_create_info.empty())
+    {
+        return;
+    }
+
+    // The image is bound only once, so the copy is not needed after this.
+    const std::vector<uint8_t> create_info_data = std::move(image_info->heap_create_info);
+
+    auto opaque_data = device_info->opaque_descriptor_data.find(image_info->capture_id);
+    if (opaque_data == device_info->opaque_descriptor_data.end())
+    {
+        return;
+    }
+
+    // The opaque data takes effect only at image creation, so the image is created again.
+    VkImageCreateInfo                create_info = *reinterpret_cast<const VkImageCreateInfo*>(create_info_data.data());
+    VkHostAddressRangeConstEXT       opaque_range = { opaque_data->second.data(), opaque_data->second.size() };
+    VkOpaqueCaptureDataCreateInfoEXT opaque_info  = { VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DATA_CREATE_INFO_EXT };
+    opaque_info.pData                             = &opaque_range;
+    create_info.flags |= VK_IMAGE_CREATE_DESCRIPTOR_HEAP_CAPTURE_REPLAY_BIT_EXT;
+    graphics::vulkan_struct_add_pnext(&create_info, &opaque_info);
+
+    auto*                                 allocator      = device_info->allocator.get();
+    VkImage                               image          = VK_NULL_HANDLE;
+    VulkanResourceAllocator::ResourceData allocator_data = 0;
+
+    VkResult result = allocator->CreateImage(&create_info, nullptr, image_info->capture_id, &image, &allocator_data);
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("Failed to recreate VkImage object (ID = %" PRIu64 ") with its opaque data: %s",
+                           image_info->capture_id,
+                           util::ToString<VkResult>(result).c_str());
+        return;
+    }
+
+    allocator->DestroyImage(image_info->handle, nullptr, image_info->allocator_data);
+    image_handle_id_map_.erase(image_info->handle);
+    image_handle_id_map_[image] = image_info->capture_id;
+
+    image_info->handle         = image;
+    image_info->allocator_data = allocator_data;
 }
 
 VkResult VulkanReplayConsumerBase::OverrideBindVideoSessionMemoryKHR(
@@ -7560,11 +7610,16 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
     // VK_EXT_descriptor_heap: opaque data goes into VkOpaqueCaptureDataCreateInfoEXT, same blob map as above
     VkHostAddressRangeConstEXT       opaque_heap_range = {};
     VkOpaqueCaptureDataCreateInfoEXT opaque_heap_info  = { VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DATA_CREATE_INFO_EXT };
+    std::vector<uint8_t>             heap_create_info;
 
     if (device_info->property_feature_info.feature_descriptorHeapCaptureReplay &&
         !device_info->property_feature_info.feature_descriptorBufferCaptureReplay &&
         !UseAddressReplacement(device_info))
     {
+        // kept for RecreateImageWithLateOpaqueData, without the opaque data added below.
+        heap_create_info.resize(graphics::vulkan_struct_deep_copy(&modified_create_info, 1, nullptr));
+        graphics::vulkan_struct_deep_copy(&modified_create_info, 1, heap_create_info.data());
+
         if (auto it = device_info->opaque_descriptor_data.find(capture_id);
             it != device_info->opaque_descriptor_data.end())
         {
@@ -7619,6 +7674,7 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
         }
 
         image_info->external_format = has_external_format;
+        image_info->heap_create_info = std::move(heap_create_info);
 
         image_info->external_memory_android =
             (external_memory != nullptr &&

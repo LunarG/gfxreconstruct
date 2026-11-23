@@ -1112,18 +1112,109 @@ VkResult VulkanCaptureManager::OverrideCreateImage(VkDevice                     
             VkHostAddressRangeEXT opaque_range    = { opaque_data.data(), opaque_data.size() };
             VkResult              get_data_result = device_table->GetImageOpaqueCaptureDataEXT(
                 device_wrapper->handle, 1, &image_wrapper->handle, &opaque_range);
-            GFXRECON_ASSERT(get_data_result == VK_SUCCESS);
 
-            WriteSetOpaqueCaptureDescriptorData(
-                device_wrapper->handle_id, image_wrapper->handle_id, opaque_data.size(), opaque_data.data());
-
-            if (IsCaptureModeTrack())
+            if (get_data_result == VK_SUCCESS)
             {
+                WriteSetOpaqueCaptureDescriptorData(
+                    device_wrapper->handle_id, image_wrapper->handle_id, opaque_data.size(), opaque_data.data());
+
+                // Kept in all modes: binding memory can change it (UpdateImageOpaqueCaptureData).
                 image_wrapper->opaque_descriptor_data = std::move(opaque_data);
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("vkGetImageOpaqueCaptureDataEXT failed for VkImage (ID = %" PRIu64 "): %d",
+                                     image_wrapper->handle_id,
+                                     get_data_result);
             }
         }
     }
     return result;
+}
+
+VkResult VulkanCaptureManager::OverrideBindImageMemory(VkDevice       device,
+                                                       VkImage        image,
+                                                       VkDeviceMemory memory,
+                                                       VkDeviceSize   memoryOffset)
+{
+    VkResult result = vulkan_wrappers::GetDeviceTable(device)->BindImageMemory(device, image, memory, memoryOffset);
+
+    if (result == VK_SUCCESS)
+    {
+        UpdateImageOpaqueCaptureData(vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device), image);
+    }
+    return result;
+}
+
+VkResult VulkanCaptureManager::OverrideBindImageMemory2(VkDevice                     device,
+                                                        uint32_t                     bindInfoCount,
+                                                        const VkBindImageMemoryInfo* pBindInfos)
+{
+    return BindImageMemory2(
+        vulkan_wrappers::GetDeviceTable(device)->BindImageMemory2, device, bindInfoCount, pBindInfos);
+}
+
+VkResult VulkanCaptureManager::OverrideBindImageMemory2KHR(VkDevice                     device,
+                                                           uint32_t                     bindInfoCount,
+                                                           const VkBindImageMemoryInfo* pBindInfos)
+{
+    return BindImageMemory2(
+        vulkan_wrappers::GetDeviceTable(device)->BindImageMemory2KHR, device, bindInfoCount, pBindInfos);
+}
+
+VkResult VulkanCaptureManager::BindImageMemory2(PFN_vkBindImageMemory2       bind_image_memory2,
+                                                VkDevice                     device,
+                                                uint32_t                     bindInfoCount,
+                                                const VkBindImageMemoryInfo* pBindInfos)
+{
+    const VkBindImageMemoryInfo* pBindInfos_unwrapped =
+        vulkan_wrappers::UnwrapStructArrayHandles(pBindInfos, bindInfoCount, GetHandleUnwrapMemory());
+
+    VkResult result = bind_image_memory2(device, bindInfoCount, pBindInfos_unwrapped);
+
+    if (result == VK_SUCCESS)
+    {
+        auto* device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+        for (uint32_t i = 0; i < bindInfoCount; ++i)
+        {
+            UpdateImageOpaqueCaptureData(device_wrapper, pBindInfos[i].image);
+        }
+    }
+    return result;
+}
+
+void VulkanCaptureManager::UpdateImageOpaqueCaptureData(vulkan_wrappers::DeviceWrapper* device_wrapper, VkImage image)
+{
+    if (!device_wrapper->property_feature_info.feature_descriptorHeapCaptureReplay ||
+        device_wrapper->property_feature_info.feature_descriptorBufferCaptureReplay)
+    {
+        return;
+    }
+
+    auto*                image_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(image);
+    std::vector<uint8_t> opaque_data(
+        device_wrapper->property_feature_info.descriptor_heap_properties.imageCaptureReplayOpaqueDataSize);
+
+    // The driver can assign the image's address at bind time, so the data from image creation may be stale.
+    VkHostAddressRangeEXT opaque_range = { .address = opaque_data.data(), .size = opaque_data.size() };
+    VkResult              get_data_result =
+        vulkan_wrappers::GetDeviceTable(device_wrapper->handle)
+            ->GetImageOpaqueCaptureDataEXT(device_wrapper->handle, 1, &image_wrapper->handle, &opaque_range);
+
+    if (get_data_result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_WARNING("vkGetImageOpaqueCaptureDataEXT failed for VkImage (ID = %" PRIu64 "): %d",
+                             image_wrapper->handle_id,
+                             get_data_result);
+        return;
+    }
+
+    if (opaque_data != image_wrapper->opaque_descriptor_data)
+    {
+        WriteSetOpaqueCaptureDescriptorData(
+            device_wrapper->handle_id, image_wrapper->handle_id, opaque_data.size(), opaque_data.data());
+        image_wrapper->opaque_descriptor_data = std::move(opaque_data);
+    }
 }
 
 VkResult VulkanCaptureManager::OverrideCreateImageView(VkDevice                     device,

@@ -2212,6 +2212,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     bool CanPreserveExternalMemory(const VulkanDeviceInfo* device_info) const;
 
+    // Recreates an unbound image if capture recorded new heap opaque data for it when its memory was bound.
+    void RecreateImageWithLateOpaqueData(const VulkanDeviceInfo* device_info, VulkanImageInfo* image_info);
+
     /**
      * @brief   ApplyReplayCreateInfoModifications applies the create-info edits replay performs before
      *          creating a resource: external-memory and external-format handling, the transfer-usage

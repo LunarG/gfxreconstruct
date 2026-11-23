@@ -989,7 +989,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBindImageMemory(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindImageMemory>::Dispatch(manager, device, image, memory, memoryOffset);
 
-    VkResult result = vulkan_wrappers::GetDeviceTable(device)->BindImageMemory(device, image, memory, memoryOffset);
+    VkResult result = manager->OverrideBindImageMemory(device, image, memory, memoryOffset);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkBindImageMemory);
     if (encoder)
@@ -5485,10 +5485,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBindImageMemory2(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindImageMemory2>::Dispatch(manager, device, bindInfoCount, pBindInfos);
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const VkBindImageMemoryInfo* pBindInfos_unwrapped = vulkan_wrappers::UnwrapStructArrayHandles(pBindInfos, bindInfoCount, handle_unwrap_memory);
-
-    VkResult result = vulkan_wrappers::GetDeviceTable(device)->BindImageMemory2(device, bindInfoCount, pBindInfos_unwrapped);
+    VkResult result = manager->OverrideBindImageMemory2(device, bindInfoCount, pBindInfos);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkBindImageMemory2);
     if (encoder)
@@ -13432,10 +13429,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBindImageMemory2KHR(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindImageMemory2KHR>::Dispatch(manager, device, bindInfoCount, pBindInfos);
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const VkBindImageMemoryInfo* pBindInfos_unwrapped = vulkan_wrappers::UnwrapStructArrayHandles(pBindInfos, bindInfoCount, handle_unwrap_memory);
-
-    VkResult result = vulkan_wrappers::GetDeviceTable(device)->BindImageMemory2KHR(device, bindInfoCount, pBindInfos_unwrapped);
+    VkResult result = manager->OverrideBindImageMemory2KHR(device, bindInfoCount, pBindInfos);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkBindImageMemory2KHR);
     if (encoder)
