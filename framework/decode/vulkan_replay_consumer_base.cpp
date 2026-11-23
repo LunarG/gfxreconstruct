@@ -7620,11 +7620,12 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
         heap_create_info.resize(graphics::vulkan_struct_deep_copy(&modified_create_info, 1, nullptr));
         graphics::vulkan_struct_deep_copy(&modified_create_info, 1, heap_create_info.data());
 
-        if (auto it = device_info->opaque_descriptor_data.find(capture_id);
+        // Capture sets the flag on every image, with or without opaque data.
+        modified_create_info.flags |= VK_IMAGE_CREATE_DESCRIPTOR_HEAP_CAPTURE_REPLAY_BIT_EXT;
+
+        if (const auto it = device_info->opaque_descriptor_data.find(capture_id);
             it != device_info->opaque_descriptor_data.end())
         {
-            modified_create_info.flags |= VK_IMAGE_CREATE_DESCRIPTOR_HEAP_CAPTURE_REPLAY_BIT_EXT;
-
             opaque_heap_range      = { it->second.data(), it->second.size() };
             opaque_heap_info.pData = &opaque_heap_range;
             graphics::vulkan_struct_add_pnext(&modified_create_info, &opaque_heap_info);

@@ -1104,7 +1104,8 @@ VkResult VulkanCaptureManager::OverrideCreateImage(VkDevice                     
             }
         }
         // VK_EXT_descriptor_heap: opaque data for VkOpaqueCaptureDataCreateInfoEXT at replay, same meta command
-        else if (device_wrapper->property_feature_info.feature_descriptorHeapCaptureReplay)
+        else if (device_wrapper->property_feature_info.feature_descriptorHeapCaptureReplay &&
+                 device_wrapper->property_feature_info.descriptor_heap_properties.imageCaptureReplayOpaqueDataSize > 0)
         {
             std::vector<uint8_t> opaque_data(
                 device_wrapper->property_feature_info.descriptor_heap_properties.imageCaptureReplayOpaqueDataSize);
@@ -1186,7 +1187,8 @@ VkResult VulkanCaptureManager::BindImageMemory2(PFN_vkBindImageMemory2       bin
 void VulkanCaptureManager::UpdateImageOpaqueCaptureData(vulkan_wrappers::DeviceWrapper* device_wrapper, VkImage image)
 {
     if (!device_wrapper->property_feature_info.feature_descriptorHeapCaptureReplay ||
-        device_wrapper->property_feature_info.feature_descriptorBufferCaptureReplay)
+        device_wrapper->property_feature_info.feature_descriptorBufferCaptureReplay ||
+        device_wrapper->property_feature_info.descriptor_heap_properties.imageCaptureReplayOpaqueDataSize == 0)
     {
         return;
     }
