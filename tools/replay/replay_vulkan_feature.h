@@ -78,10 +78,11 @@ class ReplayVulkanFeature : public ReplayPreProcessFeature<decode::VulkanReplayC
     // The stages between the decoder and replay_consumer_, in the order that a call goes through them.
     std::vector<std::unique_ptr<decode::VulkanConsumerStage>> stages_;
 
-    // The feature's reference to the object info table singleton, held while the image layout stage writes to it.
+    // The feature's reference to the object info table singleton, held while the stages write to it.
     decode::CommonObjectInfoTable* object_info_table_{ nullptr };
 
-    bool frame_looping_{ false };
+    // Set when replay loops a range of frames.
+    graphics::FrameLoopInfo* frame_loop_info_{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(replay)

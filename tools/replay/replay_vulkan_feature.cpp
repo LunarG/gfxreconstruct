@@ -45,6 +45,7 @@
 #include "decode/vulkan_rebind_allocator.h"
 #include "decode/vulkan_remap_allocator.h"
 #include "decode/vulkan_resource_tracking_consumer.h"
+#include "decode/vulkan_stage_frame_loop_fixup.h"
 #include "decode/vulkan_stage_image_layout.h"
 #include "decode/vulkan_stage_queue_wait.h"
 #include "generated/generated_vulkan_decoder.h"
@@ -779,7 +780,7 @@ void ReplayVulkanFeature::CreateConsumer(decode::FileProcessor*                 
         {
             replay_consumer_ = std::make_unique<gfxrecon::decode::VulkanReplayFrameLoopConsumer>(
                 application_, replay_options_, *frame_loop_info);
-            frame_looping_ = true;
+            frame_loop_info_ = frame_loop_info;
         }
         else
         {
@@ -798,8 +799,8 @@ bool ReplayVulkanFeature::NeedsImageLayoutTracking() const
     // - frame looping moves images back to the layouts they were in when the loop started,
     // - a swapchain override image is presented from the layout it is in,
     // - the virtual swapchain presents the image of a vkFrameBoundaryANDROID from the layout it is in.
-    return !replay_options_.screenshot_ranges.empty() || replay_options_.enable_dump_resources || frame_looping_ ||
-           !replay_options_.present_override_image_name.empty() ||
+    return !replay_options_.screenshot_ranges.empty() || replay_options_.enable_dump_resources ||
+           (frame_loop_info_ != nullptr) || !replay_options_.present_override_image_name.empty() ||
            (replay_options_.swapchain_option == util::SwapchainOption::kVirtual);
 }
 
@@ -842,10 +843,33 @@ void ReplayVulkanFeature::RegisterDecodeComponents(graphics::FpsInfo* fps_info)
             stages_.push_back(std::make_unique<decode::VulkanStageQueueWait>(queue_wait_options));
         }
 
-        // The image layout stage goes last, so it sees the same calls as the replay consumer, which reads the layouts.
         if (NeedsImageLayoutTracking())
         {
             object_info_table_ = decode::CommonObjectInfoTable::GetSingleton();
+        }
+
+        // The frame loop fixup stage restores the image layouts that the image layout stage tracks, so it goes before
+        // it. It calls Vulkan through the dispatch tables of the replay consumer.
+        if (frame_loop_info_ != nullptr)
+        {
+            GFXRECON_ASSERT(object_info_table_ != nullptr);
+
+            const decode::VulkanReplayConsumer* consumer = replay_consumer_.get();
+            decode::VulkanDispatchTableLookup   dispatch_tables;
+            dispatch_tables.get_instance_table = [consumer](const void* handle) {
+                return consumer->GetInstanceTable(handle);
+            };
+            dispatch_tables.get_device_table = [consumer](const void* handle) {
+                return consumer->GetDeviceTable(handle);
+            };
+
+            stages_.push_back(std::make_unique<decode::VulkanStageFrameLoopFixup>(
+                *object_info_table_, *frame_loop_info_, std::move(dispatch_tables)));
+        }
+
+        // The image layout stage goes last, so it sees the same calls as the replay consumer, which reads the layouts.
+        if (NeedsImageLayoutTracking())
+        {
             stages_.push_back(std::make_unique<decode::VulkanStageImageLayout>(*object_info_table_));
         }
 
@@ -912,8 +936,8 @@ void ReplayVulkanFeature::CompletePreProcessingPass()
 
 void ReplayVulkanFeature::Destroy()
 {
-    // The stages forward to the replay consumer, and the image layout stage writes to its object info table, so they
-    // go first.
+    // The stages forward to the replay consumer and write to its object info table, and the frame loop fixup stage
+    // frees its shadow copies through the dispatch tables of the replay consumer, so they go first.
     stages_.clear();
     if (object_info_table_ != nullptr)
     {
