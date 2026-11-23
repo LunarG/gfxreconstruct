@@ -638,11 +638,6 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
         capture_mode_ = kModeDisabled;
     }
 
-    if (success)
-    {
-        command_writer_ = std::make_unique<CommandWriter>(GetThreadData(), file_stream_.get(), compressor_.get());
-    }
-
     return success;
 }
 

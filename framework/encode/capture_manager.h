@@ -496,9 +496,10 @@ class CommonCaptureManager
     {
         return screenshot_format_;
     }
-    CommandWriter* GetCommandWriter()
+    // Built per call: the capture file and the thread data change during capture.
+    CommandWriter GetCommandWriter()
     {
-        return command_writer_.get();
+        return { GetThreadData(), file_stream_.get(), compressor_.get() };
     }
 
     std::string CreateTrimFilename(const std::string& base_filename, const util::UintRange& trim_range);
@@ -672,8 +673,6 @@ class CommonCaptureManager
         uint16_t descriptor_mask{ RvAnnotationUtil::kDescriptorMask };
         uint64_t shaderid_mask{ RvAnnotationUtil::kShaderIDMask };
     } rv_annotation_info_;
-
-    std::unique_ptr<CommandWriter> command_writer_;
 };
 
 /**
