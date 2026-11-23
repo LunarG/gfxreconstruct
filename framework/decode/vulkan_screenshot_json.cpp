@@ -118,16 +118,17 @@ void VulkanScreenshotJson::Close(uint32_t frames_seen)
     CloseFrame();
 
     nlohmann::ordered_json document;
-    auto&                  summary = document["summary"];
-    summary["framesSeen"]          = frames_seen;
-    summary["framesRequested"]     = frames_requested_;
-    summary["framesWritten"]       = frames_written_;
-    summary["framesPartial"]       = frames_partial_;
-    summary["framesSkipped"]       = frames_skipped_;
-    summary["framesFailed"]        = frames_failed_;
-    summary["filesWritten"]        = files_written_;
+    document["header"]         = header_;
+    auto& summary              = document["summary"];
+    summary["framesSeen"]      = frames_seen;
+    summary["framesRequested"] = frames_requested_;
+    summary["framesWritten"]   = frames_written_;
+    summary["framesPartial"]   = frames_partial_;
+    summary["framesSkipped"]   = frames_skipped_;
+    summary["framesFailed"]    = frames_failed_;
+    summary["filesWritten"]    = files_written_;
 
-    WritePerFrameFile(controller_.FilePrefix() + ".json", document);
+    WriteJsonFile(controller_.FilePrefix() + ".json", document);
 }
 
 void VulkanScreenshotJson::BeginFrame(const char*             boundary_type,
@@ -360,7 +361,7 @@ void VulkanScreenshotJson::CloseFrame()
     }
 
     // The same base name a single image of this frame gets, so the record sits next to the images it describes.
-    WritePerFrameFile(controller_.FilenameFor() + ".json", ordered);
+    WriteJsonFile(controller_.FilenameFor() + ".json", ordered);
 
     frame_.clear();
     frame_open_ = false;
@@ -766,17 +767,12 @@ void VulkanScreenshotJson::InsertReason(nlohmann::ordered_json& entry,
     }
 }
 
-bool VulkanScreenshotJson::WritePerFrameFile(const std::string& filename, const nlohmann::ordered_json& record)
+bool VulkanScreenshotJson::WriteJsonFile(const std::string& filename, const nlohmann::ordered_json& document)
 {
     if (!Open(filename))
     {
         return false;
     }
-
-    // The header first, so the file says how replay was run before what it produced.
-    nlohmann::ordered_json document;
-    document["header"] = header_;
-    document.update(record);
 
     const std::string text =
         document.dump(util::kJsonIndentWidth, ' ', false, nlohmann::json::error_handler_t::replace) + "\n";

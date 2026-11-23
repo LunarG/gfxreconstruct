@@ -48,9 +48,9 @@ struct Decoded_VkPresentInfoKHR;
  * @brief The record of every screenshot the Vulkan consumer takes, or does not take.
  *
  * Written next to the screenshots as one file for each frame the ScreenshotController asked for, plus a summary json
- * file "<prefix>.json". A frame's file holds the header, which says how replay was run, and the frame record: which
- * boundary ended the frame, which images it presented, and for each image whether a file was written and if not, why.
- * The summary holds the header and the counters over all frames.
+ * file "<prefix>.json". A frame's file holds the frame record: which boundary ended the frame, which images it
+ * presented, and for each image whether a file was written and if not, why. The summary holds the header, which says
+ * how replay was run, and the counters over all frames.
  */
 class VulkanScreenshotJson
 {
@@ -223,8 +223,8 @@ class VulkanScreenshotJson
                              const std::string&      message,
                              std::optional<VkResult> vk_result);
 
-    // Writes the header followed by record as one document to filename
-    bool WritePerFrameFile(const std::string& filename, const nlohmann::ordered_json& record);
+    // Writes document to filename
+    bool WriteJsonFile(const std::string& filename, const nlohmann::ordered_json& document);
 
     // Computes the status of a frame from the number of its outputs in each status. reason_is_error classifies a
     // frame without any outputs
