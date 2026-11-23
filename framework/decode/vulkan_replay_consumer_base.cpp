@@ -11064,8 +11064,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
 
             // Enable capture replay flag.
             modified_create_infos.push_back(in_pCreateInfos[create_info_i]);
-            modified_create_infos[create_info_i].flags |=
-                VK_PIPELINE_CREATE_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR;
+            graphics::SetShaderGroupHandleCaptureReplayFlag(modified_create_infos[create_info_i]);
 
             uint32_t       group_info_count = in_pCreateInfos[create_info_i].groupCount;
             const uint8_t* handle_data =
@@ -14959,7 +14958,7 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
         const uint32_t handle_size = device_info->property_feature_info.property_shaderGroupHandleCaptureReplaySize;
         for (uint32_t i = 0; i < createInfoCount; ++i)
         {
-            create_infos[i].flags |= VK_PIPELINE_CREATE_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR;
+            graphics::SetShaderGroupHandleCaptureReplayFlag(create_infos[i]);
 
             const uint8_t* handle_data =
                 GetShaderGroupCaptureReplayHandles(device_info, pipeline_ids[i], create_infos[i].groupCount);

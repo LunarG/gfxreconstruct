@@ -198,6 +198,9 @@ std::vector<VkPipelineBindPoint> ShaderStageFlagsToPipelineBindPoints(VkShaderSt
 
 bool ArePipelineRenderingFormatsIgnored(const VkGraphicsPipelineCreateInfo& create_info);
 
+// Sets the shader group handle capture/replay bit in VkPipelineCreateFlags2CreateInfo if chained, else in flags.
+void SetShaderGroupHandleCaptureReplayFlag(VkRayTracingPipelineCreateInfoKHR& create_info);
+
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
