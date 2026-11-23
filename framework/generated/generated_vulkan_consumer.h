@@ -3068,6 +3068,4532 @@ class VulkanConsumer : public VulkanConsumerBase
     virtual void Process_vkCmdDrawMeshTasksIndirectCountEXT(
         const ApiCallInfo&                          call_info,
         args::CmdDrawMeshTasksIndirectCountEXT&     args) {}
+
+    using VulkanConsumerBase::Process;
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateInstance&                       args) {
+        Process_vkCreateInstance(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyInstance&                      args) {
+        Process_vkDestroyInstance(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::EnumeratePhysicalDevices&             args) {
+        Process_vkEnumeratePhysicalDevices(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceFeatures&            args) {
+        Process_vkGetPhysicalDeviceFeatures(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceFormatProperties&    args) {
+        Process_vkGetPhysicalDeviceFormatProperties(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceImageFormatProperties& args) {
+        Process_vkGetPhysicalDeviceImageFormatProperties(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceProperties&          args) {
+        Process_vkGetPhysicalDeviceProperties(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceQueueFamilyProperties& args) {
+        Process_vkGetPhysicalDeviceQueueFamilyProperties(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceMemoryProperties&    args) {
+        Process_vkGetPhysicalDeviceMemoryProperties(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateDevice&                         args) {
+        Process_vkCreateDevice(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyDevice&                        args) {
+        Process_vkDestroyDevice(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceQueue&                       args) {
+        Process_vkGetDeviceQueue(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::QueueSubmit&                          args) {
+        Process_vkQueueSubmit(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::QueueWaitIdle&                        args) {
+        Process_vkQueueWaitIdle(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DeviceWaitIdle&                       args) {
+        Process_vkDeviceWaitIdle(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::AllocateMemory&                       args) {
+        Process_vkAllocateMemory(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::FreeMemory&                           args) {
+        Process_vkFreeMemory(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::MapMemory&                            args) {
+        Process_vkMapMemory(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::UnmapMemory&                          args) {
+        Process_vkUnmapMemory(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::FlushMappedMemoryRanges&              args) {
+        Process_vkFlushMappedMemoryRanges(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::InvalidateMappedMemoryRanges&         args) {
+        Process_vkInvalidateMappedMemoryRanges(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceMemoryCommitment&            args) {
+        Process_vkGetDeviceMemoryCommitment(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::BindBufferMemory&                     args) {
+        Process_vkBindBufferMemory(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::BindImageMemory&                      args) {
+        Process_vkBindImageMemory(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetBufferMemoryRequirements&          args) {
+        Process_vkGetBufferMemoryRequirements(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetImageMemoryRequirements&           args) {
+        Process_vkGetImageMemoryRequirements(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetImageSparseMemoryRequirements&     args) {
+        Process_vkGetImageSparseMemoryRequirements(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceSparseImageFormatProperties& args) {
+        Process_vkGetPhysicalDeviceSparseImageFormatProperties(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::QueueBindSparse&                      args) {
+        Process_vkQueueBindSparse(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateFence&                          args) {
+        Process_vkCreateFence(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyFence&                         args) {
+        Process_vkDestroyFence(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::ResetFences&                          args) {
+        Process_vkResetFences(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetFenceStatus&                       args) {
+        Process_vkGetFenceStatus(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::WaitForFences&                        args) {
+        Process_vkWaitForFences(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateSemaphore&                      args) {
+        Process_vkCreateSemaphore(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroySemaphore&                     args) {
+        Process_vkDestroySemaphore(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateQueryPool&                      args) {
+        Process_vkCreateQueryPool(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyQueryPool&                     args) {
+        Process_vkDestroyQueryPool(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetQueryPoolResults&                  args) {
+        Process_vkGetQueryPoolResults(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateBuffer&                         args) {
+        Process_vkCreateBuffer(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyBuffer&                        args) {
+        Process_vkDestroyBuffer(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateImage&                          args) {
+        Process_vkCreateImage(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyImage&                         args) {
+        Process_vkDestroyImage(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetImageSubresourceLayout&            args) {
+        Process_vkGetImageSubresourceLayout(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateImageView&                      args) {
+        Process_vkCreateImageView(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyImageView&                     args) {
+        Process_vkDestroyImageView(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateCommandPool&                    args) {
+        Process_vkCreateCommandPool(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyCommandPool&                   args) {
+        Process_vkDestroyCommandPool(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::ResetCommandPool&                     args) {
+        Process_vkResetCommandPool(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::AllocateCommandBuffers&               args) {
+        Process_vkAllocateCommandBuffers(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::FreeCommandBuffers&                   args) {
+        Process_vkFreeCommandBuffers(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::BeginCommandBuffer&                   args) {
+        Process_vkBeginCommandBuffer(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::EndCommandBuffer&                     args) {
+        Process_vkEndCommandBuffer(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::ResetCommandBuffer&                   args) {
+        Process_vkResetCommandBuffer(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyBuffer&                        args) {
+        Process_vkCmdCopyBuffer(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyImage&                         args) {
+        Process_vkCmdCopyImage(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyBufferToImage&                 args) {
+        Process_vkCmdCopyBufferToImage(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyImageToBuffer&                 args) {
+        Process_vkCmdCopyImageToBuffer(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdUpdateBuffer&                      args) {
+        Process_vkCmdUpdateBuffer(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdFillBuffer&                        args) {
+        Process_vkCmdFillBuffer(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdPipelineBarrier&                   args) {
+        Process_vkCmdPipelineBarrier(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBeginQuery&                        args) {
+        Process_vkCmdBeginQuery(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdEndQuery&                          args) {
+        Process_vkCmdEndQuery(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdResetQueryPool&                    args) {
+        Process_vkCmdResetQueryPool(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdWriteTimestamp&                    args) {
+        Process_vkCmdWriteTimestamp(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyQueryPoolResults&              args) {
+        Process_vkCmdCopyQueryPoolResults(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdExecuteCommands&                   args) {
+        Process_vkCmdExecuteCommands(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateEvent&                          args) {
+        Process_vkCreateEvent(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyEvent&                         args) {
+        Process_vkDestroyEvent(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetEventStatus&                       args) {
+        Process_vkGetEventStatus(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::SetEvent&                             args) {
+        Process_vkSetEvent(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::ResetEvent&                           args) {
+        Process_vkResetEvent(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateBufferView&                     args) {
+        Process_vkCreateBufferView(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyBufferView&                    args) {
+        Process_vkDestroyBufferView(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateShaderModule&                   args) {
+        Process_vkCreateShaderModule(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyShaderModule&                  args) {
+        Process_vkDestroyShaderModule(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreatePipelineCache&                  args) {
+        Process_vkCreatePipelineCache(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyPipelineCache&                 args) {
+        Process_vkDestroyPipelineCache(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPipelineCacheData&                 args) {
+        Process_vkGetPipelineCacheData(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::MergePipelineCaches&                  args) {
+        Process_vkMergePipelineCaches(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateComputePipelines&               args) {
+        Process_vkCreateComputePipelines(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyPipeline&                      args) {
+        Process_vkDestroyPipeline(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreatePipelineLayout&                 args) {
+        Process_vkCreatePipelineLayout(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyPipelineLayout&                args) {
+        Process_vkDestroyPipelineLayout(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateSampler&                        args) {
+        Process_vkCreateSampler(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroySampler&                       args) {
+        Process_vkDestroySampler(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateDescriptorSetLayout&            args) {
+        Process_vkCreateDescriptorSetLayout(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyDescriptorSetLayout&           args) {
+        Process_vkDestroyDescriptorSetLayout(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateDescriptorPool&                 args) {
+        Process_vkCreateDescriptorPool(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyDescriptorPool&                args) {
+        Process_vkDestroyDescriptorPool(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::ResetDescriptorPool&                  args) {
+        Process_vkResetDescriptorPool(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::AllocateDescriptorSets&               args) {
+        Process_vkAllocateDescriptorSets(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::FreeDescriptorSets&                   args) {
+        Process_vkFreeDescriptorSets(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::UpdateDescriptorSets&                 args) {
+        Process_vkUpdateDescriptorSets(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindPipeline&                      args) {
+        Process_vkCmdBindPipeline(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindDescriptorSets&                args) {
+        Process_vkCmdBindDescriptorSets(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdClearColorImage&                   args) {
+        Process_vkCmdClearColorImage(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDispatch&                          args) {
+        Process_vkCmdDispatch(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDispatchIndirect&                  args) {
+        Process_vkCmdDispatchIndirect(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetEvent&                          args) {
+        Process_vkCmdSetEvent(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdResetEvent&                        args) {
+        Process_vkCmdResetEvent(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdWaitEvents&                        args) {
+        Process_vkCmdWaitEvents(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdPushConstants&                     args) {
+        Process_vkCmdPushConstants(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateGraphicsPipelines&              args) {
+        Process_vkCreateGraphicsPipelines(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateFramebuffer&                    args) {
+        Process_vkCreateFramebuffer(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyFramebuffer&                   args) {
+        Process_vkDestroyFramebuffer(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateRenderPass&                     args) {
+        Process_vkCreateRenderPass(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyRenderPass&                    args) {
+        Process_vkDestroyRenderPass(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetRenderAreaGranularity&             args) {
+        Process_vkGetRenderAreaGranularity(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetViewport&                       args) {
+        Process_vkCmdSetViewport(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetScissor&                        args) {
+        Process_vkCmdSetScissor(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetLineWidth&                      args) {
+        Process_vkCmdSetLineWidth(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetDepthBias&                      args) {
+        Process_vkCmdSetDepthBias(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetBlendConstants&                 args) {
+        Process_vkCmdSetBlendConstants(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetDepthBounds&                    args) {
+        Process_vkCmdSetDepthBounds(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetStencilCompareMask&             args) {
+        Process_vkCmdSetStencilCompareMask(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetStencilWriteMask&               args) {
+        Process_vkCmdSetStencilWriteMask(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetStencilReference&               args) {
+        Process_vkCmdSetStencilReference(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindIndexBuffer&                   args) {
+        Process_vkCmdBindIndexBuffer(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindVertexBuffers&                 args) {
+        Process_vkCmdBindVertexBuffers(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDraw&                              args) {
+        Process_vkCmdDraw(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDrawIndexed&                       args) {
+        Process_vkCmdDrawIndexed(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDrawIndirect&                      args) {
+        Process_vkCmdDrawIndirect(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDrawIndexedIndirect&               args) {
+        Process_vkCmdDrawIndexedIndirect(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBlitImage&                         args) {
+        Process_vkCmdBlitImage(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdClearDepthStencilImage&            args) {
+        Process_vkCmdClearDepthStencilImage(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdClearAttachments&                  args) {
+        Process_vkCmdClearAttachments(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdResolveImage&                      args) {
+        Process_vkCmdResolveImage(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBeginRenderPass&                   args) {
+        Process_vkCmdBeginRenderPass(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdNextSubpass&                       args) {
+        Process_vkCmdNextSubpass(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdEndRenderPass&                     args) {
+        Process_vkCmdEndRenderPass(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::BindBufferMemory2&                    args) {
+        Process_vkBindBufferMemory2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::BindImageMemory2&                     args) {
+        Process_vkBindImageMemory2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceGroupPeerMemoryFeatures&     args) {
+        Process_vkGetDeviceGroupPeerMemoryFeatures(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetDeviceMask&                     args) {
+        Process_vkCmdSetDeviceMask(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::EnumeratePhysicalDeviceGroups&        args) {
+        Process_vkEnumeratePhysicalDeviceGroups(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetImageMemoryRequirements2&          args) {
+        Process_vkGetImageMemoryRequirements2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetBufferMemoryRequirements2&         args) {
+        Process_vkGetBufferMemoryRequirements2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetImageSparseMemoryRequirements2&    args) {
+        Process_vkGetImageSparseMemoryRequirements2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceFeatures2&           args) {
+        Process_vkGetPhysicalDeviceFeatures2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceProperties2&         args) {
+        Process_vkGetPhysicalDeviceProperties2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceFormatProperties2&   args) {
+        Process_vkGetPhysicalDeviceFormatProperties2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceImageFormatProperties2& args) {
+        Process_vkGetPhysicalDeviceImageFormatProperties2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceQueueFamilyProperties2& args) {
+        Process_vkGetPhysicalDeviceQueueFamilyProperties2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceMemoryProperties2&   args) {
+        Process_vkGetPhysicalDeviceMemoryProperties2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceSparseImageFormatProperties2& args) {
+        Process_vkGetPhysicalDeviceSparseImageFormatProperties2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::TrimCommandPool&                      args) {
+        Process_vkTrimCommandPool(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceQueue2&                      args) {
+        Process_vkGetDeviceQueue2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceExternalBufferProperties& args) {
+        Process_vkGetPhysicalDeviceExternalBufferProperties(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceExternalFenceProperties& args) {
+        Process_vkGetPhysicalDeviceExternalFenceProperties(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceExternalSemaphoreProperties& args) {
+        Process_vkGetPhysicalDeviceExternalSemaphoreProperties(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDispatchBase&                      args) {
+        Process_vkCmdDispatchBase(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateDescriptorUpdateTemplate&       args) {
+        Process_vkCreateDescriptorUpdateTemplate(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyDescriptorUpdateTemplate&      args) {
+        Process_vkDestroyDescriptorUpdateTemplate(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDescriptorSetLayoutSupport&        args) {
+        Process_vkGetDescriptorSetLayoutSupport(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateSamplerYcbcrConversion&         args) {
+        Process_vkCreateSamplerYcbcrConversion(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroySamplerYcbcrConversion&        args) {
+        Process_vkDestroySamplerYcbcrConversion(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::ResetQueryPool&                       args) {
+        Process_vkResetQueryPool(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetSemaphoreCounterValue&             args) {
+        Process_vkGetSemaphoreCounterValue(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::WaitSemaphores&                       args) {
+        Process_vkWaitSemaphores(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::SignalSemaphore&                      args) {
+        Process_vkSignalSemaphore(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetBufferDeviceAddress&               args) {
+        Process_vkGetBufferDeviceAddress(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetBufferOpaqueCaptureAddress&        args) {
+        Process_vkGetBufferOpaqueCaptureAddress(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceMemoryOpaqueCaptureAddress&  args) {
+        Process_vkGetDeviceMemoryOpaqueCaptureAddress(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDrawIndirectCount&                 args) {
+        Process_vkCmdDrawIndirectCount(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDrawIndexedIndirectCount&          args) {
+        Process_vkCmdDrawIndexedIndirectCount(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateRenderPass2&                    args) {
+        Process_vkCreateRenderPass2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBeginRenderPass2&                  args) {
+        Process_vkCmdBeginRenderPass2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdNextSubpass2&                      args) {
+        Process_vkCmdNextSubpass2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdEndRenderPass2&                    args) {
+        Process_vkCmdEndRenderPass2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceToolProperties&      args) {
+        Process_vkGetPhysicalDeviceToolProperties(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreatePrivateDataSlot&                args) {
+        Process_vkCreatePrivateDataSlot(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyPrivateDataSlot&               args) {
+        Process_vkDestroyPrivateDataSlot(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::SetPrivateData&                       args) {
+        Process_vkSetPrivateData(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPrivateData&                       args) {
+        Process_vkGetPrivateData(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdPipelineBarrier2&                  args) {
+        Process_vkCmdPipelineBarrier2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdWriteTimestamp2&                   args) {
+        Process_vkCmdWriteTimestamp2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::QueueSubmit2&                         args) {
+        Process_vkQueueSubmit2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyBuffer2&                       args) {
+        Process_vkCmdCopyBuffer2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyImage2&                        args) {
+        Process_vkCmdCopyImage2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyBufferToImage2&                args) {
+        Process_vkCmdCopyBufferToImage2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyImageToBuffer2&                args) {
+        Process_vkCmdCopyImageToBuffer2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceBufferMemoryRequirements&    args) {
+        Process_vkGetDeviceBufferMemoryRequirements(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceImageMemoryRequirements&     args) {
+        Process_vkGetDeviceImageMemoryRequirements(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceImageSparseMemoryRequirements& args) {
+        Process_vkGetDeviceImageSparseMemoryRequirements(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetEvent2&                         args) {
+        Process_vkCmdSetEvent2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdResetEvent2&                       args) {
+        Process_vkCmdResetEvent2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdWaitEvents2&                       args) {
+        Process_vkCmdWaitEvents2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBlitImage2&                        args) {
+        Process_vkCmdBlitImage2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdResolveImage2&                     args) {
+        Process_vkCmdResolveImage2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBeginRendering&                    args) {
+        Process_vkCmdBeginRendering(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdEndRendering&                      args) {
+        Process_vkCmdEndRendering(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetCullMode&                       args) {
+        Process_vkCmdSetCullMode(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetFrontFace&                      args) {
+        Process_vkCmdSetFrontFace(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetPrimitiveTopology&              args) {
+        Process_vkCmdSetPrimitiveTopology(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetViewportWithCount&              args) {
+        Process_vkCmdSetViewportWithCount(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetScissorWithCount&               args) {
+        Process_vkCmdSetScissorWithCount(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindVertexBuffers2&                args) {
+        Process_vkCmdBindVertexBuffers2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetDepthTestEnable&                args) {
+        Process_vkCmdSetDepthTestEnable(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetDepthWriteEnable&               args) {
+        Process_vkCmdSetDepthWriteEnable(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetDepthCompareOp&                 args) {
+        Process_vkCmdSetDepthCompareOp(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetDepthBoundsTestEnable&          args) {
+        Process_vkCmdSetDepthBoundsTestEnable(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetStencilTestEnable&              args) {
+        Process_vkCmdSetStencilTestEnable(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetStencilOp&                      args) {
+        Process_vkCmdSetStencilOp(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetRasterizerDiscardEnable&        args) {
+        Process_vkCmdSetRasterizerDiscardEnable(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetDepthBiasEnable&                args) {
+        Process_vkCmdSetDepthBiasEnable(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetPrimitiveRestartEnable&         args) {
+        Process_vkCmdSetPrimitiveRestartEnable(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::MapMemory2&                           args) {
+        Process_vkMapMemory2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::UnmapMemory2&                         args) {
+        Process_vkUnmapMemory2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceImageSubresourceLayout&      args) {
+        Process_vkGetDeviceImageSubresourceLayout(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetImageSubresourceLayout2&           args) {
+        Process_vkGetImageSubresourceLayout2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CopyMemoryToImage&                    args) {
+        Process_vkCopyMemoryToImage(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CopyImageToMemory&                    args) {
+        Process_vkCopyImageToMemory(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CopyImageToImage&                     args) {
+        Process_vkCopyImageToImage(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::TransitionImageLayout&                args) {
+        Process_vkTransitionImageLayout(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdPushDescriptorSet&                 args) {
+        Process_vkCmdPushDescriptorSet(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindDescriptorSets2&               args) {
+        Process_vkCmdBindDescriptorSets2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdPushConstants2&                    args) {
+        Process_vkCmdPushConstants2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdPushDescriptorSet2&                args) {
+        Process_vkCmdPushDescriptorSet2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetLineStipple&                    args) {
+        Process_vkCmdSetLineStipple(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindIndexBuffer2&                  args) {
+        Process_vkCmdBindIndexBuffer2(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetRenderingAreaGranularity&          args) {
+        Process_vkGetRenderingAreaGranularity(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetRenderingAttachmentLocations&   args) {
+        Process_vkCmdSetRenderingAttachmentLocations(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetRenderingInputAttachmentIndices& args) {
+        Process_vkCmdSetRenderingInputAttachmentIndices(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroySurfaceKHR&                    args) {
+        Process_vkDestroySurfaceKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceSurfaceSupportKHR&   args) {
+        Process_vkGetPhysicalDeviceSurfaceSupportKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceSurfaceCapabilitiesKHR& args) {
+        Process_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceSurfaceFormatsKHR&   args) {
+        Process_vkGetPhysicalDeviceSurfaceFormatsKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceSurfacePresentModesKHR& args) {
+        Process_vkGetPhysicalDeviceSurfacePresentModesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateSwapchainKHR&                   args) {
+        Process_vkCreateSwapchainKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroySwapchainKHR&                  args) {
+        Process_vkDestroySwapchainKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetSwapchainImagesKHR&                args) {
+        Process_vkGetSwapchainImagesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::AcquireNextImageKHR&                  args) {
+        Process_vkAcquireNextImageKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::QueuePresentKHR&                      args) {
+        Process_vkQueuePresentKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceGroupPresentCapabilitiesKHR& args) {
+        Process_vkGetDeviceGroupPresentCapabilitiesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceGroupSurfacePresentModesKHR& args) {
+        Process_vkGetDeviceGroupSurfacePresentModesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDevicePresentRectanglesKHR& args) {
+        Process_vkGetPhysicalDevicePresentRectanglesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::AcquireNextImage2KHR&                 args) {
+        Process_vkAcquireNextImage2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceDisplayPropertiesKHR& args) {
+        Process_vkGetPhysicalDeviceDisplayPropertiesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceDisplayPlanePropertiesKHR& args) {
+        Process_vkGetPhysicalDeviceDisplayPlanePropertiesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDisplayPlaneSupportedDisplaysKHR&  args) {
+        Process_vkGetDisplayPlaneSupportedDisplaysKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDisplayModePropertiesKHR&          args) {
+        Process_vkGetDisplayModePropertiesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateDisplayModeKHR&                 args) {
+        Process_vkCreateDisplayModeKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDisplayPlaneCapabilitiesKHR&       args) {
+        Process_vkGetDisplayPlaneCapabilitiesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateDisplayPlaneSurfaceKHR&         args) {
+        Process_vkCreateDisplayPlaneSurfaceKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateSharedSwapchainsKHR&            args) {
+        Process_vkCreateSharedSwapchainsKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateXlibSurfaceKHR&                 args) {
+        Process_vkCreateXlibSurfaceKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceXlibPresentationSupportKHR& args) {
+        Process_vkGetPhysicalDeviceXlibPresentationSupportKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateXcbSurfaceKHR&                  args) {
+        Process_vkCreateXcbSurfaceKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceXcbPresentationSupportKHR& args) {
+        Process_vkGetPhysicalDeviceXcbPresentationSupportKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateWaylandSurfaceKHR&              args) {
+        Process_vkCreateWaylandSurfaceKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceWaylandPresentationSupportKHR& args) {
+        Process_vkGetPhysicalDeviceWaylandPresentationSupportKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateAndroidSurfaceKHR&              args) {
+        Process_vkCreateAndroidSurfaceKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateWin32SurfaceKHR&                args) {
+        Process_vkCreateWin32SurfaceKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceWin32PresentationSupportKHR& args) {
+        Process_vkGetPhysicalDeviceWin32PresentationSupportKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceVideoCapabilitiesKHR& args) {
+        Process_vkGetPhysicalDeviceVideoCapabilitiesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceVideoFormatPropertiesKHR& args) {
+        Process_vkGetPhysicalDeviceVideoFormatPropertiesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateVideoSessionKHR&                args) {
+        Process_vkCreateVideoSessionKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyVideoSessionKHR&               args) {
+        Process_vkDestroyVideoSessionKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetVideoSessionMemoryRequirementsKHR& args) {
+        Process_vkGetVideoSessionMemoryRequirementsKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::BindVideoSessionMemoryKHR&            args) {
+        Process_vkBindVideoSessionMemoryKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateVideoSessionParametersKHR&      args) {
+        Process_vkCreateVideoSessionParametersKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::UpdateVideoSessionParametersKHR&      args) {
+        Process_vkUpdateVideoSessionParametersKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyVideoSessionParametersKHR&     args) {
+        Process_vkDestroyVideoSessionParametersKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBeginVideoCodingKHR&               args) {
+        Process_vkCmdBeginVideoCodingKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdEndVideoCodingKHR&                 args) {
+        Process_vkCmdEndVideoCodingKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdControlVideoCodingKHR&             args) {
+        Process_vkCmdControlVideoCodingKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDecodeVideoKHR&                    args) {
+        Process_vkCmdDecodeVideoKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBeginRenderingKHR&                 args) {
+        Process_vkCmdBeginRenderingKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdEndRenderingKHR&                   args) {
+        Process_vkCmdEndRenderingKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceFeatures2KHR&        args) {
+        Process_vkGetPhysicalDeviceFeatures2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceProperties2KHR&      args) {
+        Process_vkGetPhysicalDeviceProperties2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceFormatProperties2KHR& args) {
+        Process_vkGetPhysicalDeviceFormatProperties2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceImageFormatProperties2KHR& args) {
+        Process_vkGetPhysicalDeviceImageFormatProperties2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceQueueFamilyProperties2KHR& args) {
+        Process_vkGetPhysicalDeviceQueueFamilyProperties2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceMemoryProperties2KHR& args) {
+        Process_vkGetPhysicalDeviceMemoryProperties2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceSparseImageFormatProperties2KHR& args) {
+        Process_vkGetPhysicalDeviceSparseImageFormatProperties2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceGroupPeerMemoryFeaturesKHR&  args) {
+        Process_vkGetDeviceGroupPeerMemoryFeaturesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetDeviceMaskKHR&                  args) {
+        Process_vkCmdSetDeviceMaskKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDispatchBaseKHR&                   args) {
+        Process_vkCmdDispatchBaseKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::TrimCommandPoolKHR&                   args) {
+        Process_vkTrimCommandPoolKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::EnumeratePhysicalDeviceGroupsKHR&     args) {
+        Process_vkEnumeratePhysicalDeviceGroupsKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceExternalBufferPropertiesKHR& args) {
+        Process_vkGetPhysicalDeviceExternalBufferPropertiesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetMemoryWin32HandleKHR&              args) {
+        Process_vkGetMemoryWin32HandleKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetMemoryWin32HandlePropertiesKHR&    args) {
+        Process_vkGetMemoryWin32HandlePropertiesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetMemoryFdKHR&                       args) {
+        Process_vkGetMemoryFdKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetMemoryFdPropertiesKHR&             args) {
+        Process_vkGetMemoryFdPropertiesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceExternalSemaphorePropertiesKHR& args) {
+        Process_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::ImportSemaphoreWin32HandleKHR&        args) {
+        Process_vkImportSemaphoreWin32HandleKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetSemaphoreWin32HandleKHR&           args) {
+        Process_vkGetSemaphoreWin32HandleKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::ImportSemaphoreFdKHR&                 args) {
+        Process_vkImportSemaphoreFdKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetSemaphoreFdKHR&                    args) {
+        Process_vkGetSemaphoreFdKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdPushDescriptorSetKHR&              args) {
+        Process_vkCmdPushDescriptorSetKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateDescriptorUpdateTemplateKHR&    args) {
+        Process_vkCreateDescriptorUpdateTemplateKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyDescriptorUpdateTemplateKHR&   args) {
+        Process_vkDestroyDescriptorUpdateTemplateKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateRenderPass2KHR&                 args) {
+        Process_vkCreateRenderPass2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBeginRenderPass2KHR&               args) {
+        Process_vkCmdBeginRenderPass2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdNextSubpass2KHR&                   args) {
+        Process_vkCmdNextSubpass2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdEndRenderPass2KHR&                 args) {
+        Process_vkCmdEndRenderPass2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetSwapchainStatusKHR&                args) {
+        Process_vkGetSwapchainStatusKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceExternalFencePropertiesKHR& args) {
+        Process_vkGetPhysicalDeviceExternalFencePropertiesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::ImportFenceWin32HandleKHR&            args) {
+        Process_vkImportFenceWin32HandleKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetFenceWin32HandleKHR&               args) {
+        Process_vkGetFenceWin32HandleKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::ImportFenceFdKHR&                     args) {
+        Process_vkImportFenceFdKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetFenceFdKHR&                        args) {
+        Process_vkGetFenceFdKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR& args) {
+        Process_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR& args) {
+        Process_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::AcquireProfilingLockKHR&              args) {
+        Process_vkAcquireProfilingLockKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::ReleaseProfilingLockKHR&              args) {
+        Process_vkReleaseProfilingLockKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceSurfaceCapabilities2KHR& args) {
+        Process_vkGetPhysicalDeviceSurfaceCapabilities2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceSurfaceFormats2KHR&  args) {
+        Process_vkGetPhysicalDeviceSurfaceFormats2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceDisplayProperties2KHR& args) {
+        Process_vkGetPhysicalDeviceDisplayProperties2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceDisplayPlaneProperties2KHR& args) {
+        Process_vkGetPhysicalDeviceDisplayPlaneProperties2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDisplayModeProperties2KHR&         args) {
+        Process_vkGetDisplayModeProperties2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDisplayPlaneCapabilities2KHR&      args) {
+        Process_vkGetDisplayPlaneCapabilities2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetImageMemoryRequirements2KHR&       args) {
+        Process_vkGetImageMemoryRequirements2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetBufferMemoryRequirements2KHR&      args) {
+        Process_vkGetBufferMemoryRequirements2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetImageSparseMemoryRequirements2KHR& args) {
+        Process_vkGetImageSparseMemoryRequirements2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateSamplerYcbcrConversionKHR&      args) {
+        Process_vkCreateSamplerYcbcrConversionKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroySamplerYcbcrConversionKHR&     args) {
+        Process_vkDestroySamplerYcbcrConversionKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::BindBufferMemory2KHR&                 args) {
+        Process_vkBindBufferMemory2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::BindImageMemory2KHR&                  args) {
+        Process_vkBindImageMemory2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDescriptorSetLayoutSupportKHR&     args) {
+        Process_vkGetDescriptorSetLayoutSupportKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDrawIndirectCountKHR&              args) {
+        Process_vkCmdDrawIndirectCountKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDrawIndexedIndirectCountKHR&       args) {
+        Process_vkCmdDrawIndexedIndirectCountKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetSemaphoreCounterValueKHR&          args) {
+        Process_vkGetSemaphoreCounterValueKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::WaitSemaphoresKHR&                    args) {
+        Process_vkWaitSemaphoresKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::SignalSemaphoreKHR&                   args) {
+        Process_vkSignalSemaphoreKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceFragmentShadingRatesKHR& args) {
+        Process_vkGetPhysicalDeviceFragmentShadingRatesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetFragmentShadingRateKHR&         args) {
+        Process_vkCmdSetFragmentShadingRateKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetRenderingAttachmentLocationsKHR& args) {
+        Process_vkCmdSetRenderingAttachmentLocationsKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetRenderingInputAttachmentIndicesKHR& args) {
+        Process_vkCmdSetRenderingInputAttachmentIndicesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::WaitForPresentKHR&                    args) {
+        Process_vkWaitForPresentKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetBufferDeviceAddressKHR&            args) {
+        Process_vkGetBufferDeviceAddressKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetBufferOpaqueCaptureAddressKHR&     args) {
+        Process_vkGetBufferOpaqueCaptureAddressKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceMemoryOpaqueCaptureAddressKHR& args) {
+        Process_vkGetDeviceMemoryOpaqueCaptureAddressKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateDeferredOperationKHR&           args) {
+        Process_vkCreateDeferredOperationKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyDeferredOperationKHR&          args) {
+        Process_vkDestroyDeferredOperationKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDeferredOperationMaxConcurrencyKHR& args) {
+        Process_vkGetDeferredOperationMaxConcurrencyKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDeferredOperationResultKHR&        args) {
+        Process_vkGetDeferredOperationResultKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DeferredOperationJoinKHR&             args) {
+        Process_vkDeferredOperationJoinKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPipelineExecutablePropertiesKHR&   args) {
+        Process_vkGetPipelineExecutablePropertiesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPipelineExecutableStatisticsKHR&   args) {
+        Process_vkGetPipelineExecutableStatisticsKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPipelineExecutableInternalRepresentationsKHR& args) {
+        Process_vkGetPipelineExecutableInternalRepresentationsKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::MapMemory2KHR&                        args) {
+        Process_vkMapMemory2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::UnmapMemory2KHR&                      args) {
+        Process_vkUnmapMemory2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR& args) {
+        Process_vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetEncodedVideoSessionParametersKHR&  args) {
+        Process_vkGetEncodedVideoSessionParametersKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdEncodeVideoKHR&                    args) {
+        Process_vkCmdEncodeVideoKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetEvent2KHR&                      args) {
+        Process_vkCmdSetEvent2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdResetEvent2KHR&                    args) {
+        Process_vkCmdResetEvent2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdWaitEvents2KHR&                    args) {
+        Process_vkCmdWaitEvents2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdPipelineBarrier2KHR&               args) {
+        Process_vkCmdPipelineBarrier2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdWriteTimestamp2KHR&                args) {
+        Process_vkCmdWriteTimestamp2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::QueueSubmit2KHR&                      args) {
+        Process_vkQueueSubmit2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindIndexBuffer3KHR&               args) {
+        Process_vkCmdBindIndexBuffer3KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindVertexBuffers3KHR&             args) {
+        Process_vkCmdBindVertexBuffers3KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDrawIndirect2KHR&                  args) {
+        Process_vkCmdDrawIndirect2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDrawIndexedIndirect2KHR&           args) {
+        Process_vkCmdDrawIndexedIndirect2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDispatchIndirect2KHR&              args) {
+        Process_vkCmdDispatchIndirect2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyMemoryKHR&                     args) {
+        Process_vkCmdCopyMemoryKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyMemoryToImageKHR&              args) {
+        Process_vkCmdCopyMemoryToImageKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyImageToMemoryKHR&              args) {
+        Process_vkCmdCopyImageToMemoryKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdUpdateMemoryKHR&                   args) {
+        Process_vkCmdUpdateMemoryKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdFillMemoryKHR&                     args) {
+        Process_vkCmdFillMemoryKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyQueryPoolResultsToMemoryKHR&   args) {
+        Process_vkCmdCopyQueryPoolResultsToMemoryKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDrawIndirectCount2KHR&             args) {
+        Process_vkCmdDrawIndirectCount2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDrawIndexedIndirectCount2KHR&      args) {
+        Process_vkCmdDrawIndexedIndirectCount2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBeginConditionalRendering2EXT&     args) {
+        Process_vkCmdBeginConditionalRendering2EXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindTransformFeedbackBuffers2EXT&  args) {
+        Process_vkCmdBindTransformFeedbackBuffers2EXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBeginTransformFeedback2EXT&        args) {
+        Process_vkCmdBeginTransformFeedback2EXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdEndTransformFeedback2EXT&          args) {
+        Process_vkCmdEndTransformFeedback2EXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDrawIndirectByteCount2EXT&         args) {
+        Process_vkCmdDrawIndirectByteCount2EXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDrawMeshTasksIndirect2EXT&         args) {
+        Process_vkCmdDrawMeshTasksIndirect2EXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDrawMeshTasksIndirectCount2EXT&    args) {
+        Process_vkCmdDrawMeshTasksIndirectCount2EXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdWriteMarkerToMemoryAMD&            args) {
+        Process_vkCmdWriteMarkerToMemoryAMD(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateAccelerationStructure2KHR&      args) {
+        Process_vkCreateAccelerationStructure2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyBuffer2KHR&                    args) {
+        Process_vkCmdCopyBuffer2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyImage2KHR&                     args) {
+        Process_vkCmdCopyImage2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyBufferToImage2KHR&             args) {
+        Process_vkCmdCopyBufferToImage2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyImageToBuffer2KHR&             args) {
+        Process_vkCmdCopyImageToBuffer2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBlitImage2KHR&                     args) {
+        Process_vkCmdBlitImage2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdResolveImage2KHR&                  args) {
+        Process_vkCmdResolveImage2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdTraceRaysIndirect2KHR&             args) {
+        Process_vkCmdTraceRaysIndirect2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceBufferMemoryRequirementsKHR& args) {
+        Process_vkGetDeviceBufferMemoryRequirementsKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceImageMemoryRequirementsKHR&  args) {
+        Process_vkGetDeviceImageMemoryRequirementsKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceImageSparseMemoryRequirementsKHR& args) {
+        Process_vkGetDeviceImageSparseMemoryRequirementsKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindIndexBuffer2KHR&               args) {
+        Process_vkCmdBindIndexBuffer2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetRenderingAreaGranularityKHR&       args) {
+        Process_vkGetRenderingAreaGranularityKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceImageSubresourceLayoutKHR&   args) {
+        Process_vkGetDeviceImageSubresourceLayoutKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetImageSubresourceLayout2KHR&        args) {
+        Process_vkGetImageSubresourceLayout2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::WaitForPresent2KHR&                   args) {
+        Process_vkWaitForPresent2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreatePipelineBinariesKHR&            args) {
+        Process_vkCreatePipelineBinariesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyPipelineBinaryKHR&             args) {
+        Process_vkDestroyPipelineBinaryKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPipelineKeyKHR&                    args) {
+        Process_vkGetPipelineKeyKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPipelineBinaryDataKHR&             args) {
+        Process_vkGetPipelineBinaryDataKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::ReleaseCapturedPipelineDataKHR&       args) {
+        Process_vkReleaseCapturedPipelineDataKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::ReleaseSwapchainImagesKHR&            args) {
+        Process_vkReleaseSwapchainImagesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceCooperativeMatrixPropertiesKHR& args) {
+        Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetLineStippleKHR&                 args) {
+        Process_vkCmdSetLineStippleKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceCalibrateableTimeDomainsKHR& args) {
+        Process_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetCalibratedTimestampsKHR&           args) {
+        Process_vkGetCalibratedTimestampsKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindDescriptorSets2KHR&            args) {
+        Process_vkCmdBindDescriptorSets2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdPushConstants2KHR&                 args) {
+        Process_vkCmdPushConstants2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdPushDescriptorSet2KHR&             args) {
+        Process_vkCmdPushDescriptorSet2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetDescriptorBufferOffsets2EXT&    args) {
+        Process_vkCmdSetDescriptorBufferOffsets2EXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindDescriptorBufferEmbeddedSamplers2EXT& args) {
+        Process_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyMemoryIndirectKHR&             args) {
+        Process_vkCmdCopyMemoryIndirectKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyMemoryToImageIndirectKHR&      args) {
+        Process_vkCmdCopyMemoryToImageIndirectKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceFaultReportsKHR&             args) {
+        Process_vkGetDeviceFaultReportsKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceFaultDebugInfoKHR&           args) {
+        Process_vkGetDeviceFaultDebugInfoKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdEndRendering2KHR&                  args) {
+        Process_vkCmdEndRendering2KHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::FrameBoundaryANDROID&                 args) {
+        Process_vkFrameBoundaryANDROID(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateDebugReportCallbackEXT&         args) {
+        Process_vkCreateDebugReportCallbackEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyDebugReportCallbackEXT&        args) {
+        Process_vkDestroyDebugReportCallbackEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DebugReportMessageEXT&                args) {
+        Process_vkDebugReportMessageEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DebugMarkerSetObjectTagEXT&           args) {
+        Process_vkDebugMarkerSetObjectTagEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DebugMarkerSetObjectNameEXT&          args) {
+        Process_vkDebugMarkerSetObjectNameEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDebugMarkerBeginEXT&               args) {
+        Process_vkCmdDebugMarkerBeginEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDebugMarkerEndEXT&                 args) {
+        Process_vkCmdDebugMarkerEndEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDebugMarkerInsertEXT&              args) {
+        Process_vkCmdDebugMarkerInsertEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindTransformFeedbackBuffersEXT&   args) {
+        Process_vkCmdBindTransformFeedbackBuffersEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBeginTransformFeedbackEXT&         args) {
+        Process_vkCmdBeginTransformFeedbackEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdEndTransformFeedbackEXT&           args) {
+        Process_vkCmdEndTransformFeedbackEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBeginQueryIndexedEXT&              args) {
+        Process_vkCmdBeginQueryIndexedEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdEndQueryIndexedEXT&                args) {
+        Process_vkCmdEndQueryIndexedEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDrawIndirectByteCountEXT&          args) {
+        Process_vkCmdDrawIndirectByteCountEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetImageViewHandleNVX&                args) {
+        Process_vkGetImageViewHandleNVX(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetImageViewHandle64NVX&              args) {
+        Process_vkGetImageViewHandle64NVX(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetImageViewAddressNVX&               args) {
+        Process_vkGetImageViewAddressNVX(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceCombinedImageSamplerIndexNVX& args) {
+        Process_vkGetDeviceCombinedImageSamplerIndexNVX(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDrawIndirectCountAMD&              args) {
+        Process_vkCmdDrawIndirectCountAMD(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDrawIndexedIndirectCountAMD&       args) {
+        Process_vkCmdDrawIndexedIndirectCountAMD(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetShaderInfoAMD&                     args) {
+        Process_vkGetShaderInfoAMD(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateStreamDescriptorSurfaceGGP&     args) {
+        Process_vkCreateStreamDescriptorSurfaceGGP(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceExternalImageFormatPropertiesNV& args) {
+        Process_vkGetPhysicalDeviceExternalImageFormatPropertiesNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetMemoryWin32HandleNV&               args) {
+        Process_vkGetMemoryWin32HandleNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateViSurfaceNN&                    args) {
+        Process_vkCreateViSurfaceNN(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBeginConditionalRenderingEXT&      args) {
+        Process_vkCmdBeginConditionalRenderingEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdEndConditionalRenderingEXT&        args) {
+        Process_vkCmdEndConditionalRenderingEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetViewportWScalingNV&             args) {
+        Process_vkCmdSetViewportWScalingNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::ReleaseDisplayEXT&                    args) {
+        Process_vkReleaseDisplayEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::AcquireXlibDisplayEXT&                args) {
+        Process_vkAcquireXlibDisplayEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetRandROutputDisplayEXT&             args) {
+        Process_vkGetRandROutputDisplayEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceSurfaceCapabilities2EXT& args) {
+        Process_vkGetPhysicalDeviceSurfaceCapabilities2EXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DisplayPowerControlEXT&               args) {
+        Process_vkDisplayPowerControlEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::RegisterDeviceEventEXT&               args) {
+        Process_vkRegisterDeviceEventEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::RegisterDisplayEventEXT&              args) {
+        Process_vkRegisterDisplayEventEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetSwapchainCounterEXT&               args) {
+        Process_vkGetSwapchainCounterEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetRefreshCycleDurationGOOGLE&        args) {
+        Process_vkGetRefreshCycleDurationGOOGLE(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPastPresentationTimingGOOGLE&      args) {
+        Process_vkGetPastPresentationTimingGOOGLE(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetDiscardRectangleEXT&            args) {
+        Process_vkCmdSetDiscardRectangleEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetDiscardRectangleEnableEXT&      args) {
+        Process_vkCmdSetDiscardRectangleEnableEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetDiscardRectangleModeEXT&        args) {
+        Process_vkCmdSetDiscardRectangleModeEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::SetHdrMetadataEXT&                    args) {
+        Process_vkSetHdrMetadataEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateIOSSurfaceMVK&                  args) {
+        Process_vkCreateIOSSurfaceMVK(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateMacOSSurfaceMVK&                args) {
+        Process_vkCreateMacOSSurfaceMVK(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::SetDebugUtilsObjectNameEXT&           args) {
+        Process_vkSetDebugUtilsObjectNameEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::SetDebugUtilsObjectTagEXT&            args) {
+        Process_vkSetDebugUtilsObjectTagEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::QueueBeginDebugUtilsLabelEXT&         args) {
+        Process_vkQueueBeginDebugUtilsLabelEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::QueueEndDebugUtilsLabelEXT&           args) {
+        Process_vkQueueEndDebugUtilsLabelEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::QueueInsertDebugUtilsLabelEXT&        args) {
+        Process_vkQueueInsertDebugUtilsLabelEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBeginDebugUtilsLabelEXT&           args) {
+        Process_vkCmdBeginDebugUtilsLabelEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdEndDebugUtilsLabelEXT&             args) {
+        Process_vkCmdEndDebugUtilsLabelEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdInsertDebugUtilsLabelEXT&          args) {
+        Process_vkCmdInsertDebugUtilsLabelEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateDebugUtilsMessengerEXT&         args) {
+        Process_vkCreateDebugUtilsMessengerEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyDebugUtilsMessengerEXT&        args) {
+        Process_vkDestroyDebugUtilsMessengerEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::SubmitDebugUtilsMessageEXT&           args) {
+        Process_vkSubmitDebugUtilsMessageEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetAndroidHardwareBufferPropertiesANDROID& args) {
+        Process_vkGetAndroidHardwareBufferPropertiesANDROID(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetMemoryAndroidHardwareBufferANDROID& args) {
+        Process_vkGetMemoryAndroidHardwareBufferANDROID(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateGpaSessionAMD&                  args) {
+        Process_vkCreateGpaSessionAMD(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyGpaSessionAMD&                 args) {
+        Process_vkDestroyGpaSessionAMD(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::SetGpaDeviceClockModeAMD&             args) {
+        Process_vkSetGpaDeviceClockModeAMD(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetGpaDeviceClockInfoAMD&             args) {
+        Process_vkGetGpaDeviceClockInfoAMD(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBeginGpaSessionAMD&                args) {
+        Process_vkCmdBeginGpaSessionAMD(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdEndGpaSessionAMD&                  args) {
+        Process_vkCmdEndGpaSessionAMD(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBeginGpaSampleAMD&                 args) {
+        Process_vkCmdBeginGpaSampleAMD(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdEndGpaSampleAMD&                   args) {
+        Process_vkCmdEndGpaSampleAMD(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetGpaSessionStatusAMD&               args) {
+        Process_vkGetGpaSessionStatusAMD(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetGpaSessionResultsAMD&              args) {
+        Process_vkGetGpaSessionResultsAMD(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::ResetGpaSessionAMD&                   args) {
+        Process_vkResetGpaSessionAMD(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyGpaSessionResultsAMD&          args) {
+        Process_vkCmdCopyGpaSessionResultsAMD(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetSampleLocationsEXT&             args) {
+        Process_vkCmdSetSampleLocationsEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceMultisamplePropertiesEXT& args) {
+        Process_vkGetPhysicalDeviceMultisamplePropertiesEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetImageDrmFormatModifierPropertiesEXT& args) {
+        Process_vkGetImageDrmFormatModifierPropertiesEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateValidationCacheEXT&             args) {
+        Process_vkCreateValidationCacheEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyValidationCacheEXT&            args) {
+        Process_vkDestroyValidationCacheEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::MergeValidationCachesEXT&             args) {
+        Process_vkMergeValidationCachesEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetValidationCacheDataEXT&            args) {
+        Process_vkGetValidationCacheDataEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindShadingRateImageNV&            args) {
+        Process_vkCmdBindShadingRateImageNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetViewportShadingRatePaletteNV&   args) {
+        Process_vkCmdSetViewportShadingRatePaletteNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetCoarseSampleOrderNV&            args) {
+        Process_vkCmdSetCoarseSampleOrderNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateAccelerationStructureNV&        args) {
+        Process_vkCreateAccelerationStructureNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyAccelerationStructureNV&       args) {
+        Process_vkDestroyAccelerationStructureNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetAccelerationStructureMemoryRequirementsNV& args) {
+        Process_vkGetAccelerationStructureMemoryRequirementsNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::BindAccelerationStructureMemoryNV&    args) {
+        Process_vkBindAccelerationStructureMemoryNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBuildAccelerationStructureNV&      args) {
+        Process_vkCmdBuildAccelerationStructureNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyAccelerationStructureNV&       args) {
+        Process_vkCmdCopyAccelerationStructureNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdTraceRaysNV&                       args) {
+        Process_vkCmdTraceRaysNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateRayTracingPipelinesNV&          args) {
+        Process_vkCreateRayTracingPipelinesNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetRayTracingShaderGroupHandlesKHR&   args) {
+        Process_vkGetRayTracingShaderGroupHandlesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetRayTracingShaderGroupHandlesNV&    args) {
+        Process_vkGetRayTracingShaderGroupHandlesNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetAccelerationStructureHandleNV&     args) {
+        Process_vkGetAccelerationStructureHandleNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdWriteAccelerationStructuresPropertiesNV& args) {
+        Process_vkCmdWriteAccelerationStructuresPropertiesNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CompileDeferredNV&                    args) {
+        Process_vkCompileDeferredNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetMemoryHostPointerPropertiesEXT&    args) {
+        Process_vkGetMemoryHostPointerPropertiesEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdWriteBufferMarkerAMD&              args) {
+        Process_vkCmdWriteBufferMarkerAMD(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdWriteBufferMarker2AMD&             args) {
+        Process_vkCmdWriteBufferMarker2AMD(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceCalibrateableTimeDomainsEXT& args) {
+        Process_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetCalibratedTimestampsEXT&           args) {
+        Process_vkGetCalibratedTimestampsEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDrawMeshTasksNV&                   args) {
+        Process_vkCmdDrawMeshTasksNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDrawMeshTasksIndirectNV&           args) {
+        Process_vkCmdDrawMeshTasksIndirectNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDrawMeshTasksIndirectCountNV&      args) {
+        Process_vkCmdDrawMeshTasksIndirectCountNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetExclusiveScissorEnableNV&       args) {
+        Process_vkCmdSetExclusiveScissorEnableNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetExclusiveScissorNV&             args) {
+        Process_vkCmdSetExclusiveScissorNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetCheckpointNV&                   args) {
+        Process_vkCmdSetCheckpointNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetQueueCheckpointDataNV&             args) {
+        Process_vkGetQueueCheckpointDataNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetQueueCheckpointData2NV&            args) {
+        Process_vkGetQueueCheckpointData2NV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::SetSwapchainPresentTimingQueueSizeEXT& args) {
+        Process_vkSetSwapchainPresentTimingQueueSizeEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetSwapchainTimingPropertiesEXT&      args) {
+        Process_vkGetSwapchainTimingPropertiesEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetSwapchainTimeDomainPropertiesEXT&  args) {
+        Process_vkGetSwapchainTimeDomainPropertiesEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPastPresentationTimingEXT&         args) {
+        Process_vkGetPastPresentationTimingEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::InitializePerformanceApiINTEL&        args) {
+        Process_vkInitializePerformanceApiINTEL(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::UninitializePerformanceApiINTEL&      args) {
+        Process_vkUninitializePerformanceApiINTEL(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetPerformanceMarkerINTEL&         args) {
+        Process_vkCmdSetPerformanceMarkerINTEL(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetPerformanceStreamMarkerINTEL&   args) {
+        Process_vkCmdSetPerformanceStreamMarkerINTEL(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetPerformanceOverrideINTEL&       args) {
+        Process_vkCmdSetPerformanceOverrideINTEL(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::AcquirePerformanceConfigurationINTEL& args) {
+        Process_vkAcquirePerformanceConfigurationINTEL(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::ReleasePerformanceConfigurationINTEL& args) {
+        Process_vkReleasePerformanceConfigurationINTEL(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::QueueSetPerformanceConfigurationINTEL& args) {
+        Process_vkQueueSetPerformanceConfigurationINTEL(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPerformanceParameterINTEL&         args) {
+        Process_vkGetPerformanceParameterINTEL(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::SetLocalDimmingAMD&                   args) {
+        Process_vkSetLocalDimmingAMD(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateImagePipeSurfaceFUCHSIA&        args) {
+        Process_vkCreateImagePipeSurfaceFUCHSIA(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateMetalSurfaceEXT&                args) {
+        Process_vkCreateMetalSurfaceEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetBufferDeviceAddressEXT&            args) {
+        Process_vkGetBufferDeviceAddressEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceToolPropertiesEXT&   args) {
+        Process_vkGetPhysicalDeviceToolPropertiesEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceCooperativeMatrixPropertiesNV& args) {
+        Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV& args) {
+        Process_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceSurfacePresentModes2EXT& args) {
+        Process_vkGetPhysicalDeviceSurfacePresentModes2EXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::AcquireFullScreenExclusiveModeEXT&    args) {
+        Process_vkAcquireFullScreenExclusiveModeEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::ReleaseFullScreenExclusiveModeEXT&    args) {
+        Process_vkReleaseFullScreenExclusiveModeEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceGroupSurfacePresentModes2EXT& args) {
+        Process_vkGetDeviceGroupSurfacePresentModes2EXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateHeadlessSurfaceEXT&             args) {
+        Process_vkCreateHeadlessSurfaceEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetLineStippleEXT&                 args) {
+        Process_vkCmdSetLineStippleEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::ResetQueryPoolEXT&                    args) {
+        Process_vkResetQueryPoolEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetCullModeEXT&                    args) {
+        Process_vkCmdSetCullModeEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetFrontFaceEXT&                   args) {
+        Process_vkCmdSetFrontFaceEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetPrimitiveTopologyEXT&           args) {
+        Process_vkCmdSetPrimitiveTopologyEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetViewportWithCountEXT&           args) {
+        Process_vkCmdSetViewportWithCountEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetScissorWithCountEXT&            args) {
+        Process_vkCmdSetScissorWithCountEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindVertexBuffers2EXT&             args) {
+        Process_vkCmdBindVertexBuffers2EXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetDepthTestEnableEXT&             args) {
+        Process_vkCmdSetDepthTestEnableEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetDepthWriteEnableEXT&            args) {
+        Process_vkCmdSetDepthWriteEnableEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetDepthCompareOpEXT&              args) {
+        Process_vkCmdSetDepthCompareOpEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetDepthBoundsTestEnableEXT&       args) {
+        Process_vkCmdSetDepthBoundsTestEnableEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetStencilTestEnableEXT&           args) {
+        Process_vkCmdSetStencilTestEnableEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetStencilOpEXT&                   args) {
+        Process_vkCmdSetStencilOpEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CopyMemoryToImageEXT&                 args) {
+        Process_vkCopyMemoryToImageEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CopyImageToMemoryEXT&                 args) {
+        Process_vkCopyImageToMemoryEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CopyImageToImageEXT&                  args) {
+        Process_vkCopyImageToImageEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::TransitionImageLayoutEXT&             args) {
+        Process_vkTransitionImageLayoutEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetImageSubresourceLayout2EXT&        args) {
+        Process_vkGetImageSubresourceLayout2EXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::ReleaseSwapchainImagesEXT&            args) {
+        Process_vkReleaseSwapchainImagesEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetGeneratedCommandsMemoryRequirementsNV& args) {
+        Process_vkGetGeneratedCommandsMemoryRequirementsNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdPreprocessGeneratedCommandsNV&     args) {
+        Process_vkCmdPreprocessGeneratedCommandsNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdExecuteGeneratedCommandsNV&        args) {
+        Process_vkCmdExecuteGeneratedCommandsNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindPipelineShaderGroupNV&         args) {
+        Process_vkCmdBindPipelineShaderGroupNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateIndirectCommandsLayoutNV&       args) {
+        Process_vkCreateIndirectCommandsLayoutNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyIndirectCommandsLayoutNV&      args) {
+        Process_vkDestroyIndirectCommandsLayoutNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetDepthBias2EXT&                  args) {
+        Process_vkCmdSetDepthBias2EXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::AcquireDrmDisplayEXT&                 args) {
+        Process_vkAcquireDrmDisplayEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDrmDisplayEXT&                     args) {
+        Process_vkGetDrmDisplayEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreatePrivateDataSlotEXT&             args) {
+        Process_vkCreatePrivateDataSlotEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyPrivateDataSlotEXT&            args) {
+        Process_vkDestroyPrivateDataSlotEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::SetPrivateDataEXT&                    args) {
+        Process_vkSetPrivateDataEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPrivateDataEXT&                    args) {
+        Process_vkGetPrivateDataEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::QueueSetPerfHintQCOM&                 args) {
+        Process_vkQueueSetPerfHintQCOM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDispatchTileQCOM&                  args) {
+        Process_vkCmdDispatchTileQCOM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBeginPerTileExecutionQCOM&         args) {
+        Process_vkCmdBeginPerTileExecutionQCOM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdEndPerTileExecutionQCOM&           args) {
+        Process_vkCmdEndPerTileExecutionQCOM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDescriptorSetLayoutSizeEXT&        args) {
+        Process_vkGetDescriptorSetLayoutSizeEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDescriptorSetLayoutBindingOffsetEXT& args) {
+        Process_vkGetDescriptorSetLayoutBindingOffsetEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDescriptorEXT&                     args) {
+        Process_vkGetDescriptorEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindDescriptorBuffersEXT&          args) {
+        Process_vkCmdBindDescriptorBuffersEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetDescriptorBufferOffsetsEXT&     args) {
+        Process_vkCmdSetDescriptorBufferOffsetsEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindDescriptorBufferEmbeddedSamplersEXT& args) {
+        Process_vkCmdBindDescriptorBufferEmbeddedSamplersEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetFragmentShadingRateEnumNV&      args) {
+        Process_vkCmdSetFragmentShadingRateEnumNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceFaultInfoEXT&                args) {
+        Process_vkGetDeviceFaultInfoEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::AcquireWinrtDisplayNV&                args) {
+        Process_vkAcquireWinrtDisplayNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetWinrtDisplayNV&                    args) {
+        Process_vkGetWinrtDisplayNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateDirectFBSurfaceEXT&             args) {
+        Process_vkCreateDirectFBSurfaceEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceDirectFBPresentationSupportEXT& args) {
+        Process_vkGetPhysicalDeviceDirectFBPresentationSupportEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetVertexInputEXT&                 args) {
+        Process_vkCmdSetVertexInputEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetMemoryZirconHandleFUCHSIA&         args) {
+        Process_vkGetMemoryZirconHandleFUCHSIA(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetMemoryZirconHandlePropertiesFUCHSIA& args) {
+        Process_vkGetMemoryZirconHandlePropertiesFUCHSIA(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::ImportSemaphoreZirconHandleFUCHSIA&   args) {
+        Process_vkImportSemaphoreZirconHandleFUCHSIA(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetSemaphoreZirconHandleFUCHSIA&      args) {
+        Process_vkGetSemaphoreZirconHandleFUCHSIA(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindInvocationMaskHUAWEI&          args) {
+        Process_vkCmdBindInvocationMaskHUAWEI(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetMemoryRemoteAddressNV&             args) {
+        Process_vkGetMemoryRemoteAddressNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetPatchControlPointsEXT&          args) {
+        Process_vkCmdSetPatchControlPointsEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetRasterizerDiscardEnableEXT&     args) {
+        Process_vkCmdSetRasterizerDiscardEnableEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetDepthBiasEnableEXT&             args) {
+        Process_vkCmdSetDepthBiasEnableEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetLogicOpEXT&                     args) {
+        Process_vkCmdSetLogicOpEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetPrimitiveRestartEnableEXT&      args) {
+        Process_vkCmdSetPrimitiveRestartEnableEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateScreenSurfaceQNX&               args) {
+        Process_vkCreateScreenSurfaceQNX(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceScreenPresentationSupportQNX& args) {
+        Process_vkGetPhysicalDeviceScreenPresentationSupportQNX(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetColorWriteEnableEXT&            args) {
+        Process_vkCmdSetColorWriteEnableEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDrawMultiEXT&                      args) {
+        Process_vkCmdDrawMultiEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDrawMultiIndexedEXT&               args) {
+        Process_vkCmdDrawMultiIndexedEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateMicromapEXT&                    args) {
+        Process_vkCreateMicromapEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyMicromapEXT&                   args) {
+        Process_vkDestroyMicromapEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBuildMicromapsEXT&                 args) {
+        Process_vkCmdBuildMicromapsEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::BuildMicromapsEXT&                    args) {
+        Process_vkBuildMicromapsEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CopyMicromapEXT&                      args) {
+        Process_vkCopyMicromapEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CopyMicromapToMemoryEXT&              args) {
+        Process_vkCopyMicromapToMemoryEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CopyMemoryToMicromapEXT&              args) {
+        Process_vkCopyMemoryToMicromapEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::WriteMicromapsPropertiesEXT&          args) {
+        Process_vkWriteMicromapsPropertiesEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyMicromapEXT&                   args) {
+        Process_vkCmdCopyMicromapEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyMicromapToMemoryEXT&           args) {
+        Process_vkCmdCopyMicromapToMemoryEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyMemoryToMicromapEXT&           args) {
+        Process_vkCmdCopyMemoryToMicromapEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdWriteMicromapsPropertiesEXT&       args) {
+        Process_vkCmdWriteMicromapsPropertiesEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceMicromapCompatibilityEXT&    args) {
+        Process_vkGetDeviceMicromapCompatibilityEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetMicromapBuildSizesEXT&             args) {
+        Process_vkGetMicromapBuildSizesEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDrawClusterHUAWEI&                 args) {
+        Process_vkCmdDrawClusterHUAWEI(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDrawClusterIndirectHUAWEI&         args) {
+        Process_vkCmdDrawClusterIndirectHUAWEI(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::SetDeviceMemoryPriorityEXT&           args) {
+        Process_vkSetDeviceMemoryPriorityEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetDispatchParametersARM&          args) {
+        Process_vkCmdSetDispatchParametersARM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDescriptorSetLayoutHostMappingInfoVALVE& args) {
+        Process_vkGetDescriptorSetLayoutHostMappingInfoVALVE(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDescriptorSetHostMappingVALVE&     args) {
+        Process_vkGetDescriptorSetHostMappingVALVE(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPipelineIndirectMemoryRequirementsNV& args) {
+        Process_vkGetPipelineIndirectMemoryRequirementsNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdUpdatePipelineIndirectBufferNV&    args) {
+        Process_vkCmdUpdatePipelineIndirectBufferNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPipelineIndirectDeviceAddressNV&   args) {
+        Process_vkGetPipelineIndirectDeviceAddressNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetDepthClampEnableEXT&            args) {
+        Process_vkCmdSetDepthClampEnableEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetPolygonModeEXT&                 args) {
+        Process_vkCmdSetPolygonModeEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetRasterizationSamplesEXT&        args) {
+        Process_vkCmdSetRasterizationSamplesEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetSampleMaskEXT&                  args) {
+        Process_vkCmdSetSampleMaskEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetAlphaToCoverageEnableEXT&       args) {
+        Process_vkCmdSetAlphaToCoverageEnableEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetAlphaToOneEnableEXT&            args) {
+        Process_vkCmdSetAlphaToOneEnableEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetLogicOpEnableEXT&               args) {
+        Process_vkCmdSetLogicOpEnableEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetColorBlendEnableEXT&            args) {
+        Process_vkCmdSetColorBlendEnableEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetColorBlendEquationEXT&          args) {
+        Process_vkCmdSetColorBlendEquationEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetColorWriteMaskEXT&              args) {
+        Process_vkCmdSetColorWriteMaskEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetTessellationDomainOriginEXT&    args) {
+        Process_vkCmdSetTessellationDomainOriginEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetRasterizationStreamEXT&         args) {
+        Process_vkCmdSetRasterizationStreamEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetConservativeRasterizationModeEXT& args) {
+        Process_vkCmdSetConservativeRasterizationModeEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetExtraPrimitiveOverestimationSizeEXT& args) {
+        Process_vkCmdSetExtraPrimitiveOverestimationSizeEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetDepthClipEnableEXT&             args) {
+        Process_vkCmdSetDepthClipEnableEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetSampleLocationsEnableEXT&       args) {
+        Process_vkCmdSetSampleLocationsEnableEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetColorBlendAdvancedEXT&          args) {
+        Process_vkCmdSetColorBlendAdvancedEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetProvokingVertexModeEXT&         args) {
+        Process_vkCmdSetProvokingVertexModeEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetLineRasterizationModeEXT&       args) {
+        Process_vkCmdSetLineRasterizationModeEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetLineStippleEnableEXT&           args) {
+        Process_vkCmdSetLineStippleEnableEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetDepthClipNegativeOneToOneEXT&   args) {
+        Process_vkCmdSetDepthClipNegativeOneToOneEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetViewportWScalingEnableNV&       args) {
+        Process_vkCmdSetViewportWScalingEnableNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetViewportSwizzleNV&              args) {
+        Process_vkCmdSetViewportSwizzleNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetCoverageToColorEnableNV&        args) {
+        Process_vkCmdSetCoverageToColorEnableNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetCoverageToColorLocationNV&      args) {
+        Process_vkCmdSetCoverageToColorLocationNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetCoverageModulationModeNV&       args) {
+        Process_vkCmdSetCoverageModulationModeNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetCoverageModulationTableEnableNV& args) {
+        Process_vkCmdSetCoverageModulationTableEnableNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetCoverageModulationTableNV&      args) {
+        Process_vkCmdSetCoverageModulationTableNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetShadingRateImageEnableNV&       args) {
+        Process_vkCmdSetShadingRateImageEnableNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetRepresentativeFragmentTestEnableNV& args) {
+        Process_vkCmdSetRepresentativeFragmentTestEnableNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetCoverageReductionModeNV&        args) {
+        Process_vkCmdSetCoverageReductionModeNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateTensorARM&                      args) {
+        Process_vkCreateTensorARM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyTensorARM&                     args) {
+        Process_vkDestroyTensorARM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateTensorViewARM&                  args) {
+        Process_vkCreateTensorViewARM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyTensorViewARM&                 args) {
+        Process_vkDestroyTensorViewARM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetTensorMemoryRequirementsARM&       args) {
+        Process_vkGetTensorMemoryRequirementsARM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::BindTensorMemoryARM&                  args) {
+        Process_vkBindTensorMemoryARM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceTensorMemoryRequirementsARM& args) {
+        Process_vkGetDeviceTensorMemoryRequirementsARM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyTensorARM&                     args) {
+        Process_vkCmdCopyTensorARM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceExternalTensorPropertiesARM& args) {
+        Process_vkGetPhysicalDeviceExternalTensorPropertiesARM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetShaderModuleIdentifierEXT&         args) {
+        Process_vkGetShaderModuleIdentifierEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetShaderModuleCreateInfoIdentifierEXT& args) {
+        Process_vkGetShaderModuleCreateInfoIdentifierEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceOpticalFlowImageFormatsNV& args) {
+        Process_vkGetPhysicalDeviceOpticalFlowImageFormatsNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateOpticalFlowSessionNV&           args) {
+        Process_vkCreateOpticalFlowSessionNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyOpticalFlowSessionNV&          args) {
+        Process_vkDestroyOpticalFlowSessionNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::BindOpticalFlowSessionImageNV&        args) {
+        Process_vkBindOpticalFlowSessionImageNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdOpticalFlowExecuteNV&              args) {
+        Process_vkCmdOpticalFlowExecuteNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::AntiLagUpdateAMD&                     args) {
+        Process_vkAntiLagUpdateAMD(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateShadersEXT&                     args) {
+        Process_vkCreateShadersEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyShaderEXT&                     args) {
+        Process_vkDestroyShaderEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetShaderBinaryDataEXT&               args) {
+        Process_vkGetShaderBinaryDataEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindShadersEXT&                    args) {
+        Process_vkCmdBindShadersEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetDepthClampRangeEXT&             args) {
+        Process_vkCmdSetDepthClampRangeEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetFramebufferTilePropertiesQCOM&     args) {
+        Process_vkGetFramebufferTilePropertiesQCOM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDynamicRenderingTilePropertiesQCOM& args) {
+        Process_vkGetDynamicRenderingTilePropertiesQCOM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceCooperativeVectorPropertiesNV& args) {
+        Process_vkGetPhysicalDeviceCooperativeVectorPropertiesNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::ConvertCooperativeVectorMatrixNV&     args) {
+        Process_vkConvertCooperativeVectorMatrixNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdConvertCooperativeVectorMatrixNV&  args) {
+        Process_vkCmdConvertCooperativeVectorMatrixNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::SetLatencySleepModeNV&                args) {
+        Process_vkSetLatencySleepModeNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::LatencySleepNV&                       args) {
+        Process_vkLatencySleepNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::SetLatencyMarkerNV&                   args) {
+        Process_vkSetLatencyMarkerNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetLatencyTimingsNV&                  args) {
+        Process_vkGetLatencyTimingsNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::QueueNotifyOutOfBandNV&               args) {
+        Process_vkQueueNotifyOutOfBandNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateDataGraphPipelinesARM&          args) {
+        Process_vkCreateDataGraphPipelinesARM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateDataGraphPipelineSessionARM&    args) {
+        Process_vkCreateDataGraphPipelineSessionARM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDataGraphPipelineSessionBindPointRequirementsARM& args) {
+        Process_vkGetDataGraphPipelineSessionBindPointRequirementsARM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDataGraphPipelineSessionMemoryRequirementsARM& args) {
+        Process_vkGetDataGraphPipelineSessionMemoryRequirementsARM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::BindDataGraphPipelineSessionMemoryARM& args) {
+        Process_vkBindDataGraphPipelineSessionMemoryARM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyDataGraphPipelineSessionARM&   args) {
+        Process_vkDestroyDataGraphPipelineSessionARM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDispatchDataGraphARM&              args) {
+        Process_vkCmdDispatchDataGraphARM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDataGraphPipelineAvailablePropertiesARM& args) {
+        Process_vkGetDataGraphPipelineAvailablePropertiesARM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDataGraphPipelinePropertiesARM&    args) {
+        Process_vkGetDataGraphPipelinePropertiesARM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceQueueFamilyDataGraphPropertiesARM& args) {
+        Process_vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM& args) {
+        Process_vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetAttachmentFeedbackLoopEnableEXT& args) {
+        Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindTileMemoryQCOM&                args) {
+        Process_vkCmdBindTileMemoryQCOM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDecompressMemoryEXT&               args) {
+        Process_vkCmdDecompressMemoryEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDecompressMemoryIndirectCountEXT&  args) {
+        Process_vkCmdDecompressMemoryIndirectCountEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPartitionedAccelerationStructuresBuildSizesNV& args) {
+        Process_vkGetPartitionedAccelerationStructuresBuildSizesNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBuildPartitionedAccelerationStructuresNV& args) {
+        Process_vkCmdBuildPartitionedAccelerationStructuresNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetGeneratedCommandsMemoryRequirementsEXT& args) {
+        Process_vkGetGeneratedCommandsMemoryRequirementsEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdPreprocessGeneratedCommandsEXT&    args) {
+        Process_vkCmdPreprocessGeneratedCommandsEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdExecuteGeneratedCommandsEXT&       args) {
+        Process_vkCmdExecuteGeneratedCommandsEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateIndirectCommandsLayoutEXT&      args) {
+        Process_vkCreateIndirectCommandsLayoutEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyIndirectCommandsLayoutEXT&     args) {
+        Process_vkDestroyIndirectCommandsLayoutEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateIndirectExecutionSetEXT&        args) {
+        Process_vkCreateIndirectExecutionSetEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyIndirectExecutionSetEXT&       args) {
+        Process_vkDestroyIndirectExecutionSetEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::UpdateIndirectExecutionSetPipelineEXT& args) {
+        Process_vkUpdateIndirectExecutionSetPipelineEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::UpdateIndirectExecutionSetShaderEXT&  args) {
+        Process_vkUpdateIndirectExecutionSetShaderEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV& args) {
+        Process_vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetMemoryMetalHandleEXT&              args) {
+        Process_vkGetMemoryMetalHandleEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetMemoryMetalHandlePropertiesEXT&    args) {
+        Process_vkGetMemoryMetalHandlePropertiesEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::EnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM& args) {
+        Process_vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdEndRendering2EXT&                  args) {
+        Process_vkCmdEndRendering2EXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBeginCustomResolveEXT&             args) {
+        Process_vkCmdBeginCustomResolveEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM& args) {
+        Process_vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM& args) {
+        Process_vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetComputeOccupancyPriorityNV&     args) {
+        Process_vkCmdSetComputeOccupancyPriorityNV(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceCooperativeMatrixProperties2EXT& args) {
+        Process_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetPrimitiveRestartIndexEXT&       args) {
+        Process_vkCmdSetPrimitiveRestartIndexEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CreateAccelerationStructureKHR&       args) {
+        Process_vkCreateAccelerationStructureKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::DestroyAccelerationStructureKHR&      args) {
+        Process_vkDestroyAccelerationStructureKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBuildAccelerationStructuresKHR&    args) {
+        Process_vkCmdBuildAccelerationStructuresKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBuildAccelerationStructuresIndirectKHR& args) {
+        Process_vkCmdBuildAccelerationStructuresIndirectKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CopyAccelerationStructureToMemoryKHR& args) {
+        Process_vkCopyAccelerationStructureToMemoryKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CopyMemoryToAccelerationStructureKHR& args) {
+        Process_vkCopyMemoryToAccelerationStructureKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::WriteAccelerationStructuresPropertiesKHR& args) {
+        Process_vkWriteAccelerationStructuresPropertiesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyAccelerationStructureKHR&      args) {
+        Process_vkCmdCopyAccelerationStructureKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyAccelerationStructureToMemoryKHR& args) {
+        Process_vkCmdCopyAccelerationStructureToMemoryKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdCopyMemoryToAccelerationStructureKHR& args) {
+        Process_vkCmdCopyMemoryToAccelerationStructureKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetAccelerationStructureDeviceAddressKHR& args) {
+        Process_vkGetAccelerationStructureDeviceAddressKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdWriteAccelerationStructuresPropertiesKHR& args) {
+        Process_vkCmdWriteAccelerationStructuresPropertiesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetDeviceAccelerationStructureCompatibilityKHR& args) {
+        Process_vkGetDeviceAccelerationStructureCompatibilityKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetAccelerationStructureBuildSizesKHR& args) {
+        Process_vkGetAccelerationStructureBuildSizesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdTraceRaysKHR&                      args) {
+        Process_vkCmdTraceRaysKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetRayTracingCaptureReplayShaderGroupHandlesKHR& args) {
+        Process_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdTraceRaysIndirectKHR&              args) {
+        Process_vkCmdTraceRaysIndirectKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetRayTracingShaderGroupStackSizeKHR& args) {
+        Process_vkGetRayTracingShaderGroupStackSizeKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdSetRayTracingPipelineStackSizeKHR& args) {
+        Process_vkCmdSetRayTracingPipelineStackSizeKHR(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDrawMeshTasksEXT&                  args) {
+        Process_vkCmdDrawMeshTasksEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDrawMeshTasksIndirectEXT&          args) {
+        Process_vkCmdDrawMeshTasksIndirectEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdDrawMeshTasksIndirectCountEXT&     args) {
+        Process_vkCmdDrawMeshTasksIndirectCountEXT(call_info, args);
+    }
 };
 
 GFXRECON_END_NAMESPACE(decode)

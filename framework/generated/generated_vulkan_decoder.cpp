@@ -14187,6 +14187,8 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
                                        const uint8_t*                parameter_buffer,
                                        size_t                        buffer_size)
 {
+    SetCurrentCallBytes(CallBytes{ call_id, parameter_buffer, buffer_size });
+
     switch(call_id)
     {
     default:
