@@ -184,8 +184,10 @@ class VulkanCppStructGenerator(VulkanBaseGenerator):
     def newline(self):
         write('', file=self.outFile)
 
-    def generateTodoFor(self, argName, indent):
-        return printOutStream(['"// TODO: Support {argName} argument."'], locals(), indent=indent)
+    def generateTodoFor(self, argName, isFirstArg, isLastArg, indent):
+        # Value-initialize the member so the positional initializers after it stay aligned.
+        return (printOutStream(['"// TODO: Support {argName} argument."'], locals(), indent=indent) +
+                makeOutStructSet('"{{}}"', locals(), isFirstArg, isLastArg, indent))
 
     # Method override
     def beginFile(self, genOpts):
@@ -530,7 +532,7 @@ class VulkanCppStructGenerator(VulkanBaseGenerator):
                 local_body.append(makeOutStructSet(varName, locals(), isFirstArg, isLastArg, indent))
             else:
                 # TODO: non-struct output parameters
-                local_body.append(self.generateTodoFor(arg.name + " (non-struct output)", indent))
+                local_body.append(self.generateTodoFor(arg.name + " (non-struct output)", isFirstArg, isLastArg, indent))
 
         else:
             if arg.array_length_value is None:
@@ -608,7 +610,7 @@ class VulkanCppStructGenerator(VulkanBaseGenerator):
                     local_header.append(''.join(argHandler))
                     local_body.append(makeOutStructSet(arrayVarName, locals(), isFirstArg, isLastArg, indent))
                 else:
-                    local_body.append(self.generateTodoFor(arg.name + " (output with array length value?)", indent))
+                    local_body.append(self.generateTodoFor(arg.name + " (output with array length value?)", isFirstArg, isLastArg, indent))
 
         return local_header, local_body
 
@@ -677,7 +679,7 @@ class VulkanCppStructGenerator(VulkanBaseGenerator):
 
             elif self.is_selected_union(arg):
                 # Aggregate init can only set a union's first member.
-                body.append(self.generateTodoFor(arg.name + ' (union picked by ' + arg.selector + ')', indent))
+                body.append(self.generateTodoFor(arg.name + ' (union picked by ' + arg.selector + ')', isFirstArg, isLastArg, indent))
 
             elif self.is_union(arg.base_type):
                 if not arg.is_pointer:
