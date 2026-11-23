@@ -517,6 +517,12 @@ class VulkanStateTracker
 
     void TrackSetLocalDimmingAMD(VkDevice device, VkSwapchainKHR swapChain, VkBool32 localDimmingEnable);
 
+    void TrackRegisterCustomBorderColor(VkDevice                                       device,
+                                        const VkSamplerCustomBorderColorCreateInfoEXT* border_color,
+                                        uint32_t                                       index);
+
+    void TrackUnregisterCustomBorderColor(VkDevice device, uint32_t index);
+
     void TrackCommandBuffersSubmision(uint32_t command_buffer_count, const VkCommandBuffer* command_buffers);
 
     void TrackCmdBindDescriptorSets(VkCommandBuffer        commandBuffer,

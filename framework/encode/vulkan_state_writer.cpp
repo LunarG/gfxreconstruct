@@ -327,6 +327,19 @@ void VulkanStateWriter::WriteDeviceState(const VulkanStateTable& state_table)
         {
             GFXRECON_LOG_WARNING("Device wait idle failed during state snapshot generation");
         }
+
+        // Register custom border colors at their captured index, before samplers and descriptors use them.
+        for (const auto& [index, border_color] : wrapper->custom_border_colors)
+        {
+            encoder_.EncodeHandleIdValue(wrapper->handle_id);
+            EncodeStructPtr(&encoder_, &border_color);
+            encoder_.EncodeUInt32Value(VK_TRUE);
+            encoder_.EncodeUInt32Ptr(&index);
+            encoder_.EncodeEnumValue(VK_SUCCESS);
+
+            WriteFunctionCall(format::ApiCallId::ApiCall_vkRegisterCustomBorderColorEXT, &parameter_stream_);
+            parameter_stream_.Clear();
+        }
     });
 }
 

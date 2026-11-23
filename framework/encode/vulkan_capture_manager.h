@@ -1419,6 +1419,14 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     void PostProcess_vkSetLocalDimmingAMD(VkDevice device, VkSwapchainKHR swapChain, VkBool32 localDimmingEnable);
 
+    void PostProcess_vkRegisterCustomBorderColorEXT(VkResult                                       result,
+                                                    VkDevice                                       device,
+                                                    const VkSamplerCustomBorderColorCreateInfoEXT* pBorderColor,
+                                                    VkBool32                                       requestIndex,
+                                                    uint32_t*                                      pIndex);
+
+    void PostProcess_vkUnregisterCustomBorderColorEXT(VkDevice device, uint32_t index);
+
     void PostProcess_vkCmdDebugMarkerInsertEXT(VkCommandBuffer                   commandBuffer,
                                                const VkDebugMarkerMarkerInfoEXT* pMarkerInfo);
 

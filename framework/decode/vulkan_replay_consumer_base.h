@@ -1618,6 +1618,14 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                    StructPointerDecoder<Decoded_VkAllocationCallbacks>* allocator_decoder,
                                    HandlePointerDecoder<VkSampler>*                     sampler_decoder);
 
+    VkResult OverrideRegisterCustomBorderColorEXT(
+        PFN_vkRegisterCustomBorderColorEXT                                     func,
+        VkResult                                                               original_result,
+        const VulkanDeviceInfo*                                                device_info,
+        StructPointerDecoder<Decoded_VkSamplerCustomBorderColorCreateInfoEXT>* border_color_decoder,
+        VkBool32                                                               request_index,
+        PointerDecoder<uint32_t>*                                              index_decoder);
+
     VkResult OverrideCreateFramebuffer(PFN_vkCreateFramebuffer                                func,
                                        VkResult                                               original_result,
                                        const VulkanDeviceInfo*                                device_info,

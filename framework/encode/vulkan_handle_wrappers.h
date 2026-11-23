@@ -197,6 +197,9 @@ struct DeviceWrapper : public HandleWrapper<VkDevice>
     // Serializes capture-internal submissions to queues the application has not retrieved and that therefore
     // have no QueueWrapper (and no queue_mutex) of their own.
     mutable std::mutex untracked_queues_mutex;
+
+    // Custom border colors registered with vkRegisterCustomBorderColorEXT, by index.
+    std::unordered_map<uint32_t, VkSamplerCustomBorderColorCreateInfoEXT> custom_border_colors;
 };
 
 struct FenceWrapper : public HandleWrapper<VkFence>

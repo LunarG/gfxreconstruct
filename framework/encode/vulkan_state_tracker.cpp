@@ -2087,6 +2087,29 @@ void VulkanStateTracker::TrackSetPrivateData(
     wrapper->data          = data;
 }
 
+void VulkanStateTracker::TrackRegisterCustomBorderColor(VkDevice                                       device,
+                                                        const VkSamplerCustomBorderColorCreateInfoEXT* border_color,
+                                                        uint32_t                                       index)
+{
+    GFXRECON_ASSERT(border_color != nullptr);
+
+    auto device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+
+    VkSamplerCustomBorderColorCreateInfoEXT info = *border_color;
+    info.pNext                                   = nullptr;
+
+    std::unique_lock<std::mutex> lock(state_table_mutex_);
+    device_wrapper->custom_border_colors[index] = info;
+}
+
+void VulkanStateTracker::TrackUnregisterCustomBorderColor(VkDevice device, uint32_t index)
+{
+    auto device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+
+    std::unique_lock<std::mutex> lock(state_table_mutex_);
+    device_wrapper->custom_border_colors.erase(index);
+}
+
 void VulkanStateTracker::TrackSetLocalDimmingAMD(VkDevice device, VkSwapchainKHR swapChain, VkBool32 localDimmingEnable)
 {
     assert(swapChain != VK_NULL_HANDLE);

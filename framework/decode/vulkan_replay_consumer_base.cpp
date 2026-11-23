@@ -12605,6 +12605,30 @@ VulkanReplayConsumerBase::OverrideCreateSampler(PFN_vkCreateSampler             
     return result;
 }
 
+VkResult VulkanReplayConsumerBase::OverrideRegisterCustomBorderColorEXT(
+    PFN_vkRegisterCustomBorderColorEXT                                     func,
+    VkResult                                                               original_result,
+    const VulkanDeviceInfo*                                                device_info,
+    StructPointerDecoder<Decoded_VkSamplerCustomBorderColorCreateInfoEXT>* border_color_decoder,
+    VkBool32                                                               request_index,
+    PointerDecoder<uint32_t>*                                              index_decoder)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(request_index);
+    GFXRECON_ASSERT((device_info != nullptr) && (index_decoder != nullptr) && !index_decoder->IsNull());
+
+    // A failed registration has no effect, and the captured index was not written.
+    if (original_result != VK_SUCCESS)
+    {
+        return original_result;
+    }
+
+    // Captured samplers and heap descriptors hold the capture-time index, so request that index.
+    uint32_t* index = index_decoder->GetOutputPointer();
+    *index          = *index_decoder->GetPointer();
+
+    return func(device_info->handle, border_color_decoder->GetPointer(), VK_TRUE, index);
+}
+
 VkResult VulkanReplayConsumerBase::OverrideCreateFramebuffer(
     PFN_vkCreateFramebuffer                                func,
     VkResult                                               original_result,

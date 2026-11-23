@@ -1315,6 +1315,26 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetLocalDimmingAMD>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkRegisterCustomBorderColorEXT>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkRegisterCustomBorderColorEXT(result, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUnregisterCustomBorderColorEXT>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_vkUnregisterCustomBorderColorEXT(args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDebugMarkerInsertEXT>
 {
     template <typename... Args>

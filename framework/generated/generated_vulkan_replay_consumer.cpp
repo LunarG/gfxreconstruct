@@ -7275,12 +7275,12 @@ void VulkanReplayConsumer::Process_vkRegisterCustomBorderColorEXT(
     const ApiCallInfo&                          call_info,
     args::RegisterCustomBorderColorEXT&         args)
 {
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    const VkSamplerCustomBorderColorCreateInfoEXT* in_pBorderColor = args.pBorderColor.GetPointer();
-    MapStructHandles(args.pBorderColor.GetMetaStructPointer(), GetObjectInfoTable());
-    uint32_t* out_pIndex = args.pIndex.IsNull() ? nullptr : args.pIndex.AllocateOutputData(1, static_cast<uint32_t>(0));
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(args.device);
 
-    VkResult replay_result = GetDeviceTable(in_device)->RegisterCustomBorderColorEXT(in_device, in_pBorderColor, args.requestIndex, out_pIndex);
+    MapStructHandles(args.pBorderColor.GetMetaStructPointer(), GetObjectInfoTable());
+    args.pIndex.IsNull() ? nullptr : args.pIndex.AllocateOutputData(1, static_cast<uint32_t>(0));
+
+    VkResult replay_result = OverrideRegisterCustomBorderColorEXT(GetDeviceTable(in_device->handle)->RegisterCustomBorderColorEXT, args.result, in_device, &args.pBorderColor, args.requestIndex, &args.pIndex);
     CheckResult("vkRegisterCustomBorderColorEXT", args.result, replay_result, call_info);
 }
 

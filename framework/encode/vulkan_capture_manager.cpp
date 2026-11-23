@@ -3622,6 +3622,31 @@ void VulkanCaptureManager::PostProcess_vkSetLocalDimmingAMD(VkDevice       devic
     }
 }
 
+void VulkanCaptureManager::PostProcess_vkRegisterCustomBorderColorEXT(
+    VkResult                                       result,
+    VkDevice                                       device,
+    const VkSamplerCustomBorderColorCreateInfoEXT* pBorderColor,
+    VkBool32                                       requestIndex,
+    uint32_t*                                      pIndex)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(requestIndex);
+
+    if (IsCaptureModeTrack() && (result == VK_SUCCESS))
+    {
+        GFXRECON_ASSERT(state_tracker_ != nullptr);
+        state_tracker_->TrackRegisterCustomBorderColor(device, pBorderColor, *pIndex);
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkUnregisterCustomBorderColorEXT(VkDevice device, uint32_t index)
+{
+    if (IsCaptureModeTrack())
+    {
+        GFXRECON_ASSERT(state_tracker_ != nullptr);
+        state_tracker_->TrackUnregisterCustomBorderColor(device, index);
+    }
+}
+
 void VulkanCaptureManager::PostProcess_vkCmdDebugMarkerInsertEXT(VkCommandBuffer                   commandBuffer,
                                                                  const VkDebugMarkerMarkerInfoEXT* pMarkerInfo)
 {
