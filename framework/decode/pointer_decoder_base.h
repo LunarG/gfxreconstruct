@@ -34,6 +34,35 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+inline size_t
+DecodePointerAttributes(const uint8_t* buffer, size_t buffer_size, size_t& len, uint64_t& address, uint32_t& attrib)
+{
+    size_t bytes_read = 0;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &attrib);
+
+    if ((attrib & format::PointerAttributes::kIsNull) != format::PointerAttributes::kIsNull)
+    {
+        if ((attrib & format::PointerAttributes::kHasAddress) == format::PointerAttributes::kHasAddress)
+        {
+            bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &address);
+        }
+
+        if (((attrib & format::PointerAttributes::kIsArray) == format::PointerAttributes::kIsArray) ||
+            ((attrib & format::PointerAttributes::kIsArray2D) == format::PointerAttributes::kIsArray2D) ||
+            ((attrib & format::PointerAttributes::kIsString) == format::PointerAttributes::kIsString) ||
+            ((attrib & format::PointerAttributes::kIsWString) == format::PointerAttributes::kIsWString))
+        {
+            bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &len);
+        }
+        else
+        {
+            len = 1;
+        }
+    }
+
+    return bytes_read;
+}
 
 class PointerDecoderBase
 {
@@ -144,31 +173,7 @@ class PointerDecoderBase
   protected:
     size_t DecodeAttributes(const uint8_t* buffer, size_t buffer_size)
     {
-        size_t bytes_read = 0;
-
-        bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &attrib_);
-
-        if ((attrib_ & format::PointerAttributes::kIsNull) != format::PointerAttributes::kIsNull)
-        {
-            if ((attrib_ & format::PointerAttributes::kHasAddress) == format::PointerAttributes::kHasAddress)
-            {
-                bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &address_);
-            }
-
-            if (((attrib_ & format::PointerAttributes::kIsArray) == format::PointerAttributes::kIsArray) ||
-                ((attrib_ & format::PointerAttributes::kIsArray2D) == format::PointerAttributes::kIsArray2D) ||
-                ((attrib_ & format::PointerAttributes::kIsString) == format::PointerAttributes::kIsString) ||
-                ((attrib_ & format::PointerAttributes::kIsWString) == format::PointerAttributes::kIsWString))
-            {
-                bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &len_);
-            }
-            else
-            {
-                len_ = 1;
-            }
-        }
-
-        return bytes_read;
+        return DecodePointerAttributes(buffer, buffer_size, len_, address_, attrib_);
     }
 
   public:

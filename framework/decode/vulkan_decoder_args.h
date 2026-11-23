@@ -32,6 +32,7 @@
 #include "decode/struct_pointer_decoder.h"
 #include "decode/vulkan_pnext_node.h"
 #include "format/format.h"
+#include "generated/generated_vulkan_schema_types.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "util/defines.h"
 
@@ -46,6 +47,9 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+// The args structures of the commands with a hand-written decoder.
+// NOTE: member names MUST match the corresponding schema Field names.
 GFXRECON_BEGIN_NAMESPACE(args)
 
 struct UpdateDescriptorSetWithTemplate
@@ -93,6 +97,8 @@ struct CreateRayTracingPipelinesKHR
 
 struct DeferredOperationJoinKHR
 {
+    using api_element = schema::vulkan::api_elements::DeferredOperationJoinKHR;
+
     VkResult         result;
     format::HandleId device;
     format::HandleId operation;

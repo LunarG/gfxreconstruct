@@ -24,4 +24,12 @@
 /// (e.g. encode/decode round-trips) that span multiple framework libraries.
 
 #define CATCH_CONFIG_MAIN
+#if defined(D3D12_SUPPORT)
+// Defines the DX12 interface IIDs the decode library's DX12 objects reference. Only a translation unit that includes
+// initguid.h ahead of d3d12.h defines them; without one, a link that pulls in a DX12 object fails on unresolved IIDs.
+// This is the test program's, as tools/replay/replay_d3d12_feature.cpp is gfxrecon-replay's.
+#include <initguid.h>
+#include <d3d12.h>
+#endif
+
 #include <catch2/catch.hpp>

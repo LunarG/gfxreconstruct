@@ -667,5 +667,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphPipelin
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const TypedStructDecoder* data)
+{
+    // Called from generated_vulkan_json_consumer.cpp with the address of an args member, so data is never null.
+    GFXRECON_ASSERT(data != nullptr);
+
+    FieldToJson(jdata, data->GetPNextNode());
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

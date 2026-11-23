@@ -37,8 +37,18 @@ class KhronosStructDecodersForwardGenerator():
         self.newline()
 
         for struct in self.get_all_filtered_struct_names():
+            # NOTE: MUST NOT emit a prototype when a constrained template declares the decoder, e.g. in
+            # decode/vulkan_decode_struct.h -- a non-template wins overload resolution, and this one refers to a symbol
+            # with no definition, so the call is a link error.
+            if self.skip_struct_decoder_prototype(struct):
+                continue
+
             write(
                 'size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_{}* wrapper);'
                 .format(struct),
                 file=self.outFile
             )
+
+    def skip_struct_decoder_prototype(self, struct):
+        """Returns True if a constrained template declares this structure's decoder instead. Overridden per API."""
+        return False
