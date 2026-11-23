@@ -15917,20 +15917,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateIndirectExecutionSetEXT(
     GFXRECON_ASSERT(func != nullptr && device_info != nullptr && pCreateInfo != nullptr &&
                     pIndirectExecutionSet != nullptr);
 
-    Decoded_VkIndirectExecutionSetCreateInfoEXT* meta_create_info = pCreateInfo->GetMetaStructPointer();
-
-    switch (meta_create_info->decoded_value->type)
-    {
-        case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT:
-            MapStructHandles(meta_create_info->info->pPipelineInfo->GetMetaStructPointer(), GetObjectInfoTable());
-            break;
-        case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT:
-            MapStructHandles(meta_create_info->info->pShaderInfo->GetMetaStructPointer(), GetObjectInfoTable());
-            break;
-        default:
-            break;
-    }
-
     return func(device_info->handle,
                 pCreateInfo->GetPointer(),
                 GetAllocationCallbacks(pAllocator),
