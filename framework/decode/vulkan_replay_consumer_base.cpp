@@ -6782,11 +6782,6 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
                     {
                         uses_address = true;
                         alloc_flags_info->flags |= VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
-                        auto opaque_address_pair = device_info->opaque_addresses.find(capture_id);
-                        if (opaque_address_pair != device_info->opaque_addresses.end())
-                        {
-                            opaque_address = opaque_address_pair->second;
-                        }
                     }
                 }
                 break;
@@ -6838,6 +6833,12 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
 
         if (uses_address && !address_override_found)
         {
+            if (auto entry = device_info->opaque_addresses.find(capture_id);
+                entry != device_info->opaque_addresses.end())
+            {
+                opaque_address = entry->second;
+            }
+
             // The Vulkan spec states: If the pNext chain includes a VkImportMemoryHostPointerInfoEXT structure,
             // VkMemoryOpaqueCaptureAddressAllocateInfo::opaqueCaptureAddress must be zero
             // (https://vulkan.lunarg.com/doc/view/1.3.216.0/linux/1.3-extensions/vkspec.html#VUID-VkMemoryAllocateInfo-pNext-03332)
