@@ -1020,6 +1020,13 @@ VkResult VulkanCaptureManager::OverrideCreateTensorARM(VkDevice                 
                                              vulkan_wrappers::NoParentWrapper,
                                              vulkan_wrappers::TensorARMWrapper>(
             device, vulkan_wrappers::NoParentWrapper::kHandleValue, pTensor, GetUniqueId);
+
+        if ((device_wrapper != nullptr) && device_wrapper->property_feature_info.feature_descriptorHeapCaptureReplay)
+        {
+            GFXRECON_LOG_WARNING_ONCE("%s: tensor opaque capture data is not captured, tensor descriptors in "
+                                      "descriptor heaps will not replay correctly",
+                                      __func__);
+        }
     }
 
     return result;
