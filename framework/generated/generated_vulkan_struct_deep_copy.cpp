@@ -15920,6 +15920,40 @@ size_t vulkan_struct_deep_copy(const VkResourceDescriptorInfoEXT* structs, uint3
             out_structures[i]   = base_struct;
         }
         handle_pnext(base_struct, i, offset, out_data);
+        switch (base_struct.type)
+        {
+            case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+            case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+            case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+            case VK_DESCRIPTOR_TYPE_BLOCK_MATCH_IMAGE_QCOM:
+            case VK_DESCRIPTOR_TYPE_SAMPLE_WEIGHT_IMAGE_QCOM:
+            {
+                handle_pointer(base_struct, base_struct.data.pImage, 1, i, offset, out_data);
+                break;
+            }
+            case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+            case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+            {
+                handle_pointer(base_struct, base_struct.data.pTexelBuffer, 1, i, offset, out_data);
+                break;
+            }
+            case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+            case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
+            case VK_DESCRIPTOR_TYPE_PARTITIONED_ACCELERATION_STRUCTURE_NV:
+            {
+                handle_pointer(base_struct, base_struct.data.pAddressRange, 1, i, offset, out_data);
+                break;
+            }
+            case VK_DESCRIPTOR_TYPE_TENSOR_ARM:
+            {
+                handle_pointer(base_struct, base_struct.data.pTensorARM, 1, i, offset, out_data);
+                break;
+            }
+            default:
+                break;
+        }
     }
     return offset;
 }
@@ -16120,6 +16154,36 @@ size_t vulkan_struct_deep_copy(const VkDescriptorSetAndBindingMappingEXT* struct
             out_structures[i]   = base_struct;
         }
         handle_pnext(base_struct, i, offset, out_data);
+        switch (base_struct.source)
+        {
+            case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_CONSTANT_OFFSET_EXT:
+            {
+                handle_pointer(base_struct, base_struct.sourceData.constantOffset.pEmbeddedSampler, 1, i, offset, out_data);
+                break;
+            }
+            case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_PUSH_INDEX_EXT:
+            {
+                handle_pointer(base_struct, base_struct.sourceData.pushIndex.pEmbeddedSampler, 1, i, offset, out_data);
+                break;
+            }
+            case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_INDIRECT_INDEX_EXT:
+            {
+                handle_pointer(base_struct, base_struct.sourceData.indirectIndex.pEmbeddedSampler, 1, i, offset, out_data);
+                break;
+            }
+            case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_INDIRECT_INDEX_ARRAY_EXT:
+            {
+                handle_pointer(base_struct, base_struct.sourceData.indirectIndexArray.pEmbeddedSampler, 1, i, offset, out_data);
+                break;
+            }
+            case VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_SHADER_RECORD_INDEX_EXT:
+            {
+                handle_pointer(base_struct, base_struct.sourceData.shaderRecordIndex.pEmbeddedSampler, 1, i, offset, out_data);
+                break;
+            }
+            default:
+                break;
+        }
     }
     return offset;
 }
