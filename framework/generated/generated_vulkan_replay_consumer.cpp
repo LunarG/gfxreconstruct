@@ -7262,18 +7262,6 @@ void VulkanReplayConsumer::Process_vkCmdPushDataEXT(
     }
 }
 
-void VulkanReplayConsumer::Process_vkGetImageOpaqueCaptureDataEXT(
-    const ApiCallInfo&                          call_info,
-    args::GetImageOpaqueCaptureDataEXT&         args)
-{
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    const VkImage* in_pImages = MapHandles<VulkanImageInfo>(&args.pImages, args.imageCount, &CommonObjectInfoTable::GetVkImageInfo);
-    VkHostAddressRangeEXT* out_pDatas = args.pDatas.IsNull() ? nullptr : args.pDatas.AllocateOutputData(args.imageCount);
-
-    VkResult replay_result = GetDeviceTable(in_device)->GetImageOpaqueCaptureDataEXT(in_device, args.imageCount, in_pImages, out_pDatas);
-    CheckResult("vkGetImageOpaqueCaptureDataEXT", args.result, replay_result, call_info);
-}
-
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceDescriptorSizeEXT(
     const ApiCallInfo&                          call_info,
     args::GetPhysicalDeviceDescriptorSizeEXT&   args)
@@ -7303,18 +7291,6 @@ void VulkanReplayConsumer::Process_vkUnregisterCustomBorderColorEXT(
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
 
     GetDeviceTable(in_device)->UnregisterCustomBorderColorEXT(in_device, args.index);
-}
-
-void VulkanReplayConsumer::Process_vkGetTensorOpaqueCaptureDataARM(
-    const ApiCallInfo&                          call_info,
-    args::GetTensorOpaqueCaptureDataARM&        args)
-{
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    const VkTensorARM* in_pTensors = MapHandles<VulkanTensorARMInfo>(&args.pTensors, args.tensorCount, &CommonObjectInfoTable::GetVkTensorARMInfo);
-    VkHostAddressRangeEXT* out_pDatas = args.pDatas.IsNull() ? nullptr : args.pDatas.AllocateOutputData(args.tensorCount);
-
-    VkResult replay_result = GetDeviceTable(in_device)->GetTensorOpaqueCaptureDataARM(in_device, args.tensorCount, in_pTensors, out_pDatas);
-    CheckResult("vkGetTensorOpaqueCaptureDataARM", args.result, replay_result, call_info);
 }
 
 void VulkanReplayConsumer::Process_vkCmdSetSampleLocationsEXT(

@@ -9178,26 +9178,6 @@ size_t VulkanDecoder::Decode_vkCmdPushDataEXT(const ApiCallInfo& call_info, cons
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_vkGetImageOpaqueCaptureDataEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    args::GetImageOpaqueCaptureDataEXT args;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.device);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.imageCount);
-    bytes_read += args.pImages.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += args.pDatas.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.result);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_vkGetImageOpaqueCaptureDataEXT(call_info, args);
-    }
-
-    return bytes_read;
-}
-
 size_t VulkanDecoder::Decode_vkGetPhysicalDeviceDescriptorSizeEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -9248,26 +9228,6 @@ size_t VulkanDecoder::Decode_vkUnregisterCustomBorderColorEXT(const ApiCallInfo&
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkUnregisterCustomBorderColorEXT(call_info, args);
-    }
-
-    return bytes_read;
-}
-
-size_t VulkanDecoder::Decode_vkGetTensorOpaqueCaptureDataARM(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    args::GetTensorOpaqueCaptureDataARM args;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.device);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.tensorCount);
-    bytes_read += args.pTensors.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += args.pDatas.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.result);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_vkGetTensorOpaqueCaptureDataARM(call_info, args);
     }
 
     return bytes_read;
@@ -15837,9 +15797,6 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
     case format::ApiCallId::ApiCall_vkCmdPushDataEXT:
         Decode_vkCmdPushDataEXT(call_info, parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCall_vkGetImageOpaqueCaptureDataEXT:
-        Decode_vkGetImageOpaqueCaptureDataEXT(call_info, parameter_buffer, buffer_size);
-        break;
     case format::ApiCallId::ApiCall_vkGetPhysicalDeviceDescriptorSizeEXT:
         Decode_vkGetPhysicalDeviceDescriptorSizeEXT(call_info, parameter_buffer, buffer_size);
         break;
@@ -15848,9 +15805,6 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_vkUnregisterCustomBorderColorEXT:
         Decode_vkUnregisterCustomBorderColorEXT(call_info, parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_vkGetTensorOpaqueCaptureDataARM:
-        Decode_vkGetTensorOpaqueCaptureDataARM(call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkCmdSetSampleLocationsEXT:
         Decode_vkCmdSetSampleLocationsEXT(call_info, parameter_buffer, buffer_size);

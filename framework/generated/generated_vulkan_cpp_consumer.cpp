@@ -10636,40 +10636,6 @@ void VulkanCppConsumer::Process_vkCmdPushDataEXT(
     Post_APICall(format::ApiCallId::ApiCall_vkCmdPushDataEXT);
 }
 
-void VulkanCppConsumer::Process_vkGetImageOpaqueCaptureDataEXT(
-    const ApiCallInfo&                          call_info,
-    args::GetImageOpaqueCaptureDataEXT&         args)
-{
-    FILE* file = GetFrameFile();
-    fprintf(file, "\t{\n");
-    std::string pimages_array = "NULL";
-    std::string pimages_values = toStringJoin(args.pImages.GetPointer(),
-                                              args.pImages.GetPointer() + args.imageCount,
-                                              [&](const format::HandleId current) { return this->GetHandle(current); },
-                                              ", ");
-    if (args.imageCount == 1 && pimages_values != "VK_NULL_HANDLE") {
-        pimages_array = "&" + pimages_values;
-    } else if (args.imageCount > 1) {
-        pimages_array = "pimages_array_" + std::to_string(this->GetNextId());
-        fprintf(file, "\t\tVkImage %s[] = { %s };\n", pimages_array.c_str(), pimages_values.c_str());
-    }
-    std::string pdatas_name = "NULL";
-    if (!args.pDatas.IsNull()) {
-        pdatas_name = "pDatas_" + std::to_string(this->GetNextId());
-        fprintf(file, "\t\tVkHostAddressRangeEXT %s[%d] = {};\n", pdatas_name.c_str(), args.imageCount);
-    }
-    pfn_loader_.AddMethodName("vkGetImageOpaqueCaptureDataEXT");
-    fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetImageOpaqueCaptureDataEXT(%s, %u, %s, %s), %s);\n",
-            this->GetHandle(args.device).c_str(),
-            args.imageCount,
-            pimages_array.c_str(),
-            pdatas_name.c_str(),
-            util::ToString<VkResult>(args.result).c_str());
-    fprintf(file, "\t}\n");
-    Post_APICall(format::ApiCallId::ApiCall_vkGetImageOpaqueCaptureDataEXT);
-}
-
 void VulkanCppConsumer::Process_vkGetPhysicalDeviceDescriptorSizeEXT(
     const ApiCallInfo&                          call_info,
     args::GetPhysicalDeviceDescriptorSizeEXT&   args)
@@ -10683,40 +10649,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceDescriptorSizeEXT(
             util::ToString<VkDescriptorType>(args.descriptorType).c_str());
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceDescriptorSizeEXT);
-}
-
-void VulkanCppConsumer::Process_vkGetTensorOpaqueCaptureDataARM(
-    const ApiCallInfo&                          call_info,
-    args::GetTensorOpaqueCaptureDataARM&        args)
-{
-    FILE* file = GetFrameFile();
-    fprintf(file, "\t{\n");
-    std::string ptensors_array = "NULL";
-    std::string ptensors_values = toStringJoin(args.pTensors.GetPointer(),
-                                               args.pTensors.GetPointer() + args.tensorCount,
-                                               [&](const format::HandleId current) { return this->GetHandle(current); },
-                                               ", ");
-    if (args.tensorCount == 1 && ptensors_values != "VK_NULL_HANDLE") {
-        ptensors_array = "&" + ptensors_values;
-    } else if (args.tensorCount > 1) {
-        ptensors_array = "ptensors_array_" + std::to_string(this->GetNextId());
-        fprintf(file, "\t\tVkTensorARM %s[] = { %s };\n", ptensors_array.c_str(), ptensors_values.c_str());
-    }
-    std::string pdatas_name = "NULL";
-    if (!args.pDatas.IsNull()) {
-        pdatas_name = "pDatas_" + std::to_string(this->GetNextId());
-        fprintf(file, "\t\tVkHostAddressRangeEXT %s[%d] = {};\n", pdatas_name.c_str(), args.tensorCount);
-    }
-    pfn_loader_.AddMethodName("vkGetTensorOpaqueCaptureDataARM");
-    fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetTensorOpaqueCaptureDataARM(%s, %u, %s, %s), %s);\n",
-            this->GetHandle(args.device).c_str(),
-            args.tensorCount,
-            ptensors_array.c_str(),
-            pdatas_name.c_str(),
-            util::ToString<VkResult>(args.result).c_str());
-    fprintf(file, "\t}\n");
-    Post_APICall(format::ApiCallId::ApiCall_vkGetTensorOpaqueCaptureDataARM);
 }
 
 void VulkanCppConsumer::Process_vkRegisterCustomBorderColorEXT(

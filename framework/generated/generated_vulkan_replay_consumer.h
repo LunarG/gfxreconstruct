@@ -2001,10 +2001,6 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         const ApiCallInfo&                          call_info,
         args::CmdPushDataEXT&                       args) override;
 
-    virtual void Process_vkGetImageOpaqueCaptureDataEXT(
-        const ApiCallInfo&                          call_info,
-        args::GetImageOpaqueCaptureDataEXT&         args) override;
-
     virtual void Process_vkGetPhysicalDeviceDescriptorSizeEXT(
         const ApiCallInfo&                          call_info,
         args::GetPhysicalDeviceDescriptorSizeEXT&   args) override;
@@ -2016,10 +2012,6 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
     virtual void Process_vkUnregisterCustomBorderColorEXT(
         const ApiCallInfo&                          call_info,
         args::UnregisterCustomBorderColorEXT&       args) override;
-
-    virtual void Process_vkGetTensorOpaqueCaptureDataARM(
-        const ApiCallInfo&                          call_info,
-        args::GetTensorOpaqueCaptureDataARM&        args) override;
 
     virtual void Process_vkCmdSetSampleLocationsEXT(
         const ApiCallInfo&                          call_info,

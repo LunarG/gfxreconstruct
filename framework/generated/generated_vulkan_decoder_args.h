@@ -5301,18 +5301,6 @@ struct CmdPushDataEXT
 };
 
 
-struct GetImageOpaqueCaptureDataEXT
-{
-    VkResult result;
-    format::HandleId device;
-    uint32_t imageCount;
-    HandlePointerDecoder<VkImage> pImages;
-    StructPointerDecoder<Decoded_VkHostAddressRangeEXT> pDatas;
-
-    auto GetTuple() const { return std::tie(result, device, imageCount, pImages, pDatas); }
-};
-
-
 struct GetPhysicalDeviceDescriptorSizeEXT
 {
     VkDeviceSize result;
@@ -5341,18 +5329,6 @@ struct UnregisterCustomBorderColorEXT
     uint32_t index;
 
     auto GetTuple() const { return std::tie(device, index); }
-};
-
-
-struct GetTensorOpaqueCaptureDataARM
-{
-    VkResult result;
-    format::HandleId device;
-    uint32_t tensorCount;
-    HandlePointerDecoder<VkTensorARM> pTensors;
-    StructPointerDecoder<Decoded_VkHostAddressRangeEXT> pDatas;
-
-    auto GetTuple() const { return std::tie(result, device, tensorCount, pTensors, pDatas); }
 };
 
 

@@ -2001,10 +2001,6 @@ class VulkanConsumer : public VulkanConsumerBase
         const ApiCallInfo&                          call_info,
         args::CmdPushDataEXT&                       args) {}
 
-    virtual void Process_vkGetImageOpaqueCaptureDataEXT(
-        const ApiCallInfo&                          call_info,
-        args::GetImageOpaqueCaptureDataEXT&         args) {}
-
     virtual void Process_vkGetPhysicalDeviceDescriptorSizeEXT(
         const ApiCallInfo&                          call_info,
         args::GetPhysicalDeviceDescriptorSizeEXT&   args) {}
@@ -2016,10 +2012,6 @@ class VulkanConsumer : public VulkanConsumerBase
     virtual void Process_vkUnregisterCustomBorderColorEXT(
         const ApiCallInfo&                          call_info,
         args::UnregisterCustomBorderColorEXT&       args) {}
-
-    virtual void Process_vkGetTensorOpaqueCaptureDataARM(
-        const ApiCallInfo&                          call_info,
-        args::GetTensorOpaqueCaptureDataARM&        args) {}
 
     virtual void Process_vkCmdSetSampleLocationsEXT(
         const ApiCallInfo&                          call_info,

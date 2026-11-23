@@ -1029,15 +1029,11 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkCmdPushDataEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
-    size_t Decode_vkGetImageOpaqueCaptureDataEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
-
     size_t Decode_vkGetPhysicalDeviceDescriptorSizeEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkRegisterCustomBorderColorEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkUnregisterCustomBorderColorEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
-
-    size_t Decode_vkGetTensorOpaqueCaptureDataARM(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCmdSetSampleLocationsEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 

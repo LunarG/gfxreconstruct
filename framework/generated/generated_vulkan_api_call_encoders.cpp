@@ -20284,53 +20284,6 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPushDataEXT(
 
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL vkGetImageOpaqueCaptureDataEXT(
-    VkDevice                                    device,
-    uint32_t                                    imageCount,
-    const VkImage*                              pImages,
-    VkHostAddressRangeEXT*                      pDatas)
-{
-    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
-    }
-
-    bool omit_output_data = false;
-
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageOpaqueCaptureDataEXT>::Dispatch(manager, device, imageCount, pImages, pDatas);
-
-    VkResult result = vulkan_wrappers::GetDeviceTable(device)->GetImageOpaqueCaptureDataEXT(device, imageCount, pImages, pDatas);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
-
-    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkGetImageOpaqueCaptureDataEXT);
-    if (encoder)
-    {
-        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
-        encoder->EncodeUInt32Value(imageCount);
-        encoder->EncodeVulkanHandleArray<vulkan_wrappers::ImageWrapper>(pImages, imageCount);
-        EncodeStructArray(encoder, pDatas, imageCount, omit_output_data);
-        encoder->EncodeEnumValue(result);
-        manager->EndApiCallCapture();
-    }
-
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageOpaqueCaptureDataEXT>::Dispatch(manager, result, device, imageCount, pImages, pDatas);
-
-    return result;
-
-}
-
 VKAPI_ATTR VkDeviceSize VKAPI_CALL vkGetPhysicalDeviceDescriptorSizeEXT(
     VkPhysicalDevice                            physicalDevice,
     VkDescriptorType                            descriptorType)
@@ -20449,53 +20402,6 @@ VKAPI_ATTR void VKAPI_CALL vkUnregisterCustomBorderColorEXT(
     vulkan_wrappers::GetDeviceTable(device)->UnregisterCustomBorderColorEXT(device, index);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUnregisterCustomBorderColorEXT>::Dispatch(manager, device, index);
-
-}
-
-VKAPI_ATTR VkResult VKAPI_CALL vkGetTensorOpaqueCaptureDataARM(
-    VkDevice                                    device,
-    uint32_t                                    tensorCount,
-    const VkTensorARM*                          pTensors,
-    VkHostAddressRangeEXT*                      pDatas)
-{
-    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
-    }
-
-    bool omit_output_data = false;
-
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetTensorOpaqueCaptureDataARM>::Dispatch(manager, device, tensorCount, pTensors, pDatas);
-
-    VkResult result = vulkan_wrappers::GetDeviceTable(device)->GetTensorOpaqueCaptureDataARM(device, tensorCount, pTensors, pDatas);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
-
-    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkGetTensorOpaqueCaptureDataARM);
-    if (encoder)
-    {
-        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
-        encoder->EncodeUInt32Value(tensorCount);
-        encoder->EncodeVulkanHandleArray<vulkan_wrappers::TensorARMWrapper>(pTensors, tensorCount);
-        EncodeStructArray(encoder, pDatas, tensorCount, omit_output_data);
-        encoder->EncodeEnumValue(result);
-        manager->EndApiCallCapture();
-    }
-
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetTensorOpaqueCaptureDataARM>::Dispatch(manager, result, device, tensorCount, pTensors, pDatas);
-
-    return result;
 
 }
 

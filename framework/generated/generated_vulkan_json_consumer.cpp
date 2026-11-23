@@ -6390,20 +6390,6 @@ void VulkanExportJsonConsumer::Process_vkCmdPushDataEXT(
     WriteBlockEnd();
 }
 
-void VulkanExportJsonConsumer::Process_vkGetImageOpaqueCaptureDataEXT(
-    const ApiCallInfo&                          call_info,
-    args::GetImageOpaqueCaptureDataEXT&         args)
-{
-    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetImageOpaqueCaptureDataEXT");
-    jdata[format::kNameReturn] = args.result;
-    auto& jargs = jdata[format::kNameArgs];
-        HandleToJson(jargs["device"], args.device);
-        jargs["imageCount"] = args.imageCount;
-        HandleToJson(jargs["pImages"], &args.pImages);
-        FieldToJson(jargs["pDatas"], &args.pDatas);
-    WriteBlockEnd();
-}
-
 void VulkanExportJsonConsumer::Process_vkGetPhysicalDeviceDescriptorSizeEXT(
     const ApiCallInfo&                          call_info,
     args::GetPhysicalDeviceDescriptorSizeEXT&   args)
@@ -6438,20 +6424,6 @@ void VulkanExportJsonConsumer::Process_vkUnregisterCustomBorderColorEXT(
     auto& jargs = jdata[format::kNameArgs];
         HandleToJson(jargs["device"], args.device);
         jargs["index"] = args.index;
-    WriteBlockEnd();
-}
-
-void VulkanExportJsonConsumer::Process_vkGetTensorOpaqueCaptureDataARM(
-    const ApiCallInfo&                          call_info,
-    args::GetTensorOpaqueCaptureDataARM&        args)
-{
-    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetTensorOpaqueCaptureDataARM");
-    jdata[format::kNameReturn] = args.result;
-    auto& jargs = jdata[format::kNameArgs];
-        HandleToJson(jargs["device"], args.device);
-        jargs["tensorCount"] = args.tensorCount;
-        HandleToJson(jargs["pTensors"], &args.pTensors);
-        FieldToJson(jargs["pDatas"], &args.pDatas);
     WriteBlockEnd();
 }
 

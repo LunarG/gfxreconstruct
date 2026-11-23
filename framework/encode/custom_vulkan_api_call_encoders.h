@@ -136,6 +136,16 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetTensorOpaqueCaptureDescriptorDataARM(VkDevic
 VKAPI_ATTR VkResult VKAPI_CALL
 vkGetTensorViewOpaqueCaptureDescriptorDataARM(VkDevice, const VkTensorViewCaptureDescriptorDataInfoARM*, void*);
 
+VKAPI_ATTR VkResult VKAPI_CALL vkGetImageOpaqueCaptureDataEXT(VkDevice               device,
+                                                              uint32_t               imageCount,
+                                                              const VkImage*         pImages,
+                                                              VkHostAddressRangeEXT* pDatas);
+
+VKAPI_ATTR VkResult VKAPI_CALL vkGetTensorOpaqueCaptureDataARM(VkDevice               device,
+                                                               uint32_t               tensorCount,
+                                                               const VkTensorARM*     pTensors,
+                                                               VkHostAddressRangeEXT* pDatas);
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

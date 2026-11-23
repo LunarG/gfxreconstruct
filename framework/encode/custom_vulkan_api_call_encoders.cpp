@@ -1131,5 +1131,24 @@ vkGetTensorViewOpaqueCaptureDescriptorDataARM(VkDevice, const VkTensorViewCaptur
     return VK_SUCCESS;
 }
 
+// Capture/replay-only query: forwarded, not captured.
+VKAPI_ATTR VkResult VKAPI_CALL vkGetImageOpaqueCaptureDataEXT(VkDevice               device,
+                                                              uint32_t               imageCount,
+                                                              const VkImage*         pImages,
+                                                              VkHostAddressRangeEXT* pDatas)
+{
+    return vulkan_wrappers::GetDeviceTable(device)->GetImageOpaqueCaptureDataEXT(device, imageCount, pImages, pDatas);
+}
+
+// Capture/replay-only query: forwarded, not captured.
+VKAPI_ATTR VkResult VKAPI_CALL vkGetTensorOpaqueCaptureDataARM(VkDevice               device,
+                                                               uint32_t               tensorCount,
+                                                               const VkTensorARM*     pTensors,
+                                                               VkHostAddressRangeEXT* pDatas)
+{
+    return vulkan_wrappers::GetDeviceTable(device)->GetTensorOpaqueCaptureDataARM(
+        device, tensorCount, pTensors, pDatas);
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

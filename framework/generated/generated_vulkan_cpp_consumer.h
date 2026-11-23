@@ -1899,17 +1899,9 @@ class VulkanCppConsumer : public VulkanCppConsumerBase
         const ApiCallInfo&                          call_info,
         args::CmdPushDataEXT&                       args) override;
 
-    virtual void Process_vkGetImageOpaqueCaptureDataEXT(
-        const ApiCallInfo&                          call_info,
-        args::GetImageOpaqueCaptureDataEXT&         args) override;
-
     virtual void Process_vkGetPhysicalDeviceDescriptorSizeEXT(
         const ApiCallInfo&                          call_info,
         args::GetPhysicalDeviceDescriptorSizeEXT&   args) override;
-
-    virtual void Process_vkGetTensorOpaqueCaptureDataARM(
-        const ApiCallInfo&                          call_info,
-        args::GetTensorOpaqueCaptureDataARM&        args) override;
 
     virtual void Process_vkRegisterCustomBorderColorEXT(
         const ApiCallInfo&                          call_info,
