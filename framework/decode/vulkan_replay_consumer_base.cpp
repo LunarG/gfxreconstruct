@@ -7590,7 +7590,9 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
         VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DESCRIPTOR_DATA_CREATE_INFO_EXT
     };
 
-    if (device_info->property_feature_info.feature_descriptorBufferCaptureReplay && !UseAddressReplacement(device_info))
+    // With both extensions on a device, capture stores the descriptor heap data for images.
+    if (device_info->property_feature_info.feature_descriptorBufferCaptureReplay &&
+        !device_info->property_feature_info.feature_descriptorHeapCaptureReplay && !UseAddressReplacement(device_info))
     {
         if (auto it = device_info->opaque_descriptor_data.find(capture_id);
             it != device_info->opaque_descriptor_data.end())
@@ -7613,9 +7615,7 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
     VkOpaqueCaptureDataCreateInfoEXT opaque_heap_info  = { VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DATA_CREATE_INFO_EXT };
     std::vector<uint8_t>             heap_create_info;
 
-    if (device_info->property_feature_info.feature_descriptorHeapCaptureReplay &&
-        !device_info->property_feature_info.feature_descriptorBufferCaptureReplay &&
-        !UseAddressReplacement(device_info))
+    if (device_info->property_feature_info.feature_descriptorHeapCaptureReplay && !UseAddressReplacement(device_info))
     {
         // kept for RecreateImageWithLateOpaqueData, without the opaque data added below.
         heap_create_info.resize(graphics::vulkan_struct_deep_copy(&modified_create_info, 1, nullptr));

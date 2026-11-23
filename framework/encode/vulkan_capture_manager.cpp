@@ -779,6 +779,15 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
     graphics::VulkanDevicePropertyFeatureInfo property_feature_info = device_util.EnableRequiredPhysicalDeviceFeatures(
         physical_device_wrapper->parent_info, instance_table, physicalDevice, pCreateInfo_unwrapped);
 
+    // Images get only the descriptor heap opaque data, so image descriptors in descriptor buffers will not replay.
+    if (property_feature_info.feature_descriptorBufferCaptureReplay &&
+        property_feature_info.feature_descriptorHeapCaptureReplay)
+    {
+        GFXRECON_LOG_ERROR("Descriptor heap and descriptor buffer are both enabled on one device. Capture of "
+                           "descriptor buffers is not supported in this case: image descriptors in descriptor "
+                           "buffers will not replay correctly.");
+    }
+
     VkDeviceQueueCreateInfo modified_queue_ci = {};
 
     if (GetQueueZeroOnly())
@@ -1088,8 +1097,10 @@ VkResult VulkanCaptureManager::OverrideCreateImage(VkDevice                     
             image_wrapper->queue_family_index = modified_create_info.pQueueFamilyIndices[0];
         }
 
-        // VK_EXT_descriptor_buffer: opaque data for VkOpaqueCaptureDescriptorDataCreateInfoEXT at replay
-        if (device_wrapper->property_feature_info.feature_descriptorBufferCaptureReplay)
+        // VK_EXT_descriptor_buffer: opaque data for VkOpaqueCaptureDescriptorDataCreateInfoEXT at replay.
+        // With both extensions on a device, images get the descriptor heap data.
+        if (device_wrapper->property_feature_info.feature_descriptorBufferCaptureReplay &&
+            !device_wrapper->property_feature_info.feature_descriptorHeapCaptureReplay)
         {
             std::vector<uint8_t> opaque_data(device_wrapper->property_feature_info.descriptor_buffer_properties
                                                  .imageCaptureReplayDescriptorDataSize);
@@ -1194,7 +1205,6 @@ VkResult VulkanCaptureManager::BindImageMemory2(PFN_vkBindImageMemory2       bin
 void VulkanCaptureManager::UpdateImageOpaqueCaptureData(vulkan_wrappers::DeviceWrapper* device_wrapper, VkImage image)
 {
     if (!device_wrapper->property_feature_info.feature_descriptorHeapCaptureReplay ||
-        device_wrapper->property_feature_info.feature_descriptorBufferCaptureReplay ||
         device_wrapper->property_feature_info.descriptor_heap_properties.imageCaptureReplayOpaqueDataSize == 0)
     {
         return;
