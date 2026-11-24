@@ -99,6 +99,10 @@ jobs:
         submodules: 'recursive'
     - name: Setup sccache
       uses: mozilla-actions/sccache-action@v0.0.9
+      with:
+        # Pinned: sccache 0.20.0 times out at server startup with the GHA cache
+        # (mozilla/sccache#3064). Remove the pin when that issue is fixed.
+        version: "v0.19.0"
     - name: Install build dependencies
       run: |
         sudo apt-get update
@@ -161,6 +165,10 @@ jobs:
         submodules: 'recursive'
     - name: Setup sccache
       uses: mozilla-actions/sccache-action@v0.0.9
+      with:
+        # Pinned: sccache 0.20.0 times out at server startup with the GHA cache
+        # (mozilla/sccache#3064). Remove the pin when that issue is fixed.
+        version: "v0.19.0"
     - name: Install build dependencies
       run: |
         sudo apt-get update
@@ -296,6 +304,10 @@ jobs:
         submodules: 'recursive'
     - name: Setup sccache
       uses: mozilla-actions/sccache-action@v0.0.9
+      with:
+        # Pinned: sccache 0.20.0 times out at server startup with the GHA cache
+        # (mozilla/sccache#3064). Remove the pin when that issue is fixed.
+        version: "v0.19.0"
     - name: Run build script
       run: |
         python3 scripts/build.py --skip-check-code-style --config ${{ matrix.config.type }} --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=13.3 --parallel 0 --test-apps
@@ -381,6 +393,10 @@ jobs:
           submodules: 'recursive'
       - name: Setup sccache
         uses: mozilla-actions/sccache-action@v0.0.9
+        with:
+          # Pinned: sccache 0.20.0 times out at server startup with the GHA cache
+          # (mozilla/sccache#3064). Remove the pin when that issue is fixed.
+          version: "v0.19.0"
       - name: Set up Java
         uses: "actions/setup-java@v4"
         with:
