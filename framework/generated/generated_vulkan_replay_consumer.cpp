@@ -7188,6 +7188,111 @@ void VulkanReplayConsumer::Process_vkCmdCopyGpaSessionResultsAMD(
     }
 }
 
+void VulkanReplayConsumer::Process_vkWriteSamplerDescriptorsEXT(
+    const ApiCallInfo&                          call_info,
+    args::WriteSamplerDescriptorsEXT&           args)
+{
+    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
+    const VkSamplerCreateInfo* in_pSamplers = args.pSamplers.GetPointer();
+    MapStructArrayHandles(args.pSamplers.GetMetaStructPointer(), args.pSamplers.GetLength(), GetObjectInfoTable());
+    const VkHostAddressRangeEXT* in_pDescriptors = args.pDescriptors.GetPointer();
+
+    VkResult replay_result = GetDeviceTable(in_device)->WriteSamplerDescriptorsEXT(in_device, args.samplerCount, in_pSamplers, in_pDescriptors);
+    CheckResult("vkWriteSamplerDescriptorsEXT", args.result, replay_result, call_info);
+}
+
+void VulkanReplayConsumer::Process_vkWriteResourceDescriptorsEXT(
+    const ApiCallInfo&                          call_info,
+    args::WriteResourceDescriptorsEXT&          args)
+{
+    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
+    const VkResourceDescriptorInfoEXT* in_pResources = args.pResources.GetPointer();
+    MapStructArrayHandles(args.pResources.GetMetaStructPointer(), args.pResources.GetLength(), GetObjectInfoTable());
+    const VkHostAddressRangeEXT* in_pDescriptors = args.pDescriptors.GetPointer();
+
+    VkResult replay_result = GetDeviceTable(in_device)->WriteResourceDescriptorsEXT(in_device, args.resourceCount, in_pResources, in_pDescriptors);
+    CheckResult("vkWriteResourceDescriptorsEXT", args.result, replay_result, call_info);
+}
+
+void VulkanReplayConsumer::Process_vkCmdBindSamplerHeapEXT(
+    const ApiCallInfo&                          call_info,
+    args::CmdBindSamplerHeapEXT&                args)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    const VkBindHeapInfoEXT* in_pBindInfo = args.pBindInfo.GetPointer();
+    MapStructHandles(args.pBindInfo.GetMetaStructPointer(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdBindSamplerHeapEXT(in_commandBuffer, in_pBindInfo);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdBindSamplerHeapEXT(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, in_pBindInfo);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdBindResourceHeapEXT(
+    const ApiCallInfo&                          call_info,
+    args::CmdBindResourceHeapEXT&               args)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    const VkBindHeapInfoEXT* in_pBindInfo = args.pBindInfo.GetPointer();
+    MapStructHandles(args.pBindInfo.GetMetaStructPointer(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdBindResourceHeapEXT(in_commandBuffer, in_pBindInfo);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdBindResourceHeapEXT(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, in_pBindInfo);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdPushDataEXT(
+    const ApiCallInfo&                          call_info,
+    args::CmdPushDataEXT&                       args)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(args.commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    const VkPushDataInfoEXT* in_pPushDataInfo = args.pPushDataInfo.GetPointer();
+    MapStructHandles(args.pPushDataInfo.GetMetaStructPointer(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdPushDataEXT(in_commandBuffer, in_pPushDataInfo);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdPushDataEXT(call_info, GetInjectedDeviceCalls(in_commandBuffer), in_commandBuffer, in_pPushDataInfo);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkGetPhysicalDeviceDescriptorSizeEXT(
+    const ApiCallInfo&                          call_info,
+    args::GetPhysicalDeviceDescriptorSizeEXT&   args)
+{
+    VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(args.physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
+
+    GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceDescriptorSizeEXT(in_physicalDevice, args.descriptorType);
+}
+
+void VulkanReplayConsumer::Process_vkRegisterCustomBorderColorEXT(
+    const ApiCallInfo&                          call_info,
+    args::RegisterCustomBorderColorEXT&         args)
+{
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+
+    MapStructHandles(args.pBorderColor.GetMetaStructPointer(), GetObjectInfoTable());
+    args.pIndex.IsNull() ? nullptr : args.pIndex.AllocateOutputData(1, static_cast<uint32_t>(0));
+
+    VkResult replay_result = OverrideRegisterCustomBorderColorEXT(GetDeviceTable(in_device->handle)->RegisterCustomBorderColorEXT, args.result, in_device, &args.pBorderColor, args.requestIndex, &args.pIndex);
+    CheckResult("vkRegisterCustomBorderColorEXT", args.result, replay_result, call_info);
+}
+
+void VulkanReplayConsumer::Process_vkUnregisterCustomBorderColorEXT(
+    const ApiCallInfo&                          call_info,
+    args::UnregisterCustomBorderColorEXT&       args)
+{
+    VkDevice in_device = MapHandle<VulkanDeviceInfo>(args.device, &CommonObjectInfoTable::GetVkDeviceInfo);
+
+    GetDeviceTable(in_device)->UnregisterCustomBorderColorEXT(in_device, args.index);
+}
+
 void VulkanReplayConsumer::Process_vkCmdSetSampleLocationsEXT(
     const ApiCallInfo&                          call_info,
     args::CmdSetSampleLocationsEXT&             args)
@@ -10634,6 +10739,8 @@ void VulkanReplayConsumer::Process_vkCreateIndirectExecutionSetEXT(
     args::CreateIndirectExecutionSetEXT&        args)
 {
     auto in_device = GetObjectInfoTable().GetVkDeviceInfo(args.device);
+
+    MapStructHandles(args.pCreateInfo.GetMetaStructPointer(), GetObjectInfoTable());
     if (!args.pIndirectExecutionSet.IsNull()) { args.pIndirectExecutionSet.SetHandleLength(1); }
     VulkanIndirectExecutionSetEXTInfo handle_info;
     args.pIndirectExecutionSet.SetConsumerData(0, &handle_info);
@@ -14204,6 +14311,91 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkGpaSessionCreateInfoAMD>());
                 break;
             }
+            case VK_STRUCTURE_TYPE_TEXEL_BUFFER_DESCRIPTOR_INFO_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkTexelBufferDescriptorInfoEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_IMAGE_DESCRIPTOR_INFO_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkImageDescriptorInfoEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_TENSOR_VIEW_CREATE_INFO_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkTensorViewCreateInfoARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_RESOURCE_DESCRIPTOR_INFO_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkResourceDescriptorInfoEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_BIND_HEAP_INFO_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkBindHeapInfoEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PUSH_DATA_INFO_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPushDataInfoEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_AND_BINDING_MAPPING_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDescriptorSetAndBindingMappingEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_SHADER_DESCRIPTOR_SET_AND_BINDING_MAPPING_INFO_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkShaderDescriptorSetAndBindingMappingInfoEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DATA_CREATE_INFO_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkOpaqueCaptureDataCreateInfoEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_HEAP_FEATURES_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceDescriptorHeapFeaturesEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_HEAP_PROPERTIES_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceDescriptorHeapPropertiesEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_DESCRIPTOR_HEAP_INFO_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkCommandBufferInheritanceDescriptorHeapInfoEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_INDEX_CREATE_INFO_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkSamplerCustomBorderColorIndexCreateInfoEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkSamplerCustomBorderColorCreateInfoEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_PUSH_DATA_TOKEN_NV:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkIndirectCommandsLayoutPushDataTokenNV>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_SUBSAMPLED_IMAGE_FORMAT_PROPERTIES_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkSubsampledImageFormatPropertiesEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_HEAP_TENSOR_PROPERTIES_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceDescriptorHeapTensorPropertiesARM>());
+                break;
+            }
             case VK_STRUCTURE_TYPE_ATTACHMENT_SAMPLE_COUNT_INFO_AMD:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkAttachmentSampleCountInfoAMD>());
@@ -14877,11 +15069,6 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
             case VK_STRUCTURE_TYPE_DEVICE_DEVICE_MEMORY_REPORT_CREATE_INFO_EXT:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDeviceDeviceMemoryReportCreateInfoEXT>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkSamplerCustomBorderColorCreateInfoEXT>());
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_PROPERTIES_EXT:
@@ -15697,11 +15884,6 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
             case VK_STRUCTURE_TYPE_TENSOR_CREATE_INFO_ARM:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkTensorCreateInfoARM>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_TENSOR_VIEW_CREATE_INFO_ARM:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkTensorViewCreateInfoARM>());
                 break;
             }
             case VK_STRUCTURE_TYPE_TENSOR_MEMORY_REQUIREMENTS_INFO_ARM:

@@ -99,29 +99,6 @@ struct Decoded_VkPerformanceValueDataINTEL
     StringDecoder valueString;
 };
 
-// This union wrapper does not have a DecodeStruct function.  It is decoded by the
-// Decoded_VkAccelerationStructureMotionInstanceNV DecodeStruct function, based on the value of
-// VkAccelerationStructureMotionInstanceNV::type.
-struct Decoded_VkAccelerationStructureMotionInstanceDataNV
-{
-    using struct_type = VkAccelerationStructureMotionInstanceDataNV;
-
-    VkAccelerationStructureMotionInstanceDataNV* decoded_value{ nullptr };
-
-    Decoded_VkAccelerationStructureInstanceKHR*            staticInstance{ nullptr };
-    Decoded_VkAccelerationStructureMatrixMotionInstanceNV* matrixMotionInstance{ nullptr };
-    Decoded_VkAccelerationStructureSRTMotionInstanceNV*    srtMotionInstance{ nullptr };
-};
-
-struct Decoded_VkAccelerationStructureMotionInstanceNV
-{
-    using struct_type = VkAccelerationStructureMotionInstanceNV;
-
-    VkAccelerationStructureMotionInstanceNV* decoded_value{ nullptr };
-
-    Decoded_VkAccelerationStructureMotionInstanceDataNV* data{ nullptr };
-};
-
 // Decoded struct wrappers for Vulkan structures that require special processing.
 struct Decoded_VkDescriptorImageInfo
 {
@@ -207,55 +184,6 @@ struct Decoded_SECURITY_ATTRIBUTES
     SECURITY_ATTRIBUTES* decoded_value{ nullptr };
 
     StructPointerDecoder<Decoded_SECURITY_DESCRIPTOR>* lpSecurityDescriptor{ nullptr };
-};
-
-// This union wrapper does not have a DecodeStruct function.  It is decoded by the
-// Decoded_VkIndirectExecutionSetCreateInfoEXT DecodeStruct function, based on the value of
-// VkIndirectExecutionSetCreateInfoEXT::type.
-struct Decoded_VkIndirectExecutionSetInfoEXT
-{
-    using struct_type = VkIndirectExecutionSetInfoEXT;
-
-    VkIndirectExecutionSetInfoEXT* decoded_value{ nullptr };
-
-    StructPointerDecoder<Decoded_VkIndirectExecutionSetPipelineInfoEXT>* pPipelineInfo{ nullptr };
-    StructPointerDecoder<Decoded_VkIndirectExecutionSetShaderInfoEXT>*   pShaderInfo{ nullptr };
-};
-
-struct Decoded_VkIndirectExecutionSetCreateInfoEXT
-{
-    using struct_type = VkIndirectExecutionSetCreateInfoEXT;
-
-    VkIndirectExecutionSetCreateInfoEXT* decoded_value{ nullptr };
-
-    PNextNode*                             pNext{ nullptr };
-    Decoded_VkIndirectExecutionSetInfoEXT* info{ nullptr };
-};
-
-// This union wrapper does not have a DecodeStruct function.  It is decoded by the
-// Decoded_VkIndirectCommandsLayoutTokenEXT DecodeStruct function, based on the value of
-// VkIndirectCommandsLayoutTokenEXT::type.
-struct Decoded_VkIndirectCommandsTokenDataEXT
-{
-    using struct_type = VkIndirectCommandsTokenDataEXT;
-
-    VkIndirectCommandsTokenDataEXT* decoded_value{ nullptr };
-
-    StructPointerDecoder<Decoded_VkIndirectCommandsPushConstantTokenEXT>* pPushConstant{ nullptr };
-    StructPointerDecoder<Decoded_VkIndirectCommandsVertexBufferTokenEXT>* pVertexBuffer{ nullptr };
-    StructPointerDecoder<Decoded_VkIndirectCommandsIndexBufferTokenEXT>*  pIndexBuffer{ nullptr };
-    StructPointerDecoder<Decoded_VkIndirectCommandsExecutionSetTokenEXT>* pExecutionSet{ nullptr };
-};
-
-struct Decoded_VkIndirectCommandsLayoutTokenEXT
-{
-    using struct_type = VkIndirectCommandsLayoutTokenEXT;
-
-    VkIndirectCommandsLayoutTokenEXT* decoded_value{ nullptr };
-
-    PNextNode*                              pNext{ nullptr };
-    Decoded_VkIndirectCommandsTokenDataEXT* data{ nullptr };
-    uint32_t                                offset{};
 };
 
 struct Decoded_VkCopyMemoryToImageInfo

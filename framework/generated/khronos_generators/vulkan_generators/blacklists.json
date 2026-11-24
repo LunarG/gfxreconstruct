@@ -25,7 +25,9 @@
     "vkGetImageViewOpaqueCaptureDescriptorDataEXT",
     "vkGetSamplerOpaqueCaptureDescriptorDataEXT",
     "vkGetTensorOpaqueCaptureDescriptorDataARM",
-    "vkGetTensorViewOpaqueCaptureDescriptorDataARM"
+    "vkGetTensorViewOpaqueCaptureDescriptorDataARM",
+    "vkGetImageOpaqueCaptureDataEXT",
+    "vkGetTensorOpaqueCaptureDataARM"
   ],
   "functions-encoder": [
     "vkCreateComputePipelines",
@@ -46,11 +48,6 @@
     "VkPushDescriptorSetWithTemplateInfo",
     "VkAccelerationStructureGeometryKHR",
     "VkAccelerationStructureDenseGeometryFormatTrianglesDataAMDX",
-    "VkAccelerationStructureMotionInstanceNV",
-    "VkIndirectExecutionSetInfoEXT",
-    "VkIndirectExecutionSetCreateInfoEXT",
-    "VkIndirectCommandsTokenDataEXT",
-    "VkIndirectCommandsLayoutTokenEXT",
     "VkCopyMemoryToImageInfo",
     "VkMemoryToImageCopy",
     "VkCopyImageToMemoryInfo",

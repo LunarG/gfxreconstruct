@@ -313,6 +313,13 @@ class VulkanCaptureManager : public ApiCaptureManager
                                  const VkAllocationCallbacks* pAllocator,
                                  VkImage*                     pImage);
 
+    VkResult OverrideBindImageMemory(VkDevice device, VkImage image, VkDeviceMemory memory, VkDeviceSize memoryOffset);
+
+    VkResult OverrideBindImageMemory2(VkDevice device, uint32_t bindInfoCount, const VkBindImageMemoryInfo* pBindInfos);
+
+    VkResult
+    OverrideBindImageMemory2KHR(VkDevice device, uint32_t bindInfoCount, const VkBindImageMemoryInfo* pBindInfos);
+
     VkResult OverrideCreateImageView(VkDevice                     device,
                                      const VkImageViewCreateInfo* pCreateInfo,
                                      const VkAllocationCallbacks* pAllocator,
@@ -1412,6 +1419,14 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     void PostProcess_vkSetLocalDimmingAMD(VkDevice device, VkSwapchainKHR swapChain, VkBool32 localDimmingEnable);
 
+    void PostProcess_vkRegisterCustomBorderColorEXT(VkResult                                       result,
+                                                    VkDevice                                       device,
+                                                    const VkSamplerCustomBorderColorCreateInfoEXT* pBorderColor,
+                                                    VkBool32                                       requestIndex,
+                                                    uint32_t*                                      pIndex);
+
+    void PostProcess_vkUnregisterCustomBorderColorEXT(VkDevice device, uint32_t index);
+
     void PostProcess_vkCmdDebugMarkerInsertEXT(VkCommandBuffer                   commandBuffer,
                                                const VkDebugMarkerMarkerInfoEXT* pMarkerInfo);
 
@@ -1872,6 +1887,14 @@ class VulkanCaptureManager : public ApiCaptureManager
                                              format::HandleId object_id,
                                              size_t           data_size,
                                              const void*      data);
+
+    VkResult BindImageMemory2(PFN_vkBindImageMemory2       bind_image_memory2,
+                              VkDevice                     device,
+                              uint32_t                     bindInfoCount,
+                              const VkBindImageMemoryInfo* pBindInfos);
+
+    // Writes the image's heap opaque data again if binding memory changed it.
+    void UpdateImageOpaqueCaptureData(vulkan_wrappers::DeviceWrapper* device_wrapper, VkImage image);
 
     void WriteSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
                                                      format::HandleId pipeline_id,

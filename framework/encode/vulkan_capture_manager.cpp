@@ -41,6 +41,7 @@
 #include "generated/generated_vulkan_struct_handle_wrappers.h"
 #include "graphics/vulkan_check_buffer_references.h"
 #include "graphics/vulkan_device_util.h"
+#include "graphics/vulkan_struct_deep_copy.h"
 #include "graphics/vulkan_struct_get_pnext.h"
 #include "graphics/vulkan_util.h"
 #include "graphics/vulkan_feature_util.h"
@@ -778,6 +779,15 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
     graphics::VulkanDevicePropertyFeatureInfo property_feature_info = device_util.EnableRequiredPhysicalDeviceFeatures(
         physical_device_wrapper->parent_info, instance_table, physicalDevice, pCreateInfo_unwrapped);
 
+    // Images get only the descriptor heap opaque data, so image descriptors in descriptor buffers will not replay.
+    if (property_feature_info.feature_descriptorBufferCaptureReplay &&
+        property_feature_info.feature_descriptorHeapCaptureReplay)
+    {
+        GFXRECON_LOG_ERROR("Descriptor heap and descriptor buffer are both enabled on one device. Capture of "
+                           "descriptor buffers is not supported in this case: image descriptors in descriptor "
+                           "buffers will not replay correctly.");
+    }
+
     VkDeviceQueueCreateInfo modified_queue_ci = {};
 
     if (GetQueueZeroOnly())
@@ -1019,6 +1029,13 @@ VkResult VulkanCaptureManager::OverrideCreateTensorARM(VkDevice                 
                                              vulkan_wrappers::NoParentWrapper,
                                              vulkan_wrappers::TensorARMWrapper>(
             device, vulkan_wrappers::NoParentWrapper::kHandleValue, pTensor, GetUniqueId);
+
+        if ((device_wrapper != nullptr) && device_wrapper->property_feature_info.feature_descriptorHeapCaptureReplay)
+        {
+            GFXRECON_LOG_WARNING_ONCE("%s: tensor opaque capture data is not captured, tensor descriptors in "
+                                      "descriptor heaps will not replay correctly",
+                                      __func__);
+        }
     }
 
     return result;
@@ -1045,6 +1062,11 @@ VkResult VulkanCaptureManager::OverrideCreateImage(VkDevice                     
     if (device_wrapper->property_feature_info.feature_descriptorBufferCaptureReplay)
     {
         modified_create_info.flags |= VK_IMAGE_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT;
+    }
+
+    if (device_wrapper->property_feature_info.feature_descriptorHeapCaptureReplay)
+    {
+        modified_create_info.flags |= VK_IMAGE_CREATE_DESCRIPTOR_HEAP_CAPTURE_REPLAY_BIT_EXT;
     }
 
     VkResult result = device_table->CreateImage(device, &modified_create_info, pAllocator, pImage);
@@ -1075,8 +1097,10 @@ VkResult VulkanCaptureManager::OverrideCreateImage(VkDevice                     
             image_wrapper->queue_family_index = modified_create_info.pQueueFamilyIndices[0];
         }
 
-        // request and store opaque descriptor-data for image
-        if (device_wrapper->property_feature_info.feature_descriptorBufferCaptureReplay)
+        // VK_EXT_descriptor_buffer: opaque data for VkOpaqueCaptureDescriptorDataCreateInfoEXT at replay.
+        // With both extensions on a device, images get the descriptor heap data.
+        if (device_wrapper->property_feature_info.feature_descriptorBufferCaptureReplay &&
+            !device_wrapper->property_feature_info.feature_descriptorHeapCaptureReplay)
         {
             std::vector<uint8_t> opaque_data(device_wrapper->property_feature_info.descriptor_buffer_properties
                                                  .imageCaptureReplayDescriptorDataSize);
@@ -1097,8 +1121,119 @@ VkResult VulkanCaptureManager::OverrideCreateImage(VkDevice                     
                 image_wrapper->opaque_descriptor_data = std::move(opaque_data);
             }
         }
+        // VK_EXT_descriptor_heap: opaque data for VkOpaqueCaptureDataCreateInfoEXT at replay, same meta command
+        else if (device_wrapper->property_feature_info.feature_descriptorHeapCaptureReplay &&
+                 device_wrapper->property_feature_info.descriptor_heap_properties.imageCaptureReplayOpaqueDataSize > 0)
+        {
+            std::vector<uint8_t> opaque_data(
+                device_wrapper->property_feature_info.descriptor_heap_properties.imageCaptureReplayOpaqueDataSize);
+
+            VkHostAddressRangeEXT opaque_range    = { opaque_data.data(), opaque_data.size() };
+            VkResult              get_data_result = device_table->GetImageOpaqueCaptureDataEXT(
+                device_wrapper->handle, 1, &image_wrapper->handle, &opaque_range);
+
+            if (get_data_result == VK_SUCCESS)
+            {
+                WriteSetOpaqueCaptureDescriptorData(
+                    device_wrapper->handle_id, image_wrapper->handle_id, opaque_data.size(), opaque_data.data());
+
+                // Kept in all modes: binding memory can change it (UpdateImageOpaqueCaptureData).
+                image_wrapper->opaque_descriptor_data = std::move(opaque_data);
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("vkGetImageOpaqueCaptureDataEXT failed for VkImage (ID = %" PRIu64 "): %d",
+                                     image_wrapper->handle_id,
+                                     get_data_result);
+            }
+        }
     }
     return result;
+}
+
+VkResult VulkanCaptureManager::OverrideBindImageMemory(VkDevice       device,
+                                                       VkImage        image,
+                                                       VkDeviceMemory memory,
+                                                       VkDeviceSize   memoryOffset)
+{
+    VkResult result = vulkan_wrappers::GetDeviceTable(device)->BindImageMemory(device, image, memory, memoryOffset);
+
+    if (result == VK_SUCCESS)
+    {
+        UpdateImageOpaqueCaptureData(vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device), image);
+    }
+    return result;
+}
+
+VkResult VulkanCaptureManager::OverrideBindImageMemory2(VkDevice                     device,
+                                                        uint32_t                     bindInfoCount,
+                                                        const VkBindImageMemoryInfo* pBindInfos)
+{
+    return BindImageMemory2(
+        vulkan_wrappers::GetDeviceTable(device)->BindImageMemory2, device, bindInfoCount, pBindInfos);
+}
+
+VkResult VulkanCaptureManager::OverrideBindImageMemory2KHR(VkDevice                     device,
+                                                           uint32_t                     bindInfoCount,
+                                                           const VkBindImageMemoryInfo* pBindInfos)
+{
+    return BindImageMemory2(
+        vulkan_wrappers::GetDeviceTable(device)->BindImageMemory2KHR, device, bindInfoCount, pBindInfos);
+}
+
+VkResult VulkanCaptureManager::BindImageMemory2(PFN_vkBindImageMemory2       bind_image_memory2,
+                                                VkDevice                     device,
+                                                uint32_t                     bindInfoCount,
+                                                const VkBindImageMemoryInfo* pBindInfos)
+{
+    const VkBindImageMemoryInfo* pBindInfos_unwrapped =
+        vulkan_wrappers::UnwrapStructArrayHandles(pBindInfos, bindInfoCount, GetHandleUnwrapMemory());
+
+    VkResult result = bind_image_memory2(device, bindInfoCount, pBindInfos_unwrapped);
+
+    if (result == VK_SUCCESS)
+    {
+        auto* device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+        for (uint32_t i = 0; i < bindInfoCount; ++i)
+        {
+            UpdateImageOpaqueCaptureData(device_wrapper, pBindInfos[i].image);
+        }
+    }
+    return result;
+}
+
+void VulkanCaptureManager::UpdateImageOpaqueCaptureData(vulkan_wrappers::DeviceWrapper* device_wrapper, VkImage image)
+{
+    if (!device_wrapper->property_feature_info.feature_descriptorHeapCaptureReplay ||
+        device_wrapper->property_feature_info.descriptor_heap_properties.imageCaptureReplayOpaqueDataSize == 0)
+    {
+        return;
+    }
+
+    auto*                image_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(image);
+    std::vector<uint8_t> opaque_data(
+        device_wrapper->property_feature_info.descriptor_heap_properties.imageCaptureReplayOpaqueDataSize);
+
+    // The driver can assign the image's address at bind time, so the data from image creation may be stale.
+    VkHostAddressRangeEXT opaque_range = { .address = opaque_data.data(), .size = opaque_data.size() };
+    VkResult              get_data_result =
+        vulkan_wrappers::GetDeviceTable(device_wrapper->handle)
+            ->GetImageOpaqueCaptureDataEXT(device_wrapper->handle, 1, &image_wrapper->handle, &opaque_range);
+
+    if (get_data_result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_WARNING("vkGetImageOpaqueCaptureDataEXT failed for VkImage (ID = %" PRIu64 "): %d",
+                             image_wrapper->handle_id,
+                             get_data_result);
+        return;
+    }
+
+    if (opaque_data != image_wrapper->opaque_descriptor_data)
+    {
+        WriteSetOpaqueCaptureDescriptorData(
+            device_wrapper->handle_id, image_wrapper->handle_id, opaque_data.size(), opaque_data.data());
+        image_wrapper->opaque_descriptor_data = std::move(opaque_data);
+    }
 }
 
 VkResult VulkanCaptureManager::OverrideCreateImageView(VkDevice                     device,
@@ -1385,7 +1520,9 @@ VkResult VulkanCaptureManager::OverrideAllocateMemory(VkDevice                  
         }
     }
 
-    if (device_wrapper->property_feature_info.feature_descriptorBufferCaptureReplay)
+    // Memory bound to capture-replay images must have a capture-replay address.
+    if (device_wrapper->property_feature_info.feature_descriptorBufferCaptureReplay ||
+        device_wrapper->property_feature_info.feature_descriptorHeapCaptureReplay)
     {
         uses_address = true;
 
@@ -1676,18 +1813,21 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
     VkResult result;
     if (device_wrapper->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
     {
-        auto modified_create_infos = std::make_unique<VkRayTracingPipelineCreateInfoKHR[]>(createInfoCount);
+        // Deep copy, so a chained VkPipelineCreateFlags2CreateInfo can be changed without writing to app memory.
+        const size_t num_bytes = graphics::vulkan_struct_deep_copy(pCreateInfos_unwrapped, createInfoCount, nullptr);
+        uint8_t*     create_info_data = handle_unwrap_memory->GetBuffer(num_bytes);
+        graphics::vulkan_struct_deep_copy(pCreateInfos_unwrapped, createInfoCount, create_info_data);
+        auto* modified_create_infos = reinterpret_cast<VkRayTracingPipelineCreateInfoKHR*>(create_info_data);
         for (uint32_t i = 0; i < createInfoCount; ++i)
         {
-            modified_create_infos[i] = pCreateInfos_unwrapped[i];
-            modified_create_infos[i].flags |= VK_PIPELINE_CREATE_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR;
+            graphics::SetShaderGroupHandleCaptureReplayFlag(modified_create_infos[i]);
         }
         if (deferred_operation_wrapper)
         {
             deferred_operation_wrapper->create_infos.clear();
             deferred_operation_wrapper->create_infos.insert(deferred_operation_wrapper->create_infos.end(),
-                                                            &modified_create_infos.get()[0],
-                                                            &modified_create_infos.get()[createInfoCount]);
+                                                            &modified_create_infos[0],
+                                                            &modified_create_infos[createInfoCount]);
             result = device_table->CreateRayTracingPipelinesKHR(device,
                                                                 deferredOperation,
                                                                 pipelineCache,
@@ -1727,7 +1867,7 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
                                                                 deferredOperation,
                                                                 pipelineCache,
                                                                 createInfoCount,
-                                                                modified_create_infos.get(),
+                                                                modified_create_infos,
                                                                 pAllocator,
                                                                 pPipelines);
         }
@@ -3489,6 +3629,31 @@ void VulkanCaptureManager::PostProcess_vkSetLocalDimmingAMD(VkDevice       devic
             assert(state_tracker_ != nullptr);
             state_tracker_->TrackSetLocalDimmingAMD(device, swapChain, localDimmingEnable);
         }
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkRegisterCustomBorderColorEXT(
+    VkResult                                       result,
+    VkDevice                                       device,
+    const VkSamplerCustomBorderColorCreateInfoEXT* pBorderColor,
+    VkBool32                                       requestIndex,
+    uint32_t*                                      pIndex)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(requestIndex);
+
+    if (IsCaptureModeTrack() && (result == VK_SUCCESS))
+    {
+        GFXRECON_ASSERT(state_tracker_ != nullptr);
+        state_tracker_->TrackRegisterCustomBorderColor(device, pBorderColor, *pIndex);
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkUnregisterCustomBorderColorEXT(VkDevice device, uint32_t index)
+{
+    if (IsCaptureModeTrack())
+    {
+        GFXRECON_ASSERT(state_tracker_ != nullptr);
+        state_tracker_->TrackUnregisterCustomBorderColor(device, index);
     }
 }
 

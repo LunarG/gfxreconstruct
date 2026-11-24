@@ -529,6 +529,9 @@ struct VulkanImageInfo : public VulkanObjectInfo<VkImage>
 
     // contains a debug-utils name, if any
     std::string debug_utils_name;
+
+    // Deep copy of the create info, to recreate the image when its heap opaque data changes at bind time.
+    std::vector<uint8_t> heap_create_info;
 };
 
 struct VulkanPipelineCacheData

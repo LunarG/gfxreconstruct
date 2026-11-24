@@ -449,9 +449,9 @@ InitializeGroupObjectState<VkDevice, VkPipelineCache, vulkan_wrappers::PipelineW
     format::ApiCallId                   create_call_id,
     vulkan_state_info::CreateParameters create_parameters)
 {
-    assert(wrapper != nullptr);
-    assert(create_info != nullptr);
-    assert(create_parameters != nullptr);
+    GFXRECON_ASSERT(wrapper != nullptr);
+    GFXRECON_ASSERT(create_info != nullptr);
+    GFXRECON_ASSERT(create_parameters != nullptr);
 
     GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
 
@@ -471,13 +471,17 @@ InitializeGroupObjectState<VkDevice, VkPipelineCache, vulkan_wrappers::PipelineW
 
         wrapper->shader_module_dependencies.emplace_back(std::move(info));
     }
-    auto layout_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineLayoutWrapper>(create_info->layout);
-    assert(layout_wrapper != nullptr);
+    if (create_info->layout != VK_NULL_HANDLE)
+    {
+        const auto layout_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineLayoutWrapper>(create_info->layout);
+        GFXRECON_ASSERT(layout_wrapper != nullptr);
 
-    wrapper->layout_dependency.handle_id         = layout_wrapper->handle_id;
-    wrapper->layout_dependency.create_call_id    = layout_wrapper->create_call_id;
-    wrapper->layout_dependency.create_parameters = layout_wrapper->create_parameters;
-    wrapper->layout_dependencies                 = layout_wrapper->layout_dependencies;
+        wrapper->layout_dependency.handle_id         = layout_wrapper->handle_id;
+        wrapper->layout_dependency.create_call_id    = layout_wrapper->create_call_id;
+        wrapper->layout_dependency.create_parameters = layout_wrapper->create_parameters;
+        wrapper->layout_dependencies                 = layout_wrapper->layout_dependencies;
+    }
 }
 
 template <>
@@ -492,9 +496,9 @@ InitializeGroupObjectState<VkDevice,
                                                              format::ApiCallId                       create_call_id,
                                                              vulkan_state_info::CreateParameters     create_parameters)
 {
-    assert(wrapper != nullptr);
-    assert((create_info != nullptr) && (create_info->pStages != nullptr));
-    assert(create_parameters != nullptr);
+    GFXRECON_ASSERT(wrapper != nullptr);
+    GFXRECON_ASSERT((create_info != nullptr) && (create_info->pStages != nullptr));
+    GFXRECON_ASSERT(create_parameters != nullptr);
 
     GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
 
@@ -519,13 +523,17 @@ InitializeGroupObjectState<VkDevice,
         }
     }
 
-    auto layout_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineLayoutWrapper>(create_info->layout);
-    assert(layout_wrapper != nullptr);
+    if (create_info->layout != VK_NULL_HANDLE)
+    {
+        const auto* layout_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineLayoutWrapper>(create_info->layout);
+        GFXRECON_ASSERT(layout_wrapper != nullptr);
 
-    wrapper->layout_dependency.handle_id         = layout_wrapper->handle_id;
-    wrapper->layout_dependency.create_call_id    = layout_wrapper->create_call_id;
-    wrapper->layout_dependency.create_parameters = layout_wrapper->create_parameters;
-    wrapper->layout_dependencies                 = layout_wrapper->layout_dependencies;
+        wrapper->layout_dependency.handle_id         = layout_wrapper->handle_id;
+        wrapper->layout_dependency.create_call_id    = layout_wrapper->create_call_id;
+        wrapper->layout_dependency.create_parameters = layout_wrapper->create_parameters;
+        wrapper->layout_dependencies                 = layout_wrapper->layout_dependencies;
+    }
 }
 
 template <>
@@ -540,9 +548,9 @@ InitializeGroupObjectState<VkDevice,
                                                               format::ApiCallId                        create_call_id,
                                                               vulkan_state_info::CreateParameters create_parameters)
 {
-    assert(wrapper != nullptr);
-    assert((create_info != nullptr) && (create_info->pStages != nullptr));
-    assert(create_parameters != nullptr);
+    GFXRECON_ASSERT(wrapper != nullptr);
+    GFXRECON_ASSERT((create_info != nullptr) && (create_info->pStages != nullptr));
+    GFXRECON_ASSERT(create_parameters != nullptr);
 
     GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
 
@@ -567,13 +575,17 @@ InitializeGroupObjectState<VkDevice,
         }
     }
 
-    auto layout_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineLayoutWrapper>(create_info->layout);
-    assert(layout_wrapper != nullptr);
+    if (create_info->layout != VK_NULL_HANDLE)
+    {
+        const auto* layout_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineLayoutWrapper>(create_info->layout);
+        GFXRECON_ASSERT(layout_wrapper != nullptr);
 
-    wrapper->layout_dependency.handle_id         = layout_wrapper->handle_id;
-    wrapper->layout_dependency.create_call_id    = layout_wrapper->create_call_id;
-    wrapper->layout_dependency.create_parameters = layout_wrapper->create_parameters;
-    wrapper->layout_dependencies                 = layout_wrapper->layout_dependencies;
+        wrapper->layout_dependency.handle_id         = layout_wrapper->handle_id;
+        wrapper->layout_dependency.create_call_id    = layout_wrapper->create_call_id;
+        wrapper->layout_dependency.create_parameters = layout_wrapper->create_parameters;
+        wrapper->layout_dependencies                 = layout_wrapper->layout_dependencies;
+    }
 }
 
 template <>

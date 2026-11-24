@@ -308,5 +308,18 @@ bool ArePipelineRenderingFormatsIgnored(const VkGraphicsPipelineCreateInfo& crea
     return has_pre_rasterization_state && IsRasterizerDiscardStaticallyEnabled(create_info);
 }
 
+void SetShaderGroupHandleCaptureReplayFlag(VkRayTracingPipelineCreateInfoKHR& create_info)
+{
+    // A chained VkPipelineCreateFlags2CreateInfo replaces flags.
+    if (auto* create_flags2_info = vulkan_struct_get_pnext<VkPipelineCreateFlags2CreateInfo>(&create_info))
+    {
+        create_flags2_info->flags |= VK_PIPELINE_CREATE_2_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR;
+    }
+    else
+    {
+        create_info.flags |= VK_PIPELINE_CREATE_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR;
+    }
+}
+
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)

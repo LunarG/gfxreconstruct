@@ -1965,6 +1965,38 @@ class VulkanExportJsonConsumer : public VulkanExportJsonConsumerBase
         const ApiCallInfo&                          call_info,
         args::CmdCopyGpaSessionResultsAMD&          args) override;
 
+    virtual void Process_vkWriteSamplerDescriptorsEXT(
+        const ApiCallInfo&                          call_info,
+        args::WriteSamplerDescriptorsEXT&           args) override;
+
+    virtual void Process_vkWriteResourceDescriptorsEXT(
+        const ApiCallInfo&                          call_info,
+        args::WriteResourceDescriptorsEXT&          args) override;
+
+    virtual void Process_vkCmdBindSamplerHeapEXT(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindSamplerHeapEXT&                args) override;
+
+    virtual void Process_vkCmdBindResourceHeapEXT(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindResourceHeapEXT&               args) override;
+
+    virtual void Process_vkCmdPushDataEXT(
+        const ApiCallInfo&                          call_info,
+        args::CmdPushDataEXT&                       args) override;
+
+    virtual void Process_vkGetPhysicalDeviceDescriptorSizeEXT(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceDescriptorSizeEXT&   args) override;
+
+    virtual void Process_vkRegisterCustomBorderColorEXT(
+        const ApiCallInfo&                          call_info,
+        args::RegisterCustomBorderColorEXT&         args) override;
+
+    virtual void Process_vkUnregisterCustomBorderColorEXT(
+        const ApiCallInfo&                          call_info,
+        args::UnregisterCustomBorderColorEXT&       args) override;
+
     virtual void Process_vkCmdSetSampleLocationsEXT(
         const ApiCallInfo&                          call_info,
         args::CmdSetSampleLocationsEXT&             args) override;

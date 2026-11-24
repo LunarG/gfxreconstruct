@@ -10573,6 +10573,228 @@ void VulkanCppConsumer::Process_vkSetGpaDeviceClockModeAMD(
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkSetGpaDeviceClockModeAMD);
 }
+void VulkanCppConsumer::Process_vkCmdBindResourceHeapEXT(
+    const ApiCallInfo&                          call_info,
+    args::CmdBindResourceHeapEXT&               args)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pbind_info;
+    std::string pbind_info_struct = GenerateStruct_VkBindHeapInfoEXT(stream_pbind_info,
+                                                                     args.pBindInfo.GetPointer(),
+                                                                     args.pBindInfo.GetMetaStructPointer(),
+                                                                     *this);
+    fprintf(file, "%s", stream_pbind_info.str().c_str());
+    pfn_loader_.AddMethodName("vkCmdBindResourceHeapEXT");
+    fprintf(file,
+            "\t\tloaded_vkCmdBindResourceHeapEXT(%s, &%s);\n",
+            this->GetHandle(args.commandBuffer).c_str(),
+            pbind_info_struct.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdBindResourceHeapEXT);
+}
+
+void VulkanCppConsumer::Process_vkCmdBindSamplerHeapEXT(
+    const ApiCallInfo&                          call_info,
+    args::CmdBindSamplerHeapEXT&                args)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pbind_info;
+    std::string pbind_info_struct = GenerateStruct_VkBindHeapInfoEXT(stream_pbind_info,
+                                                                     args.pBindInfo.GetPointer(),
+                                                                     args.pBindInfo.GetMetaStructPointer(),
+                                                                     *this);
+    fprintf(file, "%s", stream_pbind_info.str().c_str());
+    pfn_loader_.AddMethodName("vkCmdBindSamplerHeapEXT");
+    fprintf(file,
+            "\t\tloaded_vkCmdBindSamplerHeapEXT(%s, &%s);\n",
+            this->GetHandle(args.commandBuffer).c_str(),
+            pbind_info_struct.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdBindSamplerHeapEXT);
+}
+
+void VulkanCppConsumer::Process_vkCmdPushDataEXT(
+    const ApiCallInfo&                          call_info,
+    args::CmdPushDataEXT&                       args)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_ppush_data_info;
+    std::string ppush_data_info_struct = GenerateStruct_VkPushDataInfoEXT(stream_ppush_data_info,
+                                                                          args.pPushDataInfo.GetPointer(),
+                                                                          args.pPushDataInfo.GetMetaStructPointer(),
+                                                                          *this);
+    fprintf(file, "%s", stream_ppush_data_info.str().c_str());
+    pfn_loader_.AddMethodName("vkCmdPushDataEXT");
+    fprintf(file,
+            "\t\tloaded_vkCmdPushDataEXT(%s, &%s);\n",
+            this->GetHandle(args.commandBuffer).c_str(),
+            ppush_data_info_struct.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdPushDataEXT);
+}
+
+void VulkanCppConsumer::Process_vkGetPhysicalDeviceDescriptorSizeEXT(
+    const ApiCallInfo&                          call_info,
+    args::GetPhysicalDeviceDescriptorSizeEXT&   args)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    pfn_loader_.AddMethodName("vkGetPhysicalDeviceDescriptorSizeEXT");
+    fprintf(file,
+            "\t\tloaded_vkGetPhysicalDeviceDescriptorSizeEXT(%s, %s);\n",
+            this->GetHandle(args.physicalDevice).c_str(),
+            util::ToString<VkDescriptorType>(args.descriptorType).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceDescriptorSizeEXT);
+}
+
+void VulkanCppConsumer::Process_vkRegisterCustomBorderColorEXT(
+    const ApiCallInfo&                          call_info,
+    args::RegisterCustomBorderColorEXT&         args)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pborder_color;
+    std::string pborder_color_struct = GenerateStruct_VkSamplerCustomBorderColorCreateInfoEXT(stream_pborder_color,
+                                                                                              args.pBorderColor.GetPointer(),
+                                                                                              args.pBorderColor.GetMetaStructPointer(),
+                                                                                              *this);
+    fprintf(file, "%s", stream_pborder_color.str().c_str());
+    std::string pindex_name = "NULL";
+    if (!args.pIndex.IsNull()) {
+        pindex_name = "pIndex_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pindex_name.c_str(), util::ToString(*args.pIndex.GetPointer()).c_str());
+        pindex_name.insert(0, "&");
+    }
+    pfn_loader_.AddMethodName("vkRegisterCustomBorderColorEXT");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkRegisterCustomBorderColorEXT(%s, &%s, %u, %s), %s);\n",
+            this->GetHandle(args.device).c_str(),
+            pborder_color_struct.c_str(),
+            args.requestIndex,
+            pindex_name.c_str(),
+            util::ToString<VkResult>(args.result).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkRegisterCustomBorderColorEXT);
+}
+
+void VulkanCppConsumer::Process_vkUnregisterCustomBorderColorEXT(
+    const ApiCallInfo&                          call_info,
+    args::UnregisterCustomBorderColorEXT&       args)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    pfn_loader_.AddMethodName("vkUnregisterCustomBorderColorEXT");
+    fprintf(file,
+            "\t\tloaded_vkUnregisterCustomBorderColorEXT(%s, %u);\n",
+            this->GetHandle(args.device).c_str(),
+            args.index);
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkUnregisterCustomBorderColorEXT);
+}
+
+void VulkanCppConsumer::Process_vkWriteResourceDescriptorsEXT(
+    const ApiCallInfo&                          call_info,
+    args::WriteResourceDescriptorsEXT&          args)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_presources;
+    std::string presources_array = "NULL";
+    PointerPairContainer<decltype(args.pResources.GetPointer()), decltype(args.pResources.GetMetaStructPointer())> presources_pair{ args.pResources.GetPointer(), args.pResources.GetMetaStructPointer(), args.resourceCount };
+    std::string presources_names = toStringJoin(presources_pair.begin(),
+                                                presources_pair.end(),
+                                                [&](auto pair) {{ return GenerateStruct_VkResourceDescriptorInfoEXT(stream_presources, pair.t1, pair.t2, *this); }},
+                                                ", ");
+    if (stream_presources.str().length() > 0) {
+        fprintf(file, "%s", stream_presources.str().c_str());
+        if (args.resourceCount == 1) {
+            presources_array = "&" + presources_names;
+        } else if (args.resourceCount > 1) {
+            presources_array = "pResources_" + std::to_string(this->GetNextId());
+            fprintf(file, "\t\tVkResourceDescriptorInfoEXT %s[] = { %s };\n", presources_array.c_str(), presources_names.c_str());
+        }
+    }
+    std::stringstream stream_pdescriptors;
+    std::string pdescriptors_array = "NULL";
+    PointerPairContainer<decltype(args.pDescriptors.GetPointer()), decltype(args.pDescriptors.GetMetaStructPointer())> pdescriptors_pair{ args.pDescriptors.GetPointer(), args.pDescriptors.GetMetaStructPointer(), args.resourceCount };
+    std::string pdescriptors_names = toStringJoin(pdescriptors_pair.begin(),
+                                                  pdescriptors_pair.end(),
+                                                  [&](auto pair) {{ return GenerateStruct_VkHostAddressRangeEXT(stream_pdescriptors, pair.t1, pair.t2, *this); }},
+                                                  ", ");
+    if (stream_pdescriptors.str().length() > 0) {
+        fprintf(file, "%s", stream_pdescriptors.str().c_str());
+        if (args.resourceCount == 1) {
+            pdescriptors_array = "&" + pdescriptors_names;
+        } else if (args.resourceCount > 1) {
+            pdescriptors_array = "pDescriptors_" + std::to_string(this->GetNextId());
+            fprintf(file, "\t\tVkHostAddressRangeEXT %s[] = { %s };\n", pdescriptors_array.c_str(), pdescriptors_names.c_str());
+        }
+    }
+    pfn_loader_.AddMethodName("vkWriteResourceDescriptorsEXT");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkWriteResourceDescriptorsEXT(%s, %u, %s, %s), %s);\n",
+            this->GetHandle(args.device).c_str(),
+            args.resourceCount,
+            presources_array.c_str(),
+            pdescriptors_array.c_str(),
+            util::ToString<VkResult>(args.result).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkWriteResourceDescriptorsEXT);
+}
+
+void VulkanCppConsumer::Process_vkWriteSamplerDescriptorsEXT(
+    const ApiCallInfo&                          call_info,
+    args::WriteSamplerDescriptorsEXT&           args)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_psamplers;
+    std::string psamplers_array = "NULL";
+    PointerPairContainer<decltype(args.pSamplers.GetPointer()), decltype(args.pSamplers.GetMetaStructPointer())> psamplers_pair{ args.pSamplers.GetPointer(), args.pSamplers.GetMetaStructPointer(), args.samplerCount };
+    std::string psamplers_names = toStringJoin(psamplers_pair.begin(),
+                                               psamplers_pair.end(),
+                                               [&](auto pair) {{ return GenerateStruct_VkSamplerCreateInfo(stream_psamplers, pair.t1, pair.t2, *this); }},
+                                               ", ");
+    if (stream_psamplers.str().length() > 0) {
+        fprintf(file, "%s", stream_psamplers.str().c_str());
+        if (args.samplerCount == 1) {
+            psamplers_array = "&" + psamplers_names;
+        } else if (args.samplerCount > 1) {
+            psamplers_array = "pSamplers_" + std::to_string(this->GetNextId());
+            fprintf(file, "\t\tVkSamplerCreateInfo %s[] = { %s };\n", psamplers_array.c_str(), psamplers_names.c_str());
+        }
+    }
+    std::stringstream stream_pdescriptors;
+    std::string pdescriptors_array = "NULL";
+    PointerPairContainer<decltype(args.pDescriptors.GetPointer()), decltype(args.pDescriptors.GetMetaStructPointer())> pdescriptors_pair{ args.pDescriptors.GetPointer(), args.pDescriptors.GetMetaStructPointer(), args.samplerCount };
+    std::string pdescriptors_names = toStringJoin(pdescriptors_pair.begin(),
+                                                  pdescriptors_pair.end(),
+                                                  [&](auto pair) {{ return GenerateStruct_VkHostAddressRangeEXT(stream_pdescriptors, pair.t1, pair.t2, *this); }},
+                                                  ", ");
+    if (stream_pdescriptors.str().length() > 0) {
+        fprintf(file, "%s", stream_pdescriptors.str().c_str());
+        if (args.samplerCount == 1) {
+            pdescriptors_array = "&" + pdescriptors_names;
+        } else if (args.samplerCount > 1) {
+            pdescriptors_array = "pDescriptors_" + std::to_string(this->GetNextId());
+            fprintf(file, "\t\tVkHostAddressRangeEXT %s[] = { %s };\n", pdescriptors_array.c_str(), pdescriptors_names.c_str());
+        }
+    }
+    pfn_loader_.AddMethodName("vkWriteSamplerDescriptorsEXT");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkWriteSamplerDescriptorsEXT(%s, %u, %s, %s), %s);\n",
+            this->GetHandle(args.device).c_str(),
+            args.samplerCount,
+            psamplers_array.c_str(),
+            pdescriptors_array.c_str(),
+            util::ToString<VkResult>(args.result).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkWriteSamplerDescriptorsEXT);
+}
 void VulkanCppConsumer::Process_vkCmdSetSampleLocationsEXT(
     const ApiCallInfo&                          call_info,
     args::CmdSetSampleLocationsEXT&             args)

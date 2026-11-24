@@ -1003,7 +1003,7 @@ void VulkanReplayConsumerBase::ProcessSetOpaqueDescriptorDataCommand(format::Han
 
     if (device_info != nullptr && data != nullptr && data_size > 0)
     {
-        // Store the opaque descriptor-data to use at object creation.
+        // Store the opaque data (VK_EXT_descriptor_buffer or VK_EXT_descriptor_heap) to use at object creation.
         device_info->opaque_descriptor_data[object_id] = { data, data + data_size };
     }
 }
@@ -6782,11 +6782,6 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
                     {
                         uses_address = true;
                         alloc_flags_info->flags |= VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
-                        auto opaque_address_pair = device_info->opaque_addresses.find(capture_id);
-                        if (opaque_address_pair != device_info->opaque_addresses.end())
-                        {
-                            opaque_address = opaque_address_pair->second;
-                        }
                     }
                 }
                 break;
@@ -6825,7 +6820,8 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
             current_struct = current_struct->pNext;
         }
 
-        if (device_info->property_feature_info.feature_descriptorBufferCaptureReplay &&
+        if ((device_info->property_feature_info.feature_descriptorBufferCaptureReplay ||
+             device_info->property_feature_info.feature_descriptorHeapCaptureReplay) &&
             !UseAddressReplacement(device_info))
         {
             uses_address     = true;
@@ -6837,6 +6833,12 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
 
         if (uses_address && !address_override_found)
         {
+            if (auto entry = device_info->opaque_addresses.find(capture_id);
+                entry != device_info->opaque_addresses.end())
+            {
+                opaque_address = entry->second;
+            }
+
             // The Vulkan spec states: If the pNext chain includes a VkImportMemoryHostPointerInfoEXT structure,
             // VkMemoryOpaqueCaptureAddressAllocateInfo::opaqueCaptureAddress must be zero
             // (https://vulkan.lunarg.com/doc/view/1.3.216.0/linux/1.3-extensions/vkspec.html#VUID-VkMemoryAllocateInfo-pNext-03332)
@@ -7132,6 +7134,8 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory(PFN_vkBindImageMemory
 
     assert((device_info != nullptr) && (image_info != nullptr) && (memory_info != nullptr));
 
+    RecreateImageWithLateOpaqueData(device_info, image_info);
+
     auto allocator = device_info->allocator.get();
     assert(allocator != nullptr);
 
@@ -7195,7 +7199,9 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory2(
 
         if (image_info != nullptr)
         {
-            allocator_image_datas[i] = image_info->allocator_data;
+            RecreateImageWithLateOpaqueData(device_info, image_info);
+            const_cast<VkBindImageMemoryInfo*>(replay_bind_infos)[i].image = image_info->handle;
+            allocator_image_datas[i]                                       = image_info->allocator_data;
         }
 
         if (memory_info != nullptr)
@@ -7235,6 +7241,52 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory2(
     }
 
     return result;
+}
+
+void VulkanReplayConsumerBase::RecreateImageWithLateOpaqueData(const VulkanDeviceInfo* device_info,
+                                                               VulkanImageInfo*        image_info)
+{
+    if (image_info->heap_create_info.empty())
+    {
+        return;
+    }
+
+    // The image is bound only once, so the copy is not needed after this.
+    const std::vector<uint8_t> create_info_data = std::move(image_info->heap_create_info);
+
+    auto opaque_data = device_info->opaque_descriptor_data.find(image_info->capture_id);
+    if (opaque_data == device_info->opaque_descriptor_data.end())
+    {
+        return;
+    }
+
+    // The opaque data takes effect only at image creation, so the image is created again.
+    VkImageCreateInfo                create_info = *reinterpret_cast<const VkImageCreateInfo*>(create_info_data.data());
+    VkHostAddressRangeConstEXT       opaque_range = { opaque_data->second.data(), opaque_data->second.size() };
+    VkOpaqueCaptureDataCreateInfoEXT opaque_info  = { VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DATA_CREATE_INFO_EXT };
+    opaque_info.pData                             = &opaque_range;
+    create_info.flags |= VK_IMAGE_CREATE_DESCRIPTOR_HEAP_CAPTURE_REPLAY_BIT_EXT;
+    graphics::vulkan_struct_add_pnext(&create_info, &opaque_info);
+
+    auto*                                 allocator      = device_info->allocator.get();
+    VkImage                               image          = VK_NULL_HANDLE;
+    VulkanResourceAllocator::ResourceData allocator_data = 0;
+
+    VkResult result = allocator->CreateImage(&create_info, nullptr, image_info->capture_id, &image, &allocator_data);
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("Failed to recreate VkImage object (ID = %" PRIu64 ") with its opaque data: %s",
+                           image_info->capture_id,
+                           util::ToString<VkResult>(result).c_str());
+        return;
+    }
+
+    allocator->DestroyImage(image_info->handle, nullptr, image_info->allocator_data);
+    image_handle_id_map_.erase(image_info->handle);
+    image_handle_id_map_[image] = image_info->capture_id;
+
+    image_info->handle         = image;
+    image_info->allocator_data = allocator_data;
 }
 
 VkResult VulkanReplayConsumerBase::OverrideBindVideoSessionMemoryKHR(
@@ -7533,11 +7585,14 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
     auto* external_format = graphics::vulkan_struct_get_pnext<VkExternalFormatANDROID>(&modified_create_info);
     bool  has_external_format = external_format != nullptr && external_format->externalFormat != 0;
 
+    // VK_EXT_descriptor_buffer: opaque data goes into VkOpaqueCaptureDescriptorDataCreateInfoEXT
     VkOpaqueCaptureDescriptorDataCreateInfoEXT opaque_descriptor_info = {
         VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DESCRIPTOR_DATA_CREATE_INFO_EXT
     };
 
-    if (device_info->property_feature_info.feature_descriptorBufferCaptureReplay && !UseAddressReplacement(device_info))
+    // With both extensions on a device, capture stores the descriptor heap data for images.
+    if (device_info->property_feature_info.feature_descriptorBufferCaptureReplay &&
+        !device_info->property_feature_info.feature_descriptorHeapCaptureReplay && !UseAddressReplacement(device_info))
     {
         if (auto it = device_info->opaque_descriptor_data.find(capture_id);
             it != device_info->opaque_descriptor_data.end())
@@ -7551,6 +7606,34 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
         else
         {
             GFXRECON_LOG_DEBUG("Opaque descriptor-data is not available for VkImage object (ID = %" PRIu64 ")",
+                               capture_id);
+        }
+    }
+
+    // VK_EXT_descriptor_heap: opaque data goes into VkOpaqueCaptureDataCreateInfoEXT, same blob map as above
+    VkHostAddressRangeConstEXT       opaque_heap_range = {};
+    VkOpaqueCaptureDataCreateInfoEXT opaque_heap_info  = { VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DATA_CREATE_INFO_EXT };
+    std::vector<uint8_t>             heap_create_info;
+
+    if (device_info->property_feature_info.feature_descriptorHeapCaptureReplay && !UseAddressReplacement(device_info))
+    {
+        // kept for RecreateImageWithLateOpaqueData, without the opaque data added below.
+        heap_create_info.resize(graphics::vulkan_struct_deep_copy(&modified_create_info, 1, nullptr));
+        graphics::vulkan_struct_deep_copy(&modified_create_info, 1, heap_create_info.data());
+
+        // Capture sets the flag on every image, with or without opaque data.
+        modified_create_info.flags |= VK_IMAGE_CREATE_DESCRIPTOR_HEAP_CAPTURE_REPLAY_BIT_EXT;
+
+        if (const auto it = device_info->opaque_descriptor_data.find(capture_id);
+            it != device_info->opaque_descriptor_data.end())
+        {
+            opaque_heap_range      = { it->second.data(), it->second.size() };
+            opaque_heap_info.pData = &opaque_heap_range;
+            graphics::vulkan_struct_add_pnext(&modified_create_info, &opaque_heap_info);
+        }
+        else
+        {
+            GFXRECON_LOG_DEBUG("Descriptor-heap opaque data is not available for VkImage object (ID = %" PRIu64 ")",
                                capture_id);
         }
     }
@@ -7593,6 +7676,7 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
         }
 
         image_info->external_format = has_external_format;
+        image_info->heap_create_info = std::move(heap_create_info);
 
         image_info->external_memory_android =
             (external_memory != nullptr &&
@@ -11038,8 +11122,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
 
             // Enable capture replay flag.
             modified_create_infos.push_back(in_pCreateInfos[create_info_i]);
-            modified_create_infos[create_info_i].flags |=
-                VK_PIPELINE_CREATE_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR;
+            graphics::SetShaderGroupHandleCaptureReplayFlag(modified_create_infos[create_info_i]);
 
             uint32_t       group_info_count = in_pCreateInfos[create_info_i].groupCount;
             const uint8_t* handle_data =
@@ -12521,6 +12604,30 @@ VulkanReplayConsumerBase::OverrideCreateSampler(PFN_vkCreateSampler             
     device_info->opaque_descriptor_data.erase(capture_id);
 
     return result;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideRegisterCustomBorderColorEXT(
+    PFN_vkRegisterCustomBorderColorEXT                                     func,
+    VkResult                                                               original_result,
+    const VulkanDeviceInfo*                                                device_info,
+    StructPointerDecoder<Decoded_VkSamplerCustomBorderColorCreateInfoEXT>* border_color_decoder,
+    VkBool32                                                               request_index,
+    PointerDecoder<uint32_t>*                                              index_decoder)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(request_index);
+    GFXRECON_ASSERT((device_info != nullptr) && (index_decoder != nullptr) && !index_decoder->IsNull());
+
+    // A failed registration has no effect, and the captured index was not written.
+    if (original_result != VK_SUCCESS)
+    {
+        return original_result;
+    }
+
+    // Captured samplers and heap descriptors hold the capture-time index, so request that index.
+    uint32_t* index = index_decoder->GetOutputPointer();
+    *index          = *index_decoder->GetPointer();
+
+    return func(device_info->handle, border_color_decoder->GetPointer(), VK_TRUE, index);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateFramebuffer(
@@ -14933,7 +15040,7 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
         const uint32_t handle_size = device_info->property_feature_info.property_shaderGroupHandleCaptureReplaySize;
         for (uint32_t i = 0; i < createInfoCount; ++i)
         {
-            create_infos[i].flags |= VK_PIPELINE_CREATE_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR;
+            graphics::SetShaderGroupHandleCaptureReplayFlag(create_infos[i]);
 
             const uint8_t* handle_data =
                 GetShaderGroupCaptureReplayHandles(device_info, pipeline_ids[i], create_infos[i].groupCount);
@@ -15809,20 +15916,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateIndirectExecutionSetEXT(
 {
     GFXRECON_ASSERT(func != nullptr && device_info != nullptr && pCreateInfo != nullptr &&
                     pIndirectExecutionSet != nullptr);
-
-    Decoded_VkIndirectExecutionSetCreateInfoEXT* meta_create_info = pCreateInfo->GetMetaStructPointer();
-
-    switch (meta_create_info->decoded_value->type)
-    {
-        case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT:
-            MapStructHandles(meta_create_info->info->pPipelineInfo->GetMetaStructPointer(), GetObjectInfoTable());
-            break;
-        case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT:
-            MapStructHandles(meta_create_info->info->pShaderInfo->GetMetaStructPointer(), GetObjectInfoTable());
-            break;
-        default:
-            break;
-    }
 
     return func(device_info->handle,
                 pCreateInfo->GetPointer(),

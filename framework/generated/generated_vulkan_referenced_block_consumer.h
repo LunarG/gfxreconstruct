@@ -756,6 +756,18 @@ class VulkanReferencedBlockConsumer : public VulkanReferencedBlockConsumerBase
         const ApiCallInfo&                          call_info,
         args::CmdCopyGpaSessionResultsAMD&          args) override;
 
+    void Process_vkCmdBindSamplerHeapEXT(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindSamplerHeapEXT&                args) override;
+
+    void Process_vkCmdBindResourceHeapEXT(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindResourceHeapEXT&               args) override;
+
+    void Process_vkCmdPushDataEXT(
+        const ApiCallInfo&                          call_info,
+        args::CmdPushDataEXT&                       args) override;
+
     void Process_vkCmdSetSampleLocationsEXT(
         const ApiCallInfo&                          call_info,
         args::CmdSetSampleLocationsEXT&             args) override;

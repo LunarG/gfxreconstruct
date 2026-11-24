@@ -187,51 +187,6 @@ void handle_array_of_pointers(const T&  base_struct,
 }
 
 // explicit handling of problematic unions (members do not provide stype)
-void handle_union(const VkIndirectCommandsLayoutTokenEXT& base_struct,
-                  uint32_t                                out_index,
-                  uint64_t&                               offset,
-                  uint8_t*                                out_data)
-{
-    switch (base_struct.type)
-    {
-        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT:
-            handle_pointer(base_struct,
-                           reinterpret_cast<const VkIndirectCommandsPushConstantTokenEXT*>(&base_struct.data),
-                           1,
-                           out_index,
-                           offset,
-                           out_data);
-            break;
-        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_EXT:
-            handle_pointer(base_struct,
-                           reinterpret_cast<const VkIndirectCommandsVertexBufferTokenEXT*>(&base_struct.data),
-                           1,
-                           out_index,
-                           offset,
-                           out_data);
-            break;
-        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_EXT:
-            handle_pointer(base_struct,
-                           reinterpret_cast<const VkIndirectCommandsIndexBufferTokenEXT*>(&base_struct.data),
-                           1,
-                           out_index,
-                           offset,
-                           out_data);
-            break;
-        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT:
-            handle_pointer(base_struct,
-                           reinterpret_cast<const VkIndirectCommandsExecutionSetTokenEXT*>(&base_struct.data),
-                           1,
-                           out_index,
-                           offset,
-                           out_data);
-            break;
-        default:
-            break;
-    }
-}
-
-// explicit handling of problematic unions (members do not provide stype)
 void handle_union(const VkDescriptorGetInfoEXT& base_struct, uint32_t out_index, uint64_t& offset, uint8_t* out_data)
 {
     switch (base_struct.type)
@@ -366,7 +321,26 @@ class VulkanStructDeepCopyBodyGenerator(VulkanBaseGenerator):
 
     def handleAsSpecialUnion(self, typename, value):
         """ some unions do not provide an stype and require special treatment. """
-        return typename in ["VkIndirectCommandsLayoutTokenEXT", "VkDescriptorGetInfoEXT"] and value.name == "data"
+        return typename == "VkDescriptorGetInfoEXT" and value.name == "data"
+
+    def makeUnionMemberCopy(self, path, value):
+        """ Lines that deep-copy the pointers reachable from value, a member at base_struct.path. """
+        member_path = '{}.{}'.format(path, value.name)
+        if value.is_pointer:
+            if self.isExternalObject(value):
+                return []
+            count_exp = 'base_struct.{}.{}'.format(path, value.array_length.split(',')[0]) if value.array_length else '1'
+            call = 'handle_pointer' if value.pointer_count == 1 else 'handle_array_of_pointers'
+            return ['{}(base_struct, base_struct.{}, {}, i, offset, out_data);'.format(call, member_path, count_exp)]
+        lines = []
+        for member in self.all_struct_members.get(value.base_type, []):
+            lines += self.makeUnionMemberCopy(member_path, member)
+        return lines
+
+    def isUnionWithPointers(self, value):
+        """ True for a selector union with at least one member that holds pointers to copy. """
+        return self.is_selected_union(value) and any(
+            self.makeUnionMemberCopy(value.name, member) for member in self.all_union_members[value.base_type])
 
     def genStruct(self, typeinfo, typename, alias, protect=None):
         """Method override."""
@@ -381,7 +355,7 @@ class VulkanStructDeepCopyBodyGenerator(VulkanBaseGenerator):
         for value in self.feature_struct_members[typename]:
             if value.name == 'pNext':
                 has_pNext = True
-            elif value.is_pointer and not self.isExternalObject(value):
+            elif (value.is_pointer and not self.isExternalObject(value)) or self.isUnionWithPointers(value):
                 has_pointer_members = True
 
         if not (has_pointer_members or has_pNext):
@@ -421,6 +395,11 @@ class VulkanStructDeepCopyBodyGenerator(VulkanBaseGenerator):
                 write('        handle_struct_member(base_struct, base_struct.{0}, i, offset, out_data);'.format(value.name), file=self.outFile)
             elif self.handleAsSpecialUnion(typename, value):
                 write('        handle_union(base_struct, i, offset, out_data);', file=self.outFile)
+            elif self.isUnionWithPointers(value):
+                switch = self.make_union_switch(
+                    'base_struct.{}'.format(value.selector), value,
+                    lambda member: self.makeUnionMemberCopy(value.name, member) or None, indent='        ')
+                write(switch, file=self.outFile, end='')
 
         write('    }', file=self.outFile)
         write('    return offset;', file=self.outFile)

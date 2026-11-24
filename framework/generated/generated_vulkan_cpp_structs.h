@@ -1544,6 +1544,58 @@ std::string GenerateStruct_VkPhysicalDeviceGpaProperties2AMD(std::ostream &out, 
 
 std::string GenerateStruct_VkPhysicalDeviceGpaPropertiesAMD(std::ostream &out, const VkPhysicalDeviceGpaPropertiesAMD* structInfo, Decoded_VkPhysicalDeviceGpaPropertiesAMD* metaInfo, VulkanCppConsumerBase &consumer);
 
+std::string GenerateStruct_VkBindHeapInfoEXT(std::ostream &out, const VkBindHeapInfoEXT* structInfo, Decoded_VkBindHeapInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkCommandBufferInheritanceDescriptorHeapInfoEXT(std::ostream &out, const VkCommandBufferInheritanceDescriptorHeapInfoEXT* structInfo, Decoded_VkCommandBufferInheritanceDescriptorHeapInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkDescriptorMappingSourceConstantOffsetEXT(std::ostream &out, const VkDescriptorMappingSourceConstantOffsetEXT* structInfo, Decoded_VkDescriptorMappingSourceConstantOffsetEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkDescriptorMappingSourceHeapDataEXT(std::ostream &out, const VkDescriptorMappingSourceHeapDataEXT* structInfo, Decoded_VkDescriptorMappingSourceHeapDataEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkDescriptorMappingSourceIndirectAddressEXT(std::ostream &out, const VkDescriptorMappingSourceIndirectAddressEXT* structInfo, Decoded_VkDescriptorMappingSourceIndirectAddressEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkDescriptorMappingSourceIndirectIndexArrayEXT(std::ostream &out, const VkDescriptorMappingSourceIndirectIndexArrayEXT* structInfo, Decoded_VkDescriptorMappingSourceIndirectIndexArrayEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkDescriptorMappingSourceIndirectIndexEXT(std::ostream &out, const VkDescriptorMappingSourceIndirectIndexEXT* structInfo, Decoded_VkDescriptorMappingSourceIndirectIndexEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkDescriptorMappingSourcePushIndexEXT(std::ostream &out, const VkDescriptorMappingSourcePushIndexEXT* structInfo, Decoded_VkDescriptorMappingSourcePushIndexEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkDescriptorMappingSourceShaderRecordIndexEXT(std::ostream &out, const VkDescriptorMappingSourceShaderRecordIndexEXT* structInfo, Decoded_VkDescriptorMappingSourceShaderRecordIndexEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkDescriptorSetAndBindingMappingEXT(std::ostream &out, const VkDescriptorSetAndBindingMappingEXT* structInfo, Decoded_VkDescriptorSetAndBindingMappingEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkHostAddressRangeConstEXT(std::ostream &out, const VkHostAddressRangeConstEXT* structInfo, Decoded_VkHostAddressRangeConstEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkHostAddressRangeEXT(std::ostream &out, const VkHostAddressRangeEXT* structInfo, Decoded_VkHostAddressRangeEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkImageDescriptorInfoEXT(std::ostream &out, const VkImageDescriptorInfoEXT* structInfo, Decoded_VkImageDescriptorInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkIndirectCommandsLayoutPushDataTokenNV(std::ostream &out, const VkIndirectCommandsLayoutPushDataTokenNV* structInfo, Decoded_VkIndirectCommandsLayoutPushDataTokenNV* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkOpaqueCaptureDataCreateInfoEXT(std::ostream &out, const VkOpaqueCaptureDataCreateInfoEXT* structInfo, Decoded_VkOpaqueCaptureDataCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceDescriptorHeapFeaturesEXT(std::ostream &out, const VkPhysicalDeviceDescriptorHeapFeaturesEXT* structInfo, Decoded_VkPhysicalDeviceDescriptorHeapFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceDescriptorHeapPropertiesEXT(std::ostream &out, const VkPhysicalDeviceDescriptorHeapPropertiesEXT* structInfo, Decoded_VkPhysicalDeviceDescriptorHeapPropertiesEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceDescriptorHeapTensorPropertiesARM(std::ostream &out, const VkPhysicalDeviceDescriptorHeapTensorPropertiesARM* structInfo, Decoded_VkPhysicalDeviceDescriptorHeapTensorPropertiesARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPushDataInfoEXT(std::ostream &out, const VkPushDataInfoEXT* structInfo, Decoded_VkPushDataInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkResourceDescriptorInfoEXT(std::ostream &out, const VkResourceDescriptorInfoEXT* structInfo, Decoded_VkResourceDescriptorInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkSamplerCustomBorderColorCreateInfoEXT(std::ostream &out, const VkSamplerCustomBorderColorCreateInfoEXT* structInfo, Decoded_VkSamplerCustomBorderColorCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkSamplerCustomBorderColorIndexCreateInfoEXT(std::ostream &out, const VkSamplerCustomBorderColorIndexCreateInfoEXT* structInfo, Decoded_VkSamplerCustomBorderColorIndexCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkShaderDescriptorSetAndBindingMappingInfoEXT(std::ostream &out, const VkShaderDescriptorSetAndBindingMappingInfoEXT* structInfo, Decoded_VkShaderDescriptorSetAndBindingMappingInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkSubsampledImageFormatPropertiesEXT(std::ostream &out, const VkSubsampledImageFormatPropertiesEXT* structInfo, Decoded_VkSubsampledImageFormatPropertiesEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkTensorViewCreateInfoARM(std::ostream &out, const VkTensorViewCreateInfoARM* structInfo, Decoded_VkTensorViewCreateInfoARM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkTexelBufferDescriptorInfoEXT(std::ostream &out, const VkTexelBufferDescriptorInfoEXT* structInfo, Decoded_VkTexelBufferDescriptorInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
 std::string GenerateStruct_VkAttachmentSampleCountInfoAMD(std::ostream &out, const VkAttachmentSampleCountInfoAMD* structInfo, Decoded_VkAttachmentSampleCountInfoAMD* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkAttachmentSampleLocationsEXT(std::ostream &out, const VkAttachmentSampleLocationsEXT* structInfo, Decoded_VkAttachmentSampleLocationsEXT* metaInfo, VulkanCppConsumerBase &consumer);
@@ -1853,8 +1905,6 @@ std::string GenerateStruct_VkPhysicalDeviceDeviceMemoryReportFeaturesEXT(std::os
 std::string GenerateStruct_VkPhysicalDeviceCustomBorderColorFeaturesEXT(std::ostream &out, const VkPhysicalDeviceCustomBorderColorFeaturesEXT* structInfo, Decoded_VkPhysicalDeviceCustomBorderColorFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkPhysicalDeviceCustomBorderColorPropertiesEXT(std::ostream &out, const VkPhysicalDeviceCustomBorderColorPropertiesEXT* structInfo, Decoded_VkPhysicalDeviceCustomBorderColorPropertiesEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkSamplerCustomBorderColorCreateInfoEXT(std::ostream &out, const VkSamplerCustomBorderColorCreateInfoEXT* structInfo, Decoded_VkSamplerCustomBorderColorCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkPhysicalDeviceTextureCompressionASTC3DFeaturesEXT(std::ostream &out, const VkPhysicalDeviceTextureCompressionASTC3DFeaturesEXT* structInfo, Decoded_VkPhysicalDeviceTextureCompressionASTC3DFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer);
 
@@ -2239,8 +2289,6 @@ std::string GenerateStruct_VkTensorMemoryBarrierARM(std::ostream &out, const VkT
 std::string GenerateStruct_VkTensorMemoryRequirementsInfoARM(std::ostream &out, const VkTensorMemoryRequirementsInfoARM* structInfo, Decoded_VkTensorMemoryRequirementsInfoARM* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkTensorViewCaptureDescriptorDataInfoARM(std::ostream &out, const VkTensorViewCaptureDescriptorDataInfoARM* structInfo, Decoded_VkTensorViewCaptureDescriptorDataInfoARM* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkTensorViewCreateInfoARM(std::ostream &out, const VkTensorViewCreateInfoARM* structInfo, Decoded_VkTensorViewCreateInfoARM* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkWriteDescriptorSetTensorARM(std::ostream &out, const VkWriteDescriptorSetTensorARM* structInfo, Decoded_VkWriteDescriptorSetTensorARM* metaInfo, VulkanCppConsumerBase &consumer);
 

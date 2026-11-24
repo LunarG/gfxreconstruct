@@ -393,46 +393,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPushDescriptorSe
     FieldToJson(jdata["pData"], &pData->pData);
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectExecutionSetCreateInfoEXT* const pData)
-{
-    jdata["type"] = pData->decoded_value->type;
-    switch (pData->decoded_value->type)
-    {
-        case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT:
-            FieldToJson(jdata["info"], pData->info->pPipelineInfo);
-            break;
-        case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT:
-            FieldToJson(jdata["info"], pData->info->pShaderInfo);
-            break;
-        default:
-            break;
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectCommandsLayoutTokenEXT* const pData)
-{
-    jdata["type"] = pData->decoded_value->type;
-    switch (pData->decoded_value->type)
-    {
-        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT:
-        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_SEQUENCE_INDEX_EXT:
-            FieldToJson(jdata["data"], pData->data->pPushConstant);
-            break;
-        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_EXT:
-            FieldToJson(jdata["data"], pData->data->pVertexBuffer);
-            break;
-        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_EXT:
-            FieldToJson(jdata["data"], pData->data->pIndexBuffer);
-            break;
-        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT:
-            FieldToJson(jdata["data"], pData->data->pExecutionSet);
-            break;
-        default:
-            break;
-    }
-    jdata["offset"] = pData->offset;
-}
-
 void FieldToJson(nlohmann::ordered_json& jdata, const format::DeviceMemoryType& data)
 {
     jdata["property_flags"] = decode::VkMemoryPropertyFlags_t{ data.property_flags };

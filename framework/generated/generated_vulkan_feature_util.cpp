@@ -2855,6 +2855,28 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                 }
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_HEAP_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceDescriptorHeapFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceDescriptorHeapFeaturesEXT*>(next);
+                VkPhysicalDeviceDescriptorHeapFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_HEAP_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->descriptorHeap == VK_TRUE) && (query.descriptorHeap == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature descriptorHeap %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceDescriptorHeapFeaturesEXT*>(currentNext)->descriptorHeap =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->descriptorHeapCaptureReplay == VK_TRUE) && (query.descriptorHeapCaptureReplay == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature descriptorHeapCaptureReplay %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceDescriptorHeapFeaturesEXT*>(currentNext)->descriptorHeapCaptureReplay =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_FEATURES_EXT:
             {
                 const VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT*>(next);
@@ -6889,6 +6911,7 @@ static const FeatureExtensionMapping kFeatureExtensionMappings[] = {
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLIP_ENABLE_FEATURES_EXT, { "VK_EXT_depth_clip_enable" }, "VkPhysicalDeviceDepthClipEnableFeaturesEXT" },
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RELAXED_LINE_RASTERIZATION_FEATURES_IMG, { "VK_IMG_relaxed_line_rasterization" }, "VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG" },
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_FEATURES_AMD, { "VK_AMD_gpa_interface" }, "VkPhysicalDeviceGpaFeaturesAMD" },
+    { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_HEAP_FEATURES_EXT, { "VK_EXT_descriptor_heap" }, "VkPhysicalDeviceDescriptorHeapFeaturesEXT" },
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_FEATURES_EXT, { "VK_EXT_blend_operation_advanced" }, "VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT" },
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SM_BUILTINS_FEATURES_NV, { "VK_NV_shader_sm_builtins" }, "VkPhysicalDeviceShaderSMBuiltinsFeaturesNV" },
     { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADING_RATE_IMAGE_FEATURES_NV, { "VK_NV_shading_rate_image" }, "VkPhysicalDeviceShadingRateImageFeaturesNV" },

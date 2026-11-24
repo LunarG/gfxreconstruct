@@ -5250,6 +5250,88 @@ struct CmdCopyGpaSessionResultsAMD
 };
 
 
+struct WriteSamplerDescriptorsEXT
+{
+    VkResult result;
+    format::HandleId device;
+    uint32_t samplerCount;
+    StructPointerDecoder<Decoded_VkSamplerCreateInfo> pSamplers;
+    StructPointerDecoder<Decoded_VkHostAddressRangeEXT> pDescriptors;
+
+    auto GetTuple() const { return std::tie(result, device, samplerCount, pSamplers, pDescriptors); }
+};
+
+
+struct WriteResourceDescriptorsEXT
+{
+    VkResult result;
+    format::HandleId device;
+    uint32_t resourceCount;
+    StructPointerDecoder<Decoded_VkResourceDescriptorInfoEXT> pResources;
+    StructPointerDecoder<Decoded_VkHostAddressRangeEXT> pDescriptors;
+
+    auto GetTuple() const { return std::tie(result, device, resourceCount, pResources, pDescriptors); }
+};
+
+
+struct CmdBindSamplerHeapEXT
+{
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkBindHeapInfoEXT> pBindInfo;
+
+    auto GetTuple() const { return std::tie(commandBuffer, pBindInfo); }
+};
+
+
+struct CmdBindResourceHeapEXT
+{
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkBindHeapInfoEXT> pBindInfo;
+
+    auto GetTuple() const { return std::tie(commandBuffer, pBindInfo); }
+};
+
+
+struct CmdPushDataEXT
+{
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkPushDataInfoEXT> pPushDataInfo;
+
+    auto GetTuple() const { return std::tie(commandBuffer, pPushDataInfo); }
+};
+
+
+struct GetPhysicalDeviceDescriptorSizeEXT
+{
+    VkDeviceSize result;
+    format::HandleId physicalDevice;
+    VkDescriptorType descriptorType;
+
+    auto GetTuple() const { return std::tie(result, physicalDevice, descriptorType); }
+};
+
+
+struct RegisterCustomBorderColorEXT
+{
+    VkResult result;
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkSamplerCustomBorderColorCreateInfoEXT> pBorderColor;
+    VkBool32 requestIndex;
+    PointerDecoder<uint32_t> pIndex;
+
+    auto GetTuple() const { return std::tie(result, device, pBorderColor, requestIndex, pIndex); }
+};
+
+
+struct UnregisterCustomBorderColorEXT
+{
+    format::HandleId device;
+    uint32_t index;
+
+    auto GetTuple() const { return std::tie(device, index); }
+};
+
+
 struct CmdSetSampleLocationsEXT
 {
     format::HandleId commandBuffer;

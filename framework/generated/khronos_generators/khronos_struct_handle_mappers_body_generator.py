@@ -77,7 +77,7 @@ class KhronosStructHandleMappersBodyGenerator():
                         if (
                             (self.is_handle_like(member.base_type)) and
                             not (member.is_array and not member.is_dynamic)
-                        ) or (member.base_type in self.MAP_STRUCT_TYPE):
+                        ) or (member.base_type in self.MAP_STRUCT_TYPE) or self.is_selected_union(member):
                             needs_value_ptr = True
                             break
 
@@ -230,7 +230,13 @@ class KhronosStructHandleMappersBodyGenerator():
             body += '\n'
             map_func = self.MAP_STRUCT_TYPE.get(member.base_type)
 
-            if self.is_extended_struct_definition(member):
+            if self.is_selected_union(member):
+                body += self.make_union_switch(
+                    f'value->{member.selector}', member,
+                    lambda union_member: self.make_union_member_mapping(member, union_member),
+                    '        '
+                )
+            elif self.is_extended_struct_definition(member):
 
                 func_id = self.get_extended_struct_func_prefix()
                 body += f'        if (wrapper->{member.name})\n'
@@ -318,6 +324,13 @@ class KhronosStructHandleMappersBodyGenerator():
             )
 
         return body
+
+    def make_union_member_mapping(self, value, member):
+        """Mapping code for one union member, or None if it holds no handle."""
+        if not (self.is_handle_like(member.base_type) or member.base_type in self.structs_with_handles):
+            return None
+        code = self.make_struct_handle_mappings(value.base_type, [member], {})
+        return self.retarget_union_member_code(code, value, member)
 
     def make_struct_handle_additions(self, name, members):
         """Generating expressions for adding mappings for handles created at replay that are embedded in structs."""

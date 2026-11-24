@@ -1618,6 +1618,14 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                    StructPointerDecoder<Decoded_VkAllocationCallbacks>* allocator_decoder,
                                    HandlePointerDecoder<VkSampler>*                     sampler_decoder);
 
+    VkResult OverrideRegisterCustomBorderColorEXT(
+        PFN_vkRegisterCustomBorderColorEXT                                     func,
+        VkResult                                                               original_result,
+        const VulkanDeviceInfo*                                                device_info,
+        StructPointerDecoder<Decoded_VkSamplerCustomBorderColorCreateInfoEXT>* border_color_decoder,
+        VkBool32                                                               request_index,
+        PointerDecoder<uint32_t>*                                              index_decoder);
+
     VkResult OverrideCreateFramebuffer(PFN_vkCreateFramebuffer                                func,
                                        VkResult                                               original_result,
                                        const VulkanDeviceInfo*                                device_info,
@@ -2211,6 +2219,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     bool UseAddressReplacement(const VulkanDeviceInfo* device_info) const;
 
     bool CanPreserveExternalMemory(const VulkanDeviceInfo* device_info) const;
+
+    // Recreates an unbound image if capture recorded new heap opaque data for it when its memory was bound.
+    void RecreateImageWithLateOpaqueData(const VulkanDeviceInfo* device_info, VulkanImageInfo* image_info);
 
     /**
      * @brief   ApplyReplayCreateInfoModifications applies the create-info edits replay performs before
