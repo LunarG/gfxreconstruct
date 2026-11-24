@@ -687,10 +687,6 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(const DumpedResou
     DumpedResourcesInfo& dumped_resources =
         is_dispatch ? dis_params->second->dumped_resources : tr_params->second->dumped_resources;
 
-    dumped_resources.bcb_index = bcb_index_;
-    dumped_resources.cmd_index = cmd_index;
-    dumped_resources.qs_index  = qs_index_;
-
     assert(original_command_buffer_info_);
     assert(original_command_buffer_info_->parent_id != format::kNullHandleId);
     const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
@@ -1058,6 +1054,10 @@ VkResult DispatchTraceRaysDumpingContext::DumpCommand(Index cmd_index,
     if (first_window)
     {
         dumped_resources->Reset();
+        dumped_resources->bcb_index          = bcb_index_;
+        dumped_resources->cmd_index          = cmd_index;
+        dumped_resources->qs_index           = qs_index_;
+        dumped_resources->execute_cmds_index = secondary_indices.execute_cmds_index;
     }
 
     res = DumpMutableResources(dumped_resource_base, is_dispatch, is_before_window);
