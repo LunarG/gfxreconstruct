@@ -477,6 +477,12 @@ void VulkanAddressReplacer::ResolveBufferAddresses(VulkanCommandBufferInfo*     
                 VkDeviceAddress buffer_address =
                     *reinterpret_cast<VkDeviceAddress*>(static_cast<uint8_t*>(ptr) + chain.offset);
 
+                // an unused pointer can be null
+                if (buffer_address == 0)
+                {
+                    continue;
+                }
+
                 auto* found_buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(buffer_address);
                 bool  already_replaced  = false;
 
@@ -807,11 +813,24 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
 
                 VkDeviceSize offset = desc_buffer_info.offset + buffer_ref_info.buffer_offset;
 
-                // a chain of pointer-accesses
+                // a chain of pointer-accesses, one per pointer in the descriptor-range
                 if (buffer_ref_info.chain)
                 {
-                    command_buffer_info->addresses_to_resolve[buffer_info].push_back(
-                        { static_cast<size_t>(offset), buffer_ref_info.array_stride, buffer_ref_info.chain_offset });
+                    VkDeviceSize range_end =
+                        desc_buffer_info.offset +
+                        std::min<VkDeviceSize>(buffer_info->size - desc_buffer_info.offset, desc_buffer_info.range);
+
+                    for (VkDeviceSize root = offset; root + sizeof(VkDeviceAddress) <= range_end;
+                         root += buffer_ref_info.array_stride)
+                    {
+                        command_buffer_info->addresses_to_resolve[buffer_info].push_back(
+                            { static_cast<size_t>(root), buffer_ref_info.chain_stride, buffer_ref_info.chain_offset });
+
+                        if (buffer_ref_info.array_stride == 0)
+                        {
+                            break;
+                        }
+                    }
                 }
                 else
                 {

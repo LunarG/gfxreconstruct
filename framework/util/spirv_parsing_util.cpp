@@ -526,7 +526,7 @@ void Module::AddChains(uint32_t pointer_type_id, const BufferReferenceInfo& info
     BufferReferenceInfo chain = info;
     chain.chain               = true;
     chain.chain_offset        = 0;
-    chain.array_stride        = ArrayStride(pointer_type_id);
+    chain.chain_stride        = ArrayStride(pointer_type_id);
     WalkChainFields(pointer[3], chain, 0);
 }
 
@@ -560,13 +560,30 @@ void Module::WalkChainFields(uint32_t type_id, BufferReferenceInfo info, uint32_
             return;
         case spv::OpTypeArray:
         case spv::OpTypeRuntimeArray:
-            // an array of pointers steps with its own stride
-            if (const uint32_t stride = ArrayStride(type_id))
+        {
+            const uint32_t  stride = ArrayStride(type_id);
+            const uint32_t* length = Op(type) == spv::OpTypeArray ? Def(type[3]) : nullptr;
+
+            // an array inside a strided element: one chain per array-element, keeping the element stride
+            if (info.chain_stride != 0 && stride != 0 && length != nullptr && Op(length) == spv::OpConstant)
             {
-                info.array_stride = stride;
+                for (uint32_t i = 0; i < length[3]; ++i)
+                {
+                    BufferReferenceInfo element_info = info;
+                    element_info.chain_offset += i * stride;
+                    WalkChainFields(type[2], element_info, depth + 1);
+                }
+                return;
+            }
+
+            // otherwise the array steps with its own stride
+            if (info.chain_stride == 0)
+            {
+                info.chain_stride = stride;
             }
             WalkChainFields(type[2], info, depth + 1);
             return;
+        }
         default:
             return;
     }
@@ -1053,14 +1070,15 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
     for (const auto& info : buffer_references_)
     {
         GFXRECON_LOG_DEBUG("buffer-reference: source: %u, set: %u, binding: %u, buffer-offset: %u, array-stride: %u, "
-                           "chain: %u, chain-offset: %u",
+                           "chain: %u, chain-offset: %u, chain-stride: %u",
                            static_cast<uint32_t>(info.source),
                            info.set,
                            info.binding,
                            info.buffer_offset,
                            info.array_stride,
                            static_cast<uint32_t>(info.chain),
-                           info.chain_offset);
+                           info.chain_offset,
+                           info.chain_stride);
     }
     return true;
 }
