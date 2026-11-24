@@ -492,7 +492,6 @@ void VulkanAddressReplacer::ResolveBufferAddresses(VulkanCommandBufferInfo*     
                     found_buffer_info = address_tracker.GetBufferByReplayDeviceAddress(buffer_address);
                     already_replaced  = found_buffer_info;
                 }
-                GFXRECON_ASSERT(found_buffer_info);
 
                 // the pointers inside can need replacement, even if the buffer holding them did not move
                 if (found_buffer_info != nullptr && found_buffer_info->replay_address != 0)
