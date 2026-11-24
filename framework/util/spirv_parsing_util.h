@@ -53,6 +53,10 @@ class SpirVParsingUtil
         uint32_t                buffer_offset = 0;
         uint32_t                array_stride  = 0;
 
+        //! an address inside the buffer that the address at 'buffer_offset' points to, at 'chain_offset'
+        bool     chain        = false;
+        uint32_t chain_offset = 0;
+
         bool operator==(const SpirVParsingUtil::BufferReferenceInfo& other) const = default;
     };
 
@@ -70,8 +74,10 @@ class SpirVParsingUtil
 inline bool operator<(const SpirVParsingUtil::BufferReferenceInfo& lhs,
                       const SpirVParsingUtil::BufferReferenceInfo& rhs)
 {
-    return std::make_tuple(lhs.source, lhs.set, lhs.binding, lhs.buffer_offset, lhs.array_stride) <
-           std::make_tuple(rhs.source, rhs.set, rhs.binding, rhs.buffer_offset, rhs.array_stride);
+    return std::make_tuple(
+               lhs.source, lhs.set, lhs.binding, lhs.buffer_offset, lhs.array_stride, lhs.chain, lhs.chain_offset) <
+           std::make_tuple(
+               rhs.source, rhs.set, rhs.binding, rhs.buffer_offset, rhs.array_stride, rhs.chain, rhs.chain_offset);
 }
 
 GFXRECON_END_NAMESPACE(util)

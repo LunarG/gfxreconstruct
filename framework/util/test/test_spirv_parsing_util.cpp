@@ -719,14 +719,16 @@ TEST_CASE("SpirVParsingUtil_pointer_chaining", "[buffer_references_pointer_chain
     REQUIRE(buffer_references[1].binding == 0);
     REQUIRE(buffer_references[1].buffer_offset == 72);
     REQUIRE(buffer_references[1].array_stride == 0);
+    REQUIRE(!buffer_references[1].chain);
 
-    // NOTE: we identify chained accesses by similar set/binding/offset
-    // VertexBufferArray vertex_buffers; -> 2nd access
+    // VertexBufferArray vertex_buffers; -> 2nd access, a chain with the same set/binding/offset
     REQUIRE(buffer_references[2].source == buffer_references[1].source);
     REQUIRE(buffer_references[2].set == buffer_references[1].set);
     REQUIRE(buffer_references[2].binding == buffer_references[1].binding);
     REQUIRE(buffer_references[2].buffer_offset == buffer_references[1].buffer_offset);
     REQUIRE(buffer_references[2].array_stride == 8);
+    REQUIRE(buffer_references[2].chain);
+    REQUIRE(buffer_references[2].chain_offset == 0);
 
     // VertexBuffer out_vertices;
     REQUIRE(buffer_references[3].source == gfxrecon::util::SpirVParsingUtil::BufferReferenceLocation::UNIFORM_BUFFER);
@@ -1121,7 +1123,82 @@ const uint32_t spirv_capability_without_pointers[] = {
     0x00000003, 0x0000000d, 0x0003003e, 0x00000017, 0x00000016, 0x000100fd, 0x00010038
 };
 
-// every PhysicalStorageBuffer pointer-field is reported, read or not, and pointees are never entered
+#if 0 // slangc -target spirv -entry main -stage compute
+// an array of structs that hold pointers, behind a pointer
+struct Buffers
+{
+    Ptr<uint> src;  // offset 0
+    uint      pad0; // offset 8
+    uint      pad1; // offset 12
+    Ptr<uint> dst;  // offset 16
+};
+
+struct Data
+{
+    uint         count;   // offset 0
+    Ptr<Buffers> buffers; // offset 8
+};
+
+[[vk::binding(0, 0)]]
+ConstantBuffer<Data> data;
+
+[numthreads(1, 1, 1)]
+void main(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= data.count)
+    {
+        return;
+    }
+    data.buffers[id.x].dst[0] = data.buffers[id.x].src[0];
+}
+#endif
+
+const uint32_t spirv_bda_struct_of_pointers[] = {
+    0x07230203, 0x00010500, 0x00280000, 0x00000035, 0x00000000, 0x00020011, 0x000014e3, 0x00020011, 0x00000001,
+    0x0009000a, 0x5f565053, 0x5f52484b, 0x73796870, 0x6c616369, 0x6f74735f, 0x65676172, 0x6675625f, 0x00726566,
+    0x0003000e, 0x000014e4, 0x00000001, 0x0007000f, 0x00000005, 0x00000002, 0x6e69616d, 0x00000000, 0x00000011,
+    0x0000000b, 0x00060010, 0x00000002, 0x00000011, 0x00000001, 0x00000001, 0x00000001, 0x00030003, 0x0000000b,
+    0x00000001, 0x00050005, 0x0000000d, 0x61746144, 0x6474735f, 0x00303431, 0x00050006, 0x0000000d, 0x00000000,
+    0x6e756f63, 0x00000074, 0x00050006, 0x0000000d, 0x00000001, 0x66667562, 0x00737265, 0x00040005, 0x00000011,
+    0x61746164, 0x00000000, 0x00040005, 0x00000002, 0x6e69616d, 0x00000000, 0x00060005, 0x0000000e, 0x66667542,
+    0x5f737265, 0x7574616e, 0x006c6172, 0x00040006, 0x0000000e, 0x00000000, 0x00637273, 0x00050006, 0x0000000e,
+    0x00000001, 0x30646170, 0x00000000, 0x00050006, 0x0000000e, 0x00000002, 0x31646170, 0x00000000, 0x00040006,
+    0x0000000e, 0x00000003, 0x00747364, 0x00040047, 0x0000000b, 0x0000000b, 0x0000001c, 0x00040047, 0x0000000f,
+    0x00000006, 0x00000018, 0x00030047, 0x0000000d, 0x00000002, 0x00050048, 0x0000000d, 0x00000000, 0x00000023,
+    0x00000000, 0x00050048, 0x0000000d, 0x00000001, 0x00000023, 0x00000008, 0x00040047, 0x00000011, 0x00000021,
+    0x00000000, 0x00040047, 0x00000011, 0x00000022, 0x00000000, 0x00040047, 0x00000023, 0x00000006, 0x00000004,
+    0x00040047, 0x00000024, 0x00000006, 0x00000008, 0x00050048, 0x0000000e, 0x00000000, 0x00000023, 0x00000000,
+    0x00050048, 0x0000000e, 0x00000001, 0x00000023, 0x00000008, 0x00050048, 0x0000000e, 0x00000002, 0x00000023,
+    0x0000000c, 0x00050048, 0x0000000e, 0x00000003, 0x00000023, 0x00000010, 0x00020013, 0x00000001, 0x00030021,
+    0x00000003, 0x00000001, 0x00040015, 0x00000007, 0x00000020, 0x00000000, 0x00040017, 0x00000008, 0x00000007,
+    0x00000003, 0x00040020, 0x0000000a, 0x00000001, 0x00000008, 0x00030027, 0x0000000f, 0x000014e5, 0x0004001e,
+    0x0000000d, 0x00000007, 0x0000000f, 0x00040020, 0x00000010, 0x00000002, 0x0000000d, 0x00040015, 0x00000012,
+    0x00000020, 0x00000001, 0x0004002b, 0x00000012, 0x00000013, 0x00000000, 0x00040020, 0x00000014, 0x00000002,
+    0x00000007, 0x00020014, 0x00000017, 0x0004002b, 0x00000012, 0x0000001b, 0x00000001, 0x00040020, 0x0000001c,
+    0x00000002, 0x0000000f, 0x0004002b, 0x00000012, 0x00000022, 0x00000003, 0x00040020, 0x00000023, 0x000014e5,
+    0x00000007, 0x00040020, 0x00000024, 0x000014e5, 0x00000023, 0x0006001e, 0x0000000e, 0x00000023, 0x00000007,
+    0x00000007, 0x00000023, 0x00040020, 0x0000000f, 0x000014e5, 0x0000000e, 0x0004003b, 0x0000000a, 0x0000000b,
+    0x00000001, 0x0004003b, 0x00000010, 0x00000011, 0x00000002, 0x0004002b, 0x00000007, 0x00000034, 0x00000000,
+    0x00050036, 0x00000001, 0x00000002, 0x00000000, 0x00000003, 0x000200f8, 0x00000004, 0x000300f7, 0x00000032,
+    0x00000000, 0x000300fb, 0x00000034, 0x00000033, 0x000200f8, 0x00000033, 0x0004003d, 0x00000008, 0x00000009,
+    0x0000000b, 0x00050051, 0x00000007, 0x0000000c, 0x00000009, 0x00000000, 0x00050041, 0x00000014, 0x00000015,
+    0x00000011, 0x00000013, 0x0004003d, 0x00000007, 0x00000016, 0x00000015, 0x000500ae, 0x00000017, 0x00000018,
+    0x0000000c, 0x00000016, 0x000300f7, 0x00000006, 0x00000000, 0x000400fa, 0x00000018, 0x00000005, 0x00000006,
+    0x000200f8, 0x00000005, 0x000200f9, 0x00000032, 0x000200f8, 0x00000006, 0x00050041, 0x0000001c, 0x0000001d,
+    0x00000011, 0x0000001b, 0x0004003d, 0x00000008, 0x0000001e, 0x0000000b, 0x00050051, 0x00000007, 0x0000001f,
+    0x0000001e, 0x00000000, 0x0004003d, 0x0000000f, 0x00000020, 0x0000001d, 0x00050043, 0x0000000f, 0x00000021,
+    0x00000020, 0x0000001f, 0x00050041, 0x00000024, 0x00000025, 0x00000021, 0x00000022, 0x0006003d, 0x00000023,
+    0x00000026, 0x00000025, 0x00000002, 0x00000008, 0x00050043, 0x00000023, 0x00000027, 0x00000026, 0x00000013,
+    0x0004003d, 0x00000008, 0x00000028, 0x0000000b, 0x00050051, 0x00000007, 0x00000029, 0x00000028, 0x00000000,
+    0x0004003d, 0x0000000f, 0x0000002a, 0x0000001d, 0x00050043, 0x0000000f, 0x0000002b, 0x0000002a, 0x00000029,
+    0x00050041, 0x00000024, 0x0000002c, 0x0000002b, 0x00000013, 0x0006003d, 0x00000023, 0x0000002d, 0x0000002c,
+    0x00000002, 0x00000008, 0x00050043, 0x00000023, 0x0000002e, 0x0000002d, 0x00000013, 0x0006003d, 0x00000007,
+    0x0000002f, 0x0000002e, 0x00000002, 0x00000004, 0x0005003e, 0x00000027, 0x0000002f, 0x00000002, 0x00000004,
+    0x000200f9, 0x00000032, 0x000200f8, 0x00000032, 0x000100fd, 0x00010038
+};
+
+// every PhysicalStorageBuffer pointer-field is reported, read or not. a pointee is only entered for its own
+// pointer-fields, which are reported as chains
 TEST_CASE("SpirVParsingUtil_pointer_fields", "[buffer_references_pointer_fields]")
 {
     gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kError);
@@ -1132,12 +1209,19 @@ TEST_CASE("SpirVParsingUtil_pointer_fields", "[buffer_references_pointer_fields]
 
     auto buffer_references = spirVParsingUtil.GetBufferReferenceInfos();
 
-    // Root.mid (8) and Root.unused (16). not 24: Mid.leaf (16) lives in another buffer
-    REQUIRE(buffer_references.size() == 2);
+    // Root.mid (8) and Root.unused (16). not 24: Mid.leaf (16) lives in another buffer, it is a chain of Root.mid
+    REQUIRE(buffer_references.size() == 3);
     REQUIRE(buffer_references[0].source == gfxrecon::util::SpirVParsingUtil::BufferReferenceLocation::STORAGE_BUFFER);
     REQUIRE(buffer_references[0].buffer_offset == 8);
+    REQUIRE(!buffer_references[0].chain);
     REQUIRE(buffer_references[1].source == gfxrecon::util::SpirVParsingUtil::BufferReferenceLocation::STORAGE_BUFFER);
-    REQUIRE(buffer_references[1].buffer_offset == 16);
+    REQUIRE(buffer_references[1].buffer_offset == 8);
+    REQUIRE(buffer_references[1].chain);
+    REQUIRE(buffer_references[1].chain_offset == 16);
+    REQUIRE(buffer_references[1].array_stride == 0);
+    REQUIRE(buffer_references[2].source == gfxrecon::util::SpirVParsingUtil::BufferReferenceLocation::STORAGE_BUFFER);
+    REQUIRE(buffer_references[2].buffer_offset == 16);
+    REQUIRE(!buffer_references[2].chain);
 
     gfxrecon::util::Log::Release();
 }
@@ -1153,11 +1237,48 @@ TEST_CASE("SpirVParsingUtil_linked_list", "[buffer_references_linked_list]")
 
     auto buffer_references = spirVParsingUtil.GetBufferReferenceInfos();
 
-    REQUIRE(buffer_references.size() == 1);
+    // pc.head, and Node.next as its chain. the walk stops there
+    REQUIRE(buffer_references.size() == 2);
     REQUIRE(buffer_references[0].source ==
             gfxrecon::util::SpirVParsingUtil::BufferReferenceLocation::PUSH_CONSTANT_BLOCK);
     REQUIRE(buffer_references[0].buffer_offset == 0);
     REQUIRE(buffer_references[0].array_stride == 0);
+    REQUIRE(!buffer_references[0].chain);
+    REQUIRE(buffer_references[1].buffer_offset == 0);
+    REQUIRE(buffer_references[1].chain);
+    REQUIRE(buffer_references[1].chain_offset == 0);
+
+    gfxrecon::util::Log::Release();
+}
+
+// an array of structs holding pointers, behind a pointer: one chain per pointer-field, with the element stride
+TEST_CASE("SpirVParsingUtil_struct_of_pointers", "[buffer_references_struct_of_pointers]")
+{
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kError);
+
+    gfxrecon::util::SpirVParsingUtil spirVParsingUtil;
+
+    REQUIRE(spirVParsingUtil.ParseBufferReferences(spirv_bda_struct_of_pointers, sizeof(spirv_bda_struct_of_pointers)));
+
+    auto buffer_references = spirVParsingUtil.GetBufferReferenceInfos();
+
+    // data.buffers (8), then Buffers.src (0) and Buffers.dst (16) as its chains
+    REQUIRE(buffer_references.size() == 3);
+    for (const auto& info : buffer_references)
+    {
+        REQUIRE(info.source == gfxrecon::util::SpirVParsingUtil::BufferReferenceLocation::UNIFORM_BUFFER);
+        REQUIRE(info.set == 0);
+        REQUIRE(info.binding == 0);
+        REQUIRE(info.buffer_offset == 8);
+    }
+    REQUIRE(!buffer_references[0].chain);
+    REQUIRE(buffer_references[0].array_stride == 0);
+    REQUIRE(buffer_references[1].chain);
+    REQUIRE(buffer_references[1].chain_offset == 0);
+    REQUIRE(buffer_references[1].array_stride == 24);
+    REQUIRE(buffer_references[2].chain);
+    REQUIRE(buffer_references[2].chain_offset == 16);
+    REQUIRE(buffer_references[2].array_stride == 24);
 
     gfxrecon::util::Log::Release();
 }

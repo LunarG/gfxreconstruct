@@ -63,7 +63,7 @@ namespace
 // Finds the buffer-device-addresses that a module reads from descriptor- or push-constant memory.
 //
 // - every PhysicalStorageBuffer pointer field of a block, read or not, never stepping into a pointee
-// - pointer fields whose pointee starts with an array of pointers, as a chain (same key, element stride)
+// - pointer fields in the pointee of such a field, as a chain (same key, 'chain_offset' in the pointee)
 // - integer fields (uint64, uvec2) that the module converts to a pointer, or that leave the shader
 class Module
 {
@@ -98,8 +98,9 @@ class Module
     //! a descriptor-array selects a descriptor, not memory inside the block
     uint32_t PeelDescriptorArray(uint32_t type_id) const;
 
-    //! element stride when a pointee starts with an array of pointers, 0 otherwise
-    uint32_t ChainStride(uint32_t pointer_type_id, uint32_t pointee_type_id) const;
+    //! the pointer fields in the pointee of 'pointer_type_id', as chains of 'info'
+    void AddChains(uint32_t pointer_type_id, const BufferReferenceInfo& info);
+    void WalkChainFields(uint32_t type_id, BufferReferenceInfo info, uint32_t depth);
 
     bool BlockOf(uint32_t variable_id, BufferReferenceInfo& info, uint32_t& block_type_id) const;
     void Add(const BufferReferenceInfo& info);
@@ -432,44 +433,6 @@ uint32_t Module::PeelDescriptorArray(uint32_t type_id) const
     return type_id;
 }
 
-uint32_t Module::ChainStride(uint32_t pointer_type_id, uint32_t pointee_type_id) const
-{
-    // element stride of an array of pointers, 8 bytes if not decorated
-    auto stride_of = [this](const uint32_t array_type_id) {
-        const uint32_t stride = ArrayStride(array_type_id);
-        return stride != 0 ? stride : static_cast<uint32_t>(sizeof(uint64_t));
-    };
-
-    const uint32_t* pointee = Def(pointee_type_id);
-    if (pointee == nullptr)
-    {
-        return 0;
-    }
-
-    // T**, the stride sits on the outer pointer-type
-    if (IsPsbPointer(pointee_type_id))
-    {
-        return stride_of(pointer_type_id);
-    }
-    if ((Op(pointee) == spv::OpTypeArray || Op(pointee) == spv::OpTypeRuntimeArray) && IsPsbPointer(pointee[2]))
-    {
-        return stride_of(pointee_type_id);
-    }
-
-    // a struct that starts with an array of pointers
-    if (uint32_t offset = 0; Op(pointee) == spv::OpTypeStruct && Length(pointee) > 2 &&
-                             MemberOffset(pointee_type_id, 0, offset) && offset == 0)
-    {
-        if (const uint32_t* member = Def(pointee[2]);
-            member != nullptr && (Op(member) == spv::OpTypeArray || Op(member) == spv::OpTypeRuntimeArray) &&
-            IsPsbPointer(member[2]))
-        {
-            return stride_of(pointee[2]);
-        }
-    }
-    return 0;
-}
-
 bool Module::BlockOf(uint32_t variable_id, BufferReferenceInfo& info, uint32_t& block_type_id) const
 {
     const uint32_t* variable = Def(variable_id);
@@ -523,17 +486,8 @@ void Module::WalkPointerFields(uint32_t type_id, BufferReferenceInfo info, uint3
             }
             Add(info);
 
-            if (Op(type) == spv::OpTypePointer)
-            {
-                // pointer to an array of pointers, identified by an equal key with the element stride
-                if (const uint32_t stride = ChainStride(type_id, type[3]))
-                {
-                    BufferReferenceInfo chain = info;
-                    chain.array_stride        = stride;
-                    Add(chain);
-                }
-            }
-            // never step into the pointee, it is a different buffer
+            // the pointee is a different buffer, only its own pointer fields are reported, as chains
+            AddChains(type_id, info);
             return;
         case spv::OpTypeStruct:
             for (uint32_t member = 0; member + 2 < Length(type); ++member)
@@ -553,6 +507,65 @@ void Module::WalkPointerFields(uint32_t type_id, BufferReferenceInfo info, uint3
                 info.array_stride = stride;
             }
             WalkPointerFields(type[2], info, depth + 1);
+            return;
+        default:
+            return;
+    }
+}
+
+void Module::AddChains(uint32_t pointer_type_id, const BufferReferenceInfo& info)
+{
+    const uint32_t* pointer = Def(pointer_type_id);
+    if (pointer == nullptr || Op(pointer) != spv::OpTypePointer)
+    {
+        // an untyped pointer has no pointee
+        return;
+    }
+
+    // the pointer-stride steps through the pointee elements, 0 for a single element
+    BufferReferenceInfo chain = info;
+    chain.chain               = true;
+    chain.chain_offset        = 0;
+    chain.array_stride        = ArrayStride(pointer_type_id);
+    WalkChainFields(pointer[3], chain, 0);
+}
+
+void Module::WalkChainFields(uint32_t type_id, BufferReferenceInfo info, uint32_t depth)
+{
+    const uint32_t* type = Def(type_id);
+    if (type == nullptr || depth > kMaxDepth)
+    {
+        return;
+    }
+
+    switch (Op(type))
+    {
+        case spv::OpTypePointer:
+        case spv::OpTypeUntypedPointerKHR:
+            if (type[2] == spv::StorageClassPhysicalStorageBuffer)
+            {
+                Add(info);
+            }
+            return;
+        case spv::OpTypeStruct:
+            for (uint32_t member = 0; member + 2 < Length(type); ++member)
+            {
+                if (uint32_t offset = 0; MemberOffset(type_id, member, offset))
+                {
+                    BufferReferenceInfo member_info = info;
+                    member_info.chain_offset += offset;
+                    WalkChainFields(type[2 + member], member_info, depth + 1);
+                }
+            }
+            return;
+        case spv::OpTypeArray:
+        case spv::OpTypeRuntimeArray:
+            // an array of pointers steps with its own stride
+            if (const uint32_t stride = ArrayStride(type_id))
+            {
+                info.array_stride = stride;
+            }
+            WalkChainFields(type[2], info, depth + 1);
             return;
         default:
             return;
@@ -1039,12 +1052,15 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
 
     for (const auto& info : buffer_references_)
     {
-        GFXRECON_LOG_DEBUG("buffer-reference: source: %u, set: %u, binding: %u, buffer-offset: %u, array-stride: %u",
+        GFXRECON_LOG_DEBUG("buffer-reference: source: %u, set: %u, binding: %u, buffer-offset: %u, array-stride: %u, "
+                           "chain: %u, chain-offset: %u",
                            static_cast<uint32_t>(info.source),
                            info.set,
                            info.binding,
                            info.buffer_offset,
-                           info.array_stride);
+                           info.array_stride,
+                           static_cast<uint32_t>(info.chain),
+                           info.chain_offset);
     }
     return true;
 }

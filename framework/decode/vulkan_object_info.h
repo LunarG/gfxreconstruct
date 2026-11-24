@@ -795,9 +795,17 @@ struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
     // collect buffer-device-addresses of locations to replace before submit
     std::unordered_set<VkDeviceAddress> addresses_to_replace;
 
-    // maps buffers to (offset/stride)-pairs that need to be resolved
+    // a pointer at 'offset', with more pointers at 'chain_offset' (+ n * 'stride') in the buffer it points to
+    struct AddressChain
+    {
+        size_t   offset       = 0;
+        uint32_t stride       = 0;
+        uint32_t chain_offset = 0;
+    };
+
+    // maps buffers to pointer-chains that need to be resolved
     // (read back pointers, resolve additional buffers)
-    std::unordered_map<const VulkanBufferInfo*, std::vector<std::pair<size_t, uint32_t>>> addresses_to_resolve;
+    std::unordered_map<const VulkanBufferInfo*, std::vector<AddressChain>> addresses_to_resolve;
 
     // flag indicating if the command-buffer is currently recording a VkRenderpass or VK_KHR_dynamic_rendering scope
     bool in_rendering_scope = false;
