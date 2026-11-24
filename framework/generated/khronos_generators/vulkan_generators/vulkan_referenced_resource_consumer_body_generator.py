@@ -231,7 +231,12 @@ class VulkanReferencedResourceBodyGenerator(VulkanBaseGenerator):
             value.base_type
         ) and (value.base_type in self.structs_with_handles):
             if value.is_array:
-                access_operator = '[{}].'.format(index_name)
+                # arrays of pointers are defined as 2D arrays with inner
+                # dimension 1, abuse this to detect pointer arrays
+                if value.array_dimension >= 2:
+                    access_operator = '[{}]->'.format(index_name)
+                else:
+                    access_operator = '[{}].'.format(index_name)
             else:
                 access_operator = '->'
 
@@ -276,5 +281,29 @@ class VulkanReferencedResourceBodyGenerator(VulkanBaseGenerator):
                         index, command_param_name, entry, param_prefix=param_prefix,
                         value_prefix = value_name + access_operator, indent=indent
                     )
+
+        elif self.is_union(
+            value.base_type
+        ) and (value.base_type in self.unions_with_handles):
+            body += indent + '// Resolve all the union members with handles\n'
+
+            # remove the name of the field from the value_name string
+            parent_accessor = value_name.replace(value.name, "")
+            body += indent + 'switch ({}decoded_value->{})\n'.format(parent_accessor, value.selector)
+            body += indent + '{\n'
+            tail = indent + '}\n' + tail
+            indent += ' ' * self.INDENT_SIZE
+            for union_member in self.unions_with_handles[value.base_type]:
+                # add the struct
+                body += indent + 'case {}:\n'.format(union_member.selection)
+                for s in self.structs_with_handles[union_member.base_type]:
+                    body += self.track_command_handle(
+                        index, command_param_name, union_member, param_prefix=param_prefix,
+                        value_prefix=value_name + "->", indent=indent
+                    )
+
+                body += indent + ' ' * self.INDENT_SIZE + 'break;\n'
+            body += indent + 'default:\n'
+            body += indent + ' ' * self.INDENT_SIZE + 'break;\n'
 
         return body + tail

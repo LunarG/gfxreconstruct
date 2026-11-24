@@ -280,6 +280,8 @@ class ValueInfo():
       is_array - True if the member is an array.
       is_dynamic - True if the memory for the member is an array and it is dynamically allocated.
       is_const - True if the member is a const.
+      selector - determines which struct to use in a union
+      selection - all selector value that chooses this struct
     """
 
     def __init__(
@@ -300,6 +302,8 @@ class ValueInfo():
         is_com_outptr=False,
         prefix='',
         op='->',
+        selector=None,
+        selection=list()
     ):
         self.name = name
         self.prefix = prefix
@@ -329,6 +333,8 @@ class ValueInfo():
         self.is_dynamic = True if not array_capacity else False
         self.is_const = is_const
         self.is_com_outptr = is_com_outptr
+        self.selector = selector
+        self.selection = selection
 
 
 
@@ -567,6 +573,10 @@ class KhronosBaseGenerator(OutputGenerator):
         )  # Map of structures with handles
         self.structs_with_handle_ptrs = set(
         )  # Set of structures with handles
+        self.unions_with_handles = OrderedDict(
+        )  # Map of unions with handles, kept separate from generated structures
+        self.unions_with_handle_ptrs = set(
+        )  # Map of unions with handle ptrs, kept separate from generated structures
 
         self.atom_names = set()  # Set of current API's Atom typenames
         self.atom_aliases = dict()  # Map of current API's Atom aliases
@@ -992,6 +1002,8 @@ class KhronosBaseGenerator(OutputGenerator):
 
     def is_union(self, value):
         """Check for union type.  The subclass may override this method."""
+        if value in self.union_names:
+            return True
         return False
 
     def is_flags(self, base_type):
@@ -1416,7 +1428,7 @@ class KhronosBaseGenerator(OutputGenerator):
         OutputGenerator.genStruct(self, typeinfo, typename, alias)
         self.process_struct(typeinfo.elem, typename, alias)
 
-    def bubble_up_struct_has_handles(self, typename):
+    def bubble_up_has_handles(self, typename):
         """Bubble up the struct_has_handles information to
         every structure that may contain this structure.
         This is needed because sometimes we read a containing
@@ -1434,28 +1446,46 @@ class KhronosBaseGenerator(OutputGenerator):
         ):
             return
 
-        for struct in self.all_struct_members:
-            # If it's already listed as having a handle, just skip
-            if struct in self.structs_with_handles:
-                continue
-            for member in self.all_struct_members[struct]:
+        for struct, members in self.all_struct_members.items():
+            for member in members:
                 if member.base_type == typename:
-                    self.structs_with_handles[struct] = [member]
+                    if struct in self.structs_with_handles:
+                        base_type_entries = [entry.base_type for entry in self.structs_with_handles[struct]]
+                        if member.base_type not in base_type_entries:
+                            self.structs_with_handles[struct].append(member)
+                    else:
+                        self.structs_with_handles[struct] = [member]
+
                     if (
                         struct not in self.structs_with_handle_ptrs
                         and (member.is_pointer or member.is_array)
                     ):
                         self.structs_with_handle_ptrs.add(struct)
 
-                    self.bubble_up_struct_has_handles(struct)
+                    self.bubble_up_has_handles(struct)
 
-                    # Check to see if this is a child and update
-                    # the parent's handle status if so.
-                    for parent, child_list in self.children_structs.items():
-                        if member.base_type in child_list:
-                            self.gen_set_parent_has_handles(parent)
+        # Check if typename is member of any unions and propagate
+        for union, members in self.all_union_members.items():
+            for member in members:
+                if member.base_type == typename:
+                    if union in self.unions_with_handles:
+                        base_type_entries = [entry.base_type for entry in self.unions_with_handles[union]]
+                        if member.base_type not in base_type_entries:
+                            self.unions_with_handles[union].append(member)
+                    else:
+                        self.unions_with_handles[union] = [member]
+
+                    if (
+                        union not in self.unions_with_handle_ptrs
+                        and (member.is_pointer or member.is_array)
+                    ):
+                        self.unions_with_handle_ptrs.add(struct)
+
+                    self.bubble_up_has_handles(union)
+
 
     def gen_set_parent_has_handles(self, parent):
+        # OpenXR only
         """If a child structure has a handle, we need to update
         the parent to indicate that it to now has a handle."""
         # If it's already listed as having a handle, just skip
@@ -1467,11 +1497,13 @@ class KhronosBaseGenerator(OutputGenerator):
         ):
             return
 
+        # Only check structs because there are no unions in OpenXr
         for child in self.children_structs.get(parent, []):
             # See if any of the children structures have handles
             if child in self.structs_with_handles:
-                self.bubble_up_struct_has_handles(parent)
-                self.structs_with_handle_ptrs.add(parent)
+                self.bubble_up_has_handles(parent)
+                if self.is_struct(parent):
+                    self.structs_with_handle_ptrs.add(parent)
 
     def process_struct(self, element, typename, alias):
         # For structs, we ignore the alias because it is a typedef.  Not ignoring the alias
@@ -1524,7 +1556,13 @@ class KhronosBaseGenerator(OutputGenerator):
                     if current_struct_member.is_pointer or current_struct_member.is_array:
                         has_handle_pointers = True
 
-                # If the struct is one we already know about and it has handles, record that
+                # If we are looking at a union and it has handles, record that
+                elif self.is_union(current_struct_member.base_type):
+                    if current_struct_member.base_type in self.unions_with_handles:
+                        handles.append(copy.deepcopy(current_struct_member))
+                        if current_struct_member.base_type in self.unions_with_handle_ptrs:
+                            has_handle_pointers = True
+
                 elif self.is_struct(current_struct_member.base_type):
                     if current_struct_member.base_type in self.structs_with_handles:
                         handles.append(copy.deepcopy(current_struct_member))
@@ -1543,14 +1581,14 @@ class KhronosBaseGenerator(OutputGenerator):
                     for handle in handles:
                         # Only add the handles if it is not already listed in the
                         # list of structure handles
-                        if typename not in self.structs_with_handles[
-                            typename]:
+                        if handle.base_type not in [entry.base_type for entry in self.structs_with_handles[
+                            typename]]:
                             self.structs_with_handles[typename].append(
                                 handle
                             )
                 else:
                     self.structs_with_handles[typename] = handles
-                self.bubble_up_struct_has_handles(typename)
+                self.bubble_up_has_handles(typename)
 
             # If this struct has a parent name, keep track of all
             # the parents and their children
@@ -1585,7 +1623,7 @@ class KhronosBaseGenerator(OutputGenerator):
                         self.structs_with_handles.setdefault(ext_struct, []).insert(0,ext_member)
                         if has_handle_pointers:
                             self.structs_with_handle_ptrs.add(ext_struct)
-                        self.bubble_up_struct_has_handles(ext_struct)
+                        self.bubble_up_has_handles(ext_struct)
 
             if has_handle_pointers:
                 self.structs_with_handle_ptrs.add(typename)
@@ -1635,24 +1673,49 @@ class KhronosBaseGenerator(OutputGenerator):
         C type declarations. The <member> tags are just like <param>
         tags - they are a declaration of a struct or union member.
         """
-        # For structs, we ignore the alias because it is a typedef.  Not ignoring the alias
-        # would produce multiple definition errors for functions with struct parameters.
+        self.process_union(typeinfo.elem, typename, alias)
+
+    def add_union_alias(self, name, alias):
+        self.all_union_aliases[name] = alias
+        self.feature_union_aliases[name] = alias
+        if alias in self.unions_with_handles:
+            self.unions_with_handles[name] = self.unions_with_handles[alias]
+
+    def add_union_members(self, name, value_info):
+        self.all_union_members[name] = value_info
+        self.feature_union_members[name] = value_info
+
+        handles = [
+            member for member in value_info
+            if self.is_handle(member.base_type)
+            or member.base_type in self.structs_with_handles
+            or member.base_type in self.unions_with_handles
+        ]
+        if handles:
+            self.unions_with_handles[name] = handles
+
+        handle_ptrs = [
+            member for member in handles
+            if member.is_pointer
+            or member.is_array
+        ]
+        if handle_ptrs:
+            self.unions_with_handle_ptrs.add(name)
+
+    def process_union(self, element, typename, alias):
+        # For unions all aliases should be considered, if any of them contain
+        # a handle said union also contains a handle
         if not alias:
             if typename not in self.feature_union_members:
                 self.add_union_members(typename, self.make_value_info(
-                    typeinfo.elem.findall('.//member')
+                    element.findall('.//member')
                 ))
         else:
             if typename not in self.all_union_aliases:
                 self.add_union_alias(typename, alias)
 
-    def add_union_alias(self, name, alias):
-        self.all_union_aliases[name] = alias
-        self.feature_union_aliases[name] = alias
-
-    def add_union_members(self, name, value_info):
-        self.all_union_members[name] = value_info
-        self.feature_union_members[name] = value_info
+        if typename in self.unions_with_handles:
+            self.bubble_up_has_handles(typename)
 
     def genGroup(self, groupinfo, group_name, alias, protect=None):
         """Method override.
@@ -1750,6 +1813,15 @@ class KhronosBaseGenerator(OutputGenerator):
             if 'optional' in param.attrib:
                 is_optional = param.attrib.get('optional').lower() == 'true'
 
+            # Get selector for unions
+            selector = None
+            if 'selector' in param.attrib:
+                selector = param.attrib.get('selector')
+
+            selection = list()
+            if 'selection' in param.attrib:
+                selection = param.attrib.get('selection')
+
             # Get array length, always use altlen when available to avoid parsing latexmath
             if 'altlen' in param.attrib:
                 array_length = param.attrib.get('altlen')
@@ -1788,7 +1860,9 @@ class KhronosBaseGenerator(OutputGenerator):
                     bitfield_width=bitfield_width,
                     is_optional=is_optional,
                     prefix=self.get_param_prefix(),
-                    op=self.get_param_accessor()
+                    op=self.get_param_accessor(),
+                    selector=selector,
+                    selection=selection
                 )
             )
 

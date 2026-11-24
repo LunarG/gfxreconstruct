@@ -194,6 +194,29 @@ void UnwrapStructHandles(VkDescriptorGetInfoEXT* value, HandleUnwrapMemory* unwr
     }
 }
 
+void UnwrapStructHandles(VkIndirectExecutionSetCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);
+        }
+
+        switch (value->type)
+        {
+            case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT:
+                value->info.pPipelineInfo = UnwrapStructPtrHandles(value->info.pPipelineInfo, unwrap_memory);
+                break;
+            case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT:
+                value->info.pShaderInfo = UnwrapStructPtrHandles(value->info.pShaderInfo, unwrap_memory);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(vulkan_wrappers)
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
