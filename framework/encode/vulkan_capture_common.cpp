@@ -1266,5 +1266,24 @@ graphics::VulkanResourcesUtil::QueueLockFn MakeQueueLockFn(const vulkan_wrappers
     };
 }
 
+std::vector<std::unique_lock<std::mutex>> LockDeviceQueues(const vulkan_wrappers::DeviceWrapper* device_wrapper)
+{
+    std::vector<std::unique_lock<std::mutex>> queue_locks;
+    if (device_wrapper != nullptr)
+    {
+        std::lock_guard<std::mutex> map_lock(device_wrapper->queues_map_mutex);
+        for (const auto& [queue, child_queue] : device_wrapper->child_queues)
+        {
+            if (child_queue.wrapper != nullptr)
+            {
+                queue_locks.emplace_back(child_queue.wrapper->queue_mutex);
+            }
+        }
+        queue_locks.emplace_back(device_wrapper->untracked_queues_mutex);
+    }
+
+    return queue_locks;
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

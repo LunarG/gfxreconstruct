@@ -31,6 +31,9 @@
 #include "vulkan_capture_manager.h"
 #include "vulkan_state_writer.h"
 
+#include <mutex>
+#include <vector>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
@@ -46,6 +49,11 @@ void CommonProcessHardwareBuffer(format::ThreadId                thread_id,
 // synthesized queue submissions it makes are externally synchronized with application's queues and with other
 // capture-internal readbacks.
 graphics::VulkanResourcesUtil::QueueLockFn MakeQueueLockFn(const vulkan_wrappers::DeviceWrapper* device_wrapper);
+
+// Locks every queue of device_wrapper for host access: the queues the application has retrieved, plus the mutex that
+// serializes capture-internal submissions to queues it has not retrieved. For down-chain calls that need all of the
+// device's queues externally synchronized, such as vkDeviceWaitIdle.
+std::vector<std::unique_lock<std::mutex>> LockDeviceQueues(const vulkan_wrappers::DeviceWrapper* device_wrapper);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

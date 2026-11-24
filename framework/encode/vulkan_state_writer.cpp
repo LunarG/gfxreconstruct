@@ -321,8 +321,14 @@ void VulkanStateWriter::WriteDeviceState(const VulkanStateTable& state_table)
         // Write device creation call.
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
 
-        // Idle device to ensure all pending work is complete prior to writing state snapshot.
-        VkResult result = wrapper->layer_table.DeviceWaitIdle(wrapper->handle);
+        // Idle device to ensure all pending work is complete prior to writing state snapshot. An application thread
+        // can be inside vkQueueWaitIdle or vkDeviceWaitIdle at this point, because those calls do not hold the API
+        // call lock while blocked in the driver, so the device's queues are locked for the call.
+        VkResult result = VK_SUCCESS;
+        {
+            auto queue_locks = LockDeviceQueues(wrapper);
+            result           = wrapper->layer_table.DeviceWaitIdle(wrapper->handle);
+        }
         if (result != VK_SUCCESS)
         {
             GFXRECON_LOG_WARNING("Device wait idle failed during state snapshot generation");

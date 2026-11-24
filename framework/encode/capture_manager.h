@@ -114,6 +114,48 @@ class CommonCaptureManager
         }
         return std::move(ApiExclusiveLockT(api_call_mutex_));
     }
+
+    // Releases the API call lock held by the current thread for the lifetime of the object and takes it back on
+    // destruction. Used around down-chain calls that can block until another thread makes an API call (e.g.
+    // vkWaitSemaphores). That thread could not make its call while an exclusive lock request, such as the one made
+    // when trimming is activated, is waiting for the blocked thread to release the lock.
+    class ScopedApiCallUnlock
+    {
+      public:
+        ScopedApiCallUnlock(ApiSharedLockT& shared_lock, ApiExclusiveLockT& exclusive_lock) :
+            shared_lock_(shared_lock.owns_lock() ? &shared_lock : nullptr),
+            exclusive_lock_(exclusive_lock.owns_lock() ? &exclusive_lock : nullptr)
+        {
+            if (shared_lock_ != nullptr)
+            {
+                shared_lock_->unlock();
+            }
+            if (exclusive_lock_ != nullptr)
+            {
+                exclusive_lock_->unlock();
+            }
+        }
+
+        ~ScopedApiCallUnlock()
+        {
+            if (shared_lock_ != nullptr)
+            {
+                shared_lock_->lock();
+            }
+            if (exclusive_lock_ != nullptr)
+            {
+                exclusive_lock_->lock();
+            }
+        }
+
+        ScopedApiCallUnlock(const ScopedApiCallUnlock&)            = delete;
+        ScopedApiCallUnlock& operator=(const ScopedApiCallUnlock&) = delete;
+
+      private:
+        ApiSharedLockT*    shared_lock_;
+        ApiExclusiveLockT* exclusive_lock_;
+    };
+
     class ApiCallLock
     {
       public:

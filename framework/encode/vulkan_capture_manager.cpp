@@ -51,7 +51,6 @@
 #include "util/platform.h"
 
 #include <cassert>
-#include <ranges>
 #include <unordered_set>
 
 #if defined(__linux__) && !defined(__ANDROID__)
@@ -4829,21 +4828,7 @@ VkResult VulkanCaptureManager::OverrideDeviceWaitIdle(VkDevice device)
     // VK_DEVICE_QUEUE_CREATE_INTERNALLY_SYNCHRONIZED_BIT_KHR must be externally synchronized.
     // Lock every queue the application has retrieved, plus the mutex that serializes capture-internal submissions to
     // queues it has not retrieved, for the duration of the down-chain call.
-    auto* device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
-
-    std::vector<std::unique_lock<std::mutex>> queue_locks;
-    if (device_wrapper != nullptr)
-    {
-        std::lock_guard<std::mutex> map_lock(device_wrapper->queues_map_mutex);
-        for (const auto& queue : device_wrapper->child_queues | std::views::values)
-        {
-            if (queue.wrapper != nullptr)
-            {
-                queue_locks.emplace_back(queue.wrapper->queue_mutex);
-            }
-        }
-        queue_locks.emplace_back(device_wrapper->untracked_queues_mutex);
-    }
+    auto queue_locks = LockDeviceQueues(vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device));
 
     return vulkan_wrappers::GetDeviceTable(device)->DeviceWaitIdle(device);
 }
