@@ -104,5 +104,45 @@ TEST_CASE("Deep copy follows the selected member of VkResourceDescriptorDataEXT"
     REQUIRE(copy->data.pImage->pView->format == view_info.format);
 }
 
+TEST_CASE("Deep copy follows the selected member of VkIndirectCommandsTokenDataEXT", "[deep_copy]")
+{
+    const VkIndirectCommandsTokenTypeEXT types[] = { VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT,
+                                                     VK_INDIRECT_COMMANDS_TOKEN_TYPE_SEQUENCE_INDEX_EXT,
+                                                     VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_DATA_EXT,
+                                                     VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_DATA_SEQUENCE_INDEX_EXT };
+    for (const VkIndirectCommandsTokenTypeEXT type : types)
+    {
+        VkIndirectCommandsPushConstantTokenEXT push_constant = {};
+        push_constant.updateRange.offset                     = 16;
+        push_constant.updateRange.size                       = 8;
+
+        VkIndirectCommandsLayoutTokenEXT token = { VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_TOKEN_EXT };
+        token.type                             = type;
+        token.data.pPushConstant               = &push_constant;
+
+        const std::vector<uint8_t> data = DeepCopy(token);
+        const auto*                copy = reinterpret_cast<const VkIndirectCommandsLayoutTokenEXT*>(data.data());
+
+        REQUIRE(IsInside(data, copy->data.pPushConstant));
+        REQUIRE(copy->data.pPushConstant->updateRange.offset == push_constant.updateRange.offset);
+        REQUIRE(copy->data.pPushConstant->updateRange.size == push_constant.updateRange.size);
+    }
+
+    VkIndirectCommandsExecutionSetTokenEXT execution_set = {};
+    execution_set.type                                   = VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT;
+    execution_set.shaderStages                           = VK_SHADER_STAGE_COMPUTE_BIT;
+
+    VkIndirectCommandsLayoutTokenEXT token = { VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_TOKEN_EXT };
+    token.type                             = VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT;
+    token.data.pExecutionSet               = &execution_set;
+
+    const std::vector<uint8_t> data = DeepCopy(token);
+    const auto*                copy = reinterpret_cast<const VkIndirectCommandsLayoutTokenEXT*>(data.data());
+
+    REQUIRE(IsInside(data, copy->data.pExecutionSet));
+    REQUIRE(copy->data.pExecutionSet->type == execution_set.type);
+    REQUIRE(copy->data.pExecutionSet->shaderStages == execution_set.shaderStages);
+}
+
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)

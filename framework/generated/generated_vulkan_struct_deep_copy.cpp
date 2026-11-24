@@ -196,51 +196,6 @@ void handle_array_of_pointers(const T&  base_struct,
 }
 
 // explicit handling of problematic unions (members do not provide stype)
-void handle_union(const VkIndirectCommandsLayoutTokenEXT& base_struct,
-                  uint32_t                                out_index,
-                  uint64_t&                               offset,
-                  uint8_t*                                out_data)
-{
-    switch (base_struct.type)
-    {
-        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT:
-            handle_pointer(base_struct,
-                           reinterpret_cast<const VkIndirectCommandsPushConstantTokenEXT*>(&base_struct.data),
-                           1,
-                           out_index,
-                           offset,
-                           out_data);
-            break;
-        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_EXT:
-            handle_pointer(base_struct,
-                           reinterpret_cast<const VkIndirectCommandsVertexBufferTokenEXT*>(&base_struct.data),
-                           1,
-                           out_index,
-                           offset,
-                           out_data);
-            break;
-        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_EXT:
-            handle_pointer(base_struct,
-                           reinterpret_cast<const VkIndirectCommandsIndexBufferTokenEXT*>(&base_struct.data),
-                           1,
-                           out_index,
-                           offset,
-                           out_data);
-            break;
-        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT:
-            handle_pointer(base_struct,
-                           reinterpret_cast<const VkIndirectCommandsExecutionSetTokenEXT*>(&base_struct.data),
-                           1,
-                           out_index,
-                           offset,
-                           out_data);
-            break;
-        default:
-            break;
-    }
-}
-
-// explicit handling of problematic unions (members do not provide stype)
 void handle_union(const VkDescriptorGetInfoEXT& base_struct, uint32_t out_index, uint64_t& offset, uint8_t* out_data)
 {
     switch (base_struct.type)
@@ -27515,7 +27470,34 @@ size_t vulkan_struct_deep_copy(const VkIndirectCommandsLayoutTokenEXT* structs, 
             out_structures[i]   = base_struct;
         }
         handle_pnext(base_struct, i, offset, out_data);
-        handle_union(base_struct, i, offset, out_data);
+        switch (base_struct.type)
+        {
+            case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT:
+            case VK_INDIRECT_COMMANDS_TOKEN_TYPE_SEQUENCE_INDEX_EXT:
+            case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_DATA_EXT:
+            case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_DATA_SEQUENCE_INDEX_EXT:
+            {
+                handle_pointer(base_struct, base_struct.data.pPushConstant, 1, i, offset, out_data);
+                break;
+            }
+            case VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_EXT:
+            {
+                handle_pointer(base_struct, base_struct.data.pVertexBuffer, 1, i, offset, out_data);
+                break;
+            }
+            case VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_EXT:
+            {
+                handle_pointer(base_struct, base_struct.data.pIndexBuffer, 1, i, offset, out_data);
+                break;
+            }
+            case VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT:
+            {
+                handle_pointer(base_struct, base_struct.data.pExecutionSet, 1, i, offset, out_data);
+                break;
+            }
+            default:
+                break;
+        }
     }
     return offset;
 }
