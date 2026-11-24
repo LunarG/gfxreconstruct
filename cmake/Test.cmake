@@ -41,10 +41,17 @@ if (${RUN_TESTS})
     endif()
 
     # Build architecture
-    if(${CMAKE_SIZEOF_VOID_P} EQUAL 8)
+    # CMAKE_SIZEOF_VOID_P is empty when CMake cannot detect the compiler ABI.
+    if("${CMAKE_SIZEOF_VOID_P}" STREQUAL "")
+        message(FATAL_ERROR
+                "CMAKE_SIZEOF_VOID_P is not set. CMake could not detect the compiler ABI.\n"
+                "See CMakeFiles/CMakeConfigureLog.yaml (CMake 3.26+) or CMakeFiles/CMakeError.log "
+                "in the build directory for the compiler error.")
+    endif()
+    if("${CMAKE_SIZEOF_VOID_P}" EQUAL 8)
         set(ARCHITECTURE "x64")
     endif()
-    if(${CMAKE_SIZEOF_VOID_P} EQUAL 4)
+    if("${CMAKE_SIZEOF_VOID_P}" EQUAL 4)
         set(ARCHITECTURE "x86")
     endif()
 

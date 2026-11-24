@@ -99,6 +99,10 @@ jobs:
         submodules: 'recursive'
     - name: Setup sccache
       uses: mozilla-actions/sccache-action@v0.0.9
+      with:
+        # Pinned so that new sccache releases do not reach CI without review.
+        # sccache 0.20.0 broke server startup with the GHA cache (mozilla/sccache#3064).
+        version: "v0.20.1"
     - name: Install build dependencies
       run: |
         sudo apt-get update
@@ -161,6 +165,10 @@ jobs:
         submodules: 'recursive'
     - name: Setup sccache
       uses: mozilla-actions/sccache-action@v0.0.9
+      with:
+        # Pinned so that new sccache releases do not reach CI without review.
+        # sccache 0.20.0 broke server startup with the GHA cache (mozilla/sccache#3064).
+        version: "v0.20.1"
     - name: Install build dependencies
       run: |
         sudo apt-get update
@@ -296,6 +304,10 @@ jobs:
         submodules: 'recursive'
     - name: Setup sccache
       uses: mozilla-actions/sccache-action@v0.0.9
+      with:
+        # Pinned so that new sccache releases do not reach CI without review.
+        # sccache 0.20.0 broke server startup with the GHA cache (mozilla/sccache#3064).
+        version: "v0.20.1"
     - name: Run build script
       run: |
         python3 scripts/build.py --skip-check-code-style --config ${{ matrix.config.type }} --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=13.3 --parallel 0 --test-apps
@@ -381,6 +393,10 @@ jobs:
           submodules: 'recursive'
       - name: Setup sccache
         uses: mozilla-actions/sccache-action@v0.0.9
+        with:
+          # Pinned so that new sccache releases do not reach CI without review.
+          # sccache 0.20.0 broke server startup with the GHA cache (mozilla/sccache#3064).
+          version: "v0.20.1"
       - name: Set up Java
         uses: "actions/setup-java@v4"
         with:
