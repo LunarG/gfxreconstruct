@@ -21,6 +21,7 @@
 */
 
 #include "decode/custom_vulkan_struct_handle_mappers.h"
+#include "decode/decoder_util.h"
 #include "decode/vulkan_temporary_objects.h"
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_resources_util.h"
@@ -49,6 +50,25 @@ GFXRECON_BEGIN_NAMESPACE(decode)
             std::exit(-1);                                                    \
         }                                                                     \
     }
+
+static VkQueue GetFixupQueue(const graphics::VulkanDeviceTable& device_table, const VulkanDeviceInfo& device_info)
+{
+    const graphics::VulkanQueueFamilyFlags& families = device_info.enabled_queue_family_flags;
+
+    uint32_t family_index = graphics::FindGraphicsOrComputeQueueFamilyIndex(families);
+    if ((family_index == VK_QUEUE_FAMILY_IGNORED) && !families.queue_family_queue_counts.empty())
+    {
+        family_index = families.queue_family_queue_counts.begin()->first;
+    }
+
+    if (family_index == VK_QUEUE_FAMILY_IGNORED)
+    {
+        GFXRECON_LOG_WARNING("Device %" PRIu64 " has no queues for frame loop fixup", device_info.capture_id);
+        return VK_NULL_HANDLE;
+    }
+
+    return GetDeviceQueue(&device_table, &device_info, family_index, 0);
+}
 
 bool VulkanReplayFrameLoopConsumer::SemaphoreTracking::IsBinary(format::HandleId semaphore) const
 {
@@ -201,14 +221,14 @@ bool VulkanReplayFrameLoopConsumer::SemaphoreTracking::IsFixable(const VulkanSem
             !semaphore_info->shadow_signaled && semaphore_info->forward_progress);
 }
 
-void VulkanReplayFrameLoopConsumer::SemaphoreTracking::FixupSemaphores(format::HandleId queue)
+void VulkanReplayFrameLoopConsumer::SemaphoreTracking::FixupSemaphores()
 {
     // Device is expected to be idle at this point.
-    FixupBinarySemaphores(queue);
-    FixupTimelineSemaphores(queue);
+    FixupBinarySemaphores();
+    FixupTimelineSemaphores();
 }
 
-void VulkanReplayFrameLoopConsumer::SemaphoreTracking::FixupBinarySemaphores(format::HandleId queue)
+void VulkanReplayFrameLoopConsumer::SemaphoreTracking::FixupBinarySemaphores()
 {
     // The semaphores collected in this vector are semaphores that end up signaled within the loop range.
     // This means that, on repetition, they are going to be signaled again.
@@ -237,7 +257,7 @@ void VulkanReplayFrameLoopConsumer::SemaphoreTracking::FixupBinarySemaphores(for
         const VulkanSemaphoreInfo* semaphore_info = object_table_.GetVkSemaphoreInfo(semaphore);
         if (IsFixable(semaphore_info))
         {
-            GFXRECON_LOG_DEBUG("Fixing up semaphore %" PRIu64 " for queue %" PRIu64, semaphore, queue);
+            GFXRECON_LOG_DEBUG("Fixing up semaphore %" PRIu64, semaphore);
             drain.push_back(semaphore_info->handle);
             drain_stages.push_back(VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
         }
@@ -254,7 +274,7 @@ void VulkanReplayFrameLoopConsumer::SemaphoreTracking::FixupBinarySemaphores(for
         const VulkanSemaphoreInfo* semaphore_info = object_table_.GetVkSemaphoreInfo(semaphore);
         if (IsFixable(semaphore_info))
         {
-            GFXRECON_LOG_DEBUG("Fixing up semaphore %" PRIu64 " for queue %" PRIu64, semaphore, queue);
+            GFXRECON_LOG_DEBUG("Fixing up semaphore %" PRIu64, semaphore);
             replenish.push_back(semaphore_info->handle);
         }
     }
@@ -268,13 +288,20 @@ void VulkanReplayFrameLoopConsumer::SemaphoreTracking::FixupBinarySemaphores(for
         submit_info.signalSemaphoreCount = static_cast<uint32_t>(replenish.size());
         submit_info.pSignalSemaphores    = replenish.data();
 
-        VkQueue queue_handle = object_table_.GetVkQueueInfo(queue)->handle;
-        CHECK_VK_RESULT(device_table_.QueueSubmit(queue_handle, 1, &submit_info, VK_NULL_HANDLE), "vkQueueSubmit");
-        CHECK_VK_RESULT(device_table_.QueueWaitIdle(queue_handle), "vkQueueWaitIdle");
+        const VulkanDeviceInfo* device_info = object_table_.GetVkDeviceInfo(device_id_);
+        GFXRECON_ASSERT(device_info != nullptr);
+        const VkQueue queue = GetFixupQueue(device_table_, *device_info);
+        if (queue == VK_NULL_HANDLE)
+        {
+            return;
+        }
+
+        CHECK_VK_RESULT(device_table_.QueueSubmit(queue, 1, &submit_info, VK_NULL_HANDLE), "vkQueueSubmit");
+        CHECK_VK_RESULT(device_table_.QueueWaitIdle(queue), "vkQueueWaitIdle");
     }
 }
 
-void VulkanReplayFrameLoopConsumer::SemaphoreTracking::FixupTimelineSemaphores(format::HandleId queue)
+void VulkanReplayFrameLoopConsumer::SemaphoreTracking::FixupTimelineSemaphores()
 {
     // Timeline semaphores cannot be rewound, so we need to replace each drifted semaphore with a fresh one.
     for (const auto& [semaphore, initial_value] : initial_timeline_values_)
@@ -552,7 +579,7 @@ VulkanReplayFrameLoopConsumer::GetSemaphoreTracking(format::HandleId device)
         VkDevice          device_handle = device_info->handle;
         const auto&       device_table  = *GetDeviceTable(device_handle);
         auto              result        = per_device_semaphore_tracking_.emplace(
-            device, SemaphoreTracking(device_handle, device_table, object_table));
+            device, SemaphoreTracking(device, device_handle, device_table, object_table));
         it = result.first;
         GFXRECON_ASSERT(result.second);
     }
@@ -1197,7 +1224,7 @@ void VulkanReplayFrameLoopConsumer::TrackFenceState(format::HandleId device, for
     }
 }
 
-void VulkanReplayFrameLoopConsumer::FixupDeviceFences(format::HandleId device, format::HandleId queue)
+void VulkanReplayFrameLoopConsumer::FixupDeviceFences(format::HandleId device)
 {
     // Get fence tracking info associated with this VkDevice
     if (!per_device_fence_tracking_.contains(device))
@@ -1208,7 +1235,8 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceFences(format::HandleId device, f
     FenceTracking& t = per_device_fence_tracking_[device];
 
     VulkanObjectInfoTable&             table        = GetObjectInfoTable();
-    VkDevice                           vk_device    = table.GetVkDeviceInfo(device)->handle;
+    const VulkanDeviceInfo*            device_info  = table.GetVkDeviceInfo(device);
+    VkDevice                           vk_device    = device_info->handle;
     const graphics::VulkanDeviceTable* device_table = GetDeviceTable(vk_device);
 
     // Reset all fences, then synthetically signal the fences that were signaled
@@ -1238,11 +1266,21 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceFences(format::HandleId device, f
     }
 
     // Synthetically signal the ones that were originally signaled
+    if (fences_to_signal.empty())
+    {
+        return;
+    }
+
     GFXRECON_LOG_DEBUG("Synthetically signaling %zu fences...", fences_to_signal.size());
-    VulkanQueueInfo* queue_info = table.GetVkQueueInfo(queue);
+    const VkQueue queue = GetFixupQueue(*device_table, *device_info);
+    if (queue == VK_NULL_HANDLE)
+    {
+        return;
+    }
+
     for (VkFence fence : fences_to_signal)
     {
-        result = device_table->QueueSubmit(queue_info->handle, 0, nullptr, fence);
+        result = device_table->QueueSubmit(queue, 0, nullptr, fence);
         CHECK_VK_RESULT(result, "vkQueueSubmit");
     }
 }
@@ -1433,7 +1471,7 @@ void VulkanReplayFrameLoopConsumer::FrameBoundaryEndOfFrame(format::HandleId que
             VkResult result = device_table->DeviceWaitIdle(device);
             CHECK_VK_RESULT(result, "vkDeviceWaitIdle");
 
-            FixupDeviceObjects(queue_info->parent_id, queue);
+            FixupDeviceObjects(queue_info->parent_id);
             lifetime_tracker_.OnFrameEnd();
         }
     }
@@ -1810,7 +1848,7 @@ void VulkanReplayFrameLoopConsumer::TrackImageStates()
     }
 }
 
-void VulkanReplayFrameLoopConsumer::FixupDeviceImages(format::HandleId device, format::HandleId queue)
+void VulkanReplayFrameLoopConsumer::FixupDeviceImages(format::HandleId device)
 {
     auto it = per_device_image_tracking_.find(device);
     if (it == per_device_image_tracking_.end())
@@ -1818,7 +1856,7 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceImages(format::HandleId device, f
         return;
     }
 
-    it->second.Restore(queue);
+    it->second.Restore();
 }
 
 void VulkanReplayFrameLoopConsumer::ResetImageTracking()
@@ -2125,7 +2163,7 @@ void VulkanReplayFrameLoopConsumer::ImageTracking::BuildRestoreCommands()
     }
 }
 
-void VulkanReplayFrameLoopConsumer::ImageTracking::Restore(format::HandleId queue)
+void VulkanReplayFrameLoopConsumer::ImageTracking::Restore()
 {
     if (image_states_.empty())
     {
@@ -2133,8 +2171,7 @@ void VulkanReplayFrameLoopConsumer::ImageTracking::Restore(format::HandleId queu
     }
 
     VulkanDeviceInfo* device_info = object_table_.GetVkDeviceInfo(device_id_);
-    VulkanQueueInfo*  queue_info  = object_table_.GetVkQueueInfo(queue);
-    GFXRECON_ASSERT(device_info != nullptr && queue_info != nullptr);
+    GFXRECON_ASSERT(device_info != nullptr);
 
     const bool built_this_restore = !restore_commands_.built;
     if (built_this_restore)
@@ -2164,7 +2201,7 @@ void VulkanReplayFrameLoopConsumer::ImageTracking::Restore(format::HandleId queu
     }
 
     TemporaryCommandBuffer temp_cmd_buff(*device_info, device_table_);
-    if (temp_cmd_buff.CreateAndBegin(queue_info->family_index, queue_info->handle) != VK_SUCCESS)
+    if (temp_cmd_buff.CreateAndBegin(graphics::FindGraphicsOrComputeQueueFamilyIndex) != VK_SUCCESS)
     {
         return;
     }
@@ -2204,17 +2241,17 @@ void VulkanReplayFrameLoopConsumer::ImageTracking::DestroyShadowImages()
     restore_commands_ = {};
 }
 
-void VulkanReplayFrameLoopConsumer::FixupDeviceObjects(format::HandleId device, format::HandleId queue)
+void VulkanReplayFrameLoopConsumer::FixupDeviceObjects(format::HandleId device)
 {
     if (!frame_loop_info_.IsLooping() || frame_loop_info_.IsFinalIteration())
     {
         return;
     }
     FixupDeviceEvents(device);
-    FixupDeviceImages(device, queue);
-    FixupDeviceFences(device, queue);
+    FixupDeviceImages(device);
+    FixupDeviceFences(device);
     FixupDeviceBuffers(device);
-    GetSemaphoreTracking(device).FixupSemaphores(queue);
+    GetSemaphoreTracking(device).FixupSemaphores();
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkQueueBindSparse(const ApiCallInfo& call_info, args::QueueBindSparse& args)
@@ -2334,7 +2371,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(const ApiCallInfo&
         VkResult result = device_table->DeviceWaitIdle(device);
         CHECK_VK_RESULT(result, "vkDeviceWaitIdle");
 
-        FixupDeviceObjects(queue_info->parent_id, args.queue);
+        FixupDeviceObjects(queue_info->parent_id);
         lifetime_tracker_.OnFrameEnd();
     }
 }

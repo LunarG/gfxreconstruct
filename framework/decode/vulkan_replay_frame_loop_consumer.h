@@ -116,7 +116,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     };
     void TrackFenceStates();
     void TrackFenceState(format::HandleId device, format::HandleId fence);
-    void FixupDeviceFences(format::HandleId device, format::HandleId queue);
+    void FixupDeviceFences(format::HandleId device);
     void FrameBoundaryEndOfFrame(format::HandleId queue, PNextNode* pNext);
 
     struct EventTracking
@@ -126,15 +126,16 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     void TrackEventStates();
     void TrackEventState(format::HandleId device, format::HandleId event);
     void FixupDeviceEvents(format::HandleId device);
-    void FixupDeviceObjects(format::HandleId device, format::HandleId queue);
+    void FixupDeviceObjects(format::HandleId device);
 
     struct SemaphoreTracking
     {
-        SemaphoreTracking(VkDevice                           device,
+        SemaphoreTracking(format::HandleId                   device_id,
+                          VkDevice                           device,
                           const graphics::VulkanDeviceTable& device_table,
                           CommonObjectInfoTable&             object_table) :
-            device_(device),
-            device_table_(device_table), object_table_(object_table)
+            device_id_(device_id),
+            device_(device), device_table_(device_table), object_table_(object_table)
         {}
 
         /// Semaphores waited on by any submit inside the loop range that are expected
@@ -164,12 +165,13 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
         void TrackTimelineValue(format::HandleId semaphore);
 
-        void FixupSemaphores(format::HandleId queue);
-        void FixupBinarySemaphores(format::HandleId queue);
-        void FixupTimelineSemaphores(format::HandleId queue);
+        void FixupSemaphores();
+        void FixupBinarySemaphores();
+        void FixupTimelineSemaphores();
 
         bool IsFixable(const VulkanSemaphoreInfo* semaphore_info) const;
 
+        format::HandleId                   device_id_;
         VkDevice                           device_;
         const graphics::VulkanDeviceTable& device_table_;
         CommonObjectInfoTable&             object_table_;
@@ -357,7 +359,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
         void RecordInitialState(const std::vector<format::HandleId>& image_ids,
                                 const std::vector<format::HandleId>& restorable_image_ids);
 
-        void Restore(format::HandleId queue);
+        void Restore();
 
         void DestroyShadowImages();
 
@@ -378,7 +380,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     ImageTracking& GetImageTracking(format::HandleId device);
     bool           CanSnapshotImageContents(const VulkanImageInfo* image_info) const;
     void           TrackImageStates();
-    void           FixupDeviceImages(format::HandleId device, format::HandleId queue);
+    void           FixupDeviceImages(format::HandleId device);
     void           ResetImageTracking();
     void           ResetImageTracking(format::HandleId device);
 
