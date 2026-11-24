@@ -1,0 +1,19 @@
+{
+  "frame": 2,
+  "blockIndex": 65,
+  "boundary": {
+    "type": "vkFrameBoundaryANDROID",
+    "call": "vkFrameBoundaryANDROID",
+    "queueId": null,
+    "captureResult": null,
+    "replayResult": null,
+    "semaphoreId": null
+  },
+  "status": "skipped",
+  "reason": {
+    "code": "FRAME_BOUNDARY_ANDROID_NO_IMAGE",
+    "message": "vkFrameBoundaryANDROID was called without an image"
+  },
+  "outputs": [],
+  "messages": []
+}

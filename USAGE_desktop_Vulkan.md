@@ -735,10 +735,11 @@ Optional arguments:
                         unspecified screenshots will use the swapchain images
                         dimensions. If --screenshot-scale is also specified then
                         this option is ignored.
-  --screenshot-results  Write a JSON file next to the screenshots, named after
-                        the screenshot prefix, that records for each requested
-                        frame which files were written and why any image was
-                        skipped.
+  --screenshot-results  Write a JSON file next to the screenshots of each
+                        requested frame, named like the frame's screenshots,
+                        that records which files were written and why any
+                        image was skipped, plus a summary over all frames
+                        named after the screenshot prefix.
   --capture             Capture the replaying GFXR file. Capture uses the same log
                         options as replay. All other capture option behavior and
                         usage is the same as when capturing with the GFXR layer. The

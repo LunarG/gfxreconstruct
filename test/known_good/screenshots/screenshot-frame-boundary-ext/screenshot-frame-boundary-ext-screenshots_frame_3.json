@@ -1,0 +1,27 @@
+{
+  "frame": 3,
+  "blockIndex": 75,
+  "boundary": {
+    "type": "VkFrameBoundaryEXT",
+    "call": "vkQueueSubmit",
+    "queueId": 5,
+    "captureResult": "VK_SUCCESS",
+    "replayResult": "VK_SUCCESS",
+    "frameBoundaryEXT": {
+      "flags": "VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT",
+      "frameID": 2,
+      "imageCount": 0,
+      "images": [],
+      "bufferCount": 0,
+      "tagName": 0,
+      "tagSize": 0
+    }
+  },
+  "status": "skipped",
+  "reason": {
+    "code": "FRAME_BOUNDARY_NO_IMAGES",
+    "message": "VkFrameBoundaryEXT on vkQueueSubmit lists no images; nothing to screenshot"
+  },
+  "outputs": [],
+  "messages": []
+}
