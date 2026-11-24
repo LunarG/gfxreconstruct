@@ -26,13 +26,20 @@
 #include "util/defines.h"
 #include "util/compressor.h"
 
+#include "nlohmann/json.hpp"
+
 #include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(bufferwriter)
 
-size_t WriteBuffer(const std::string& filename, const void* data, size_t size, const Compressor* compressor = nullptr);
+// meta describes the file to a remote controller (see util::OpenOutputFile).
+size_t WriteBuffer(const std::string&            filename,
+                   const void*                   data,
+                   size_t                        size,
+                   const Compressor*             compressor = nullptr,
+                   const nlohmann::ordered_json& meta       = {});
 
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(util)

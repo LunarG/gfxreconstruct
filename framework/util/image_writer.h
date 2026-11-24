@@ -28,6 +28,8 @@
 #include "util/defines.h"
 #include "util/options.h"
 
+#include "nlohmann/json.hpp"
+
 #include <assert.h>
 #include <cstdint>
 #include <string>
@@ -125,31 +127,42 @@ constexpr size_t DataFormatsSizes(DataFormats format)
     }
 }
 
-bool WriteBmpImage(const std::string& filename,
-                   uint32_t           width,
-                   uint32_t           height,
-                   const void*        data,
-                   uint32_t           pitch       = 0,
-                   DataFormats        data_format = kFormat_BGRA,
-                   bool               write_alpha = false);
+// meta describes the file to a remote controller (see util::OpenOutputFile). The separate-alpha writers send it with
+// both files.
 
-bool WriteBmpImageSeparateAlpha(const std::string& filename,
-                                uint32_t           width,
-                                uint32_t           height,
-                                const void*        data,
-                                uint32_t           pitch,
-                                DataFormats        data_format);
+bool WriteBmpImage(const std::string&            filename,
+                   uint32_t                      width,
+                   uint32_t                      height,
+                   const void*                   data,
+                   uint32_t                      pitch       = 0,
+                   DataFormats                   data_format = kFormat_BGRA,
+                   bool                          write_alpha = false,
+                   const nlohmann::ordered_json& meta        = {});
 
-bool WritePngImage(const std::string& filename,
-                   uint32_t           width,
-                   uint32_t           height,
-                   const void*        data,
-                   uint32_t           pitch       = 0,
-                   DataFormats        format      = kFormat_BGRA,
-                   bool               write_alpha = false);
+bool WriteBmpImageSeparateAlpha(const std::string&            filename,
+                                uint32_t                      width,
+                                uint32_t                      height,
+                                const void*                   data,
+                                uint32_t                      pitch,
+                                DataFormats                   data_format,
+                                const nlohmann::ordered_json& meta = {});
 
-bool WritePngImageSeparateAlpha(
-    const std::string& filename, uint32_t width, uint32_t height, const void* data, uint32_t pitch, DataFormats format);
+bool WritePngImage(const std::string&            filename,
+                   uint32_t                      width,
+                   uint32_t                      height,
+                   const void*                   data,
+                   uint32_t                      pitch       = 0,
+                   DataFormats                   format      = kFormat_BGRA,
+                   bool                          write_alpha = false,
+                   const nlohmann::ordered_json& meta        = {});
+
+bool WritePngImageSeparateAlpha(const std::string&            filename,
+                                uint32_t                      width,
+                                uint32_t                      height,
+                                const void*                   data,
+                                uint32_t                      pitch,
+                                DataFormats                   format,
+                                const nlohmann::ordered_json& meta = {});
 
 /**
  * @brief Writes an image with the encoder that file_format names.
@@ -174,17 +187,19 @@ bool WritePngImageSeparateAlpha(
  * @param data_format    How data is laid out.
  * @param write_alpha    Whether to keep the alpha channel in the file.
  * @param separate_alpha Whether to write the alpha channel to a second file.
+ * @param meta           Describes the file to a remote controller.
  * @return Whether the file was written.
  */
-bool WriteImage(const std::string& filename,
-                ScreenshotFormat   file_format,
-                uint32_t           width,
-                uint32_t           height,
-                const void*        data,
-                uint32_t           pitch          = 0,
-                DataFormats        data_format    = kFormat_BGRA,
-                bool               write_alpha    = false,
-                bool               separate_alpha = false);
+bool WriteImage(const std::string&            filename,
+                ScreenshotFormat              file_format,
+                uint32_t                      width,
+                uint32_t                      height,
+                const void*                   data,
+                uint32_t                      pitch          = 0,
+                DataFormats                   data_format    = kFormat_BGRA,
+                bool                          write_alpha    = false,
+                bool                          separate_alpha = false,
+                const nlohmann::ordered_json& meta           = {});
 
 /**
  * @brief Writes a screenshot, and says so when it cannot.

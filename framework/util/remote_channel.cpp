@@ -420,9 +420,10 @@ std::string AddrInfoErrorString(int error)
 }
 
 // Log text and file names may not be UTF-8; replace bad bytes rather than throw from inside whatever logged.
-std::string ToWireString(const nlohmann::json& msg)
+template <typename Json>
+std::string ToWireString(const Json& msg)
 {
-    return msg.dump(-1, ' ', false, nlohmann::json::error_handler_t::replace);
+    return msg.dump(-1, ' ', false, Json::error_handler_t::replace);
 }
 
 const char* SeverityToLevelString(LoggingSeverity severity)
@@ -928,15 +929,19 @@ void RemoteChannel::SendJson(const nlohmann::json& msg)
     EnqueueFrames(std::move(buffer));
 }
 
-void RemoteChannel::SendFile(const std::string& name, const void* data, size_t size)
+void RemoteChannel::SendFile(const std::string& name, const void* data, size_t size, const nlohmann::ordered_json& meta)
 {
     if (!IsConnected())
     {
         return;
     }
 
-    nlohmann::json header  = { { "type", "file" }, { "name", name }, { "size", size } };
-    std::string    payload = ToWireString(header);
+    nlohmann::ordered_json header = { { "type", "file" }, { "name", name }, { "size", size } };
+    if (!meta.is_null())
+    {
+        header["meta"] = meta;
+    }
+    std::string payload = ToWireString(header);
 
     // Queue both frames as one buffer so the JSON header and binary data are never interleaved with other senders.
     std::vector<uint8_t> buffer;
@@ -1201,12 +1206,15 @@ bool RemoteChannel::IsActive()
     return active_channel_ != nullptr;
 }
 
-void RemoteChannel::SendActiveFile(const std::string& name, const void* data, size_t size)
+void RemoteChannel::SendActiveFile(const std::string&            name,
+                                   const void*                   data,
+                                   size_t                        size,
+                                   const nlohmann::ordered_json& meta)
 {
     RemoteChannel* channel = active_channel_;
     if (channel != nullptr && channel->IsConnected())
     {
-        channel->SendFile(name, data, size);
+        channel->SendFile(name, data, size, meta);
     }
 }
 

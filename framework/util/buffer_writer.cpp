@@ -31,7 +31,11 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(bufferwriter)
 
-size_t WriteBuffer(const std::string& filename, const void* data, size_t size, const Compressor* compressor)
+size_t WriteBuffer(const std::string&            filename,
+                   const void*                   data,
+                   size_t                        size,
+                   const Compressor*             compressor,
+                   const nlohmann::ordered_json& meta)
 {
     assert(data);
     assert(size);
@@ -51,7 +55,8 @@ size_t WriteBuffer(const std::string& filename, const void* data, size_t size, c
         }
     }
 
-    std::unique_ptr<util::OutputStream> stream = util::OpenOutputFile(filename, util::FileWriteMode::kBinary, size);
+    std::unique_ptr<util::OutputStream> stream =
+        util::OpenOutputFile(filename, util::FileWriteMode::kBinary, size, meta);
     if (!stream->IsValid())
     {
         return 0;

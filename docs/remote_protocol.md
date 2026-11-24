@@ -103,7 +103,7 @@ replay     → controller:  {"type":"ready"}
 {"type":"log","level":"info","message":"..."}
 {"type":"status","state":"running","frame":42,"block":1234}
 {"type":"progress","operation":"dump_resources","current":37,"total":90}
-{"type":"file","name":"dump/frame_0042.png","size":204800}
+{"type":"file","name":"dump/frame_0042.png","size":204800,"meta":{...}}
 <204800 raw bytes — separate binary frame, no encoding>
 {"type":"done","success":true}
 ```
@@ -121,6 +121,8 @@ controller should close once it has read `done`. Closing first could reset the
 connection and discard a `done` the controller has not read yet. `success`
 reports whether replay ran without error; a `stop` from the controller is not a
 failure.
+
+`meta` is optional; see [File Metadata](#file-metadata).
 
 ## Settings Keys
 
@@ -236,6 +238,20 @@ when it is destroyed:
 Once a channel is registered, files are never written to disk. If the
 controller has gone, their contents are discarded.
 
+## File Metadata
+
+A `file` message may carry a `meta` object that describes the file, so a
+controller can act on each file as it arrives instead of waiting for a summary
+JSON that is written last. Writers hand it to `util::OpenOutputFile()`; it is
+never written to disk.
+
+- `meta` is absent when the writer has nothing to say about the file.
+- `producer` names what wrote the file and decides the rest of the schema.
+  Ignore producers and keys you do not recognize.
+- Key names follow the producer's own JSON output where it has one.
+- When an image's alpha channel is written to a separate file, both files carry
+  the same `meta`.
+
 ## Threading Model
 
 `RemoteChannel` runs a sender thread and a receiver thread:
@@ -260,6 +276,8 @@ controller implementation:
   refused connection for up to 30 s to cover launch races).
 - `--launch-adb` — set up the appropriate adb mapping and launch the replay activity on
   a connected Android device.
+- `--save-meta`: write each received file's `meta` next to it as
+  `<name>.meta.json`.
 - Replay settings are given after `--` as `key=value`, or as a bare key for an
   option that takes no value. Leading dashes are optional, so options keep their
   familiar spelling. Deliberately *not* a replay command line: which options take

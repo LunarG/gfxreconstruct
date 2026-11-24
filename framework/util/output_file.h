@@ -27,6 +27,8 @@
 #include "util/file_output_stream.h"
 #include "util/output_stream.h"
 
+#include "nlohmann/json.hpp"
+
 #include <cstddef>
 #include <memory>
 #include <string>
@@ -37,8 +39,11 @@ GFXRECON_BEGIN_NAMESPACE(util)
 /// @brief Opens filename for writing. With a remote channel active, the file is instead buffered and sent to the
 /// controller when the stream is destroyed.
 /// @param size_hint Bytes to reserve when buffering for the controller.
-std::unique_ptr<OutputStream>
-OpenOutputFile(const std::string& filename, FileWriteMode mode = FileWriteMode::kBinary, size_t size_hint = 0);
+/// @param meta Describes the file to the controller; dropped when writing to disk.
+std::unique_ptr<OutputStream> OpenOutputFile(const std::string&            filename,
+                                             FileWriteMode                 mode      = FileWriteMode::kBinary,
+                                             size_t                        size_hint = 0,
+                                             const nlohmann::ordered_json& meta      = {});
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

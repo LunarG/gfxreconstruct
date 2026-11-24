@@ -27,7 +27,9 @@
 
 #include "util/remote_channel.h"
 
+#include "util/buffer_writer.h"
 #include "util/file_path.h"
+#include "util/image_writer.h"
 #include "util/input_file_store.h"
 #include "util/logging.h"
 #include "util/output_file.h"
@@ -181,6 +183,17 @@ class TestController
         std::vector<uint8_t> frame;
         REQUIRE(RecvFrame(frame));
         return json::parse(frame.begin(), frame.end(), nullptr, false);
+    }
+
+    // Skips the log lines the active channel relays, such as a file writer's own logging.
+    json RecvNonLogJson()
+    {
+        json msg = RecvJson();
+        while (msg.is_object() && msg.value("type", "") == "log")
+        {
+            msg = RecvJson();
+        }
+        return msg;
     }
 
     void SendFrame(const void* data, uint32_t size)
@@ -504,10 +517,57 @@ TEST_CASE("RemoteChannel sends a file as a header frame followed by its payload"
     CHECK(header.at("type") == "file");
     CHECK(header.at("name") == "screenshot.png");
     CHECK(header.at("size") == payload.size());
+    CHECK_FALSE(header.contains("meta"));
 
     std::vector<uint8_t> received;
     REQUIRE(controller.RecvFrame(received));
     CHECK(received == payload);
+}
+
+TEST_CASE("File writers send their meta with each file", "[remote_channel]")
+{
+    util::RemoteChannel                channel;
+    TestController                     controller;
+    std::map<std::string, std::string> settings;
+    ChannelRunner                      runner(channel, controller.Address(), settings);
+
+    AcceptAndReadHello(controller);
+    controller.SendJson(SettingsMessage());
+    REQUIRE(controller.RecvJson().at("type") == "ready");
+    REQUIRE(runner.Result());
+
+    ActiveChannelScope           active(channel);
+    const nlohmann::ordered_json meta = { { "producer", "test" }, { "index", 7 } };
+    std::vector<uint8_t>         received;
+
+    SECTION("buffer")
+    {
+        const std::vector<uint8_t> payload(64, 0x5a);
+        REQUIRE(util::bufferwriter::WriteBuffer("buffer.bin", payload.data(), payload.size(), nullptr, meta) ==
+                payload.size());
+
+        const json header = controller.RecvNonLogJson();
+        CHECK(header.at("name") == "buffer.bin");
+        CHECK(header.at("meta") == json(meta));
+        REQUIRE(controller.RecvFrame(received));
+    }
+
+    SECTION("image with separate alpha")
+    {
+        const std::vector<uint32_t> pixels(4 * 4, 0x80402010);
+        REQUIRE(util::imagewriter::WriteBmpImageSeparateAlpha(
+            "image.bmp", 4, 4, pixels.data(), 4 * 4, util::imagewriter::kFormat_BGRA, meta));
+
+        const json color = controller.RecvNonLogJson();
+        CHECK(color.at("name") == "image.bmp");
+        CHECK(color.at("meta") == json(meta));
+        REQUIRE(controller.RecvFrame(received));
+
+        const json alpha = controller.RecvNonLogJson();
+        CHECK(alpha.at("name") == "image_alpha.bmp");
+        CHECK(alpha.at("meta") == json(meta));
+        REQUIRE(controller.RecvFrame(received));
+    }
 }
 
 TEST_CASE("OpenOutputFile sends the whole file to the active channel when the stream is destroyed", "[remote_channel]")
