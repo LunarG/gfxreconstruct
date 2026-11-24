@@ -1267,7 +1267,8 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
                                                       UNDEFINED_INDEX);
 
         VulkanDelegateDumpResourceContext res_info(instance_table_, device_table_, compressor_);
-        res_info.dumped_data = VulkanDelegateTransferCommandDumpedData();
+        res_info.command_parameters = static_cast<const TransferParams*>(&cmd);
+        res_info.dumped_data        = VulkanDelegateTransferCommandDumpedData();
         auto& host_data      = std::get<VulkanDelegateTransferCommandDumpedData>(res_info.dumped_data);
 
         TransferParams::TransferParamsBase* base_transfer_cmd = cmd.params.get();
