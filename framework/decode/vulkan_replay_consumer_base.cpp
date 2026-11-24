@@ -6566,6 +6566,13 @@ void VulkanReplayConsumerBase::OverrideCmdExecuteCommands(PFN_vkCmdExecuteComman
                                                           secondary_cmd_buffer_info->addresses_to_replace.end());
         }
 
+        // pointer-chains are resolved at submit, from the primary
+        for (const auto& [buffer_info, chains] : secondary_cmd_buffer_info->addresses_to_resolve)
+        {
+            auto& primary_chains = in_commandBuffer->addresses_to_resolve[buffer_info];
+            primary_chains.insert(primary_chains.end(), chains.begin(), chains.end());
+        }
+
         // Update the image's layout based on the recorded layout transitions in the secondary command buffer.
         for (const auto& [image_id, secondary_layouts] : secondary_cmd_buffer_info->image_layout_barriers)
         {
