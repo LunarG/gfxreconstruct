@@ -73,8 +73,6 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     void Process_vkDestroyFence(const ApiCallInfo& call_info, args::DestroyFence& args) override;
 
-    void Process_vkQueueBindSparse(const ApiCallInfo& call_info, args::QueueBindSparse& args) override;
-
     void Process_vkCreateEvent(const ApiCallInfo& call_info, args::CreateEvent& args) override;
 
     void Process_vkDestroyEvent(const ApiCallInfo& call_info, args::DestroyEvent& args) override;
@@ -108,6 +106,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     virtual void StartLooping() override;
 
+    virtual void ProcessFrameEndMarker(uint64_t frame_number) override;
+
     // Private declarations
   private:
     struct FenceTracking
@@ -117,7 +117,6 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     void TrackFenceStates();
     void TrackFenceState(format::HandleId device, format::HandleId fence);
     void FixupDeviceFences(format::HandleId device, format::HandleId queue);
-    void FrameBoundaryEndOfFrame(format::HandleId queue, PNextNode* pNext);
 
     struct EventTracking
     {
