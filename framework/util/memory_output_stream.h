@@ -28,6 +28,7 @@
 #include "util/output_stream.h"
 
 #include <cstdint>
+#include <span>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -56,6 +57,9 @@ class MemoryOutputStream : public OutputStream
     virtual const uint8_t* GetData() const { return buffer_.data(); }
 
     virtual size_t GetDataSize() const { return buffer_.size(); }
+
+    // The span is valid until the next write to the stream, or until the stream is cleared or destroyed.
+    std::span<const uint8_t> GetBytes() const { return { GetData(), GetDataSize() }; }
 
   protected:
     std::vector<uint8_t>* GetBuffer() { return &buffer_; }
