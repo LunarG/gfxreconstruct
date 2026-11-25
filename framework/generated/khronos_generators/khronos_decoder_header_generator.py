@@ -35,6 +35,10 @@ class KhronosDecoderHeaderGenerator():
         """ Method may be overridden. """
         return self.is_manually_generated_cmd_name(command)
 
+    def make_decode_function_call_using(self):
+        """Return a using declaration for the DecodeFunctionCall overloads of the base class. Method may be overridden."""
+        return ''
+
     def write_decoder_header_content(self):
         api_data = self.get_api_data()
 
@@ -56,6 +60,7 @@ class KhronosDecoderHeaderGenerator():
             ),
             file=self.outFile
         )
+        write(self.make_decode_function_call_using(), end='', file=self.outFile)
         write(
             '    virtual void DecodeFunctionCall(format::ApiCallId             call_id,',
             file=self.outFile

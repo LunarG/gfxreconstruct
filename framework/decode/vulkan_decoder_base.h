@@ -36,6 +36,7 @@
 #include "vulkan/vulkan.h"
 
 #include <algorithm>
+#include <span>
 #include <vector>
 #include <unordered_map>
 
@@ -81,6 +82,12 @@ class VulkanDecoderBase : public ApiDecoder
                                     const ApiCallInfo& call_options,
                                     const uint8_t*     parameter_buffer,
                                     size_t             buffer_size) override;
+
+    void
+    DecodeFunctionCall(format::ApiCallId call_id, const ApiCallInfo& call_info, std::span<const uint8_t> parameters)
+    {
+        DecodeFunctionCall(call_id, call_info, parameters.data(), parameters.size());
+    }
 
     virtual void DispatchStateBeginMarker(uint64_t frame_number) override;
 

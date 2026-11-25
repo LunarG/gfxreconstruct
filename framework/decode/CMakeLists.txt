@@ -169,6 +169,7 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/vulkan_cpp_util_datapack.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_consumer_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_consumer_stage_base.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_consumer_stage_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_pnext_node.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_pnext_typed_node.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_stats_consumer.h

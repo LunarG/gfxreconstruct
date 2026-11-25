@@ -51,6 +51,8 @@ class VulkanDecoder : public VulkanDecoderBase
 
     virtual ~VulkanDecoder() override { }
 
+    using VulkanDecoderBase::DecodeFunctionCall;
+
     virtual void DecodeFunctionCall(format::ApiCallId             call_id,
                                     const ApiCallInfo&            call_info,
                                     const uint8_t*                parameter_buffer,

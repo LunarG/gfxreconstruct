@@ -552,7 +552,7 @@ TEST_CASE("Decoder hands each call's bytes to every stage", "[stage]")
     decoder.AddConsumer(&first);
 
     const auto bytes = EncodeCmdDraw(1, 3, 1, 0, 0);
-    decoder.DecodeFunctionCall(format::ApiCall_vkCmdDraw, ApiCallInfo{}, bytes.data(), bytes.size());
+    decoder.DecodeFunctionCall(format::ApiCall_vkCmdDraw, ApiCallInfo{}, bytes);
 
     for (const CallBytesProbe* stage : { &first, &second })
     {
@@ -578,7 +578,7 @@ TEST_CASE("Decoder hands over the bytes before it picks a decode function", "[st
 
     // An unknown id falls through the generated switch to VulkanDecoderBase, like the hand-written calls.
     const uint8_t bytes[4] = {};
-    decoder.DecodeFunctionCall(format::ApiCall_Unknown, ApiCallInfo{}, bytes, sizeof(bytes));
+    decoder.DecodeFunctionCall(format::ApiCall_Unknown, ApiCallInfo{}, bytes);
 
     CHECK(stage.Current().buffer_size == sizeof(bytes));
 }

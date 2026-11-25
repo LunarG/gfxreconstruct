@@ -23,6 +23,7 @@
 #ifndef GFXRECON_DECODE_VULKAN_CONSUMER_STAGE_BASE_H
 #define GFXRECON_DECODE_VULKAN_CONSUMER_STAGE_BASE_H
 
+#include <span>
 #include <vector>
 
 #include "util/defines.h"
@@ -370,8 +371,6 @@ class VulkanConsumerStageBase : public VulkanConsumer
     }
 
   protected:
-    std::vector<VulkanConsumer*>& GetNextConsumers() { return next_consumers_; }
-
     // Valid only during the Process_vk* call that follows. Copy the bytes to keep the call.
     const CallBytes& GetCurrentCallBytes() const { return current_call_bytes_; }
 
@@ -392,6 +391,11 @@ class VulkanConsumerStageBase : public VulkanConsumer
             (next->*method)(args...);
         }
     }
+
+    // Emit decodes the bytes of a call that the stage invents, and sends the call to the next consumers.
+    // Call it only from a Process_vk* method. Decoding allocates from DecodeAllocator, which is open in every
+    // Process_vk* method but not in most marker and metadata methods.
+    void Emit(format::ApiCallId call_id, const ApiCallInfo& call_info, std::span<const uint8_t> bytes);
 
   private:
     std::vector<VulkanConsumer*> next_consumers_;
