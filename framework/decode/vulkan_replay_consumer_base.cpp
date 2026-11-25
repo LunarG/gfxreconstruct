@@ -11105,9 +11105,16 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
 
         auto device_table = GetInjectedDeviceCalls(device);
         auto injected     = device_table.Open();
-        while (injected->DeferredOperationJoinKHR(device, in_deferredOperation) != VK_SUCCESS)
+
+        // Join until the operation is complete. Stop on errors (e.g. VK_ERROR_OUT_OF_HOST_MEMORY).
+        VkResult join_result = VK_THREAD_IDLE_KHR;
+        while ((join_result == VK_THREAD_IDLE_KHR) || (join_result == VK_THREAD_DONE_KHR))
         {
-            // Join until the operation is complete, like OverrideDeferredOperationJoinKHR.
+            join_result = injected->DeferredOperationJoinKHR(device, in_deferredOperation);
+        }
+        if (join_result != VK_SUCCESS)
+        {
+            return join_result;
         }
         replay_result = injected->GetDeferredOperationResultKHR(device, in_deferredOperation);
 
