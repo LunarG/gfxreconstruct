@@ -5997,6 +5997,54 @@ class VulkanConsumer : public VulkanConsumerBase
 
     void Process(
         const ApiCallInfo&                          call_info,
+        args::WriteSamplerDescriptorsEXT&           args) {
+        Process_vkWriteSamplerDescriptorsEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::WriteResourceDescriptorsEXT&          args) {
+        Process_vkWriteResourceDescriptorsEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindSamplerHeapEXT&                args) {
+        Process_vkCmdBindSamplerHeapEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindResourceHeapEXT&               args) {
+        Process_vkCmdBindResourceHeapEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::CmdPushDataEXT&                       args) {
+        Process_vkCmdPushDataEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceDescriptorSizeEXT&   args) {
+        Process_vkGetPhysicalDeviceDescriptorSizeEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::RegisterCustomBorderColorEXT&         args) {
+        Process_vkRegisterCustomBorderColorEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
+        args::UnregisterCustomBorderColorEXT&       args) {
+        Process_vkUnregisterCustomBorderColorEXT(call_info, args);
+    }
+
+    void Process(
+        const ApiCallInfo&                          call_info,
         args::CmdSetSampleLocationsEXT&             args) {
         Process_vkCmdSetSampleLocationsEXT(call_info, args);
     }

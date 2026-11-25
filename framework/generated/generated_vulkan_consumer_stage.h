@@ -1981,6 +1981,38 @@ class VulkanConsumerStage : public VulkanConsumerStageBase
         const ApiCallInfo&                          call_info,
         args::CmdCopyGpaSessionResultsAMD&          args) override { Forward(call_info, args); }
 
+    virtual void Process_vkWriteSamplerDescriptorsEXT(
+        const ApiCallInfo&                          call_info,
+        args::WriteSamplerDescriptorsEXT&           args) override { Forward(call_info, args); }
+
+    virtual void Process_vkWriteResourceDescriptorsEXT(
+        const ApiCallInfo&                          call_info,
+        args::WriteResourceDescriptorsEXT&          args) override { Forward(call_info, args); }
+
+    virtual void Process_vkCmdBindSamplerHeapEXT(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindSamplerHeapEXT&                args) override { Forward(call_info, args); }
+
+    virtual void Process_vkCmdBindResourceHeapEXT(
+        const ApiCallInfo&                          call_info,
+        args::CmdBindResourceHeapEXT&               args) override { Forward(call_info, args); }
+
+    virtual void Process_vkCmdPushDataEXT(
+        const ApiCallInfo&                          call_info,
+        args::CmdPushDataEXT&                       args) override { Forward(call_info, args); }
+
+    virtual void Process_vkGetPhysicalDeviceDescriptorSizeEXT(
+        const ApiCallInfo&                          call_info,
+        args::GetPhysicalDeviceDescriptorSizeEXT&   args) override { Forward(call_info, args); }
+
+    virtual void Process_vkRegisterCustomBorderColorEXT(
+        const ApiCallInfo&                          call_info,
+        args::RegisterCustomBorderColorEXT&         args) override { Forward(call_info, args); }
+
+    virtual void Process_vkUnregisterCustomBorderColorEXT(
+        const ApiCallInfo&                          call_info,
+        args::UnregisterCustomBorderColorEXT&       args) override { Forward(call_info, args); }
+
     virtual void Process_vkCmdSetSampleLocationsEXT(
         const ApiCallInfo&                          call_info,
         args::CmdSetSampleLocationsEXT&             args) override { Forward(call_info, args); }
