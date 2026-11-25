@@ -287,6 +287,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_tracking_consumer.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_tracking_consumer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_stage_command_buffer_base.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_stage_isolate_command_buffer.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_stage_isolate_command_buffer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_stage_isolate_render_pass.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_stage_isolate_render_pass.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_submit_info_helper.h
@@ -476,6 +478,7 @@ if (${RUN_TESTS})
             ${CMAKE_CURRENT_LIST_DIR}/test/test_vulkan_command_buffer_util.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_vulkan_consumer_stage.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_vulkan_consumer_stage_corpus.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/test/test_vulkan_stage_isolate_command_buffer.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_vulkan_stage_isolate_render_pass.cpp
             ${CMAKE_CURRENT_LIST_DIR}/../../tools/platform_debug_helper.cpp)
     target_link_libraries(gfxrecon_decode_test PRIVATE gfxrecon_decode)
