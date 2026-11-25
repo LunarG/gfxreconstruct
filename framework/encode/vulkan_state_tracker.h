@@ -874,6 +874,14 @@ class VulkanStateTracker
 
     void DestroyState(vulkan_wrappers::DataGraphPipelineSessionARMWrapper* wrapper);
 
+    // Adds or removes one link between set and the resource in each slot of [first, first + count).
+    // Call with link == false before a slot changes, and with link == true after.
+    void UpdateDescriptorLinks(vulkan_wrappers::DescriptorSetWrapper*   set,
+                               const vulkan_state_info::DescriptorInfo& binding,
+                               uint32_t                                 first,
+                               uint32_t                                 count,
+                               bool                                     link);
+
     void TrackQuerySubmissions(vulkan_wrappers::CommandBufferWrapper* command_wrapper);
 
     void TrackPipelineDescriptors(vulkan_wrappers::CommandBufferWrapper* command_wrapper,

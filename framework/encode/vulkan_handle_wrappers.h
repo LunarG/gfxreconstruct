@@ -219,6 +219,10 @@ struct EventWrapper : public HandleWrapper<VkEvent>
 };
 
 struct DescriptorSetWrapper;
+
+// Descriptor sets that reference a resource, with the number of slots that reference it in each set.
+using DescriptorSetLinks = std::unordered_map<DescriptorSetWrapper*, uint32_t>;
+
 struct AssetWrapperBase
 {
     // device this object was created on
@@ -233,7 +237,7 @@ struct AssetWrapperBase
 
     VkDeviceSize                              size{ 0 };
     bool                                      dirty{ true };
-    std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
+    DescriptorSetLinks                        descriptor_sets_bound_to;
 };
 
 struct BufferViewWrapper;
@@ -288,7 +292,7 @@ struct ImageWrapper : public HandleWrapper<VkImage>, AssetWrapperBase
 struct SamplerWrapper : public HandleWrapper<VkSampler>
 {
     format::HandleId                          device_id{ format::kNullHandleId };
-    std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
+    DescriptorSetLinks                        descriptor_sets_bound_to;
 
     // optional opaque descriptor-data used by VK_EXT_descriptor_buffer
     std::vector<uint8_t> opaque_descriptor_data;
@@ -340,7 +344,7 @@ struct BufferViewWrapper : public HandleWrapper<VkBufferView>
         VkDeviceSize            range{ 0 };
     } create_info;
 
-    std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
+    DescriptorSetLinks descriptor_sets_bound_to;
 };
 
 struct ImageViewWrapper : public HandleWrapper<VkImageView>
@@ -359,7 +363,7 @@ struct ImageViewWrapper : public HandleWrapper<VkImageView>
         VkImageSubresourceRange subresource_range{};
     } create_info;
 
-    std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
+    DescriptorSetLinks descriptor_sets_bound_to;
 
     // optional opaque descriptor-data used by VK_EXT_descriptor_buffer
     std::vector<uint8_t> opaque_descriptor_data;
@@ -691,7 +695,7 @@ struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStru
     VkDeviceSize   size   = 0;
 
     // Only used when tracking
-    std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
+    DescriptorSetLinks descriptor_sets_bound_to;
 
     // optional opaque descriptor-data used by VK_EXT_descriptor_buffer
     std::vector<uint8_t> opaque_descriptor_data;
@@ -699,7 +703,7 @@ struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStru
 
 struct AccelerationStructureNVWrapper : public HandleWrapper<VkAccelerationStructureNV>
 {
-    std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
+    DescriptorSetLinks descriptor_sets_bound_to;
 
     // TODO: Determine what additional state tracking is needed.
 };
@@ -727,7 +731,7 @@ struct TensorARMWrapper : public HandleWrapper<VkTensorARM>, AssetWrapperBase
 struct TensorViewARMWrapper : public HandleWrapper<VkTensorViewARM>
 {
     TensorARMWrapper*                         tensor;
-    std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
+    DescriptorSetLinks                        descriptor_sets_bound_to;
 };
 
 struct PipelineCacheWrapper : public HandleWrapper<VkPipelineCache>
