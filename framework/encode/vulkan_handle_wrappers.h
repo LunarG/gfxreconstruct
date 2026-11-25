@@ -190,6 +190,11 @@ struct DeviceWrapper : public HandleWrapper<VkDevice>
         QueueWrapper* wrapper;
     };
 
+    // Queue families the device was created with queues in (queueCount > 0 in VkDeviceQueueCreateInfo). Capture
+    // internal work (resource snapshots) may only use these: vkGetDeviceQueue on any other family is invalid and a
+    // driver can return VK_NULL_HANDLE for it.
+    std::vector<uint32_t> queue_families;
+
     // One entry for queue retrieved with vkGetDeviceQueue and vkGetDeviceQueue2
     std::unordered_map<VkQueue, ChildQueue> child_queues;
     mutable std::mutex                      queues_map_mutex;
