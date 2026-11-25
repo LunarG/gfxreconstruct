@@ -1253,7 +1253,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                 {
                     memcpy(&dst_binding.acceleration_structures[current_dst_array_element],
                            &src_binding.acceleration_structures[current_src_array_element],
-                           (sizeof(VkWriteDescriptorSetAccelerationStructureKHR) * current_copies));
+                           (sizeof(VkAccelerationStructureKHR) * current_copies));
                 }
                 if (src_binding.inline_uniform_block != nullptr)
                 {
@@ -1624,7 +1624,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
 
             for (;;)
             {
-                auto& binding = wrapper->bindings[entry.binding];
+                auto& binding = wrapper->bindings[current_binding];
                 GFXRECON_ASSERT(binding.inline_uniform_block != nullptr);
 
                 // Check count for consecutive updates.
@@ -1634,7 +1634,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
                 std::fill(written_start, written_start + current_num_bytes, true);
 
                 const uint8_t* src_address = bytes + current_offset;
-                uint8_t*       dst_address = binding.inline_uniform_block.get() + entry.array_element;
+                uint8_t*       dst_address = binding.inline_uniform_block.get() + current_array_element;
                 memcpy(dst_address, src_address, current_num_bytes);
 
                 // Check for consecutive update.
