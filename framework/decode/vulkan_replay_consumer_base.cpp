@@ -11093,6 +11093,35 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
     VkDeferredOperationKHR       in_deferredOperation =
         (deferred_operation_info != nullptr) ? deferred_operation_info->handle : VK_NULL_HANDLE;
     VkPipelineCache in_pipelineCache = (pipeline_cache_info != nullptr) ? pipeline_cache_info->handle : VK_NULL_HANDLE;
+
+    // The driver may defer the operation at replay even though it was not deferred at capture (e.g. because the
+    // pipeline cache is cold at replay). The capture file then has no vkDeferredOperationJoinKHR for the operation,
+    // so the pipelines would never be registered. Complete the operation here instead.
+    auto complete_if_deferred_only_at_replay = [&](VkResult replay_result) {
+        if ((replay_result != VK_OPERATION_DEFERRED_KHR) || (original_result == VK_OPERATION_DEFERRED_KHR))
+        {
+            return replay_result;
+        }
+
+        auto device_table = GetInjectedDeviceCalls(device);
+        auto injected     = device_table.Open();
+
+        // Join until the operation is complete. Stop on errors (e.g. VK_ERROR_OUT_OF_HOST_MEMORY).
+        VkResult join_result = VK_THREAD_IDLE_KHR;
+        while ((join_result == VK_THREAD_IDLE_KHR) || (join_result == VK_THREAD_DONE_KHR))
+        {
+            join_result = injected->DeferredOperationJoinKHR(device, in_deferredOperation);
+        }
+        if (join_result != VK_SUCCESS)
+        {
+            return join_result;
+        }
+        replay_result = injected->GetDeferredOperationResultKHR(device, in_deferredOperation);
+
+        // The operation is complete, so report it as not deferred, like capture did.
+        return (replay_result == VK_SUCCESS) ? VK_OPERATION_NOT_DEFERRED_KHR : replay_result;
+    };
+
     VkPipelineCache overridePipelineCache = in_pipelineCache;
 
     // If there is no pipeline cache and we want to create a new one
@@ -11176,6 +11205,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
                       modified_create_infos.data(),
                       in_pAllocator,
                       created_pipelines);
+        result = complete_if_deferred_only_at_replay(result);
 
         if ((result == VK_SUCCESS) || (result == VK_OPERATION_NOT_DEFERRED_KHR) ||
             (result == VK_PIPELINE_COMPILE_REQUIRED_EXT))
@@ -11235,6 +11265,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
                       in_pCreateInfos,
                       in_pAllocator,
                       created_pipelines);
+        result = complete_if_deferred_only_at_replay(result);
 
         if ((result == VK_SUCCESS) || (result == VK_OPERATION_NOT_DEFERRED_KHR) ||
             (result == VK_PIPELINE_COMPILE_REQUIRED_EXT))
