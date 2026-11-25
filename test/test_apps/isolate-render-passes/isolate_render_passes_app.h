@@ -37,7 +37,7 @@ const size_t MAX_FRAMES_IN_FLIGHT = 2;
  * Minimal app that records two legacy (vkCmdBeginRenderPass/vkCmdEndRenderPass) render passes into a single command
  * buffer each frame and submits it while waiting on the binary swapchain-acquire semaphore. It deliberately uses no
  * graphics pipeline (each render pass only clears the swapchain image via loadOp), keeping the focus on the
- * render-pass boundaries that gfxrecon-replay --isolate-render-passes splits and chains.
+ * render-pass boundaries that gfxrecon-replay --isolate-render-passes splits.
  */
 class App : public test::TestAppBase
 {

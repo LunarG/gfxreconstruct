@@ -197,8 +197,8 @@ bool App::frame(const int frame_num)
         }
 
         // First render pass: clear to red.
-        // With --isolate-render-passes this segment is split out and submitted on
-        // its own, chained to the next segment through an injected semaphore.
+        // With --isolate-render-passes this render pass gets a command buffer and a
+        // queue submit of its own.
         VkClearValue first_clear{ { { 1.0f, 0.0f, 0.0f, 1.0f } } };
         record_clear_render_pass(
             init.disp, command_buffer, render_pass_, framebuffers_[image_index], init.swapchain.extent, first_clear);
@@ -228,8 +228,7 @@ bool App::frame(const int frame_num)
         }
 
         // Second render pass: clear to green.
-        // Two render passes in one command buffer exercise the multi-segment
-        // semaphore chaining performed by the command splitter.
+        // Without the option, both render passes share one queue submit.
         VkClearValue second_clear{ { { 0.0f, 1.0f, 0.0f, 1.0f } } };
         record_clear_render_pass(
             init.disp, command_buffer, render_pass_, framebuffers_[image_index], init.swapchain.extent, second_clear);
@@ -265,7 +264,7 @@ bool App::frame(const int frame_num)
     submitInfo.sType        = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
     // The submit waits on the binary swapchain-acquire semaphore.
-    // This is the wait-semaphore that the splitter will hand off to the first split segment.
+    // With --isolate-render-passes only the submit of the first part waits on it.
     VkSemaphore          wait_semaphores[] = { sync_.available_semaphores[current_frame_] };
     VkPipelineStageFlags wait_stages[]     = { VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT };
     submitInfo.waitSemaphoreCount          = 1;

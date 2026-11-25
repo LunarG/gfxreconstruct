@@ -24,6 +24,8 @@
 #define GFXRECON_REPLAY_VULKAN_FEATURE_H
 
 #include "decode/vulkan_replay_options.h"
+#include "decode/vulkan_stage_isolate_command_buffer.h"
+#include "decode/vulkan_stage_isolate_render_pass.h"
 #include "decode/vulkan_tracked_object_info_table.h"
 #include "decode/vulkan_pre_process_consumer.h"
 #include "generated/generated_vulkan_decoder.h"
@@ -71,6 +73,10 @@ class ReplayVulkanFeature : public ReplayPreProcessFeature<decode::VulkanReplayC
 
   private:
     decode::VulkanTrackedObjectInfoTable tracked_object_info_table_;
+
+    // These stages sit between the decoder and the replay consumer when --isolate-render-passes is set.
+    std::unique_ptr<decode::VulkanStageIsolateRenderPass>    isolate_render_pass_stage_;
+    std::unique_ptr<decode::VulkanStageIsolateCommandBuffer> isolate_command_buffer_stage_;
 };
 
 GFXRECON_END_NAMESPACE(replay)

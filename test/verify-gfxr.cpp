@@ -549,6 +549,76 @@ void replay_and_count_recapture(const char*                      test_name,
     ASSERT_NO_FATAL_FAILURE(count_calls_in_json(recapture_json_path, function_names, counts));
 }
 
+static void count_render_passes_per_submit_in_json(const std::filesystem::path& json_path,
+                                                   std::vector<uint32_t>&       render_passes)
+{
+    std::ifstream json_file{ json_path };
+    ASSERT_TRUE(json_file.is_open()) << "converted json file: " << json_path << " would not open";
+
+    auto json = nlohmann::json::parse(json_file);
+
+    render_passes.clear();
+
+    // The render passes recorded so far, keyed by command buffer handle.
+    std::map<uint64_t, uint32_t> recorded;
+
+    for (const auto& block : json)
+    {
+        auto function = block.find(gfxrecon::format::kNameFunction);
+        if (function == block.end())
+        {
+            continue;
+        }
+
+        const auto  function_name = function->at(gfxrecon::format::kNameName).get<std::string>();
+        const auto& args          = function->at(gfxrecon::format::kNameArgs);
+
+        if (function_name == "vkBeginCommandBuffer")
+        {
+            recorded[args.at("commandBuffer").get<uint64_t>()] = 0;
+        }
+        else if (function_name.rfind("vkCmdBeginRenderPass", 0) == 0 ||
+                 function_name.rfind("vkCmdBeginRendering", 0) == 0)
+        {
+            ++recorded[args.at("commandBuffer").get<uint64_t>()];
+        }
+        else if (function_name.rfind("vkQueueSubmit", 0) == 0)
+        {
+            uint32_t count = 0;
+            for (const auto& submit : args.at("pSubmits"))
+            {
+                if (auto command_buffers = submit.find("pCommandBuffers"); command_buffers != submit.end())
+                {
+                    for (const auto& command_buffer : *command_buffers)
+                    {
+                        count += recorded[command_buffer.get<uint64_t>()];
+                    }
+                }
+                if (auto infos = submit.find("pCommandBufferInfos"); infos != submit.end())
+                {
+                    for (const auto& info : *infos)
+                    {
+                        count += recorded[info.at("commandBuffer").get<uint64_t>()];
+                    }
+                }
+            }
+            render_passes.push_back(count);
+        }
+    }
+}
+
+void replay_and_count_render_passes_per_submit(const char*              test_name,
+                                               std::vector<std::string> extra_replay_args,
+                                               const std::string&       recapture_suffix,
+                                               std::vector<uint32_t>&   render_passes)
+{
+    std::filesystem::path recapture_json_path;
+    ASSERT_NO_FATAL_FAILURE(
+        replay_and_convert_recapture(test_name, extra_replay_args, recapture_suffix, recapture_json_path));
+
+    ASSERT_NO_FATAL_FAILURE(count_render_passes_per_submit_in_json(recapture_json_path, render_passes));
+}
+
 // The commands whose state gets reissues from VulkanStateRecordingDecoder::IsVulkanStateCommand.
 static const std::set<std::string> kStateCommands = {
     "vkCmdBindPipeline",  "vkCmdBindDescriptorSets", "vkCmdBindVertexBuffers", "vkCmdBindIndexBuffer",

@@ -2,10 +2,13 @@
 
 #include "verify-gfxr.h"
 
+#include <algorithm>
+#include <numeric>
+
 /**
  * Capture the legacy-render-pass app and replay it with --isolate-render-passes.
- * The replay tool splits the command buffer at each vkCmdBeginRenderPass/vkCmdEndRenderPass boundary
- * and submits the segments separately.
+ * The stages before the replay consumer split the command buffer around each render pass and submit the parts
+ * separately.
  * This test exercises that code path against the mock ICD and asserts the replay completes successfully.
  */
 TEST(IsolateRenderPasses, ReplaySplitsLegacyRenderPasses)
@@ -15,8 +18,8 @@ TEST(IsolateRenderPasses, ReplaySplitsLegacyRenderPasses)
 
 /**
  * Capture the isolate-render-passes app and replay it with --isolate-render-passes.
- * The replay tool cuts the recording at every vkCmdBeginRenderPass and vkCmdEndRenderPass, continuing it in a fresh
- * command buffer each time, so every render pass has its own command buffer.
+ * The recording is cut at every render pass boundary that has commands on its other side, and continues in a fresh
+ * command buffer each time. Every render pass ends up in a command buffer and a queue submit of its own.
  */
 TEST(IsolateRenderPasses, ReplaySubmitsEachRenderPassSeparately)
 {
@@ -41,21 +44,77 @@ TEST(IsolateRenderPasses, ReplaySubmitsEachRenderPassSeparately)
 
     EXPECT_EQ(render_passes, baseline["vkCmdBeginRenderPass"]);
 
-    // The recording is cut twice per render pass.
+    // The app records a barrier before, between and after its two render passes, so each pass is cut off on both sides.
     const uint32_t cuts = 2 * render_passes;
 
     // Every cut ends the current command buffer and begins a fresh one.
     EXPECT_EQ(with_option["vkBeginCommandBuffer"] - baseline["vkBeginCommandBuffer"], cuts);
     EXPECT_EQ(with_option["vkEndCommandBuffer"] - baseline["vkEndCommandBuffer"], cuts);
 
-    // Each part finished by a cut gets a queue submit of its own, on top of the submit the app itself recorded.
+    // Each part that a cut adds gets a queue submit of its own.
     EXPECT_EQ(with_option["vkQueueSubmit"] - baseline["vkQueueSubmit"], cuts);
 
-    // Every command buffer this app records holds render passes, so each one is split and gets one injected timeline
-    // semaphore that keeps the submits of its parts in order.
-    const uint32_t recorded_command_buffers = baseline["vkBeginCommandBuffer"];
-    ASSERT_GT(recorded_command_buffers, 0u);
-    EXPECT_EQ(with_option["vkCreateSemaphore"] - baseline["vkCreateSemaphore"], recorded_command_buffers);
+    // Submission order keeps the waits, the signals and the fence valid, so the option adds no semaphore.
+    EXPECT_EQ(with_option["vkCreateSemaphore"], baseline["vkCreateSemaphore"]);
+}
+
+/**
+ * Each queue submit of a replay with --isolate-render-passes holds at most one render pass.
+ */
+TEST(IsolateRenderPasses, ReplaySubmitsAtMostOneRenderPassPerCall)
+{
+    const char* test_name = "isolate-render-passes";
+
+    ASSERT_NO_FATAL_FAILURE(capture_app(test_name));
+
+    std::vector<uint32_t> baseline;
+    ASSERT_NO_FATAL_FAILURE(
+        replay_and_count_render_passes_per_submit(test_name, {}, "_passes_per_submit_baseline", baseline));
+    std::vector<uint32_t> with_option;
+    ASSERT_NO_FATAL_FAILURE(replay_and_count_render_passes_per_submit(
+        test_name, { "--isolate-render-passes" }, "_passes_per_submit_option", with_option));
+
+    // Without the option some submits hold more than one render pass, so there is something to isolate.
+    ASSERT_FALSE(baseline.empty());
+    ASSERT_GT(*std::max_element(baseline.begin(), baseline.end()), 1u);
+
+    ASSERT_FALSE(with_option.empty());
+    EXPECT_EQ(*std::max_element(with_option.begin(), with_option.end()), 1u);
+
+    // No render pass is lost or submitted twice.
+    EXPECT_EQ(std::accumulate(with_option.begin(), with_option.end(), 0u),
+              std::accumulate(baseline.begin(), baseline.end(), 0u));
+}
+
+/**
+ * --idle-before-submit waits before the submit of every part, so the render passes cannot overlap.
+ */
+TEST(IsolateRenderPasses, IdleBeforeSubmitWaitsBeforeEveryPart)
+{
+    const char*                    test_name = "isolate-render-passes";
+    const std::vector<std::string> counted   = { "vkQueueSubmit", "vkDeviceWaitIdle" };
+
+    ASSERT_NO_FATAL_FAILURE(capture_app(test_name));
+
+    std::map<std::string, uint32_t> captured;
+    ASSERT_NO_FATAL_FAILURE(count_calls_in_capture(test_name, counted, captured));
+
+    std::map<std::string, uint32_t> baseline;
+    ASSERT_NO_FATAL_FAILURE(replay_and_count_recapture(test_name, {}, "_replay_baseline", counted, baseline));
+    std::map<std::string, uint32_t> isolated;
+    ASSERT_NO_FATAL_FAILURE(
+        replay_and_count_recapture(test_name, { "--isolate-render-passes" }, "_replay_option", counted, isolated));
+    std::map<std::string, uint32_t> with_idle;
+    ASSERT_NO_FATAL_FAILURE(replay_and_count_recapture(
+        test_name, { "--isolate-render-passes", "--idle-before-submit" }, "_replay_idle", counted, with_idle));
+
+    // Replay also submits for its offscreen swapchain, and it does not wait before those submits. So count the
+    // submits of the app and the ones that the parts add.
+    const uint32_t added_submits = isolated["vkQueueSubmit"] - baseline["vkQueueSubmit"];
+    ASSERT_GT(added_submits, 0u);
+
+    EXPECT_EQ(with_idle["vkQueueSubmit"], isolated["vkQueueSubmit"]);
+    EXPECT_EQ(with_idle["vkDeviceWaitIdle"] - isolated["vkDeviceWaitIdle"], captured["vkQueueSubmit"] + added_submits);
 }
 
 /**
@@ -90,7 +149,7 @@ TEST(IsolateRenderPasses, ReplayReissuesCommandBufferState)
     ASSERT_EQ(baseline["vkCmdSetScissor"], render_passes);
     ASSERT_EQ(baseline["vkCmdBindPipeline"], render_passes);
 
-    // The recording is cut twice per render pass, before vkCmdBeginRenderPass and after vkCmdEndRenderPass.
+    // The app records a barrier before and after its render pass, so the recording is cut on both sides of the pass.
     const uint32_t cuts = 2 * render_passes;
 
     // Viewport and scissor are set before the render pass begins, so both are already recorded by the first cut and

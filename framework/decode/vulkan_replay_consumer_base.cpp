@@ -3952,7 +3952,7 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
             }
         }
 
-        if (options_.serialize_queue_submissions || options_.isolate_render_passes)
+        if (options_.serialize_queue_submissions)
         {
             if (graphics::feature_util::IsSupportedExtension(available_extensions,
                                                              VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME))
@@ -3967,8 +3967,8 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
             }
             else
             {
-                GFXRECON_LOG_ERROR("--serialize-queue-submissions or --isolate-render-passes was enabled, but the "
-                                   "replay device does not support timeline semaphores.");
+                GFXRECON_LOG_ERROR("--serialize-queue-submissions was enabled, but the replay device does not support "
+                                   "timeline semaphores.");
                 std::abort();
             }
         }
@@ -5353,17 +5353,6 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
 
     VulkanSubmitJobPlan plan;
 
-    if (options_.isolate_render_passes)
-    {
-        auto& command_splitter = GetDeviceCommandBufferUtil(device_info);
-        plan.Push(0,
-                  [&command_splitter, &current_submits_span, queue_info](
-                      const std::span<graphics::VulkanSemaphore> wait_semaphores) {
-                      return command_splitter.SubmitPreviouslySplitCommandBuffers(
-                          queue_info, current_submits_span, wait_semaphores);
-                  });
-    }
-
     if (options_.frame_warm_up_load != 0 && !fps_info_->IsFirstSubmitDone())
     {
         auto& frame_warm_up = GetDeviceFrameWarmUp(device_info);
@@ -5629,17 +5618,6 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
     }
 
     VulkanSubmitJobPlan plan;
-
-    if (options_.isolate_render_passes)
-    {
-        auto& command_splitter = GetDeviceCommandBufferUtil(device_info);
-        plan.Push(0,
-                  [&command_splitter, &current_submits_span, queue_info](
-                      const std::span<graphics::VulkanSemaphore> wait_semaphores) {
-                      return command_splitter.SubmitPreviouslySplitCommandBuffers(
-                          queue_info, current_submits_span, wait_semaphores);
-                  });
-    }
 
     if (options_.frame_warm_up_load != 0 && !fps_info_->IsFirstSubmitDone())
     {
@@ -6659,35 +6637,8 @@ void VulkanReplayConsumerBase::OverrideFreeCommandBuffers(PFN_vkFreeCommandBuffe
         }
     }
 
-    if (options_.isolate_render_passes)
-    {
-        auto command_buffer_ids = pCommandBuffers->GetSpan();
-        // The splitter frees the split handles and restores the original handle in each info.
-        GetDeviceCommandBufferUtil(device_info).FreeCommandBuffers(command_pool_info->handle, command_buffer_ids);
-
-        // pCommandBuffers was mapped before that, so free the handles from the infos.
-        std::span<const VkCommandBuffer> command_buffer_handles = pCommandBuffers->GetHandleSpan();
-        std::vector<VkCommandBuffer>     original_command_buffers(command_buffer_count);
-        GFXRECON_ASSERT(command_buffer_ids.size() == command_buffer_count);
-        for (size_t i = 0; i < command_buffer_count; ++i)
-        {
-            const VulkanCommandBufferInfo* info = object_info_table_->GetVkCommandBufferInfo(command_buffer_ids[i]);
-            if (info != nullptr)
-            {
-                original_command_buffers[i] = info->handle;
-            }
-            else
-            {
-                original_command_buffers[i] = command_buffer_handles[i];
-            }
-        }
-        func(device_info->handle, command_pool_info->handle, command_buffer_count, original_command_buffers.data());
-    }
-    else
-    {
-        const VkCommandBuffer* in_pCommandBuffers = pCommandBuffers->GetHandlePointer();
-        func(device_info->handle, command_pool_info->handle, command_buffer_count, in_pCommandBuffers);
-    }
+    const VkCommandBuffer* in_pCommandBuffers = pCommandBuffers->GetHandlePointer();
+    func(device_info->handle, command_pool_info->handle, command_buffer_count, in_pCommandBuffers);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
@@ -11630,13 +11581,6 @@ VkResult VulkanReplayConsumerBase::OverrideBeginCommandBuffer(
     VulkanCommandBufferInfo*                                command_buffer_info,
     StructPointerDecoder<Decoded_VkCommandBufferBeginInfo>* begin_info_decoder)
 {
-    if (options_.isolate_render_passes)
-    {
-        auto* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
-        GFXRECON_ASSERT(device_info != nullptr);
-        GetDeviceCommandBufferUtil(device_info).BeginCommandBuffer(command_buffer_info);
-    }
-
     ClearCommandBufferInfo(command_buffer_info);
 
     VkCommandBuffer                 command_buffer = command_buffer_info->handle;
@@ -11690,12 +11634,6 @@ VkResult VulkanReplayConsumerBase::OverrideResetCommandBuffer(PFN_vkResetCommand
 
     VkResult result = func(command_buffer, flags);
 
-    if (options_.isolate_render_passes)
-    {
-        auto* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
-        GetDeviceCommandBufferUtil(device_info).ResetCommandBuffer(command_buffer_info);
-    }
-
     return result;
 }
 
@@ -11747,11 +11685,6 @@ VkResult VulkanReplayConsumerBase::OverrideResetCommandPool(PFN_vkResetCommandPo
             {
                 resource_dumper_->ResetCommandBuffer(cb_info->handle);
             }
-
-            if (options_.isolate_render_passes)
-            {
-                GetDeviceCommandBufferUtil(device_info).ResetCommandBuffer(cb_info);
-            }
         }
     }
 
@@ -11779,10 +11712,6 @@ void VulkanReplayConsumerBase::OverrideDestroyCommandPool(
             {
                 resource_dumper_->ResetCommandBuffer(cb_info->handle);
             }
-        }
-        if (options_.isolate_render_passes)
-        {
-            GetDeviceCommandBufferUtil(device_info).DestroyCommandPool(pool_info);
         }
     }
 
@@ -11988,12 +11917,6 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass(
     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* render_pass_begin_info_decoder,
     VkSubpassContents                                    contents)
 {
-    if (options_.isolate_render_passes)
-    {
-        VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
-        GetDeviceCommandBufferUtil(device_info).SplitCommandBuffer(command_buffer_info);
-    }
-
     MaybeInjectExecutionBarrier(command_buffer_info);
 
     const auto render_pass_info_meta = render_pass_begin_info_decoder->GetMetaStructPointer();
@@ -12024,12 +11947,6 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass2(
     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* render_pass_begin_info_decoder,
     StructPointerDecoder<Decoded_VkSubpassBeginInfo>*    subpass_begin_info_decode)
 {
-    if (options_.isolate_render_passes)
-    {
-        VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
-        GetDeviceCommandBufferUtil(device_info).SplitCommandBuffer(command_buffer_info);
-    }
-
     MaybeInjectExecutionBarrier(command_buffer_info);
 
     const auto render_pass_info_meta = render_pass_begin_info_decoder->GetMetaStructPointer();
@@ -12251,12 +12168,6 @@ void VulkanReplayConsumerBase::OverrideCmdEndRenderPass(PFN_vkCmdEndRenderPass  
     command_buffer_info->render_pass_contexts.active_framebuffer_id = format::kNullHandleId;
     command_buffer_info->render_pass_contexts.active_render_pass_attachment_image_view_ids.clear();
     command_buffer_info->in_rendering_scope = false;
-
-    if (options_.isolate_render_passes)
-    {
-        VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
-        GetDeviceCommandBufferUtil(device_info).SplitCommandBuffer(command_buffer_info);
-    }
 }
 
 void VulkanReplayConsumerBase::OverrideCmdEndRenderPass2(
@@ -12271,12 +12182,6 @@ void VulkanReplayConsumerBase::OverrideCmdEndRenderPass2(
     command_buffer_info->render_pass_contexts.active_framebuffer_id = format::kNullHandleId;
     command_buffer_info->render_pass_contexts.active_render_pass_attachment_image_view_ids.clear();
     command_buffer_info->in_rendering_scope = false;
-
-    if (options_.isolate_render_passes)
-    {
-        VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
-        GetDeviceCommandBufferUtil(device_info).SplitCommandBuffer(command_buffer_info);
-    }
 }
 
 void VulkanReplayConsumerBase::OverrideCmdBeginRendering(
@@ -12285,12 +12190,6 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRendering(
     StructPointerDecoder<Decoded_VkRenderingInfo>* rendering_info_decoder)
 {
     GFXRECON_ASSERT(command_buffer_info != nullptr);
-
-    if (options_.isolate_render_passes)
-    {
-        VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
-        GetDeviceCommandBufferUtil(device_info).SplitCommandBuffer(command_buffer_info);
-    }
 
     const VkRenderingInfo*         rendering_info      = rendering_info_decoder->GetPointer();
     const Decoded_VkRenderingInfo* rendering_info_meta = rendering_info_decoder->GetMetaStructPointer();
@@ -12347,12 +12246,6 @@ void VulkanReplayConsumerBase::OverrideCmdEndRendering(PFN_vkCmdEndRendering    
     GFXRECON_ASSERT(command_buffer_info != nullptr);
     command_buffer_info->in_rendering_scope = false;
     func(command_buffer_info->handle);
-
-    if (options_.isolate_render_passes)
-    {
-        VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
-        GetDeviceCommandBufferUtil(device_info).SplitCommandBuffer(command_buffer_info);
-    }
 }
 
 void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
