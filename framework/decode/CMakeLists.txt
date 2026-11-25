@@ -286,6 +286,7 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_initializer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_tracking_consumer.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_tracking_consumer.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_stage_command_buffer_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_submit_info_helper.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_submit_info_helper.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_submit_job.h
@@ -331,6 +332,7 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_consumer_extension.cpp>
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_consumer.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_consumer_stage.h
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_stage_command_buffer.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decoder_args.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.cpp
