@@ -1664,6 +1664,7 @@ void VulkanStateTracker::TrackResetDescriptorPool(VkDescriptorPool descriptor_po
     std::unique_lock<std::mutex> lock(state_table_mutex_);
     for (const auto& set_entry : wrapper->child_sets)
     {
+        DestroyDescriptorLinks(set_entry.second);
         DestroyState(set_entry.second);
         state_table_.RemoveWrapper(set_entry.second);
     }
@@ -2048,6 +2049,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DescriptorPoolWrapper* wr
     std::unique_lock<std::mutex> lock(state_table_mutex_);
     for (const auto& entry : wrapper->child_sets)
     {
+        DestroyDescriptorLinks(entry.second);
         DestroyState(entry.second);
         state_table_.RemoveWrapper(entry.second);
     }
@@ -2063,6 +2065,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::SwapchainKHRWrapper* wrap
     std::unique_lock<std::mutex> lock(state_table_mutex_);
     for (auto entry : wrapper->child_images)
     {
+        DestroyDescriptorLinks(entry);
         DestroyState(entry);
         state_table_.RemoveWrapper(entry);
     }
@@ -2193,11 +2196,6 @@ void gfxrecon::encode::VulkanStateTracker::DestroyState(vulkan_wrappers::BufferW
         }
     }
 
-    for (const auto& entry : buffer_wrapper->descriptor_sets_bound_to)
-    {
-        entry.first->dirty = true;
-    }
-
     for (vulkan_wrappers::BufferViewWrapper* view_wrapper : buffer_wrapper->buffer_views)
     {
         view_wrapper->buffer = nullptr;
@@ -2210,24 +2208,6 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::AccelerationStructureKHRW
     assert(wrapper->device != nullptr);
     wrapper->create_parameters = nullptr;
     device_address_trackers_[wrapper->device->handle].RemoveAccelerationStructure(wrapper);
-
-    for (const auto& entry : wrapper->descriptor_sets_bound_to)
-    {
-        entry.first->dirty = true;
-    }
-
-    wrapper->descriptor_sets_bound_to.clear();
-}
-
-void VulkanStateTracker::DestroyState(vulkan_wrappers::AccelerationStructureNVWrapper* wrapper)
-{
-    assert(wrapper != nullptr);
-    wrapper->create_parameters = nullptr;
-
-    for (const auto& entry : wrapper->descriptor_sets_bound_to)
-    {
-        entry.first->dirty = true;
-    }
 }
 
 void VulkanStateTracker::DestroyState(vulkan_wrappers::ImageWrapper* wrapper)
@@ -2252,11 +2232,6 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::ImageWrapper* wrapper)
         }
     }
 
-    for (const auto& entry : wrapper->descriptor_sets_bound_to)
-    {
-        entry.first->dirty = true;
-    }
-
     for (vulkan_wrappers::ImageViewWrapper* view_wrapper : wrapper->image_views)
     {
         view_wrapper->image = nullptr;
@@ -2267,11 +2242,6 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::ImageViewWrapper* wrapper
 {
     assert(wrapper != nullptr);
     wrapper->create_parameters = nullptr;
-
-    for (const auto& entry : wrapper->descriptor_sets_bound_to)
-    {
-        entry.first->dirty = true;
-    }
 
     if (wrapper->image != nullptr)
     {
@@ -2284,25 +2254,9 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::BufferViewWrapper* wrappe
     assert(wrapper != nullptr);
     wrapper->create_parameters = nullptr;
 
-    for (const auto& entry : wrapper->descriptor_sets_bound_to)
-    {
-        entry.first->dirty = true;
-    }
-
     if (wrapper->buffer != nullptr)
     {
         wrapper->buffer->buffer_views.erase(wrapper);
-    }
-}
-
-void VulkanStateTracker::DestroyState(vulkan_wrappers::SamplerWrapper* wrapper)
-{
-    assert(wrapper != nullptr);
-    wrapper->create_parameters = nullptr;
-
-    for (const auto& entry : wrapper->descriptor_sets_bound_to)
-    {
-        entry.first->dirty = true;
     }
 }
 
@@ -2310,12 +2264,17 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DescriptorSetWrapper* wra
 {
     assert(wrapper != nullptr);
     wrapper->create_parameters = nullptr;
+    wrapper->bindings.clear();
+}
+
+void VulkanStateTracker::DestroyDescriptorLinks(vulkan_wrappers::DescriptorSetWrapper* wrapper)
+{
+    assert(wrapper != nullptr);
 
     for (const auto& entry : wrapper->bindings)
     {
         UpdateDescriptorLinks(wrapper, entry.second, 0, entry.second.count, false);
     }
-    wrapper->bindings.clear();
 }
 
 void VulkanStateTracker::UpdateDescriptorLinks(vulkan_wrappers::DescriptorSetWrapper*   set,
@@ -2412,15 +2371,6 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::TensorViewARMWrapper* wra
     {
         wrapper->tensor->tensor_views.erase(wrapper);
     }
-
-    for (const auto& entry : wrapper->descriptor_sets_bound_to)
-    {
-        if (entry.first != nullptr)
-        {
-            entry.first->dirty = true;
-        }
-    }
-    wrapper->descriptor_sets_bound_to.clear();
 }
 
 void VulkanStateTracker::TrackCommandBuffersSubmision(uint32_t               command_buffer_count,

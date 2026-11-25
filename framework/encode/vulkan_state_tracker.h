@@ -287,6 +287,10 @@ class VulkanStateTracker
                     GFXRECON_LOG_WARNING(
                         "Attempting to remove entry from state tracker for object that is not being tracked");
                 }
+
+                // Descriptor links are found through the state table, so they must be removed before another thread
+                // can see the table without this wrapper.
+                DestroyDescriptorLinks(wrapper);
             }
 
             DestroyState(wrapper);
@@ -856,15 +860,11 @@ class VulkanStateTracker
 
     void DestroyState(vulkan_wrappers::AccelerationStructureKHRWrapper* wrapper);
 
-    void DestroyState(vulkan_wrappers::AccelerationStructureNVWrapper* wrapper);
-
     void DestroyState(vulkan_wrappers::ImageWrapper* wrapper);
 
     void DestroyState(vulkan_wrappers::ImageViewWrapper* wrapper);
 
     void DestroyState(vulkan_wrappers::BufferViewWrapper* wrapper);
-
-    void DestroyState(vulkan_wrappers::SamplerWrapper* wrapper);
 
     void DestroyState(vulkan_wrappers::DescriptorSetWrapper* wrapper);
 
@@ -874,8 +874,28 @@ class VulkanStateTracker
 
     void DestroyState(vulkan_wrappers::DataGraphPipelineSessionARMWrapper* wrapper);
 
+    // Removes the descriptor links of a wrapper that is leaving the state table. Must be called with
+    // state_table_mutex_ held, in the same critical section that removes the wrapper from the state table.
+    template <typename Wrapper>
+    void DestroyDescriptorLinks(Wrapper* wrapper)
+    {
+        // Only resources that a descriptor can reference have links. The sets they are written to become stale.
+        if constexpr (requires { wrapper->descriptor_sets_bound_to; })
+        {
+            for (const auto& entry : wrapper->descriptor_sets_bound_to)
+            {
+                entry.first->dirty = true;
+            }
+
+            wrapper->descriptor_sets_bound_to.clear();
+        }
+    }
+
+    void DestroyDescriptorLinks(vulkan_wrappers::DescriptorSetWrapper* wrapper);
+
     // Adds or removes one link between set and the resource in each slot of [first, first + count).
     // Call with link == false before a slot changes, and with link == true after.
+    // Must be called with state_table_mutex_ held.
     void UpdateDescriptorLinks(vulkan_wrappers::DescriptorSetWrapper*   set,
                                const vulkan_state_info::DescriptorInfo& binding,
                                uint32_t                                 first,
