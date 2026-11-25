@@ -1472,9 +1472,9 @@ void VulkanResourcesUtil::DestroyStagingTensorMemory()
 
 uint32_t VulkanResourcesUtil::ResolveQueueFamily(uint32_t queue_family_index) const
 {
-    if (available_queue_families_.empty() || (std::find(available_queue_families_.begin(),
-                                                        available_queue_families_.end(),
-                                                        queue_family_index) != available_queue_families_.end()))
+    if (available_queue_families_.empty() ||
+        (std::find(available_queue_families_.begin(), available_queue_families_.end(), queue_family_index) !=
+         available_queue_families_.end()))
     {
         return queue_family_index;
     }

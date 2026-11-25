@@ -840,9 +840,9 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
         for (uint32_t i = 0; i < pCreateInfo_unwrapped->queueCreateInfoCount; ++i)
         {
             const VkDeviceQueueCreateInfo& queue_ci = pCreateInfo_unwrapped->pQueueCreateInfos[i];
-            if ((queue_ci.queueCount > 0) && (std::find(wrapper->queue_families.begin(),
-                                                        wrapper->queue_families.end(),
-                                                        queue_ci.queueFamilyIndex) == wrapper->queue_families.end()))
+            if ((queue_ci.queueCount > 0) &&
+                (std::find(wrapper->queue_families.begin(), wrapper->queue_families.end(), queue_ci.queueFamilyIndex) ==
+                 wrapper->queue_families.end()))
             {
                 wrapper->queue_families.push_back(queue_ci.queueFamilyIndex);
             }
