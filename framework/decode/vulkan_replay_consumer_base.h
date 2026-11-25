@@ -40,7 +40,6 @@
 #include "decode/common_object_info_table.h"
 #include "decode/vulkan_replay_device_context.h"
 #include "decode/vulkan_replay_options.h"
-#include "decode/vulkan_command_buffer_util.h"
 #include "decode/vulkan_resource_allocator.h"
 #include "decode/vulkan_submit_job.h"
 #include "decode/vulkan_swapchain.h"
@@ -96,9 +95,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     }
 
     void SetFpsInfo(graphics::FpsInfo* fps_info) { fps_info_ = fps_info; }
-
-    void           SetDecoder(VulkanDecoder* decoder) { decoder_ = decoder; };
-    VulkanDecoder* GetDecoder() { return decoder_; }
 
     virtual void WaitDevicesIdle() override;
 
@@ -2189,7 +2185,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     decode::VulkanDeviceAddressTracker& GetDeviceAddressTracker(const decode::VulkanDeviceInfo* device_info);
     decode::VulkanAddressReplacer&      GetDeviceAddressReplacer(const decode::VulkanDeviceInfo* device_info);
     VulkanFrameWarmUp&                  GetDeviceFrameWarmUp(const VulkanDeviceInfo* device_info);
-    VulkanCommandBufferUtil&            GetDeviceCommandBufferUtil(const VulkanDeviceInfo* device_info);
     VulkanSubmitJobExecutor&            GetDeviceSubmitJobExecutor(const VulkanDeviceInfo* device_info);
 
     //! Returns the device's resource initializer while one is active, otherwise nullptr.
@@ -2418,7 +2413,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::unique_ptr<VulkanScreenshotJson> screenshot_json_;
     std::unique_ptr<VulkanSwapchain>      swapchain_;
     graphics::FpsInfo*                    fps_info_;
-    VulkanDecoder*                        decoder_ = nullptr;
 
     std::once_flag wait_before_first_submit_flag_;
 

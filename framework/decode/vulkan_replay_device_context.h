@@ -24,7 +24,6 @@
 #define GFXRECON_DECODE_VULKAN_REPLAY_DEVICE_CONTEXT_H
 
 #include "decode/vulkan_address_replacer.h"
-#include "decode/vulkan_command_buffer_util.h"
 #include "decode/vulkan_device_address_tracker.h"
 #include "decode/vulkan_frame_warm_up.h"
 #include "decode/vulkan_object_info.h"
@@ -46,7 +45,6 @@ struct VulkanReplayDeviceContext
     std::optional<VulkanDeviceAddressTracker> address_tracker;
     std::optional<VulkanSubmitJobExecutor>    submit_job_executor;
     std::optional<VulkanFrameWarmUp>          frame_warm_up;
-    std::optional<VulkanCommandBufferUtil>    command_buffer_util;
     std::optional<VulkanAddressReplacer>      address_replacer;
 };
 

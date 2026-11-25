@@ -28,6 +28,7 @@
 #include "decode/descriptor_update_template_decoder.h"
 #include "decode/resource_util.h"
 #include "decode/vulkan_captured_swapchain.h"
+#include "decode/vulkan_command_buffer_util.h"
 #include "decode/vulkan_device_address_tracker.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_virtual_swapchain.h"
@@ -13308,26 +13309,6 @@ VulkanFrameWarmUp& VulkanReplayConsumerBase::GetDeviceFrameWarmUp(const VulkanDe
                               options_.frame_warm_up_load);
     }
     return *frame_warm_up;
-}
-
-VulkanCommandBufferUtil& VulkanReplayConsumerBase::GetDeviceCommandBufferUtil(const VulkanDeviceInfo* device_info)
-{
-    auto& command_buffer_util = device_contexts_[device_info].command_buffer_util;
-    if (command_buffer_util)
-    {
-        return *command_buffer_util;
-    }
-
-    auto* decoder = dynamic_cast<VulkanStateRecordingDecoder*>(GetDecoder());
-    if (decoder == nullptr)
-    {
-        GFXRECON_LOG_FATAL(
-            "VulkanReplayConsumerBase::GetDeviceCommandBufferUtil() called with non-VulkanStateRecordingDecoder");
-        std::abort();
-    }
-
-    command_buffer_util.emplace(device_info, GetInjectedDeviceCalls(device_info->handle), object_info_table_, decoder);
-    return *command_buffer_util;
 }
 
 VulkanSubmitJobExecutor& VulkanReplayConsumerBase::GetDeviceSubmitJobExecutor(const VulkanDeviceInfo* device_info)

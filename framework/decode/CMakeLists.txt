@@ -298,7 +298,6 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_swapchain.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_swapchain.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_swapchain_format.h
-                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_state_recording_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_temporary_objects.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_temporary_objects.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_tracked_object_info.h
@@ -475,7 +474,6 @@ if (${RUN_TESTS})
     add_executable(gfxrecon_decode_test "")
     target_sources(gfxrecon_decode_test PRIVATE
             ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
-            ${CMAKE_CURRENT_LIST_DIR}/test/test_vulkan_command_buffer_util.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_vulkan_consumer_stage.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_vulkan_consumer_stage_corpus.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_vulkan_stage_isolate_command_buffer.cpp

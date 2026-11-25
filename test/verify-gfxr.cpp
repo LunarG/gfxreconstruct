@@ -619,7 +619,7 @@ void replay_and_count_render_passes_per_submit(const char*              test_nam
     ASSERT_NO_FATAL_FAILURE(count_render_passes_per_submit_in_json(recapture_json_path, render_passes));
 }
 
-// The commands whose state gets reissues from VulkanStateRecordingDecoder::IsVulkanStateCommand.
+// The state commands that VulkanStageIsolateRenderPass reissues in each part of a split command buffer.
 static const std::set<std::string> kStateCommands = {
     "vkCmdBindPipeline",  "vkCmdBindDescriptorSets", "vkCmdBindVertexBuffers", "vkCmdBindIndexBuffer",
     "vkCmdPushConstants", "vkCmdSetViewport",        "vkCmdSetScissor",
