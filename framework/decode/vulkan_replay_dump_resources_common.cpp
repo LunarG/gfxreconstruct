@@ -1997,5 +1997,53 @@ VkResult SubmitInfo2OnQueue(const graphics::VulkanInjectedDeviceCalls&        de
     return injected->QueueSubmit(queue, 1, translator.GetSubmitInfos().data(), fence);
 }
 
+DumpingContextBase::DumpingContextBase(
+    std::shared_ptr<DumpingContextWindows>            windows,
+    Index                                             bcb_index,
+    Index                                             qs_index,
+    CommonObjectInfoTable&                            object_info_table,
+    const VulkanReplayOptions&                        options,
+    VulkanDumpResourcesDelegate&                      delegate,
+    const util::Compressor*                           compressor,
+    const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
+    const VulkanPerDeviceContexts&                    device_contexts) :
+    windows_(std::move(windows)),
+    original_command_buffer_info_(nullptr), bcb_index_(bcb_index), qs_index_(qs_index), delegate_(delegate),
+    options_(options), compressor_(compressor), instance_table_(nullptr), object_info_table_(object_info_table),
+    replay_device_phys_mem_props_(nullptr), acceleration_structures_context_(acceleration_structures_context),
+    device_contexts_(device_contexts)
+{
+    GFXRECON_ASSERT(windows_ != nullptr);
+}
+
+VkResult DumpingContextBase::BeginCommandBuffer(const VulkanCommandBufferInfo*             orig_cmd_buf_info,
+                                                const graphics::VulkanInjectedDeviceCalls& dev_table,
+                                                const graphics::VulkanInstanceTable*       inst_table)
+{
+    GFXRECON_ASSERT(orig_cmd_buf_info != nullptr);
+    GFXRECON_ASSERT(dev_table.IsValid());
+    GFXRECON_ASSERT(inst_table != nullptr);
+
+    GFXRECON_ASSERT(original_command_buffer_info_ == nullptr);
+    original_command_buffer_info_ = orig_cmd_buf_info;
+
+    GFXRECON_ASSERT(!device_table_.IsValid());
+    device_table_ = dev_table;
+    GFXRECON_ASSERT(instance_table_ == nullptr);
+    instance_table_ = inst_table;
+
+    const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
+    GFXRECON_ASSERT(device_info != nullptr);
+    GFXRECON_ASSERT(device_info->parent_id != format::kNullHandleId);
+    const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table_.GetVkPhysicalDeviceInfo(device_info->parent_id);
+    GFXRECON_ASSERT(phys_dev_info != nullptr);
+
+    GFXRECON_ASSERT(phys_dev_info->replay_device_info);
+    GFXRECON_ASSERT(phys_dev_info->replay_device_info->memory_properties);
+    replay_device_phys_mem_props_ = &phys_dev_info->replay_device_info->memory_properties.value();
+
+    return VK_SUCCESS;
+}
+
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)

@@ -28,6 +28,7 @@
 #include "decode/vulkan_replay_device_context.h"
 #include "decode/vulkan_replay_dump_resources_as.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
+#include "decode/vulkan_replay_dump_resources_windows.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_options.h"
 #include "generated/generated_vulkan_dispatch_table.h"
@@ -48,8 +49,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-// This class handles the context related to dumping the draw call render targets
-class DrawCallsDumpingContext
+// This class handles the context related to dumping the draw call render targets.
+//
+// It owns the draw call slots of the DumpingContextWindows of its (BeginCommandBuffer, QueueSubmit) pair. It tracks
+// the graphics state while the command buffer is recorded, snapshots what a target draw call references, records the
+// draw call into the clone taking work and closes the window there. Once the windows have executed a window it dumps
+// the draw call's render targets, descriptors and vertex/index buffers.
+class DrawCallsDumpingContext : public DumpingContextBase
 {
   public:
     // Forward declaration
@@ -69,8 +75,7 @@ class DrawCallsDumpingContext
         kDrawIndexedIndirectCountAMD
     };
 
-    DrawCallsDumpingContext(const CommandIndices*                             dc_indices,
-                            const RenderPassIndices*                          rp_indices,
+    DrawCallsDumpingContext(std::shared_ptr<DumpingContextWindows>            windows,
                             decode::Index                                     bcb_index,
                             decode::Index                                     qs_index,
                             const CommandImageSubresource&                    dc_subresources,
@@ -83,64 +88,50 @@ class DrawCallsDumpingContext
 
     ~DrawCallsDumpingContext();
 
-    void CmdDraw(const ApiCallInfo& call_info,
-                 PFN_vkCmdDraw      func,
-                 VkCommandBuffer    original_command_buffer,
-                 uint32_t           vertex_count,
-                 uint32_t           instance_count,
-                 uint32_t           first_vertex,
-                 uint32_t           first_instance);
+    // This context does not record draw calls: VulkanReplayDumpResourcesBase records every one of them into the
+    // clone taking work. It only brackets the ones it dumps. Before*() is called right before the draw call is
+    // recorded and AfterDraw() right after; both do nothing for a draw call that is not dumped.
+    //
+    // Before*(): with --dump-resources-before closes the window that ends right before the draw call, then stores
+    //            its parameters and snapshots the bound state.
+    // AfterDraw(): closes the window that ends with the draw call.
+    void BeforeDraw(
+        uint64_t index, uint32_t vertex_count, uint32_t instance_count, uint32_t first_vertex, uint32_t first_instance);
 
-    void CmdDrawIndexed(const ApiCallInfo&   call_info,
-                        PFN_vkCmdDrawIndexed func,
-                        VkCommandBuffer      original_command_buffer,
-                        uint32_t             index_count,
-                        uint32_t             instance_count,
-                        uint32_t             first_index,
-                        int32_t              vertex_offset,
-                        uint32_t             first_instance);
+    void BeforeDrawIndexed(uint64_t index,
+                           uint32_t index_count,
+                           uint32_t instance_count,
+                           uint32_t first_index,
+                           int32_t  vertex_offset,
+                           uint32_t first_instance);
 
-    void CmdDrawIndirect(const ApiCallInfo&      call_info,
-                         PFN_vkCmdDrawIndirect   func,
-                         VkCommandBuffer         original_command_buffer,
-                         const VulkanBufferInfo* buffer_info,
-                         VkDeviceSize            offset,
-                         uint32_t                draw_count,
-                         uint32_t                stride);
+    void BeforeDrawIndirect(
+        uint64_t index, const VulkanBufferInfo* buffer_info, VkDeviceSize offset, uint32_t draw_count, uint32_t stride);
 
-    void CmdDrawIndexedIndirect(const ApiCallInfo&           call_info,
-                                PFN_vkCmdDrawIndexedIndirect func,
-                                VkCommandBuffer              original_command_buffer,
-                                const VulkanBufferInfo*      buffer_info,
-                                VkDeviceSize                 offset,
-                                uint32_t                     draw_count,
-                                uint32_t                     stride);
+    void BeforeDrawIndexedIndirect(
+        uint64_t index, const VulkanBufferInfo* buffer_info, VkDeviceSize offset, uint32_t draw_count, uint32_t stride);
 
-    void CmdDrawIndirectCount(const ApiCallInfo&                    call_info,
-                              PFN_vkCmdDrawIndirectCount            func,
-                              VkCommandBuffer                       original_command_buffer,
-                              const VulkanBufferInfo*               buffer_info,
-                              VkDeviceSize                          offset,
-                              const VulkanBufferInfo*               count_buffer_info,
-                              VkDeviceSize                          count_buffer_offset,
-                              uint32_t                              max_draw_count,
-                              uint32_t                              stride,
-                              DrawCallsDumpingContext::DrawCallType drawcall_type);
+    void BeforeDrawIndirectCount(uint64_t                              index,
+                                 const VulkanBufferInfo*               buffer_info,
+                                 VkDeviceSize                          offset,
+                                 const VulkanBufferInfo*               count_buffer_info,
+                                 VkDeviceSize                          count_buffer_offset,
+                                 uint32_t                              max_draw_count,
+                                 uint32_t                              stride,
+                                 DrawCallsDumpingContext::DrawCallType drawcall_type);
 
-    void CmdDrawIndexedIndirectCount(const ApiCallInfo&                    call_info,
-                                     PFN_vkCmdDrawIndexedIndirectCount     func,
-                                     VkCommandBuffer                       original_command_buffer,
-                                     const VulkanBufferInfo*               buffer_info,
-                                     VkDeviceSize                          offset,
-                                     const VulkanBufferInfo*               count_buffer_info,
-                                     VkDeviceSize                          count_buffer_offset,
-                                     uint32_t                              max_draw_count,
-                                     uint32_t                              stride,
-                                     DrawCallsDumpingContext::DrawCallType drawcall_type);
+    void BeforeDrawIndexedIndirectCount(uint64_t                              index,
+                                        const VulkanBufferInfo*               buffer_info,
+                                        VkDeviceSize                          offset,
+                                        const VulkanBufferInfo*               count_buffer_info,
+                                        VkDeviceSize                          count_buffer_offset,
+                                        uint32_t                              max_draw_count,
+                                        uint32_t                              stride,
+                                        DrawCallsDumpingContext::DrawCallType drawcall_type);
+
+    void AfterDraw(uint64_t index);
 
     bool MustDumpDrawCall(uint64_t index) const;
-
-    bool ShouldHandleRenderPass(uint64_t index) const;
 
     void BindDescriptorSets(VkPipelineBindPoint                                pipeline_bind_point,
                             uint32_t                                           first_set,
@@ -155,35 +146,10 @@ class DrawCallsDumpingContext
 
     void BindPipeline(VkPipelineBindPoint bind_point, const VulkanPipelineInfo* pipeline);
 
-    VkResult BeginCommandBuffer(VulkanCommandBufferInfo*                   orig_cmd_buf_info,
+    // Also allocates the auxiliary command buffer and fence
+    VkResult BeginCommandBuffer(const VulkanCommandBufferInfo*             orig_cmd_buf_info,
                                 const graphics::VulkanInjectedDeviceCalls& dev_table,
-                                const graphics::VulkanInstanceTable*       inst_table,
-                                const VkCommandBufferBeginInfo*            begin_info);
-
-    VkResult BeginRenderPass(uint64_t                     block_index,
-                             const VulkanRenderPassInfo*  render_pass_info,
-                             const VulkanFramebufferInfo* framebuffer_info,
-                             const VkRenderPassBeginInfo* renderpass_begin_info,
-                             VkSubpassContents            contents);
-
-    void NextSubpass(VkSubpassContents contents);
-
-    void EndRenderPass();
-
-    void BeginRendering(uint64_t                             block_index,
-                        const VkRenderingInfo*               rendering_info,
-                        const std::vector<VulkanImageInfo*>& color_attachments,
-                        const std::vector<VkImageLayout>&    color_attachment_layouts,
-                        VulkanImageInfo*                     depth_attachment,
-                        VkImageLayout                        depth_attachment_layout);
-
-    void EndRendering();
-
-    void EndRendering(PFN_vkCmdEndRendering2KHR func, const VkRenderingEndInfoKHR* rendering_end_info);
-
-    void RecordCmdBeginRendering(VkCommandBuffer command_buffer, const VkRenderingInfo* rendering_info) const;
-
-    void RecordCmdEndRendering(VkCommandBuffer command_buffer) const;
+                                const graphics::VulkanInstanceTable*       inst_table) override;
 
     void BindVertexBuffers(uint64_t                                    index,
                            uint32_t                                    firstBinding,
@@ -208,46 +174,29 @@ class DrawCallsDumpingContext
                          VkIndexType             index_type,
                          VkDeviceSize            size = 0);
 
-    // When this is called for a command buffer that corresponds to a before command, dc_params should be null
-    void FinalizeCommandBuffer(DrawCallParams* dc_params = nullptr);
+    // DumpingContextBase
+    VkResult DumpSlot(const WindowSlot& slot,
+                      size_t            window_index,
+                      VkQueue           queue,
+                      Index             submit_info_index,
+                      Index             submit_info_cmd_buf_index) override;
 
-    uint32_t GetDrawCallActiveCommandBuffers(CommandBufferIterator& first, CommandBufferIterator& last) const;
+    void ResetDumpedResources() override;
 
-    // The clone a work command is recorded into: the current one.
-    VkCommandBuffer GetWorkCommandBuffer() const;
+    void PrepareSecondary(DumpingContextBase& secondary_owner) override;
 
-    // The clones that have the active render pass instance begun: the stored range of an instance this
-    // context began, or the current clone for one it only forwards.
-    uint32_t GetRenderPassCommandBuffers(CommandBufferIterator& first, CommandBufferIterator& last) const;
+    void ExecuteSecondarySlot(DumpingContextBase& secondary_owner,
+                              const WindowSlot&   secondary_slot,
+                              Index               execute_cmd_index,
+                              Index               command_buffer_execute_index) override;
 
-    bool IsPrimary() const { return command_buffer_level_ == DumpResourcesCommandBufferLevel::kPrimary; }
-
-    // Marks an attachment that no subpass of a render pass references
-    static constexpr uint32_t kNeverUsed = std::numeric_limits<uint32_t>::max();
-
-    // Gives every secondary this context executes its tail clone. Call it once, after
-    // RecalculateCommandBuffers and before anything is recorded.
-    void AppendTailClones();
-
-    // The clones that hold a window. The tail clone, when there is one, follows them in command_buffers_.
-    size_t GetWindowCount() const { return command_buffers_.size() - (has_tail_clone_ ? 1 : 0); }
-
-    // The clone holding the work this context recorded after its last target draw, VK_NULL_HANDLE if it has none.
-    VkCommandBuffer GetTailCommandBuffer() const { return has_tail_clone_ ? command_buffers_.back() : VK_NULL_HANDLE; }
-
-    void EndCommandBuffer();
-
-    VkResult DumpDrawCalls(VkQueue              queue,
-                           const VkSubmitInfo2& submit_info,
-                           Index                submit_info_index,
-                           Index                submit_info_cmd_buf_index);
-
-    VkResult DumpRenderTargetAttachments(uint64_t                  cmd_buf_index,
+    VkResult DumpRenderTargetAttachments(const WindowSlot&         slot,
+                                         uint64_t                  cmd_buf_index,
                                          DrawCallParams&           dc_params,
                                          const DumpedResourceBase& dumped_resource_base);
 
     VkResult
-    DumpDescriptors(uint64_t cmd_buf_index, DrawCallParams& dc_params, const DumpedResourceBase& dumped_resource_base);
+    DumpDescriptors(const WindowSlot& slot, DrawCallParams& dc_params, const DumpedResourceBase& dumped_resource_base);
 
     VkResult DumpVertexIndexBuffers(uint64_t                  cmd_buf_index,
                                     DrawCallParams&           dc_params,
@@ -255,27 +204,21 @@ class DrawCallsDumpingContext
 
     void Release();
 
-    const std::vector<VkCommandBuffer>& GetCommandBuffers() const { return command_buffers_; }
-
-    VkCommandBuffer GetOriginalCommandBuffer() const
-    {
-        return original_command_buffer_info_ != nullptr ? original_command_buffer_info_->handle : VK_NULL_HANDLE;
-    }
-
-    void AssignSecondary(uint64_t execute_commands_index, std::shared_ptr<DrawCallsDumpingContext> secondary_context);
-
-    std::vector<std::shared_ptr<DrawCallsDumpingContext>> SecondariesToExecute(uint64_t execute_commands_index) const;
-
-    void ReorderSecondaries(Index                                                        execute_commands_index,
-                            const std::vector<std::shared_ptr<DrawCallsDumpingContext>>& execution_order);
-
-    uint32_t RecalculateCommandBuffers();
-
-    void UpdateSecondaries(DrawCallsDumpingContext& secondary_context,
-                           Index                    execute_cmd_index,
-                           Index                    command_buffer_execute_index);
-
   private:
+    using RenderPassContext = DumpingContextWindows::RenderPassContext;
+
+    // Closes the window of a draw call slot: the clone taking work is ended and the next one takes over. Called
+    // after each dumped draw call and, with --dump-resources-before, before it as well. dc_params is the finalized
+    // draw call; it is null for a before command.
+    void FinalizeWindow(DrawCallParams* dc_params = nullptr);
+
+    // With --dump-resources-before, closes the window that ends right before a dumped draw call, so that the render
+    // targets can be dumped before the draw call
+    void FinalizeBeforeWindow();
+
+    // The draw call contexts of the secondaries this context's command buffer executes
+    std::vector<std::shared_ptr<DrawCallsDumpingContext>> GetSecondaryContexts() const;
+
     DrawCallParams* InsertNewDrawParameters(
         uint64_t index, uint32_t vertex_count, uint32_t instance_count, uint32_t first_vertex, uint32_t first_instance);
 
@@ -310,29 +253,11 @@ class DrawCallsDumpingContext
                                                                 uint32_t                stride,
                                                                 DrawCallType            drawcall_type);
 
-    // If options_.dump_resources_before is true, it means that we have two command buffer clones for each draw
-    // This function converts the provided command buffer index into an absolute one (divided by 2 in the case of
-    // dump_resources_before is true) so it can be used to index arrays that don't double their sizes in case of
-    // dump_resources_before is true.
-    size_t CmdBufToDCVectorIndex(size_t cmd_buf_index) const;
-
-    // The block index window (lo, hi] of the stream that the given clone records.
-    void GetCloneWindow(size_t cmd_buf_index, uint64_t& lo, uint64_t& hi) const;
-
-    // The block index range of the render pass instance the given block index belongs to
-    const std::vector<Index>* FindRenderPassBlockRange(uint64_t block_index) const;
-
     void DestroyMutableResourceBackups();
 
     void ReleaseIndirectParams();
 
     void ResetFetchedIndirectParams();
-
-    PFN_vkCmdBeginRendering
-    ResolveCmdBeginRendering(const graphics::VulkanInjectedDeviceCalls::Scope& injected_commands_scope) const;
-
-    PFN_vkCmdEndRendering
-    ResolveCmdEndRendering(const graphics::VulkanInjectedDeviceCalls::Scope& injected_commands_scope) const;
 
     VkResult BackUpMutableResources(VkQueue queue);
 
@@ -340,141 +265,10 @@ class DrawCallsDumpingContext
 
     VkResult FetchDrawIndirectParams(DrawCallParams& dc_params);
 
-    struct DrawCallSlot;
-    VkResult RevertRenderTargetImageLayouts(VkQueue queue, const DrawCallSlot& slot);
+    VkResult RevertRenderTargetImageLayouts(VkQueue queue, const WindowSlot& slot);
 
-    VulkanCommandBufferInfo*     original_command_buffer_info_;
-    decode::Index                bcb_index_;
-    decode::Index                qs_index_;
-    std::vector<VkCommandBuffer> command_buffers_;
-    size_t                       current_cb_index_;
-
-    struct RenderPassContext;
-
-    // One entry per dump slot, in finalization order: the draw call block index that finalizes
-    // the slot and, for draws merged from a secondary, the block index of the vkCmdExecuteCommands
-    // that executes them (UNDEFINED_INDEX for the primary's own draws).
-    //
-    // The render pass correlation lives here rather than in DrawCallParams because a DrawCallParams
-    // object is shared between every execution of the same secondary draw call (see UpdateSecondaries),
-    // whereas each execution gets its own slot and may happen inside a different render pass or subpass.
-    struct DrawCallSlot
-    {
-        Index dc_index;
-        Index execute_index;
-
-        // The render pass context this slot's draw call was recorded in and the subpass ordinal within it.
-        // Captured in FinalizeCommandBuffer while the render pass is active. For draw calls recorded in a
-        // secondary command buffer that inherits the primary's render pass (RENDER_PASS_CONTINUE), it is
-        // filled in from the primary at vkCmdExecuteCommands time.
-        std::shared_ptr<RenderPassContext> render_pass_context;
-        uint64_t                           subpass{ 0 };
-    };
-    std::vector<DrawCallSlot> dc_slots_;
-
-    RenderPassIndices            RP_indices_;
     CommandImageSubresource      dc_subresources_;
     const VulkanPipelineInfo*    bound_gr_pipeline_;
-    VulkanDumpResourcesDelegate& delegate_;
-    const VulkanReplayOptions&   options_;
-    const util::Compressor*      compressor_;
-
-    // Execute commands block index : DrawCallContexts
-    // This must be an ordered map: RecalculateCommandBuffers merges secondary draw call indices in iteration
-    // order, which must match the ascending block index order in which the vkCmdExecuteCommands are replayed.
-    std::map<Index, std::vector<std::shared_ptr<DrawCallsDumpingContext>>> secondaries_;
-
-    enum RenderPassType
-    {
-        kRenderPass,
-        kDynamicRendering
-    };
-
-    struct RenderPassContext
-    {
-        RenderPassContext() = delete;
-
-        // Render pass
-        RenderPassContext(const VulkanRenderPassInfo*     rp,
-                          const VulkanFramebufferInfo*    fb,
-                          DumpResourcesCommandBufferLevel level) :
-            type(RenderPassType::kRenderPass),
-            renderpass_info(rp), framebuffer_info(fb), cmd_buf_level(level)
-        {
-            GFXRECON_ASSERT(cmd_buf_level != DumpResourcesCommandBufferLevel::kUnknown);
-        }
-
-        // Dynamic rendering
-        RenderPassContext(const std::vector<VulkanImageInfo*>& color_attachments,
-                          const std::vector<VkImageLayout>&    color_attachment_layouts,
-                          VulkanImageInfo*                     depth_attachment,
-                          VkImageLayout                        depth_attachment_layout,
-                          DumpResourcesCommandBufferLevel      level) :
-            type(RenderPassType::kDynamicRendering),
-            renderpass_info(nullptr), framebuffer_info(nullptr), cmd_buf_level(level)
-        {
-            GFXRECON_ASSERT(cmd_buf_level != DumpResourcesCommandBufferLevel::kUnknown);
-
-            auto& new_render_targets                    = render_targets.emplace_back();
-            new_render_targets.color_att_imgs           = color_attachments;
-            new_render_targets.color_attachment_layouts = color_attachment_layouts;
-            new_render_targets.depth_att_img            = depth_attachment;
-            new_render_targets.depth_attachment_layout  = depth_attachment_layout;
-        }
-
-        // Contexts are shared through shared_ptr (render_pass_contexts_ and DrawCallSlot::render_pass_context)
-        // and own their cloned VkRenderPass handles, which Release() destroys exactly once.
-        RenderPassContext(const RenderPassContext&)            = delete;
-        RenderPassContext& operator=(const RenderPassContext&) = delete;
-
-        // Render targets context for each subpass
-        struct RenderTargets
-        {
-            RenderTargets() : depth_att_img(nullptr), depth_attachment_layout(VK_IMAGE_LAYOUT_UNDEFINED) {}
-
-            std::vector<VulkanImageInfo*> color_att_imgs;
-            std::vector<VkImageLayout>    color_attachment_layouts;
-
-            VulkanImageInfo* depth_att_img;
-            VkImageLayout    depth_attachment_layout;
-        };
-
-        RenderPassType                  type;
-        DumpResourcesCommandBufferLevel cmd_buf_level;
-        const VulkanRenderPassInfo*     renderpass_info;
-        const VulkanFramebufferInfo*    framebuffer_info;
-
-        // Block index of the vkCmdBeginRenderPass/vkCmdBeginRendering that began this instance. Dumped
-        // resources are labeled with it so their filenames do not depend on which other render passes
-        // were requested for dumping.
-        Index begin_block_index{ UNDEFINED_INDEX };
-
-        // One entry per subpass
-        std::vector<RenderTargets> render_targets;
-
-        // Also one entry per subpass. For each subpass we create a new render pass
-        std::vector<VkRenderPass> render_pass_clones;
-
-        // LOAD variants of render_pass_clones, used by a clone that resumes this render pass instead of
-        // starting it, keyed by the subpass the window resumes in and the subpass its target draw is in.
-        std::map<std::pair<uint32_t, uint32_t>, VkRenderPass> render_pass_load_clones;
-
-        // Half-open range of clones that have this instance begun, as command buffer indices.
-        size_t first_clone{ 0 };
-        size_t last_clone{ 0 };
-    };
-
-    // One entry per render pass, in replay order. Held through shared_ptr so that each DrawCallParams can point
-    // at the context its draw call was recorded in.
-    std::vector<std::shared_ptr<RenderPassContext>> render_pass_contexts_;
-
-    // True while a render pass (or dynamic rendering) instance begun by this context is active. Used by
-    // FinalizeCommandBuffer to decide whether a CmdEndRenderPass/CmdEndRendering must be recorded.
-    bool inside_renderpass_;
-
-    // True when command_buffers_ ends in a tail clone: the work a secondary records after its last target
-    // draw, which the target draws that follow it still need.
-    bool has_tail_clone_;
 
     // One entry per descriptor set
     BoundDescriptorSets bound_descriptor_sets_gr_;
@@ -873,7 +667,7 @@ class DrawCallsDumpingContext
         // Store the vkCmdExecuteCommands block index and the secondary's command buffer index inside pCommandBuffers.
         // This is a map in order to support the case where the same secondary is executed multiple times either from
         // the same vkCmdExecuteCommands or when vkCmdExecuteCommands is recorded multiple times in the primary command
-        // buffer. The primary's DrawCallsDumpingContext::current_cb_index_ is used as the map's key.
+        // buffer. The index of the primary's window that runs the draw call is used as the map's key.
         std::map<Index, SecondaryIdentifiers> secondary_identifiers;
 
         DumpedResourcesInfo dumped_resources;
@@ -884,9 +678,7 @@ class DrawCallsDumpingContext
     using DrawCallParameters = std::map<uint64_t, std::shared_ptr<DrawCallParams>>;
     DrawCallParameters draw_call_params_;
 
-    DrawCallParameters&   GetDrawCallParameters() { return draw_call_params_; }
-    std::vector<DrawCallSlot>&       GetDrawCallSlots() { return dc_slots_; }
-    const std::vector<DrawCallSlot>& GetDrawCallSlots() const { return dc_slots_; }
+    DrawCallParameters& GetDrawCallParameters() { return draw_call_params_; }
 
     struct
     {
@@ -901,29 +693,22 @@ class DrawCallsDumpingContext
 
     // Gather here all descriptors referenced by draw calls that have been dumped
     // in order to avoid dumping descriptors referenced from multiple shader stages,
-    // multiple times
+    // multiple times.
+    // They are copies, not references into DumpedResourcesInfo::dumped_descriptors: that list is cleared for each
+    // slot of its draw call (see DumpSlot), while these live until the whole submission has been dumped.
     struct RenderPassDumpedDescriptors
     {
-        std::map<DescriptorLocation, const DumpedImage&>                 image_descriptors;
-        std::map<DescriptorLocation, const DumpedBuffer&>                buffer_descriptors;
-        std::map<DescriptorLocation, const DumpedAccelerationStructure&> acceleration_structures;
+        std::map<DescriptorLocation, DumpedImage>                 image_descriptors;
+        std::map<DescriptorLocation, DumpedBuffer>                buffer_descriptors;
+        std::map<DescriptorLocation, DumpedAccelerationStructure> acceleration_structures;
     };
 
     // Keyed by the render pass context a draw call was recorded in (nullptr for uncorrelated draw calls)
     std::unordered_map<const RenderPassContext*, RenderPassDumpedDescriptors> render_pass_dumped_descriptors_;
 
-    VkCommandBuffer                 aux_command_buffer_;
-    VkFence                         aux_fence_;
-    DumpResourcesCommandBufferLevel command_buffer_level_;
-
-    graphics::VulkanInjectedDeviceCalls     device_table_;
-    const graphics::VulkanInstanceTable*    instance_table_;
-    CommonObjectInfoTable&                  object_info_table_;
-    const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props_;
-
-    const DumpResourcesAccelerationStructuresContext& acceleration_structures_context_;
-
-    const VulkanPerDeviceContexts& device_contexts_;
+    // Used to put the render targets back into their layouts after a window was dumped
+    VkCommandBuffer aux_command_buffer_;
+    VkFence         aux_fence_;
 
     void SecondaryUpdateContextFromPrimary(const VulkanPipelineInfo*     gr_pipeline,
                                            const BoundVertexBuffersInfo& vertex_buffers,
@@ -931,23 +716,9 @@ class DrawCallsDumpingContext
                                            const VertexInputState&       dynamic_vertex_input_state_,
                                            const BoundDescriptorSets&    descriptor_sets);
 
+    // Records, into the clone taking work, the transition of the render targets that are going to be dumped into
+    // VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL. RevertRenderTargetImageLayouts undoes it once the window was dumped.
     void TransitionRenderTargetLayouts(const RenderPassContext& renderpass_context);
-
-    template <typename CreateInfoType>
-    void ParseAttachmentsInRenderPassCreateInfo(const VulkanRenderPassInfo*       render_pass_info,
-                                                const CreateInfoType*             ci,
-                                                const VulkanFramebufferInfo*      framebuffer_info,
-                                                uint32_t                          subpass,
-                                                RenderPassContext::RenderTargets& render_targets);
-
-    VkResult CloneRenderPass(RenderPassContext& renderpass_context);
-
-    VkResult CloneRenderPass2(RenderPassContext& renderpass_context);
-
-    // Common tail of CloneRenderPass/CloneRenderPass2: parse the first subpass' attachments and update the
-    // tracked image layouts in the original command buffer info.
-    template <typename CreateInfoType>
-    void FinalizeRenderPassClone(RenderPassContext& renderpass_context, const CreateInfoType* create_info);
 
     void SnapshotState(DrawCallParams& dc_params);
 

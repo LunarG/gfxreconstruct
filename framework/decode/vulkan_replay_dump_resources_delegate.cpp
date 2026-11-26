@@ -1430,6 +1430,11 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDispatchInfo(
         std::stringstream filename;
         filename << "Dispatch_" << dumped_resources.cmd_index << "_qs_" << dumped_resources.qs_index << "_bcb_"
                  << dumped_resources.bcb_index;
+        if (dumped_resources.execute_cmds_index != UNDEFINED_INDEX)
+        {
+            // The same secondary dispatch can be executed more than once from a primary. Keep one file per execution.
+            filename << "_ec_" << dumped_resources.execute_cmds_index;
+        }
         dump_json_.Open(filename.str(), options_.dump_resources_output_dir);
         dump_json_.BlockStart();
     }
@@ -1453,6 +1458,14 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDispatchInfo(
     dispatch_json_entry["dispatchIndex"]           = dumped_resources.cmd_index;
     dispatch_json_entry["beginCommandBufferIndex"] = dumped_resources.bcb_index;
     dispatch_json_entry["queueSubmitIndex"]        = dumped_resources.qs_index;
+
+    // Dispatches recorded in a secondary command buffer report the vkCmdExecuteCommands that executed them, which
+    // tells the executions of the same secondary apart. For dispatches recorded directly in the primary the entry is
+    // left out.
+    if (dumped_resources.execute_cmds_index != UNDEFINED_INDEX)
+    {
+        dispatch_json_entry["executeCommandsIndex"] = dumped_resources.execute_cmds_index;
+    }
 
     auto& params_json_entries           = dispatch_json_entry["parameters"];
     params_json_entries["dispatchType"] = DispatchTraceRaysDumpingContext::DispatchTypeToStr(disp_params->type);
@@ -1527,6 +1540,11 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTraceRaysIndex(
         std::stringstream filename;
         filename << "TraceRays_" << dumped_resources.cmd_index << "_qs_" << dumped_resources.qs_index << "_bcb_"
                  << dumped_resources.bcb_index;
+        if (dumped_resources.execute_cmds_index != UNDEFINED_INDEX)
+        {
+            // The same secondary trace rays can be executed more than once from a primary. Keep one file per execution.
+            filename << "_ec_" << dumped_resources.execute_cmds_index;
+        }
         dump_json_.Open(filename.str(), options_.dump_resources_output_dir);
         dump_json_.BlockStart();
     }
@@ -1545,6 +1563,14 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTraceRaysIndex(
     tr_entry["traceRaysIndex"]          = dumped_resources.cmd_index;
     tr_entry["beginCommandBufferIndex"] = dumped_resources.bcb_index;
     tr_entry["queueSubmitIndex"]        = dumped_resources.qs_index;
+
+    // Trace rays recorded in a secondary command buffer report the vkCmdExecuteCommands that executed them, which
+    // tells the executions of the same secondary apart. For trace rays recorded directly in the primary the entry is
+    // left out.
+    if (dumped_resources.execute_cmds_index != UNDEFINED_INDEX)
+    {
+        tr_entry["executeCommandsIndex"] = dumped_resources.execute_cmds_index;
+    }
 
     auto& params_json_entries            = tr_entry["parameters"];
     params_json_entries["traceRaysType"] = DispatchTraceRaysDumpingContext::TraceRaysTypeToStr(tr_params->type);

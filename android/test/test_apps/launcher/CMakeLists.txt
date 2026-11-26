@@ -66,7 +66,10 @@ set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
     gfxrecon-testapp-trigger-trimming
     gfxrecon-testapp-ahb
     gfxrecon-testapp-deep-pnext-chain
-    gfxrecon-testapp-screenshot-frame-boundaries)
+    gfxrecon-testapp-screenshot-frame-boundaries
+    gfxrecon-testapp-dispatch-big-buffers
+    gfxrecon-testapp-secondary-dispatch-twice
+    gfxrecon-testapp-secondary-draw-twice)
 
 target_link_libraries(${PROJECT_NAME}
                       ${GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES})
