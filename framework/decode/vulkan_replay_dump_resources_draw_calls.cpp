@@ -1543,7 +1543,8 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(uint64_t          
     const bool insert_new_resource_entry = before_command || !options_.dump_resources_before;
     const bool has_depth                 = render_targets.depth_att_img != nullptr;
 
-    const VulkanDelegateDumpResourceContext res_info_base(instance_table_, device_table_, compressor_, before_command);
+    VulkanDelegateDumpResourceContext res_info_base(instance_table_, device_table_, compressor_, before_command);
+    res_info_base.command_parameters = &dc_params;
 
     // Dump color attachments
     for (size_t i = 0; i < render_targets.color_att_imgs.size(); ++i)
@@ -1725,7 +1726,8 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t                  cmd_
     GFXRECON_ASSERT(original_command_buffer_info_->parent_id != format::kNullHandleId);
     const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
     GFXRECON_ASSERT(device_info);
-    const VulkanDelegateDumpResourceContext res_info_base(instance_table_, device_table_, compressor_);
+    VulkanDelegateDumpResourceContext res_info_base(instance_table_, device_table_, compressor_);
+    res_info_base.command_parameters = &dc_params;
 
     // Filter requested descriptors based on which are actually relevant to this draw call
     const DescriptorImageSubresourcesVector* requested_descriptors =
@@ -2256,7 +2258,8 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t               
     MinMaxVertexIndex min_max_vertex_indices = { 0, 0 };
     bool              empty_draw_call        = false;
 
-    const VulkanDelegateDumpResourceContext res_info_base(instance_table_, device_table_, compressor_);
+    VulkanDelegateDumpResourceContext res_info_base(instance_table_, device_table_, compressor_);
+    res_info_base.command_parameters = &dc_params;
 
     // Dump index buffer
     if (IsDrawCallIndexed(dc_params.type) && dc_params.referenced_index_buffer.buffer_info != nullptr)

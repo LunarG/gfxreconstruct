@@ -42,7 +42,7 @@ class VulkanReplayDumpResourcesJson
 
     ~VulkanReplayDumpResourcesJson(){};
 
-    bool Open(const std::string& infile, const std::string& outdir);
+    bool Open(const std::string& infile, const std::string& outdir, const nlohmann::ordered_json& meta = {});
 
     void Close();
 
@@ -61,6 +61,10 @@ class VulkanReplayDumpResourcesJson
     nlohmann::ordered_json& InsertSubEntry(const std::string& entry_name);
 
     nlohmann::ordered_json& GetCurrentSubEntry();
+
+    // The subresource fields without the after file keys.
+    void InsertImageSubresource(nlohmann::ordered_json&                    json_entry,
+                                const DumpedImage::DumpedImageSubresource& subresource);
 
     void InsertImageSubresourceInfo(nlohmann::ordered_json&                    json_entry,
                                     const DumpedImage::DumpedImageSubresource& subresource,
@@ -92,7 +96,7 @@ class VulkanReplayDumpResourcesJson
     uint32_t FetchAndAddTransferEntryIndex() { return transfer_entry_index++; }
 
   private:
-    bool InitializeFile(const std::string& filename);
+    bool InitializeFile(const std::string& filename, const nlohmann::ordered_json& meta);
 
     std::unique_ptr<util::OutputStream> stream_;
 

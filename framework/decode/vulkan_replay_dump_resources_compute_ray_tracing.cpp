@@ -1445,7 +1445,17 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(const DumpedResou
     const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
     assert(device_info);
 
-    const VulkanDelegateDumpResourceContext res_info_base{ instance_table_, device_table_, compressor_ };
+    VulkanDelegateDumpResourceContext res_info_base{ instance_table_, device_table_, compressor_ };
+    if (is_dispatch)
+    {
+        res_info_base.command_parameters =
+            static_cast<const DispatchTraceRaysDumpingContext::DispatchParams*>(dis_params->second.get());
+    }
+    else
+    {
+        res_info_base.command_parameters =
+            static_cast<const DispatchTraceRaysDumpingContext::TraceRaysParams*>(tr_params->second.get());
+    }
 
     // mutable_resources_clones.cloned_descriptors are a subset of referenced_descriptors. We can do the culling on the
     // referenced descriptors and use the result to cull the map of cloned descriptors
@@ -1725,7 +1735,17 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(const DumpedResourceBa
                     options_.dump_resources_dump_all_image_subresources,
                     descriptors_to_dump);
 
-    const VulkanDelegateDumpResourceContext res_info_base{ instance_table_, device_table_, compressor_ };
+    VulkanDelegateDumpResourceContext res_info_base{ instance_table_, device_table_, compressor_ };
+    if (is_dispatch)
+    {
+        res_info_base.command_parameters =
+            static_cast<const DispatchTraceRaysDumpingContext::DispatchParams*>(dispatch_params_[cmd_index].get());
+    }
+    else
+    {
+        res_info_base.command_parameters =
+            static_cast<const DispatchTraceRaysDumpingContext::TraceRaysParams*>(trace_rays_params_[cmd_index].get());
+    }
 
     assert(original_command_buffer_info_);
     assert(original_command_buffer_info_->parent_id != format::kNullHandleId);

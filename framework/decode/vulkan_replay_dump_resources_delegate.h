@@ -139,6 +139,13 @@ struct VulkanDelegateTransferCommandDumpedData
         dumped_data;
 };
 
+// The command a resource belongs to, so its file meta can be cut from the command's dr.json entry.
+using VulkanDelegateCommandParameters = std::variant<std::monostate,
+                                                     const DrawCallsDumpingContext::DrawCallParams*,
+                                                     const DispatchTraceRaysDumpingContext::DispatchParams*,
+                                                     const DispatchTraceRaysDumpingContext::TraceRaysParams*,
+                                                     const TransferDumpingContext::TransferParams*>;
+
 struct VulkanDelegateDumpResourceContext
 {
     VulkanDelegateDumpResourceContext() = delete;
@@ -158,6 +165,8 @@ struct VulkanDelegateDumpResourceContext
     bool                    before_command;
 
     DumpedResourceBase* dumped_resource;
+
+    VulkanDelegateCommandParameters command_parameters;
 
     std::variant<std::monostate,
                  VulkanDelegateBufferDumpedData,
@@ -199,7 +208,8 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
 
     virtual bool Open() override
     {
-        return dump_json_.Open(options_.capture_filename, options_.dump_resources_output_dir);
+        return dump_json_.Open(
+            options_.capture_filename, options_.dump_resources_output_dir, { { "producer", "dumpResources" } });
     }
 
     virtual void DumpDrawCallInfo(const VulkanDelegateDumpDrawCallContext& draw_call_info) override;
@@ -216,11 +226,12 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
     // Images
     bool DumpImageToFile(const VulkanDelegateDumpResourceContext& delegate_context);
 
-    bool DumpImageToFile(DumpedResourceBase*        dumped_resource,
-                         DumpedImage&               dumped_image,
-                         const DumpedImageHostData& image_dumped_data,
-                         bool                       before_command,
-                         const util::Compressor*    compressor);
+    bool DumpImageToFile(DumpedResourceBase*                    dumped_resource,
+                         DumpedImage&                           dumped_image,
+                         const DumpedImageHostData&             image_dumped_data,
+                         bool                                   before_command,
+                         const util::Compressor*                compressor,
+                         const VulkanDelegateCommandParameters& command_parameters = {});
 
     void HashDumpedResourceBase(uint64_t& seed, const DumpedResourceBase& dumped_resource) const;
 
@@ -241,6 +252,16 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
     // Buffers
     bool DumpBufferToFile(const VulkanDelegateDumpResourceContext& delegate_context);
 
+    bool DumpBufferToFile(DumpedBuffer&                          dumped_buffer,
+                          const std::string&                     filename,
+                          const DumpedHostData&                  data,
+                          const util::Compressor*                compressor,
+                          const VulkanDelegateCommandParameters& command_parameters);
+
+    // Remote file meta (see docs/remote_protocol.md): the command's dr.json entry cut down to filename's branch.
+    nlohmann::ordered_json GenerateFileMeta(const VulkanDelegateCommandParameters& command_parameters,
+                                            const std::string&                     filename);
+
     // Acceleration structures
     bool DumpAccelerationStructureToFile(const VulkanDelegateDumpResourceContext& delegate_context);
 
@@ -248,13 +269,15 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
                         DumpedAccelerationStructure&               dumped_tlas,
                         const AccelerationStructureDumpedHostData& dumped_tlas_data,
                         bool                                       before_command,
-                        const util::Compressor*                    compressor);
+                        const util::Compressor*                    compressor,
+                        const VulkanDelegateCommandParameters&     command_parameters);
 
     bool DumpBLASToFile(const DumpedResourceBase&                  dumped_resource,
                         DumpedAccelerationStructure&               dumped_blas,
                         const AccelerationStructureDumpedHostData& dumped_blas_data,
                         bool                                       before_command,
-                        const util::Compressor*                    compressor);
+                        const util::Compressor*                    compressor,
+                        const VulkanDelegateCommandParameters&     command_parameters);
 
     enum class AccelerationStructureDumpedBufferType
     {
@@ -282,11 +305,23 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
     // Json generators
     void GenerateOutputJsonDrawCallInfo(const VulkanDelegateDumpDrawCallContext& draw_call_info);
 
+    void GenerateDrawCallEntry(const DrawCallsDumpingContext::DrawCallParams& dc_params,
+                               nlohmann::ordered_json&                        draw_call_entry);
+
     void GenerateOutputJsonDispatchInfo(const VulkanDelegateDumpDrawCallContext& draw_call_info);
+
+    void GenerateDispatchEntry(const DispatchTraceRaysDumpingContext::DispatchParams& disp_params,
+                               nlohmann::ordered_json&                                dispatch_entry);
 
     void GenerateOutputJsonTraceRaysIndex(const VulkanDelegateDumpDrawCallContext& draw_call_info);
 
+    void GenerateTraceRaysEntry(const DispatchTraceRaysDumpingContext::TraceRaysParams& tr_params,
+                                nlohmann::ordered_json&                                 tr_entry);
+
     void GenerateOutputJsonTransferInfo(const VulkanDelegateDumpDrawCallContext& draw_call_info);
+
+    void GenerateTransferEntry(const TransferDumpingContext::TransferParams& transfer_cmd_params,
+                               nlohmann::ordered_json&                       transfer_entry);
 
     void GenerateOutputJsonInitBufferCommand(const DumpedTransferCommand& cmd, nlohmann::ordered_json& json_entry);
 

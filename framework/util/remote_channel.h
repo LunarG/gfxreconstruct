@@ -115,7 +115,8 @@ class RemoteChannel
     // socket. All are non-blocking except SendFile, which applies backpressure once the queue is full (see
     // kSendQueueLimit).
     void SendJson(const nlohmann::json& msg);
-    void SendFile(const std::string& name, const void* data, size_t size);
+    // A non-null meta goes out as the file message's "meta" member.
+    void SendFile(const std::string& name, const void* data, size_t size, const nlohmann::ordered_json& meta = {});
     void SendLog(LoggingSeverity severity, const std::string& message);
     void SendStatus(const std::string& state, uint64_t frame, uint64_t block);
     void SendDone(bool success); // Also calls Disconnect().
@@ -135,7 +136,8 @@ class RemoteChannel
     // Send data to the active channel as a "file" message; a no-op when no channel is registered or connected. Lets
     // file writers (screenshots, dump-resources) stream their output without threading a channel pointer through the
     // decode layer.
-    static void SendActiveFile(const std::string& name, const void* data, size_t size);
+    static void
+    SendActiveFile(const std::string& name, const void* data, size_t size, const nlohmann::ordered_json& meta = {});
 
     // Report progress of a bounded operation (with a total, unlike the frame in SendStatus) on the active channel; a
     // no-op when no channel is connected. Emits {"type":"progress","operation":<op>,"current":X,"total":Y}.

@@ -489,13 +489,14 @@ static bool WriteBmpHeader(util::OutputStream& stream, uint32_t width, uint32_t 
     return true;
 }
 
-bool WriteBmpImage(const std::string& filename,
-                   uint32_t           width,
-                   uint32_t           height,
-                   const void*        data,
-                   uint32_t           data_pitch,
-                   DataFormats        format,
-                   bool               write_alpha)
+bool WriteBmpImage(const std::string&            filename,
+                   uint32_t                      width,
+                   uint32_t                      height,
+                   const void*                   data,
+                   uint32_t                      data_pitch,
+                   DataFormats                   format,
+                   bool                          write_alpha,
+                   const nlohmann::ordered_json& meta)
 {
     GFXRECON_LOG_INFO("%s(): Writing file \"%s\"", __func__, filename.c_str())
 
@@ -513,7 +514,7 @@ bool WriteBmpImage(const std::string& filename,
         sizeof(BmpFileHeader) + sizeof(BmpInfoHeader) + (static_cast<size_t>(height) * GetBmpPitch(width, write_alpha));
 
     std::unique_ptr<util::OutputStream> stream =
-        util::OpenOutputFile(filename, util::FileWriteMode::kBinary, file_size);
+        util::OpenOutputFile(filename, util::FileWriteMode::kBinary, file_size, meta);
     if (!stream->IsValid())
     {
         return false;
@@ -563,14 +564,15 @@ bool WriteBmpImage(const std::string& filename,
     return success;
 }
 
-bool WriteBmpImageSeparateAlpha(const std::string& filename,
-                                uint32_t           width,
-                                uint32_t           height,
-                                const void*        data,
-                                uint32_t           data_pitch,
-                                DataFormats        data_format)
+bool WriteBmpImageSeparateAlpha(const std::string&            filename,
+                                uint32_t                      width,
+                                uint32_t                      height,
+                                const void*                   data,
+                                uint32_t                      data_pitch,
+                                DataFormats                   data_format,
+                                const nlohmann::ordered_json& meta)
 {
-    bool success = WriteBmpImage(filename, width, height, data, data_pitch, data_format, false);
+    bool success = WriteBmpImage(filename, width, height, data, data_pitch, data_format, false, meta);
 
     if (success && DataFormatHasAlpha(data_format))
     {
@@ -578,16 +580,27 @@ bool WriteBmpImageSeparateAlpha(const std::string& filename,
         const std::string alpha_filename = util::filepath::InsertFilenamePostfix(filename, "_alpha");
         const size_t      alpha_pitch    = width * kImageBppNoAlpha;
         const DataFormats alpha_format   = data_format == kFormat_BGRA ? kFormat_BGR : kFormat_RGB;
-        success                          = WriteBmpImage(
-            alpha_filename, width, height, alpha_channel, static_cast<uint32_t>(alpha_pitch), alpha_format, false);
+        success                          = WriteBmpImage(alpha_filename,
+                                width,
+                                height,
+                                alpha_channel,
+                                static_cast<uint32_t>(alpha_pitch),
+                                alpha_format,
+                                false,
+                                meta);
     }
 
     return success;
 }
 
 #ifdef GFXRECON_ENABLE_PNG_SCREENSHOT
-static bool WritePngData(
-    const std::string& filename, uint32_t width, uint32_t height, int components, const uint8_t* bytes, int row_pitch)
+static bool WritePngData(const std::string&            filename,
+                         uint32_t                      width,
+                         uint32_t                      height,
+                         int                           components,
+                         const uint8_t*                bytes,
+                         int                           row_pitch,
+                         const nlohmann::ordered_json& meta)
 {
     // Encoded before the open, as stbi_write_png does, so a failed encode leaves no file behind.
     int      png_size = 0;
@@ -600,7 +613,7 @@ static bool WritePngData(
     }
 
     std::unique_ptr<util::OutputStream> stream =
-        util::OpenOutputFile(filename, util::FileWriteMode::kBinary, static_cast<size_t>(png_size));
+        util::OpenOutputFile(filename, util::FileWriteMode::kBinary, static_cast<size_t>(png_size), meta);
     const bool success = stream->IsValid() && stream->Write(png, static_cast<size_t>(png_size));
     STBIW_FREE(png);
 
@@ -613,13 +626,14 @@ static bool WritePngData(
 }
 #endif
 
-bool WritePngImage(const std::string& filename,
-                   uint32_t           width,
-                   uint32_t           height,
-                   const void*        data,
-                   uint32_t           data_pitch,
-                   DataFormats        format,
-                   bool               write_alpha)
+bool WritePngImage(const std::string&            filename,
+                   uint32_t                      width,
+                   uint32_t                      height,
+                   const void*                   data,
+                   uint32_t                      data_pitch,
+                   DataFormats                   format,
+                   bool                          write_alpha,
+                   const nlohmann::ordered_json& meta)
 {
     bool success = false;
 
@@ -641,30 +655,31 @@ bool WritePngImage(const std::string& filename,
     const int png_components         = static_cast<int>(write_alpha ? kImageBpp : kImageBppNoAlpha);
     const int png_row_pitch          = static_cast<int>(width) * png_components;
 
-    success = WritePngData(filename, width, height, png_components, bytes, png_row_pitch);
+    success = WritePngData(filename, width, height, png_components, bytes, png_row_pitch, meta);
 #endif
 
     return success;
 }
 
-bool WritePngImageSeparateAlpha(const std::string& filename,
-                                uint32_t           width,
-                                uint32_t           height,
-                                const void*        data,
-                                uint32_t           data_pitch,
-                                DataFormats        format)
+bool WritePngImageSeparateAlpha(const std::string&            filename,
+                                uint32_t                      width,
+                                uint32_t                      height,
+                                const void*                   data,
+                                uint32_t                      data_pitch,
+                                DataFormats                   format,
+                                const nlohmann::ordered_json& meta)
 {
     bool success = true;
 
 #ifdef GFXRECON_ENABLE_PNG_SCREENSHOT
-    success = WritePngImage(filename, width, height, data, data_pitch, format, false);
+    success = WritePngImage(filename, width, height, data, data_pitch, format, false, meta);
     if (success && DataFormatHasAlpha(format))
     {
         const std::string alpha_filename = util::filepath::InsertFilenamePostfix(filename, "_alpha");
         const uint8_t*    alpha_channel  = ExtractAlphaChannel(width, height, data, data_pitch, false);
         const int         alpha_pitch    = static_cast<int>(width);
 
-        success = WritePngData(alpha_filename, width, height, 1, alpha_channel, alpha_pitch);
+        success = WritePngData(alpha_filename, width, height, 1, alpha_channel, alpha_pitch, meta);
 
         if (!success)
         {
@@ -798,25 +813,26 @@ void RotateAndMirrorPixels(ImageRotation   rotation,
     }
 }
 
-bool WriteImage(const std::string& filename,
-                ScreenshotFormat   file_format,
-                uint32_t           width,
-                uint32_t           height,
-                const void*        data,
-                uint32_t           pitch,
-                DataFormats        data_format,
-                bool               write_alpha,
-                bool               separate_alpha)
+bool WriteImage(const std::string&            filename,
+                ScreenshotFormat              file_format,
+                uint32_t                      width,
+                uint32_t                      height,
+                const void*                   data,
+                uint32_t                      pitch,
+                DataFormats                   data_format,
+                bool                          write_alpha,
+                bool                          separate_alpha,
+                const nlohmann::ordered_json& meta)
 {
     switch (file_format)
     {
         case ScreenshotFormat::kPng:
-            return separate_alpha ? WritePngImageSeparateAlpha(filename, width, height, data, pitch, data_format)
-                                  : WritePngImage(filename, width, height, data, pitch, data_format, write_alpha);
+            return separate_alpha ? WritePngImageSeparateAlpha(filename, width, height, data, pitch, data_format, meta)
+                                  : WritePngImage(filename, width, height, data, pitch, data_format, write_alpha, meta);
 
         case ScreenshotFormat::kBmp:
-            return separate_alpha ? WriteBmpImageSeparateAlpha(filename, width, height, data, pitch, data_format)
-                                  : WriteBmpImage(filename, width, height, data, pitch, data_format, write_alpha);
+            return separate_alpha ? WriteBmpImageSeparateAlpha(filename, width, height, data, pitch, data_format, meta)
+                                  : WriteBmpImage(filename, width, height, data, pitch, data_format, write_alpha, meta);
 
         default:
             // A value outside the enumeration.  Write something rather than
@@ -824,7 +840,7 @@ bool WriteImage(const std::string& filename,
             GFXRECON_LOG_ERROR("%s(): unrecognized image file format %u; writing a BMP instead",
                                __func__,
                                static_cast<uint32_t>(file_format));
-            WriteBmpImage(filename, width, height, data, pitch, data_format, write_alpha);
+            WriteBmpImage(filename, width, height, data, pitch, data_format, write_alpha, meta);
             return false;
     }
 }

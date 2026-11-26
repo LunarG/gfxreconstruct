@@ -71,9 +71,9 @@ VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJson(const VulkanReplayO
         format::GetCompressionTypeName(options.dump_resources_binary_file_compression_type);
 };
 
-bool VulkanReplayDumpResourcesJson::InitializeFile(const std::string& filename)
+bool VulkanReplayDumpResourcesJson::InitializeFile(const std::string& filename, const nlohmann::ordered_json& meta)
 {
-    stream_ = util::OpenOutputFile(filename, util::FileWriteMode::kText);
+    stream_ = util::OpenOutputFile(filename, util::FileWriteMode::kText, 0, meta);
     if (!stream_->IsValid())
     {
         // No reason string here; the stream has already logged one.
@@ -93,7 +93,9 @@ bool VulkanReplayDumpResourcesJson::InitializeFile(const std::string& filename)
     return true;
 }
 
-bool VulkanReplayDumpResourcesJson::Open(const std::string& infile, const std::string& outdir)
+bool VulkanReplayDumpResourcesJson::Open(const std::string&            infile,
+                                         const std::string&            outdir,
+                                         const nlohmann::ordered_json& meta)
 {
     std::filesystem::path path_outfile(outdir);
     std::filesystem::path path_infile(infile);
@@ -107,7 +109,7 @@ bool VulkanReplayDumpResourcesJson::Open(const std::string& infile, const std::s
     }
     outfile = outfile + "_dr.json";
 
-    if (!InitializeFile(outfile))
+    if (!InitializeFile(outfile, meta))
     {
         return false;
     }
@@ -163,11 +165,8 @@ nlohmann::ordered_json& VulkanReplayDumpResourcesJson::GetCurrentSubEntry()
     return current_entry != nullptr ? *current_entry : json_data_;
 }
 
-void VulkanReplayDumpResourcesJson::InsertImageSubresourceInfo(nlohmann::ordered_json&                    json_entry,
-                                                               const DumpedImage::DumpedImageSubresource& subresource,
-                                                               VkFormat                                   format,
-                                                               bool separate_alpha,
-                                                               bool dumped_raw)
+void VulkanReplayDumpResourcesJson::InsertImageSubresource(nlohmann::ordered_json&                    json_entry,
+                                                           const DumpedImage::DumpedImageSubresource& subresource)
 {
     const std::string aspect_str_whole(util::ToString<VkImageAspectFlagBits>(subresource.aspect));
     const std::string aspect_str(aspect_str_whole.begin() + 16, aspect_str_whole.end() - 4);
@@ -180,7 +179,16 @@ void VulkanReplayDumpResourcesJson::InsertImageSubresourceInfo(nlohmann::ordered
     json_entry["mipLevel"]   = subresource.level;
     json_entry["arrayLayer"] = subresource.layer;
     json_entry["depth"]      = subresource.depth;
-    json_entry["file"]       = subresource.filename;
+}
+
+void VulkanReplayDumpResourcesJson::InsertImageSubresourceInfo(nlohmann::ordered_json&                    json_entry,
+                                                               const DumpedImage::DumpedImageSubresource& subresource,
+                                                               VkFormat                                   format,
+                                                               bool separate_alpha,
+                                                               bool dumped_raw)
+{
+    InsertImageSubresource(json_entry, subresource);
+    json_entry["file"] = subresource.filename;
 
     if (separate_alpha && !dumped_raw && vkuFormatHasAlpha(format))
     {

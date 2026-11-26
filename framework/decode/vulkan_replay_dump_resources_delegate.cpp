@@ -29,8 +29,11 @@
 #include "util/hash.h"
 #include "util/image_writer.h"
 #include "util/logging.h"
+#include "util/remote_channel.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 
+#include <algorithm>
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <type_traits>
@@ -110,20 +113,163 @@ bool DefaultVulkanDumpResourcesDelegate::DumpResource(const VulkanDelegateDumpRe
     return false;
 }
 
-static bool DumpBufferToFile(DumpedBuffer&           dumped_buffer,
-                             const std::string&      filename,
-                             const DumpedHostData&   data,
-                             const util::Compressor* compressor)
+static constexpr std::array<const char*, 4> kFileKeys = { "file", "fileAlpha", "beforeFile", "beforeFileAlpha" };
+
+static bool IsFileKey(const std::string& key)
 {
-    const size_t bytes_written = util::bufferwriter::WriteBuffer(filename, data.data(), data.size(), compressor);
+    return std::find(kFileKeys.begin(), kFileKeys.end(), key) != kFileKeys.end();
+}
+
+// True when json names a file under one of dr.json's file keys; any file when name is null.
+static bool HoldsFile(const nlohmann::ordered_json& json, const std::string* name)
+{
+    if (json.is_array())
+    {
+        return std::any_of(json.begin(), json.end(), [name](const auto& element) { return HoldsFile(element, name); });
+    }
+
+    if (json.is_object())
+    {
+        for (const auto& item : json.items())
+        {
+            const auto& value = item.value();
+            if (IsFileKey(item.key()) && value.is_string())
+            {
+                const auto& file = value.get_ref<const std::string&>();
+                if (!file.empty() && ((name == nullptr) || (file == *name)))
+                {
+                    return true;
+                }
+            }
+            else if (value.is_structured() && HoldsFile(value, name))
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+// Drops the branches of a dr.json entry that lead only to other files. Arrays on name's branch keep just its
+// element, which records its dr.json position as "index".
+static nlohmann::ordered_json PruneToFile(const nlohmann::ordered_json& json, const std::string& name)
+{
+    if (json.is_array())
+    {
+        nlohmann::ordered_json pruned = nlohmann::ordered_json::array();
+        for (size_t i = 0; i < json.size(); ++i)
+        {
+            if (HoldsFile(json[i], &name))
+            {
+                GFXRECON_ASSERT(json[i].is_object());
+                const nlohmann::ordered_json pruned_element = PruneToFile(json[i], name);
+                nlohmann::ordered_json       element        = nlohmann::ordered_json::object();
+                element["index"]                            = i;
+                for (const auto& item : pruned_element.items())
+                {
+                    element[item.key()] = item.value();
+                }
+                pruned.push_back(std::move(element));
+            }
+        }
+        return pruned;
+    }
+
+    nlohmann::ordered_json pruned = nlohmann::ordered_json::object();
+    for (const auto& item : json.items())
+    {
+        const auto& value = item.value();
+        if (!value.is_structured() || !HoldsFile(value, nullptr))
+        {
+            pruned[item.key()] = value;
+        }
+        else if (HoldsFile(value, &name))
+        {
+            pruned[item.key()] = PruneToFile(value, name);
+        }
+    }
+    return pruned;
+}
+
+// Disk writes drop meta, so it is only built for a remote session.
+static nlohmann::ordered_json ProducerMeta()
+{
+    nlohmann::ordered_json meta;
+    if (util::RemoteChannel::IsActive())
+    {
+        meta["producer"] = "dumpResources";
+    }
+    return meta;
+}
+
+// A per-command JSON names no file, so its meta keeps only the entry's file-free context.
+static nlohmann::ordered_json CommandJsonMeta(const char* command_key, const nlohmann::ordered_json& entry)
+{
+    nlohmann::ordered_json meta = ProducerMeta();
+    if (!meta.is_null())
+    {
+        meta[command_key] = PruneToFile(entry, {});
+    }
+    return meta;
+}
+
+nlohmann::ordered_json
+DefaultVulkanDumpResourcesDelegate::GenerateFileMeta(const VulkanDelegateCommandParameters& command_parameters,
+                                                     const std::string&                     filename)
+{
+    nlohmann::ordered_json meta = ProducerMeta();
+    if (meta.is_null())
+    {
+        return meta;
+    }
+
+    nlohmann::ordered_json entry;
+    if (const auto* dc_params = std::get_if<const DrawCallsDumpingContext::DrawCallParams*>(&command_parameters))
+    {
+        GenerateDrawCallEntry(**dc_params, entry);
+        meta["drawCallCommands"] = PruneToFile(entry, filename);
+    }
+    else if (const auto* disp_params =
+                 std::get_if<const DispatchTraceRaysDumpingContext::DispatchParams*>(&command_parameters))
+    {
+        GenerateDispatchEntry(**disp_params, entry);
+        meta["dispatchCommands"] = PruneToFile(entry, filename);
+    }
+    else if (const auto* tr_params =
+                 std::get_if<const DispatchTraceRaysDumpingContext::TraceRaysParams*>(&command_parameters))
+    {
+        GenerateTraceRaysEntry(**tr_params, entry);
+        meta["traceRaysCommands"] = PruneToFile(entry, filename);
+    }
+    else if (const auto* transfer_params =
+                 std::get_if<const TransferDumpingContext::TransferParams*>(&command_parameters))
+    {
+        GenerateTransferEntry(**transfer_params, entry);
+        meta["transferCommands"] = PruneToFile(entry, filename);
+    }
+
+    return meta;
+}
+
+bool DefaultVulkanDumpResourcesDelegate::DumpBufferToFile(DumpedBuffer&                          dumped_buffer,
+                                                          const std::string&                     filename,
+                                                          const DumpedHostData&                  data,
+                                                          const util::Compressor*                compressor,
+                                                          const VulkanDelegateCommandParameters& command_parameters)
+{
+    // The meta is cut from the command's dr.json entry, which must already name this file.
+    dumped_buffer.filename            = filename;
+    const nlohmann::ordered_json meta = GenerateFileMeta(command_parameters, filename);
+
+    const size_t bytes_written = util::bufferwriter::WriteBuffer(filename, data.data(), data.size(), compressor, meta);
 
     if (!bytes_written)
     {
         GFXRECON_LOG_ERROR("Error writing file %s", filename.c_str());
+        dumped_buffer.filename.clear();
         return false;
     }
-
-    dumped_buffer.filename = filename;
 
     if (bytes_written && bytes_written != data.size())
     {
@@ -286,7 +432,8 @@ bool DefaultVulkanDumpResourcesDelegate::DumpBufferToFile(const VulkanDelegateDu
         std::get<VulkanDelegateBufferDumpedData>(delegate_context.dumped_data);
 
     const std::string filename = GenerateBufferFilename(*dumped_resource, delegate_context.before_command);
-    return gfxrecon::decode::DumpBufferToFile(*dumped_buffer, filename, buffer_data.data, delegate_context.compressor);
+    return DumpBufferToFile(
+        *dumped_buffer, filename, buffer_data.data, delegate_context.compressor, delegate_context.command_parameters);
 }
 
 static constexpr util::imagewriter::DataFormats VkFormatToImageWriterDataFormat(VkFormat              format,
@@ -379,11 +526,12 @@ GetDumpedImageFormat(const DumpedImage& dumped_image, bool dump_images_raw, util
     return KFormatRaw;
 }
 
-bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(DumpedResourceBase*        dumped_resource,
-                                                         DumpedImage&               dumped_image,
-                                                         const DumpedImageHostData& image_dumped_data,
-                                                         bool                       before_command,
-                                                         const util::Compressor*    compressor)
+bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(DumpedResourceBase*                    dumped_resource,
+                                                         DumpedImage&                           dumped_image,
+                                                         const DumpedImageHostData&             image_dumped_data,
+                                                         bool                                   before_command,
+                                                         const util::Compressor*                compressor,
+                                                         const VulkanDelegateCommandParameters& command_parameters)
 {
     const VulkanImageInfo* image_info = dumped_image.image_info;
 
@@ -397,11 +545,12 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(DumpedResourceBase*    
     GFXRECON_ASSERT(!dumped_image.dumped_subresources.empty());
     GFXRECON_ASSERT(image_dumped_data.size() == dumped_image.dumped_subresources.size());
 
+    GFXRECON_ASSERT(dumped_resource != nullptr);
+
     for (size_t i = 0; i < dumped_image.dumped_subresources.size(); ++i)
     {
         auto& sub_res = dumped_image.dumped_subresources[i];
 
-        GFXRECON_ASSERT(dumped_resource != nullptr);
         const std::string filename = GenerateImageFilename(*dumped_resource,
                                                            output_image_format,
                                                            sub_res.aspect,
@@ -410,7 +559,13 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(DumpedResourceBase*    
                                                            sub_res.depth,
                                                            before_command);
 
+        // The meta is cut from the command's dr.json entry, which must already describe this file.
         sub_res.filename = filename;
+        if (output_image_format == KFormatRaw)
+        {
+            sub_res.size = image_dumped_data[i].size();
+        }
+        const nlohmann::ordered_json meta = GenerateFileMeta(command_parameters, filename);
 
         if (output_image_format != KFormatRaw)
         {
@@ -437,7 +592,8 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(DumpedResourceBase*    
                                           stride,
                                           image_writer_format,
                                           has_alpha,
-                                          separate_alpha);
+                                          separate_alpha,
+                                          meta);
         }
         else
         {
@@ -448,12 +604,12 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(DumpedResourceBase*    
                     util::ToString<VkFormat>(image_info->format).c_str());
             }
 
-            sub_res.size = image_dumped_data[i].size();
             const size_t bytes_written =
                 util::bufferwriter::WriteBuffer(filename,
                                                 static_cast<const void*>(image_dumped_data[i].data()),
                                                 image_dumped_data[i].size(),
-                                                compressor);
+                                                compressor,
+                                                meta);
 
             if (!bytes_written)
             {
@@ -511,14 +667,16 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(const VulkanDelegateDum
                            *dumped_image,
                            image_dumped_data.data,
                            delegate_context.before_command,
-                           delegate_context.compressor);
+                           delegate_context.compressor,
+                           delegate_context.command_parameters);
 }
 
 bool DefaultVulkanDumpResourcesDelegate::DumpTLASToFile(const DumpedResourceBase&                  dumped_resource,
                                                         DumpedAccelerationStructure&               dumped_as,
                                                         const AccelerationStructureDumpedHostData& dumped_as_data,
                                                         bool                                       before_command,
-                                                        const util::Compressor*                    compressor)
+                                                        const util::Compressor*                    compressor,
+                                                        const VulkanDelegateCommandParameters&     command_parameters)
 {
     GFXRECON_ASSERT(dumped_as.as_info != nullptr);
     GFXRECON_ASSERT(dumped_as.as_info->type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR);
@@ -531,8 +689,8 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTLASToFile(const DumpedResourceBase
                                                               AccelerationStructureDumpedBufferType::kSerializedTlas,
                                                               before_command);
 
-        gfxrecon::decode::DumpBufferToFile(
-            dumped_as.serialized_buffer, filename, dumped_as_data.serialized_data, compressor);
+        DumpBufferToFile(
+            dumped_as.serialized_buffer, filename, dumped_as_data.serialized_data, compressor, command_parameters);
     }
 
     // Dump instance buffers
@@ -556,16 +714,23 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTLASToFile(const DumpedResourceBase
                                                                   AccelerationStructureDumpedBufferType::kInstance,
                                                                   before_command,
                                                                   static_cast<uint32_t>(i));
-            gfxrecon::decode::DumpBufferToFile(
-                instance_buffer->instance_buffer, filename, instance_buffer_host_data->instance_buffer, compressor);
+            DumpBufferToFile(instance_buffer->instance_buffer,
+                             filename,
+                             instance_buffer_host_data->instance_buffer,
+                             compressor,
+                             command_parameters);
         }
     }
 
     // Dump referenced BLASes
     for (size_t i = 0; i < dumped_as.BLASes.size(); ++i)
     {
-        if (!DumpBLASToFile(
-                dumped_resource, dumped_as.BLASes[i], dumped_as_data.blass_dumped_data[i], before_command, compressor))
+        if (!DumpBLASToFile(dumped_resource,
+                            dumped_as.BLASes[i],
+                            dumped_as_data.blass_dumped_data[i],
+                            before_command,
+                            compressor,
+                            command_parameters))
         {
             return false;
         }
@@ -592,7 +757,8 @@ bool DefaultVulkanDumpResourcesDelegate::DumpBLASToFile(const DumpedResourceBase
                                                         DumpedAccelerationStructure&               dumped_as,
                                                         const AccelerationStructureDumpedHostData& dumped_as_data,
                                                         bool                                       before_command,
-                                                        const util::Compressor*                    compressor)
+                                                        const util::Compressor*                    compressor,
+                                                        const VulkanDelegateCommandParameters&     command_parameters)
 {
     GFXRECON_ASSERT(dumped_as.as_info != nullptr);
     GFXRECON_ASSERT(dumped_as.as_info->type == VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR);
@@ -605,8 +771,8 @@ bool DefaultVulkanDumpResourcesDelegate::DumpBLASToFile(const DumpedResourceBase
                                                               AccelerationStructureDumpedBufferType::kSerializedBlas,
                                                               before_command);
 
-        gfxrecon::decode::DumpBufferToFile(
-            dumped_as.serialized_buffer, filename, dumped_as_data.serialized_data, compressor);
+        DumpBufferToFile(
+            dumped_as.serialized_buffer, filename, dumped_as_data.serialized_data, compressor, command_parameters);
     }
 
     if (!dumped_as.dump_build_input_buffers)
@@ -636,8 +802,8 @@ bool DefaultVulkanDumpResourcesDelegate::DumpBLASToFile(const DumpedResourceBase
                                                                       AccelerationStructureDumpedBufferType::kVertex,
                                                                       before_command,
                                                                       static_cast<uint32_t>(i));
-                gfxrecon::decode::DumpBufferToFile(
-                    triangles->vertex_buffer, filename, triangles_data->vertex_buffer, compressor);
+                DumpBufferToFile(
+                    triangles->vertex_buffer, filename, triangles_data->vertex_buffer, compressor, command_parameters);
             }
 
             // Index buffer
@@ -648,8 +814,8 @@ bool DefaultVulkanDumpResourcesDelegate::DumpBLASToFile(const DumpedResourceBase
                                                                       AccelerationStructureDumpedBufferType::kIndex,
                                                                       before_command,
                                                                       static_cast<uint32_t>(i));
-                gfxrecon::decode::DumpBufferToFile(
-                    triangles->index_buffer, filename, triangles_data->index_buffer, compressor);
+                DumpBufferToFile(
+                    triangles->index_buffer, filename, triangles_data->index_buffer, compressor, command_parameters);
             }
 
             // Transform buffer
@@ -660,8 +826,11 @@ bool DefaultVulkanDumpResourcesDelegate::DumpBLASToFile(const DumpedResourceBase
                                                                       AccelerationStructureDumpedBufferType::kTransform,
                                                                       before_command,
                                                                       static_cast<uint32_t>(i));
-                gfxrecon::decode::DumpBufferToFile(
-                    triangles->transform_buffer, filename, triangles_data->transform_buffer, compressor);
+                DumpBufferToFile(triangles->transform_buffer,
+                                 filename,
+                                 triangles_data->transform_buffer,
+                                 compressor,
+                                 command_parameters);
             }
         }
         // AABBs
@@ -679,7 +848,7 @@ bool DefaultVulkanDumpResourcesDelegate::DumpBLASToFile(const DumpedResourceBase
                                                                       AccelerationStructureDumpedBufferType::kAABB,
                                                                       before_command,
                                                                       static_cast<uint32_t>(i));
-                gfxrecon::decode::DumpBufferToFile(aabb->aabb_buffer, filename, aabb_data->aabb_buffer, compressor);
+                DumpBufferToFile(aabb->aabb_buffer, filename, aabb_data->aabb_buffer, compressor, command_parameters);
             }
         }
     }
@@ -711,7 +880,8 @@ bool DefaultVulkanDumpResourcesDelegate::DumpAccelerationStructureToFile(
                               *dumped_as,
                               dumped_as_host_data.data,
                               delegate_context.before_command,
-                              delegate_context.compressor);
+                              delegate_context.compressor,
+                              delegate_context.command_parameters);
     }
     else if (dumped_as->as_info != nullptr &&
              dumped_as->as_info->type == VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR)
@@ -720,7 +890,8 @@ bool DefaultVulkanDumpResourcesDelegate::DumpAccelerationStructureToFile(
                               *dumped_as,
                               dumped_as_host_data.data,
                               delegate_context.before_command,
-                              delegate_context.compressor);
+                              delegate_context.compressor,
+                              delegate_context.command_parameters);
     }
 
     return true;
@@ -884,6 +1055,11 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
 
     const DumpedResourcesInfo& dumped_resources = dc_params->dumped_resources;
 
+    nlohmann::ordered_json draw_call_entry;
+    GenerateDrawCallEntry(*dc_params, draw_call_entry);
+
+    const uint32_t draw_call_json_entry = dump_json_.FetchAndAddDrawCallsEntryIndex();
+
     if (options_.dump_resources_json_per_command)
     {
         std::stringstream filename;
@@ -894,17 +1070,24 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
             // The same secondary draw call can be executed more than once from a primary. Keep one file per execution.
             filename << "_ec_" << dumped_resources.execute_cmds_index;
         }
-        dump_json_.Open(filename.str(), options_.dump_resources_output_dir);
+
+        dump_json_.Open(
+            filename.str(), options_.dump_resources_output_dir, CommandJsonMeta("drawCallCommands", draw_call_entry));
         dump_json_.BlockStart();
+        dump_json_.GetCurrentSubEntry() = std::move(draw_call_entry);
+        dump_json_.BlockEnd();
+        dump_json_.Close();
     }
+    else
+    {
+        dump_json_.GetCurrentSubEntry()["drawCallCommands"][draw_call_json_entry] = std::move(draw_call_entry);
+    }
+}
 
-    auto& current_block = dump_json_.GetCurrentSubEntry();
-    auto& drawcall_json_entries =
-        !options_.dump_resources_json_per_command ? current_block["drawCallCommands"] : current_block;
-
-    const uint32_t draw_call_json_entry = dump_json_.FetchAndAddDrawCallsEntryIndex();
-    auto&          draw_call_entry =
-        !options_.dump_resources_json_per_command ? drawcall_json_entries[draw_call_json_entry] : drawcall_json_entries;
+void DefaultVulkanDumpResourcesDelegate::GenerateDrawCallEntry(const DrawCallsDumpingContext::DrawCallParams& dc_params,
+                                                               nlohmann::ordered_json& draw_call_entry)
+{
+    const DumpedResourcesInfo& dumped_resources = dc_params.dumped_resources;
 
     if (options_.using_dump_resources_target)
     {
@@ -926,12 +1109,12 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
 
     // Write draw call params
     auto& dc_params_json_entry           = draw_call_entry["parameters"];
-    dc_params_json_entry["drawCallType"] = DrawCallsDumpingContext::DrawCallTypeToStr(dc_params->type);
-    switch (dc_params->type)
+    dc_params_json_entry["drawCallType"] = DrawCallsDumpingContext::DrawCallTypeToStr(dc_params.type);
+    switch (dc_params.type)
     {
         case DrawCallsDumpingContext::DrawCallType::kDraw:
         {
-            const VkDrawIndirectCommand& draw_call_parameters = dc_params->dc_params_union.draw;
+            const VkDrawIndirectCommand& draw_call_parameters = dc_params.dc_params_union.draw;
 
             dc_params_json_entry["vertexCount"]   = draw_call_parameters.vertexCount;
             dc_params_json_entry["instanceCount"] = draw_call_parameters.instanceCount;
@@ -942,7 +1125,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
 
         case DrawCallsDumpingContext::DrawCallType::kDrawIndexed:
         {
-            const VkDrawIndexedIndirectCommand& draw_call_parameters = dc_params->dc_params_union.draw_indexed;
+            const VkDrawIndexedIndirectCommand& draw_call_parameters = dc_params.dc_params_union.draw_indexed;
 
             dc_params_json_entry["indexCount"]    = draw_call_parameters.indexCount;
             dc_params_json_entry["instanceCount"] = draw_call_parameters.instanceCount;
@@ -954,7 +1137,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
 
         case DrawCallsDumpingContext::DrawCallType::kDrawIndirect:
         {
-            const auto& draw_call_parameters = dc_params->dc_params_union.draw_indirect;
+            const auto& draw_call_parameters = dc_params.dc_params_union.draw_indirect;
 
             assert((draw_call_parameters.draw_count && draw_call_parameters.draw_params != nullptr) ||
                    !draw_call_parameters.draw_count);
@@ -973,7 +1156,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
 
         case DrawCallsDumpingContext::DrawCallType::kDrawIndexedIndirect:
         {
-            const auto& draw_call_parameters = dc_params->dc_params_union.draw_indirect;
+            const auto& draw_call_parameters = dc_params.dc_params_union.draw_indirect;
 
             assert((draw_call_parameters.draw_count && draw_call_parameters.draw_indexed_params != nullptr) ||
                    !draw_call_parameters.draw_count);
@@ -997,7 +1180,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
         case DrawCallsDumpingContext::DrawCallType::kDrawIndirectCountKHR:
         case DrawCallsDumpingContext::DrawCallType::kDrawIndirectCountAMD:
         {
-            const auto& draw_call_parameters = dc_params->dc_params_union.draw_indirect_count;
+            const auto& draw_call_parameters = dc_params.dc_params_union.draw_indirect_count;
 
             dc_params_json_entry["maxDrawCount"]    = draw_call_parameters.max_draw_count;
             dc_params_json_entry["actualDrawCount"] = draw_call_parameters.actual_draw_count;
@@ -1017,7 +1200,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
         case DrawCallsDumpingContext::DrawCallType::kDrawIndexedIndirectCountKHR:
         case DrawCallsDumpingContext::DrawCallType::kDrawIndexedIndirectCountAMD:
         {
-            const auto& draw_call_parameters = dc_params->dc_params_union.draw_indirect_count;
+            const auto& draw_call_parameters = dc_params.dc_params_union.draw_indirect_count;
 
             dc_params_json_entry["maxDrawCount"]    = draw_call_parameters.max_draw_count;
             dc_params_json_entry["actualDrawCount"] = draw_call_parameters.actual_draw_count;
@@ -1048,7 +1231,9 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
             !is_depth_attachment ? draw_call_entry["colorAttachments"] : draw_call_entry["depthAttachment"];
         auto& rt_entry = !is_depth_attachment ? rt_entries[rt_json_entries++] : rt_entries;
 
-        const DumpedImage&     image      = rt.dumped_image;
+        // File meta is built during the before pass too, when only the before image has been read back.
+        const bool         before_only = options_.dump_resources_before && rt.dumped_image.dumped_subresources.empty();
+        const DumpedImage& image       = before_only ? rt.dumped_image_before : rt.dumped_image;
         const VulkanImageInfo* image_info = image.image_info;
         GFXRECON_ASSERT(image_info != nullptr);
 
@@ -1069,13 +1254,20 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
             {
                 const DumpedImage::DumpedImageSubresource& dumped_image_sub_resource = image.dumped_subresources[sr];
                 auto&                                      subresource_json_entry    = rt_entry["subresources"];
-                dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
-                                                      dumped_image_sub_resource,
-                                                      image_info->format,
-                                                      options_.dump_resources_dump_separate_alpha,
-                                                      image.dumped_raw);
+                if (before_only)
+                {
+                    dump_json_.InsertImageSubresource(subresource_json_entry[sr], dumped_image_sub_resource);
+                }
+                else
+                {
+                    dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
+                                                          dumped_image_sub_resource,
+                                                          image_info->format,
+                                                          options_.dump_resources_dump_separate_alpha,
+                                                          image.dumped_raw);
+                }
 
-                if (options_.dump_resources_before)
+                if (options_.dump_resources_before && (sr < rt.dumped_image_before.dumped_subresources.size()))
                 {
                     const DumpedImage::DumpedImageSubresource& dumped_image_before_sub_resource =
                         rt.dumped_image_before.dumped_subresources[sr];
@@ -1103,20 +1295,20 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
     if (options_.dump_resources_dump_vertex_index_buffer)
     {
         // Emmit vertex bindings info
-        if (!dc_params->vertex_input_state.vertex_input_binding_map.empty())
+        if (!dc_params.vertex_input_state.vertex_input_binding_map.empty())
         {
             auto& vertex_input_state_json_entry = draw_call_entry["vertexInputState"];
 
             auto&    bindings_json_entry = vertex_input_state_json_entry["bindings"];
             uint32_t i                   = 0;
-            for (const auto& [binding_index, vb_binding] : dc_params->vertex_input_state.vertex_input_binding_map)
+            for (const auto& [binding_index, vb_binding] : dc_params.vertex_input_state.vertex_input_binding_map)
             {
                 bindings_json_entry[i]["binding"]   = binding_index;
                 bindings_json_entry[i]["stride"]    = vb_binding.stride;
                 bindings_json_entry[i]["inputRate"] = util::ToString<VkVertexInputRate>(vb_binding.inputRate);
 
                 if (!options_.dump_resources_dump_unused_vertex_bindings &&
-                    !dc_params->vertex_input_state.IsVertexBindingReferenced(binding_index))
+                    !dc_params.vertex_input_state.IsVertexBindingReferenced(binding_index))
                 {
                     bindings_json_entry[i]["unused"] = true;
                 }
@@ -1126,12 +1318,12 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
         }
 
         // Emmit vertex attributes info
-        if (!dc_params->vertex_input_state.vertex_input_attribute_map.empty())
+        if (!dc_params.vertex_input_state.vertex_input_attribute_map.empty())
         {
             auto&    vertex_input_state_json_entry = draw_call_entry["vertexInputState"];
             auto&    attributes_json_entry         = vertex_input_state_json_entry["attributes"];
             uint32_t i                             = 0;
-            for (const auto& vb_attribute : dc_params->vertex_input_state.vertex_input_attribute_map)
+            for (const auto& vb_attribute : dc_params.vertex_input_state.vertex_input_attribute_map)
             {
                 attributes_json_entry[i]["location"] = vb_attribute.first;
                 attributes_json_entry[i]["binding"]  = vb_attribute.second.binding;
@@ -1169,12 +1361,6 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
     if (options_.dump_all_descriptors)
     {
         GenerateDescriptorsJsonInfo(draw_call_entry, dumped_resources);
-    }
-
-    if (options_.dump_resources_json_per_command)
-    {
-        dump_json_.BlockEnd();
-        dump_json_.Close();
     }
 }
 
@@ -1337,7 +1523,8 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDescriptorsJsonInfo(nlohmann::o
                                                               dumped_image->dumped_raw);
 
                         const DumpedImage* dumped_image_before = std::get_if<DumpedImage>(&desc.dumped_resource_before);
-                        if (options_.dump_resources_before && dumped_image_before != nullptr)
+                        if (options_.dump_resources_before && dumped_image_before != nullptr &&
+                            (sr < dumped_image_before->dumped_subresources.size()))
                         {
                             const DumpedImage::DumpedImageSubresource& dumped_image_before_sub_resource =
                                 dumped_image_before->dumped_subresources[sr];
@@ -1425,23 +1612,33 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDispatchInfo(
 
     const DumpedResourcesInfo& dumped_resources = disp_params->dumped_resources;
 
+    nlohmann::ordered_json dispatch_entry;
+    GenerateDispatchEntry(*disp_params, dispatch_entry);
+
+    const uint32_t dispatch_json_entry_index = dump_json_.FetchAndAddDispatchEntryIndex();
+
     if (options_.dump_resources_json_per_command)
     {
         std::stringstream filename;
         filename << "Dispatch_" << dumped_resources.cmd_index << "_qs_" << dumped_resources.qs_index << "_bcb_"
                  << dumped_resources.bcb_index;
-        dump_json_.Open(filename.str(), options_.dump_resources_output_dir);
+        dump_json_.Open(
+            filename.str(), options_.dump_resources_output_dir, CommandJsonMeta("dispatchCommands", dispatch_entry));
         dump_json_.BlockStart();
+        dump_json_.GetData() = std::move(dispatch_entry);
+        dump_json_.BlockEnd();
+        dump_json_.Close();
     }
+    else
+    {
+        dump_json_.GetCurrentSubEntry()["dispatchCommands"][dispatch_json_entry_index] = std::move(dispatch_entry);
+    }
+}
 
-    auto& current_block = dump_json_.GetCurrentSubEntry();
-    auto& dispatch_json_entries =
-        !options_.dump_resources_json_per_command ? current_block["dispatchCommands"] : dump_json_.GetData();
-
-    const uint32_t dispatch_json_entry_index = dump_json_.FetchAndAddDispatchEntryIndex();
-    auto&          dispatch_json_entry       = !options_.dump_resources_json_per_command
-                                                   ? dispatch_json_entries[dispatch_json_entry_index]
-                                                   : dump_json_.GetData();
+void DefaultVulkanDumpResourcesDelegate::GenerateDispatchEntry(
+    const DispatchTraceRaysDumpingContext::DispatchParams& disp_params, nlohmann::ordered_json& dispatch_json_entry)
+{
+    const DumpedResourcesInfo& dumped_resources = disp_params.dumped_resources;
 
     if (options_.using_dump_resources_target)
     {
@@ -1455,12 +1652,12 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDispatchInfo(
     dispatch_json_entry["queueSubmitIndex"]        = dumped_resources.qs_index;
 
     auto& params_json_entries           = dispatch_json_entry["parameters"];
-    params_json_entries["dispatchType"] = DispatchTraceRaysDumpingContext::DispatchTypeToStr(disp_params->type);
-    switch (disp_params->type)
+    params_json_entries["dispatchType"] = DispatchTraceRaysDumpingContext::DispatchTypeToStr(disp_params.type);
+    switch (disp_params.type)
     {
         case DispatchTraceRaysDumpingContext::DispatchTypes::kDispatch:
         {
-            const auto& ds_params = disp_params->dispatch_params_union.dispatch;
+            const auto& ds_params = disp_params.dispatch_params_union.dispatch;
 
             params_json_entries["groupCountX"] = ds_params.groupCountX;
             params_json_entries["groupCountY"] = ds_params.groupCountY;
@@ -1470,7 +1667,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDispatchInfo(
 
         case DispatchTraceRaysDumpingContext::DispatchTypes::kDispatchIndirect:
         {
-            const auto& ds_params = disp_params->dispatch_params_union.dispatch_indirect;
+            const auto& ds_params = disp_params.dispatch_params_union.dispatch_indirect;
 
             params_json_entries["groupCountX"] = ds_params.fetched_dispatch_params.groupCountX;
             params_json_entries["groupCountY"] = ds_params.fetched_dispatch_params.groupCountY;
@@ -1480,7 +1677,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDispatchInfo(
 
         case DispatchTraceRaysDumpingContext::DispatchTypes::kDispatchBase:
         {
-            const auto& ds_params = disp_params->dispatch_params_union.dispatch_base;
+            const auto& ds_params = disp_params.dispatch_params_union.dispatch_base;
 
             params_json_entries["baseGroupX"]  = ds_params.baseGroupX;
             params_json_entries["baseGroupY"]  = ds_params.baseGroupY;
@@ -1496,12 +1693,6 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDispatchInfo(
     }
 
     GenerateDescriptorsJsonInfo(dispatch_json_entry, dumped_resources);
-
-    if (options_.dump_resources_json_per_command)
-    {
-        dump_json_.BlockEnd();
-        dump_json_.Close();
-    }
 }
 
 void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTraceRaysIndex(
@@ -1517,23 +1708,33 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTraceRaysIndex(
 
     const DumpedResourcesInfo& dumped_resources = tr_params->dumped_resources;
 
-    auto& current_block = dump_json_.GetCurrentSubEntry();
+    nlohmann::ordered_json tr_entry;
+    GenerateTraceRaysEntry(*tr_params, tr_entry);
 
-    auto& tr_json_entries =
-        (!options_.dump_resources_json_per_command) ? current_block["traceRaysCommands"] : dump_json_.GetData();
+    const uint32_t trace_rays_json_entry_index = dump_json_.FetchAndAddTraceRaysEntryIndex();
 
     if (options_.dump_resources_json_per_command)
     {
         std::stringstream filename;
         filename << "TraceRays_" << dumped_resources.cmd_index << "_qs_" << dumped_resources.qs_index << "_bcb_"
                  << dumped_resources.bcb_index;
-        dump_json_.Open(filename.str(), options_.dump_resources_output_dir);
+        dump_json_.Open(
+            filename.str(), options_.dump_resources_output_dir, CommandJsonMeta("traceRaysCommands", tr_entry));
         dump_json_.BlockStart();
+        dump_json_.GetData() = std::move(tr_entry);
+        dump_json_.BlockEnd();
+        dump_json_.Close();
     }
+    else
+    {
+        dump_json_.GetCurrentSubEntry()["traceRaysCommands"][trace_rays_json_entry_index] = std::move(tr_entry);
+    }
+}
 
-    const uint32_t trace_rays_json_entry_index = dump_json_.FetchAndAddTraceRaysEntryIndex();
-    auto&          tr_entry =
-        !options_.dump_resources_json_per_command ? tr_json_entries[trace_rays_json_entry_index] : dump_json_.GetData();
+void DefaultVulkanDumpResourcesDelegate::GenerateTraceRaysEntry(
+    const DispatchTraceRaysDumpingContext::TraceRaysParams& tr_params, nlohmann::ordered_json& tr_entry)
+{
+    const DumpedResourcesInfo& dumped_resources = tr_params.dumped_resources;
 
     if (options_.using_dump_resources_target)
     {
@@ -1547,13 +1748,13 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTraceRaysIndex(
     tr_entry["queueSubmitIndex"]        = dumped_resources.qs_index;
 
     auto& params_json_entries            = tr_entry["parameters"];
-    params_json_entries["traceRaysType"] = DispatchTraceRaysDumpingContext::TraceRaysTypeToStr(tr_params->type);
+    params_json_entries["traceRaysType"] = DispatchTraceRaysDumpingContext::TraceRaysTypeToStr(tr_params.type);
 
-    switch (tr_params->type)
+    switch (tr_params.type)
     {
         case DispatchTraceRaysDumpingContext::TraceRaysTypes::kTraceRays:
         {
-            const auto& params = tr_params->trace_rays_params_union.trace_rays;
+            const auto& params = tr_params.trace_rays_params_union.trace_rays;
 
             params_json_entries["width"]  = params.width;
             params_json_entries["height"] = params.height;
@@ -1563,7 +1764,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTraceRaysIndex(
 
         case DispatchTraceRaysDumpingContext::TraceRaysTypes::kTraceRaysIndirect:
         {
-            const auto& params = tr_params->trace_rays_params_union.trace_rays_indirect;
+            const auto& params = tr_params.trace_rays_params_union.trace_rays_indirect;
 
             params_json_entries["width"]  = params.trace_rays_params.width;
             params_json_entries["height"] = params.trace_rays_params.height;
@@ -1573,7 +1774,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTraceRaysIndex(
 
         case DispatchTraceRaysDumpingContext::TraceRaysTypes::kTraceRaysIndirect2:
         {
-            const auto& params = tr_params->trace_rays_params_union.trace_rays_indirect2;
+            const auto& params = tr_params.trace_rays_params_union.trace_rays_indirect2;
 
             params_json_entries["width"]  = params.trace_rays_params.width;
             params_json_entries["height"] = params.trace_rays_params.height;
@@ -1586,12 +1787,6 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTraceRaysIndex(
     }
 
     GenerateDescriptorsJsonInfo(tr_entry, dumped_resources);
-
-    if (options_.dump_resources_json_per_command)
-    {
-        dump_json_.BlockEnd();
-        dump_json_.Close();
-    }
 }
 
 std::string
@@ -1667,8 +1862,11 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
         auto* dumped_init_buffer = std::get_if<DumpedInitBufferMetaCommand>(&dumped_transfer_command->dumped_resource);
         GFXRECON_ASSERT(dumped_init_buffer != nullptr);
         const std::string filename = GenerateBufferFilename(*delegate_context.dumped_resource, false);
-        gfxrecon::decode::DumpBufferToFile(
-            dumped_init_buffer->dumped_buffer, filename, init_buffer_host_data->data, delegate_context.compressor);
+        DumpBufferToFile(dumped_init_buffer->dumped_buffer,
+                         filename,
+                         init_buffer_host_data->data,
+                         delegate_context.compressor,
+                         delegate_context.command_parameters);
     }
     else if (const auto* buffer_copy_host_data =
                  std::get_if<VulkanDelegateDumpedCopyBufferRegions>(&dumped_transfer_host_data->dumped_data))
@@ -1688,10 +1886,12 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
                 const auto&       region_host_data = buffer_copy_host_data->regions_data[i];
                 const std::string filename =
                     GenerateBufferFilename(*delegate_context.dumped_resource, delegate_context.before_command, i);
-                gfxrecon::decode::DumpBufferToFile(dumped_copy_buffer->regions[i].dumped_buffer,
-                                                   filename,
-                                                   region_host_data,
-                                                   delegate_context.compressor);
+
+                DumpBufferToFile(dumped_copy_buffer->regions[i].dumped_buffer,
+                                 filename,
+                                 region_host_data,
+                                 delegate_context.compressor,
+                                 delegate_context.command_parameters);
             }
         }
         else
@@ -1710,10 +1910,12 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
                 const auto&       region_host_data = buffer_copy_host_data->regions_data[i];
                 const std::string filename =
                     GenerateBufferFilename(*delegate_context.dumped_resource, delegate_context.before_command, i);
-                gfxrecon::decode::DumpBufferToFile(dumped_copy_image_to_buffer->regions[i].dumped_buffer,
-                                                   filename,
-                                                   region_host_data,
-                                                   delegate_context.compressor);
+
+                DumpBufferToFile(dumped_copy_image_to_buffer->regions[i].dumped_buffer,
+                                 filename,
+                                 region_host_data,
+                                 delegate_context.compressor,
+                                 delegate_context.command_parameters);
             }
         }
     }
@@ -1732,7 +1934,8 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
                             dumped_copy_buffer_to_image->dumped_image,
                             image_copy_host_data->data,
                             delegate_context.before_command,
-                            delegate_context.compressor);
+                            delegate_context.compressor,
+                            delegate_context.command_parameters);
         }
         else if (resource_info->type == DumpResourceType::kCopyImage)
         {
@@ -1745,7 +1948,8 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
                             dumped_copy_image->dumped_image,
                             image_copy_host_data->data,
                             delegate_context.before_command,
-                            delegate_context.compressor);
+                            delegate_context.compressor,
+                            delegate_context.command_parameters);
         }
         else if (resource_info->type == DumpResourceType::kBlitImage)
         {
@@ -1758,7 +1962,8 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
                             dumped_blit_image->dumped_image,
                             image_copy_host_data->data,
                             delegate_context.before_command,
-                            delegate_context.compressor);
+                            delegate_context.compressor,
+                            delegate_context.command_parameters);
         }
         else if (resource_info->type == DumpResourceType::kInitImageMetaCommand)
         {
@@ -1770,7 +1975,8 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
                             dumped_init_image->dumped_image,
                             image_copy_host_data->data,
                             delegate_context.before_command,
-                            delegate_context.compressor);
+                            delegate_context.compressor,
+                            delegate_context.command_parameters);
         }
     }
     else if (const auto* build_as_host_data =
@@ -1791,7 +1997,8 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
                                dump_build_as->dumped_build_infos[i].dumped_as,
                                build_as_host_data->data[i],
                                delegate_context.before_command,
-                               delegate_context.compressor);
+                               delegate_context.compressor,
+                               delegate_context.command_parameters);
             }
             else
             {
@@ -1799,7 +2006,8 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
                                dump_build_as->dumped_build_infos[i].dumped_as,
                                build_as_host_data->data[i],
                                delegate_context.before_command,
-                               delegate_context.compressor);
+                               delegate_context.compressor,
+                               delegate_context.command_parameters);
             }
         }
     }
@@ -1817,7 +2025,8 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
                                   dump_copy_as->dumped_copy_info.dumped_as,
                                   copy_as_host_data->data,
                                   delegate_context.before_command,
-                                  delegate_context.compressor);
+                                  delegate_context.compressor,
+                                  delegate_context.command_parameters);
         }
         else
         {
@@ -1825,7 +2034,8 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
                                   dump_copy_as->dumped_copy_info.dumped_as,
                                   copy_as_host_data->data,
                                   delegate_context.before_command,
-                                  delegate_context.compressor);
+                                  delegate_context.compressor,
+                                  delegate_context.command_parameters);
         }
     }
     else
@@ -1905,7 +2115,12 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonCopyBufferCommand(con
         {
             const auto* copy_buffer_before = std::get_if<DumpedCopyBuffer>(&cmd.dumped_resource_before);
             GFXRECON_ASSERT(copy_buffer_before != nullptr);
-            dump_json_.InsertBeforeBufferInfo(regions_entries[i], copy_buffer_before->regions[i].dumped_buffer);
+
+            // File meta is built before the before regions are read back.
+            if (i < copy_buffer_before->regions.size())
+            {
+                dump_json_.InsertBeforeBufferInfo(regions_entries[i], copy_buffer_before->regions[i].dumped_buffer);
+            }
         }
     }
 }
@@ -1965,12 +2180,16 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonCopyBufferToImageComm
             const auto* copy_image_before = std::get_if<DumpedCopyBufferToImage>(&cmd.dumped_resource_before);
             GFXRECON_ASSERT(copy_image_before != nullptr);
 
-            const auto& dumped_image_sub_resource_before = copy_image_before->dumped_image.dumped_subresources[sr];
-            dump_json_.InsertBeforeImageSubresourceInfo(copied_image_json_entry[sr],
-                                                        dumped_image_sub_resource_before,
-                                                        copy_image_before->dumped_image.image_info->format,
-                                                        options_.dump_resources_dump_separate_alpha,
-                                                        copy_image_before->dumped_image.dumped_raw);
+            // File meta is built before the before image is read back.
+            if (sr < copy_image_before->dumped_image.dumped_subresources.size())
+            {
+                const auto& dumped_image_sub_resource_before = copy_image_before->dumped_image.dumped_subresources[sr];
+                dump_json_.InsertBeforeImageSubresourceInfo(copied_image_json_entry[sr],
+                                                            dumped_image_sub_resource_before,
+                                                            copy_image_before->dumped_image.image_info->format,
+                                                            options_.dump_resources_dump_separate_alpha,
+                                                            copy_image_before->dumped_image.dumped_raw);
+            }
         }
     }
 }
@@ -2040,12 +2259,16 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonCopyImageCommand(cons
             const auto* copy_image_before = std::get_if<DumpedCopyImage>(&cmd.dumped_resource_before);
             GFXRECON_ASSERT(copy_image_before != nullptr);
 
-            const auto& dumped_image_sub_resource_before = copy_image_before->dumped_image.dumped_subresources[sr];
-            dump_json_.InsertBeforeImageSubresourceInfo(subresource_json_entry[sr],
-                                                        dumped_image_sub_resource_before,
-                                                        copy_image_before->dumped_image.image_info->format,
-                                                        options_.dump_resources_dump_separate_alpha,
-                                                        copy_image_before->dumped_image.dumped_raw);
+            // File meta is built before the before image is read back.
+            if (sr < copy_image_before->dumped_image.dumped_subresources.size())
+            {
+                const auto& dumped_image_sub_resource_before = copy_image_before->dumped_image.dumped_subresources[sr];
+                dump_json_.InsertBeforeImageSubresourceInfo(subresource_json_entry[sr],
+                                                            dumped_image_sub_resource_before,
+                                                            copy_image_before->dumped_image.image_info->format,
+                                                            options_.dump_resources_dump_separate_alpha,
+                                                            copy_image_before->dumped_image.dumped_raw);
+            }
         }
     }
 }
@@ -2095,7 +2318,12 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonCopyImageToBufferComm
         {
             const auto* copy_buffer_before = std::get_if<DumpedCopyImageToBuffer>(&cmd.dumped_resource_before);
             GFXRECON_ASSERT(copy_buffer_before != nullptr);
-            dump_json_.InsertBeforeBufferInfo(region_entry, copy_buffer_before->regions[i].dumped_buffer);
+
+            // File meta is built before the before regions are read back.
+            if (i < copy_buffer_before->regions.size())
+            {
+                dump_json_.InsertBeforeBufferInfo(region_entry, copy_buffer_before->regions[i].dumped_buffer);
+            }
         }
     }
 }
@@ -2167,12 +2395,16 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonBlitImageCommand(cons
             const auto* blit_image_before = std::get_if<DumpedBlitImage>(&cmd.dumped_resource_before);
             GFXRECON_ASSERT(blit_image_before != nullptr);
 
-            const auto& dumped_image_sub_resource_before = blit_image_before->dumped_image.dumped_subresources[sr];
-            dump_json_.InsertBeforeImageSubresourceInfo(subresource_json_entry[sr],
-                                                        dumped_image_sub_resource_before,
-                                                        blit_image_before->dumped_image.image_info->format,
-                                                        options_.dump_resources_dump_separate_alpha,
-                                                        blit_image_before->dumped_image.dumped_raw);
+            // File meta is built before the before image is read back.
+            if (sr < blit_image_before->dumped_image.dumped_subresources.size())
+            {
+                const auto& dumped_image_sub_resource_before = blit_image_before->dumped_image.dumped_subresources[sr];
+                dump_json_.InsertBeforeImageSubresourceInfo(subresource_json_entry[sr],
+                                                            dumped_image_sub_resource_before,
+                                                            blit_image_before->dumped_image.image_info->format,
+                                                            options_.dump_resources_dump_separate_alpha,
+                                                            blit_image_before->dumped_image.dumped_raw);
+            }
         }
     }
 }
@@ -2254,24 +2486,36 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTransferInfo(
     GFXRECON_ASSERT(transfer_cmd_params != nullptr);
 
     const DumpedResourcesInfo& dumped_resources = transfer_cmd_params->params->dumped_resources;
+
+    nlohmann::ordered_json transfer_entry;
+    GenerateTransferEntry(*transfer_cmd_params, transfer_entry);
+
+    const uint32_t transfer_json_entry = dump_json_.FetchAndAddTransferEntryIndex();
+
     if (options_.dump_resources_json_per_command)
     {
         std::stringstream filename;
         filename << "transfer_" << dumped_resources.cmd_index << "_qs_" << dumped_resources.qs_index << "_bcb_"
                  << dumped_resources.bcb_index;
-        dump_json_.Open(filename.str(), options_.dump_resources_output_dir);
+        dump_json_.Open(
+            filename.str(), options_.dump_resources_output_dir, CommandJsonMeta("transferCommands", transfer_entry));
         dump_json_.BlockStart();
+        dump_json_.GetCurrentSubEntry() = std::move(transfer_entry);
+        dump_json_.BlockEnd();
+        dump_json_.Close();
     }
+    else
+    {
+        dump_json_.GetCurrentSubEntry()["transferCommands"][transfer_json_entry] = std::move(transfer_entry);
+    }
+}
 
-    auto& current_block = dump_json_.GetCurrentSubEntry();
-    auto& transfer_json_entries =
-        !options_.dump_resources_json_per_command ? current_block["transferCommands"] : current_block;
+void DefaultVulkanDumpResourcesDelegate::GenerateTransferEntry(
+    const TransferDumpingContext::TransferParams& transfer_cmd_params, nlohmann::ordered_json& transfer_entry)
+{
+    const DumpedResourcesInfo& dumped_resources = transfer_cmd_params.params->dumped_resources;
 
-    const uint32_t transfer_json_entry = dump_json_.FetchAndAddTransferEntryIndex();
-    auto&          transfer_entry =
-        !options_.dump_resources_json_per_command ? transfer_json_entries[transfer_json_entry] : transfer_json_entries;
-
-    transfer_entry["cmdType"]  = TransferDumpingContext::TransferCommandTypeToStr(transfer_cmd_params->params->type);
+    transfer_entry["cmdType"]  = TransferDumpingContext::TransferCommandTypeToStr(transfer_cmd_params.params->type);
     transfer_entry["cmdIndex"] = dumped_resources.cmd_index;
     transfer_entry["beginCommandBufferIndex"] = dumped_resources.bcb_index;
     transfer_entry["queueSubmitIndex"]        = dumped_resources.qs_index;
@@ -2280,7 +2524,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTransferInfo(
 
     GFXRECON_ASSERT(dumped_resources.dumped_transfer_command);
     auto& cmd = dumped_resources.dumped_transfer_command;
-    switch (transfer_cmd_params->params->type)
+    switch (transfer_cmd_params.params->type)
     {
         case TransferDumpingContext::TransferCommandTypes::kCmdInitBuffer:
             GenerateOutputJsonInitBufferCommand(*cmd, transf_params_json_entry);
@@ -2321,14 +2565,8 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTransferInfo(
         default:
             GFXRECON_LOG_WARNING("%s(): Transfer command type %d not handled",
                                  __func__,
-                                 static_cast<int>(transfer_cmd_params->params->type));
+                                 static_cast<int>(transfer_cmd_params.params->type));
             GFXRECON_ASSERT(0);
-    }
-
-    if (options_.dump_resources_json_per_command)
-    {
-        dump_json_.BlockEnd();
-        dump_json_.Close();
     }
 }
 

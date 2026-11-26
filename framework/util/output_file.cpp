@@ -36,23 +36,25 @@ constexpr size_t kFileBufferSize = 64 * 1024;
 class RemoteFileOutputStream : public MemoryOutputStream
 {
   public:
-    RemoteFileOutputStream(const std::string& filename, size_t size_hint) :
-        MemoryOutputStream(size_hint), filename_(filename)
+    RemoteFileOutputStream(const std::string& filename, size_t size_hint, const nlohmann::ordered_json& meta) :
+        MemoryOutputStream(size_hint), filename_(filename), meta_(meta)
     {}
 
-    ~RemoteFileOutputStream() override { RemoteChannel::SendActiveFile(filename_, GetData(), GetDataSize()); }
+    ~RemoteFileOutputStream() override { RemoteChannel::SendActiveFile(filename_, GetData(), GetDataSize(), meta_); }
 
   private:
-    std::string filename_;
+    std::string            filename_;
+    nlohmann::ordered_json meta_;
 };
 
 } // namespace
 
-std::unique_ptr<OutputStream> OpenOutputFile(const std::string& filename, FileWriteMode mode, size_t size_hint)
+std::unique_ptr<OutputStream>
+OpenOutputFile(const std::string& filename, FileWriteMode mode, size_t size_hint, const nlohmann::ordered_json& meta)
 {
     if (RemoteChannel::IsActive())
     {
-        return std::make_unique<RemoteFileOutputStream>(filename, size_hint);
+        return std::make_unique<RemoteFileOutputStream>(filename, size_hint, meta);
     }
 
     // FileOutputStream logs the reason when the open fails.

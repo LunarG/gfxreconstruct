@@ -103,7 +103,7 @@ replay     → controller:  {"type":"ready"}
 {"type":"log","level":"info","message":"..."}
 {"type":"status","state":"running","frame":42,"block":1234}
 {"type":"progress","operation":"dump_resources","current":37,"total":90}
-{"type":"file","name":"dump/frame_0042.png","size":204800}
+{"type":"file","name":"dump/frame_0042.png","size":204800,"meta":{...}}
 <204800 raw bytes — separate binary frame, no encoding>
 {"type":"done","success":true}
 ```
@@ -121,6 +121,8 @@ controller should close once it has read `done`. Closing first could reset the
 connection and discard a `done` the controller has not read yet. `success`
 reports whether replay ran without error; a `stop` from the controller is not a
 failure.
+
+`meta` is optional; see [File Metadata](#file-metadata).
 
 ## Settings Keys
 
@@ -236,6 +238,77 @@ when it is destroyed:
 Once a channel is registered, files are never written to disk. If the
 controller has gone, their contents are discarded.
 
+## File Metadata
+
+A `file` message may carry a `meta` object that describes the file, so a
+controller can act on each file as it arrives instead of waiting for a summary
+JSON that is written last. Writers hand it to `util::OpenOutputFile()`; it is
+never written to disk.
+
+- `meta` is absent when the writer has nothing to say about the file.
+- `producer` names what wrote the file and decides the rest of the schema.
+  Ignore producers and keys you do not recognize.
+- Key names follow the producer's own JSON output where it has one.
+- When an image's alpha channel is written to a separate file, both files carry
+  the same `meta`.
+
+### Dump resources
+
+`producer` is `dumpResources`. The only other key is the dr.json array name for
+the command type (`drawCallCommands`, `dispatchCommands`, `traceRaysCommands` or
+`transferCommands`). It holds that command's dr.json entry, built by the code that
+writes dr.json and cut down to the branch that leads to this file:
+
+- Branches that lead only to other files are dropped.
+- Each array on the file's branch keeps just the file's element, which gains an
+  `index` key holding its position in dr.json. dr.json itself never uses
+  `index` in arrays that hold files.
+- Everything else is kept, such as the command's indices and `parameters`.
+
+To find the file's own entry, match the message `name` against the dr.json file
+keys. The key that holds it tells which file it is: `file`, `fileAlpha`,
+`beforeFile` or `beforeFileAlpha`.
+
+The entry is built before the file is written, so it lacks what is only known
+afterwards:
+
+- `compressedSize`: the message's own `size`.
+- For a file dumped before the command, the keys of the after file (`file`,
+  `fileAlpha`, `size`, `compressedSize`, `compressedSizeBefore`).
+
+Some facts dr.json keeps outside the entry are not repeated:
+
+- Encoding: the file extension, `.png`, `.bmp`, `.bin` or `.json`.
+- Compression: `.bin` files use the codec named by `BinaryFileCompressionType`
+  in the input JSON's `DumpResourcesOptions`. The header of each per-command
+  JSON also names it.
+- Scaled size: an image with `scaleFailed` is unscaled. Otherwise its width and
+  height are `max(1, floor(dimension * scale))`, depth is unchanged, and mip
+  levels are derived from the scaled base extent.
+
+A controller that relies on any of these should set the option explicitly, so a
+change to replay's defaults cannot move it.
+
+A per-command JSON file is sent after the files of its command, so its arrival
+marks that command complete. Its meta is the command's entry with every file
+dropped. The single dr.json carries only `producer` and arrives when replay
+finishes.
+
+```json
+{"type":"file","name":"dump/image_6874884585821301596.bin","size":2579,"meta":{
+  "producer":"dumpResources",
+  "drawCallCommands":{
+    "drawIndex":115,"beginCommandBufferIndex":109,"queueSubmitIndex":120,
+    "parameters":{"drawCallType":"vkCmdDraw","vertexCount":36,"instanceCount":1,
+                  "firstVertex":0,"firstInstance":0},
+    "depthAttachment":{
+      "imageId":45,"format":"VK_FORMAT_D16_UNORM","extent":[400,300,1],
+      "imageType":"VK_IMAGE_TYPE_2D","levels":1,"layers":1,"sampleCount":1,
+      "subresources":[{"index":0,"aspect":"DEPTH","dimensions":[400,300,1],
+                       "mipLevel":0,"arrayLayer":0,"depth":0,
+                       "file":"dump/image_6874884585821301596.bin","size":240000}]}}}}
+```
+
 ## Threading Model
 
 `RemoteChannel` runs a sender thread and a receiver thread:
@@ -260,6 +333,8 @@ controller implementation:
   refused connection for up to 30 s to cover launch races).
 - `--launch-adb` — set up the appropriate adb mapping and launch the replay activity on
   a connected Android device.
+- `--save-meta`: write each received file's `meta` next to it as
+  `<name>.meta.json`.
 - Replay settings are given after `--` as `key=value`, or as a bare key for an
   option that takes no value. Leading dashes are optional, so options keep their
   familiar spelling. Deliberately *not* a replay command line: which options take

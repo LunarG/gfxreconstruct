@@ -278,10 +278,15 @@ def start_command_reader():
     return commands
 
 
-def handle_session(conn, options, output_dir, hello=None, input_files=()):
+def handle_session(conn,
+                   options,
+                   output_dir,
+                   hello=None,
+                   input_files=(),
+                   save_meta=False):
     '''Run the handshake and process messages until replay reports done.
 
-    options is the settings dict sent to replay.
+    options is the settings dict sent to replay. save_meta writes each file's meta next to it.
 
     hello is replay's already-received greeting frame when the caller read it during connection setup
     (connect mode); when None (listen mode) it is read here.
@@ -382,7 +387,8 @@ def handle_session(conn, options, output_dir, hello=None, input_files=()):
             expected = msg.get('size', 0)
             blob = recv_frame(conn)
             blob = blob if blob is not None else b''
-            save_file(output_dir, name, blob, expected)
+            save_file(output_dir, name, blob, expected,
+                      msg.get('meta') if save_meta else None)
         elif msg_type == 'done':
             success = bool(msg.get('success'))
             print(f'Replay finished (success={success})')
@@ -400,7 +406,7 @@ def handle_session(conn, options, output_dir, hello=None, input_files=()):
     return success
 
 
-def save_file(output_dir, name, blob, expected_size):
+def save_file(output_dir, name, blob, expected_size, meta=None):
     if len(blob) != expected_size:
         print(
             f"Warning: '{name}' expected {expected_size} bytes, got {len(blob)}",
@@ -417,6 +423,10 @@ def save_file(output_dir, name, blob, expected_size):
     with open(dest, 'wb') as out:
         out.write(blob)
     print(f"Saved file: {dest} ({len(blob)} bytes)")
+
+    if meta is not None:
+        with open(dest + '.meta.json', 'w') as out:
+            json.dump(meta, out, indent=2)
 
 
 def connect_and_await_hello(host, port, timeout_seconds=30):
@@ -588,11 +598,13 @@ def run_session(conn,
                 output_dir,
                 hello=None,
                 input_files=(),
-                slow_recv=0.0):
+                slow_recv=0.0,
+                save_meta=False):
     '''Drive one replay session over an already-connected socket. Returns True on success.'''
     apply_recv_throttle(conn, slow_recv)
     with conn:
-        return handle_session(conn, options, output_dir, hello, input_files)
+        return handle_session(conn, options, output_dir, hello, input_files,
+                              save_meta)
 
 
 def run_replay(options,
@@ -603,7 +615,8 @@ def run_replay(options,
                input_files=(),
                slow_recv=0.0,
                launch=None,
-               launch_adb=False):
+               launch_adb=False,
+               save_meta=False):
     '''Set up the transport, optionally start replay, and drive one session.
 
     mode selects who dials: 'listen' waits for replay to connect (replay uses --remote-connect),
@@ -640,7 +653,7 @@ def run_replay(options,
             return False
         print(f'Connected to replay at {host}:{port}')
         success = run_session(conn, options, output_dir, hello, input_files,
-                              slow_recv)
+                              slow_recv, save_meta)
     else:
         server, port = open_listen_socket(host, port)
         print(f'Listening on {host}:{port}')
@@ -655,7 +668,7 @@ def run_replay(options,
             conn, peer = server.accept()
             print(f'Replay connected from {peer[0]}:{peer[1]}')
         success = run_session(conn, options, output_dir, None, input_files,
-                              slow_recv)
+                              slow_recv, save_meta)
 
     returncode = reap_replay(proc)
     if returncode:
@@ -711,6 +724,11 @@ rejects any key it does not recognize, naming it in the error.''')
         help=
         'Directory for files streamed back by replay (default: remote_output).'
     )
+    parser.add_argument(
+        '--save-meta',
+        action='store_true',
+        help='Write the meta that replay sends with a file next to it, as '
+        '<name>.meta.json.')
     parser.add_argument(
         '--slow-recv',
         type=float,
@@ -773,7 +791,8 @@ rejects any key it does not recognize, naming it in the error.''')
                              input_files=input_files,
                              slow_recv=args.slow_recv,
                              launch=args.launch,
-                             launch_adb=args.launch_adb)
+                             launch_adb=args.launch_adb,
+                             save_meta=args.save_meta)
     except KeyboardInterrupt:
         print('\nInterrupted', file=sys.stderr)
         return 1
