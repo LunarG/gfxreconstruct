@@ -111,9 +111,7 @@ class VulkanStateWriter
         std::vector<TensorSnapshotInfo> tensors;
     };
 
-    typedef std::unordered_map<uint32_t, ResourceSnapshotInfo> ResourceSnapshotQueueFamilyTable;
-    typedef std::unordered_map<const vulkan_wrappers::DeviceWrapper*, ResourceSnapshotQueueFamilyTable>
-        DeviceResourceTables;
+    typedef std::unordered_map<const vulkan_wrappers::DeviceWrapper*, ResourceSnapshotInfo> DeviceResourceTables;
 
     struct QueryActivationData
     {

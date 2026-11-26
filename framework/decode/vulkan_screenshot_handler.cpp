@@ -124,6 +124,7 @@ bool VulkanScreenshotSource::Readback(const ScreenshotRequest& request, const Re
                                                 *instance_table_,
                                                 device_info_->property_feature_info,
                                                 device_info_->version_extension_info,
+                                                device_info_->enabled_queue_family_flags,
                                                 memory_properties_);
 
     const VkExtent3D           extent      = { request.width, request.height, 1 };
@@ -139,20 +140,19 @@ bool VulkanScreenshotSource::Readback(const ScreenshotRequest& request, const Re
     {
         graphics::VulkanResourcesUtil::ImageResource& resource = resources[i];
 
-        resource.image              = image_.handle;
-        resource.format             = image_.format;
-        resource.type               = image_.type;
-        resource.extent             = extent;
-        resource.level_count        = 1;
-        resource.layer_count        = 1;
-        resource.base_layer         = request.base_layer + i;
-        resource.tiling             = image_.tiling;
-        resource.sample_count       = image_.sample_count;
-        resource.layout             = DetermineLayerLayout(resource.base_layer);
-        resource.queue_family_index = image_.queue_family_index;
-        resource.aspect             = VK_IMAGE_ASPECT_COLOR_BIT;
-        resource.dst_format         = dst_format;
-        resource.scale              = scale;
+        resource.image        = image_.handle;
+        resource.format       = image_.format;
+        resource.type         = image_.type;
+        resource.extent       = extent;
+        resource.level_count  = 1;
+        resource.layer_count  = 1;
+        resource.base_layer   = request.base_layer + i;
+        resource.tiling       = image_.tiling;
+        resource.sample_count = image_.sample_count;
+        resource.layout       = DetermineLayerLayout(resource.base_layer);
+        resource.aspect       = VK_IMAGE_ASPECT_COLOR_BIT;
+        resource.dst_format   = dst_format;
+        resource.scale        = scale;
     }
 
     // A staging buffer that holds every layer keeps the read to one submit and one wait.  The read

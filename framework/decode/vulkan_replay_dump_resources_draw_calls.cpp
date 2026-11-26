@@ -1559,7 +1559,8 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(uint64_t          
                                                             device_info->parent,
                                                             image_info,
                                                             device_info->property_feature_info,
-                                                            device_info->version_extension_info);
+                                                            device_info->version_extension_info,
+                                                            device_info->enabled_queue_family_flags);
 
         auto& dumped_rt = insert_new_resource_entry ? dumped_rts.emplace_back(dumped_resource_base,
                                                                               DumpResourceType::kRtv,
@@ -1632,7 +1633,8 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(uint64_t          
                                                             device_info->parent,
                                                             image_info,
                                                             device_info->property_feature_info,
-                                                            device_info->version_extension_info);
+                                                            device_info->version_extension_info,
+                                                            device_info->enabled_queue_family_flags);
         // The "before" depth target will be at the back() of the vector
         GFXRECON_ASSERT(image_info != nullptr);
         auto& dumped_rt = insert_new_resource_entry ? dumped_rts.emplace_back(dumped_resource_base,
@@ -1771,7 +1773,8 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t                  cmd_
                                                                         device_info->parent,
                                                                         image_info,
                                                                         device_info->property_feature_info,
-                                                                        device_info->version_extension_info);
+                                                                        device_info->version_extension_info,
+                                                                        device_info->enabled_queue_family_flags);
 
                     auto& new_dumped_desc =
                         dc_params.dumped_resources.dumped_descriptors.emplace_back(dumped_resource_base,
@@ -2081,19 +2084,13 @@ VkResult DrawCallsDumpingContext::FetchDrawIndirectParams(DrawCallParams& dc_par
     const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table_.GetVkPhysicalDeviceInfo(device_info->parent_id);
     assert(phys_dev_info);
 
-    const uint32_t transfer_queue_index = FindTransferQueueFamilyIndex(device_info->enabled_queue_family_flags);
-    if (transfer_queue_index == VK_QUEUE_FAMILY_IGNORED)
-    {
-        GFXRECON_LOG_ERROR("Failed to find a transfer queue")
-        return VK_ERROR_UNKNOWN;
-    }
-
     graphics::VulkanResourcesUtil resource_util(device_info->handle,
                                                 device_info->parent,
                                                 device_table_,
                                                 *instance_table_,
                                                 device_info->property_feature_info,
                                                 device_info->version_extension_info,
+                                                device_info->enabled_queue_family_flags,
                                                 *phys_dev_info->replay_device_info->memory_properties);
 
     if (!IsDrawCallIndirect(dc_params.type))
@@ -2113,8 +2110,7 @@ VkResult DrawCallsDumpingContext::FetchDrawIndirectParams(DrawCallParams& dc_par
 
         // Fetch draw count buffer
         std::vector<uint8_t> data;
-        VkResult             res = resource_util.ReadFromBufferResource(
-            ic_params.new_count_buffer, sizeof(uint32_t), 0, transfer_queue_index, data);
+        VkResult res = resource_util.ReadFromBufferResource(ic_params.new_count_buffer, sizeof(uint32_t), 0, data);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s).", util::ToString<VkResult>(res).c_str())
@@ -2160,8 +2156,7 @@ VkResult DrawCallsDumpingContext::FetchDrawIndirectParams(DrawCallParams& dc_par
         }
 
         // Fetch param buffers
-        res = resource_util.ReadFromBufferResource(
-            ic_params.new_params_buffer, params_actual_size, 0, transfer_queue_index, data);
+        res = resource_util.ReadFromBufferResource(ic_params.new_params_buffer, params_actual_size, 0, data);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s).", util::ToString<VkResult>(res).c_str())
@@ -2209,7 +2204,7 @@ VkResult DrawCallsDumpingContext::FetchDrawIndirectParams(DrawCallParams& dc_par
 
         std::vector<uint8_t> params_data;
         VkResult             res = resource_util.ReadFromBufferResource(
-            i_params.new_params_buffer, i_params.new_params_buffer_size, 0, transfer_queue_index, params_data);
+            i_params.new_params_buffer, i_params.new_params_buffer_size, 0, params_data);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s).", util::ToString<VkResult>(res).c_str())
@@ -2242,16 +2237,6 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t               
     assert(original_command_buffer_info_->parent_id != format::kNullHandleId);
     const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
     assert(device_info);
-
-    const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table_.GetVkPhysicalDeviceInfo(device_info->parent_id);
-    assert(phys_dev_info);
-
-    const uint32_t transfer_queue_index = FindTransferQueueFamilyIndex(device_info->enabled_queue_family_flags);
-    if (transfer_queue_index == VK_QUEUE_FAMILY_IGNORED)
-    {
-        GFXRECON_LOG_ERROR("Failed to find a transfer queue")
-        return VK_ERROR_UNKNOWN;
-    }
 
     MinMaxVertexIndex min_max_vertex_indices = { 0, 0 };
     bool              empty_draw_call        = false;

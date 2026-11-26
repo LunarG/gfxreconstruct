@@ -183,6 +183,10 @@ struct DeviceWrapper : public HandleWrapper<VkDevice>
     // Effective device version and extensions enabled at device creation, for selecting core vs extension entry points.
     graphics::VulkanDeviceVersionExtensionInfo version_extension_info;
 
+    // Queue families enabled at device creation, with the queue counts requested for each and the capabilities of
+    // the family. Used for selecting a queue family for capture-internal work.
+    graphics::VulkanQueueFamilyFlags enabled_queue_family_flags;
+
     struct ChildQueue
     {
         uint32_t      family_index;
@@ -233,7 +237,6 @@ struct AssetWrapperBase
 
     format::HandleId bind_memory_id{ format::kNullHandleId };
     VkDeviceSize     bind_offset{ 0 };
-    uint32_t         queue_family_index{ 0 };
 
     VkDeviceSize                              size{ 0 };
     bool                                      dirty{ true };
@@ -661,7 +664,6 @@ struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
     // Members for trimming state tracking.
     DeviceWrapper*                                    device{ nullptr };
     SurfaceKHRWrapper*                                surface{ nullptr };
-    uint32_t                                          queue_family_index{ 0 };
     VkFormat                                          format{ VK_FORMAT_UNDEFINED };
     VkExtent3D                                        extent{ 0, 0, 0 };
     VkSurfaceTransformFlagBitsKHR                     pre_transform{ VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR };

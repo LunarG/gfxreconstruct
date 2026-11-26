@@ -720,12 +720,6 @@ inline void InitializeState<VkDevice, vulkan_wrappers::BufferWrapper, VkBufferCr
     {
         wrapper->is_sparse_buffer = true;
     }
-
-    // TODO: Do we need to track the queue family that the buffer is actually used with?
-    if ((create_info->queueFamilyIndexCount > 0) && (create_info->pQueueFamilyIndices != nullptr))
-    {
-        wrapper->queue_family_index = create_info->pQueueFamilyIndices[0];
-    }
 }
 
 template <>
@@ -761,12 +755,6 @@ inline void InitializeState<VkDevice, vulkan_wrappers::TensorARMWrapper, VkTenso
         {
             wrapper->pStrides.push_back(desc->pStrides[i]);
         }
-    }
-
-    // TODO: Do we need to track the queue family that the tensor is actually used with?
-    if ((create_info->queueFamilyIndexCount > 0) && (create_info->pQueueFamilyIndices != nullptr))
-    {
-        wrapper->queue_family_index = create_info->pQueueFamilyIndices[0];
     }
 
     const graphics::VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(parent_handle);
@@ -808,12 +796,6 @@ inline void InitializeState<VkDevice, vulkan_wrappers::ImageWrapper, VkImageCrea
     if ((create_info->flags & VK_IMAGE_CREATE_SPARSE_BINDING_BIT) != 0)
     {
         wrapper->is_sparse_image = true;
-    }
-
-    // TODO: Do we need to track the queue family that the image is actually used with?
-    if ((create_info->queueFamilyIndexCount > 0) && (create_info->pQueueFamilyIndices != nullptr))
-    {
-        wrapper->queue_family_index = create_info->pQueueFamilyIndices[0];
     }
 
     auto* external_memory = graphics::vulkan_struct_get_pnext<VkExternalMemoryImageCreateInfo>(create_info);
@@ -863,11 +845,6 @@ inline void InitializeState<VkDevice, vulkan_wrappers::SwapchainKHRWrapper, VkSw
     wrapper->extent        = { create_info->imageExtent.width, create_info->imageExtent.height, 0 };
     wrapper->pre_transform = create_info->preTransform;
     wrapper->array_layers  = create_info->imageArrayLayers;
-
-    if ((create_info->queueFamilyIndexCount > 0) && (create_info->pQueueFamilyIndices != nullptr))
-    {
-        wrapper->queue_family_index = create_info->pQueueFamilyIndices[0];
-    }
 }
 
 // Swapchain Images retrieved with vkGetSwapchainImagesKHR.
@@ -892,14 +869,13 @@ inline void InitializeGroupObjectState<VkDevice, VkSwapchainKHR, vulkan_wrappers
     auto swapchain_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(swapchain_handle);
     assert(swapchain_wrapper != nullptr);
 
-    wrapper->image_type         = VK_IMAGE_TYPE_2D;
-    wrapper->format             = swapchain_wrapper->format;
-    wrapper->extent             = swapchain_wrapper->extent;
-    wrapper->mip_levels         = 1;
-    wrapper->array_layers       = swapchain_wrapper->array_layers;
-    wrapper->samples            = VK_SAMPLE_COUNT_1_BIT;
-    wrapper->tiling             = VK_IMAGE_TILING_OPTIMAL;
-    wrapper->queue_family_index = swapchain_wrapper->queue_family_index;
+    wrapper->image_type   = VK_IMAGE_TYPE_2D;
+    wrapper->format       = swapchain_wrapper->format;
+    wrapper->extent       = swapchain_wrapper->extent;
+    wrapper->mip_levels   = 1;
+    wrapper->array_layers = swapchain_wrapper->array_layers;
+    wrapper->samples      = VK_SAMPLE_COUNT_1_BIT;
+    wrapper->tiling       = VK_IMAGE_TILING_OPTIMAL;
 }
 
 template <>

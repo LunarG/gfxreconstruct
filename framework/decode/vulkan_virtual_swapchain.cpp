@@ -1434,7 +1434,8 @@ bool VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
                                                                              *injected.GetTable(),
                                                                              *instance_table,
                                                                              device_info->property_feature_info,
-                                                                             device_info->version_extension_info);
+                                                                             device_info->version_extension_info,
+                                                                             device_info->enabled_queue_family_flags);
     }
 
     // derive output-size and orientation from provided scale

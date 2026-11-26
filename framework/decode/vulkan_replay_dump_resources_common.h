@@ -115,7 +115,8 @@ ImageDumpResult CanDumpImage(const graphics::VulkanInstanceTable*              i
                              VkPhysicalDevice                                  phys_dev,
                              const VulkanImageInfo*                            image_info,
                              const graphics::VulkanDevicePropertyFeatureInfo&  physical_device_features_info,
-                             const graphics::VulkanDeviceVersionExtensionInfo& device_version_extension_info);
+                             const graphics::VulkanDeviceVersionExtensionInfo& device_version_extension_info,
+                             const graphics::VulkanQueueFamilyFlags&           queue_family_flags);
 
 // Fetch image from the GPU into host memory
 VkResult DumpImage(DumpedImage&                               dumped_image,

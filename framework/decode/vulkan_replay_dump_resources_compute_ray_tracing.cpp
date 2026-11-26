@@ -1488,7 +1488,8 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(const DumpedResou
                                                                     device_info->parent,
                                                                     &cloned_image.new_image_info,
                                                                     device_info->property_feature_info,
-                                                                    device_info->version_extension_info);
+                                                                    device_info->version_extension_info,
+                                                                    device_info->enabled_queue_family_flags);
 
                 auto& new_dumped_desc = dumped_resources.dumped_descriptors.emplace_back(
                     dumped_resource_base,
@@ -1764,7 +1765,8 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(const DumpedResourceBa
                                                                         device_info->parent,
                                                                         img_info,
                                                                         device_info->property_feature_info,
-                                                                        device_info->version_extension_info);
+                                                                        device_info->version_extension_info,
+                                                                        device_info->enabled_queue_family_flags);
 
                     auto& new_dumped_desc = dumped_resources.dumped_descriptors.emplace_back(
                         dumped_resource_base,
@@ -2201,19 +2203,13 @@ VkResult DispatchTraceRaysDumpingContext::FetchIndirectParams()
     const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table_.GetVkPhysicalDeviceInfo(device_info->parent_id);
     assert(phys_dev_info);
 
-    const uint32_t transfer_queue_index = FindTransferQueueFamilyIndex(device_info->enabled_queue_family_flags);
-    if (transfer_queue_index == VK_QUEUE_FAMILY_IGNORED)
-    {
-        GFXRECON_LOG_ERROR("Failed to find a transfer queue")
-        return VK_ERROR_UNKNOWN;
-    }
-
     graphics::VulkanResourcesUtil resource_util(device_info->handle,
                                                 device_info->parent,
                                                 device_table_,
                                                 *instance_table_,
                                                 device_info->property_feature_info,
                                                 device_info->version_extension_info,
+                                                device_info->enabled_queue_family_flags,
                                                 *phys_dev_info->replay_device_info->memory_properties);
 
     for (auto& params : dispatch_params_)
@@ -2231,8 +2227,7 @@ VkResult DispatchTraceRaysDumpingContext::FetchIndirectParams()
 
         const VkDeviceSize   size = sizeof(VkDispatchIndirectCommand);
         std::vector<uint8_t> data;
-        VkResult             res =
-            resource_util.ReadFromBufferResource(i_params.new_params_buffer, size, 0, transfer_queue_index, data);
+        VkResult             res = resource_util.ReadFromBufferResource(i_params.new_params_buffer, size, 0, data);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Reading from buffer resources failed (%s)", util::ToString<VkResult>(res).c_str())
@@ -2260,7 +2255,7 @@ VkResult DispatchTraceRaysDumpingContext::FetchIndirectParams()
         const VkDeviceSize   size = tr_params.type == kTraceRaysIndirect ? sizeof(VkTraceRaysIndirectCommandKHR)
                                                                          : sizeof(VkTraceRaysIndirectCommand2KHR);
         std::vector<uint8_t> data;
-        VkResult res = resource_util.ReadFromBufferResource(new_params_buffer, size, 0, transfer_queue_index, data);
+        VkResult             res = resource_util.ReadFromBufferResource(new_params_buffer, size, 0, data);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Reading from buffer resources failed (%s)", util::ToString<VkResult>(res).c_str())
