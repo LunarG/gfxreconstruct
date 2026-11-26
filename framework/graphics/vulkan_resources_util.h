@@ -29,6 +29,7 @@
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_injected_calls.h"
+#include "graphics/vulkan_util.h"
 
 #include <array>
 #include <vector>
@@ -60,6 +61,7 @@ class VulkanResourcesUtil
                         const VulkanInstanceTable&                             instance_table,
                         const VulkanDevicePropertyFeatureInfo&                 physical_device_features_info,
                         const VulkanDeviceVersionExtensionInfo&                device_version_extension_info,
+                        const VulkanQueueFamilyFlags&                          queue_family_flags,
                         const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties = {},
                         QueueLockFn                                            queue_lock_fn     = {});
 
@@ -69,6 +71,7 @@ class VulkanResourcesUtil
                         const VulkanInstanceTable&                             instance_table,
                         const VulkanDevicePropertyFeatureInfo&                 physical_device_features_info,
                         const VulkanDeviceVersionExtensionInfo&                device_version_extension_info,
+                        const VulkanQueueFamilyFlags&                          queue_family_flags,
                         const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties = {},
                         QueueLockFn                                            queue_lock_fn     = {});
 
@@ -154,19 +157,18 @@ class VulkanResourcesUtil
     // aggregate type to group information about an image-resource
     struct ImageResource
     {
-        format::HandleId   handle_id          = format::kNullHandleId;
-        VkImage            image              = VK_NULL_HANDLE;
-        VkFormat           format             = VK_FORMAT_UNDEFINED;
-        VkImageType        type               = VK_IMAGE_TYPE_2D;
-        VkExtent3D         extent             = {};
-        uint32_t           level_count        = 0;
-        uint32_t           layer_count        = 0;
-        VkImageTiling      tiling             = VK_IMAGE_TILING_MAX_ENUM;
-        VkSampleCountFlags sample_count       = 0;
-        VkImageLayout      layout             = VK_IMAGE_LAYOUT_UNDEFINED;
-        uint32_t           queue_family_index = 0;
-        bool               external_format    = false;
-        VkDeviceSize       size               = 0;
+        format::HandleId   handle_id       = format::kNullHandleId;
+        VkImage            image           = VK_NULL_HANDLE;
+        VkFormat           format          = VK_FORMAT_UNDEFINED;
+        VkImageType        type            = VK_IMAGE_TYPE_2D;
+        VkExtent3D         extent          = {};
+        uint32_t           level_count     = 0;
+        uint32_t           layer_count     = 0;
+        VkImageTiling      tiling          = VK_IMAGE_TILING_MAX_ENUM;
+        VkSampleCountFlags sample_count    = 0;
+        VkImageLayout      layout          = VK_IMAGE_LAYOUT_UNDEFINED;
+        bool               external_format = false;
+        VkDeviceSize       size            = 0;
 
         // optionally provide resource_size
         VkDeviceSize resource_size = 0;
@@ -214,21 +216,16 @@ class VulkanResourcesUtil
     VkResult ReadImageResource(const ImageResource& image_resource, std::vector<uint8_t>& out_data);
 
     // Use this function to dump the content of a buffer resource into the data vector.
-    VkResult ReadFromBufferResource(
-        VkBuffer buffer, uint64_t size, uint64_t offset, uint32_t queue_family_index, std::vector<uint8_t>& data);
+    VkResult ReadFromBufferResource(VkBuffer buffer, uint64_t size, uint64_t offset, std::vector<uint8_t>& data);
 
-    VkResult ReadFromTensorResource(VkTensorARM                   tensor,
-                                    const VkTensorDescriptionARM* desc,
-                                    uint32_t                      queue_family_index,
-                                    std::vector<uint8_t>&         data);
+    VkResult ReadFromTensorResource(VkTensorARM tensor, const VkTensorDescriptionARM* desc, std::vector<uint8_t>& data);
 
     struct BufferResource
     {
-        format::HandleId handle_id          = format::kNullHandleId;
-        VkBuffer         buffer             = VK_NULL_HANDLE;
-        uint64_t         size               = 0;
-        uint64_t         offset             = 0;
-        uint32_t         queue_family_index = 0;
+        format::HandleId handle_id = format::kNullHandleId;
+        VkBuffer         buffer    = VK_NULL_HANDLE;
+        uint64_t         size      = 0;
+        uint64_t         offset    = 0;
     };
 
     // signature for a callback-function, providing a BufferResource and a corresponding data-pointer
@@ -247,6 +244,8 @@ class VulkanResourcesUtil
                              const ReadBufferResourcesCallbackFn& callback,
                              size_t                               staging_buffer_size);
 
+    // Both return false for a conversion or a scale when no graphics queue family is enabled on the device, since a
+    // blit can only be recorded on one.
     bool IsBlitSupported(VkFormat       src_format,
                          VkImageTiling  src_image_tiling,
                          VkFormat       dst_format,
@@ -436,7 +435,6 @@ class VulkanResourcesUtil
                        uint32_t                    mip_levels,
                        uint32_t                    array_layers,
                        VkImageAspectFlagBits       aspect,
-                       uint32_t                    queue_family_index,
                        const std::array<float, 2>& scale,
                        uint32_t                    src_base_layer,
                        VkImage&                    scaled_image,
@@ -472,6 +470,17 @@ class VulkanResourcesUtil
 
     // Optional external synchronization for the queues this class submits to. See QueueLockFn.
     QueueLockFn queue_lock_fn_;
+
+    // Queue families the commands of this class are submitted to, chosen from the families enabled on the device.
+    // VK_QUEUE_FAMILY_IGNORED when the device has no suitable family.
+    //
+    // Buffer and tensor reads only record copies, which a graphics, compute or transfer family can execute.
+    uint32_t transfer_queue_family_index_{ VK_QUEUE_FAMILY_IGNORED };
+
+    // Image reads use a graphics family, as resolves, blits and copies of depth/stencil aspects require one. When
+    // none is enabled this falls back to a family that can only copy and image_queue_family_is_graphics_ is false.
+    uint32_t image_queue_family_index_{ VK_QUEUE_FAMILY_IGNORED };
+    bool     image_queue_family_is_graphics_{ false };
 
     struct command_assets_t
     {

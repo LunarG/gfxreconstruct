@@ -843,6 +843,39 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
         wrapper->version_extension_info.enabled_extensions.assign(modified_extensions.begin(),
                                                                   modified_extensions.end());
 
+        // Track the queue families enabled on this device and their capabilities, for selecting a queue family for
+        // capture-internal work. The properties come from the driver and the create info is the one given to it, so
+        // both are unaffected by what QUEUE_ZERO_ONLY reports to the application.
+        uint32_t queue_family_count = 0;
+        instance_table->GetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queue_family_count, nullptr);
+
+        std::vector<VkQueueFamilyProperties> queue_family_properties(queue_family_count);
+        instance_table->GetPhysicalDeviceQueueFamilyProperties(
+            physicalDevice, &queue_family_count, queue_family_properties.data());
+        queue_family_properties.resize(queue_family_count);
+
+        graphics::VulkanQueueFamilyFlags& family_flags = wrapper->enabled_queue_family_flags;
+        family_flags                                   = {};
+        family_flags.queue_family_index_enabled.resize(queue_family_count, false);
+
+        for (uint32_t i = 0; i < pCreateInfo_unwrapped->queueCreateInfoCount; ++i)
+        {
+            const VkDeviceQueueCreateInfo& queue_create_info = pCreateInfo_unwrapped->pQueueCreateInfos[i];
+            const uint32_t                 family_index      = queue_create_info.queueFamilyIndex;
+
+            if (family_index >= queue_family_count)
+            {
+                continue;
+            }
+
+            // A queue family can appear more than once, distinguished by its flags
+            // (VUID-VkDeviceCreateInfo-queueFamilyIndex-02802)
+            family_flags.queue_family_queue_counts[family_index][queue_create_info.flags] =
+                queue_create_info.queueCount;
+            family_flags.queue_family_index_enabled[family_index]    = true;
+            family_flags.queue_family_properties_flags[family_index] = queue_family_properties[family_index].queueFlags;
+        }
+
         if (!IsCaptureModeTrack())
         {
             // The state tracker will set this value when it is enabled. When state tracking is disabled it is set here
@@ -1091,11 +1124,6 @@ VkResult VulkanCaptureManager::OverrideCreateImage(VkDevice                     
         image_wrapper->tiling         = modified_create_info.tiling;
         image_wrapper->samples        = modified_create_info.samples;
         image_wrapper->current_layout = modified_create_info.initialLayout;
-        // TODO: Do we need to track the queue family that the image is actually used with?
-        if ((modified_create_info.queueFamilyIndexCount > 0) && (modified_create_info.pQueueFamilyIndices != nullptr))
-        {
-            image_wrapper->queue_family_index = modified_create_info.pQueueFamilyIndices[0];
-        }
 
         // VK_EXT_descriptor_buffer: opaque data for VkOpaqueCaptureDescriptorDataCreateInfoEXT at replay.
         // With both extensions on a device, images get the descriptor heap data.
@@ -2427,6 +2455,7 @@ void VulkanCaptureManager::ProcessImportFdForBuffer(VkDevice device, VkBuffer bu
                                                 *device_wrapper->physical_device->layer_table_ref,
                                                 device_wrapper->property_feature_info,
                                                 device_wrapper->version_extension_info,
+                                                device_wrapper->enabled_queue_family_flags,
                                                 device_wrapper->physical_device->memory_properties,
                                                 MakeQueueLockFn(device_wrapper));
 
@@ -2434,8 +2463,7 @@ void VulkanCaptureManager::ProcessImportFdForBuffer(VkDevice device, VkBuffer bu
     if (result == VK_SUCCESS)
     {
         std::vector<uint8_t> data;
-        result = resource_util.ReadFromBufferResource(
-            buffer, buffer_wrapper->size, memoryOffset, buffer_wrapper->queue_family_index, data);
+        result = resource_util.ReadFromBufferResource(buffer, buffer_wrapper->size, memoryOffset, data);
         if (result == VK_SUCCESS)
         {
             WriteBeginResourceInitCmd(device_wrapper->handle_id, buffer_wrapper->size, buffer_wrapper->size);
@@ -2463,6 +2491,7 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
                                                 *device_wrapper->physical_device->layer_table_ref,
                                                 device_wrapper->property_feature_info,
                                                 device_wrapper->version_extension_info,
+                                                device_wrapper->enabled_queue_family_flags,
                                                 device_wrapper->physical_device->memory_properties,
                                                 MakeQueueLockFn(device_wrapper));
 
@@ -2498,21 +2527,20 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
 
     for (auto aspect : aspects)
     {
-        auto& image_resource              = image_resources.emplace_back();
-        image_resource.handle_id          = image_wrapper->handle_id;
-        image_resource.image              = image_wrapper->handle;
-        image_resource.format             = image_wrapper->format;
-        image_resource.type               = image_wrapper->image_type;
-        image_resource.extent             = image_wrapper->extent;
-        image_resource.level_count        = image_wrapper->mip_levels;
-        image_resource.layer_count        = image_wrapper->array_layers;
-        image_resource.tiling             = image_wrapper->tiling;
-        image_resource.sample_count       = image_wrapper->samples;
-        image_resource.layout             = image_wrapper->current_layout;
-        image_resource.queue_family_index = image_wrapper->queue_family_index;
-        image_resource.external_format    = image_wrapper->external_format;
-        image_resource.size               = image_wrapper->size;
-        image_resource.aspect             = aspect;
+        auto& image_resource           = image_resources.emplace_back();
+        image_resource.handle_id       = image_wrapper->handle_id;
+        image_resource.image           = image_wrapper->handle;
+        image_resource.format          = image_wrapper->format;
+        image_resource.type            = image_wrapper->image_type;
+        image_resource.extent          = image_wrapper->extent;
+        image_resource.level_count     = image_wrapper->mip_levels;
+        image_resource.layer_count     = image_wrapper->array_layers;
+        image_resource.tiling          = image_wrapper->tiling;
+        image_resource.sample_count    = image_wrapper->samples;
+        image_resource.layout          = image_wrapper->current_layout;
+        image_resource.external_format = image_wrapper->external_format;
+        image_resource.size            = image_wrapper->size;
+        image_resource.aspect          = aspect;
 
         num_staging_bytes += image_wrapper->size;
     }

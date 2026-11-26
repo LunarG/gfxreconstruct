@@ -120,7 +120,8 @@ enum ImageDumpResult
 {
     kCanDump,
     kCanNotResolve,
-    kFormatNotSupported
+    kFormatNotSupported,
+    kNoGraphicsQueue
 };
 
 struct DumpedFile

@@ -934,6 +934,7 @@ VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                               
                                          const graphics::VulkanInstanceTable&    instance_table,
                                          const VulkanDevicePropertyFeatureInfo&  physical_device_features_info,
                                          const VulkanDeviceVersionExtensionInfo& device_version_extension_info,
+                                         const VulkanQueueFamilyFlags&           queue_family_flags,
                                          const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties,
                                          QueueLockFn                                            queue_lock_fn) :
     VulkanResourcesUtil(device,
@@ -942,6 +943,7 @@ VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                               
                         instance_table,
                         physical_device_features_info,
                         device_version_extension_info,
+                        queue_family_flags,
                         memory_properties,
                         std::move(queue_lock_fn))
 {}
@@ -952,6 +954,7 @@ VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                               
                                          const graphics::VulkanInstanceTable&    instance_table,
                                          const VulkanDevicePropertyFeatureInfo&  physical_device_features_info,
                                          const VulkanDeviceVersionExtensionInfo& device_version_extension_info,
+                                         const VulkanQueueFamilyFlags&           queue_family_flags,
                                          const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties,
                                          QueueLockFn                                            queue_lock_fn) :
     device_(device),
@@ -964,6 +967,26 @@ VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                               
     GFXRECON_ASSERT(device_table_.IsValid());
     GFXRECON_ASSERT(!memory_properties || memory_properties->memoryHeapCount <= VK_MAX_MEMORY_HEAPS);
     GFXRECON_ASSERT(!memory_properties || memory_properties->memoryTypeCount <= VK_MAX_MEMORY_TYPES);
+
+    // Buffer and tensor reads only record copies, which a graphics, compute or transfer family can execute.
+    transfer_queue_family_index_ = FindTransferQueueFamilyIndex(queue_family_flags);
+
+    // Image reads go to a graphics family. Resolves and blits are graphics-only commands and so are copies of depth
+    // and stencil aspects, and a graphics family puts no restrictions on the regions and buffer offsets of a copy.
+    image_queue_family_index_       = FindGraphicsQueueFamilyIndex(queue_family_flags);
+    image_queue_family_is_graphics_ = (image_queue_family_index_ != VK_QUEUE_FAMILY_IGNORED);
+
+    if (!image_queue_family_is_graphics_)
+    {
+        // Only plain copies of color images are possible without a graphics family. A compute family is preferred
+        // for them, because a transfer-only family can restrict the copy regions (minImageTransferGranularity) and
+        // requires buffer offsets that are a multiple of 4.
+        image_queue_family_index_ = FindComputeQueueFamilyIndex(queue_family_flags);
+        if (image_queue_family_index_ == VK_QUEUE_FAMILY_IGNORED)
+        {
+            image_queue_family_index_ = transfer_queue_family_index_;
+        }
+    }
 
     auto injected                   = device_table_.Open();
     set_debug_utils_object_name_fn_ = reinterpret_cast<PFN_vkSetDebugUtilsObjectNameEXT>(
@@ -1471,6 +1494,8 @@ void VulkanResourcesUtil::DestroyStagingTensorMemory()
 
 VkCommandBuffer VulkanResourcesUtil::CreateCommandBufferAndBegin(uint32_t queue_family_index)
 {
+    GFXRECON_ASSERT(queue_family_index != VK_QUEUE_FAMILY_IGNORED);
+
     auto& command_asset = command_asset_map_[queue_family_index];
 
     auto injected = device_table_.Open();
@@ -1774,6 +1799,12 @@ void VulkanResourcesUtil::CopyBuffer(VkCommandBuffer command_buffer,
 VkQueue VulkanResourcesUtil::GetQueue(uint32_t queue_family_index, uint32_t queue_index)
 {
     VkQueue queue = VK_NULL_HANDLE;
+
+    if (queue_family_index == VK_QUEUE_FAMILY_IGNORED)
+    {
+        GFXRECON_LOG_ERROR("No queue family that is suitable for a resource memory snapshot is enabled on the device");
+        return queue;
+    }
 
     auto injected = device_table_.Open();
     injected->GetDeviceQueue(device_, queue_family_index, queue_index, &queue);
@@ -2791,29 +2822,50 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
 
     VkResult last_error = VK_SUCCESS;
 
+    const VkQueue queue = GetQueue(image_queue_family_index_, 0);
+    if (queue == VK_NULL_HANDLE)
+    {
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
+
     // accumulate timing data
     uint32_t gpu_micros = 0, cpu_micros = 0;
 
     for (const auto& [start_idx, end_idx] : batch_ranges)
     {
-        auto                                          start_time = std::chrono::high_resolution_clock::now();
-        std::unordered_map<uint32_t, VkCommandBuffer> command_buffer_map;
+        auto start_time = std::chrono::high_resolution_clock::now();
+
+        // all images of a batch are recorded into one command-buffer
+        VkCommandBuffer command_buffer = CreateCommandBufferAndBegin(image_queue_family_index_);
+        if (command_buffer == VK_NULL_HANDLE)
+        {
+            return VK_ERROR_INITIALIZATION_FAILED;
+        }
 
         // iterate over current batch
         for (uint32_t i = start_idx; i < end_idx; ++i)
         {
             const auto& img = image_resources[i];
 
-            VkCommandBuffer command_buffer = VK_NULL_HANDLE;
-            auto            cmd_buf_it     = command_buffer_map.find(img.queue_family_index);
-            if (cmd_buf_it == command_buffer_map.end())
+            // Blits are graphics-only commands and are never selected without a graphics family (IsBlitSupported),
+            // such images are read in their own format instead.
+            GFXRECON_ASSERT(image_queue_family_is_graphics_ || !tmp_data[i].use_blit);
+
+            // Resolves are graphics-only commands too. Copies of depth and stencil aspects need a graphics queue as
+            // well, unless maintenance10 is enabled, which is not relied upon here.
+            const bool needs_graphics = (img.sample_count != VK_SAMPLE_COUNT_1_BIT) ||
+                                        (img.aspect == VK_IMAGE_ASPECT_DEPTH_BIT) ||
+                                        (img.aspect == VK_IMAGE_ASPECT_STENCIL_BIT);
+
+            if (needs_graphics && !image_queue_family_is_graphics_)
             {
-                command_buffer                             = CreateCommandBufferAndBegin(img.queue_family_index);
-                command_buffer_map[img.queue_family_index] = command_buffer;
-            }
-            else
-            {
-                command_buffer = cmd_buf_it->second;
+                GFXRECON_LOG_ERROR_ONCE("Images that are multisampled or have a depth/stencil aspect cannot be read: "
+                                        "no graphics queue family is enabled on the device");
+                last_error = VK_ERROR_FEATURE_NOT_PRESENT;
+
+                // free temporary resource, continue
+                tmp_data[i] = {};
+                continue;
             }
 
             VkImage copy_image = img.image;
@@ -2910,7 +2962,6 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                    img.level_count,
                                    img.layer_count,
                                    img.aspect,
-                                   img.queue_family_index,
                                    tmp_data[i].scaling_supported ? img.scale : std::array<float, 2>{ 1.0f, 1.0f },
                                    img.base_layer,
                                    tmp_data[i].scaled_image,
@@ -2952,8 +3003,8 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
             buffer_barrier.pNext               = nullptr;
             buffer_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT;
             buffer_barrier.dstAccessMask       = VK_ACCESS_HOST_READ_BIT;
-            buffer_barrier.srcQueueFamilyIndex = img.queue_family_index;
-            buffer_barrier.dstQueueFamilyIndex = img.queue_family_index;
+            buffer_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            buffer_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
             buffer_barrier.buffer              = staging_buffer_.buffer;
             buffer_barrier.offset              = 0;
             buffer_barrier.size                = VK_WHOLE_SIZE;
@@ -2982,16 +3033,8 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
             }
         } // current batch, record commands
 
-        // submit recorded command-buffer(s)
-        for (const auto& [queue_family_index, command_buffer] : command_buffer_map)
-        {
-            VkQueue queue = GetQueue(queue_family_index, 0);
-            if (queue == VK_NULL_HANDLE)
-            {
-                return VK_ERROR_INITIALIZATION_FAILED;
-            }
-            SubmitCommandBuffer(command_buffer, queue);
-        }
+        // submit recorded command-buffer
+        SubmitCommandBuffer(command_buffer, queue);
 
         result = MapStagingMemory(staging_buffer_.mem);
         if (result != VK_SUCCESS)
@@ -3050,8 +3093,8 @@ VkResult VulkanResourcesUtil::ReadImageResource(const VulkanResourcesUtil::Image
         0);
 }
 
-VkResult VulkanResourcesUtil::ReadFromBufferResource(
-    VkBuffer buffer, uint64_t size, uint64_t offset, uint32_t queue_family_index, std::vector<uint8_t>& data)
+VkResult
+VulkanResourcesUtil::ReadFromBufferResource(VkBuffer buffer, uint64_t size, uint64_t offset, std::vector<uint8_t>& data)
 {
     GFXRECON_ASSERT(buffer != VK_NULL_HANDLE);
     GFXRECON_ASSERT(size);
@@ -3060,7 +3103,7 @@ VkResult VulkanResourcesUtil::ReadFromBufferResource(
     // triggering multiple callbacks
     util::MarkInjectedCommandsHelper injected_commands_scope;
 
-    VkQueue queue = GetQueue(queue_family_index, 0);
+    VkQueue queue = GetQueue(transfer_queue_family_index_, 0);
     if (queue == VK_NULL_HANDLE)
     {
         return VK_ERROR_INITIALIZATION_FAILED;
@@ -3072,7 +3115,7 @@ VkResult VulkanResourcesUtil::ReadFromBufferResource(
         return result;
     }
 
-    VkCommandBuffer command_buffer = CreateCommandBufferAndBegin(queue_family_index);
+    VkCommandBuffer command_buffer = CreateCommandBufferAndBegin(transfer_queue_family_index_);
     GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
     if (command_buffer == VK_NULL_HANDLE)
     {
@@ -3103,7 +3146,6 @@ VkResult VulkanResourcesUtil::ReadFromBufferResource(
 
 VkResult VulkanResourcesUtil::ReadFromTensorResource(VkTensorARM                   tensor,
                                                      const VkTensorDescriptionARM* desc,
-                                                     uint32_t                      queue_family_index,
                                                      std::vector<uint8_t>&         data)
 {
     GFXRECON_ASSERT(tensor != VK_NULL_HANDLE);
@@ -3124,7 +3166,7 @@ VkResult VulkanResourcesUtil::ReadFromTensorResource(VkTensorARM                
         return VK_ERROR_FEATURE_NOT_PRESENT;
     }
 
-    const VkQueue queue = GetQueue(queue_family_index, 0);
+    const VkQueue queue = GetQueue(transfer_queue_family_index_, 0);
     if (queue == VK_NULL_HANDLE)
     {
         return VK_ERROR_INITIALIZATION_FAILED;
@@ -3139,7 +3181,7 @@ VkResult VulkanResourcesUtil::ReadFromTensorResource(VkTensorARM                
         return result;
     }
 
-    VkCommandBuffer command_buffer = CreateCommandBufferAndBegin(queue_family_index);
+    VkCommandBuffer command_buffer = CreateCommandBufferAndBegin(transfer_queue_family_index_);
     GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
     if (command_buffer == VK_NULL_HANDLE)
     {
@@ -3242,33 +3284,32 @@ void VulkanResourcesUtil::ReadBufferResources(const std::vector<BufferResource>&
         return;
     }
 
+    const VkQueue queue = GetQueue(transfer_queue_family_index_, 0);
+    if (queue == VK_NULL_HANDLE)
+    {
+        GFXRECON_ASSERT(false);
+        return;
+    }
+
     for (const auto& [start_idx, end_idx] : batch_ranges)
     {
-        auto                                          start_time = std::chrono::high_resolution_clock::now();
-        std::unordered_map<uint32_t, VkCommandBuffer> command_buffer_map;
+        auto start_time = std::chrono::high_resolution_clock::now();
+
+        // all buffers of a batch are recorded into one command-buffer
+        VkCommandBuffer command_buffer = CreateCommandBufferAndBegin(transfer_queue_family_index_);
+        if (command_buffer == VK_NULL_HANDLE)
+        {
+            GFXRECON_ASSERT(false);
+            return;
+        }
 
         // iterate over current batch
         for (uint32_t i = start_idx; i < end_idx; ++i)
         {
             const auto& buf = buffer_resources[i];
-
-            VkCommandBuffer command_buffer = VK_NULL_HANDLE;
-            auto            cmd_buf_it     = command_buffer_map.find(buf.queue_family_index);
-            if (cmd_buf_it == command_buffer_map.end())
-            {
-                command_buffer                             = CreateCommandBufferAndBegin(buf.queue_family_index);
-                command_buffer_map[buf.queue_family_index] = command_buffer;
-            }
-            else
-            {
-                command_buffer = cmd_buf_it->second;
-            }
-
             CopyBuffer(command_buffer, buf.buffer, staging_buffer_.buffer, buf.size, buf.offset, staging_offsets[i]);
         }
 
-        // submit recorded command-buffer(s)
-        for (const auto& [queue_family_index, command_buffer] : command_buffer_map)
         {
             // Cache flushing barrier. Make results visible to host
             VkBufferMemoryBarrier buffer_barrier;
@@ -3276,8 +3317,8 @@ void VulkanResourcesUtil::ReadBufferResources(const std::vector<BufferResource>&
             buffer_barrier.pNext               = nullptr;
             buffer_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT;
             buffer_barrier.dstAccessMask       = VK_ACCESS_HOST_READ_BIT;
-            buffer_barrier.srcQueueFamilyIndex = queue_family_index;
-            buffer_barrier.dstQueueFamilyIndex = queue_family_index;
+            buffer_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            buffer_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
             buffer_barrier.buffer              = staging_buffer_.buffer;
             buffer_barrier.offset              = 0;
             buffer_barrier.size                = VK_WHOLE_SIZE;
@@ -3293,15 +3334,10 @@ void VulkanResourcesUtil::ReadBufferResources(const std::vector<BufferResource>&
                                          &buffer_barrier,
                                          0,
                                          nullptr);
-
-            VkQueue queue = GetQueue(queue_family_index, 0);
-            if (queue == VK_NULL_HANDLE)
-            {
-                GFXRECON_ASSERT(false);
-                return;
-            }
-            SubmitCommandBuffer(command_buffer, queue);
         }
+
+        // submit recorded command-buffer
+        SubmitCommandBuffer(command_buffer, queue);
 
         result = MapStagingMemory(staging_buffer_.mem);
         if (result != VK_SUCCESS)
@@ -3619,6 +3655,13 @@ bool VulkanResourcesUtil::IsBlitSupported(VkFormat       src_format,
                                           VkFormat       dst_format,
                                           VkImageTiling* dst_image_tiling) const
 {
+    // A blit is a graphics-only command and is recorded on the queue family that reads images. Without a graphics
+    // family images are read in their own format and extent.
+    if (!image_queue_family_is_graphics_)
+    {
+        return false;
+    }
+
     // According to spec: "Integer formats can only be converted to other integer formats with the same signedness."
     const bool is_src_sint = vkuFormatIsSINT(src_format) || vkuFormatIsSSCALED(src_format);
     const bool is_src_uint = vkuFormatIsUINT(src_format) || vkuFormatIsUSCALED(src_format);
@@ -3749,7 +3792,6 @@ VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer             command_buff
                                         uint32_t                    mip_levels,
                                         uint32_t                    array_layers,
                                         VkImageAspectFlagBits       aspect,
-                                        uint32_t                    queue_family_index,
                                         const std::array<float, 2>& scale,
                                         uint32_t                    src_base_layer,
                                         VkImage&                    scaled_image,
@@ -3849,8 +3891,8 @@ VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer             command_buff
     img_barrier.dstAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT;
     img_barrier.oldLayout           = VK_IMAGE_LAYOUT_UNDEFINED;
     img_barrier.newLayout           = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-    img_barrier.srcQueueFamilyIndex = queue_family_index;
-    img_barrier.dstQueueFamilyIndex = queue_family_index;
+    img_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    img_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     img_barrier.image               = scaled_image;
     img_barrier.subresourceRange    = { aspectMask, 0, mip_levels, 0, array_layers };
 

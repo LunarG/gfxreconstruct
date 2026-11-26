@@ -1097,6 +1097,10 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
             {
                 rt_entry["dumpFailure"] = "FormatNotSupported";
             }
+            else if (image.can_dump == ImageDumpResult::kNoGraphicsQueue)
+            {
+                rt_entry["dumpFailure"] = "NoGraphicsQueue";
+            }
         }
     }
 
@@ -1359,6 +1363,10 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDescriptorsJsonInfo(nlohmann::o
                     else if (dumped_image->can_dump == ImageDumpResult::kFormatNotSupported)
                     {
                         entry["dumpFailure"] = "FormatNotSupported";
+                    }
+                    else if (dumped_image->can_dump == ImageDumpResult::kNoGraphicsQueue)
+                    {
+                        entry["dumpFailure"] = "NoGraphicsQueue";
                     }
                 }
             }

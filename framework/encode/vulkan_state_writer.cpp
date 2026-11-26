@@ -1860,15 +1860,16 @@ void VulkanStateWriter::WriteASInputBufferState(encode::AccelerationStructureInp
 {
     const VkAllocationCallbacks* alloc_callbacks = nullptr;
 
-    // Issue a new create call, creating the buffer we want, and replacing data
+    // Issue a new create call, creating the buffer we want, and replacing data. The queue family indices are ignored
+    // for a buffer with exclusive sharing mode.
     VkBufferCreateInfo create_info{ VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
                                     nullptr,
                                     {},
                                     buffer.created_size,
                                     buffer.usage,
                                     VK_SHARING_MODE_EXCLUSIVE,
-                                    1,
-                                    &buffer.queue_family_index };
+                                    0,
+                                    nullptr };
     buffer.bind_device->layer_table.CreateBuffer(buffer.bind_device->handle, &create_info, nullptr, &buffer.handle);
 
     buffer.handle_id = get_unique_id_();
@@ -2557,11 +2558,10 @@ void VulkanStateWriter::ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper
         GFXRECON_ASSERT(buffer_wrapper != nullptr);
 
         BufferResource buffer_resource;
-        buffer_resource.handle_id          = buffer_wrapper->handle_id;
-        buffer_resource.buffer             = buffer_wrapper->handle;
-        buffer_resource.size               = buffer_wrapper->size;
-        buffer_resource.offset             = 0;
-        buffer_resource.queue_family_index = buffer_wrapper->queue_family_index;
+        buffer_resource.handle_id = buffer_wrapper->handle_id;
+        buffer_resource.buffer    = buffer_wrapper->handle;
+        buffer_resource.size      = buffer_wrapper->size;
+        buffer_resource.offset    = 0;
 
         if (snapshot_entry.need_staging_copy)
         {
@@ -2684,11 +2684,10 @@ void VulkanStateWriter::ProcessBufferMemoryWithAssetFile(const vulkan_wrappers::
             buffer_wrapper->dirty = false;
 
             BufferResource buffer_resource;
-            buffer_resource.handle_id          = buffer_wrapper->handle_id;
-            buffer_resource.buffer             = buffer_wrapper->handle;
-            buffer_resource.size               = buffer_wrapper->size;
-            buffer_resource.offset             = 0;
-            buffer_resource.queue_family_index = buffer_wrapper->queue_family_index;
+            buffer_resource.handle_id = buffer_wrapper->handle_id;
+            buffer_resource.buffer    = buffer_wrapper->handle;
+            buffer_resource.size      = buffer_wrapper->size;
+            buffer_resource.offset    = 0;
 
             if (snapshot_entry.need_staging_copy)
             {
@@ -2808,23 +2807,22 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
             continue;
         }
 
-        ImageResource image_resource      = {};
-        image_resource.handle_id          = image_wrapper->handle_id;
-        image_resource.image              = image_wrapper->handle;
-        image_resource.format             = image_wrapper->format;
-        image_resource.type               = image_wrapper->image_type;
-        image_resource.extent             = image_wrapper->extent;
-        image_resource.level_count        = image_wrapper->mip_levels;
-        image_resource.layer_count        = image_wrapper->array_layers;
-        image_resource.tiling             = image_wrapper->tiling;
-        image_resource.sample_count       = image_wrapper->samples;
-        image_resource.layout             = image_wrapper->current_layout;
-        image_resource.queue_family_index = image_wrapper->queue_family_index;
-        image_resource.external_format    = image_wrapper->external_format;
-        image_resource.size               = image_wrapper->size;
-        image_resource.resource_size      = snapshot_entry.resource_size;
-        image_resource.level_sizes        = &snapshot_entry.level_sizes;
-        image_resource.aspect             = snapshot_entry.aspect;
+        ImageResource image_resource   = {};
+        image_resource.handle_id       = image_wrapper->handle_id;
+        image_resource.image           = image_wrapper->handle;
+        image_resource.format          = image_wrapper->format;
+        image_resource.type            = image_wrapper->image_type;
+        image_resource.extent          = image_wrapper->extent;
+        image_resource.level_count     = image_wrapper->mip_levels;
+        image_resource.layer_count     = image_wrapper->array_layers;
+        image_resource.tiling          = image_wrapper->tiling;
+        image_resource.sample_count    = image_wrapper->samples;
+        image_resource.layout          = image_wrapper->current_layout;
+        image_resource.external_format = image_wrapper->external_format;
+        image_resource.size            = image_wrapper->size;
+        image_resource.resource_size   = snapshot_entry.resource_size;
+        image_resource.level_sizes     = &snapshot_entry.level_sizes;
+        image_resource.aspect          = snapshot_entry.aspect;
 
         if (image_wrapper->external_memory_android)
         {
@@ -2999,7 +2997,6 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
             image_resource.tiling                                       = image_wrapper->tiling;
             image_resource.sample_count                                 = image_wrapper->samples;
             image_resource.layout                                       = image_wrapper->current_layout;
-            image_resource.queue_family_index                           = image_wrapper->queue_family_index;
             image_resource.size                                         = image_wrapper->size;
             image_resource.resource_size                                = snapshot_entry.resource_size;
             image_resource.level_sizes                                  = &snapshot_entry.level_sizes;
@@ -3143,8 +3140,7 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
                 }
 
                 // Group buffers with memory bindings by device for memory snapshot.
-                ResourceSnapshotQueueFamilyTable& snapshot_table = (*resources)[device_wrapper];
-                ResourceSnapshotInfo&             snapshot_entry = snapshot_table[wrapper->queue_family_index];
+                ResourceSnapshotInfo& snapshot_entry = (*resources)[device_wrapper];
 
                 BufferSnapshotInfo snapshot_info;
                 snapshot_info.buffer_wrapper    = wrapper;
@@ -3253,8 +3249,7 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
             }
 
             // Group buffers with memory bindings by device for memory snapshot.
-            ResourceSnapshotQueueFamilyTable& snapshot_table = (*resources)[device_wrapper];
-            ResourceSnapshotInfo&             snapshot_entry = snapshot_table[wrapper->queue_family_index];
+            ResourceSnapshotInfo& snapshot_entry = (*resources)[device_wrapper];
 
             BufferSnapshotInfo snapshot_info;
             snapshot_info.buffer_wrapper = wrapper;
@@ -3451,14 +3446,14 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
             if (is_transitioned || is_writable)
             {
                 // Group images with memory bindings by device for memory snapshot.
-                ResourceSnapshotQueueFamilyTable& snapshot_table = (*resources)[device_wrapper];
-                ResourceSnapshotInfo&             snapshot_entry = snapshot_table[wrapper->queue_family_index];
-                graphics::VulkanResourcesUtil     resource_util(device_wrapper->handle,
+                ResourceSnapshotInfo&         snapshot_entry = (*resources)[device_wrapper];
+                graphics::VulkanResourcesUtil resource_util(device_wrapper->handle,
                                                             device_wrapper->physical_device->handle,
                                                             device_wrapper->layer_table,
                                                             *device_wrapper->physical_device->layer_table_ref,
                                                             device_wrapper->property_feature_info,
                                                             device_wrapper->version_extension_info,
+                                                            device_wrapper->enabled_queue_family_flags,
                                                             device_wrapper->physical_device->memory_properties);
 
                 // Sparse images require staging copy for the following process because dumping image data with mapping
@@ -3593,7 +3588,7 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
     WriteTensorSnapshotState(state_table, &resources, &total_staging_copy_size, &max_staging_copy_size);
 
     // Write resource memory content.
-    for (const auto& [device_wrapper, queue_family_table] : resources)
+    for (const auto& [device_wrapper, snapshot_info] : resources)
     {
         VkResult result = VK_SUCCESS;
 
@@ -3603,6 +3598,7 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
                                                     *device_wrapper->physical_device->layer_table_ref,
                                                     device_wrapper->property_feature_info,
                                                     device_wrapper->version_extension_info,
+                                                    device_wrapper->enabled_queue_family_flags,
                                                     device_wrapper->physical_device->memory_properties);
 
         if (max_staging_copy_size > 0)
@@ -3630,20 +3626,16 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
                 ++blocks_written_;
             }
 
-            // iterate map-values
-            for (const auto& snapshot_info : queue_family_table | std::views::values)
+            if (asset_file_stream_ != nullptr)
             {
-                if (asset_file_stream_ != nullptr)
-                {
-                    ProcessBufferMemoryWithAssetFile(device_wrapper, snapshot_info.buffers, resource_util);
-                    ProcessImageMemoryWithAssetFile(device_wrapper, snapshot_info.images, resource_util);
-                }
-                else
-                {
-                    ProcessBufferMemory(device_wrapper, snapshot_info.buffers, resource_util);
-                    ProcessImageMemory(device_wrapper, snapshot_info.images, resource_util);
-                    ProcessTensorMemory(device_wrapper, snapshot_info.tensors, resource_util);
-                }
+                ProcessBufferMemoryWithAssetFile(device_wrapper, snapshot_info.buffers, resource_util);
+                ProcessImageMemoryWithAssetFile(device_wrapper, snapshot_info.images, resource_util);
+            }
+            else
+            {
+                ProcessBufferMemory(device_wrapper, snapshot_info.buffers, resource_util);
+                ProcessImageMemory(device_wrapper, snapshot_info.images, resource_util);
+                ProcessTensorMemory(device_wrapper, snapshot_info.tensors, resource_util);
             }
 
             if (output_stream_ != nullptr)
@@ -5279,8 +5271,7 @@ void VulkanStateWriter::WriteTensorSnapshotState(const VulkanStateTable& state_t
             return;
         }
 
-        ResourceSnapshotQueueFamilyTable& snapshot_table = (*resources)[device_wrapper];
-        ResourceSnapshotInfo&             snapshot_entry = snapshot_table[wrapper->queue_family_index];
+        ResourceSnapshotInfo& snapshot_entry = (*resources)[device_wrapper];
 
         TensorSnapshotInfo snapshot_info;
         snapshot_info.tensor_wrapper    = wrapper;
@@ -5337,8 +5328,7 @@ void VulkanStateWriter::ProcessTensorMemory(const vulkan_wrappers::DeviceWrapper
             desc.pStrides       = tensor_wrapper->pStrides.empty() ? nullptr : tensor_wrapper->pStrides.data();
             desc.usage          = tensor_wrapper->usage;
 
-            VkResult result = resource_util.ReadFromTensorResource(
-                tensor_wrapper->handle, &desc, tensor_wrapper->queue_family_index, data);
+            VkResult result = resource_util.ReadFromTensorResource(tensor_wrapper->handle, &desc, data);
 
             if (result == VK_SUCCESS)
             {

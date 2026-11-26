@@ -554,13 +554,12 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
                     encode::AccelerationStructureInputBuffer& buffer =
                         dst_command.input_buffers[target_buffer_wrapper->handle_id];
 
-                    buffer.capture_address    = target_buffer_wrapper->address;
-                    buffer.handle             = target_buffer_wrapper->handle;
-                    buffer.handle_id          = target_buffer_wrapper->handle_id;
-                    buffer.bind_device        = target_buffer_wrapper->device;
-                    buffer.queue_family_index = target_buffer_wrapper->queue_family_index;
-                    buffer.created_size       = target_buffer_wrapper->size;
-                    buffer.usage              = target_buffer_wrapper->usage;
+                    buffer.capture_address = target_buffer_wrapper->address;
+                    buffer.handle          = target_buffer_wrapper->handle;
+                    buffer.handle_id       = target_buffer_wrapper->handle_id;
+                    buffer.bind_device     = target_buffer_wrapper->device;
+                    buffer.created_size    = target_buffer_wrapper->size;
+                    buffer.usage           = target_buffer_wrapper->usage;
                 }
             }
         }
@@ -2109,12 +2108,13 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DeviceMemoryWrapper* wrap
                                                         *buffer.bind_device->physical_device->layer_table_ref,
                                                         buffer.bind_device->property_feature_info,
                                                         buffer.bind_device->version_extension_info,
+                                                        buffer.bind_device->enabled_queue_family_flags,
                                                         buffer.bind_device->physical_device->memory_properties,
                                                         MakeQueueLockFn(buffer.bind_device));
                         buffer.bind_device->layer_table.GetBufferMemoryRequirements(
                             buffer.bind_device->handle, buffer.handle, &buffer.memory_requirements);
                         resource_util->second.ReadFromBufferResource(
-                            buffer.handle, buffer.created_size, 0, buffer.queue_family_index, buffer.bytes);
+                            buffer.handle, buffer.created_size, 0, buffer.bytes);
                     }
                 }
             });
@@ -2165,12 +2165,12 @@ void gfxrecon::encode::VulkanStateTracker::DestroyState(vulkan_wrappers::BufferW
                                                 *buffer.bind_device->physical_device->layer_table_ref,
                                                 buffer.bind_device->property_feature_info,
                                                 buffer.bind_device->version_extension_info,
+                                                buffer.bind_device->enabled_queue_family_flags,
                                                 buffer.bind_device->physical_device->memory_properties,
                                                 MakeQueueLockFn(buffer.bind_device));
                 buffer.bind_device->layer_table.GetBufferMemoryRequirements(
                     buffer.bind_device->handle, buffer.handle, &buffer.memory_requirements);
-                resource_util->second.ReadFromBufferResource(
-                    buffer.handle, buffer.created_size, 0, buffer.queue_family_index, buffer.bytes);
+                resource_util->second.ReadFromBufferResource(buffer.handle, buffer.created_size, 0, buffer.bytes);
             }
         }
         if (acc_wrapper->buffer == buffer_wrapper)

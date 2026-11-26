@@ -1315,7 +1315,8 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
                                              device_info_->parent,
                                              &init_image->copied_image.image_info,
                                              device_info_->property_feature_info,
-                                             device_info_->version_extension_info) == ImageDumpResult::kCanDump);
+                                             device_info_->version_extension_info,
+                                             device_info_->enabled_queue_family_flags) == ImageDumpResult::kCanDump);
 
                 auto& new_dumped_init_image =
                     std::get<DumpedInitImageMetaCommand>(new_dumped_transfer_cmd->dumped_resource);
@@ -1433,7 +1434,8 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
                                                                     device_info_->parent,
                                                                     image_info,
                                                                     device_info_->property_feature_info,
-                                                                    device_info_->version_extension_info);
+                                                                    device_info_->version_extension_info,
+                                                                    device_info_->enabled_queue_family_flags);
 
                 auto& new_dumped_transfer_cmd = copy_buffer_to_image->dumped_resources.dumped_transfer_command =
                     std::make_unique<DumpedTransferCommand>(dumped_resource_base,
@@ -1531,7 +1533,8 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
                                                                     device_info_->parent,
                                                                     image_info,
                                                                     device_info_->property_feature_info,
-                                                                    device_info_->version_extension_info);
+                                                                    device_info_->version_extension_info,
+                                                                    device_info_->enabled_queue_family_flags);
 
                 auto& new_dumped_transfer_cmd = copy_image->dumped_resources.dumped_transfer_command =
                     std::make_unique<DumpedTransferCommand>(dumped_resource_base,
@@ -1702,7 +1705,8 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
                                                                     device_info_->parent,
                                                                     image_info,
                                                                     device_info_->property_feature_info,
-                                                                    device_info_->version_extension_info);
+                                                                    device_info_->version_extension_info,
+                                                                    device_info_->enabled_queue_family_flags);
 
                 auto& new_dumped_transfer_cmd = blit_image->dumped_resources.dumped_transfer_command =
                     std::make_unique<DumpedTransferCommand>(dumped_resource_base,

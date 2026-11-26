@@ -43,7 +43,6 @@ struct AccelerationStructureInputBuffer
     VkBuffer                              handle{ VK_NULL_HANDLE };
     format::HandleId                      handle_id{ format::kNullHandleId };
     const vulkan_wrappers::DeviceWrapper* bind_device{ nullptr };
-    uint32_t                              queue_family_index{ 0 };
     VkDeviceSize                          created_size{ 0 };
     VkBufferUsageFlags                    usage{ 0 };
 

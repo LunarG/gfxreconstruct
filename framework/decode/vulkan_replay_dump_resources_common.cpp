@@ -78,7 +78,8 @@ ImageDumpResult CanDumpImage(const graphics::VulkanInstanceTable*              i
                              VkPhysicalDevice                                  phys_dev,
                              const VulkanImageInfo*                            image_info,
                              const graphics::VulkanDevicePropertyFeatureInfo&  physical_device_features_info,
-                             const graphics::VulkanDeviceVersionExtensionInfo& device_version_extension_info)
+                             const graphics::VulkanDeviceVersionExtensionInfo& device_version_extension_info,
+                             const graphics::VulkanQueueFamilyFlags&           queue_family_flags)
 {
     GFXRECON_ASSERT(instance_table != nullptr);
     GFXRECON_ASSERT(phys_dev != VK_NULL_HANDLE);
@@ -96,6 +97,17 @@ ImageDumpResult CanDumpImage(const graphics::VulkanInstanceTable*              i
         GFXRECON_LOG_WARNING("Format %s is not supported by the implementation",
                              util::ToString<VkFormat>(image_info->format).c_str());
         return ImageDumpResult::kFormatNotSupported;
+    }
+
+    // VulkanResourcesUtil can resolve an image and copy a depth or stencil aspect only on a graphics queue family
+    if ((image_info->sample_count != VK_SAMPLE_COUNT_1_BIT || vkuFormatIsDepthOrStencil(image_info->format)) &&
+        graphics::FindGraphicsQueueFamilyIndex(queue_family_flags) == VK_QUEUE_FAMILY_IGNORED)
+    {
+        GFXRECON_LOG_WARNING("Image with format %s and %s cannot be dumped: no graphics queue family is enabled on "
+                             "the device.",
+                             util::ToString<VkFormat>(image_info->format).c_str(),
+                             util::ToString<VkSampleCountFlagBits>(image_info->sample_count).c_str());
+        return ImageDumpResult::kNoGraphicsQueue;
     }
 
     // Check for multisampled images that cannot be resolved
@@ -390,6 +402,7 @@ VkResult DumpImage(DumpedImage&                               dumped_image,
                                                 *instance_table,
                                                 device_info->property_feature_info,
                                                 device_info->version_extension_info,
+                                                device_info->enabled_queue_family_flags,
                                                 *phys_dev_info->replay_device_info->memory_properties);
 
     // Choose the format in which the image will be dumped from the gpu into the host memory
@@ -474,14 +487,13 @@ VkResult DumpImage(DumpedImage&                               dumped_image,
         image_resource.tiling                                       = image_info->tiling;
         image_resource.sample_count                                 = image_info->sample_count;
         image_resource.layout = (layout == VK_IMAGE_LAYOUT_MAX_ENUM) ? image_info->intermediate_layout : layout;
-        image_resource.queue_family_index = image_info->queue_family_index;
-        image_resource.external_format    = image_info->external_format;
-        image_resource.size               = image_info->size;
-        image_resource.level_sizes        = &subresource_sizes;
-        image_resource.aspect             = aspect;
-        image_resource.scale              = scale_xy;
-        image_resource.dst_format         = dst_format;
-        image_resource.dump_resources     = true;
+        image_resource.external_format = image_info->external_format;
+        image_resource.size            = image_info->size;
+        image_resource.level_sizes     = &subresource_sizes;
+        image_resource.aspect          = aspect;
+        image_resource.scale           = scale_xy;
+        image_resource.dst_format      = dst_format;
+        image_resource.dump_resources  = true;
 
         image_resource.resource_size = resource_util.GetImageSubresourceSizesDumpResources(dst_format,
                                                                                            image_info->type,
@@ -586,22 +598,16 @@ VkResult DumpBuffer(const DumpedBuffer&                        dumped_buffer,
                                                 *instance_table,
                                                 device_info->property_feature_info,
                                                 device_info->version_extension_info,
+                                                device_info->enabled_queue_family_flags,
                                                 *phys_dev_info->replay_device_info->memory_properties);
 
     GFXRECON_ASSERT(dumped_buffer.size);
     GFXRECON_ASSERT(dumped_buffer.size != VK_WHOLE_SIZE);
     GFXRECON_ASSERT(dumped_buffer.offset != VK_WHOLE_SIZE);
 
-    const uint32_t transfer_queue_index = FindTransferQueueFamilyIndex(device_info->enabled_queue_family_flags);
-    if (transfer_queue_index == VK_QUEUE_FAMILY_IGNORED)
-    {
-        GFXRECON_LOG_ERROR("Failed to find a transfer queue")
-        return VK_ERROR_UNKNOWN;
-    }
-
     GFXRECON_ASSERT(dumped_buffer.buffer_info.handle != VK_NULL_HANDLE);
     VkResult res = resource_util.ReadFromBufferResource(
-        dumped_buffer.buffer_info.handle, dumped_buffer.size, dumped_buffer.offset, transfer_queue_index, data);
+        dumped_buffer.buffer_info.handle, dumped_buffer.size, dumped_buffer.offset, data);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_WARNING("Failed reading from buffer (%s)", util::ToString<VkResult>(res).c_str());

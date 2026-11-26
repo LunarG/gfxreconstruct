@@ -63,7 +63,6 @@ class VulkanScreenshotSource : public ScreenshotSource
         VkImageType           type{ VK_IMAGE_TYPE_2D };
         VkImageTiling         tiling{ VK_IMAGE_TILING_OPTIMAL };
         VkSampleCountFlagBits sample_count{ VK_SAMPLE_COUNT_1_BIT };
-        uint32_t              queue_family_index{ 0 };
 
         //! The layout of each layer.  The layers of one image do not have to hold the same
         //! layout, and the read-back barriers each layer from the layout that this gives for

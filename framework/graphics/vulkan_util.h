@@ -181,6 +181,14 @@ uint32_t FindTransferQueueFamilyIndex(const VulkanQueueFamilyFlags& families);
 uint32_t FindComputeQueueFamilyIndex(const VulkanQueueFamilyFlags& families);
 
 /**
+ * @brief   Find a graphics queue family index from queue families
+ *
+ * @param[in]   families    The enabled queue family flags
+ * @return  The queue family index, or VK_QUEUE_FAMILY_IGNORED if not found
+ */
+uint32_t FindGraphicsQueueFamilyIndex(const VulkanQueueFamilyFlags& families);
+
+/**
  * @brief   Find a graphics or compute queue family index from queue families.
  *
  * @param[in]   families    The enabled queue family flags

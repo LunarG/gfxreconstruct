@@ -2828,12 +2828,10 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                 if (override_img_info != nullptr)
                 {
                     // The defaults are correct for a presentable image: a single-sample 2D image with optimal
-                    // tiling on the first queue family.  An override image is not one, thus it gives its own
-                    // values.
-                    source_image.type               = override_img_info->type;
-                    source_image.tiling             = override_img_info->tiling;
-                    source_image.sample_count       = override_img_info->sample_count;
-                    source_image.queue_family_index = override_img_info->queue_family_index;
+                    // tiling.  An override image is not one, thus it gives its own values.
+                    source_image.type         = override_img_info->type;
+                    source_image.tiling       = override_img_info->tiling;
+                    source_image.sample_count = override_img_info->sample_count;
 
                     // The read-back barriers each layer from the layout of that layer, thus an image that
                     // tracks a layout for each of them gives all of those layouts.
@@ -3112,13 +3110,12 @@ void VulkanReplayConsumerBase::WriteFrameBoundaryAttachmentScreenshot(
         image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0);
 
     VulkanScreenshotSource::Image source_image;
-    source_image.handle             = image_info->handle;
-    source_image.format             = image_info->format;
-    source_image.type               = image_info->type;
-    source_image.tiling             = image_info->tiling;
-    source_image.sample_count       = image_info->sample_count;
-    source_image.layer_layouts      = { image_layout };
-    source_image.queue_family_index = image_info->queue_family_index;
+    source_image.handle        = image_info->handle;
+    source_image.format        = image_info->format;
+    source_image.type          = image_info->type;
+    source_image.tiling        = image_info->tiling;
+    source_image.sample_count  = image_info->sample_count;
+    source_image.layer_layouts = { image_layout };
 
     VulkanScreenshotSource source(device_info,
                                   GetInjectedDeviceCalls(device_info->handle),
@@ -3213,13 +3210,12 @@ bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDevic
                 image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0);
 
             VulkanScreenshotSource::Image source_image;
-            source_image.handle             = image_info->handle;
-            source_image.format             = image_info->format;
-            source_image.type               = image_info->type;
-            source_image.tiling             = image_info->tiling;
-            source_image.sample_count       = image_info->sample_count;
-            source_image.layer_layouts      = { image_layout };
-            source_image.queue_family_index = image_info->queue_family_index;
+            source_image.handle        = image_info->handle;
+            source_image.format        = image_info->format;
+            source_image.type          = image_info->type;
+            source_image.tiling        = image_info->tiling;
+            source_image.sample_count  = image_info->sample_count;
+            source_image.layer_layouts = { image_layout };
 
             VulkanScreenshotSource source(device_info,
                                           GetInjectedDeviceCalls(device_info->handle),
@@ -12741,13 +12737,12 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
                     image_info->subresource_layouts.GetSubresourceLayout(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0);
 
                 VulkanScreenshotSource::Image source_image;
-                source_image.handle             = image_info->handle;
-                source_image.format             = image_info->format;
-                source_image.type               = image_info->type;
-                source_image.tiling             = image_info->tiling;
-                source_image.sample_count       = image_info->sample_count;
-                source_image.layer_layouts      = { image_layout };
-                source_image.queue_family_index = image_info->queue_family_index;
+                source_image.handle        = image_info->handle;
+                source_image.format        = image_info->format;
+                source_image.type          = image_info->type;
+                source_image.tiling        = image_info->tiling;
+                source_image.sample_count  = image_info->sample_count;
+                source_image.layer_layouts = { image_layout };
 
                 VulkanScreenshotSource source(device_info,
                                               GetInjectedDeviceCalls(device_info->handle),
