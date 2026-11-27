@@ -28,6 +28,7 @@
 #include "decode/dx12_detection_consumer.h"
 #include "generated/generated_dx12_consumer.h"
 #include "generated/generated_dx12_decoder.h"
+#include "graphics/dx12_shader_tool.h"
 #include "util/api_version_info.h"
 #include "util/feature_module_registry.h"
 #include "util/file_path.h"
@@ -81,6 +82,39 @@ class Dx12ExtractConsumer : public decode::Dx12Consumer
         {
             uint64_t handle_id = *ppPipelineState->GetPointer();
             WriteShaderBytecode(pDesc->GetPointer()->CS, handle_id, ".cso");
+        }
+    }
+
+    virtual void Process_ID3D12Device2_CreatePipelineState(
+        const decode::ApiCallInfo&                                                      call_info,
+        format::HandleId                                                                object_id,
+        HRESULT                                                                         return_value,
+        decode::StructPointerDecoder<decode::Decoded_D3D12_PIPELINE_STATE_STREAM_DESC>* pDesc,
+        decode::Decoded_GUID                                                            riid,
+        decode::HandlePointerDecoder<void*>*                                            ppPipelineState) override
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(object_id);
+        GFXRECON_UNREFERENCED_PARAMETER(riid);
+
+        if ((return_value == S_OK) && (pDesc != nullptr) && !pDesc->IsNull() && (ppPipelineState != nullptr) &&
+            !ppPipelineState->IsNull())
+        {
+            auto*    pipeline_desc = pDesc->GetPointer();
+            uint64_t handle_id     = *ppPipelineState->GetPointer();
+
+            const bool parsed = graphics::Dx12ShaderTool::ForEachPipelineStateStreamShader(
+                *pipeline_desc, [this, handle_id](const graphics::Dx12ShaderTool::PipelineStateShader& shader) {
+                    if ((shader.bytecode != nullptr) && (shader.extension != nullptr))
+                    {
+                        WriteShaderBytecode(*shader.bytecode, handle_id, shader.extension);
+                    }
+                });
+
+            if (!parsed)
+            {
+                GFXRECON_LOG_WARNING("Failed to fully parse the CreatePipelineState pipeline state stream.");
+            }
         }
     }
 

@@ -75,7 +75,6 @@ struct VulkanReplayOptions : public ReplayOptions
     int32_t                      override_gpu_group_index{ -1 };
     int32_t                      surface_index{ -1 };
     CreateResourceAllocator      create_resource_allocator;
-    std::string                  replace_shader_dir;
     SkipGetFenceStatus           skip_get_fence_status{ SkipGetFenceStatus::NoSkip };
     std::vector<util::UintRange> skip_get_fence_ranges;
     bool                         wait_before_present{ false };

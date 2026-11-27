@@ -30,6 +30,7 @@
 #include "generated/generated_dx12_enum_to_string.h"
 #include "graphics/dx12_util.h"
 #include "graphics/dx12_image_renderer.h"
+#include "graphics/dx12_shader_tool.h"
 #include "util/gpu_va_range.h"
 #include "util/platform.h"
 #include "util/file_path.h"
@@ -4123,6 +4124,35 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateReservedResource2(
     return replay_result;
 }
 
+static bool TryReplacePipelineShader(const std::string&                    replace_shader_dir,
+                                     uint64_t                              handle_id,
+                                     graphics::Dx12ShaderTool::ShaderType  shader_type,
+                                     D3D12_SHADER_BYTECODE&                shader_bytecode,
+                                     std::vector<std::unique_ptr<char[]>>& replacement_codes)
+{
+    if ((shader_bytecode.BytecodeLength == 0) || (shader_bytecode.pShaderBytecode == nullptr))
+    {
+        return false;
+    }
+
+    std::unique_ptr<char[]> code;
+    size_t                  file_size = 0;
+    if (!graphics::Dx12ShaderTool::LoadReplacementPipelineShaderFromDir(
+            replace_shader_dir, handle_id, shader_type, code, file_size))
+    {
+        return false;
+    }
+
+    shader_bytecode.pShaderBytecode = code.get();
+    shader_bytecode.BytecodeLength  = file_size;
+    replacement_codes.push_back(std::move(code));
+
+    std::string file_path = util::filepath::Join(
+        replace_shader_dir, graphics::Dx12ShaderTool::MakePipelineShaderFileName(handle_id, shader_type));
+    GFXRECON_LOG_INFO("Replacement pipeline shader found: %s", file_path.c_str());
+    return true;
+}
+
 HRESULT Dx12ReplayConsumerBase::OverrideCreateGraphicsPipelineState(
     DxObjectInfo*                                                     device_object_info,
     HRESULT                                                           original_result,
@@ -4130,8 +4160,6 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateGraphicsPipelineState(
     Decoded_GUID                                                      riid,
     HandlePointerDecoder<void*>*                                      pipelineState)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(original_result);
-
     GFXRECON_ASSERT(device_object_info != nullptr);
     GFXRECON_ASSERT(device_object_info->object != nullptr);
 
@@ -4144,10 +4172,52 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateGraphicsPipelineState(
         pDesc2->CachedPSO.CachedBlobSizeInBytes = 0;
     }
 
-    HRESULT replay_result =
-        device->CreateGraphicsPipelineState(pDesc2, *riid.decoded_value, pipelineState->GetHandlePointer());
+    if ((original_result != S_OK) || options_.replace_shader_dir.empty() || (pipelineState == nullptr) ||
+        pipelineState->IsNull())
+    {
+        return device->CreateGraphicsPipelineState(pDesc2, *riid.decoded_value, pipelineState->GetHandlePointer());
+    }
 
-    return replay_result;
+    auto                                 override_desc = *pDesc2;
+    std::vector<std::unique_ptr<char[]>> replacement_codes;
+    const uint64_t                       handle_id       = *pipelineState->GetPointer();
+    bool                                 shader_replaced = false;
+
+    shader_replaced |= TryReplacePipelineShader(options_.replace_shader_dir,
+                                                handle_id,
+                                                graphics::Dx12ShaderTool::ShaderType::kVertex,
+                                                override_desc.VS,
+                                                replacement_codes);
+    shader_replaced |= TryReplacePipelineShader(options_.replace_shader_dir,
+                                                handle_id,
+                                                graphics::Dx12ShaderTool::ShaderType::kPixel,
+                                                override_desc.PS,
+                                                replacement_codes);
+    shader_replaced |= TryReplacePipelineShader(options_.replace_shader_dir,
+                                                handle_id,
+                                                graphics::Dx12ShaderTool::ShaderType::kDomain,
+                                                override_desc.DS,
+                                                replacement_codes);
+    shader_replaced |= TryReplacePipelineShader(options_.replace_shader_dir,
+                                                handle_id,
+                                                graphics::Dx12ShaderTool::ShaderType::kHull,
+                                                override_desc.HS,
+                                                replacement_codes);
+    shader_replaced |= TryReplacePipelineShader(options_.replace_shader_dir,
+                                                handle_id,
+                                                graphics::Dx12ShaderTool::ShaderType::kGeometry,
+                                                override_desc.GS,
+                                                replacement_codes);
+
+    if (shader_replaced && options_.use_cached_psos)
+    {
+        GFXRECON_LOG_WARNING("Using cached PSOs and shader replacement enabled during replay may cause replay "
+                             "failures, disabling cached PSOs.");
+        override_desc.CachedPSO.pCachedBlob           = nullptr;
+        override_desc.CachedPSO.CachedBlobSizeInBytes = 0;
+    }
+
+    return device->CreateGraphicsPipelineState(&override_desc, *riid.decoded_value, pipelineState->GetHandlePointer());
 }
 
 HRESULT Dx12ReplayConsumerBase::OverrideCreateComputePipelineState(
@@ -4157,8 +4227,6 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateComputePipelineState(
     Decoded_GUID                                                     riid,
     HandlePointerDecoder<void*>*                                     pipelineState)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(original_result);
-
     GFXRECON_ASSERT(device_object_info != nullptr);
     GFXRECON_ASSERT(device_object_info->object != nullptr);
 
@@ -4171,10 +4239,31 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateComputePipelineState(
         pDesc2->CachedPSO.CachedBlobSizeInBytes = 0;
     }
 
-    HRESULT replay_result =
-        device->CreateComputePipelineState(pDesc2, *riid.decoded_value, pipelineState->GetHandlePointer());
+    if ((original_result != S_OK) || options_.replace_shader_dir.empty() || (pipelineState == nullptr) ||
+        pipelineState->IsNull())
+    {
+        return device->CreateComputePipelineState(pDesc2, *riid.decoded_value, pipelineState->GetHandlePointer());
+    }
 
-    return replay_result;
+    auto                                 override_desc = *pDesc2;
+    std::vector<std::unique_ptr<char[]>> replacement_codes;
+    const uint64_t                       handle_id = *pipelineState->GetPointer();
+
+    const bool shader_replaced = TryReplacePipelineShader(options_.replace_shader_dir,
+                                                          handle_id,
+                                                          graphics::Dx12ShaderTool::ShaderType::kCompute,
+                                                          override_desc.CS,
+                                                          replacement_codes);
+
+    if (shader_replaced && options_.use_cached_psos)
+    {
+        GFXRECON_LOG_WARNING("Using cached PSOs and shader replacement enabled during replay may cause replay "
+                             "failures, disabling cached PSOs.");
+        override_desc.CachedPSO.pCachedBlob           = nullptr;
+        override_desc.CachedPSO.CachedBlobSizeInBytes = 0;
+    }
+
+    return device->CreateComputePipelineState(&override_desc, *riid.decoded_value, pipelineState->GetHandlePointer());
 }
 
 HRESULT Dx12ReplayConsumerBase::OverrideCreatePipelineState(
@@ -4184,8 +4273,6 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreatePipelineState(
     Decoded_GUID                                                    riid,
     HandlePointerDecoder<void*>*                                    ppPipelineState)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(original_result);
-
     GFXRECON_ASSERT(device_object_info != nullptr);
     GFXRECON_ASSERT(device_object_info->object != nullptr);
 
@@ -4204,10 +4291,61 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreatePipelineState(
         }
     }
 
-    HRESULT replay_result =
-        device->CreatePipelineState(pDesc2, *riid.decoded_value, ppPipelineState->GetHandlePointer());
+    if ((original_result != S_OK) || options_.replace_shader_dir.empty() || (ppPipelineState == nullptr) ||
+        ppPipelineState->IsNull())
+    {
+        return device->CreatePipelineState(pDesc2, *riid.decoded_value, ppPipelineState->GetHandlePointer());
+    }
 
-    return replay_result;
+    D3D12_PIPELINE_STATE_STREAM_DESC override_desc = *pDesc2;
+    std::vector<uint8_t>             stream_copy;
+    if ((pDesc2->SizeInBytes > 0) && (pDesc2->pPipelineStateSubobjectStream != nullptr))
+    {
+        stream_copy.resize(pDesc2->SizeInBytes);
+        util::platform::MemoryCopy(
+            stream_copy.data(), stream_copy.size(), pDesc2->pPipelineStateSubobjectStream, pDesc2->SizeInBytes);
+        override_desc.pPipelineStateSubobjectStream = stream_copy.data();
+    }
+
+    std::vector<D3D12_CACHED_PIPELINE_STATE*>                  cached_psos;
+    std::vector<graphics::Dx12ShaderTool::PipelineStateShader> pipeline_shaders;
+    std::vector<std::unique_ptr<char[]>>                       replacement_codes;
+    const uint64_t                                             handle_id       = *ppPipelineState->GetPointer();
+    bool                                                       shader_replaced = false;
+
+    const bool parsed = graphics::Dx12ShaderTool::ForEachPipelineStateStreamShader(
+        override_desc,
+        [&](const graphics::Dx12ShaderTool::PipelineStateShader& shader) { pipeline_shaders.push_back(shader); },
+        [&](D3D12_CACHED_PIPELINE_STATE& cached_pso) { cached_psos.push_back(&cached_pso); });
+
+    if (!parsed)
+    {
+        GFXRECON_LOG_WARNING("Failed to fully parse the CreatePipelineState pipeline state stream; "
+                             "shader replacement was skipped.");
+        return device->CreatePipelineState(&override_desc, *riid.decoded_value, ppPipelineState->GetHandlePointer());
+    }
+
+    for (const auto& shader : pipeline_shaders)
+    {
+        if (shader.bytecode != nullptr)
+        {
+            shader_replaced |= TryReplacePipelineShader(
+                options_.replace_shader_dir, handle_id, shader.type, *shader.bytecode, replacement_codes);
+        }
+    }
+
+    if (shader_replaced && options_.use_cached_psos)
+    {
+        GFXRECON_LOG_WARNING("Using cached PSOs and shader replacement enabled during replay may cause replay "
+                             "failures, disabling cached PSOs.");
+        for (auto* cached_pso : cached_psos)
+        {
+            cached_pso->pCachedBlob           = nullptr;
+            cached_pso->CachedBlobSizeInBytes = 0;
+        }
+    }
+
+    return device->CreatePipelineState(&override_desc, *riid.decoded_value, ppPipelineState->GetHandlePointer());
 }
 
 HRESULT
@@ -4672,6 +4810,60 @@ HRESULT Dx12ReplayConsumerBase::OverrideOpenSharedHandle(DxObjectInfo*          
     return replay_result;
 }
 
+namespace
+{
+struct ScopedStateObjectShaderReplacement
+{
+    struct SavedDxilLibrary
+    {
+        D3D12_DXIL_LIBRARY_DESC* desc;
+        D3D12_SHADER_BYTECODE    original;
+    };
+
+    std::vector<std::unique_ptr<char[]>> replacement_codes;
+    std::vector<SavedDxilLibrary>        saved_libraries;
+
+    void Apply(const std::string& replace_shader_dir, uint64_t handle_id, D3D12_STATE_OBJECT_DESC* desc)
+    {
+        if (replace_shader_dir.empty() || (desc == nullptr) || (desc->pSubobjects == nullptr))
+        {
+            return;
+        }
+
+        for (uint32_t i = 0; i < desc->NumSubobjects; ++i)
+        {
+            const auto& subobject = desc->pSubobjects[i];
+            if ((subobject.pDesc != nullptr) && (subobject.Type == D3D12_STATE_SUBOBJECT_TYPE_DXIL_LIBRARY))
+            {
+                auto* dxil_desc = reinterpret_cast<D3D12_DXIL_LIBRARY_DESC*>(const_cast<void*>(subobject.pDesc));
+                std::unique_ptr<char[]> code;
+                size_t                  file_size = 0;
+                if (graphics::Dx12ShaderTool::LoadReplacementStateObjectDxilLibraryFromDir(
+                        replace_shader_dir, handle_id, i, code, file_size))
+                {
+                    saved_libraries.push_back({ dxil_desc, dxil_desc->DXILLibrary });
+                    dxil_desc->DXILLibrary.pShaderBytecode = code.get();
+                    dxil_desc->DXILLibrary.BytecodeLength  = file_size;
+                    replacement_codes.push_back(std::move(code));
+
+                    std::string file_path = util::filepath::Join(
+                        replace_shader_dir, graphics::Dx12ShaderTool::MakeStateObjectDxilLibraryFileName(handle_id, i));
+                    GFXRECON_LOG_INFO("Replacement shader found: %s", file_path.c_str());
+                }
+            }
+        }
+    }
+
+    ~ScopedStateObjectShaderReplacement()
+    {
+        for (const auto& saved : saved_libraries)
+        {
+            saved.desc->DXILLibrary = saved.original;
+        }
+    }
+};
+} // namespace
+
 HRESULT
 Dx12ReplayConsumerBase::OverrideCreateStateObject(DxObjectInfo* device5_object_info,
                                                   HRESULT       original_result,
@@ -4680,6 +4872,16 @@ Dx12ReplayConsumerBase::OverrideCreateStateObject(DxObjectInfo* device5_object_i
                                                   HandlePointerDecoder<void*>* state_object_decoder)
 {
     auto device5 = static_cast<ID3D12Device5*>(device5_object_info->object);
+
+    // Keep replacement bytecode buffers alive through PostProcessCreateStateObject (which may reflect
+    // DXILLibrary exports when NumExports == 0), then restore original pointers on scope exit.
+    ScopedStateObjectShaderReplacement shader_replacement;
+    if (SUCCEEDED(original_result) && !options_.replace_shader_dir.empty() && (state_object_decoder != nullptr) &&
+        !state_object_decoder->IsNull())
+    {
+        shader_replacement.Apply(
+            options_.replace_shader_dir, *state_object_decoder->GetPointer(), desc_decoder->GetPointer());
+    }
 
     auto replay_result = device5->CreateStateObject(
         desc_decoder->GetPointer(), *riid_decoder.decoded_value, state_object_decoder->GetHandlePointer());
@@ -4710,6 +4912,14 @@ Dx12ReplayConsumerBase::OverrideAddToStateObject(
 
     auto device7                   = static_cast<ID3D12Device7*>(device7_object_info->object);
     auto state_object_to_grow_from = static_cast<ID3D12StateObject*>(state_object_to_grow_from_object_info->object);
+
+    ScopedStateObjectShaderReplacement shader_replacement;
+    if (SUCCEEDED(original_result) && !options_.replace_shader_dir.empty() && (new_state_object_decoder != nullptr) &&
+        !new_state_object_decoder->IsNull())
+    {
+        shader_replacement.Apply(
+            options_.replace_shader_dir, *new_state_object_decoder->GetPointer(), addition_decoder->GetPointer());
+    }
 
     auto replay_result = device7->AddToStateObject(addition_decoder->GetPointer(),
                                                    state_object_to_grow_from,

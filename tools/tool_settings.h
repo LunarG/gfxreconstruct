@@ -103,6 +103,7 @@ const char kDumpResourcesDirArgument[]           = "--dump-resources-dir";
 const char kDumpResourcesImageFormatArgument[]   = "--dump-resources-image-format";
 const char kFrameWarmUpSpirv[]                   = "--frame-warm-up-spirv";
 const char kFrameWarmUpLoad[]                    = "--frame-warm-up-load";
+const char kShaderReplaceArgument[]              = "--replace-shaders";
 
 enum class WsiPlatform
 {
@@ -909,6 +910,7 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
     GetScreenshotSize(arg_parser, options.screenshot_width, options.screenshot_height);
     options.screenshot_scale   = GetScreenshotScale(arg_parser);
     options.screenshot_results = arg_parser.IsOptionSet(kScreenshotResultsOption);
+    options.replace_shader_dir = arg_parser.GetArgumentValue(kShaderReplaceArgument);
 }
 
 #endif // GFXRECON_PLATFORM_SETTINGS_H

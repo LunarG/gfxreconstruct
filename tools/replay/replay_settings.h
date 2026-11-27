@@ -42,7 +42,7 @@ const char kArguments[] =
     "--screenshot-format,--screenshot-dir,--screenshot-prefix,--screenshot-size,--screenshot-scale,"
     "--mfr|--measurement-frame-range,--fw|--force-windowed,--fwo|--force-windowed-origin,--measurement-file,"
     "--dump-resources,--dump-resources-dir,--dump-resources-image-format,--pbis,"
-    "--pcj|--pipeline-creation-jobs,--quit-after-frame,"
+    "--pcj|--pipeline-creation-jobs,--quit-after-frame,--replace-shaders,"
     "--wait-before-first-submit,--frame-warm-up-spirv,--frame-warm-up-load,--wait-before-frame,--loop-frame,"
     "--loop-count,--remote-connect,--remote-listen";
 
@@ -119,7 +119,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-size <width>x<height>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-scale <scale>] [--screenshot-interval <N>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-results]");
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--wsi <platform>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--wsi <platform>] [--replace-shaders <dir>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--remove-unsupported] [--validate]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--mfr|--measurement-frame-range <start-frame>-<end-frame>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--measurement-file <file>] [--quit-after-measurement-range]");
@@ -273,6 +273,11 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("                  \tauto (default): Picks the same surface as at capture time if");
     GFXRECON_WRITE_CONSOLE("                  \t                possible, otherwise picks a surface available");
     GFXRECON_WRITE_CONSOLE("                  \t                on the replay device");
+    GFXRECON_WRITE_CONSOLE("  --replace-shaders <dir>");
+    GFXRECON_WRITE_CONSOLE("          \t\tReplace shader bytecode during replay with files from <dir> when");
+    GFXRECON_WRITE_CONSOLE("          \t\tfound, using the naming convention produced by gfxrecon-extract");
+    GFXRECON_WRITE_CONSOLE("          \t\t(sh<handle_id> for Vulkan; sh<handle_id>.{v/p/d/h/g/c/a/m}so or");
+    GFXRECON_WRITE_CONSOLE("          \t\tsh<handle_id>_<subobject_index>.dxil for D3D12).");
     GFXRECON_WRITE_CONSOLE("  --sync\t\tSynchronize after each queue submission with vkQueueWaitIdle.");
     GFXRECON_WRITE_CONSOLE("  --remove-unsupported\tRemove unsupported extensions and features from instance");
     GFXRECON_WRITE_CONSOLE("                      \tand device creation parameters.");
