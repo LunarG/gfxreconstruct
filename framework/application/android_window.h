@@ -84,11 +84,11 @@ class AndroidWindow : public decode::Window
     DestroySurface(const graphics::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface) override;
 
   private:
-    AndroidContext* android_context_;
-    ANativeWindow*  window_;
-    uint32_t        width_;
-    uint32_t        height_;
-    uint32_t        pre_transform_;
+    AndroidContext*                   android_context_;
+    ANativeWindow*                    window_;
+    uint32_t                          width_;
+    uint32_t                          height_;
+    AndroidContext::ScreenOrientation orientation_;
 };
 
 class AndroidWindowFactory : public decode::WindowFactory
