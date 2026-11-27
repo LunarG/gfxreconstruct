@@ -84,7 +84,6 @@ const char kOmitPipelineCacheDataLongOption[]  = "--omit-pipeline-cache-data";
 const char kSurfaceIndexArgument[]             = "--surface-index";
 const char kMemoryPortabilityShortOption[]     = "-m";
 const char kMemoryPortabilityLongOption[]      = "--memory-translation";
-const char kShaderReplaceArgument[]            = "--replace-shaders";
 const char kSwapchainOption[]                  = "--swapchain";
 const char kPresentModeOption[]                = "--present-mode";
 const char kPresentOverrideImageArgument[]     = "--present-override";
@@ -391,7 +390,6 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
         }
     }
 
-    replay_options.replace_shader_dir = arg_parser.GetArgumentValue(kShaderReplaceArgument);
     replay_options.create_resource_allocator =
         GetCreateResourceAllocatorFunc(arg_parser, filename, replay_options, tracked_object_info_table);
 
@@ -538,12 +536,6 @@ std::vector<util::FeatureOptionDesc> ReplayVulkanFeature::GetOptionDescs() const
                  "vkAllocateDescriptorSets calls that failed during capture." },
                false,
                AliasNames(kSkipFailedAllocationShortOption, kSkipFailedAllocationLongOption) },
-             { "<dir>",
-               { "Replace the shader code in each CreateShaderModule with the contents of",
-                 "the file <dir>/sh<handle_id> if found, where <handle_id> is the handle id",
-                 "of the CreateShaderModule call. See gfxrecon-extract." },
-               true,
-               kShaderReplaceArgument },
              { "",
                { "Omit pipeline cache data from calls to vkCreatePipelineCache and skip",
                  "calls to vkGetPipelineCacheData." },

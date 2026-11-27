@@ -281,6 +281,11 @@ Optional arguments:
                         unspecified screenshots will use the swapchain images
                         dimensions. If --screenshot-scale is also specified then
                         this option is ignored.
+  --replace-shaders <dir>
+                        Replace the shader code in each Create*Pipeline/CreateStateObject/AddToStateObject call
+                        with the contents of the matching file in <dir> if found
+                        (sh<handle_id>.{v/p/d/h/g/c/a/m}so or sh<handle_id>_<subobject_index>.dxil).
+                        See gfxrecon-extract.
   --validate            Enables the Khronos Vulkan validation layer when replaying a
                         Vulkan capture or the Direct3D debug layer when replaying a
                         Direct3D 12 capture.
