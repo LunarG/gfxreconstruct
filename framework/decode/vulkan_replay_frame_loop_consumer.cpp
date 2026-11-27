@@ -442,13 +442,48 @@ void VulkanReplayFrameLoopConsumer::Process_vkFreeMemory(const ApiCallInfo& call
     }
 }
 
+// These usages only let the device read from a buffer. Any other usage is assumed to be writable.
+static bool CanWriteBuffer(const VkBufferCreateInfo* create_info)
+{
+    if (const auto* usage_flags2 = graphics::vulkan_struct_get_pnext<VkBufferUsageFlags2CreateInfo>(create_info))
+    {
+        constexpr VkBufferUsageFlags2 kReadOnlyUsage2 =
+            VK_BUFFER_USAGE_2_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_2_UNIFORM_TEXEL_BUFFER_BIT |
+            VK_BUFFER_USAGE_2_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_2_INDEX_BUFFER_BIT |
+            VK_BUFFER_USAGE_2_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_2_INDIRECT_BUFFER_BIT |
+            VK_BUFFER_USAGE_2_CONDITIONAL_RENDERING_BIT_EXT | VK_BUFFER_USAGE_2_SHADER_BINDING_TABLE_BIT_KHR |
+            VK_BUFFER_USAGE_2_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR |
+            VK_BUFFER_USAGE_2_MICROMAP_BUILD_INPUT_READ_ONLY_BIT_EXT | VK_BUFFER_USAGE_2_VIDEO_DECODE_SRC_BIT_KHR |
+            VK_BUFFER_USAGE_2_VIDEO_ENCODE_SRC_BIT_KHR | VK_BUFFER_USAGE_2_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT |
+            VK_BUFFER_USAGE_2_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT |
+            VK_BUFFER_USAGE_2_PUSH_DESCRIPTORS_DESCRIPTOR_BUFFER_BIT_EXT;
+
+        return (usage_flags2->usage & ~kReadOnlyUsage2) != 0;
+    }
+
+    constexpr VkBufferUsageFlags kReadOnlyUsage =
+        VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT |
+        VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |
+        VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT | VK_BUFFER_USAGE_CONDITIONAL_RENDERING_BIT_EXT |
+        VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR |
+        VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR |
+        VK_BUFFER_USAGE_MICROMAP_BUILD_INPUT_READ_ONLY_BIT_EXT | VK_BUFFER_USAGE_VIDEO_DECODE_SRC_BIT_KHR |
+        VK_BUFFER_USAGE_VIDEO_ENCODE_SRC_BIT_KHR | VK_BUFFER_USAGE_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT |
+        VK_BUFFER_USAGE_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT | VK_BUFFER_USAGE_PUSH_DESCRIPTORS_DESCRIPTOR_BUFFER_BIT_EXT;
+
+    return (create_info->usage & ~kReadOnlyUsage) != 0;
+}
+
 void VulkanReplayFrameLoopConsumer::Process_vkCreateBuffer(const ApiCallInfo& call_info, args::CreateBuffer& args)
 {
     VkBufferCreateInfo* create_info = args.pCreateInfo.GetPointer();
+    bool                writable    = false;
 
-    // Ensure that buffers can be copied to and from so contents can be restored.
     if (create_info != nullptr)
     {
+        writable = CanWriteBuffer(create_info);
+
+        // Ensure that buffers can be copied to and from so contents can be restored.
         create_info->usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
         if (auto* usage_flags2 = graphics::vulkan_struct_get_pnext<VkBufferUsageFlags2CreateInfo>(create_info))
@@ -458,6 +493,14 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateBuffer(const ApiCallInfo& ca
     }
 
     VulkanReplayFrameLoopConsumerBase::Process_vkCreateBuffer(call_info, args);
+
+    if (writable && !args.pBuffer.IsNull())
+    {
+        if (VulkanBufferInfo* buffer_info = GetObjectInfoTable().GetVkBufferInfo(*args.pBuffer.GetPointer()))
+        {
+            buffer_info->writable = true;
+        }
+    }
 }
 
 static bool CanRestoreImage(const VkImageCreateInfo* create_info)
@@ -659,8 +702,14 @@ void VulkanReplayFrameLoopConsumer::RecordBufferStates()
     CommonObjectInfoTable& table = GetObjectInfoTable();
 
     std::unordered_map<format::HandleId, std::vector<format::HandleId>> device_buffers;
-    table.VisitVkBufferInfo([&table, &device_buffers](const VulkanBufferInfo* buffer_info) {
+    table.VisitVkBufferInfo([this, &table, &device_buffers](const VulkanBufferInfo* buffer_info) {
         if (buffer_info == nullptr || buffer_info->handle == VK_NULL_HANDLE || buffer_info->size == 0)
+        {
+            return;
+        }
+
+        // The host can write to a mapped buffer regardless of its usage.
+        if (!buffer_info->writable && (buffer_info->memory_property_flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == 0)
         {
             return;
         }
