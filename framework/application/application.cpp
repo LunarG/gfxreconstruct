@@ -293,20 +293,26 @@ void Application::Run()
     }
 }
 
-void Application::SetPaused(bool paused)
+void Application::SetPaused(bool paused, const char* reason)
 {
     const bool changed = (paused_ != paused);
 
     if (file_processor_ != nullptr && changed)
     {
-        uint32_t current_frame = file_processor_->GetCurrentFrameNumber();
+        uint32_t    current_frame = file_processor_->GetCurrentFrameNumber();
+        std::string reason_suffix;
+        if ((reason != nullptr) && (reason[0] != '\0'))
+        {
+            reason_suffix = std::string(" due to ") + reason;
+        }
+
         if (paused)
         {
-            GFXRECON_LOG_INFO("Paused at frame %u", current_frame);
+            GFXRECON_LOG_INFO("Paused at frame %u%s", current_frame, reason_suffix.c_str());
         }
         else
         {
-            GFXRECON_LOG_INFO("Resumed from frame %u", current_frame);
+            GFXRECON_LOG_INFO("Resumed from frame %u%s", current_frame, reason_suffix.c_str());
         }
     }
 
@@ -396,9 +402,12 @@ bool Application::PlaySingleFrame()
 
         if (success)
         {
+            const char* pause_reason = "a single-frame advance requested while paused";
+
             if (file_processor_->GetCurrentFrameNumber() == pause_frame_)
             {
-                paused_ = true;
+                paused_      = true;
+                pause_reason = "reaching the user specified pause frame";
             }
 
             // Check paused state separately from previous check to print messages for two different cases: replay has
@@ -406,7 +415,8 @@ bool Application::PlaySingleFrame()
             // by one frame while paused.
             if (paused_)
             {
-                GFXRECON_LOG_INFO("Paused at frame %u", file_processor_->GetCurrentFrameNumber());
+                GFXRECON_LOG_INFO(
+                    "Paused at frame %u due to %s", file_processor_->GetCurrentFrameNumber(), pause_reason);
             }
 
             SendRemoteStatus();
