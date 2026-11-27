@@ -291,6 +291,10 @@ Dx12ReplayConsumerBase::~Dx12ReplayConsumerBase()
     const DWORD kWaitMilliseconds = 2000;
     if (WaitIdle(kWaitMilliseconds))
     {
+        // This needs to be done before parent devices are destroyed
+        resource_value_mapper_ = nullptr;
+        dump_resources_        = nullptr;
+
         DestroyActiveObjects();
         DestroyActiveWindows();
         DestroyActiveEvents();
@@ -3457,6 +3461,37 @@ void Dx12ReplayConsumerBase::ReleaseSwapchainImages(DxgiSwapchainInfo* info)
 bool Dx12ReplayConsumerBase::WaitIdle(DWORD milliseconds)
 {
     bool success = true;
+
+    const UINT kWaitLoopCount = 100;
+    auto       wait_for_fence = [&](ID3D12Fence* fence, HANDLE sync_event, UINT64 value) {
+        if (FAILED(fence->SetEventOnCompletion(value, sync_event)))
+        {
+            return false;
+        }
+
+        if (milliseconds == INFINITE)
+        {
+            return WaitForSingleObject(sync_event, milliseconds) == WAIT_OBJECT_0;
+        }
+
+        UINT loop_count = 0;
+        do
+        {
+            auto result = WaitForSingleObject(sync_event, milliseconds);
+            if (result == WAIT_OBJECT_0)
+            {
+                return true;
+            }
+            if (result != WAIT_TIMEOUT)
+            {
+                return false;
+            }
+            loop_count++;
+        } while ((fence->GetCompletedValue() < value) && (loop_count < kWaitLoopCount));
+
+        return fence->GetCompletedValue() >= value;
+    };
+
     for (auto& entry : object_info_table_)
     {
         auto& info = entry.second;
@@ -3471,6 +3506,28 @@ bool Dx12ReplayConsumerBase::WaitIdle(DWORD milliseconds)
 
                 if (sync_event != nullptr)
                 {
+                    if (!queue_info->pending_events.empty())
+                    {
+                        // Force-signal unresolved fence waits during shutdown so queues can drain
+                        // when the corresponding signals are missing from the capture.
+                        // This does not recreate the missing producer work; dependent GPU work may
+                        // use stale data. Queue completion is still awaited using a separate fence.
+                        for (const auto& event : queue_info->pending_events)
+                        {
+                            if (event.is_wait && !event.is_signaled)
+                            {
+                                auto fence = static_cast<ID3D12Fence*>(event.fence_info->object);
+                                if (fence != nullptr)
+                                {
+                                    if (fence->GetCompletedValue() < event.value)
+                                    {
+                                        fence->Signal(event.value);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     if (queue_info->sync_fence == nullptr)
                     {
                         // Create a temporary fence to wait on the object.
@@ -3481,9 +3538,11 @@ bool Dx12ReplayConsumerBase::WaitIdle(DWORD milliseconds)
                             graphics::dx12::ID3D12FenceComPtr fence;
                             if (SUCCEEDED(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence))))
                             {
-                                queue->Signal(fence, 1);
-                                fence->SetEventOnCompletion(1, sync_event);
-                                if (WaitForSingleObject(sync_event, milliseconds) != WAIT_OBJECT_0)
+                                if (SUCCEEDED(queue->Signal(fence, 1)))
+                                {
+                                    success &= wait_for_fence(fence, sync_event, 1);
+                                }
+                                else
                                 {
                                     success = false;
                                 }
@@ -3494,9 +3553,11 @@ bool Dx12ReplayConsumerBase::WaitIdle(DWORD milliseconds)
                     {
                         // The --sync option was specified, so the queue already has a fence for synchronization.
                         auto& sync_fence = queue_info->sync_fence;
-                        queue->Signal(sync_fence, ++queue_info->sync_value);
-                        sync_fence->SetEventOnCompletion(queue_info->sync_value, sync_event);
-                        if (WaitForSingleObject(sync_event, milliseconds) != WAIT_OBJECT_0)
+                        if (SUCCEEDED(queue->Signal(sync_fence, ++queue_info->sync_value)))
+                        {
+                            success &= wait_for_fence(sync_fence, sync_event, queue_info->sync_value);
+                        }
+                        else
                         {
                             success = false;
                         }
