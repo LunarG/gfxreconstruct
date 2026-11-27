@@ -58,7 +58,28 @@ target_link_libraries(VkLayer_gfxreconstruct
                       android
                       log)
 
-target_link_options(VkLayer_gfxreconstruct PRIVATE "-Wl,-z,max-page-size=16384")
+# Keep the symbols of the statically linked third-party libraries private to the layer, so that
+# an application defining the same symbols (its own operator new, LZ4 or ZSTD) cannot preempt
+# the layer's copies at load time, and vice versa.
+# gfxrecon's own functions stay exported on purpose: packaging strips the full symbol table,
+# and Android tombstones can only name the functions found in the exported symbol table.
+# A version script, as on Linux, would leave every layer frame in a tombstone without a name
+# (see the revert of #2154).
+target_link_options(VkLayer_gfxreconstruct PRIVATE
+                    "-Wl,-z,max-page-size=16384"
+                    "-Wl,--exclude-libs,libc++_static.a"
+                    "-Wl,--exclude-libs,libc++abi.a"
+                    "-Wl,--exclude-libs,liblz4.a"
+                    "-Wl,--exclude-libs,libzstd.a"
+                    "-Wl,--exclude-libs,libspirv-reflect-static.a")
+
+if (GFXRECON_ENABLE_HEAP_ACCOUNTING)
+    # Route the malloc family used by everything linked into the layer (including the static
+    # libc++, whose operator new ends in malloc) through the counting impostor.
+    target_sources(VkLayer_gfxreconstruct PRIVATE ${GFXRECON_SOURCE_DIR}/layer/heap_impostor.cpp)
+    target_link_options(VkLayer_gfxreconstruct PRIVATE
+                        "-Wl,--wrap=malloc,--wrap=free,--wrap=calloc,--wrap=realloc,--wrap=posix_memalign,--wrap=memalign")
+endif()
 
 if (GFXRECON_ENABLE_OPENXR)
     include("FindVulkanVersion")
