@@ -3460,6 +3460,7 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                                                             device_wrapper->property_feature_info,
                                                             device_wrapper->version_extension_info,
                                                             device_wrapper->physical_device->memory_properties);
+                resource_util.SetAvailableQueueFamilies(device_wrapper->queue_families);
 
                 // Sparse images require staging copy for the following process because dumping image data with mapping
                 // memory needs binding the entire image to a single memory range. Sparse image opaque binding allows
@@ -3604,6 +3605,7 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
                                                     device_wrapper->property_feature_info,
                                                     device_wrapper->version_extension_info,
                                                     device_wrapper->physical_device->memory_properties);
+        resource_util.SetAvailableQueueFamilies(device_wrapper->queue_families);
 
         if (max_staging_copy_size > 0)
         {

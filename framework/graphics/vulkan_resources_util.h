@@ -74,6 +74,15 @@ class VulkanResourcesUtil
 
     ~VulkanResourcesUtil();
 
+    // Restricts the queue families this object submits to. A resource created with exclusive sharing mode has no
+    // queue family recorded, so its snapshot would otherwise use family 0, which a device (for example one created
+    // by a compute only OpenCL implementation) may not have any queue in. A queue family that is not in this list is
+    // replaced with the first one of the list. Leaving it empty keeps the queue family as passed in.
+    void SetAvailableQueueFamilies(const std::vector<uint32_t>& queue_families)
+    {
+        available_queue_families_ = queue_families;
+    }
+
     // This function creates a staging buffer that will be used by the ReadFromImageResourceStaging() and
     // ReadFromBufferResource() functions. It is not necessary to do so but can be useful when dumping multiple
     // resource and the size of the biggest staging buffer necessary is known in advance.
@@ -423,6 +432,9 @@ class VulkanResourcesUtil
 
     VkQueue GetQueue(uint32_t queue_family_index, uint32_t queue_index);
 
+    // Returns queue_family_index when queues can be taken from it, otherwise the first available queue family.
+    uint32_t ResolveQueueFamily(uint32_t queue_family_index) const;
+
     VkResult SubmitCommandBuffer(VkCommandBuffer command_buffer, VkQueue queue);
 
     VkResult BlitImage(VkCommandBuffer             command_buffer,
@@ -472,6 +484,8 @@ class VulkanResourcesUtil
 
     // Optional external synchronization for the queues this class submits to. See QueueLockFn.
     QueueLockFn queue_lock_fn_;
+
+    std::vector<uint32_t> available_queue_families_;
 
     struct command_assets_t
     {

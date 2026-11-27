@@ -24,6 +24,7 @@
 
 #include "encode/vulkan_handle_wrappers.h"
 #include "vulkan/vulkan_core.h"
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <mutex>
@@ -833,6 +834,19 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
 
         // Track state of physical device properties and features at device creation
         wrapper->property_feature_info = property_feature_info;
+
+        // Track the queue families the device has queues in.
+        wrapper->queue_families.clear();
+        for (uint32_t i = 0; i < pCreateInfo_unwrapped->queueCreateInfoCount; ++i)
+        {
+            const VkDeviceQueueCreateInfo& queue_ci = pCreateInfo_unwrapped->pQueueCreateInfos[i];
+            if ((queue_ci.queueCount > 0) &&
+                (std::find(wrapper->queue_families.begin(), wrapper->queue_families.end(), queue_ci.queueFamilyIndex) ==
+                 wrapper->queue_families.end()))
+            {
+                wrapper->queue_families.push_back(queue_ci.queueFamilyIndex);
+            }
+        }
 
         // Track the effective device version and enabled extensions for selecting core vs extension entry point
         // flavors.
@@ -2429,6 +2443,7 @@ void VulkanCaptureManager::ProcessImportFdForBuffer(VkDevice device, VkBuffer bu
                                                 device_wrapper->version_extension_info,
                                                 device_wrapper->physical_device->memory_properties,
                                                 MakeQueueLockFn(device_wrapper));
+    resource_util.SetAvailableQueueFamilies(device_wrapper->queue_families);
 
     VkResult result = resource_util.CreateStagingBuffer(buffer_wrapper->size);
     if (result == VK_SUCCESS)
@@ -2465,6 +2480,7 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
                                                 device_wrapper->version_extension_info,
                                                 device_wrapper->physical_device->memory_properties,
                                                 MakeQueueLockFn(device_wrapper));
+    resource_util.SetAvailableQueueFamilies(device_wrapper->queue_families);
 
     std::vector<VkImageAspectFlagBits> aspects;
     graphics::GetFormatAspects(image_wrapper->format, &aspects);

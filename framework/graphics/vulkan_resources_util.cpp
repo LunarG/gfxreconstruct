@@ -31,6 +31,7 @@
 #include "util/logging.h"
 #include "vulkan/vulkan_core.h"
 
+#include <algorithm>
 #include <cstdint>
 #include <cmath>
 #include <chrono>
@@ -1469,8 +1470,26 @@ void VulkanResourcesUtil::DestroyStagingTensorMemory()
     staging_tensor_.mem.size                  = 0;
 }
 
+uint32_t VulkanResourcesUtil::ResolveQueueFamily(uint32_t queue_family_index) const
+{
+    if (available_queue_families_.empty() ||
+        (std::find(available_queue_families_.begin(), available_queue_families_.end(), queue_family_index) !=
+         available_queue_families_.end()))
+    {
+        return queue_family_index;
+    }
+
+    GFXRECON_LOG_DEBUG("Queue family %u has no queues on the device, using queue family %u for resource memory "
+                       "snapshot",
+                       queue_family_index,
+                       available_queue_families_.front());
+    return available_queue_families_.front();
+}
+
 VkCommandBuffer VulkanResourcesUtil::CreateCommandBufferAndBegin(uint32_t queue_family_index)
 {
+    queue_family_index = ResolveQueueFamily(queue_family_index);
+
     auto& command_asset = command_asset_map_[queue_family_index];
 
     auto injected = device_table_.Open();
@@ -1774,6 +1793,8 @@ void VulkanResourcesUtil::CopyBuffer(VkCommandBuffer command_buffer,
 VkQueue VulkanResourcesUtil::GetQueue(uint32_t queue_family_index, uint32_t queue_index)
 {
     VkQueue queue = VK_NULL_HANDLE;
+
+    queue_family_index = ResolveQueueFamily(queue_family_index);
 
     auto injected = device_table_.Open();
     injected->GetDeviceQueue(device_, queue_family_index, queue_index, &queue);
