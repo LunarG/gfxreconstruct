@@ -53,6 +53,7 @@ struct DxReplayOptions : public ReplayOptions
 #endif
     int32_t              memory_usage{ kDefaultBatchingMemoryUsage };
     uint32_t             batching_heap_size{ kDefaultBatchingHeapSize };
+    bool                 use_composition_swapchain{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)

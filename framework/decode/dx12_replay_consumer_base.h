@@ -531,6 +531,13 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                              UINT                                                   flags,
                              StructPointerDecoder<Decoded_DXGI_PRESENT_PARAMETERS>* present_parameters);
 
+    HRESULT OverrideGetFullscreenDesc(DxObjectInfo*                                                  replay_object_info,
+                                      HRESULT                                                        original_result,
+                                      StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* desc);
+
+    HRESULT
+    OverrideGetHwnd(DxObjectInfo* replay_object_info, HRESULT original_result, PointerDecoder<uint64_t, void*>* hwnd);
+
     HRESULT OverrideCreateSwapChain(DxObjectInfo*                                       replay_object_info,
                                     HRESULT                                             original_result,
                                     DxObjectInfo*                                       device_info,
@@ -1005,6 +1012,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                        BOOL          Fullscreen,
                                        DxObjectInfo* pTarget);
 
+    HRESULT OverrideGetContainingOutput(DxObjectInfo*                       swapchain_info,
+                                        HRESULT                             original_result,
+                                        HandlePointerDecoder<IDXGIOutput*>* output);
+
     HRESULT OverrideCreateCommandList(DxObjectInfo*                device_object_info,
                                       HRESULT                      original_result,
                                       UINT                         node_mask,
@@ -1321,14 +1332,20 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     }
 
     HRESULT
-    CreateSwapChainForHwnd(DxObjectInfo*                           replay_object_info,
-                           HRESULT                                 original_result,
-                           DxObjectInfo*                           device_info,
-                           uint64_t                                hwnd_id,
-                           DXGI_SWAP_CHAIN_DESC1*                  desc,
-                           DXGI_SWAP_CHAIN_FULLSCREEN_DESC*        full_screen_desc,
-                           DxObjectInfo*                           restrict_to_output_info,
-                           HandlePointerDecoder<IDXGISwapChain1*>* swapchain);
+    CreateSwapChainForReplay(DxObjectInfo*                           replay_object_info,
+                             HRESULT                                 original_result,
+                             DxObjectInfo*                           device_info,
+                             uint64_t                                hwnd_id,
+                             DXGI_SWAP_CHAIN_DESC1*                  desc,
+                             DXGI_SWAP_CHAIN_FULLSCREEN_DESC*        full_screen_desc,
+                             DxObjectInfo*                           restrict_to_output_info,
+                             HandlePointerDecoder<IDXGISwapChain1*>* swapchain);
+
+    HRESULT CreateCompositionSwapChain(IDXGIFactory2*        factory,
+                                       IUnknown*             device,
+                                       DXGI_SWAP_CHAIN_DESC1 desc,
+                                       IDXGIOutput*          restrict_to_output,
+                                       IDXGISwapChain1**     swapchain);
 
     void SetSwapchainInfo(DxObjectInfo* info,
                           Window*       window,
