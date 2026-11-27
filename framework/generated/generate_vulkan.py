@@ -63,6 +63,7 @@ generate_targets = [
     'generated_vulkan_decoder.cpp',
     'generated_vulkan_decoder_args.h',
     'generated_vulkan_consumer.h',
+    'generated_vulkan_consumer_stage.h',
     'generated_vulkan_replay_consumer.h',
     'generated_vulkan_replay_consumer.cpp',
     'generated_vulkan_replay_frame_loop_consumer_base.h',
