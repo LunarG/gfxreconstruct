@@ -103,6 +103,13 @@ const char kDumpResourcesDirArgument[]           = "--dump-resources-dir";
 const char kDumpResourcesImageFormatArgument[]   = "--dump-resources-image-format";
 const char kFrameWarmUpSpirv[]                   = "--frame-warm-up-spirv";
 const char kFrameWarmUpLoad[]                    = "--frame-warm-up-load";
+const char kSwapchainOption[]                    = "--swapchain";
+const char kEnableUseCapturedSwapchainIndices[] =
+    "--use-captured-swapchain-indices"; // The same: util::SwapchainOption::kCaptured
+
+const char kSwapchainVirtual[]   = "virtual";
+const char kSwapchainCaptured[]  = "captured";
+const char kSwapchainOffscreen[] = "offscreen";
 
 enum class WsiPlatform
 {
@@ -909,6 +916,44 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
     GetScreenshotSize(arg_parser, options.screenshot_width, options.screenshot_height);
     options.screenshot_scale   = GetScreenshotScale(arg_parser);
     options.screenshot_results = arg_parser.IsOptionSet(kScreenshotResultsOption);
+
+    auto swapchain_option          = arg_parser.GetArgumentValue(kSwapchainOption);
+    auto enable_captured_swapchain = arg_parser.IsOptionSet(kEnableUseCapturedSwapchainIndices);
+    if (swapchain_option.empty())
+    {
+        if (enable_captured_swapchain)
+        {
+            options.swapchain_option = gfxrecon::util::SwapchainOption::kCaptured;
+        }
+    }
+    else
+    {
+        if (enable_captured_swapchain)
+        {
+            GFXRECON_LOG_WARNING_ONCE("Ignoring option: \"%s\" because option: \"%s\" is added",
+                                      kEnableUseCapturedSwapchainIndices,
+                                      kSwapchainOption);
+        }
+
+        if (gfxrecon::util::platform::StringCompareNoCase(kSwapchainCaptured, swapchain_option.c_str()) == 0)
+        {
+            options.swapchain_option = gfxrecon::util::SwapchainOption::kCaptured;
+        }
+        else if (gfxrecon::util::platform::StringCompareNoCase(kSwapchainOffscreen, swapchain_option.c_str()) == 0)
+        {
+            options.swapchain_option = gfxrecon::util::SwapchainOption::kOffscreen;
+        }
+        else if (gfxrecon::util::platform::StringCompareNoCase(kSwapchainVirtual, swapchain_option.c_str()) != 0)
+        {
+            GFXRECON_LOG_WARNING_ONCE("The value \"%s\" is not valid for %s. The accepted values are: %s, %s, %s. "
+                                      "This tool uses the default value instead.",
+                                      swapchain_option.c_str(),
+                                      kSwapchainOption,
+                                      kSwapchainVirtual,
+                                      kSwapchainCaptured,
+                                      kSwapchainOffscreen);
+        }
+    }
 }
 
 #endif // GFXRECON_PLATFORM_SETTINGS_H

@@ -32,6 +32,7 @@
 #include "decode/dx12_object_mapping_util.h"
 #include "decode/dx12_resource_value_mapper.h"
 #include "decode/dx12_dump_resources.h"
+#include "decode/dx12_offscreen_swapchain.h"
 #include "decode/window.h"
 #include "format/format.h"
 #include "generated/generated_dx12_consumer.h"
@@ -1329,6 +1330,25 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                            DXGI_SWAP_CHAIN_FULLSCREEN_DESC*        full_screen_desc,
                            DxObjectInfo*                           restrict_to_output_info,
                            HandlePointerDecoder<IDXGISwapChain1*>* swapchain);
+
+    // Create offscreen swapchain for IDXGIFactory::CreateSwapChain
+    HRESULT
+    CreateSwapChainForOffscreen(DxObjectInfo*                          replay_object_info,
+                                HRESULT                                original_result,
+                                DxObjectInfo*                          device_info,
+                                DXGI_SWAP_CHAIN_DESC*                  desc,
+                                HandlePointerDecoder<IDXGISwapChain*>* swapchain);
+
+    // Create offscreen swapchain for IDXGIFactory2::CreateSwapChainForHwnd,
+    // IDXGIFactory2::CreateSwapChainForComposition and IDXGIFactory2::CreateSwapChainForCoreWindow
+    HRESULT
+    CreateSwapChainForOffscreen(DxObjectInfo*                           replay_object_info,
+                                HRESULT                                 original_result,
+                                DxObjectInfo*                           device_info,
+                                uint64_t                                hwnd_id,
+                                DXGI_SWAP_CHAIN_DESC1*                  desc,
+                                DXGI_SWAP_CHAIN_FULLSCREEN_DESC*        full_screen_desc,
+                                HandlePointerDecoder<IDXGISwapChain1*>* swapchain);
 
     void SetSwapchainInfo(DxObjectInfo* info,
                           Window*       window,

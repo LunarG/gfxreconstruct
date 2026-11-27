@@ -209,6 +209,7 @@ Usage:
                         [--screenshot-interval <N>]
                         [--sfa | --skip-failed-allocations] [--replace-shaders <dir>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
+                        [--swapchain <mode>]
                         [--use-cached-psos] [--surface-index <N>]
                         [--remove-unsupported] [--validate]
                         [--onhb | --omit-null-hardware-buffers]
@@ -342,6 +343,12 @@ Optional arguments:
                         Directory to write dump resources output files. Default is the current working directory.
   --dump-resources-modifiable-state-only
                         Only dump resources that are in a modifiable state set by D3D12 ResourceBarrier
+  --swapchain <mode>    Choose a swapchain mode to replay. Available modes are:
+                            captured    Use the swapchain indices stored in the
+                                        capture directly on the swapchain setup for replay.
+                                        This is default for D3D12.
+                            offscreen   Disable creating swapchains, surfaces
+                                        and windows. To see rendering, add the --screenshots option.
   --remote-connect <address>
                         Connect out to a controller process, which supplies the replay settings and
                         receives replay's reports over the same socket. Address form is tcp:host:port.

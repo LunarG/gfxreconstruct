@@ -189,6 +189,14 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
                                  gfxrecon::decode::kDefaultBatchingHeapSize);
         }
     }
+
+    const auto& swapchain_option = arg_parser.GetArgumentValue(kSwapchainOption);
+    if ((replay_options.swapchain_option == gfxrecon::util::SwapchainOption::kVirtual) &&
+        (gfxrecon::util::platform::StringCompareNoCase(kSwapchainVirtual, swapchain_option.c_str()) != 0))
+    {
+        replay_options.swapchain_option = gfxrecon::util::SwapchainOption::kCaptured;
+    }
+
     return replay_options;
 }
 
