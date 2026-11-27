@@ -61,6 +61,7 @@ class FrameBoundaryTracker
     uint64_t GetFrameNumber() const noexcept { return frame_number_; }
     bool     UsesFrameMarkers() const noexcept { return capture_uses_frame_markers_; }
     bool     FileSupportsFrameMarkers() const noexcept { return file_supports_frame_markers_; }
+    uint64_t GetFirstFrame() const noexcept { return first_frame_; }
 
   private:
     uint64_t frame_number_{ file_processor::kFirstFrame };
