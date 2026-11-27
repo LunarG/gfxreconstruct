@@ -14727,7 +14727,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceMemoryRepo
         jdata["memoryObjectId"] = decoded_value.memoryObjectId;
         jdata["size"] = decoded_value.size;
         jdata["objectType"] = decoded_value.objectType;
-        jdata["objectHandle"] = decoded_value.objectHandle;
+        HandleToJson(jdata["objectHandle"], meta_struct.objectHandle);
         jdata["heapIndex"] = decoded_value.heapIndex;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }

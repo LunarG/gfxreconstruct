@@ -9118,6 +9118,7 @@ struct Decoded_VkDeviceMemoryReportCallbackDataEXT
     VkDeviceMemoryReportCallbackDataEXT* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
+    uint64_t objectHandle{ 0 };
 };
 
 struct Decoded_VkDeviceDeviceMemoryReportCreateInfoEXT
