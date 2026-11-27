@@ -584,7 +584,12 @@ VKAPI_ATTR VkResult VKAPI_CALL vkQueueWaitIdle(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueWaitIdle>::Dispatch(manager, queue);
 
-    VkResult result = manager->OverrideQueueWaitIdle(queue);
+    VkResult result;
+    {
+        // The call can block until another thread makes an API call, so the API call lock is not held across it.
+        CommonCaptureManager::ScopedApiCallUnlock api_call_unlock(shared_api_call_lock, exclusive_api_call_lock);
+        result = manager->OverrideQueueWaitIdle(queue);
+    }
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkQueueWaitIdle);
     if (encoder)
@@ -619,7 +624,12 @@ VKAPI_ATTR VkResult VKAPI_CALL vkDeviceWaitIdle(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDeviceWaitIdle>::Dispatch(manager, device);
 
-    VkResult result = manager->OverrideDeviceWaitIdle(device);
+    VkResult result;
+    {
+        // The call can block until another thread makes an API call, so the API call lock is not held across it.
+        CommonCaptureManager::ScopedApiCallUnlock api_call_unlock(shared_api_call_lock, exclusive_api_call_lock);
+        result = manager->OverrideDeviceWaitIdle(device);
+    }
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkDeviceWaitIdle);
     if (encoder)
@@ -1398,7 +1408,12 @@ VKAPI_ATTR VkResult VKAPI_CALL vkWaitForFences(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkWaitForFences>::Dispatch(manager, device, fenceCount, pFences, waitAll, timeout);
 
-    VkResult result = vulkan_wrappers::GetDeviceTable(device)->WaitForFences(device, fenceCount, pFences, waitAll, timeout);
+    VkResult result;
+    {
+        // The call can block until another thread makes an API call, so the API call lock is not held across it.
+        CommonCaptureManager::ScopedApiCallUnlock api_call_unlock(shared_api_call_lock, exclusive_api_call_lock);
+        result = vulkan_wrappers::GetDeviceTable(device)->WaitForFences(device, fenceCount, pFences, waitAll, timeout);
+    }
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkWaitForFences);
     if (encoder)
@@ -1634,7 +1649,12 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetQueryPoolResults(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetQueryPoolResults>::Dispatch(manager, device, queryPool, firstQuery, queryCount, dataSize, pData, stride, flags);
 
-    VkResult result = vulkan_wrappers::GetDeviceTable(device)->GetQueryPoolResults(device, queryPool, firstQuery, queryCount, dataSize, pData, stride, flags);
+    VkResult result;
+    {
+        // The call can block until another thread makes an API call, so the API call lock is not held across it.
+        CommonCaptureManager::ScopedApiCallUnlock api_call_unlock(shared_api_call_lock, exclusive_api_call_lock);
+        result = vulkan_wrappers::GetDeviceTable(device)->GetQueryPoolResults(device, queryPool, firstQuery, queryCount, dataSize, pData, stride, flags);
+    }
     if (result < 0)
     {
         omit_output_data = true;
@@ -6581,7 +6601,12 @@ VKAPI_ATTR VkResult VKAPI_CALL vkWaitSemaphores(
     auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
     const VkSemaphoreWaitInfo* pWaitInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pWaitInfo, handle_unwrap_memory);
 
-    VkResult result = vulkan_wrappers::GetDeviceTable(device)->WaitSemaphores(device, pWaitInfo_unwrapped, timeout);
+    VkResult result;
+    {
+        // The call can block until another thread makes an API call, so the API call lock is not held across it.
+        CommonCaptureManager::ScopedApiCallUnlock api_call_unlock(shared_api_call_lock, exclusive_api_call_lock);
+        result = vulkan_wrappers::GetDeviceTable(device)->WaitSemaphores(device, pWaitInfo_unwrapped, timeout);
+    }
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkWaitSemaphores);
     if (encoder)
@@ -9487,7 +9512,12 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAcquireNextImageKHR(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAcquireNextImageKHR>::Dispatch(manager, device, swapchain, timeout, semaphore, fence, pImageIndex);
 
-    VkResult result = vulkan_wrappers::GetDeviceTable(device)->AcquireNextImageKHR(device, swapchain, timeout, semaphore, fence, pImageIndex);
+    VkResult result;
+    {
+        // The call can block until another thread makes an API call, so the API call lock is not held across it.
+        CommonCaptureManager::ScopedApiCallUnlock api_call_unlock(shared_api_call_lock, exclusive_api_call_lock);
+        result = vulkan_wrappers::GetDeviceTable(device)->AcquireNextImageKHR(device, swapchain, timeout, semaphore, fence, pImageIndex);
+    }
     if (result < 0)
     {
         omit_output_data = true;
@@ -9710,7 +9740,12 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAcquireNextImage2KHR(
     auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
     const VkAcquireNextImageInfoKHR* pAcquireInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pAcquireInfo, handle_unwrap_memory);
 
-    VkResult result = vulkan_wrappers::GetDeviceTable(device)->AcquireNextImage2KHR(device, pAcquireInfo_unwrapped, pImageIndex);
+    VkResult result;
+    {
+        // The call can block until another thread makes an API call, so the API call lock is not held across it.
+        CommonCaptureManager::ScopedApiCallUnlock api_call_unlock(shared_api_call_lock, exclusive_api_call_lock);
+        result = vulkan_wrappers::GetDeviceTable(device)->AcquireNextImage2KHR(device, pAcquireInfo_unwrapped, pImageIndex);
+    }
     if (result < 0)
     {
         omit_output_data = true;
@@ -13643,7 +13678,12 @@ VKAPI_ATTR VkResult VKAPI_CALL vkWaitSemaphoresKHR(
     auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
     const VkSemaphoreWaitInfo* pWaitInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pWaitInfo, handle_unwrap_memory);
 
-    VkResult result = vulkan_wrappers::GetDeviceTable(device)->WaitSemaphoresKHR(device, pWaitInfo_unwrapped, timeout);
+    VkResult result;
+    {
+        // The call can block until another thread makes an API call, so the API call lock is not held across it.
+        CommonCaptureManager::ScopedApiCallUnlock api_call_unlock(shared_api_call_lock, exclusive_api_call_lock);
+        result = vulkan_wrappers::GetDeviceTable(device)->WaitSemaphoresKHR(device, pWaitInfo_unwrapped, timeout);
+    }
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkWaitSemaphoresKHR);
     if (encoder)
@@ -13878,7 +13918,12 @@ VKAPI_ATTR VkResult VKAPI_CALL vkWaitForPresentKHR(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkWaitForPresentKHR>::Dispatch(manager, device, swapchain, presentId, timeout);
 
-    VkResult result = vulkan_wrappers::GetDeviceTable(device)->WaitForPresentKHR(device, swapchain, presentId, timeout);
+    VkResult result;
+    {
+        // The call can block until another thread makes an API call, so the API call lock is not held across it.
+        CommonCaptureManager::ScopedApiCallUnlock api_call_unlock(shared_api_call_lock, exclusive_api_call_lock);
+        result = vulkan_wrappers::GetDeviceTable(device)->WaitForPresentKHR(device, swapchain, presentId, timeout);
+    }
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkWaitForPresentKHR);
     if (encoder && manager->CheckWriteWaitForPresentKHR(result, device, swapchain, presentId, timeout))
@@ -16249,7 +16294,12 @@ VKAPI_ATTR VkResult VKAPI_CALL vkWaitForPresent2KHR(
     auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
     const VkPresentWait2InfoKHR* pPresentWait2Info_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pPresentWait2Info, handle_unwrap_memory);
 
-    VkResult result = vulkan_wrappers::GetDeviceTable(device)->WaitForPresent2KHR(device, swapchain, pPresentWait2Info_unwrapped);
+    VkResult result;
+    {
+        // The call can block until another thread makes an API call, so the API call lock is not held across it.
+        CommonCaptureManager::ScopedApiCallUnlock api_call_unlock(shared_api_call_lock, exclusive_api_call_lock);
+        result = vulkan_wrappers::GetDeviceTable(device)->WaitForPresent2KHR(device, swapchain, pPresentWait2Info_unwrapped);
+    }
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkWaitForPresent2KHR);
     if (encoder)

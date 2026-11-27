@@ -92,6 +92,20 @@ class VulkanApiCallEncodersBodyGenerator(VulkanBaseGenerator, KhronosApiCallEnco
 
     CHECK_WRITE = ['vkWaitForPresentKHR']
 
+    # Functions that can block in the driver until another thread makes an API call. The API call lock is released
+    # for the duration of the down-chain call, so that the blocked thread does not stall an exclusive lock request
+    # (e.g. trimming activation) and, with it, the thread that would end the wait.
+    BLOCKING_CALLS = [
+        # Explicit waits on a fence, semaphore or present that another thread's submit, signal or present completes.
+        'vkWaitForFences', 'vkWaitSemaphores', 'vkWaitSemaphoresKHR', 'vkWaitForPresentKHR', 'vkWaitForPresent2KHR',
+        # Waits for an image that another thread's present gives back.
+        'vkAcquireNextImageKHR', 'vkAcquireNextImage2KHR',
+        # Wait for pending work, which can itself be waiting on a timeline semaphore another thread signals.
+        'vkQueueWaitIdle', 'vkDeviceWaitIdle',
+        # With VK_QUERY_RESULT_WAIT_BIT, waits for a query that another thread's submit makes available.
+        'vkGetQueryPoolResults'
+    ]
+
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
@@ -146,6 +160,23 @@ class VulkanApiCallEncodersBodyGenerator(VulkanBaseGenerator, KhronosApiCallEnco
             dispatchfunc = '{}::GetDeviceTable'.format(wrapper_prefix)
 
         return [call_setup_expr, '{}({})->{}({})'.format(dispatchfunc, object_name, name[2:], arg_list)]
+
+    def make_down_chain_call(self, name, return_type, call_expr, indent):
+        """Generate the statement that makes the down-chain (or capture override) call."""
+        has_result = return_type and return_type != 'void'
+        if name in self.BLOCKING_CALLS:
+            body = ''
+            if has_result:
+                body += indent + '{} result;\n'.format(return_type)
+            body += indent + '{\n'
+            body += indent + '    // The call can block until another thread makes an API call, so the API call lock is not held across it.\n'
+            body += indent + '    CommonCaptureManager::ScopedApiCallUnlock api_call_unlock(shared_api_call_lock, exclusive_api_call_lock);\n'
+            body += indent + '    {}{};\n'.format('result = ' if has_result else '', call_expr)
+            body += indent + '}\n'
+            return body
+        if has_result:
+            return indent + '{} result = {};\n'.format(return_type, call_expr)
+        return indent + '{};\n'.format(call_expr)
 
     def make_cmd_body(self, return_type, name, values):
         """Command definition."""
@@ -210,12 +241,7 @@ class VulkanApiCallEncodersBodyGenerator(VulkanBaseGenerator, KhronosApiCallEnco
             call_expr = '{}({})'.format(
                 self.CAPTURE_OVERRIDES[name], self.make_arg_list(values)
             )
-            if return_type and return_type != 'void':
-                body += indent + '{} result = {};\n'.format(
-                    return_type, call_expr
-                )
-            else:
-                body += indent + '{};\n'.format(call_expr)
+            body += self.make_down_chain_call(name, return_type, call_expr, indent)
 
             if has_outputs and (return_type and return_type != 'void'):
                 body += indent + 'if (result < 0)\n'
@@ -243,12 +269,7 @@ class VulkanApiCallEncodersBodyGenerator(VulkanBaseGenerator, KhronosApiCallEnco
             if call_setup_expr:
                 for e in call_setup_expr:
                     body += indent + e + '\n'
-            if return_type and return_type != 'void':
-                body += indent + '{} result = {};\n'.format(
-                    return_type, call_expr
-                )
-            else:
-                body += indent + '{};\n'.format(call_expr)
+            body += self.make_down_chain_call(name, return_type, call_expr, indent)
 
             # Wrap newly created handles.
             wrap_expr = self.make_handle_wrapping(values, indent)
