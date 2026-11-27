@@ -2007,6 +2007,29 @@ void Dx12StateWriter::WriteStateObjectAndDependency(const format::HandleId      
         }
         StandardCreateWrite(state_object_id, *state_object_info);
         written_objs.insert(state_object_id);
+
+        // If the wrapper is null, the associated ID3D12StateObject was released, so the state object currently being
+        // processed is created here as a dependency of the still-valid child state object created with
+        // AddToStateObject. The child inherits the shader IDs from the parent, so any calls to GetShaderIdentifier made
+        // through the parent state object must be recreated in the trim state, each through a temporary
+        // ID3D12StateObjectProperties.
+        if (state_object_info->GetWrapper() == nullptr)
+        {
+            for (const auto& properties_info_pair : state_object_info->properties_wrapper_infos)
+            {
+                auto properties_id = properties_info_pair.first;
+                auto properties_info =
+                    static_cast<const ID3D12StateObjectPropertiesInfo*>(properties_info_pair.second.get());
+                StandardCreateWrite(properties_id, *properties_info);
+                for (const auto& call_parameters_pair : properties_info->get_shader_identifier_call_parameters)
+                {
+                    WriteMethodCall(format::ApiCall_ID3D12StateObjectProperties_GetShaderIdentifier,
+                                    properties_id,
+                                    call_parameters_pair.second.get());
+                }
+                WriteReleaseCommand(properties_id, 0);
+            }
+        }
     }
 }
 
