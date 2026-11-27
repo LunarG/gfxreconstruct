@@ -633,6 +633,63 @@ class VulkanStateHandleTable : VulkanStateTableBase
 
     template<typename Wrapper> Wrapper* GetWrapper(typename Wrapper::HandleType handle) { return nullptr; }
 
+    // Calls visitor with the name of each handle type and the number of its wrappers in the table.
+    void VisitWrapperCounts(std::function<void(const char*, size_t)> visitor) const
+    {
+        visitor("VkAccelerationStructureKHR", vk_accelerationStructureKHR_map_.size());
+        visitor("VkAccelerationStructureNV", vk_accelerationStructureNV_map_.size());
+        visitor("VkBuffer", vk_buffer_map_.size());
+        visitor("VkBufferView", vk_bufferView_map_.size());
+        visitor("VkCommandBuffer", vk_commandBuffer_map_.size());
+        visitor("VkCommandPool", vk_commandPool_map_.size());
+        visitor("VkDataGraphPipelineSessionARM", vk_dataGraphPipelineSessionARM_map_.size());
+        visitor("VkDebugReportCallbackEXT", vk_debugReportCallbackEXT_map_.size());
+        visitor("VkDebugUtilsMessengerEXT", vk_debugUtilsMessengerEXT_map_.size());
+        visitor("VkDeferredOperationKHR", vk_deferredOperationKHR_map_.size());
+        visitor("VkDescriptorPool", vk_descriptorPool_map_.size());
+        visitor("VkDescriptorSet", vk_descriptorSet_map_.size());
+        visitor("VkDescriptorSetLayout", vk_descriptorSetLayout_map_.size());
+        visitor("VkDescriptorUpdateTemplate", vk_descriptorUpdateTemplate_map_.size());
+        visitor("VkDevice", vk_device_map_.size());
+        visitor("VkDeviceMemory", vk_deviceMemory_map_.size());
+        visitor("VkDisplayKHR", vk_displayKHR_map_.size());
+        visitor("VkDisplayModeKHR", vk_displayModeKHR_map_.size());
+        visitor("VkEvent", vk_event_map_.size());
+        visitor("VkFence", vk_fence_map_.size());
+        visitor("VkFramebuffer", vk_framebuffer_map_.size());
+        visitor("VkGpaSessionAMD", vk_gpaSessionAMD_map_.size());
+        visitor("VkImage", vk_image_map_.size());
+        visitor("VkImageView", vk_imageView_map_.size());
+        visitor("VkIndirectCommandsLayoutEXT", vk_indirectCommandsLayoutEXT_map_.size());
+        visitor("VkIndirectCommandsLayoutNV", vk_indirectCommandsLayoutNV_map_.size());
+        visitor("VkIndirectExecutionSetEXT", vk_indirectExecutionSetEXT_map_.size());
+        visitor("VkInstance", vk_instance_map_.size());
+        visitor("VkMicromapEXT", vk_micromapEXT_map_.size());
+        visitor("VkOpticalFlowSessionNV", vk_opticalFlowSessionNV_map_.size());
+        visitor("VkPerformanceConfigurationINTEL", vk_performanceConfigurationINTEL_map_.size());
+        visitor("VkPhysicalDevice", vk_physicalDevice_map_.size());
+        visitor("VkPipeline", vk_pipeline_map_.size());
+        visitor("VkPipelineBinaryKHR", vk_pipelineBinaryKHR_map_.size());
+        visitor("VkPipelineCache", vk_pipelineCache_map_.size());
+        visitor("VkPipelineLayout", vk_pipelineLayout_map_.size());
+        visitor("VkPrivateDataSlot", vk_privateDataSlot_map_.size());
+        visitor("VkQueryPool", vk_queryPool_map_.size());
+        visitor("VkQueue", vk_queue_map_.size());
+        visitor("VkRenderPass", vk_renderPass_map_.size());
+        visitor("VkSampler", vk_sampler_map_.size());
+        visitor("VkSamplerYcbcrConversion", vk_samplerYcbcrConversion_map_.size());
+        visitor("VkSemaphore", vk_semaphore_map_.size());
+        visitor("VkShaderEXT", vk_shaderEXT_map_.size());
+        visitor("VkShaderModule", vk_shaderModule_map_.size());
+        visitor("VkSurfaceKHR", vk_surfaceKHR_map_.size());
+        visitor("VkSwapchainKHR", vk_swapchainKHR_map_.size());
+        visitor("VkTensorARM", vk_tensorARM_map_.size());
+        visitor("VkTensorViewARM", vk_tensorViewARM_map_.size());
+        visitor("VkValidationCacheEXT", vk_validationCacheEXT_map_.size());
+        visitor("VkVideoSessionKHR", vk_videoSessionKHR_map_.size());
+        visitor("VkVideoSessionParametersKHR", vk_videoSessionParametersKHR_map_.size());
+    }
+
   private:
     std::unordered_map<VkAccelerationStructureKHR, vulkan_wrappers::AccelerationStructureKHRWrapper*> vk_accelerationStructureKHR_map_;
     std::unordered_map<VkAccelerationStructureNV, vulkan_wrappers::AccelerationStructureNVWrapper*> vk_accelerationStructureNV_map_;
