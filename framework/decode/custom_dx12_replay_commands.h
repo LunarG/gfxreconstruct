@@ -125,6 +125,16 @@ struct CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_
 };
 
 template <>
+struct CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList7_Barrier>
+{
+    template <typename... Args>
+    static void Dispatch(Dx12ReplayConsumerBase* replay, Args... args)
+    {
+        replay->PreCall_ID3D12GraphicsCommandList7_Barrier(args...);
+    }
+};
+
+template <>
 struct CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateConstantBufferView>
 {
     template <typename... Args>

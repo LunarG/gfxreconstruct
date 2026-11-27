@@ -429,6 +429,10 @@ target_compile_options(vulkan_memory_allocator INTERFACE
 )
 target_include_directories(vulkan_memory_allocator SYSTEM INTERFACE ${PROJECT_SOURCE_DIR}/external/VulkanMemoryAllocator/include)
 
+if(MSVC)
+    add_subdirectory(external/D3D12MemoryAllocator)
+endif()
+
 if (${RUN_TESTS})
     add_library(catch2 INTERFACE)
     target_include_directories(catch2 SYSTEM INTERFACE external)
