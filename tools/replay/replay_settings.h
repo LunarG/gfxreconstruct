@@ -32,8 +32,8 @@
 
 const char kOptions[] =
     "-h|--help,--version,--log-debugview,--no-debug-popup,--paused,--sync,--remove-unsupported,--validate,"
-    "--debug-device-lost,--create-dummy-allocations,--screenshot-all,--screenshot-results,"
-    "--qamr|--quit-after-measurement-range,"
+    "--use-captured-swapchain-indices,--debug-device-lost,--create-dummy-allocations,--screenshot-all,"
+    "--screenshot-results,--qamr|--quit-after-measurement-range,"
     "--fmr|--flush-measurement-range,--flush-inside-measurement-range,--pbi-all,--preload-measurement-range,"
     "--log-timestamps,--async-processing,--dump-resources-before-draw,--dump-resources-modifiable-state-only";
 
@@ -41,7 +41,7 @@ const char kArguments[] =
     "--log-level,--log-file,--cpu-mask,--gpu,--pause-frame,--wsi,--screenshots,--screenshot-interval,"
     "--screenshot-format,--screenshot-dir,--screenshot-prefix,--screenshot-size,--screenshot-scale,"
     "--mfr|--measurement-frame-range,--fw|--force-windowed,--fwo|--force-windowed-origin,--measurement-file,"
-    "--dump-resources,--dump-resources-dir,--dump-resources-image-format,--pbis,"
+    "--dump-resources,--dump-resources-dir,--dump-resources-image-format,--pbis,--swapchain,"
     "--pcj|--pipeline-creation-jobs,--quit-after-frame,"
     "--wait-before-first-submit,--frame-warm-up-spirv,--frame-warm-up-load,--wait-before-frame,--loop-frame,"
     "--loop-count,--remote-connect,--remote-listen";
@@ -119,7 +119,8 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-size <width>x<height>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-scale <scale>] [--screenshot-interval <N>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-results]");
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--wsi <platform>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--wsi <platform>] [--swapchain <mode>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--use-captured-swapchain-indices]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--remove-unsupported] [--validate]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--mfr|--measurement-frame-range <start-frame>-<end-frame>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--measurement-file <file>] [--quit-after-measurement-range]");
@@ -273,6 +274,23 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("                  \tauto (default): Picks the same surface as at capture time if");
     GFXRECON_WRITE_CONSOLE("                  \t                possible, otherwise picks a surface available");
     GFXRECON_WRITE_CONSOLE("                  \t                on the replay device");
+    GFXRECON_WRITE_CONSOLE("  --swapchain <mode>\tChoose a swapchain mode to replay.");
+    GFXRECON_WRITE_CONSOLE("          \t\tAvailable modes are:");
+    GFXRECON_WRITE_CONSOLE("          \t\t    %s\tA swapchain of images that match the swapchain in effect",
+                           kSwapchainVirtual);
+    GFXRECON_WRITE_CONSOLE("          \t\t         \tat capture time. The images are copied to the swapchain");
+    GFXRECON_WRITE_CONSOLE("          \t\t         \tof the implementation that replays them. This mode also");
+    GFXRECON_WRITE_CONSOLE("          \t\t         \tshows offscreen frame boundaries in an additional window.");
+    GFXRECON_WRITE_CONSOLE("          \t\t         \tThis is only available and default for Vulkan.");
+    GFXRECON_WRITE_CONSOLE("          \t\t    %s\tUse the swapchain indices from the capture directly on",
+                           kSwapchainCaptured);
+    GFXRECON_WRITE_CONSOLE("          \t\t         \tthe swapchain that replay sets up. Default for D3D12.");
+    GFXRECON_WRITE_CONSOLE("          \t\t    %s\tDo not create swapchains, surfaces, and windows. To see",
+                           kSwapchainOffscreen);
+    GFXRECON_WRITE_CONSOLE("          \t\t         \tthe rendering, add the --screenshots option.");
+    GFXRECON_WRITE_CONSOLE("  --use-captured-swapchain-indices");
+    GFXRECON_WRITE_CONSOLE("          \t\tThe same as \"--swapchain captured\".");
+    GFXRECON_WRITE_CONSOLE("          \t\tReplay ignores this entry when the \"--swapchain\" entry is present.");
     GFXRECON_WRITE_CONSOLE("  --sync\t\tSynchronize after each queue submission with vkQueueWaitIdle.");
     GFXRECON_WRITE_CONSOLE("  --remove-unsupported\tRemove unsupported extensions and features from instance");
     GFXRECON_WRITE_CONSOLE("                      \tand device creation parameters.");

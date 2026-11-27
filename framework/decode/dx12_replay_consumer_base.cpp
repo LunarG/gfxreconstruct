@@ -1192,6 +1192,17 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateSwapChainForHwnd(
 {
     GFXRECON_ASSERT((desc != nullptr) && (full_screen_desc != nullptr));
 
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
+    {
+        return CreateSwapChainForOffscreen(replay_object_info,
+                                           original_result,
+                                           device_info,
+                                           hwnd_id,
+                                           desc->GetPointer(),
+                                           full_screen_desc->GetPointer(),
+                                           swapchain);
+    }
+
     return CreateSwapChainForHwnd(replay_object_info,
                                   original_result,
                                   device_info,
@@ -1202,6 +1213,14 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateSwapChainForHwnd(
                                   swapchain);
 }
 
+static void WarnIfVirtualSwapchainRequested(util::SwapchainOption swapchain_option)
+{
+    if (swapchain_option == util::SwapchainOption::kVirtual)
+    {
+        GFXRECON_LOG_WARNING_ONCE("DX12 replay does not support virtual swapchains. Using captured instead.");
+    }
+}
+
 HRESULT
 Dx12ReplayConsumerBase::OverrideCreateSwapChain(DxObjectInfo*                                       replay_object_info,
                                                 HRESULT                                             original_result,
@@ -1210,6 +1229,14 @@ Dx12ReplayConsumerBase::OverrideCreateSwapChain(DxObjectInfo*                   
                                                 HandlePointerDecoder<IDXGISwapChain*>*              swapchain)
 {
     assert(desc != nullptr);
+
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
+    {
+        return CreateSwapChainForOffscreen(
+            replay_object_info, original_result, device_info, desc->GetPointer(), swapchain);
+    }
+
+    WarnIfVirtualSwapchainRequested(options_.swapchain_option);
 
     auto    desc_pointer   = desc->GetPointer();
     HRESULT result         = E_FAIL;
@@ -1314,6 +1341,12 @@ Dx12ReplayConsumerBase::OverrideCreateSwapChainForCoreWindow(DxObjectInfo* repla
         desc_pointer->Flags &= ~DXGI_SWAP_CHAIN_FLAG_FOREGROUND_LAYER;
     }
 
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
+    {
+        return CreateSwapChainForOffscreen(
+            replay_object_info, original_result, device_info, 0, desc_pointer, nullptr, swapchain);
+    }
+
     return CreateSwapChainForHwnd(replay_object_info,
                                   original_result,
                                   device_info,
@@ -1344,6 +1377,12 @@ Dx12ReplayConsumerBase::OverrideCreateSwapChainForComposition(DxObjectInfo* repl
         (desc_pointer->AlphaMode == DXGI_ALPHA_MODE_STRAIGHT))
     {
         desc_pointer->AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+    }
+
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
+    {
+        return CreateSwapChainForOffscreen(
+            replay_object_info, original_result, device_info, 0, desc_pointer, nullptr, swapchain);
     }
 
     return CreateSwapChainForHwnd(replay_object_info,
@@ -3138,7 +3177,10 @@ HRESULT Dx12ReplayConsumerBase::OverrideResizeBuffers(DxObjectInfo* replay_objec
 
     assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr));
 
-    ReplaceWindowedResolution(width, height);
+    if ((options_.swapchain_option != util::SwapchainOption::kOffscreen) || options_.force_windowed)
+    {
+        ReplaceWindowedResolution(width, height);
+    }
 
     auto replay_object = static_cast<IDXGISwapChain*>(replay_object_info->object);
     auto replay_result = replay_object->ResizeBuffers(buffer_count, width, height, new_format, flags);
@@ -3165,7 +3207,10 @@ HRESULT Dx12ReplayConsumerBase::OverrideResizeBuffers1(DxObjectInfo*            
 
     assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr));
 
-    ReplaceWindowedResolution(width, height);
+    if ((options_.swapchain_option != util::SwapchainOption::kOffscreen) || options_.force_windowed)
+    {
+        ReplaceWindowedResolution(width, height);
+    }
 
     auto replay_object = static_cast<IDXGISwapChain3*>(replay_object_info->object);
     auto replay_result = replay_object->ResizeBuffers1(
@@ -3299,6 +3344,8 @@ HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(DxObjectInfo*            
 {
     GFXRECON_ASSERT((device_info != nullptr) && (device_info->object != nullptr));
 
+    WarnIfVirtualSwapchainRequested(options_.swapchain_option);
+
     HRESULT result         = E_FAIL;
     Window* window         = nullptr;
     auto    wsi_context    = application_ ? application_->GetWsiContext("", true) : nullptr;
@@ -3364,6 +3411,163 @@ HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(DxObjectInfo*            
     return result;
 }
 
+static void ResolveZeroOffscreenDimensions(UINT& width, UINT& height, uint32_t consumer_width, uint32_t consumer_height)
+{
+    if ((width != 0) && (height != 0))
+    {
+        return;
+    }
+
+    auto resolve_dim = [](UINT cur, uint32_t opt, int metric, UINT fallback, const char*& src) -> UINT {
+        if (cur > 0)
+        {
+            src = "original";
+            return cur;
+        }
+        if (opt > 0)
+        {
+            src = "consumer";
+            return opt;
+        }
+        int v = GetSystemMetrics(metric);
+        if (v > 0)
+        {
+            src = "system";
+            return static_cast<UINT>(v);
+        }
+        src = "default";
+        return fallback;
+    };
+
+    const char* width_src  = "";
+    const char* height_src = "";
+    width                  = resolve_dim(width, consumer_width, SM_CXSCREEN, 320, width_src);
+    height                 = resolve_dim(height, consumer_height, SM_CYSCREEN, 240, height_src);
+
+    GFXRECON_LOG_WARNING_ONCE(
+        "Swapchain zero dimension resolved: Width=%u (%s), Height=%u (%s).", width, width_src, height, height_src);
+}
+
+// Create offscreen swapchain for IDXGIFactory::CreateSwapChain
+HRESULT Dx12ReplayConsumerBase::CreateSwapChainForOffscreen(DxObjectInfo*                          replay_object_info,
+                                                            HRESULT                                original_result,
+                                                            DxObjectInfo*                          device_info,
+                                                            DXGI_SWAP_CHAIN_DESC*                  desc,
+                                                            HandlePointerDecoder<IDXGISwapChain*>* swapchain)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    GFXRECON_ASSERT((replay_object_info != nullptr) && (replay_object_info->object != nullptr) &&
+                    (swapchain != nullptr));
+
+    if ((desc == nullptr) || (device_info == nullptr) || (device_info->object == nullptr) ||
+        (swapchain->GetHandlePointer() == nullptr))
+    {
+        GFXRECON_LOG_ERROR("Invalid parameter while creating offscreen swapchain.");
+        return E_INVALIDARG;
+    }
+
+    IUnknown* device = device_info->object;
+
+    graphics::dx12::ID3D12CommandQueueComPtr d3d12_command_queue;
+    HRESULT                                  hr = device->QueryInterface(IID_PPV_ARGS(&d3d12_command_queue));
+    if (FAILED(hr))
+    {
+        GFXRECON_LOG_ERROR("Failed to cast IUnknown to ID3D12CommandQueue while creating offscreen swapchain.");
+        return E_FAIL;
+    }
+
+    graphics::dx12::ID3D12DeviceComPtr d3d12_device;
+    hr = d3d12_command_queue->GetDevice(IID_PPV_ARGS(&d3d12_device));
+    if (FAILED(hr))
+    {
+        GFXRECON_LOG_ERROR("Failed to retrieve device from command queue while creating offscreen swapchain.");
+        return E_FAIL;
+    }
+
+    if (options_.force_windowed)
+    {
+        ReplaceWindowedResolution(desc->BufferDesc.Width, desc->BufferDesc.Height);
+    }
+    ResolveZeroOffscreenDimensions(
+        desc->BufferDesc.Width, desc->BufferDesc.Height, options_.windowed_width, options_.windowed_height);
+
+    Microsoft::WRL::ComPtr<Dx12OffscreenSwapchain> offscreen_swapchain =
+        Dx12OffscreenSwapchain::Create(d3d12_device.GetInterfacePtr(), desc);
+    if (offscreen_swapchain == nullptr)
+    {
+        GFXRECON_LOG_ERROR("Failed to create offscreen swapchain.");
+        return E_FAIL;
+    }
+
+    *(swapchain->GetHandlePointer()) = offscreen_swapchain.Detach();
+
+    auto object_info = static_cast<DxObjectInfo*>(swapchain->GetConsumerData(0));
+    SetSwapchainInfo(object_info, nullptr, 0, nullptr, desc->BufferCount, device, true);
+
+    return S_OK;
+}
+
+// Create offscreen swapchain for IDXGIFactory2::CreateSwapChainForHwnd, IDXGIFactory2::CreateSwapChainForComposition
+// and IDXGIFactory2::CreateSwapChainForCoreWindow
+HRESULT Dx12ReplayConsumerBase::CreateSwapChainForOffscreen(DxObjectInfo*                           replay_object_info,
+                                                            HRESULT                                 original_result,
+                                                            DxObjectInfo*                           device_info,
+                                                            uint64_t                                hwnd_id,
+                                                            DXGI_SWAP_CHAIN_DESC1*                  desc,
+                                                            DXGI_SWAP_CHAIN_FULLSCREEN_DESC*        full_screen_desc,
+                                                            HandlePointerDecoder<IDXGISwapChain1*>* swapchain)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    GFXRECON_ASSERT((replay_object_info != nullptr) && (replay_object_info->object != nullptr) &&
+                    (swapchain != nullptr));
+
+    if ((desc == nullptr) || (device_info == nullptr) || (device_info->object == nullptr) ||
+        (swapchain->GetHandlePointer() == nullptr))
+    {
+        GFXRECON_LOG_ERROR("Invalid parameter while creating offscreen swapchain.");
+        return E_INVALIDARG;
+    }
+
+    IUnknown* device = device_info->object;
+
+    graphics::dx12::ID3D12CommandQueueComPtr d3d12_command_queue;
+    HRESULT                                  hr = device->QueryInterface(IID_PPV_ARGS(&d3d12_command_queue));
+    if (FAILED(hr))
+    {
+        GFXRECON_LOG_ERROR("Failed to cast IUnknown to ID3D12CommandQueue while creating offscreen swapchain.");
+        return E_FAIL;
+    }
+
+    graphics::dx12::ID3D12DeviceComPtr d3d12_device;
+    hr = d3d12_command_queue->GetDevice(IID_PPV_ARGS(&d3d12_device));
+    if (FAILED(hr))
+    {
+        GFXRECON_LOG_ERROR("Failed to retrieve device from command queue while creating offscreen swapchain.");
+        return E_FAIL;
+    }
+
+    if (options_.force_windowed)
+    {
+        ReplaceWindowedResolution(desc->Width, desc->Height);
+    }
+    ResolveZeroOffscreenDimensions(desc->Width, desc->Height, options_.windowed_width, options_.windowed_height);
+
+    Microsoft::WRL::ComPtr<Dx12OffscreenSwapchain> offscreen_swapchain =
+        Dx12OffscreenSwapchain::Create(d3d12_device.GetInterfacePtr(), hwnd_id, desc, full_screen_desc);
+    if (offscreen_swapchain == nullptr)
+    {
+        GFXRECON_LOG_ERROR("Failed to create offscreen swapchain.");
+        return E_FAIL;
+    }
+
+    *(swapchain->GetHandlePointer()) = offscreen_swapchain.Detach();
+
+    auto object_info = static_cast<DxObjectInfo*>(swapchain->GetConsumerData(0));
+    SetSwapchainInfo(object_info, nullptr, 0, nullptr, desc->BufferCount, device, true);
+
+    return S_OK;
+}
+
 void Dx12ReplayConsumerBase::SetSwapchainInfo(DxObjectInfo* info,
                                               Window*       window,
                                               uint64_t      hwnd_id,
@@ -3372,38 +3576,35 @@ void Dx12ReplayConsumerBase::SetSwapchainInfo(DxObjectInfo* info,
                                               IUnknown*     queue_iunknown,
                                               bool          windowed)
 {
-    if (window != nullptr)
+    if (info != nullptr)
     {
-        if (info != nullptr)
+        assert(info->extra_info == nullptr);
+
+        auto swapchain_info           = std::make_unique<DxgiSwapchainInfo>();
+        swapchain_info->window        = window;
+        swapchain_info->hwnd_id       = hwnd_id;
+        swapchain_info->is_fullscreen = !windowed;
+        swapchain_info->image_ids.resize(image_count, format::kNullHandleId);
+
+        // Get the ID3D12CommandQueue from the IUnknown queue object.
+        HRESULT hr = queue_iunknown->QueryInterface(IID_PPV_ARGS(&swapchain_info->command_queue));
+        if (FAILED(hr))
         {
-            assert(info->extra_info == nullptr);
-
-            auto swapchain_info     = std::make_unique<DxgiSwapchainInfo>();
-            swapchain_info->window  = window;
-            swapchain_info->hwnd_id = hwnd_id;
-            swapchain_info->image_ids.resize(image_count);
-            swapchain_info->is_fullscreen = !windowed;
-            std::fill(swapchain_info->image_ids.begin(), swapchain_info->image_ids.end(), format::kNullHandleId);
-
-            // Get the ID3D12CommandQueue from the IUnknown queue object.
-            HRESULT hr = queue_iunknown->QueryInterface(IID_PPV_ARGS(&swapchain_info->command_queue));
-            if (FAILED(hr))
-            {
-                GFXRECON_LOG_WARNING("Failed to get the ID3D12CommandQueue interface from the IUnknown* device "
-                                     "argument to CreateSwapChain.");
-            }
-
-            info->extra_info = std::move(swapchain_info);
-
-            // Functions such as CreateSwapChainForCoreWindow and CreateSwapchainForComposition, which are mapped to
-            // CreateSwapChainForHwnd for replay, won't have HWND IDs because they don't use HWND handles.
-            if (hwnd_id != 0)
-            {
-                assert(hwnd != nullptr);
-                window_handles_[hwnd_id] = hwnd;
-            }
+            GFXRECON_LOG_WARNING("Failed to get the ID3D12CommandQueue interface from the IUnknown* device "
+                                 "argument to CreateSwapChain.");
         }
 
+        info->extra_info = std::move(swapchain_info);
+
+        if ((window != nullptr) && (hwnd_id != 0))
+        {
+            assert(hwnd != nullptr);
+            window_handles_[hwnd_id] = hwnd;
+        }
+    }
+
+    if (window != nullptr)
+    {
         active_windows_.insert(window);
     }
 }
@@ -3428,8 +3629,11 @@ void Dx12ReplayConsumerBase::ResetSwapchainImages(DxObjectInfo* info,
         swapchain_info->image_ids.resize(buffer_count);
         std::fill(swapchain_info->image_ids.begin(), swapchain_info->image_ids.end(), format::kNullHandleId);
 
-        // Resize the swapchain's window.
-        swapchain_info->window->SetSize(width, height);
+        if (swapchain_info->window != nullptr)
+        {
+            // Resize the swapchain's window.
+            swapchain_info->window->SetSize(width, height);
+        }
     }
 }
 
@@ -3587,17 +3791,20 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info, bool rel
             {
                 ReleaseSwapchainImages(swapchain_info);
             }
-            auto wsi_context    = application_ ? application_->GetWsiContext("", true) : nullptr;
-            auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
-            if (window_factory)
+            if (swapchain_info->window != nullptr)
             {
-                window_factory->Destroy(swapchain_info->window);
-            }
-            active_windows_.erase(swapchain_info->window);
+                auto wsi_context    = application_ ? application_->GetWsiContext("", true) : nullptr;
+                auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
+                if (window_factory)
+                {
+                    window_factory->Destroy(swapchain_info->window);
+                }
+                active_windows_.erase(swapchain_info->window);
 
-            if (swapchain_info->hwnd_id != 0)
-            {
-                window_handles_.erase(swapchain_info->hwnd_id);
+                if (swapchain_info->hwnd_id != 0)
+                {
+                    window_handles_.erase(swapchain_info->hwnd_id);
+                }
             }
         }
 

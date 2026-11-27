@@ -85,11 +85,8 @@ const char kSurfaceIndexArgument[]             = "--surface-index";
 const char kMemoryPortabilityShortOption[]     = "-m";
 const char kMemoryPortabilityLongOption[]      = "--memory-translation";
 const char kShaderReplaceArgument[]            = "--replace-shaders";
-const char kSwapchainOption[]                  = "--swapchain";
 const char kPresentModeOption[]                = "--present-mode";
 const char kPresentOverrideImageArgument[]     = "--present-override";
-const char kEnableUseCapturedSwapchainIndices[] =
-    "--use-captured-swapchain-indices"; // The same: util::SwapchainOption::kCaptured
 const char kVirtualSwapchainSkipBlitShortOption[] = "--vssb";
 const char kVirtualSwapchainSkipBlitLongOption[]  = "--virtual-swapchain-skip-blit";
 const char kColorspaceFallback[]                  = "--use-colorspace-fallback";
@@ -122,10 +119,6 @@ const char kMemoryTranslationRemap[]   = "remap";
 const char kMemoryTranslationRealign[] = "realign";
 const char kMemoryTranslationRebind[]  = "rebind";
 
-const char kSwapchainVirtual[]   = "virtual";
-const char kSwapchainCaptured[]  = "captured";
-const char kSwapchainOffscreen[] = "offscreen";
-
 const char kPresentModeCapture[]     = "capture";
 const char kPresentModeImmediate[]   = "immediate";
 const char kPresentModeMailbox[]     = "mailbox";
@@ -136,7 +129,6 @@ const char kPresentModeFifoRelaxed[] = "fifo_relaxed";
 const std::vector<std::string> kMemoryTranslationValues = {
     kMemoryTranslationNone, kMemoryTranslationRemap, kMemoryTranslationRealign, kMemoryTranslationRebind
 };
-const std::vector<std::string> kSwapchainValues   = { kSwapchainVirtual, kSwapchainCaptured, kSwapchainOffscreen };
 const std::vector<std::string> kPresentModeValues = {
     kPresentModeCapture, kPresentModeImmediate, kPresentModeMailbox, kPresentModeFifo, kPresentModeFifoRelaxed
 };
@@ -292,34 +284,6 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
         arg_parser.IsOptionSet(kOmitPipelineCacheDataShortOption))
     {
         replay_options.omit_pipeline_cache_data = true;
-    }
-
-    auto swapchain_option          = arg_parser.GetArgumentValue(kSwapchainOption);
-    auto enable_captured_swapchain = arg_parser.IsOptionSet(kEnableUseCapturedSwapchainIndices);
-    if (swapchain_option.empty())
-    {
-        if (enable_captured_swapchain)
-        {
-            replay_options.swapchain_option = gfxrecon::util::SwapchainOption::kCaptured;
-        }
-    }
-    else
-    {
-        if (enable_captured_swapchain)
-        {
-            GFXRECON_LOG_WARNING("Ignoring option: \"%s\" because option: \"%s\" is added",
-                                 kEnableUseCapturedSwapchainIndices,
-                                 kSwapchainOption);
-        }
-
-        if (gfxrecon::util::platform::StringCompareNoCase(kSwapchainCaptured, swapchain_option.c_str()) == 0)
-        {
-            replay_options.swapchain_option = gfxrecon::util::SwapchainOption::kCaptured;
-        }
-        else if (gfxrecon::util::platform::StringCompareNoCase(kSwapchainOffscreen, swapchain_option.c_str()) == 0)
-        {
-            replay_options.swapchain_option = gfxrecon::util::SwapchainOption::kOffscreen;
-        }
     }
 
     auto present_mode_option = arg_parser.GetArgumentValue(kPresentModeOption);
@@ -570,20 +534,6 @@ std::vector<util::FeatureOptionDesc> ReplayVulkanFeature::GetOptionDescs() const
                AliasNames(kMemoryPortabilityShortOption, kMemoryPortabilityLongOption),
                kMemoryTranslationValues },
              { "<mode>",
-               { "Choose a swapchain mode to replay.",
-                 "    virtual    A swapchain of images that match the swapchain in effect",
-                 "               at capture time. The images are copied to the swapchain",
-                 "               of the implementation that replays them. This mode also",
-                 "               shows offscreen frame boundaries in an additional window.",
-                 "               This is the default mode.",
-                 "    captured   Use the swapchain indices from the capture directly on",
-                 "               the swapchain that replay sets up.",
-                 "    offscreen  Do not create swapchains, surfaces, and windows. To see",
-                 "               the rendering, add the --screenshots option." },
-               true,
-               kSwapchainOption,
-               kSwapchainValues },
-             { "<mode>",
                { "Set the VkPresentModeKHR of the swapchain. VK_PRESENT_MODE_FIFO_KHR is",
                  "used if the selected present mode is not available on the replay",
                  "device. Available present modes:",
@@ -609,11 +559,6 @@ std::vector<util::FeatureOptionDesc> ReplayVulkanFeature::GetOptionDescs() const
                { "Skip the blit to the real swapchain to increase replay performance." },
                false,
                AliasNames(kVirtualSwapchainSkipBlitShortOption, kVirtualSwapchainSkipBlitLongOption) },
-             { "",
-               { "The same as \"--swapchain captured\".",
-                 "Replay ignores this entry when the \"--swapchain\" entry is present." },
-               false,
-               kEnableUseCapturedSwapchainIndices },
              { "",
                { "Use this entry only with the offscreen swapchain. It activates the",
                  "VK_EXT_frame_boundary extension (always supported for a trimmed",
