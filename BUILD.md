@@ -421,7 +421,7 @@ environment variables used to enable OpenXR code in files that are included.
 - The latest version of [Android Studio](https://developer.android.com/studio/) with additional items:
   - The [Android Platform tools](https://developer.android.com/studio/releases/platform-tools) for your specific platform
   - [Android SDK 33 (13 Tiramisu) or newer](https://guides.codepath.com/android/installing-android-sdk-tools)
-  - [Android NDK 21.3.6528147 (r21d)](https://developer.android.com/ndk/guides/)
+  - [Android NDK 30.0.16248370 (r30)](https://developer.android.com/ndk/guides/)
 - [Java JDK 17](https://jdk.java.net/17/)
 
 #### Additional Linux Command-Linux Prerequisites
