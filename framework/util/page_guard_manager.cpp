@@ -28,6 +28,7 @@
 #include "util/page_status_tracker.h"
 #include "util/platform.h"
 
+#include <algorithm>
 #include <cassert>
 #include <csetjmp>
 #include <cinttypes>
@@ -1139,9 +1140,7 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
         // the first map.  Copied pages are marked dirty, and are not copied if mapped again.
         if (shadow_memory_info != nullptr)
         {
-            size_t         first_page = (mapped_offset - aligned_offset) >> system_page_pot_shift_;
-            uint8_t*       dst_page   = static_cast<uint8_t*>(shadow_memory);
-            const uint8_t* src_page   = static_cast<const uint8_t*>(mapped_memory);
+            size_t first_page = (mapped_offset - aligned_offset) >> system_page_pot_shift_;
 
             for (size_t i = 0; i < total_pages; ++i)
             {
@@ -1149,17 +1148,18 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
 
                 if (!shadow_memory_info->page_loaded[page_index])
                 {
-                    size_t copy_size = system_page_size_;
+                    // The page in offsets from the start of the mapped pointer, clamped to the mapped range.
+                    size_t page_begin = (i == 0) ? 0 : ((i << system_page_pot_shift_) - aligned_offset);
+                    size_t page_end   = ((i + 1) << system_page_pot_shift_) - aligned_offset;
 
                     if ((page_index + 1) == shadow_memory_info->total_pages)
                     {
-                        copy_size = shadow_memory_info->last_segment_size;
+                        page_end = page_begin + shadow_memory_info->last_segment_size - ((i == 0) ? aligned_offset : 0);
                     }
 
-                    if (i == 0)
-                    {
-                        copy_size -= aligned_offset;
-                    }
+                    page_end = std::min(page_end, mapped_range);
+
+                    size_t copy_size = page_end - page_begin;
 
                     if (copy_size == system_page_size_)
                     {
@@ -1167,10 +1167,9 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
                         shadow_memory_info->page_loaded[page_index] = true;
                     }
 
-                    MemoryCopy(dst_page, src_page, copy_size);
-
-                    dst_page += copy_size;
-                    src_page += copy_size;
+                    MemoryCopy(static_cast<uint8_t*>(shadow_memory) + page_begin,
+                               static_cast<const uint8_t*>(mapped_memory) + page_begin,
+                               copy_size);
                 }
             }
         }
@@ -1337,6 +1336,12 @@ uintptr_t PageGuardManager::AllocatePersistentShadowMemory(size_t size)
         size_t total_shadow_pages       = shadow_size >> system_page_pot_shift_;
         size_t last_shadow_segment_size = size & (system_page_size_ - 1); // allocation_size % system_page_size_
 
+        // A size that is a multiple of the page size ends with a full page.
+        if (last_shadow_segment_size == 0)
+        {
+            last_shadow_segment_size = system_page_size_;
+        }
+
         info = new ShadowMemoryInfo(shadow_memory, shadow_size, total_shadow_pages, last_shadow_segment_size);
     }
 
@@ -1492,6 +1497,67 @@ bool PageGuardManager::HandleGuardPageViolation(void* address, bool is_write, bo
     }
 
     return found;
+}
+
+void PageGuardManager::RefreshShadowMemory(uint64_t memory_id, size_t offset, size_t size)
+{
+    // A read of a protected page copies the mapped memory when separate read tracking can tell reads from writes, and
+    // a userfaultfd page copies it on every first access.
+#if defined(_WIN32) || (defined(PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION) && \
+                        (defined(__x86_64__) || defined(__i386__) || defined(__arm__) || defined(__aarch64__)))
+    const bool reads_copy_mapped_memory = enable_separate_read_;
+#else
+    const bool reads_copy_mapped_memory = false;
+#endif
+    if ((protection_mode_ != kMProtectMode) || reads_copy_mapped_memory)
+    {
+        return;
+    }
+
+    std::lock_guard<std::mutex> lock(tracked_memory_lock_);
+
+    auto entry = memory_info_.find(memory_id);
+    if ((entry == memory_info_.end()) || (entry->second.shadow_memory == nullptr) ||
+        (offset >= entry->second.mapped_range) || (size == 0))
+    {
+        return;
+    }
+
+    MemoryInfo*  memory_info = &entry->second;
+    const size_t end_offset =
+        (size > (memory_info->mapped_range - offset)) ? memory_info->mapped_range : (offset + size);
+    const size_t first_page = (offset + memory_info->aligned_offset) >> system_page_pot_shift_;
+    const size_t last_page  = (end_offset - 1 + memory_info->aligned_offset) >> system_page_pot_shift_;
+
+    for (size_t page_index = first_page; page_index <= last_page; ++page_index)
+    {
+        // An accessed page is not protected, and can hold writes of the application that are not yet in the mapped
+        // memory.  Host-coherent memory needs no flush, so the invalidate must not drop them.
+        if (memory_info->status_tracker.IsActiveWriteBlock(page_index) ||
+            memory_info->status_tracker.IsActiveReadBlock(page_index))
+        {
+            continue;
+        }
+
+        // The page in offsets from the start of the mapped pointer.
+        const size_t page_start = page_index << system_page_pot_shift_;
+        const size_t page_begin =
+            (page_start > memory_info->aligned_offset) ? (page_start - memory_info->aligned_offset) : 0;
+        const size_t page_end   = page_start + system_page_size_ - memory_info->aligned_offset;
+        const size_t copy_begin = std::max(offset, page_begin);
+        const size_t copy_end   = std::min(end_offset, page_end);
+
+        // A write of another thread to the page while it is open is not tracked.  The application cannot expect one
+        // to the range it invalidates, and page-aligned buffer sizes keep other buffers off the page.
+        void*        page_address = static_cast<uint8_t*>(memory_info->aligned_address) + page_start;
+        const size_t segment_size = GetMemorySegmentSize(memory_info, page_index);
+
+        SetMemoryProtection(page_address, segment_size, kGuardNoProtect);
+        MemoryCopy(static_cast<uint8_t*>(memory_info->shadow_memory) + copy_begin,
+                   static_cast<const uint8_t*>(memory_info->mapped_memory) + copy_begin,
+                   copy_end - copy_begin);
+        SetMemoryProtection(page_address, segment_size, kGuardReadWriteProtect);
+    }
 }
 
 const void* PageGuardManager::GetMappedMemory(uint64_t memory_id) const
