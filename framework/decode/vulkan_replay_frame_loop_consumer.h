@@ -389,8 +389,6 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     /// Tracks the lifetime of descriptor sets, to decide which allocations and frees each iteration replays.
     FrameLoopLifetimeTracker lifetime_tracker_;
 
-    VulkanDecoder* decoder_ = nullptr;
-
     std::unordered_map<format::HandleId, SemaphoreTracking> per_device_semaphore_tracking_;
 
     std::unordered_map<format::HandleId, uint32_t> query_pool_sizes_;

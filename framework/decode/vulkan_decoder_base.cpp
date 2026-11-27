@@ -634,6 +634,14 @@ void VulkanDecoderBase::DispatchSetEnvironmentVariablesCommand(const format::Set
     }
 }
 
+void VulkanDecoderBase::SetCurrentCallBytes(const CallBytes& call_bytes)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->SetCurrentCallBytes(call_bytes);
+    }
+}
+
 void VulkanDecoderBase::SetCurrentBlockIndex(uint64_t block_index)
 {
     for (auto consumer : consumers_)

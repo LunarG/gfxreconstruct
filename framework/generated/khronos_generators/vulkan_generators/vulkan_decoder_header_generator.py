@@ -81,3 +81,7 @@ class VulkanDecoderHeaderGenerator(VulkanBaseGenerator, KhronosDecoderHeaderGene
 
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)
+
+    def make_decode_function_call_using(self):
+        """Method override."""
+        return '    using VulkanDecoderBase::DecodeFunctionCall;\n\n'

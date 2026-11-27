@@ -37,7 +37,6 @@
 #include "util/api_version_info.h"
 #include "util/callbacks.h"
 #include "util/feature_module_registry.h"
-#include "decode/vulkan_state_recording_decoder.h"
 
 // Headers for the Vulkan-only option parsing that this file owns.
 #include "decode/vulkan_default_allocator.h"
@@ -714,7 +713,8 @@ std::vector<util::FeatureOptionDesc> ReplayVulkanFeature::GetOptionDescs() const
                true,
                kReplayEventPluginParams },
              { "",
-               { "Isolate the render passes. Replay splits the command buffer into more", "than one submit." },
+               { "Put each render pass in its own command buffer and its own queue submit.",
+                 "Add --idle-before-submit to run each submit after the previous one finishes." },
                false,
                kIsolateRenderPasses },
              { "<level>",
@@ -803,11 +803,16 @@ void ReplayVulkanFeature::RegisterDecodeComponents(graphics::FpsInfo* fps_info)
     {
         if (replay_options_.isolate_render_passes)
         {
-            auto  decoder  = std::make_unique<decode::VulkanStateRecordingDecoder>();
-            auto* consumer = dynamic_cast<decode::VulkanReplayConsumerBase*>(replay_consumer_.get());
-            GFXRECON_ASSERT(consumer != nullptr);
-            consumer->SetDecoder(decoder.get());
-            RegisterConsumerAndDecoder(fps_info, std::move(decoder));
+            // The first stage gives each render pass a command buffer of its own. The second stage gives each
+            // command buffer a queue submit of its own. Both work on capture ids, so they come before replay.
+            isolate_render_pass_stage_    = std::make_unique<decode::VulkanStageIsolateRenderPass>();
+            isolate_command_buffer_stage_ = std::make_unique<decode::VulkanStageIsolateCommandBuffer>();
+            isolate_render_pass_stage_->AddNext(isolate_command_buffer_stage_.get());
+            isolate_command_buffer_stage_->AddNext(replay_consumer_.get());
+
+            replay_consumer_->SetFpsInfo(fps_info);
+            decoder_->AddConsumer(isolate_render_pass_stage_.get());
+            file_processor_->AddDecoder(decoder_.get());
         }
         else
         {
@@ -866,6 +871,9 @@ void ReplayVulkanFeature::CompletePreProcessingPass()
 
 void ReplayVulkanFeature::Destroy()
 {
+    // Each stage holds a raw pointer to the next one.
+    isolate_render_pass_stage_.reset();
+    isolate_command_buffer_stage_.reset();
     replay_consumer_.reset();
 
 #if defined(GFXRECON_ENABLE_VULKAN)

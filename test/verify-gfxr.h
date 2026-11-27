@@ -95,6 +95,22 @@ void replay_and_count_recapture(const char*                      test_name,
                                 std::map<std::string, uint32_t>& counts);
 
 /**
+ * Replay the gfxr that capture_app() produced for test_name, as replay_and_count_recapture() does, and count the render
+ * passes of each queue submit call.
+ *
+ * @param test_name           - the name of the test app whose capture to replay
+ * @param extra_replay_args   - additional arguments forwarded verbatim to gfxrecon-replay
+ * @param recapture_suffix    - distinguishes this replay's recapture from another's, e.g. "_replay_baseline"
+ * @param[out] render_passes  - how many render passes each vkQueueSubmit or vkQueueSubmit2 call submits, in call order
+ *
+ * @note expects the same environment variables as verify_gfxr().
+ */
+void replay_and_count_render_passes_per_submit(const char*              test_name,
+                                               std::vector<std::string> extra_replay_args,
+                                               const std::string&       recapture_suffix,
+                                               std::vector<uint32_t>&   render_passes);
+
+/**
  * The state bound at a draw call, keyed by the command that bound it. The value is the arguments of each such
  * command recorded into that draw's command buffer, concatenated in the order they were recorded.
  */

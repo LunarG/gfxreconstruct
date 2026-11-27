@@ -1080,7 +1080,8 @@ options:
                         of the parameters is determined by the plugin and is not
                         interpreted by the replay tool. (forwarded to replay tool)
   --isolate-render-passes
-                        Isolate render passes by splitting the command buffer into multiple submits.
+                        Put each render pass in its own command buffer and its own queue submit. Add
+                        --idle-before-submit to run each submit after the previous one finishes.
   --serialize-compute-and-transfer
                         Prevent compute dispatches from overlapping adjacent transfer work by injecting a barrier before
                         and after each dispatch. (forwarded to replay tool)

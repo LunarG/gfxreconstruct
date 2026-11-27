@@ -168,6 +168,8 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/vulkan_cpp_util_datapack.h>
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/vulkan_cpp_util_datapack.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_consumer_base.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_consumer_stage_base.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_consumer_stage_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_pnext_node.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_pnext_typed_node.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_stats_consumer.h
@@ -286,6 +288,11 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_initializer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_tracking_consumer.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_tracking_consumer.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_stage_command_buffer_base.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_stage_isolate_command_buffer.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_stage_isolate_command_buffer.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_stage_isolate_render_pass.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_stage_isolate_render_pass.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_submit_info_helper.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_submit_info_helper.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_submit_job.h
@@ -293,7 +300,6 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_swapchain.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_swapchain.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_swapchain_format.h
-                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_state_recording_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_temporary_objects.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_temporary_objects.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_tracked_object_info.h
@@ -330,6 +336,8 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_consumer_extension.h>
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_consumer_extension.cpp>
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_consumer.h
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_consumer_stage.h
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_stage_command_buffer.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decoder_args.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.cpp
@@ -468,9 +476,14 @@ if (${RUN_TESTS})
     add_executable(gfxrecon_decode_test "")
     target_sources(gfxrecon_decode_test PRIVATE
             ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
-            ${CMAKE_CURRENT_LIST_DIR}/test/test_vulkan_command_buffer_util.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/test/test_vulkan_consumer_stage.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/test/test_vulkan_consumer_stage_corpus.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/test/test_vulkan_stage_isolate_command_buffer.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/test/test_vulkan_stage_isolate_render_pass.cpp
             ${CMAKE_CURRENT_LIST_DIR}/../../tools/platform_debug_helper.cpp)
     target_link_libraries(gfxrecon_decode_test PRIVATE gfxrecon_decode)
+    target_compile_definitions(gfxrecon_decode_test PRIVATE
+            GFXRECON_KNOWN_GOOD_DIR="${GFXRECON_SOURCE_DIR}/test/known_good")
     if (MSVC)
         # The test source exceeds the default number of sections during compilation, use this flag to increase the limit
         target_compile_options(gfxrecon_decode_test PRIVATE /bigobj)
