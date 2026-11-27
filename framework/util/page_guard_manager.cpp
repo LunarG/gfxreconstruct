@@ -29,8 +29,18 @@
 #include "util/platform.h"
 
 #include <cassert>
+#if defined(_M_X64) || defined(__x86_64__)
+#include <immintrin.h>
+#if defined(_MSC_VER)
+#include <intrin.h>
+#else
+#include <cpuid.h>
+#endif
+#define GFXRECON_STREAMING_LOAD_COPY
+#endif
 #include <csetjmp>
 #include <cinttypes>
+#include <cstring>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -677,6 +687,157 @@ void PageGuardManager::MemoryCopy(void* destination, const void* source, size_t 
     util::platform::MemoryCopy(destination, size, source, size);
 }
 
+using CopyFunction = void (*)(void* destination, const void* source, size_t size);
+
+static void PlainCopy(void* destination, const void* source, size_t size)
+{
+    util::platform::MemoryCopy(destination, size, source, size);
+}
+
+#if defined(GFXRECON_STREAMING_LOAD_COPY)
+// Mapped memory is often write-combined or uncached, e.g. host-visible device-local memory and host-visible memory that
+// is not host-cached. Regular loads from such memory are serialized, while streaming loads (MOVNTDQA) fetch whole cache
+// lines and can have several in flight.
+//
+// Streaming loads stall on pending stores to an address with the same offset within a 4 KiB page (4K aliasing). This
+// does not affect copies where the source and destination have the same page offset, such as copies between mapped
+// memory and the page-aligned shadow memory of a mapping that starts at a page boundary.
+
+// Copies the bytes before the first `alignment`-aligned source address, returning how many were copied.
+static size_t CopyUnalignedHead(uint8_t* destination, const uint8_t* source, size_t size, size_t alignment)
+{
+    size_t head = (alignment - (reinterpret_cast<uintptr_t>(source) & (alignment - 1))) & (alignment - 1);
+    head        = head < size ? head : size;
+    memcpy(destination, source, head);
+    return head;
+}
+
+#if !defined(_MSC_VER)
+__attribute__((target("avx2")))
+#endif
+static void
+StreamingLoadCopyAvx2(void* destination, const void* source, size_t size)
+{
+    auto*  dst  = static_cast<uint8_t*>(destination);
+    auto*  src  = static_cast<const uint8_t*>(source);
+    size_t head = CopyUnalignedHead(dst, src, size, 32);
+    dst += head;
+    src += head;
+    size -= head;
+
+    // Streaming loads are weakly ordered, the fence orders them after earlier memory accesses.
+    _mm_mfence();
+    for (; size >= 128; size -= 128, src += 128, dst += 128)
+    {
+        __m256i* lines = reinterpret_cast<__m256i*>(const_cast<uint8_t*>(src));
+        __m256i  a     = _mm256_stream_load_si256(lines + 0);
+        __m256i  b     = _mm256_stream_load_si256(lines + 1);
+        __m256i  c     = _mm256_stream_load_si256(lines + 2);
+        __m256i  d     = _mm256_stream_load_si256(lines + 3);
+        _mm256_storeu_si256(reinterpret_cast<__m256i*>(dst) + 0, a);
+        _mm256_storeu_si256(reinterpret_cast<__m256i*>(dst) + 1, b);
+        _mm256_storeu_si256(reinterpret_cast<__m256i*>(dst) + 2, c);
+        _mm256_storeu_si256(reinterpret_cast<__m256i*>(dst) + 3, d);
+    }
+    memcpy(dst, src, size);
+}
+
+#if !defined(_MSC_VER)
+__attribute__((target("sse4.1")))
+#endif
+static void
+StreamingLoadCopySse41(void* destination, const void* source, size_t size)
+{
+    auto*  dst  = static_cast<uint8_t*>(destination);
+    auto*  src  = static_cast<const uint8_t*>(source);
+    size_t head = CopyUnalignedHead(dst, src, size, 16);
+    dst += head;
+    src += head;
+    size -= head;
+
+    // Streaming loads are weakly ordered, the fence orders them after earlier memory accesses.
+    _mm_mfence();
+    for (; size >= 64; size -= 64, src += 64, dst += 64)
+    {
+        __m128i* line = reinterpret_cast<__m128i*>(const_cast<uint8_t*>(src));
+        __m128i  a    = _mm_stream_load_si128(line + 0);
+        __m128i  b    = _mm_stream_load_si128(line + 1);
+        __m128i  c    = _mm_stream_load_si128(line + 2);
+        __m128i  d    = _mm_stream_load_si128(line + 3);
+        _mm_storeu_si128(reinterpret_cast<__m128i*>(dst) + 0, a);
+        _mm_storeu_si128(reinterpret_cast<__m128i*>(dst) + 1, b);
+        _mm_storeu_si128(reinterpret_cast<__m128i*>(dst) + 2, c);
+        _mm_storeu_si128(reinterpret_cast<__m128i*>(dst) + 3, d);
+    }
+    memcpy(dst, src, size);
+}
+
+static void Cpuid(int leaf, int subleaf, unsigned int registers[4])
+{
+#if defined(_MSC_VER)
+    int values[4];
+    __cpuidex(values, leaf, subleaf);
+    for (int i = 0; i < 4; ++i)
+    {
+        registers[i] = static_cast<unsigned int>(values[i]);
+    }
+#else
+    __cpuid_count(leaf, subleaf, registers[0], registers[1], registers[2], registers[3]);
+#endif
+}
+
+static uint64_t ReadXcr0()
+{
+#if defined(_MSC_VER)
+    return _xgetbv(0);
+#else
+    uint32_t eax = 0;
+    uint32_t edx = 0;
+    __asm__ volatile("xgetbv" : "=a"(eax), "=d"(edx) : "c"(0));
+    return (static_cast<uint64_t>(edx) << 32) | eax;
+#endif
+}
+
+static CopyFunction SelectStreamingLoadCopy()
+{
+    unsigned int leaf0[4];
+    Cpuid(0, 0, leaf0);
+    if (leaf0[0] < 1)
+    {
+        return PlainCopy;
+    }
+
+    unsigned int leaf1[4];
+    Cpuid(1, 0, leaf1);
+    const bool sse41   = (leaf1[2] & (1u << 19)) != 0;
+    const bool osxsave = (leaf1[2] & (1u << 27)) != 0;
+    const bool avx     = (leaf1[2] & (1u << 28)) != 0;
+
+    if (osxsave && avx && (leaf0[0] >= 7) && ((ReadXcr0() & 0x6) == 0x6))
+    {
+        unsigned int leaf7[4];
+        Cpuid(7, 0, leaf7);
+        if ((leaf7[1] & (1u << 5)) != 0)
+        {
+            return StreamingLoadCopyAvx2;
+        }
+    }
+
+    return sse41 ? StreamingLoadCopySse41 : PlainCopy;
+}
+#else
+static CopyFunction SelectStreamingLoadCopy()
+{
+    return PlainCopy;
+}
+#endif
+
+static void CopyFromMappedMemory(void* destination, const void* source, size_t size, bool use_streaming_loads)
+{
+    static const CopyFunction streaming_load_copy = SelectStreamingLoadCopy();
+    (use_streaming_loads ? streaming_load_copy : PlainCopy)(destination, source, size);
+}
+
 bool PageGuardManager::FindMemory(void* address, MemoryInfo** watched_memory_info)
 {
     assert((address != nullptr) && (watched_memory_info != nullptr));
@@ -1037,7 +1198,8 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
                                          size_t    mapped_range,
                                          uintptr_t shadow_memory_handle,
                                          bool      use_shadow_memory,
-                                         bool      use_write_watch)
+                                         bool      use_write_watch,
+                                         bool      use_streaming_loads)
 {
     void*  aligned_address = nullptr;
     void*  shadow_memory   = nullptr;
@@ -1069,7 +1231,7 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
 
                 if (enable_copy_on_map_ && kUserFaultFdMode != protection_mode_)
                 {
-                    MemoryCopy(shadow_memory, mapped_memory, mapped_range);
+                    CopyFromMappedMemory(shadow_memory, mapped_memory, mapped_range, use_streaming_loads);
                 }
             }
         }
@@ -1167,7 +1329,7 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
                         shadow_memory_info->page_loaded[page_index] = true;
                     }
 
-                    MemoryCopy(dst_page, src_page, copy_size);
+                    CopyFromMappedMemory(dst_page, src_page, copy_size, use_streaming_loads);
 
                     dst_page += copy_size;
                     src_page += copy_size;
@@ -1225,7 +1387,8 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
                                                            start_address,
                                                            static_cast<const uint8_t*>(start_address) + mapped_range,
                                                            use_write_watch,
-                                                           shadow_memory_handle == kNullShadowHandle));
+                                                           shadow_memory_handle == kNullShadowHandle,
+                                                           use_streaming_loads));
             ++(entry.first->second.ref_count);
 
             if (!entry.second)
@@ -1478,7 +1641,7 @@ bool PageGuardManager::HandleGuardPageViolation(void* address, bool is_write, bo
 
             uint8_t* source_address      = static_cast<uint8_t*>(memory_info->mapped_memory) + page_offset;
             uint8_t* destination_address = static_cast<uint8_t*>(memory_info->shadow_memory) + page_offset;
-            MemoryCopy(destination_address, source_address, segment_size);
+            CopyFromMappedMemory(destination_address, source_address, segment_size, memory_info->use_streaming_loads);
 
             memory_info->status_tracker.SetActiveReadBlock(page_index, true);
 
